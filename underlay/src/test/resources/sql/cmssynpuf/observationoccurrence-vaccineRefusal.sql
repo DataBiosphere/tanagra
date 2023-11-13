@@ -1,41 +1,41 @@
 
     SELECT
-        t.T_DISP_observation AS T_DISP_observation,
-        t.T_DISP_unit AS T_DISP_unit,
-        t.T_DISP_value AS T_DISP_value,
-        t.age_at_occurrence AS age_at_occurrence,
-        t.date AS date,
-        t.id AS id,
-        t.observation AS observation,
-        t.person_id AS person_id,
-        t.source_criteria_id AS source_criteria_id,
-        t.source_value AS source_value,
-        t.unit AS unit,
-        t.value AS value,
-        t.value_as_string AS value_as_string,
-        t.visit_occurrence_id AS visit_occurrence_id 
+        e.T_DISP_observation AS T_DISP_observation,
+        e.T_DISP_unit AS T_DISP_unit,
+        e.T_DISP_value AS T_DISP_value,
+        e.age_at_occurrence AS age_at_occurrence,
+        e.date AS date,
+        e.id AS id,
+        e.observation AS observation,
+        e.person_id AS person_id,
+        e.source_criteria_id AS source_criteria_id,
+        e.source_value AS source_value,
+        e.unit AS unit,
+        e.value AS value,
+        e.value_as_string AS value_as_string,
+        e.visit_occurrence_id AS visit_occurrence_id 
     FROM
-        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_observationOccurrence AS t 
+        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_observationOccurrence AS e 
     WHERE
-        t.person_id IN (
+        e.person_id IN (
             SELECT
-                t.id 
+                e.id 
             FROM
-                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_person AS t 
+                `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_person AS e 
             WHERE
-                t.id IN (
+                e.id IN (
                     SELECT
-                        t.person_id 
+                        e.person_id 
                     FROM
-                        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_observationOccurrence AS t 
+                        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_observationOccurrence AS e 
                     WHERE
-                        t.observation IN (
+                        e.observation IN (
                             SELECT
-                                t.id 
+                                e.id 
                             FROM
-                                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_observation AS t 
+                                `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_observation AS e 
                             WHERE
-                                t.id = 43531662
+                                e.id = 43531662
                         )
                     )
             ) LIMIT 30

@@ -1,21 +1,21 @@
 
     SELECT
-        t.id AS id 
+        e.id AS id 
     FROM
-        `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_person AS t 
+        `verily-tanagra-dev.sd20230331_index_110623`.ENT_person AS e 
     WHERE
-        t.id IN (
+        e.id IN (
             SELECT
-                t.entity_B_id 
+                r.entity_B_id 
             FROM
-                `verily-tanagra-dev.sd20230331_index_110623`.T_RIDS_snpPerson_snp_person AS t 
+                `verily-tanagra-dev.sd20230331_index_110623`.RIDS_snpPerson_snp_person AS r 
             WHERE
-                t.entity_A_id IN (
+                r.entity_A_id IN (
                     SELECT
-                        t.id 
+                        e.id 
                     FROM
-                        `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_snp AS t 
+                        `verily-tanagra-dev.sd20230331_index_110623`.ENT_snp AS e 
                     WHERE
-                        t.name = 'RS12925749'
+                        e.name = 'RS12925749'
                 )
             ) LIMIT 30

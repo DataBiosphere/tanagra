@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.job.bigquery.CreateEntityMain;
+import bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes;
 import bio.terra.tanagra.indexing.job.bigquery.WriteChildParent;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
@@ -34,9 +35,12 @@ public class JobSequencerTest {
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"));
 
-    assertEquals(3, jobs.getNumStages());
+    assertEquals(4, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
     IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
     assertEquals(CreateEntityMain.class, job.getClass());
 
     job = jobStageItr.next().get(0);
@@ -51,9 +55,12 @@ public class JobSequencerTest {
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("condition"));
 
-    assertEquals(4, jobs.getNumStages());
+    assertEquals(5, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
     IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
     assertEquals(CreateEntityMain.class, job.getClass());
 
     job = jobStageItr.next().get(0);

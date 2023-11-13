@@ -1,24 +1,24 @@
 
     SELECT
-        COUNT(t.id) AS T_IDCT,
-        t.gender AS gender,
-        t.race AS race 
+        COUNT(e.id) AS T_IDCT,
+        e.gender AS gender,
+        e.race AS race 
     FROM
-        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_person AS t 
+        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_person AS e 
     WHERE
-        t.id IN (
+        e.id IN (
             SELECT
-                t.person_id 
+                e.person_id 
             FROM
-                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_conditionOccurrence AS t 
+                `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_conditionOccurrence AS e 
             WHERE
-                t.condition IN (
+                e.condition IN (
                     SELECT
-                        t.id 
+                        e.id 
                     FROM
-                        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_condition AS t 
+                        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_condition AS e 
                     WHERE
-                        t.id = 201826
+                        e.id = 201826
                 )
             ) 
         GROUP BY

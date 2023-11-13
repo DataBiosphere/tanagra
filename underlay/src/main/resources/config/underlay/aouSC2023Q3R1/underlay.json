@@ -1,0 +1,62 @@
+{
+  "name": "aouSC2023Q3R1",
+  "primaryEntity": "person",
+  "entities": [
+    "omop/person",
+
+    "omop/condition",
+    "omop/conditionOccurrence",
+    "omop/procedure",
+    "omop/procedureOccurrence",
+
+    "omop/brand",
+    "omop/ingredient",
+    "omop/ingredientOccurrence",
+
+    "omop/measurementLoinc",
+    "omop/measurementSnomed",
+    "omop/measurementOccurrence",
+
+    "omop/observation",
+    "omop/observationOccurrence",
+    "aou/device",
+    "omop/deviceOccurrence",
+    "omop/visit",
+    "omop/visitOccurrence",
+
+    "omop/cpt4",
+    "omop/icd9cm",
+    "omop/icd9proc",
+    "omop/icd10cm",
+    "omop/icd10pcs",
+
+    "aou/activitySummary"
+  ],
+  "groupItemsEntityGroups": [
+    "omop/brandIngredient"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "omop/conditionPerson",
+    "omop/procedurePerson",
+
+    "omop/ingredientPerson",
+
+    "omop/measurementLoincPerson",
+    "omop/measurementSnomedPerson",
+
+    "omop/observationPerson",
+    "omop/devicePerson",
+    "omop/visitPerson",
+
+    "omop/cpt4Person",
+    "omop/icd9cmPerson",
+    "omop/icd9procPerson",
+    "omop/icd10cmPerson",
+    "omop/icd10pcsPerson"
+  ],
+  "metadata": {
+    "displayName": "All Of Us Synthetic Dataset SC2023Q3R1",
+    "description": "Dataset From 2023"
+  },
+  "uiConfigFile": "ui.json"
+}

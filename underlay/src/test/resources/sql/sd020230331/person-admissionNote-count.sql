@@ -1,24 +1,24 @@
 
     SELECT
-        COUNT(t.id) AS T_IDCT,
-        t.gender AS gender,
-        t.race AS race 
+        COUNT(e.id) AS T_IDCT,
+        e.gender AS gender,
+        e.race AS race 
     FROM
-        `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_person AS t 
+        `verily-tanagra-dev.sd20230331_index_110623`.ENT_person AS e 
     WHERE
-        t.id IN (
+        e.id IN (
             SELECT
-                t.person_id 
+                e.person_id 
             FROM
-                `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_noteOccurrence AS t 
+                `verily-tanagra-dev.sd20230331_index_110623`.ENT_noteOccurrence AS e 
             WHERE
-                t.note IN (
+                e.note IN (
                     SELECT
-                        t.id 
+                        e.id 
                     FROM
-                        `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_note AS t 
+                        `verily-tanagra-dev.sd20230331_index_110623`.ENT_note AS e 
                     WHERE
-                        t.id = 44814638
+                        e.id = 44814638
                 )
             ) 
         GROUP BY

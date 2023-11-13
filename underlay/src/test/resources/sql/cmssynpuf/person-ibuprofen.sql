@@ -1,32 +1,32 @@
 
     SELECT
-        t.T_DISP_ethnicity AS T_DISP_ethnicity,
-        t.T_DISP_gender AS T_DISP_gender,
-        t.T_DISP_race AS T_DISP_race,
+        e.T_DISP_ethnicity AS T_DISP_ethnicity,
+        e.T_DISP_gender AS T_DISP_gender,
+        e.T_DISP_race AS T_DISP_race,
         CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(),
-        t.age,
+        e.age,
         DAY) / 365.25) AS INT64) AS age,
-        t.ethnicity AS ethnicity,
-        t.gender AS gender,
-        t.id AS id,
-        t.person_source_value AS person_source_value,
-        t.race AS race,
-        t.year_of_birth AS year_of_birth 
+        e.ethnicity AS ethnicity,
+        e.gender AS gender,
+        e.id AS id,
+        e.person_source_value AS person_source_value,
+        e.race AS race,
+        e.year_of_birth AS year_of_birth 
     FROM
-        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_person AS t 
+        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_person AS e 
     WHERE
-        t.id IN (
+        e.id IN (
             SELECT
-                t.person_id 
+                e.person_id 
             FROM
-                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_ingredientOccurrence AS t 
+                `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_ingredientOccurrence AS e 
             WHERE
-                t.ingredient IN (
+                e.ingredient IN (
                     SELECT
-                        t.id 
+                        e.id 
                     FROM
-                        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_ingredient AS t 
+                        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_ingredient AS e 
                     WHERE
-                        t.id = 1177480
+                        e.id = 1177480
                 )
             ) LIMIT 30

@@ -1,40 +1,40 @@
 
     SELECT
-        t.T_DISP_ingredient AS T_DISP_ingredient,
-        t.age_at_occurrence AS age_at_occurrence,
-        t.days_supply AS days_supply,
-        t.end_date AS end_date,
-        t.id AS id,
-        t.ingredient AS ingredient,
-        t.person_id AS person_id,
-        t.refills AS refills,
-        t.source_criteria_id AS source_criteria_id,
-        t.source_value AS source_value,
-        t.start_date AS start_date,
-        t.stop_reason AS stop_reason,
-        t.visit_occurrence_id AS visit_occurrence_id 
+        e.T_DISP_ingredient AS T_DISP_ingredient,
+        e.age_at_occurrence AS age_at_occurrence,
+        e.days_supply AS days_supply,
+        e.end_date AS end_date,
+        e.id AS id,
+        e.ingredient AS ingredient,
+        e.person_id AS person_id,
+        e.refills AS refills,
+        e.source_criteria_id AS source_criteria_id,
+        e.source_value AS source_value,
+        e.start_date AS start_date,
+        e.stop_reason AS stop_reason,
+        e.visit_occurrence_id AS visit_occurrence_id 
     FROM
-        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_ingredientOccurrence AS t 
+        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_ingredientOccurrence AS e 
     WHERE
-        t.person_id IN (
+        e.person_id IN (
             SELECT
-                t.id 
+                e.id 
             FROM
-                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_person AS t 
+                `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_person AS e 
             WHERE
-                t.id IN (
+                e.id IN (
                     SELECT
-                        t.person_id 
+                        e.person_id 
                     FROM
-                        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_ingredientOccurrence AS t 
+                        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_ingredientOccurrence AS e 
                     WHERE
-                        t.ingredient IN (
+                        e.ingredient IN (
                             SELECT
-                                t.id 
+                                e.id 
                             FROM
-                                `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_ingredient AS t 
+                                `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_ingredient AS e 
                             WHERE
-                                t.id = 1177480
+                                e.id = 1177480
                         )
                     )
             ) LIMIT 30

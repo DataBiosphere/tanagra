@@ -1,39 +1,39 @@
 
     SELECT
-        t.T_DISP_note AS T_DISP_note,
-        t.T_DISP_visit_type AS T_DISP_visit_type,
-        t.age_at_occurrence AS age_at_occurrence,
-        t.date AS date,
-        t.id AS id,
-        t.note AS note,
-        t.note_text AS note_text,
-        t.person_id AS person_id,
-        t.source_value AS source_value,
-        t.title AS title,
-        t.visit_occurrence_id AS visit_occurrence_id,
-        t.visit_type AS visit_type 
+        e.T_DISP_note AS T_DISP_note,
+        e.T_DISP_visit_type AS T_DISP_visit_type,
+        e.age_at_occurrence AS age_at_occurrence,
+        e.date AS date,
+        e.id AS id,
+        e.note AS note,
+        e.note_text AS note_text,
+        e.person_id AS person_id,
+        e.source_value AS source_value,
+        e.title AS title,
+        e.visit_occurrence_id AS visit_occurrence_id,
+        e.visit_type AS visit_type 
     FROM
-        `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_noteOccurrence AS t 
+        `verily-tanagra-dev.sd20230331_index_110623`.ENT_noteOccurrence AS e 
     WHERE
-        t.person_id IN (
+        e.person_id IN (
             SELECT
-                t.id 
+                e.id 
             FROM
-                `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_person AS t 
+                `verily-tanagra-dev.sd20230331_index_110623`.ENT_person AS e 
             WHERE
-                t.id IN (
+                e.id IN (
                     SELECT
-                        t.person_id 
+                        e.person_id 
                     FROM
-                        `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_noteOccurrence AS t 
+                        `verily-tanagra-dev.sd20230331_index_110623`.ENT_noteOccurrence AS e 
                     WHERE
-                        t.note IN (
+                        e.note IN (
                             SELECT
-                                t.id 
+                                e.id 
                             FROM
-                                `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_note AS t 
+                                `verily-tanagra-dev.sd20230331_index_110623`.ENT_note AS e 
                             WHERE
-                                t.id = 44814638
+                                e.id = 44814638
                         )
                     )
             ) LIMIT 30

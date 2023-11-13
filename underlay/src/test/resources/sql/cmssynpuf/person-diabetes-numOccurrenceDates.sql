@@ -1,41 +1,41 @@
 
     SELECT
-        t.T_DISP_ethnicity AS T_DISP_ethnicity,
-        t.T_DISP_gender AS T_DISP_gender,
-        t.T_DISP_race AS T_DISP_race,
+        e.T_DISP_ethnicity AS T_DISP_ethnicity,
+        e.T_DISP_gender AS T_DISP_gender,
+        e.T_DISP_race AS T_DISP_race,
         CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(),
-        t.age,
+        e.age,
         DAY) / 365.25) AS INT64) AS age,
-        t.ethnicity AS ethnicity,
-        t.gender AS gender,
-        t.id AS id,
-        t.person_source_value AS person_source_value,
-        t.race AS race,
-        t.year_of_birth AS year_of_birth 
+        e.ethnicity AS ethnicity,
+        e.gender AS gender,
+        e.id AS id,
+        e.person_source_value AS person_source_value,
+        e.race AS race,
+        e.year_of_birth AS year_of_birth 
     FROM
-        `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_person AS t 
+        `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_person AS e 
     WHERE
-        t.id IN (
+        e.id IN (
             SELECT
                 x.person_id 
             FROM
                 (SELECT
-                    t.person_id,
-                    t.condition 
+                    e.person_id,
+                    e.condition 
                 FROM
-                    `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_conditionOccurrence AS t 
+                    `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_conditionOccurrence AS e 
                 WHERE
-                    t.condition IN (
+                    e.condition IN (
                         SELECT
-                            t.id 
+                            e.id 
                         FROM
-                            `verily-tanagra-dev.cmssynpuf_index_110623`.T_ENT_condition AS t 
+                            `verily-tanagra-dev.cmssynpuf_index_110623`.ENT_condition AS e 
                         WHERE
-                            t.id = 201826
+                            e.id = 201826
                     ) 
                 GROUP BY
-                    t.person_id,
-                    t.condition) AS x 
+                    e.person_id,
+                    e.condition) AS x 
                 GROUP BY
                     x.person_id 
                 HAVING

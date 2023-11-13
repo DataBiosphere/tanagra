@@ -1,8 +1,8 @@
 
     SELECT
-        t.id AS id,
-        t.name AS name 
+        e.id AS id,
+        e.name AS name 
     FROM
-        `verily-tanagra-dev.sd20230331_index_110623`.T_ENT_genotyping AS t 
+        `verily-tanagra-dev.sd20230331_index_110623`.ENT_genotyping AS e 
     WHERE
-        REGEXP_CONTAINS(UPPER(t.name), UPPER('Illumina')) LIMIT 30
+        REGEXP_CONTAINS(UPPER(e.name), UPPER('Illumina')) LIMIT 30
