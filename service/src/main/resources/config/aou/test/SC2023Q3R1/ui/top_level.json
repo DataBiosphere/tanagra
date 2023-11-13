@@ -222,6 +222,17 @@
         "key": "id",
         "classifications": [
           {
+            "id": "loinc",
+            "attribute": "measurement_concept_id",
+            "entity": "t_measurement_loinc",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "t_item_count",
+              "direction": "DESC"
+            }
+          },
+          {
             "id": "snomed",
             "attribute": "measurement_concept_id",
             "entity": "t_measurement_snomed",
@@ -478,7 +489,6 @@
       "title": "Labs and Measurements",
       "conceptSet": true,
       "category": "Domains",
-      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -495,7 +505,11 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "measurement_occurrence",
-      "classifications": ["snomed"],
+      "classifications": ["loinc", "snomed"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {
