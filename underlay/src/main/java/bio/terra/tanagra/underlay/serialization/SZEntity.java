@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay.serialization;
 
 import bio.terra.tanagra.query.Literal;
+import java.util.List;
 import java.util.Set;
 
 public class SZEntity {
@@ -8,9 +9,9 @@ public class SZEntity {
   public String displayName;
   public String description;
   public String allInstancesSqlFile;
-  public Set<Attribute> attributes;
+  public List<Attribute> attributes;
   public String idAttribute;
-  public Set<String> optimizeGroupByAttributes;
+  public List<String> optimizeGroupByAttributes;
   public Set<Hierarchy> hierarchies;
   public TextSearch textSearch;
 

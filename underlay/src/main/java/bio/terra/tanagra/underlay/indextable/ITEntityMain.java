@@ -23,7 +23,7 @@ public final class ITEntityMain extends IndexTable {
       NameHelper namer,
       SZBigQuery.IndexData bigQueryConfig,
       String entity,
-      Set<SZEntity.Attribute> szAttributes,
+      List<SZEntity.Attribute> szAttributes,
       Set<SZEntity.Hierarchy> szHierarchies,
       boolean hasTextSearch,
       Set<String> entityGroupsWithCounts) {

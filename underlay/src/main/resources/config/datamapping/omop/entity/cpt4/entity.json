@@ -5,6 +5,7 @@
     { "name": "id", "dataType": "INT64" },
     { "name": "concept_id", "dataType": "INT64" },
     { "name": "name", "dataType": "STRING" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "type" },
     { "name": "is_standard", "dataType": "STRING", "isComputeDisplayHint": true },
     { "name": "code", "dataType": "STRING" },
     { "name": "label", "dataType": "STRING" }

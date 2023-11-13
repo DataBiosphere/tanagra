@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class STEntityAttributes extends SourceTable {
   private final String entity;
@@ -19,7 +18,7 @@ public class STEntityAttributes extends SourceTable {
   private final ImmutableMap<String, ColumnSchema> attributeDisplayColumnSchemas;
 
   public STEntityAttributes(
-      TablePointer tablePointer, String entity, Set<SZEntity.Attribute> szAttributes) {
+      TablePointer tablePointer, String entity, List<SZEntity.Attribute> szAttributes) {
     super(tablePointer);
     this.entity = entity;
 

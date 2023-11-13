@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -161,7 +162,7 @@ public final class ConfigReader {
               SZEntity.class);
 
       // Initialize null collections to empty collections.
-      szEntity.attributes = szEntity.attributes == null ? new HashSet<>() : szEntity.attributes;
+      szEntity.attributes = szEntity.attributes == null ? new ArrayList<>() : szEntity.attributes;
       szEntity.hierarchies = szEntity.hierarchies == null ? new HashSet<>() : szEntity.hierarchies;
 
       return szEntity;
