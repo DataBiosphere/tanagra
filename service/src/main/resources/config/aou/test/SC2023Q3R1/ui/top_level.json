@@ -228,7 +228,7 @@
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
-              "attribute": "t_item_count",
+              "attribute": "t_rollup_count",
               "direction": "DESC"
             }
           },
@@ -239,7 +239,7 @@
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
-              "attribute": "t_item_count",
+              "attribute": "t_rollup_count",
               "direction": "DESC"
             }
           },
