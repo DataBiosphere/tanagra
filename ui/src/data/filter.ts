@@ -64,6 +64,7 @@ export type AttributeFilter = BaseFilter & {
   attribute: string;
   values?: DataValue[];
   ranges?: { min: number; max: number }[];
+  nonNull?: boolean;
 };
 
 export function isAttributeFilter(filter: Filter): filter is AttributeFilter {

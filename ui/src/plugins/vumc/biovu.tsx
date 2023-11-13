@@ -21,6 +21,7 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import React from "react";
 import { CriteriaConfig } from "underlaysSlice";
+import { safeRegExp } from "util/safeRegExp";
 
 enum SampleFilter {
   NONE = "None",
@@ -293,7 +294,7 @@ async function search(
   c: CriteriaConfig,
   query: string
 ): Promise<DataEntry[]> {
-  const re = new RegExp(query, "i");
+  const [re] = safeRegExp(query);
   const results: DataEntry[] = [];
 
   Object.values(SampleFilter).forEach((value) => {

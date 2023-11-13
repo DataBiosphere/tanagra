@@ -1376,6 +1376,7 @@ components:
     Filter:
       type: object
       description: Union of references to each filter type. Exactly one should be specified based on the filterType.
+      nullable: true
       properties:
         filterType:
           type: string
@@ -2246,7 +2247,7 @@ components:
       properties:
         status:
           type: string
-          enum: [ "RUNNING", "COMPLETE" ]
+          enum: ["RUNNING", "COMPLETE"]
         redirectAwayUrl:
           type: string
           nullable: true
@@ -2288,7 +2289,7 @@ components:
 
     ResourceType:
       type: string
-      enum: [ "STUDY", "COHORT", "REVIEW" ]
+      enum: ["STUDY", "COHORT", "REVIEW"]
 
     Resource:
       type: object
@@ -2326,7 +2327,16 @@ components:
 
     ActivityType:
       type: string
-      enum: [ "CREATE_STUDY", "DELETE_STUDY", "CREATE_COHORT", "DELETE_COHORT", "EXPORT_COHORT", "CREATE_REVIEW", "DELETE_REVIEW" ]
+      enum:
+        [
+          "CREATE_STUDY",
+          "DELETE_STUDY",
+          "CREATE_COHORT",
+          "DELETE_COHORT",
+          "EXPORT_COHORT",
+          "CREATE_REVIEW",
+          "DELETE_REVIEW",
+        ]
 
     ActivityLogEntry:
       type: object

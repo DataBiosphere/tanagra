@@ -20,6 +20,7 @@ import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import { useMemo } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
+import { safeRegExp } from "util/safeRegExp";
 
 interface Config {
   occurrence: string;
@@ -76,11 +77,7 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
   const filterRegExps = useMemo(() => {
     const regexps: { [key: string]: RegExp } = {};
     for (const key in searchState.columnFilters) {
-      try {
-        regexps[key] = new RegExp(searchState.columnFilters[key], "i");
-      } catch (e) {
-        // TODO(tjennison): Show error messages for invalid regexps.
-      }
+      regexps[key] = safeRegExp(searchState.columnFilters[key])[0];
     }
     return regexps;
   }, [searchState.columnFilters]);

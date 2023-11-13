@@ -19,6 +19,7 @@ import GridLayout from "layout/gridLayout";
 import React, { useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CohortReviewPageConfig } from "underlaysSlice";
+import { safeRegExp } from "util/safeRegExp";
 
 type Config = {
   occurrence: string;
@@ -75,7 +76,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
 
   const searchState = context.searchState<SearchState>(id);
   const query = searchState?.query ?? "";
-  const regExp = new RegExp(query, "i");
+  const [regExp] = safeRegExp(query);
 
   const occurrences = useMemo(
     () =>

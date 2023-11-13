@@ -1,6 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import Input from "@mui/material/Input";
+import InputAdornment from "@mui/material/InputAdornment";
 import Slider from "@mui/material/Slider";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -18,6 +19,7 @@ export type RangeSliderProps = {
   range: DataRange;
   index: number;
   multiRange?: boolean;
+  unit?: string;
 
   onUpdate: (range: DataRange, index: number, min: number, max: number) => void;
   onDelete?: (range: DataRange, index: number) => void;
@@ -79,7 +81,7 @@ export function RangeSlider(props: RangeSliderProps) {
 
   return (
     <GridBox
-      sx={{ width: "30%", minWidth: 400, height: "auto", mt: 0.5 }}
+      sx={{ width: "40%", minWidth: 600, height: "auto", mt: 0.5 }}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -91,6 +93,11 @@ export function RangeSlider(props: RangeSliderProps) {
           size="medium"
           onChange={handleMinInputChange}
           onBlur={handleMinInputBlur}
+          endAdornment={
+            props.unit ? (
+              <InputAdornment position="end">{props.unit}</InputAdornment>
+            ) : undefined
+          }
           inputProps={{
             min: minBound,
             max: maxBound,
@@ -111,6 +118,11 @@ export function RangeSlider(props: RangeSliderProps) {
           value={maxInputValue}
           onChange={handleMaxInputChange}
           onBlur={handleMaxInputBlur}
+          endAdornment={
+            props.unit ? (
+              <InputAdornment position="end">{props.unit}</InputAdornment>
+            ) : undefined
+          }
           inputProps={{
             min: minBound,
             max: maxBound,

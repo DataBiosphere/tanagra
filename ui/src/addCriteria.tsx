@@ -48,6 +48,7 @@ import {
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
+import { safeRegExp } from "util/safeRegExp";
 import {
   useGlobalSearchState,
   useLocalSearchState,
@@ -243,7 +244,7 @@ function AddCriteria(props: AddCriteriaProps) {
 
   const categories = useMemo(() => {
     const categories: AddCriteriaOption[][] = [];
-    const re = new RegExp(query, "i");
+    const [re] = safeRegExp(query);
 
     for (const option of selectedOptions) {
       if (query && option.title.search(re) < 0) {

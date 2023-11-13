@@ -53,6 +53,7 @@ import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import UndoRedoToolbar from "undoRedoToolbar";
+import { safeRegExp } from "util/safeRegExp";
 import { useGlobalSearchState, useNavigate } from "util/searchState";
 import emptyImage from "../images/empty.svg";
 
@@ -434,7 +435,7 @@ function PreviewTable(props: PreviewTableProps) {
   const [columnSearch, setColumnSearch] = useState("");
 
   const columnSearchRE = useMemo(
-    () => new RegExp(columnSearch, "i"),
+    () => safeRegExp(columnSearch)[0],
     [columnSearch]
   );
 
