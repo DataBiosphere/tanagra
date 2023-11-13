@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 public class Hierarchy {
+  public static final String DEFAULT_NAME = "default";
   private final String name;
   private final int maxDepth;
   private final boolean isKeepOrphanNodes;

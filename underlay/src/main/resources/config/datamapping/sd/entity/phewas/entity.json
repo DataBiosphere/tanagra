@@ -14,7 +14,6 @@
   },
   "hierarchies": [
     {
-      "name": "default",
       "childParentIdPairsSqlFile": "childParent.sql",
       "childIdFieldName": "child",
       "parentIdFieldName": "parent",

@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
@@ -164,6 +165,15 @@ public final class ConfigReader {
       // Initialize null collections to empty collections.
       szEntity.attributes = szEntity.attributes == null ? new ArrayList<>() : szEntity.attributes;
       szEntity.hierarchies = szEntity.hierarchies == null ? new HashSet<>() : szEntity.hierarchies;
+
+      // Set hierarchy names to default, if not otherwise specified.
+      szEntity.hierarchies.stream()
+          .forEach(
+              szHierarchy -> {
+                if (szHierarchy.name == null) {
+                  szHierarchy.name = Hierarchy.DEFAULT_NAME;
+                }
+              });
 
       return szEntity;
     } catch (IOException ioEx) {
