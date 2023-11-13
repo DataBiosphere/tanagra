@@ -43,9 +43,10 @@ public final class JobSequencer {
     SequencedJobSet jobSet = new SequencedJobSet(entity.getName());
     jobSet.startNewStage();
     STEntityAttributes sourceEntityAttributes =
-            underlay.getSourceSchema().getEntityAttributes(entity.getName());
+        underlay.getSourceSchema().getEntityAttributes(entity.getName());
     ITEntityMain indexEntityMain = underlay.getIndexSchema().getEntityMain(entity.getName());
-    jobSet.addJob(new ValidateDataTypes(indexerConfig, entity, sourceEntityAttributes, indexEntityMain));
+    jobSet.addJob(
+        new ValidateDataTypes(indexerConfig, entity, sourceEntityAttributes, indexEntityMain));
 
     jobSet.startNewStage();
     jobSet.addJob(new CreateEntityMain(indexerConfig, entity, indexEntityMain));

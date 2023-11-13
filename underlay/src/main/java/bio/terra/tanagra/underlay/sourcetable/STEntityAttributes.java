@@ -74,11 +74,16 @@ public class STEntityAttributes extends SourceTable {
   public ImmutableMap<String, ColumnSchema> getAttributeValueColumnSchemas() {
     return attributeValueColumnSchemas;
   }
-  public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {return attributeValueColumnSchemas.get(attribute.getName());}
+
+  public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
+    return attributeValueColumnSchemas.get(attribute.getName());
+  }
 
   public ImmutableMap<String, ColumnSchema> getAttributeDisplayColumnSchemas() {
     return attributeDisplayColumnSchemas;
   }
 
-  public ColumnSchema getAttributeDisplayColumnSchema(Attribute attribute) {return attributeDisplayColumnSchemas.get(attribute.getName());}
+  public ColumnSchema getAttributeDisplayColumnSchema(Attribute attribute) {
+    return attributeDisplayColumnSchemas.get(attribute.getName());
+  }
 }
