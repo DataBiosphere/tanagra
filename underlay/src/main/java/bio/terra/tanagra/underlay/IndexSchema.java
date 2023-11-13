@@ -1,7 +1,5 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.tanagra.query.DataPointer;
-import bio.terra.tanagra.query.bigquery.BigQueryDataset;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
@@ -109,9 +107,6 @@ public final class IndexSchema {
 
   public static IndexSchema fromConfig(
       SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
-    DataPointer indexDataPointer =
-        new BigQueryDataset(
-            "index_datapointer", szBigQuery.indexData.projectId, szBigQuery.indexData.datasetId);
     NameHelper nameHelper = new NameHelper(szBigQuery.indexData.tablePrefix);
 
     List<ITEntityMain> entityMainTables = new ArrayList<>();
@@ -130,7 +125,7 @@ public final class IndexSchema {
                     szUnderlay,
                     configReader,
                     nameHelper,
-                    indexDataPointer,
+                    szBigQuery.indexData,
                     entityMainTables,
                     entityLevelDisplayHintTables,
                     hierarchyChildParentTables,
@@ -144,7 +139,7 @@ public final class IndexSchema {
                     groupItemsPath,
                     configReader,
                     nameHelper,
-                    indexDataPointer,
+                    szBigQuery.indexData,
                     relationshipIdPairTables));
     szUnderlay.criteriaOccurrenceEntityGroups.stream()
         .forEach(
@@ -154,7 +149,7 @@ public final class IndexSchema {
                     szUnderlay.primaryEntity,
                     configReader,
                     nameHelper,
-                    indexDataPointer,
+                    szBigQuery.indexData,
                     relationshipIdPairTables,
                     instanceLevelDisplayHintTables));
     return new IndexSchema(
@@ -172,7 +167,7 @@ public final class IndexSchema {
       SZUnderlay szUnderlay,
       ConfigReader configReader,
       NameHelper nameHelper,
-      DataPointer indexDataPointer,
+      SZBigQuery.IndexData szBigQueryIndexData,
       List<ITEntityMain> entityMainTables,
       List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables,
       List<ITHierarchyChildParent> hierarchyChildParentTables,
@@ -201,7 +196,7 @@ public final class IndexSchema {
     entityMainTables.add(
         new ITEntityMain(
             nameHelper,
-            indexDataPointer,
+            szBigQueryIndexData,
             szEntity.name,
             szEntity.attributes,
             szEntity.hierarchies,
@@ -210,7 +205,7 @@ public final class IndexSchema {
 
     // EntityLevelDisplayHints table.
     entityLevelDisplayHintTables.add(
-        new ITEntityLevelDisplayHints(nameHelper, indexDataPointer, szEntity.name));
+        new ITEntityLevelDisplayHints(nameHelper, szBigQueryIndexData, szEntity.name));
 
     szEntity.hierarchies.stream()
         .forEach(
@@ -218,12 +213,12 @@ public final class IndexSchema {
               // HierarchyChildParent table.
               hierarchyChildParentTables.add(
                   new ITHierarchyChildParent(
-                      nameHelper, indexDataPointer, szEntity.name, szHierarchy.name));
+                      nameHelper, szBigQueryIndexData, szEntity.name, szHierarchy.name));
 
               // HierarchyAncestorDescendant table.
               hierarchyAncestorDescendantTables.add(
                   new ITHierarchyAncestorDescendant(
-                      nameHelper, indexDataPointer, szEntity.name, szHierarchy.name));
+                      nameHelper, szBigQueryIndexData, szEntity.name, szHierarchy.name));
             });
   }
 
@@ -231,7 +226,7 @@ public final class IndexSchema {
       String groupItemsPath,
       ConfigReader configReader,
       NameHelper nameHelper,
-      DataPointer indexDataPointer,
+      SZBigQuery.IndexData szBigQueryIndexData,
       List<ITRelationshipIdPairs> relationshipIdPairTables) {
     SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
     if (szGroupItems.idPairsSqlFile != null) {
@@ -239,7 +234,7 @@ public final class IndexSchema {
       relationshipIdPairTables.add(
           new ITRelationshipIdPairs(
               nameHelper,
-              indexDataPointer,
+              szBigQueryIndexData,
               szGroupItems.name,
               szGroupItems.groupEntity,
               szGroupItems.itemsEntity));
@@ -251,7 +246,7 @@ public final class IndexSchema {
       String primaryEntityName,
       ConfigReader configReader,
       NameHelper nameHelper,
-      DataPointer indexDataPointer,
+      SZBigQuery.IndexData szBigQueryIndexData,
       List<ITRelationshipIdPairs> relationshipIdPairTables,
       List<ITInstanceLevelDisplayHints> instanceLevelDisplayHintTables) {
     SZCriteriaOccurrence szCriteriaOccurrence =
@@ -261,7 +256,7 @@ public final class IndexSchema {
       relationshipIdPairTables.add(
           new ITRelationshipIdPairs(
               nameHelper,
-              indexDataPointer,
+              szBigQueryIndexData,
               szCriteriaOccurrence.name,
               primaryEntityName,
               szCriteriaOccurrence.criteriaEntity));
@@ -274,7 +269,7 @@ public final class IndexSchema {
                 relationshipIdPairTables.add(
                     new ITRelationshipIdPairs(
                         nameHelper,
-                        indexDataPointer,
+                        szBigQueryIndexData,
                         szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         szCriteriaOccurrence.criteriaEntity));
@@ -284,7 +279,7 @@ public final class IndexSchema {
                 relationshipIdPairTables.add(
                     new ITRelationshipIdPairs(
                         nameHelper,
-                        indexDataPointer,
+                        szBigQueryIndexData,
                         szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         primaryEntityName));
@@ -294,7 +289,7 @@ public final class IndexSchema {
                 instanceLevelDisplayHintTables.add(
                     new ITInstanceLevelDisplayHints(
                         nameHelper,
-                        indexDataPointer,
+                        szBigQueryIndexData,
                         szCriteriaOccurrence.name,
                         szOccurrenceEntity.occurrenceEntity,
                         szCriteriaOccurrence.criteriaEntity));

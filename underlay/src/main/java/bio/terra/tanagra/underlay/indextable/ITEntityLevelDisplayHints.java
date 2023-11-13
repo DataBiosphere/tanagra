@@ -2,8 +2,8 @@ package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.underlay.NameHelper;
+import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -13,8 +13,9 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
 
   private final String entity;
 
-  public ITEntityLevelDisplayHints(NameHelper namer, DataPointer dataPointer, String entity) {
-    super(namer, dataPointer);
+  public ITEntityLevelDisplayHints(
+      NameHelper namer, SZBigQuery.IndexData bigQueryConfig, String entity) {
+    super(namer, bigQueryConfig);
     this.entity = entity;
   }
 

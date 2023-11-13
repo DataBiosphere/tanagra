@@ -2,9 +2,9 @@ package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.NameHelper;
+import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -18,11 +18,11 @@ public final class ITRelationshipIdPairs extends IndexTable {
 
   public ITRelationshipIdPairs(
       NameHelper namer,
-      DataPointer dataPointer,
+      SZBigQuery.IndexData bigQueryConfig,
       String entityGroup,
       String entityA,
       String entityB) {
-    super(namer, dataPointer);
+    super(namer, bigQueryConfig);
     this.entityGroup = entityGroup;
     this.entityA = entityA;
     this.entityB = entityB;

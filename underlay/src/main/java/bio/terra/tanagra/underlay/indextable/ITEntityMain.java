@@ -2,10 +2,10 @@ package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -21,13 +21,13 @@ public final class ITEntityMain extends IndexTable {
 
   public ITEntityMain(
       NameHelper namer,
-      DataPointer dataPointer,
+      SZBigQuery.IndexData bigQueryConfig,
       String entity,
       Set<SZEntity.Attribute> szAttributes,
       Set<SZEntity.Hierarchy> szHierarchies,
       boolean hasTextSearch,
       Set<String> entityGroupsWithCounts) {
-    super(namer, dataPointer);
+    super(namer, bigQueryConfig);
     this.entity = entity;
 
     List<ColumnSchema> columnSchemasBuilder = new ArrayList<>();

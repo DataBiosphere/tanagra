@@ -268,8 +268,7 @@ public class RelationshipFilter extends EntityFilter {
     //     FROM filterEntity WHERE [subfilter]         --> from above
     //     GROUP BY selectEntityId, groupByAttribute)  --> from above
     // GROUP BY selectEntityId HAVING COUNT(*) > countValue)
-    TablePointer innerQueryTempTable =
-        new TablePointer.Builder().sql(innerQuery.renderSQL()).build();
+    TablePointer innerQueryTempTable = new TablePointer(innerQuery.renderSQL());
     TableVariable innerQueryTableVar = TableVariable.forPrimary(innerQueryTempTable);
     FieldPointer outerSelectEntityIdField =
         new FieldPointer.Builder()

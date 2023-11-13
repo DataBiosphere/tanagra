@@ -113,10 +113,7 @@ public class WriteTextSearchField extends BigQueryJob {
     }
 
     // Build a string concatenation query for all the id-attribute and id-text queries.
-    TablePointer unionQueryTable =
-        TablePointer.fromRawSql(
-            new UnionQuery(idTextQueries).renderSQL(),
-            indexTable.getTablePointer().getDataPointer());
+    TablePointer unionQueryTable = new TablePointer(new UnionQuery(idTextQueries).renderSQL());
     FieldPointer unionTableIdField =
         new FieldPointer.Builder().tablePointer(unionQueryTable).columnName(idAlias).build();
     FieldPointer aggregateTextField =

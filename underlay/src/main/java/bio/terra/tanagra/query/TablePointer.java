@@ -1,43 +1,33 @@
 package bio.terra.tanagra.query;
 
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.Objects;
+import org.apache.commons.text.StringSubstitutor;
 
 public final class TablePointer implements SQLExpression {
-  private final DataPointer dataPointer;
+  // TODO: Move these BQ-specific properties and related logic into a sub-class.
+  private final String projectId;
+  private final String datasetId;
   private final String tableName;
-  private final Filter filter;
   private final String sql;
 
-  private TablePointer(Builder builder) {
-    this.dataPointer = builder.dataPointer;
-    this.tableName = builder.tableName;
-    this.filter = builder.filter;
-    this.sql = builder.sql;
+  public TablePointer(String projectId, String datasetId, String tableName) {
+    this.projectId = projectId;
+    this.datasetId = datasetId;
+    this.tableName = tableName;
+    this.sql = null;
   }
 
-  public static TablePointer fromTableName(String tableName, DataPointer dataPointer) {
-    return new Builder().dataPointer(dataPointer).tableName(tableName).build();
-  }
-
-  public static TablePointer fromRawSql(String sql, DataPointer dataPointer) {
-    return new Builder().dataPointer(dataPointer).sql(sql).build();
-  }
-
-  public DataPointer getDataPointer() {
-    return dataPointer;
+  public TablePointer(String sql) {
+    this.projectId = null;
+    this.datasetId = null;
+    this.tableName = null;
+    this.sql = sql;
   }
 
   public String getTableName() {
     return tableName;
-  }
-
-  public boolean hasTableFilter() {
-    return filter != null;
-  }
-
-  public Filter getTableFilter() {
-    return filter;
   }
 
   public boolean isRawSql() {
@@ -52,22 +42,15 @@ public final class TablePointer implements SQLExpression {
   public String renderSQL() {
     if (isRawSql()) {
       return "(" + sql + ")";
-    } else if (!hasTableFilter()) {
-      return dataPointer.getTableSQL(tableName);
     } else {
-      TablePointer tablePointerWithoutFilter = TablePointer.fromTableName(tableName, dataPointer);
-      TableVariable tableVar = TableVariable.forPrimary(tablePointerWithoutFilter);
-      FieldVariable fieldVar =
-          new FieldVariable(FieldPointer.allFields(tablePointerWithoutFilter), tableVar);
-      FilterVariable filterVar = getTableFilter().buildVariable(tableVar, List.of(tableVar));
-
-      Query query =
-          new Query.Builder()
-              .select(List.of(fieldVar))
-              .tables(List.of(tableVar))
-              .where(filterVar)
+      String template = "`${projectId}.${datasetId}`.${tableName}";
+      Map<String, String> params =
+          ImmutableMap.<String, String>builder()
+              .put("projectId", projectId)
+              .put("datasetId", datasetId)
+              .put("tableName", tableName)
               .build();
-      return "(" + query.renderSQL() + ")";
+      return StringSubstitutor.replace(template, params);
     }
   }
 
@@ -80,46 +63,14 @@ public final class TablePointer implements SQLExpression {
       return false;
     }
     TablePointer that = (TablePointer) o;
-    return dataPointer.equals(that.dataPointer)
+    return Objects.equals(projectId, that.projectId)
+        && Objects.equals(datasetId, that.datasetId)
         && Objects.equals(tableName, that.tableName)
-        && Objects.equals(filter, that.filter)
         && Objects.equals(sql, that.sql);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(dataPointer, tableName, filter, sql);
-  }
-
-  public static class Builder {
-    private DataPointer dataPointer;
-    private String tableName;
-    private Filter filter;
-    private String sql;
-
-    public Builder dataPointer(DataPointer dataPointer) {
-      this.dataPointer = dataPointer;
-      return this;
-    }
-
-    public Builder tableName(String tableName) {
-      this.tableName = tableName;
-      return this;
-    }
-
-    public Builder tableFilter(Filter filter) {
-      this.filter = filter;
-      return this;
-    }
-
-    public Builder sql(String sql) {
-      this.sql = sql;
-      return this;
-    }
-
-    /** Call the private constructor. */
-    public TablePointer build() {
-      return new TablePointer(this);
-    }
+    return Objects.hash(projectId, datasetId, tableName, sql);
   }
 }

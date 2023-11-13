@@ -299,8 +299,10 @@ public class WriteRollupCounts extends BigQueryJob {
         indexTable.getEntityGroupCountColumnSchema(
             entityGroup.getName(), hierarchy == null ? null : hierarchy.getName());
     TablePointer tempTablePointer =
-        TablePointer.fromTableName(
-            getTempTableName(), indexTable.getTablePointer().getDataPointer());
+        new TablePointer(
+            indexerConfig.bigQuery.indexData.projectId,
+            indexerConfig.bigQuery.indexData.datasetId,
+            getTempTableName());
     writeCountsToBQ(
         idColumnSchema,
         countColumnSchema,
@@ -366,8 +368,10 @@ public class WriteRollupCounts extends BigQueryJob {
   private void copyFieldsToEntityTable(boolean isDryRun) {
     // Build a query for the id-count pairs in the temp table.
     TablePointer tempTablePointer =
-        TablePointer.fromTableName(
-            getTempTableName(), indexTable.getTablePointer().getDataPointer());
+        new TablePointer(
+            indexerConfig.bigQuery.indexData.projectId,
+            indexerConfig.bigQuery.indexData.datasetId,
+            getTempTableName());
     TableVariable tempTableVar = TableVariable.forPrimary(tempTablePointer);
     List<TableVariable> tempTableVars = Lists.newArrayList(tempTableVar);
     ColumnSchema idColumnSchema = indexTable.getAttributeValueColumnSchema(entity.getIdAttribute());

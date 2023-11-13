@@ -1,13 +1,13 @@
 package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.DataPointer;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.underlay.NameHelper;
+import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Map;
@@ -15,17 +15,20 @@ import java.util.stream.Collectors;
 
 public abstract class IndexTable {
   protected final NameHelper namer;
-  protected final DataPointer dataPointer;
+  protected final SZBigQuery.IndexData bigQueryConfig;
 
-  protected IndexTable(NameHelper namer, DataPointer dataPointer) {
+  protected IndexTable(NameHelper namer, SZBigQuery.IndexData bigQueryConfig) {
     this.namer = namer;
-    this.dataPointer = dataPointer;
+    this.bigQueryConfig = bigQueryConfig;
   }
 
   public abstract String getTableBaseName();
 
   public TablePointer getTablePointer() {
-    return TablePointer.fromTableName(namer.getReservedTableName(getTableBaseName()), dataPointer);
+    return new TablePointer(
+        bigQueryConfig.projectId,
+        bigQueryConfig.datasetId,
+        namer.getReservedTableName(getTableBaseName()));
   }
 
   public abstract ImmutableList<ColumnSchema> getColumnSchemas();
