@@ -78,7 +78,9 @@ public class RelationshipFilter extends EntityFilter {
         TableVariable.forPrimary(filterEntityIndexTable.getTablePointer());
     List<TableVariable> filterEntityTableVars = Lists.newArrayList(filterEntityTableVar);
     FilterVariable filterEntitySubFilterVar =
-        subFilter.getFilterVariable(filterEntityTableVar, filterEntityTableVars);
+        subFilter == null
+            ? null
+            : subFilter.getFilterVariable(filterEntityTableVar, filterEntityTableVars);
 
     boolean fkOnSelectTable = relationship.isForeignKeyAttribute(selectEntity);
     boolean fkOnFilterTable = relationship.isForeignKeyAttribute(filterEntity);
