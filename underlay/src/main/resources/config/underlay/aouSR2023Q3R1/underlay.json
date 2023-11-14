@@ -2,7 +2,7 @@
   "name": "aouSC2023Q3R1",
   "primaryEntity": "person",
   "entities": [
-    "aouCT/person",
+    "aouRT/person",
 
     "omop/condition",
     "omop/conditionOccurrence",
@@ -34,8 +34,7 @@
     "aouRT/heartRateSummary",
     "aouRT/sleepDailySummary",
     "aouRT/sleepLevel",
-    "aouRT/stepsIntraday",
-    "aouCT/zipcodeSocioeconomic"
+    "aouRT/stepsIntraday"
   ],
   "groupItemsEntityGroups": [
     "omop/brandIngredient",
@@ -45,8 +44,7 @@
     "aouRT/heartRateSummaryPerson",
     "aouRT/sleepDailySummaryPerson",
     "aouRT/sleepLevelPerson",
-    "aouRT/stepsIntradayPerson",
-    "aouCT/zipcodeSocioeconomicPerson"
+    "aouRT/stepsIntradayPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "omop/conditionPerson",
