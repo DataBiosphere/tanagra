@@ -226,7 +226,6 @@
             "attribute": "measurement_concept_id",
             "entity": "t_measurement_non_hierarchy",
             "entityAttribute": "id",
-            "hierarchy": "standard",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
