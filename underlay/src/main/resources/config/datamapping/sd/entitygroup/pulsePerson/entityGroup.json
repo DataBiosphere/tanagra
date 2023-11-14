@@ -2,6 +2,5 @@
   "name": "pulsePerson",
   "groupEntity": "person",
   "itemsEntity": "pulse",
-  "idPairsSqlFile":  "idPairs.sql",
   "foreignKeyAttributeItemsEntity":  "person_id"
 }

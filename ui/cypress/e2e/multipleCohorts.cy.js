@@ -9,12 +9,12 @@ describe("Basic tests", () => {
     const cohortName2 = "multiple cohorts 2";
     cy.createCohortFromSearch(
       cohortName2,
-      "Asymptomatic bacteriuria in pregnancy - delivered",
+      "IVF - in-vitro fertilization pregnancy",
       "tanagra-conditions"
     );
 
     const id1 = "20320899";
-    const id2 = "20230426";
+    const id2 = "20312132";
 
     cy.get("button:Contains(Export)").click();
     cy.wait(2000);
