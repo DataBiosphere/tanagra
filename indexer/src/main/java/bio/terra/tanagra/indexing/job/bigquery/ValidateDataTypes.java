@@ -49,12 +49,16 @@ public class ValidateDataTypes extends BigQueryJob {
   public void run(boolean isDryRun) {
     // Build the query to select all the attributes from the source table.
     Query selectAttributesFromSourceTable = sourceTable.getQueryAll(Map.of());
-    LOGGER.info("Generated select SQL: {}", selectAttributesFromSourceTable.renderSQL());
+    Query selectOneRow =
+        new Query.Builder()
+            .select(selectAttributesFromSourceTable.getSelect())
+            .tables(selectAttributesFromSourceTable.getTables())
+            .limit(1)
+            .build();
+    LOGGER.info("Generated select SQL: {}", selectOneRow.renderSQL());
 
     Schema sourceQueryResultSchema =
-        bigQueryExecutor
-            .getBigQueryService()
-            .getQuerySchemaWithCaching(selectAttributesFromSourceTable.renderSQL());
+        bigQueryExecutor.getBigQueryService().getQuerySchemaWithCaching(selectOneRow.renderSQL());
     LOGGER.info("Select SQL results schema: {}", sourceQueryResultSchema);
 
     // Check that the schema data types match those of the index table columns.

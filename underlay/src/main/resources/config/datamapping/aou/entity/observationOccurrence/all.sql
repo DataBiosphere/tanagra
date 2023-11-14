@@ -3,7 +3,7 @@ SELECT
   o.person_id,
   o.observation_concept_id,
   oc.concept_name AS observation_concept_name,
-  o.observation_datetime,
+  o.observation_date,
   o.value_as_string,
   o.value_as_concept_id,
   ovc.concept_name AS value_as_concept_name,

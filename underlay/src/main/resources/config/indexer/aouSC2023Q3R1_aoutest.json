@@ -5,7 +5,7 @@
       "projectId": "all-of-us-ehr-dev",
       "datasetId": "SC2023Q3R1",
       "sqlSubstitutions": {
-        "omopDataset": " all-of-us-ehr-dev.SC2023Q3R1",
+        "omopDataset": "all-of-us-ehr-dev.SC2023Q3R1",
         "staticTablesDataset": "all-of-us-ehr-dev.SC2023Q3R1"
       }
     },

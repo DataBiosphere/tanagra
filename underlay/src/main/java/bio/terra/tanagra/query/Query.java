@@ -162,6 +162,10 @@ public class Query implements SQLExpression {
     return primaryTable.get(0);
   }
 
+  public List<TableVariable> getTables() {
+    return tables;
+  }
+
   public static class Builder {
     private List<FieldVariable> select;
     private List<TableVariable> tables;

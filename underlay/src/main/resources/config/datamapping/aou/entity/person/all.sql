@@ -6,7 +6,7 @@ SELECT p.person_id,
        p.race_concept_id,
        rc.concept_name AS race_concept_name,
        p.ethnicity_concept_id,
-       ec.concept_name AS ethnicity_concept_name
+       ec.concept_name AS ethnicity_concept_name,
        p.sex_at_birth_concept_id,
        sc.concept_name AS sex_at_birth_concept_name,
        CASE

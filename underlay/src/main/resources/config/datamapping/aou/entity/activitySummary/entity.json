@@ -2,7 +2,7 @@
   "name": "activitySummary",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64" },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
     { "name": "date", "dataType": "DATE" },
     { "name": "activity_calories", "dataType": "DOUBLE" },
     { "name": "calories_bmr", "dataType": "DOUBLE" },
