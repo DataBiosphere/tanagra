@@ -2,7 +2,5 @@
   "name": "heightPerson",
   "groupEntity": "person",
   "itemsEntity": "height",
-  "idPairsSqlFile":  "idPairs.sql",
-  "groupEntityIdFieldName": "person_id",
-  "itemsEntityIdFieldName": "measurement_id"
+  "foreignKeyAttributeItemsEntity":  "person_id"
 }

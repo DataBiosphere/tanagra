@@ -2,7 +2,5 @@
   "name": "familyHistoryPerson",
   "groupEntity": "person",
   "itemsEntity": "familyHistory",
-  "idPairsSqlFile":  "idPairs.sql",
-  "groupEntityIdFieldName": "person_id",
-  "itemsEntityIdFieldName": "family_history_id"
+  "foreignKeyAttributeItemsEntity":  "person_id"
 }

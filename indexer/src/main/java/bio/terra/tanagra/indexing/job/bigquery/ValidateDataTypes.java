@@ -1,8 +1,8 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -65,9 +65,31 @@ public class ValidateDataTypes extends BigQueryJob {
     boolean foundError = false;
     for (Attribute attribute : entity.getAttributes()) {
       ColumnSchema sourceTableSchema = sourceTable.getAttributeValueColumnSchema(attribute);
-      LegacySQLTypeName sourceTableBQDataType =
-          BigQueryBeamUtils.fromSqlDataType(sourceTableSchema.getSqlDataType());
-
+      LegacySQLTypeName
+          sourceTableBQDataType; // BigQueryBeamUtils.fromSqlDataType(sourceTableSchema.getSqlDataType());
+      switch (sourceTableSchema.getSqlDataType()) {
+        case STRING:
+          sourceTableBQDataType = LegacySQLTypeName.STRING;
+          break;
+        case INT64:
+          sourceTableBQDataType = LegacySQLTypeName.INTEGER;
+          break;
+        case BOOLEAN:
+          sourceTableBQDataType = LegacySQLTypeName.BOOLEAN;
+          break;
+        case DATE:
+          sourceTableBQDataType = LegacySQLTypeName.DATE;
+          break;
+        case FLOAT:
+          sourceTableBQDataType = LegacySQLTypeName.NUMERIC;
+          break;
+        case TIMESTAMP:
+          sourceTableBQDataType = LegacySQLTypeName.TIMESTAMP;
+          break;
+        default:
+          throw new SystemException(
+              "SQL data type not supported for BigQuery: " + sourceTableSchema.getSqlDataType());
+      }
       Field sourceQueryField =
           sourceQueryResultSchema.getFields().get(sourceTableSchema.getColumnName());
       boolean dataTypesMatch = sourceTableBQDataType.equals(sourceQueryField.getType());

@@ -2,7 +2,5 @@
   "name": "respiratoryRatePerson",
   "groupEntity": "person",
   "itemsEntity": "respiratoryRate",
-  "idPairsSqlFile":  "idPairs.sql",
-  "groupEntityIdFieldName": "person_id",
-  "itemsEntityIdFieldName": "measurement_id"
+  "foreignKeyAttributeItemsEntity":  "person_id"
 }
