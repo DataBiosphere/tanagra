@@ -5,7 +5,7 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id" },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "measurement", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "measurement_concept_name" },
-    { "name": "date", "dataType": "DATE", "valueFieldName": "measurement_date" },
+    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_datetime" },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number" },
     { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name" },
     { "name": "unit", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name" },
@@ -15,5 +15,6 @@
     { "name": "visit_occurrence_id", "dataType": "INT64" },
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
   ],
-  "idAttribute": "id"
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "measurement" ]
 }

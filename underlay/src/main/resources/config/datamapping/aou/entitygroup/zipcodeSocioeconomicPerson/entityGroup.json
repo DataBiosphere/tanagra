@@ -1,0 +1,6 @@
+{
+  "name": "zipcodeSocioeconomicPerson",
+  "groupEntity": "person",
+  "itemsEntity": "zipcodeSocioeconomic",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

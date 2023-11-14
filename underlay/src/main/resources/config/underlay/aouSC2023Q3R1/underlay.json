@@ -13,8 +13,7 @@
     "omop/ingredient",
     "aou/ingredientOccurrence",
 
-    "omop/measurementLoinc",
-    "omop/measurementSnomed",
+    "aou/measurementSnomed",
     "aou/measurementOccurrence",
 
     "omop/observation",
@@ -39,7 +38,15 @@
     "aou/zipcodeSocioeconomic"
   ],
   "groupItemsEntityGroups": [
-    "omop/brandIngredient"
+    "omop/brandIngredient",
+
+    "aou/activitySummaryPerson",
+    "aou/heartRateLevelPerson",
+    "aou/heartRateSummaryPerson",
+    "aou/sleepDailySummaryPerson",
+    "aou/sleepLevelPerson",
+    "aou/stepsIntradayPerson",
+    "aou/zipcodeSocioeconomicPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "omop/conditionPerson",
@@ -47,7 +54,6 @@
 
     "omop/ingredientPerson",
 
-    "omop/measurementLoincPerson",
     "omop/measurementSnomedPerson",
 
     "omop/observationPerson",
@@ -58,9 +64,7 @@
     "omop/icd9cmPerson",
     "omop/icd9procPerson",
     "omop/icd10cmPerson",
-    "omop/icd10pcsPerson",
-
-    "aou/activitySummaryPerson"
+    "omop/icd10pcsPerson"
   ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset SC2023Q3R1",
