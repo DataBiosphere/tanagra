@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -258,7 +259,7 @@ public final class ConfigReader {
     return Pair.of(underlay, entityOrGroup);
   }
 
-  public static Literal.DataType deserializeDataType(SZEntity.DataType szDataType) {
-    return Literal.DataType.valueOf(szDataType.name());
+  public static Literal.DataType deserializeDataType(@Nullable SZEntity.DataType szDataType) {
+    return szDataType == null ? null : Literal.DataType.valueOf(szDataType.name());
   }
 }
