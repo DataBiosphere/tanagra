@@ -22,7 +22,7 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { createConceptSet, useConceptSetContext } from "conceptSetContext";
-import { MergedItem } from "data/source";
+import { MergedItem } from "data/mergeLists";
 import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
 import {

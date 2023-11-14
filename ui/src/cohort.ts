@@ -9,7 +9,8 @@ import {
   makeArrayFilter,
   UnaryFilterOperator,
 } from "data/filter";
-import { MergedItem, Source } from "data/source";
+import { MergedItem, mergeLists } from "data/mergeLists";
+import { Source } from "data/source";
 import { DataEntry } from "data/types";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
@@ -195,7 +196,7 @@ export function searchCriteria(
     .filter(isValid);
 
   return Promise.all(promises).then((responses) => ({
-    data: source.mergeLists(
+    data: mergeLists(
       responses,
       100,
       SortDirection.Asc,
