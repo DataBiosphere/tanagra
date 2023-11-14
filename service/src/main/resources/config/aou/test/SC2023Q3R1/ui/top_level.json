@@ -225,11 +225,7 @@
             "id": "measurement_non_hierarchy",
             "attribute": "measurement_concept_id",
             "entity": "t_measurement_non_hierarchy",
-            "entityAttribute": "id",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            }
+            "entityAttribute": "id"
           },
           {
             "id": "loinc",
@@ -238,8 +234,8 @@
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
+              "attribute": "name",
+              "direction": "ASC"
             }
           },
           {
@@ -249,8 +245,8 @@
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
+              "attribute": "name",
+              "direction": "ASC"
             }
           },
           {
