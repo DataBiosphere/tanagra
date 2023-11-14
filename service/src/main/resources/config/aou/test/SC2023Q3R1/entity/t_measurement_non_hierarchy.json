@@ -1,0 +1,28 @@
+{
+  "name": "t_measurement_non_hierarchy",
+  "idAttribute": "id",
+  "attributes": [
+    { "type": "SIMPLE", "name": "id", "dataType": "INT64" },
+    { "type": "SIMPLE", "name": "name", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "vocabulary", "dataType": "STRING" },
+    { "type": "KEY_AND_DISPLAY", "name": "standard_concept", "dataType": "STRING" },
+    { "type": "SIMPLE", "name": "concept_code", "dataType": "STRING" } ],
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "tablePointer": { "rawSqlFile": "t_measurement_non_hierarchy.sql" },
+    "attributeMappings": {
+      "id": { "value": { "column": "concept_id" } },
+      "name": { "value": { "column": "concept_name" } },
+      "vocabulary": { "value": { "column": "vocabulary_id" } },
+      "standard_concept": {
+        "value": { "column": "standard_concept" },
+        "display": {
+          "column": "standard_concept",
+          "sqlFunctionWrapper": "(CASE WHEN ${fieldSql} IS NULL THEN 'Standard' WHEN ${fieldSql} IN ('S', 'C') THEN 'Standard' ELSE 'Unknown' END)" } } },
+    "textSearchMapping": { "searchStringTable": { "tablePointer": { "rawSqlFile": "t_measurement_non_hierarchy_text_search.sql" } } }
+  },
+
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}

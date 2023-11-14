@@ -222,6 +222,17 @@
         "key": "id",
         "classifications": [
           {
+            "id": "measurement_non_hierarchy",
+            "attribute": "measurement_concept_id",
+            "entity": "t_measurement_non_hierarchy",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "t_rollup_count",
+              "direction": "DESC"
+            }
+          },
+          {
             "id": "loinc",
             "attribute": "measurement_concept_id",
             "entity": "t_measurement_loinc",
@@ -505,7 +516,7 @@
         { "key": "t_rollup_count", "width": 220, "title": "Roll-up count" }
       ],
       "occurrences": "measurement_occurrence",
-      "classifications": ["loinc", "snomed"],
+      "classifications": ["measurement_non_hierarchy","loinc", "snomed"],
       "defaultSort": {
         "attribute": "t_rollup_count",
         "direction": "DESC"
