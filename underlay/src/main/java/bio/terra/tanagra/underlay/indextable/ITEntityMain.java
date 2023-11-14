@@ -3,6 +3,7 @@ package bio.terra.tanagra.underlay.indextable;
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
@@ -38,7 +39,8 @@ public final class ITEntityMain extends IndexTable {
               columnSchemasBuilder.add(
                   new ColumnSchema(
                       szAttribute.name,
-                      CellValue.SQLDataType.fromUnderlayDataType(szAttribute.dataType)));
+                      CellValue.SQLDataType.fromUnderlayDataType(
+                          ConfigReader.deserializeDataType(szAttribute.dataType))));
               if (szAttribute.displayFieldName != null) {
                 columnSchemasBuilder.add(
                     new ColumnSchema(

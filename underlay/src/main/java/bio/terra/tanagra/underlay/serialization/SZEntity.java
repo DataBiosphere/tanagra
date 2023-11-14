@@ -1,6 +1,5 @@
 package bio.terra.tanagra.underlay.serialization;
 
-import bio.terra.tanagra.query.Literal;
 import java.util.List;
 import java.util.Set;
 
@@ -17,11 +16,11 @@ public class SZEntity {
 
   public static class Attribute {
     public String name;
-    public Literal.DataType dataType;
+    public DataType dataType;
     public String valueFieldName;
     public String displayFieldName;
     public String runtimeSqlFunctionWrapper;
-    public Literal.DataType runtimeDataType;
+    public DataType runtimeDataType;
     public boolean isComputeDisplayHint;
   }
 
@@ -42,5 +41,14 @@ public class SZEntity {
     public String idTextPairsSqlFile;
     public String idFieldName;
     public String textFieldName;
+  }
+
+  public enum DataType {
+    INT64,
+    STRING,
+    BOOLEAN,
+    DATE,
+    DOUBLE,
+    TIMESTAMP
   }
 }

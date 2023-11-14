@@ -4,6 +4,7 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
@@ -34,7 +35,8 @@ public class STEntityAttributes extends SourceTable {
                       szAttribute.valueFieldName == null
                           ? szAttribute.name
                           : szAttribute.valueFieldName,
-                      CellValue.SQLDataType.fromUnderlayDataType(szAttribute.dataType)));
+                      CellValue.SQLDataType.fromUnderlayDataType(
+                          ConfigReader.deserializeDataType(szAttribute.dataType))));
               if (szAttribute.displayFieldName != null) {
                 attributeDisplayColumnSchemasBuilder.put(
                     szAttribute.name,

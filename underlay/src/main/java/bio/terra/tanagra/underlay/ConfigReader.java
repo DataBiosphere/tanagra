@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
@@ -255,5 +256,9 @@ public final class ConfigReader {
     String underlay = underlayEntityPathSplit[0];
     String entityOrGroup = underlayEntityPathSplit[1];
     return Pair.of(underlay, entityOrGroup);
+  }
+
+  public static Literal.DataType deserializeDataType(SZEntity.DataType szDataType) {
+    return Literal.DataType.valueOf(szDataType.name());
   }
 }

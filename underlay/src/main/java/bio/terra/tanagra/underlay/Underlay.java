@@ -193,11 +193,11 @@ public final class Underlay {
                 szAttribute ->
                     new Attribute(
                         szAttribute.name,
-                        szAttribute.dataType,
+                        ConfigReader.deserializeDataType(szAttribute.dataType),
                         szAttribute.displayFieldName != null,
                         szAttribute.name.equals(szEntity.idAttribute),
                         szAttribute.runtimeSqlFunctionWrapper,
-                        szAttribute.runtimeDataType,
+                        ConfigReader.deserializeDataType(szAttribute.runtimeDataType),
                         szAttribute.isComputeDisplayHint))
             .collect(Collectors.toList());
 
