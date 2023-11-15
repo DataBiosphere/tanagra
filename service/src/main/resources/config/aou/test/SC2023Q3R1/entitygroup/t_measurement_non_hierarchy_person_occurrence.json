@@ -1,0 +1,26 @@
+{
+  "name": "t_measurement_non_hierarchy_person_occurrence",
+  "type": "CRITERIA_OCCURRENCE",
+  "criteriaEntity": "t_measurement_non_hierarchy",
+  "occurrenceEntities": [ "t_measurement_occurrence" ],
+  "modifierAttributes": [ "value_numeric", "value_enum" ],
+  "sourceDataMapping": {
+    "dataPointer": "omop_dataset",
+    "relationshipMappings": {
+      "occurrenceToCriteria": {
+        "foreignKeyAttribute": "measurement_concept_id"
+      },
+      "occurrenceToPrimary": {
+        "foreignKeyAttribute": "person_id"
+      },
+      "criteriaToPrimary": {
+        "idPairsTable": { "rawSqlFile": "t_measurement_occurrence_all.sql" },
+        "idPairsIdA": { "column": "measurement_concept_id" },
+        "idPairsIdB":  { "column": "person_id" }
+      }
+    }
+  },
+  "indexDataMapping": {
+    "dataPointer": "index_dataset"
+  }
+}
