@@ -10,10 +10,13 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
+import com.google.cloud.StringEnumValue;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,26 +68,26 @@ public class ValidateDataTypes extends BigQueryJob {
     boolean foundError = false;
     for (Attribute attribute : entity.getAttributes()) {
       ColumnSchema sourceTableSchema = sourceTable.getAttributeValueColumnSchema(attribute);
-      LegacySQLTypeName
-          sourceTableBQDataType; // BigQueryBeamUtils.fromSqlDataType(sourceTableSchema.getSqlDataType());
+      Set<LegacySQLTypeName>
+          sourceTableBQDataTypes; // BigQueryBeamUtils.fromSqlDataType(sourceTableSchema.getSqlDataType());
       switch (sourceTableSchema.getSqlDataType()) {
         case STRING:
-          sourceTableBQDataType = LegacySQLTypeName.STRING;
+          sourceTableBQDataTypes = Set.of(LegacySQLTypeName.STRING);
           break;
         case INT64:
-          sourceTableBQDataType = LegacySQLTypeName.INTEGER;
+          sourceTableBQDataTypes = Set.of(LegacySQLTypeName.INTEGER);
           break;
         case BOOLEAN:
-          sourceTableBQDataType = LegacySQLTypeName.BOOLEAN;
+          sourceTableBQDataTypes = Set.of(LegacySQLTypeName.BOOLEAN);
           break;
         case DATE:
-          sourceTableBQDataType = LegacySQLTypeName.DATE;
+          sourceTableBQDataTypes = Set.of(LegacySQLTypeName.DATE);
           break;
         case FLOAT:
-          sourceTableBQDataType = LegacySQLTypeName.NUMERIC;
+          sourceTableBQDataTypes = Set.of(LegacySQLTypeName.NUMERIC, LegacySQLTypeName.FLOAT);
           break;
         case TIMESTAMP:
-          sourceTableBQDataType = LegacySQLTypeName.TIMESTAMP;
+          sourceTableBQDataTypes = Set.of(LegacySQLTypeName.TIMESTAMP);
           break;
         default:
           throw new SystemException(
@@ -92,13 +95,15 @@ public class ValidateDataTypes extends BigQueryJob {
       }
       Field sourceQueryField =
           sourceQueryResultSchema.getFields().get(sourceTableSchema.getColumnName());
-      boolean dataTypesMatch = sourceTableBQDataType.equals(sourceQueryField.getType());
+      boolean dataTypesMatch = sourceTableBQDataTypes.contains(sourceQueryField.getType());
       if (!dataTypesMatch) {
         foundError = true;
         LOGGER.info(
             "Data type mismatch found for attribute {}: entity declared {}, SQL schema returns {}",
             attribute.getName(),
-            sourceTableBQDataType,
+            sourceTableBQDataTypes.stream()
+                .map(StringEnumValue::name)
+                .collect(Collectors.joining(",", "[", "]")),
             sourceQueryField.getType());
       }
     }
