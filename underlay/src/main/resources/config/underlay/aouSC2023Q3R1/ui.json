@@ -222,14 +222,31 @@
         "key": "id",
         "classifications": [
           {
-            "id": "measurement",
-            "attribute": "measurement",
-            "entity": "measurement",
+            "id": "measurement_non_hierarchy",
+            "attribute": "measurement_concept_id",
+            "entity": "measurementNonHierarchy",
+            "entityAttribute": "id"
+          },
+          {
+            "id": "loinc",
+            "attribute": "measurement_concept_id",
+            "entity": "measurementLoinc",
             "entityAttribute": "id",
             "hierarchy": "standard",
             "defaultSort": {
-              "attribute": "t_item_count",
-              "direction": "DESC"
+              "attribute": "name",
+              "direction": "ASC"
+            }
+          },
+          {
+            "id": "snomed",
+            "attribute": "measurement_concept_id",
+            "entity": "measurementSnomed",
+            "entityAttribute": "id",
+            "hierarchy": "standard",
+            "defaultSort": {
+              "attribute": "name",
+              "direction": "ASC"
             }
           },
           {
@@ -475,25 +492,30 @@
     {
       "type": "classification",
       "id": "tanagra-measurement",
-      "title": "Labs and measurements",
+      "title": "Labs and Measurements",
       "conceptSet": true,
       "category": "Domains",
-      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 150, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
-        { "key": "name", "width": "100%", "title": "Condition" },
-        { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "concept_code", "width": 420, "title": "Code" },
+        { "key": "name", "width": "100%", "title": "Concept Name" },
+        { "key": "id", "width": 220, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 220, "title": "Roll-up count" }
       ],
       "occurrences": "measurement_occurrence",
-      "classifications": ["measurement"],
+      "classifications": ["measurement_non_hierarchy", "loinc", "snomed"],
+      "defaultSort": {
+        "attribute": "t_rollup_count",
+        "direction": "DESC"
+      },
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {

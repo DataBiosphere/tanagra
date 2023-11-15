@@ -14,6 +14,8 @@
     "aouRT/ingredientOccurrence",
 
     "aouRT/measurementSnomed",
+    "aouRT/measurementLoinc",
+    "aouRT/measurementNoHierarchy",
     "aouRT/measurementOccurrence",
 
     "omop/observation",
@@ -53,6 +55,8 @@
     "omop/ingredientPerson",
 
     "omop/measurementSnomedPerson",
+    "omop/measurementLoincPerson",
+    "aouRT/measurementNoHierarchyPerson",
 
     "omop/observationPerson",
     "omop/devicePerson",

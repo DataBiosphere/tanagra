@@ -310,6 +310,15 @@ function apiForEnvironment<Real, Fake>(
     const config: tanagra.ConfigurationParameters = {
       basePath: process.env.REACT_APP_BACKEND_HOST || "",
     };
+    // For local dev only, get the bearer token from the iframe url param
+    if (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN) {
+      const accessToken = new URLSearchParams(
+        window.location.href.split("?")[1]
+      ).get("token");
+      if (accessToken) {
+        config.accessToken = accessToken;
+      }
+    }
     return new real(new tanagra.Configuration(config));
   };
   return React.createContext(fn());
