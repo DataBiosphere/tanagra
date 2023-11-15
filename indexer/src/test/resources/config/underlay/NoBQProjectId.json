@@ -1,9 +1,0 @@
-{
-  "name": "aou_synthetic",
-  "dataPointers": [
-    { "type": "BQ_DATASET",
-      "name": "omop_dataset",
-      "datasetId": "aou_synthetic" } ],
-  "entities": [ "Person.json" ],
-  "primaryEntity": "Person"
-}

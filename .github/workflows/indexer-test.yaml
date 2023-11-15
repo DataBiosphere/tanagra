@@ -11,9 +11,7 @@ on:
       - 'docs/**'
   pull_request:
     branches: [ '**' ]
-    paths-ignore:
-      - 'README.md'
-      - 'docs/**'
+    # Always run this GHA on PRs, so that we have at least one successful check to satisfy branch protections.
   workflow_dispatch:
 jobs:
   test:

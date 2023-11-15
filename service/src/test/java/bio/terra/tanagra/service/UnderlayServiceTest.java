@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
@@ -8,9 +9,8 @@ import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ public class UnderlayServiceTest {
 
   @Test
   void listAllOrSelected() {
-    String underlayName = "cms_synpuf";
+    String underlayName = "cmssynpuf";
 
     // List underlays.
     List<Underlay> allUnderlays =
@@ -47,8 +47,8 @@ public class UnderlayServiceTest {
     assertEquals(underlayName, oneUnderlay.get(0).getName());
 
     // List entities.
-    List<Entity> allEntities = underlayService.listEntities(underlayName);
-    assertEquals(12, allEntities.size());
+    List<Entity> allEntities = underlayService.getUnderlay(underlayName).getEntities();
+    assertEquals(16, allEntities.size());
   }
 
   @Test
@@ -58,6 +58,7 @@ public class UnderlayServiceTest {
 
     // Get an invalid entity.
     assertThrows(
-        NotFoundException.class, () -> underlayService.getEntity("cms_synpuf", "invalid entity"));
+        NotFoundException.class,
+        () -> underlayService.getUnderlay("cmssynpuf").getEntity("invalid entity"));
   }
 }

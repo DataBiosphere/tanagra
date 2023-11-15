@@ -2,11 +2,11 @@ package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ConceptSetDao;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
-import bio.terra.tanagra.service.query.UnderlayService;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +39,9 @@ public class ConceptSetService {
 
     // Make sure underlay name, study id, and entity are valid.
     studyService.getStudy(studyId);
-    underlayService.getEntity(conceptSetBuilder.getUnderlay(), conceptSetBuilder.getEntity());
+    underlayService
+        .getUnderlay(conceptSetBuilder.getUnderlay())
+        .getEntity(conceptSetBuilder.getEntity());
 
     conceptSetDao.createConceptSet(
         studyId, conceptSetBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
@@ -90,7 +92,7 @@ public class ConceptSetService {
     // Make sure entity name is valid.
     if (entity != null) {
       ConceptSet conceptSet = conceptSetDao.getConceptSet(conceptSetId);
-      underlayService.getEntity(conceptSet.getUnderlay(), entity);
+      underlayService.getUnderlay(conceptSet.getUnderlay()).getEntity(entity);
     }
     conceptSetDao.updateConceptSet(
         conceptSetId, userEmail, displayName, description, entity, criteria);

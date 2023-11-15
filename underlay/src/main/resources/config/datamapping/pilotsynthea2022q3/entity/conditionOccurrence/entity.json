@@ -1,0 +1,18 @@
+{
+  "name": "conditionOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "condition_occurrence_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "condition", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "condition_concept_name" },
+    { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "condition_start_datetime" },
+    { "name": "end_date", "dataType": "TIMESTAMP", "valueFieldName": "condition_end_datetime" },
+    { "name": "stop_reason", "dataType": "STRING" },
+    { "name": "source_value", "dataType": "INT64", "valueFieldName": "condition_source_value" },
+    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "condition_source_concept_id" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "visit_occurrence_id", "dataType": "INT64" },
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
+  ],
+  "idAttribute": "id"
+}

@@ -1,8 +1,5 @@
 package bio.terra.tanagra.query;
 
-import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.serialization.UFFieldPointer;
-import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,40 +28,6 @@ public class FieldPointer {
 
   public static FieldPointer allFields(TablePointer tablePointer) {
     return new Builder().tablePointer(tablePointer).columnName(ALL_FIELDS_COLUMN_NAME).build();
-  }
-
-  public static FieldPointer fromSerialized(UFFieldPointer serialized, TablePointer tablePointer) {
-    boolean foreignTableDefined = !Strings.isNullOrEmpty(serialized.getForeignTable());
-    boolean foreignKeyColumnDefined = !Strings.isNullOrEmpty(serialized.getForeignKey());
-    boolean foreignColumnDefined = !Strings.isNullOrEmpty(serialized.getForeignColumn());
-    boolean allForeignKeyFieldsDefined =
-        foreignTableDefined && foreignKeyColumnDefined && foreignColumnDefined;
-    boolean noForeignKeyFieldsDefined =
-        !foreignTableDefined && !foreignKeyColumnDefined && !foreignColumnDefined;
-
-    if (noForeignKeyFieldsDefined) {
-      return new Builder()
-          .tablePointer(tablePointer)
-          .columnName(serialized.getColumn())
-          .sqlFunctionWrapper(serialized.getSqlFunctionWrapper())
-          .runtimeCalculated(serialized.isRuntimeCalculated())
-          .build();
-    } else if (allForeignKeyFieldsDefined) {
-      // assume the foreign table is part of the same data pointer as the original table
-      TablePointer foreignTablePointer =
-          TablePointer.fromTableName(serialized.getForeignTable(), tablePointer.getDataPointer());
-      return new Builder()
-          .tablePointer(tablePointer)
-          .columnName(serialized.getColumn())
-          .foreignTablePointer(foreignTablePointer)
-          .foreignKeyColumnName(serialized.getForeignKey())
-          .foreignColumnName(serialized.getForeignColumn())
-          .sqlFunctionWrapper(serialized.getSqlFunctionWrapper())
-          .runtimeCalculated(serialized.isRuntimeCalculated())
-          .build();
-    } else {
-      throw new InvalidConfigException("Only some foreign key fields are defined");
-    }
   }
 
   public FieldVariable buildVariable(

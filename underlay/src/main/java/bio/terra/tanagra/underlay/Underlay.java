@@ -1,209 +1,351 @@
 package bio.terra.tanagra.underlay;
 
-import static bio.terra.tanagra.underlay.Entity.ENTITY_DIRECTORY_NAME;
-import static bio.terra.tanagra.underlay.EntityGroup.ENTITY_GROUP_DIRECTORY_NAME;
-
-import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.serialization.UFEntity;
-import bio.terra.tanagra.serialization.UFEntityGroup;
-import bio.terra.tanagra.serialization.UFUnderlay;
-import bio.terra.tanagra.utils.FileIO;
-import bio.terra.tanagra.utils.FileUtils;
-import bio.terra.tanagra.utils.JacksonMapper;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Collections;
+import bio.terra.tanagra.query.QueryExecutor;
+import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
+import bio.terra.tanagra.underlay.serialization.SZBigQuery;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZEntity;
+import bio.terra.tanagra.underlay.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
+@SuppressFBWarnings(
+    value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
+    justification =
+        "Jackson object mapper writes the POJO fields during deserialization. Need to put this at the class level, because method-level does not handle internal lambdas.")
 public final class Underlay {
-  public enum MappingType {
-    SOURCE,
-    INDEX
-  }
-
-  public static final String OUTPUT_UNDERLAY_FILE_EXTENSION = ".json";
-  private static final String UI_CONFIG_DIRECTORY_NAME = "ui";
-
   private final String name;
-  private final Map<String, DataPointer> dataPointers;
-  private final Map<String, Entity> entities;
-  private final String primaryEntityName;
-  private final Map<String, EntityGroup> entityGroups;
+  private final String displayName;
+  private @Nullable final String description;
+  private final ImmutableMap<String, String> properties;
+  private final QueryExecutor queryExecutor;
+  private final ImmutableList<Entity> entities;
+  private final ImmutableList<EntityGroup> entityGroups;
+  private final SourceSchema sourceSchema;
+  private final IndexSchema indexSchema;
   private final String uiConfig;
-  private final Map<String, String> metadata;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private Underlay(
       String name,
-      Map<String, DataPointer> dataPointers,
-      Map<String, Entity> entities,
-      String primaryEntityName,
-      Map<String, EntityGroup> entityGroups,
-      String uiConfig,
-      Map<String, String> metadata) {
+      String displayName,
+      @Nullable String description,
+      @Nullable Map<String, String> properties,
+      QueryExecutor queryExecutor,
+      List<Entity> entities,
+      List<EntityGroup> entityGroups,
+      SourceSchema sourceSchema,
+      IndexSchema indexSchema,
+      String uiConfig) {
     this.name = name;
-    this.dataPointers = dataPointers;
-    this.entities = entities;
-    this.primaryEntityName = primaryEntityName;
-    this.entityGroups = entityGroups;
+    this.displayName = displayName;
+    this.description = description;
+    this.properties = properties == null ? ImmutableMap.of() : ImmutableMap.copyOf(properties);
+    this.queryExecutor = queryExecutor;
+    this.entities = ImmutableList.copyOf(entities);
+    this.entityGroups = ImmutableList.copyOf(entityGroups);
+    this.sourceSchema = sourceSchema;
+    this.indexSchema = indexSchema;
     this.uiConfig = uiConfig;
-    this.metadata = metadata;
-  }
-
-  public static Underlay fromJSON(String underlayFileName) throws IOException {
-    // read in the top-level underlay file
-    Path underlayFilePath = FileIO.getInputParentDir().resolve(underlayFileName);
-    UFUnderlay serialized =
-        JacksonMapper.readFileIntoJavaObject(
-            FileIO.getGetFileInputStreamFunction().apply(underlayFilePath), UFUnderlay.class);
-
-    // deserialize data pointers
-    if (serialized.getDataPointers() == null || serialized.getDataPointers().size() == 0) {
-      throw new InvalidConfigException("No DataPointer defined");
-    }
-    Map<String, DataPointer> dataPointers = new HashMap<>();
-    serialized
-        .getDataPointers()
-        .forEach(dps -> dataPointers.put(dps.getName(), dps.deserializeToInternal()));
-
-    // deserialize entities
-    if (serialized.getEntities() == null || serialized.getEntities().size() == 0) {
-      throw new InvalidConfigException("No Entity defined");
-    }
-    Map<String, Entity> entities = new HashMap<>();
-    for (String entityFile : serialized.getEntities()) {
-      Entity entity = Entity.fromJSON(entityFile, dataPointers);
-      entities.put(entity.getName(), entity);
-    }
-
-    String primaryEntity = serialized.getPrimaryEntity();
-    if (primaryEntity == null || primaryEntity.isEmpty()) {
-      throw new InvalidConfigException("No primary Entity defined");
-    }
-    if (!entities.containsKey(primaryEntity)) {
-      throw new InvalidConfigException("Primary Entity not found in the set of Entities");
-    }
-
-    // deserialize entity groups
-    Map<String, EntityGroup> entityGroups = new HashMap<>();
-    if (serialized.getEntityGroups() != null) {
-      for (String entityGroupFile : serialized.getEntityGroups()) {
-        EntityGroup entityGroup =
-            EntityGroup.fromJSON(entityGroupFile, dataPointers, entities, primaryEntity);
-        entityGroups.put(entityGroup.getName(), entityGroup);
-      }
-    }
-
-    String uiConfig = serialized.getUiConfig();
-    if (uiConfig == null && serialized.getUiConfigFile() != null) {
-      // read in UI config from file
-      Path uiConfigFilePath =
-          FileIO.getInputParentDir()
-              .resolve(UI_CONFIG_DIRECTORY_NAME)
-              .resolve(serialized.getUiConfigFile());
-      uiConfig =
-          FileUtils.readStringFromFileNoLineBreaks(
-              FileIO.getGetFileInputStreamFunction().apply(uiConfigFilePath));
-    }
-    Map<String, String> metadata =
-        serialized.getMetadata() != null ? serialized.getMetadata() : new HashMap<>();
-
-    Underlay underlay =
-        new Underlay(
-            serialized.getName(),
-            dataPointers,
-            entities,
-            primaryEntity,
-            entityGroups,
-            uiConfig,
-            metadata);
-
-    underlay.getEntities().values().stream().forEach(entity -> entity.initialize(underlay));
-
-    return underlay;
-  }
-
-  /** Convert the internal objects, now expanded, back to POJOs. Write out the expanded POJOs. */
-  public void serializeAndWriteToFile() throws IOException {
-    UFUnderlay expandedUnderlay = new UFUnderlay(this);
-    List<UFEntity> expandedEntities =
-        getEntities().values().stream().map(e -> new UFEntity(e)).collect(Collectors.toList());
-    List<UFEntityGroup> expandedEntityGroups =
-        getEntityGroups().values().stream().map(eg -> eg.serialize()).collect(Collectors.toList());
-
-    // Write out the underlay POJO to the top-level directory.
-    Path underlayPath =
-        FileIO.getOutputParentDir()
-            .resolve(expandedUnderlay.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION);
-    JacksonMapper.writeJavaObjectToFile(underlayPath, expandedUnderlay);
-
-    // Write out the entity POJOs to the entity/ sub-directory.
-    Path entitySubDir = FileIO.getOutputParentDir().resolve(ENTITY_DIRECTORY_NAME);
-    for (UFEntity expandedEntity : expandedEntities) {
-      JacksonMapper.writeJavaObjectToFile(
-          entitySubDir.resolve(expandedEntity.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
-          expandedEntity);
-    }
-
-    // Write out the entity group POJOs to the entity_group/ sub-directory.
-    Path entityGroupSubDir = FileIO.getOutputParentDir().resolve(ENTITY_GROUP_DIRECTORY_NAME);
-    for (UFEntityGroup expandedEntityGroup : expandedEntityGroups) {
-      JacksonMapper.writeJavaObjectToFile(
-          entityGroupSubDir.resolve(expandedEntityGroup.getName() + OUTPUT_UNDERLAY_FILE_EXTENSION),
-          expandedEntityGroup);
-    }
   }
 
   public String getName() {
     return name;
   }
 
-  public Map<String, DataPointer> getDataPointers() {
-    return Collections.unmodifiableMap(dataPointers);
+  public String getDisplayName() {
+    return displayName;
   }
 
-  public Map<String, Entity> getEntities() {
-    return Collections.unmodifiableMap(entities);
+  public String getDescription() {
+    return description;
   }
 
-  public Entity getPrimaryEntity() {
-    return entities.get(primaryEntityName);
+  public ImmutableMap<String, String> getProperties() {
+    return properties;
+  }
+
+  public String getMetadataProperty(String key) {
+    return properties.get(key);
+  }
+
+  public ImmutableList<Entity> getEntities() {
+    return entities;
   }
 
   public Entity getEntity(String name) {
-    if (!entities.containsKey(name)) {
-      throw new SystemException("Entity not found: " + name);
-    }
-    return entities.get(name);
+    return entities.stream()
+        .filter(e -> name.equals(e.getName()))
+        .findFirst()
+        .orElseThrow(() -> new NotFoundException("Entity not found: " + name));
   }
 
-  public Map<String, EntityGroup> getEntityGroups() {
-    return Collections.unmodifiableMap(entityGroups);
+  public Entity getPrimaryEntity() {
+    return entities.stream()
+        .filter(e -> e.isPrimary())
+        .findFirst()
+        .orElseThrow(() -> new SystemException("No primary entity defined"));
+  }
+
+  public ImmutableList<EntityGroup> getEntityGroups() {
+    return entityGroups;
   }
 
   public EntityGroup getEntityGroup(String name) {
-    if (!entityGroups.containsKey(name)) {
-      throw new SystemException("Entity group not found: " + name);
-    }
-    return entityGroups.get(name);
-  }
-
-  public EntityGroup getEntityGroup(EntityGroup.Type type, Entity entity) {
-    return entityGroups.values().stream()
-        .filter(
-            entityGroup -> type.equals(entityGroup.getType()) && entityGroup.includesEntity(entity))
+    return entityGroups.stream()
+        .filter(eg -> name.equals(eg.getName()))
         .findFirst()
-        .get();
+        .orElseThrow(() -> new NotFoundException("Entity group not found: " + name));
   }
 
-  public String getUIConfig() {
+  public QueryExecutor getQueryExecutor() {
+    return queryExecutor;
+  }
+
+  public SourceSchema getSourceSchema() {
+    return sourceSchema;
+  }
+
+  public IndexSchema getIndexSchema() {
+    return indexSchema;
+  }
+
+  public String getUiConfig() {
     return uiConfig;
   }
 
-  public Map<String, String> getMetadata() {
-    return Collections.unmodifiableMap(metadata);
+  public static Underlay fromConfig(SZBigQuery szBigQuery, SZUnderlay szUnderlay) {
+    // Build the source and index table schemas.
+    ConfigReader configReader =
+        new ConfigReader(szUnderlay.name, szBigQuery.sourceData.sqlSubstitutions);
+    SourceSchema sourceSchema = SourceSchema.fromConfig(szBigQuery, szUnderlay, configReader);
+    IndexSchema indexSchema = IndexSchema.fromConfig(szBigQuery, szUnderlay, configReader);
+
+    // Build the entities.
+    List<Entity> entities =
+        szUnderlay.entities.stream()
+            .map(
+                entityPath ->
+                    fromConfigEntity(configReader.readEntity(entityPath), szUnderlay.primaryEntity))
+            .collect(Collectors.toList());
+
+    // Build the entity groups.
+    List<EntityGroup> entityGroups = new ArrayList<>();
+    szUnderlay.groupItemsEntityGroups.stream()
+        .forEach(
+            groupItemsPath ->
+                entityGroups.add(
+                    fromConfigGroupItems(configReader.readGroupItems(groupItemsPath), entities)));
+    szUnderlay.criteriaOccurrenceEntityGroups.stream()
+        .forEach(
+            criteriaOccurrencePath ->
+                entityGroups.add(
+                    fromConfigCriteriaOccurrence(
+                        configReader.readCriteriaOccurrence(criteriaOccurrencePath),
+                        entities,
+                        szUnderlay.primaryEntity)));
+
+    // Build the query executor.
+    BigQueryExecutor queryExecutor =
+        new BigQueryExecutor(szBigQuery.queryProjectId, szBigQuery.dataLocation);
+
+    // Read the UI config.
+    String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
+
+    return new Underlay(
+        szUnderlay.name,
+        szUnderlay.metadata.displayName,
+        szUnderlay.metadata.description,
+        szUnderlay.metadata.properties,
+        queryExecutor,
+        entities,
+        entityGroups,
+        sourceSchema,
+        indexSchema,
+        uiConfig);
+  }
+
+  @VisibleForTesting
+  public static Entity fromConfigEntity(SZEntity szEntity, String primaryEntityName) {
+    // Build the attributes.
+    List<Attribute> attributes =
+        szEntity.attributes.stream()
+            .map(
+                szAttribute ->
+                    new Attribute(
+                        szAttribute.name,
+                        ConfigReader.deserializeDataType(szAttribute.dataType),
+                        szAttribute.displayFieldName != null,
+                        szAttribute.name.equals(szEntity.idAttribute),
+                        szAttribute.runtimeSqlFunctionWrapper,
+                        ConfigReader.deserializeDataType(szAttribute.runtimeDataType),
+                        szAttribute.isComputeDisplayHint))
+            .collect(Collectors.toList());
+
+    List<Attribute> optimizeGroupByAttributes = new ArrayList<>();
+    if (szEntity.optimizeGroupByAttributes != null) {
+      optimizeGroupByAttributes =
+          attributes.stream()
+              .filter(attribute -> szEntity.optimizeGroupByAttributes.contains(attribute.getName()))
+              .collect(Collectors.toList());
+    }
+    List<Attribute> optimizeTextSearchAttributes = new ArrayList<>();
+    if (szEntity.textSearch != null && szEntity.textSearch.attributes != null) {
+      optimizeTextSearchAttributes =
+          attributes.stream()
+              .filter(attribute -> szEntity.textSearch.attributes.contains(attribute.getName()))
+              .collect(Collectors.toList());
+    }
+
+    // Build the hierarchies.
+    List<Hierarchy> hierarchies = new ArrayList<>();
+    if (szEntity.hierarchies != null) {
+      hierarchies =
+          szEntity.hierarchies.stream()
+              .map(
+                  szHierarchy ->
+                      new Hierarchy(
+                          szHierarchy.name,
+                          szHierarchy.maxDepth,
+                          szHierarchy.keepOrphanNodes,
+                          szHierarchy.rootNodeIds))
+              .collect(Collectors.toList());
+    }
+    return new Entity(
+        szEntity.name,
+        szEntity.displayName,
+        szEntity.description,
+        primaryEntityName.equals(szEntity.name),
+        attributes,
+        hierarchies,
+        optimizeGroupByAttributes,
+        szEntity.textSearch != null,
+        optimizeTextSearchAttributes);
+  }
+
+  private static GroupItems fromConfigGroupItems(SZGroupItems szGroupItems, List<Entity> entities) {
+    // Get the entities.
+    Entity groupEntity =
+        entities.stream()
+            .filter(entity -> entity.getName().equals(szGroupItems.groupEntity))
+            .findFirst()
+            .get();
+    Entity itemsEntity =
+        entities.stream()
+            .filter(entity -> entity.getName().equals(szGroupItems.itemsEntity))
+            .findFirst()
+            .get();
+
+    // Build the relationship.
+    Relationship groupItemsRelationship =
+        new Relationship(
+            groupEntity,
+            itemsEntity,
+            null,
+            szGroupItems.foreignKeyAttributeItemsEntity == null
+                ? null
+                : itemsEntity.getAttribute(szGroupItems.foreignKeyAttributeItemsEntity));
+    return new GroupItems(szGroupItems.name, groupEntity, itemsEntity, groupItemsRelationship);
+  }
+
+  private static CriteriaOccurrence fromConfigCriteriaOccurrence(
+      SZCriteriaOccurrence szCriteriaOccurrence, List<Entity> entities, String primaryEntityName) {
+    // Get the criteria and primary entities.
+    Entity criteriaEntity =
+        entities.stream()
+            .filter(entity -> entity.getName().equals(szCriteriaOccurrence.criteriaEntity))
+            .findFirst()
+            .get();
+    Entity primaryEntity =
+        entities.stream()
+            .filter(entity -> entity.getName().equals(primaryEntityName))
+            .findFirst()
+            .get();
+
+    List<Entity> occurrenceEntities = new ArrayList<>();
+    Map<String, Relationship> occurrenceCriteriaRelationships = new HashMap<>();
+    Map<String, Relationship> occurrencePrimaryRelationships = new HashMap<>();
+    Map<String, Set<String>> occurrenceAttributesWithInstanceLevelHints = new HashMap<>();
+    szCriteriaOccurrence.occurrenceEntities.stream()
+        .forEach(
+            szOccurrenceEntity -> {
+              // Get the occurrence entity.
+              Entity occurrenceEntity =
+                  entities.stream()
+                      .filter(
+                          entity -> entity.getName().equals(szOccurrenceEntity.occurrenceEntity))
+                      .findFirst()
+                      .get();
+              occurrenceEntities.add(occurrenceEntity);
+
+              // Build the occurrence-criteria relationship.
+              Relationship occurrenceCriteriaRelationship =
+                  new Relationship(
+                      occurrenceEntity,
+                      criteriaEntity,
+                      szOccurrenceEntity.criteriaRelationship.foreignKeyAttributeOccurrenceEntity
+                              == null
+                          ? null
+                          : occurrenceEntity.getAttribute(
+                              szOccurrenceEntity
+                                  .criteriaRelationship
+                                  .foreignKeyAttributeOccurrenceEntity),
+                      null);
+              occurrenceCriteriaRelationships.put(
+                  occurrenceEntity.getName(), occurrenceCriteriaRelationship);
+
+              // Build the occurrence-primary relationship.
+              Relationship occurrencePrimaryRelationship =
+                  new Relationship(
+                      occurrenceEntity,
+                      primaryEntity,
+                      szOccurrenceEntity.primaryRelationship.foreignKeyAttributeOccurrenceEntity
+                              == null
+                          ? null
+                          : occurrenceEntity.getAttribute(
+                              szOccurrenceEntity
+                                  .primaryRelationship
+                                  .foreignKeyAttributeOccurrenceEntity),
+                      null);
+              occurrencePrimaryRelationships.put(
+                  occurrenceEntity.getName(), occurrencePrimaryRelationship);
+
+              // Get the attributes with instance-level hints.
+              occurrenceAttributesWithInstanceLevelHints.put(
+                  occurrenceEntity.getName(), szOccurrenceEntity.attributesWithInstanceLevelHints);
+            });
+
+    // Build the primary-criteria relationship.
+    Relationship primaryCriteriaRelationship =
+        new Relationship(primaryEntity, criteriaEntity, null, null);
+
+    return new CriteriaOccurrence(
+        szCriteriaOccurrence.name,
+        criteriaEntity,
+        occurrenceEntities,
+        primaryEntity,
+        occurrenceCriteriaRelationships,
+        occurrencePrimaryRelationships,
+        primaryCriteriaRelationship,
+        occurrenceAttributesWithInstanceLevelHints);
   }
 }

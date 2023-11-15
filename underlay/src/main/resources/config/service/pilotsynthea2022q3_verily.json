@@ -1,0 +1,20 @@
+{
+  "underlay": "pilotsynthea2022q3",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "pilot_synthea_2022q3",
+      "sqlSubstitutions": {
+        "omopDataset": "verily-tanagra-dev.pilot_synthea_2022q3",
+        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep"
+      }
+    },
+    "indexData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "pilotsynthea2022q3_index_110623"
+    },
+    "queryProjectId": "verily-tanagra-dev",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}

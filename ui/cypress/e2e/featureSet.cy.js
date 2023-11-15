@@ -13,18 +13,18 @@ describe("Basic tests", () => {
 
     cy.iframe().find("a:Contains(Add a data feature)").first().click();
     cy.iframe().find("[data-testid='tanagra-procedures']").click();
-    cy.iframe().find("input").type("Procedure on body system");
-    cy.iframe().find("[data-testid='Procedure on body system']").click();
+    cy.iframe().find("input").type("Screening procedure");
+    cy.iframe().find("[data-testid='Screening procedure']").click();
 
     cy.iframe().find("button:Contains(Add data feature)").click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("input").type("Red color");
     cy.iframe().find("[data-testid='Red color']").click();
 
-    cy.iframe().find("button:Contains(procedure_occurrence)").click();
+    cy.iframe().find("button:Contains(procedureOccurrence)").click();
     cy.iframe().find("[name='procedure']").click();
 
-    cy.iframe().find("button:Contains(condition_occurrence)").click();
+    cy.iframe().find("button:Contains(conditionOccurrence)").click();
     cy.iframe().find("[name='end_date']").click();
 
     cy.iframe().find("[name='show-included-columns-only']").click();

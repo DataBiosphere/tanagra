@@ -1,0 +1,6 @@
+{
+  "name": "heartRateLevelPerson",
+  "groupEntity": "person",
+  "itemsEntity": "heartRateLevel",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

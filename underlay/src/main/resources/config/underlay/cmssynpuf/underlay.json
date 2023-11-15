@@ -1,0 +1,51 @@
+{
+  "name": "cmssynpuf",
+  "primaryEntity": "person",
+  "entities": [
+    "cmssynpuf/person",
+
+    "omop/condition",
+    "cmssynpuf/conditionOccurrence",
+    "omop/procedure",
+    "cmssynpuf/procedureOccurrence",
+
+    "omop/brand",
+    "omop/ingredient",
+    "cmssynpuf/ingredientOccurrence",
+
+    "omop/observation",
+    "cmssynpuf/observationOccurrence",
+    "omop/device",
+    "cmssynpuf/deviceOccurrence",
+
+    "omop/cpt4",
+    "omop/icd9cm",
+    "omop/icd9proc",
+    "omop/icd10cm"
+  ],
+  "groupItemsEntityGroups": [
+    "omop/brandIngredient"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "omop/conditionPerson",
+    "omop/procedurePerson",
+
+    "omop/ingredientPerson",
+
+    "omop/observationPerson",
+    "omop/devicePerson",
+
+    "cmssynpuf/cpt4Person",
+    "cmssynpuf/icd9cmPerson",
+    "omop/icd9procPerson",
+    "cmssynpuf/icd10cmPerson"
+  ],
+  "metadata": {
+    "displayName": "Centers for Medicare and Medicaid Services (CMS) Medicare Claims Synthetic Public Use Files (SynPUF)",
+    "description": "Synthetic data containing 2008-2010 Medicare insurance claims",
+    "properties": {
+      "lastUpdated": "Created 10/18/19"
+    }
+  },
+  "uiConfigFile": "ui.json"
+}

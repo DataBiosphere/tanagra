@@ -1,0 +1,20 @@
+{
+  "name": "notePerson",
+  "criteriaEntity": "note",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "noteOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "note"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "note_type_concept_id"
+  }
+}

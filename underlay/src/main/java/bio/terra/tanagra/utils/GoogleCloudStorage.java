@@ -3,7 +3,13 @@ package bio.terra.tanagra.utils;
 import bio.terra.tanagra.exception.SystemException;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageException;
+import com.google.cloud.storage.StorageOptions;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -109,7 +115,7 @@ public final class GoogleCloudStorage {
                 new URL(signedUrl).openConnection().getInputStream(), Charset.forName("UTF-8")))) {
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
-        fileContents.append(inputLine).append('\n');
+        fileContents.append(inputLine).append(System.lineSeparator());
       }
     }
     return fileContents.toString();
@@ -151,14 +157,14 @@ public final class GoogleCloudStorage {
    *     by the GCS client or the retries
    */
   private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     return handleClientExceptions(
         () ->
-            HttpUtils.callWithRetries(
+            RetryUtils.callWithRetries(
                 makeRequest,
                 GoogleCloudStorage::isRetryable,
                 GCS_MAXIMUM_RETRIES,
-                HttpUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
+                RetryUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
         errorMsg);
   }
 
@@ -171,7 +177,7 @@ public final class GoogleCloudStorage {
    *     thrown by the GCS client or the retries
    */
   private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     try {
       return makeRequest.makeRequest();
     } catch (IOException | InterruptedException ex) {

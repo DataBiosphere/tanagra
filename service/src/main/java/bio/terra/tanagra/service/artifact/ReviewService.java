@@ -1,24 +1,49 @@
 package bio.terra.tanagra.service.artifact;
 
-import bio.terra.tanagra.api.query.*;
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.EntityQueryRunner;
+import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.count.CountQueryRequest;
+import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.PageMarker;
+import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.artifact.model.*;
-import bio.terra.tanagra.service.query.*;
-import bio.terra.tanagra.underlay.*;
+import bio.terra.tanagra.service.artifact.model.ActivityLog;
+import bio.terra.tanagra.service.artifact.model.AnnotationKey;
+import bio.terra.tanagra.service.artifact.model.AnnotationValue;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.Review;
+import bio.terra.tanagra.service.artifact.model.Study;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewInstance;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -241,7 +266,8 @@ public class ReviewService {
   public ReviewQueryResult listReviewInstances(
       String studyId, String cohortId, String reviewId, ReviewQueryRequest reviewQueryRequest) {
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity primaryEntity = underlayService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+    Entity primaryEntity = underlay.getPrimaryEntity();
 
     // Make sure the entity ID attribute is included, so we can match the entity instances to their
     // associated annotations.
@@ -255,6 +281,8 @@ public class ReviewService {
         reviewDao.getPrimaryEntityIdsToStableIndex(reviewId);
     EntityFilter entityFilter =
         new AttributeFilter(
+            underlay,
+            primaryEntity,
             idAttribute,
             FunctionFilterVariable.FunctionTemplate.IN,
             primaryEntityIdsToStableIndex.keySet().stream().collect(Collectors.toList()));
@@ -265,17 +293,18 @@ public class ReviewService {
               List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
     }
 
-    // Get all the entity instances.
-    EntityQueryResult entityQueryResult =
-        UnderlayService.listEntityInstances(
-            new EntityQueryRequest.Builder()
-                .entity(primaryEntity)
-                .mappingType(Underlay.MappingType.INDEX)
-                .selectAttributes(reviewQueryRequest.getAttributes())
-                .selectHierarchyFields(List.of())
-                .selectRelationshipFields(List.of())
-                .filter(entityFilter)
-                .build());
+    // Get all the primary entity instances.
+    List<ValueDisplayField> attributeFields = new ArrayList<>();
+    reviewQueryRequest.getAttributes().stream()
+        .forEach(
+            attribute ->
+                attributeFields.add(
+                    new AttributeField(underlay, primaryEntity, attribute, false, false)));
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay, primaryEntity, attributeFields, entityFilter, null, null, null, null);
+    ListQueryResult listQueryResult =
+        EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
 
     // Get the annotation values.
     List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId, reviewId);
@@ -283,25 +312,34 @@ public class ReviewService {
     // Merge entity instances and annotation values, filtering out any instances that don't match
     // the annotation filter (if specified).
     List<ReviewInstance> reviewInstances = new ArrayList<>();
-    entityQueryResult.getEntityInstances().stream()
+    listQueryResult.getListInstances().stream()
         .forEach(
-            ei -> {
-              Literal entityInstanceId = ei.getAttributeValues().get(idAttribute).getValue();
-
-              // TODO: Handle ID data types other than long.
-              String entityInstanceIdStr = entityInstanceId.getInt64Val().toString();
+            listInstance -> {
+              Map<Attribute, ValueDisplay> attributeValues = new HashMap<>();
+              listInstance.getEntityFieldValues().entrySet().stream()
+                  .forEach(
+                      entry -> {
+                        ValueDisplayField field = entry.getKey();
+                        ValueDisplay value = entry.getValue();
+                        if (field instanceof AttributeField) {
+                          attributeValues.put(((AttributeField) field).getAttribute(), value);
+                        }
+                      });
+              Literal idAttributeValue =
+                  attributeValues.get(primaryEntity.getIdAttribute()).getValue();
+              String idAttributeValueStr = idAttributeValue.getInt64Val().toString();
 
               List<AnnotationValue> associatedAnnotationValues =
                   annotationValues.stream()
-                      .filter(av -> av.getInstanceId().equals(entityInstanceIdStr))
+                      .filter(av -> av.getInstanceId().equals(idAttributeValueStr))
                       .collect(Collectors.toList());
 
               if (!reviewQueryRequest.hasAnnotationFilter()
                   || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
                 reviewInstances.add(
                     new ReviewInstance(
-                        primaryEntityIdsToStableIndex.get(entityInstanceId),
-                        ei.getAttributeValues(),
+                        primaryEntityIdsToStableIndex.get(idAttributeValue),
+                        attributeValues,
                         associatedAnnotationValues));
               }
             });
@@ -337,7 +375,7 @@ public class ReviewService {
         lastIndexPlusOne >= reviewInstances.size() ? null : PageMarker.forOffset(lastIndexPlusOne);
 
     return new ReviewQueryResult(
-        entityQueryResult.getSql(),
+        listQueryResult.getSql(),
         reviewInstances.subList(offset, lastIndexPlusOne),
         nextPageMarker);
   }
@@ -346,28 +384,31 @@ public class ReviewService {
    * Run a breakdown query on all the entity instances that are part of a review. Return the counts
    * and the generated SQL string.
    */
-  public EntityCountResult countReviewInstances(
+  public CountQueryResult countReviewInstances(
       String studyId, String cohortId, String reviewId, List<String> groupByAttributeNames) {
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity entity = underlayService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
-    List<Attribute> groupByAttributes =
+    Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+    Entity entity = underlay.getPrimaryEntity();
+    List<ValueDisplayField> groupByAttributeFields =
         groupByAttributeNames.stream()
-            .map(attrName -> entity.getAttribute(attrName))
+            .map(
+                attrName ->
+                    new AttributeField(
+                        underlay, entity, entity.getAttribute(attrName), true, false))
             .collect(Collectors.toList());
 
     EntityFilter entityFilter =
         new AttributeFilter(
+            underlay,
+            entity,
             entity.getIdAttribute(),
             FunctionFilterVariable.FunctionTemplate.IN,
             reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
                 .collect(Collectors.toList()));
-    return underlayService.countEntityInstances(
-        new EntityCountRequest.Builder()
-            .entity(entity)
-            .mappingType(Underlay.MappingType.INDEX)
-            .attributes(groupByAttributes)
-            .filter(entityFilter)
-            .build());
+    CountQueryRequest countQueryRequest =
+        new CountQueryRequest(
+            underlay, entity, groupByAttributeFields, entityFilter, null, null, null);
+    return EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
   }
 
   public String buildTsvStringForAnnotationValues(Study study, Cohort cohort) {
@@ -377,10 +418,10 @@ public class ReviewService {
     Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
     String primaryIdSourceColumnName =
         underlay
-            .getPrimaryEntity()
-            .getIdAttribute()
-            .getMapping(Underlay.MappingType.SOURCE)
-            .getValue()
+            .getSourceSchema()
+            .getEntityAttributes(underlay.getPrimaryEntity().getName())
+            .getAttributeValueColumnSchemas()
+            .get(underlay.getPrimaryEntity().getIdAttribute().getName())
             .getColumnName();
     StringBuilder columnHeaders = new StringBuilder(primaryIdSourceColumnName);
     List<AnnotationKey> annotationKeys =

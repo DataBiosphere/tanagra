@@ -44,12 +44,12 @@ fi
 
 if [[ ${useVerilyUnderlays} ]]; then
   echo "Using Verily underlays."
-  export TANAGRA_UNDERLAY_FILES=verily/cms_synpuf/cms_synpuf.json,verily/sdd_refresh0323/sdd_refresh0323.json,verily/pilot_synthea_2022q3/pilot_synthea_2022q3.json
+  export TANAGRA_UNDERLAY_FILES=cmssynpuf_verily,aouSR2019q4r4_verily,sd020230331_verily,pilotsynthea2022q3_verily
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=verily-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-dev-export-bucket
 elif [[ ${useAouUnderlays} ]]; then
   echo "Using AoU test underlays."
-  export TANAGRA_UNDERLAY_FILES=aou/test/SC2023Q3R1/SC2023Q3R1.json,aou/test/SR2023Q3R1/SR2023Q3R1.json
+  export TANAGRA_UNDERLAY_FILES=aouSR2023Q3R1_aoutest,aouSC2023Q3R1_aoutest
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
   # uncomment both lines below for test AoU Workbench access-control model
@@ -57,7 +57,7 @@ elif [[ ${useAouUnderlays} ]]; then
   # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
 else
   echo "Using Broad underlays."
-  export TANAGRA_UNDERLAY_FILES=broad/aou_synthetic/aou_synthetic.json,broad/cms_synpuf/cms_synpuf.json
+  export TANAGRA_UNDERLAY_FILES=cmssynpuf_broad,aouSR2019q4r4_broad
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
 fi

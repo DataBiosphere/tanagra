@@ -4,15 +4,30 @@ import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROU
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
 import static bio.terra.tanagra.service.CriteriaValues.ETHNICITY_EQ_JAPANESE;
 import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
-import bio.terra.tanagra.service.artifact.*;
-import bio.terra.tanagra.service.artifact.model.*;
+import bio.terra.tanagra.service.UnderlayService;
+import bio.terra.tanagra.service.artifact.AnnotationService;
+import bio.terra.tanagra.service.artifact.CohortService;
+import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.ReviewService;
+import bio.terra.tanagra.service.artifact.StudyService;
+import bio.terra.tanagra.service.artifact.model.AnnotationKey;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.Review;
+import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.authentication.UserId;
-import bio.terra.tanagra.service.query.UnderlayService;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -42,9 +57,9 @@ public class BaseAccessControlTest {
   @Autowired protected AnnotationService annotationService;
 
   protected AccessControl impl;
-  protected static final String CMS_SYNPUF = "cms_synpuf";
-  protected static final String AOU_SYNTHETIC = "aou_synthetic";
-  protected static final String SDD = "sdd_refresh0323";
+  protected static final String CMS_SYNPUF = "cmssynpuf";
+  protected static final String AOU_SYNTHETIC = "aouSR2019q4r4";
+  protected static final String SDD = "sd020230331";
 
   protected static final UserId USER_1 = UserId.fromToken("subject1", "user1@gmail.com", "token1");
   protected static final UserId USER_2 = UserId.fromToken("subject2", "user2@gmail.com", "token2");

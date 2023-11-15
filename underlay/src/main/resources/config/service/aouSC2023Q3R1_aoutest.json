@@ -1,0 +1,21 @@
+{
+  "underlay": "aouSC2023Q3R1",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "all-of-us-ehr-dev",
+      "datasetId": "SC2023Q3R1",
+      "sqlSubstitutions": {
+        "omopDataset": "all-of-us-ehr-dev.SC2023Q3R1",
+        "staticTablesDataset": "all-of-us-ehr-dev.SC2023Q3R1"
+      }
+    },
+    "indexData": {
+      "projectId": "all-of-us-ehr-dev",
+      "datasetId": "SC2023Q3R1",
+      "tablePrefix": "T"
+    },
+    "queryProjectId": "all-of-us-ehr-dev",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}

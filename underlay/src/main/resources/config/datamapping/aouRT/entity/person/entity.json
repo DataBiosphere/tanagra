@@ -1,0 +1,23 @@
+{
+  "name": "person",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "person_id" },
+    { "name": "year_of_birth", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "age", "dataType": "TIMESTAMP", "valueFieldName": "birth_datetime", "runtimeSqlFunctionWrapper": "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)", "runtimeDataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_concept_id", "displayFieldName": "gender_concept_name", "isComputeDisplayHint": true },
+    { "name": "race", "dataType": "INT64", "valueFieldName": "race_concept_id", "displayFieldName": "race_concept_name", "isComputeDisplayHint": true },
+    { "name": "ethnicity", "dataType": "INT64", "valueFieldName": "ethnicity_concept_id", "displayFieldName": "ethnicity_concept_name", "isComputeDisplayHint": true },
+    { "name": "sex_at_birth", "dataType": "INT64", "valueFieldName": "sex_at_birth_concept_id", "displayFieldName": "sex_at_birth_concept_name", "isComputeDisplayHint": true },
+    { "name": "has_fitbit_activity_summary", "dataType": "INT64" },
+    { "name": "has_fitbit_heart_rate_level", "dataType": "INT64" },
+    { "name": "has_fitbit_heart_rate_summary", "dataType": "INT64" },
+    { "name": "has_fitbit_steps_intraday", "dataType": "INT64" },
+    { "name": "has_fitbit_sleep_daily_summary", "dataType": "INT64" },
+    { "name": "has_fitbit_sleep_level", "dataType": "INT64" },
+    { "name": "has_fitbit", "dataType": "INT64" },
+    { "name": "has_ehr_data", "dataType": "INT64" }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "gender", "race", "age" ]
+}

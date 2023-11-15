@@ -1,0 +1,23 @@
+{
+  "name": "zipcodeSocioeconomic",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "observation_datetime_utc", "dataType": "TIMESTAMP" },
+    { "name": "observation_datetime_str", "dataType": "STRING" },
+    { "name": "zip_code", "dataType": "STRING" },
+    { "name": "assisted_income", "dataType": "DOUBLE" },
+    { "name": "high_school_education", "dataType": "DOUBLE" },
+    { "name": "median_income", "dataType": "DOUBLE" },
+    { "name": "no_health_insurance", "dataType": "DOUBLE" },
+    { "name": "poverty", "dataType": "DOUBLE" },
+    { "name": "vacant_housing", "dataType": "DOUBLE" },
+    { "name": "deprivation_index", "dataType": "DOUBLE" },
+    { "name": "american_community_survey_year", "dataType": "INT64" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "concept_code" ]
+  }
+}

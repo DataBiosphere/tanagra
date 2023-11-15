@@ -1,0 +1,23 @@
+{
+  "name": "sleepDailySummary",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "sleep_date", "dataType": "DATE" },
+    { "name": "is_main_sleep", "dataType": "STRING" },
+    { "name": "minute_in_bed", "dataType": "INT64" },
+    { "name": "minute_asleep", "dataType": "INT64" },
+    { "name": "minute_after_wakeup", "dataType": "INT64" },
+    { "name": "minute_awake", "dataType": "INT64" },
+    { "name": "minute_restless", "dataType": "INT64" },
+    { "name": "minute_deep", "dataType": "INT64" },
+    { "name": "minute_light", "dataType": "INT64" },
+    { "name": "minute_rem", "dataType": "INT64" },
+    { "name": "minute_wake", "dataType": "INT64" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "concept_code" ]
+  }
+}

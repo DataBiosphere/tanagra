@@ -1,7 +1,0 @@
-SELECT oo.observation_id, pc.id AS cpt4_id
-FROM `sd-vumc-tanagra-test.sd_20230331.observation` AS oo
-
-JOIN `sd-vumc-tanagra-test.aou_static_prep.prep_cpt` AS pc
-ON pc.concept_id = oo.observation_source_concept_id
-
-WHERE pc.type = 'CPT4'

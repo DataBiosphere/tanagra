@@ -1,14 +1,22 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
 import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.EntityQueryRequest;
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -18,13 +26,15 @@ import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.query.*;
-import bio.terra.tanagra.underlay.Entity;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -34,6 +44,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -57,7 +68,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("requires-cloud-access")
 public class DataExportServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportServiceTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
   @Autowired private UnderlayService underlayService;
 
   @Autowired private StudyService studyService;
@@ -98,7 +109,8 @@ public class DataExportServiceTest {
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotation key {}", annotationKey1.getId());
 
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
     Review review1 =
         reviewService.createReview(
             study1.getId(),
@@ -106,6 +118,8 @@ public class DataExportServiceTest {
             Review.builder().size(10),
             userEmail,
             new AttributeFilter(
+                underlay,
+                primaryEntity,
                 primaryEntity.getAttribute("gender"),
                 BinaryFilterVariable.BinaryOperator.EQUALS,
                 new Literal(8532)));
@@ -214,7 +228,7 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()),
+            List.of(buildListQueryRequest()),
             buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
@@ -232,9 +246,10 @@ public class DataExportServiceTest {
     String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
     assertFalse(fileContents.isEmpty());
     LOGGER.info("Entity instances fileContents: {}", fileContents);
-    assertTrue(
-        fileContents.startsWith(
-            "age,ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race"));
+    String fileContentsFirstLine = fileContents.split(System.lineSeparator())[0];
+    assertEquals(
+        fileContentsFirstLine,
+        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
     // Validate the annotations file.
@@ -261,7 +276,7 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()),
+            List.of(buildListQueryRequest()),
             buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
@@ -308,9 +323,10 @@ public class DataExportServiceTest {
     String entityInstancesFileContents =
         annotationsFileContents.equals(fileContents1) ? fileContents2 : fileContents1;
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
-    assertTrue(
-        entityInstancesFileContents.startsWith(
-            "age,ethnicity,gender,id,race,t_display_ethnicity,t_display_gender,t_display_race"));
+    String fileContentsFirstLine = entityInstancesFileContents.split(System.lineSeparator())[0];
+    assertEquals(
+        fileContentsFirstLine,
+        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
   }
 
@@ -322,7 +338,7 @@ public class DataExportServiceTest {
             study1.getId(),
             List.of(cohort1.getId()),
             exportRequest,
-            List.of(buildEntityQueryRequest()),
+            List.of(buildListQueryRequest()),
             buildPrimaryEntityFilter(),
             "abc@123.com");
     assertNotNull(exportResult);
@@ -343,19 +359,24 @@ public class DataExportServiceTest {
         () -> new ObjectMapper().readTree(fileContents)); // Notebook file is valid json.
   }
 
-  private EntityQueryRequest buildEntityQueryRequest() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
-    return new EntityQueryRequest.Builder()
-        .entity(primaryEntity)
-        .mappingType(Underlay.MappingType.INDEX)
-        .selectAttributes(primaryEntity.getAttributes())
-        .limit(5)
-        .build();
+  private ListQueryRequest buildListQueryRequest() {
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
+
+    // Select all attributes.
+    List<ValueDisplayField> selectFields =
+        primaryEntity.getAttributes().stream()
+            .map(attribute -> new AttributeField(underlay, primaryEntity, attribute, false, false))
+            .collect(Collectors.toList());
+    return new ListQueryRequest(underlay, primaryEntity, selectFields, null, null, 5, null, null);
   }
 
   private EntityFilter buildPrimaryEntityFilter() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
     return new AttributeFilter(
+        underlay,
+        primaryEntity,
         primaryEntity.getAttribute("year_of_birth"),
         BinaryFilterVariable.BinaryOperator.EQUALS,
         new Literal(11L));

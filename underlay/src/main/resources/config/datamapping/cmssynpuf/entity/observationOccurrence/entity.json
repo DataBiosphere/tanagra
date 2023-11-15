@@ -1,0 +1,18 @@
+{
+  "name": "observationOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "observation_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "observation", "dataType": "INT64", "valueFieldName": "observation_concept_id", "displayFieldName": "observation_concept_name" },
+    { "name": "date", "dataType": "DATE", "valueFieldName": "observation_date" },
+    { "name": "value_as_string", "dataType": "STRING" },
+    { "name": "value", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name" },
+    { "name": "unit", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name" },
+    { "name": "source_value", "dataType": "STRING", "valueFieldName": "observation_source_value" },
+    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "observation_source_concept_id" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "visit_occurrence_id", "dataType": "INT64" }
+  ],
+  "idAttribute": "id"
+}

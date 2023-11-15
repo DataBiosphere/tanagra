@@ -1,12 +1,39 @@
 package bio.terra.tanagra.app.controller.objmapping;
 
 import bio.terra.common.exception.NotFoundException;
-import bio.terra.tanagra.api.query.*;
-import bio.terra.tanagra.api.query.filter.*;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.HierarchyIsMemberField;
+import bio.terra.tanagra.api.field.HierarchyIsRootField;
+import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
+import bio.terra.tanagra.api.field.HierarchyPathField;
+import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.filter.BooleanNotFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
+import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
+import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
+import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.api.filter.TextSearchFilter;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.generated.model.ApiAttributeFilter;
+import bio.terra.tanagra.generated.model.ApiBinaryOperator;
+import bio.terra.tanagra.generated.model.ApiBooleanLogicFilter;
+import bio.terra.tanagra.generated.model.ApiCriteria;
+import bio.terra.tanagra.generated.model.ApiFilter;
+import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
+import bio.terra.tanagra.generated.model.ApiLiteral;
+import bio.terra.tanagra.generated.model.ApiQuery;
+import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
+import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
+import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
+import bio.terra.tanagra.generated.model.ApiTextFilter;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.PageMarker;
@@ -14,52 +41,63 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.artifact.model.Criteria;
-import bio.terra.tanagra.underlay.*;
-import java.util.*;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class FromApiUtils {
   private FromApiUtils() {}
 
   public static EntityFilter fromApiObject(ApiFilter apiFilter, Underlay underlay) {
-    return fromApiObject(apiFilter, underlay.getPrimaryEntity(), underlay.getName());
+    return fromApiObject(apiFilter, underlay.getPrimaryEntity(), underlay);
   }
 
-  public static EntityFilter fromApiObject(
-      ApiFilter apiFilter, Entity entity, String underlayName) {
+  public static EntityFilter fromApiObject(ApiFilter apiFilter, Entity entity, Underlay underlay) {
     validateApiFilter(apiFilter);
     switch (apiFilter.getFilterType()) {
       case ATTRIBUTE:
         ApiAttributeFilter apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
         return new AttributeFilter(
-            getAttribute(entity, apiAttributeFilter.getAttribute()),
-            FromApiUtils.fromApiObject(apiAttributeFilter.getOperator()),
-            FromApiUtils.fromApiObject(apiAttributeFilter.getValue()));
+            underlay,
+            entity,
+            entity.getAttribute(apiAttributeFilter.getAttribute()),
+            fromApiObject(apiAttributeFilter.getOperator()),
+            fromApiObject(apiAttributeFilter.getValue()));
       case TEXT:
         ApiTextFilter apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
-        TextFilter.Builder textFilterBuilder =
-            new TextFilter.Builder()
-                .textSearch(entity.getTextSearch())
-                .functionTemplate(FromApiUtils.fromApiObject(apiTextFilter.getMatchType()))
-                .text(apiTextFilter.getText());
-        if (apiTextFilter.getAttribute() != null) {
-          textFilterBuilder.attribute(getAttribute(entity, apiTextFilter.getAttribute()));
-        }
-        return textFilterBuilder.build();
+        return new TextSearchFilter(
+            underlay,
+            entity,
+            FromApiUtils.fromApiObject(apiTextFilter.getMatchType()),
+            apiTextFilter.getText(),
+            apiTextFilter.getAttribute() == null
+                ? null
+                : entity.getAttribute(apiTextFilter.getAttribute()));
       case HIERARCHY:
         ApiHierarchyFilter apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
-        Hierarchy hierarchy = getHierarchy(entity, apiHierarchyFilter.getHierarchy());
+        Hierarchy hierarchy = entity.getHierarchy(apiHierarchyFilter.getHierarchy());
         switch (apiHierarchyFilter.getOperator()) {
           case IS_ROOT:
-            return new HierarchyRootFilter(hierarchy);
+            return new HierarchyIsRootFilter(underlay, entity, hierarchy);
           case IS_MEMBER:
-            return new HierarchyMemberFilter(hierarchy);
+            return new HierarchyIsMemberFilter(underlay, entity, hierarchy);
           case CHILD_OF:
-            return new HierarchyParentFilter(
-                hierarchy, FromApiUtils.fromApiObject(apiHierarchyFilter.getValue()));
+            return new HierarchyHasParentFilter(
+                underlay, entity, hierarchy, fromApiObject(apiHierarchyFilter.getValue()));
           case DESCENDANT_OF_INCLUSIVE:
-            return new HierarchyAncestorFilter(
-                hierarchy, FromApiUtils.fromApiObject(apiHierarchyFilter.getValue()));
+            return new HierarchyHasAncestorFilter(
+                underlay, entity, hierarchy, fromApiObject(apiHierarchyFilter.getValue()));
           default:
             throw new SystemException(
                 "Unknown API hierarchy filter operator: " + apiHierarchyFilter.getOperator());
@@ -67,13 +105,13 @@ public final class FromApiUtils {
       case RELATIONSHIP:
         ApiRelationshipFilter apiRelationshipFilter =
             apiFilter.getFilterUnion().getRelationshipFilter();
-        Collection<EntityGroup> entityGroups = entity.getUnderlay().getEntityGroups().values();
-        Entity relatedEntity = entity.getUnderlay().getEntity(apiRelationshipFilter.getEntity());
-        Relationship relationship = getRelationship(entityGroups, entity, relatedEntity);
+        Entity relatedEntity = underlay.getEntity(apiRelationshipFilter.getEntity());
+        Pair<EntityGroup, Relationship> entityGroupAndRelationship =
+            getRelationship(underlay.getEntityGroups(), entity, relatedEntity);
         EntityFilter subFilter =
             apiRelationshipFilter.getSubfilter() == null
                 ? null
-                : fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlayName);
+                : fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlay);
 
         Attribute groupByCountAttribute = null;
         BinaryFilterVariable.BinaryOperator groupByCountOperator = null;
@@ -87,10 +125,11 @@ public final class FromApiUtils {
           groupByCountOperator = fromApiObject(apiRelationshipFilter.getGroupByCountOperator());
           groupByCountValue = apiRelationshipFilter.getGroupByCountValue();
         }
-
         return new RelationshipFilter(
+            underlay,
+            entityGroupAndRelationship.getLeft(),
             entity,
-            relationship,
+            entityGroupAndRelationship.getRight(),
             subFilter,
             groupByCountAttribute,
             groupByCountOperator,
@@ -100,7 +139,7 @@ public final class FromApiUtils {
             apiFilter.getFilterUnion().getBooleanLogicFilter();
         List<EntityFilter> subFilters =
             apiBooleanLogicFilter.getSubfilters().stream()
-                .map(apiSubFilter -> fromApiObject(apiSubFilter, entity, underlayName))
+                .map(apiSubFilter -> fromApiObject(apiSubFilter, entity, underlay))
                 .collect(Collectors.toList());
         switch (apiBooleanLogicFilter.getOperator()) {
           case NOT:
@@ -141,28 +180,146 @@ public final class FromApiUtils {
     }
   }
 
-  public static EntityQueryRequest fromApiObject(ApiQuery apiObj, Entity entity) {
-    List<Attribute> selectAttributes = selectAttributesFromRequest(apiObj, entity);
-    List<HierarchyField> selectHierarchyFields = selectHierarchyFieldsFromRequest(apiObj, entity);
-    List<RelationshipField> selectRelationshipFields =
-        selectRelationshipFieldsFromRequest(apiObj, entity);
-    List<EntityQueryOrderBy> entityOrderBys = entityOrderBysFromRequest(apiObj, entity);
-    EntityFilter entityFilter = null;
-    if (apiObj.getFilter() != null) {
-      entityFilter = fromApiObject(apiObj.getFilter(), entity, entity.getUnderlay().getName());
+  public static ListQueryRequest fromApiObject(ApiQuery apiObj, Entity entity, Underlay underlay) {
+    // Build the select fields for attributes, hierarchies, and relationships.
+    List<ValueDisplayField> selectFields = new ArrayList<>();
+    if (apiObj.getIncludeAttributes() != null) {
+      apiObj.getIncludeAttributes().stream()
+          .forEach(
+              attributeName ->
+                  selectFields.add(buildAttributeField(underlay, entity, attributeName, false)));
     }
-    return new EntityQueryRequest.Builder()
-        .entity(entity)
-        .mappingType(Underlay.MappingType.INDEX)
-        .selectAttributes(selectAttributes)
-        .selectHierarchyFields(selectHierarchyFields)
-        .selectRelationshipFields(selectRelationshipFields)
-        .filter(entityFilter)
-        .orderBys(entityOrderBys)
-        .limit(apiObj.getLimit())
-        .pageSize(apiObj.getPageSize())
-        .pageMarker(PageMarker.deserialize(apiObj.getPageMarker()))
-        .build();
+    if (apiObj.getIncludeHierarchyFields() != null) {
+      apiObj.getIncludeHierarchyFields().getHierarchies().stream()
+          .forEach(
+              hierarchyName ->
+                  selectFields.addAll(
+                      buildHierarchyFields(
+                          underlay,
+                          entity,
+                          hierarchyName,
+                          apiObj.getIncludeHierarchyFields().getFields())));
+    }
+    if (apiObj.getIncludeRelationshipFields() != null) {
+      apiObj.getIncludeRelationshipFields().stream()
+          .forEach(
+              relationshipField ->
+                  selectFields.addAll(
+                      buildRelationshipFields(underlay, entity, relationshipField)));
+    }
+
+    // Build the entity filter.
+    EntityFilter filter =
+        apiObj.getFilter() == null ? null : fromApiObject(apiObj.getFilter(), entity, underlay);
+
+    // Build the order by fields.
+    List<ListQueryRequest.OrderBy> orderByFields = new ArrayList<>();
+    if (apiObj.getOrderBys() != null) {
+      apiObj.getOrderBys().stream()
+          .forEach(
+              orderByField -> {
+                ValueDisplayField valueDisplayField =
+                    orderByField.getRelationshipField() == null
+                        ? buildAttributeField(underlay, entity, orderByField.getAttribute(), true)
+                        : buildRelationshipField(
+                            underlay,
+                            entity,
+                            underlay.getEntity(
+                                orderByField.getRelationshipField().getRelatedEntity()),
+                            orderByField.getRelationshipField().getHierarchy() == null
+                                ? null
+                                : entity.getHierarchy(
+                                    orderByField.getRelationshipField().getHierarchy()));
+                OrderByDirection direction =
+                    OrderByDirection.valueOf(orderByField.getDirection().name());
+                orderByFields.add(new ListQueryRequest.OrderBy(valueDisplayField, direction));
+              });
+    }
+
+    return new ListQueryRequest(
+        underlay,
+        entity,
+        selectFields,
+        filter,
+        orderByFields,
+        apiObj.getLimit(),
+        PageMarker.deserialize(apiObj.getPageMarker()),
+        apiObj.getPageSize());
+  }
+
+  public static AttributeField buildAttributeField(
+      Underlay underlay, Entity entity, String attributeName, boolean excludeDisplay) {
+    return new AttributeField(
+        underlay, entity, entity.getAttribute(attributeName), excludeDisplay, false);
+  }
+
+  private static Set<ValueDisplayField> buildHierarchyFields(
+      Underlay underlay,
+      Entity entity,
+      String hierarchyName,
+      List<ApiQueryIncludeHierarchyFields.FieldsEnum> fieldTypes) {
+    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
+    Set<ValueDisplayField> hierarchyFields = new HashSet<>();
+    if (fieldTypes.contains(ApiQueryIncludeHierarchyFields.FieldsEnum.PATH)) {
+      hierarchyFields.add(new HierarchyPathField(underlay, entity, hierarchy));
+    }
+    if (fieldTypes.contains(ApiQueryIncludeHierarchyFields.FieldsEnum.NUM_CHILDREN)) {
+      hierarchyFields.add(new HierarchyNumChildrenField(underlay, entity, hierarchy));
+    }
+    if (fieldTypes.contains(ApiQueryIncludeHierarchyFields.FieldsEnum.IS_ROOT)) {
+      hierarchyFields.add(new HierarchyIsRootField(underlay, entity, hierarchy));
+    }
+    if (fieldTypes.contains(ApiQueryIncludeHierarchyFields.FieldsEnum.IS_MEMBER)) {
+      hierarchyFields.add(new HierarchyIsMemberField(underlay, entity, hierarchy));
+    }
+    return hierarchyFields;
+  }
+
+  private static Set<ValueDisplayField> buildRelationshipFields(
+      Underlay underlay, Entity entity, ApiQueryIncludeRelationshipFields apiObj) {
+    Entity relatedEntity = underlay.getEntity(apiObj.getRelatedEntity());
+
+    List<Hierarchy> hierarchies = new ArrayList<>();
+    // Always return the NO_HIERARCHY rollups.
+    // TODO: Use a constant here instead of special-casing null.
+    hierarchies.add(null);
+    if (apiObj.getHierarchies() != null) {
+      apiObj.getHierarchies().stream()
+          .forEach(hierarchyName -> hierarchies.add(entity.getHierarchy(hierarchyName)));
+    }
+
+    Set<ValueDisplayField> relationshipFields = new HashSet<>();
+    hierarchies.stream()
+        .forEach(
+            hierarchy ->
+                relationshipFields.add(
+                    buildRelationshipField(underlay, entity, relatedEntity, hierarchy)));
+    return relationshipFields;
+  }
+
+  private static ValueDisplayField buildRelationshipField(
+      Underlay underlay, Entity entity, Entity relatedEntity, Hierarchy hierarchy) {
+    return new RelatedEntityIdCountField(
+        underlay,
+        entity,
+        relatedEntity,
+        getRelationship(underlay.getEntityGroups(), entity, relatedEntity).getLeft(),
+        hierarchy);
+  }
+
+  public static Pair<EntityGroup, Relationship> getRelationship(
+      Collection<EntityGroup> entityGroups, Entity entity1, Entity entity2) {
+    for (EntityGroup entityGroup : entityGroups) {
+      Optional<Relationship> relationship =
+          entityGroup.getRelationships().stream()
+              .filter(r -> r.matchesEntities(entity1, entity2))
+              .findAny();
+      if (relationship.isPresent()) {
+        return Pair.of(entityGroup, relationship.get());
+      }
+    }
+    throw new NotFoundException(
+        "Relationship not found for entities: " + entity1.getName() + ", " + entity2.getName());
   }
 
   public static Literal fromApiObject(ApiLiteral apiLiteral) {
@@ -206,133 +363,5 @@ public final class FromApiUtils {
         .selectionData(apiObj.getSelectionData())
         .tags(apiObj.getTags())
         .build();
-  }
-
-  public static List<Attribute> selectAttributesFromRequest(ApiQuery body, Entity entity) {
-    List<Attribute> selectAttributes = new ArrayList<>();
-    if (body.getIncludeAttributes() != null) {
-      selectAttributes =
-          body.getIncludeAttributes().stream()
-              .map(attrName -> getAttribute(entity, attrName))
-              .collect(Collectors.toList());
-    }
-    return selectAttributes;
-  }
-
-  public static List<HierarchyField> selectHierarchyFieldsFromRequest(
-      ApiQuery body, Entity entity) {
-    List<HierarchyField> selectHierarchyFields = new ArrayList<>();
-    if (body.getIncludeHierarchyFields() != null) {
-      // for each hierarchy, return all the fields specified
-      body.getIncludeHierarchyFields().getHierarchies().stream()
-          .forEach(
-              hierarchyName -> {
-                Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
-                body.getIncludeHierarchyFields().getFields().stream()
-                    .forEach(
-                        hierarchyFieldName ->
-                            selectHierarchyFields.add(
-                                hierarchy.getField(
-                                    HierarchyField.Type.valueOf(hierarchyFieldName.name()))));
-              });
-    }
-    return selectHierarchyFields;
-  }
-
-  public static List<RelationshipField> selectRelationshipFieldsFromRequest(
-      ApiQuery body, Entity entity) {
-    List<RelationshipField> selectRelationshipFields = new ArrayList<>();
-    if (body.getIncludeRelationshipFields() != null) {
-      // for each related entity, return all the fields specified
-      body.getIncludeRelationshipFields().stream()
-          .forEach(
-              includeRelationshipField -> {
-                Entity relatedEntity =
-                    entity.getUnderlay().getEntity(includeRelationshipField.getRelatedEntity());
-                List<Hierarchy> hierarchies = new ArrayList<>();
-                hierarchies.add(null); // Always return the NO_HIERARCHY rollups.
-                if (includeRelationshipField.getHierarchies() != null
-                    && !includeRelationshipField.getHierarchies().isEmpty()) {
-                  includeRelationshipField.getHierarchies().stream()
-                      .forEach(
-                          hierarchyName -> hierarchies.add(entity.getHierarchy(hierarchyName)));
-                }
-
-                hierarchies.stream()
-                    .forEach(
-                        hierarchy -> {
-                          Relationship relationship = entity.getRelationship(relatedEntity);
-                          selectRelationshipFields.add(
-                              relationship.getField(
-                                  RelationshipField.Type.COUNT, entity, hierarchy));
-                        });
-              });
-    }
-    return selectRelationshipFields;
-  }
-
-  public static List<EntityQueryOrderBy> entityOrderBysFromRequest(ApiQuery body, Entity entity) {
-    List<EntityQueryOrderBy> entityOrderBys = new ArrayList<>();
-    if (body.getOrderBys() != null) {
-      body.getOrderBys().stream()
-          .forEach(
-              orderBy -> {
-                OrderByDirection direction =
-                    orderBy.getDirection() == null
-                        ? OrderByDirection.ASCENDING
-                        : OrderByDirection.valueOf(orderBy.getDirection().name());
-                String attrName = orderBy.getAttribute();
-                if (attrName != null) {
-                  entityOrderBys.add(
-                      new EntityQueryOrderBy(getAttribute(entity, attrName), direction));
-                } else {
-                  Entity relatedEntity =
-                      entity
-                          .getUnderlay()
-                          .getEntity(orderBy.getRelationshipField().getRelatedEntity());
-                  Relationship relationship = entity.getRelationship(relatedEntity);
-
-                  String hierName = orderBy.getRelationshipField().getHierarchy();
-                  Hierarchy hierarchy = hierName == null ? null : entity.getHierarchy(hierName);
-                  entityOrderBys.add(
-                      new EntityQueryOrderBy(
-                          relationship.getField(RelationshipField.Type.COUNT, entity, hierarchy),
-                          direction));
-                }
-              });
-    }
-    return entityOrderBys;
-  }
-
-  public static Attribute getAttribute(Entity entity, String attributeName) {
-    Attribute attribute = entity.getAttribute(attributeName);
-    if (attribute == null) {
-      throw new NotFoundException(
-          "Attribute not found: " + entity.getName() + ", " + attributeName);
-    }
-    return attribute;
-  }
-
-  private static Hierarchy getHierarchy(Entity entity, String hierarchyName) {
-    Hierarchy hierarchy = entity.getHierarchy(hierarchyName);
-    if (hierarchy == null) {
-      throw new NotFoundException("Hierarchy not found: " + hierarchyName);
-    }
-    return hierarchy;
-  }
-
-  public static Relationship getRelationship(
-      Collection<EntityGroup> entityGroups, Entity entity, Entity relatedEntity) {
-    for (EntityGroup entityGroup : entityGroups) {
-      Optional<Relationship> relationship = entityGroup.getRelationship(entity, relatedEntity);
-      if (relationship.isPresent()) {
-        return relationship.get();
-      }
-    }
-    throw new NotFoundException(
-        "Relationship not found for entities: "
-            + entity.getName()
-            + " -- "
-            + relatedEntity.getName());
   }
 }

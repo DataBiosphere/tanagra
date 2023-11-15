@@ -1,0 +1,20 @@
+{
+  "underlay": "cmssynpuf",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "bigquery-public-data",
+      "datasetId": "cms_synthetic_patient_data_omop",
+      "sqlSubstitutions": {
+        "omopDataset": "bigquery-public-data.cms_synthetic_patient_data_omop",
+        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep"
+      }
+    },
+    "indexData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "cmssynpuf_index_110623"
+    },
+    "queryProjectId": "verily-tanagra-dev",
+    "dataLocation": "us"
+  },
+  "uiConfigFile": "ui.json"
+}

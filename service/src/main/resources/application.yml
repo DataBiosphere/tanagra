@@ -1,6 +1,6 @@
 tanagra:
   underlay:
-    files: [ "broad/aou_synthetic/aou_synthetic.json", "broad/cms_synpuf/cms_synpuf.json" ]
+    files: [ "cmssynpuf_broad", "aouSR2019q4r4_broad" ]
 
   feature:
     artifact-storage-enabled: true
@@ -40,7 +40,6 @@ tanagra:
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG
-logging.level.org.springframework.jdbc.core: TRACE
 
 server:
   compression:

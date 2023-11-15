@@ -1,0 +1,78 @@
+{
+  "name": "aouSC2023Q3R1",
+  "primaryEntity": "person",
+  "entities": [
+    "aouCT/person",
+
+    "omop/condition",
+    "omop/conditionOccurrence",
+    "omop/procedure",
+    "aouRT/procedureOccurrence",
+
+    "omop/brand",
+    "omop/ingredient",
+    "aouRT/ingredientOccurrence",
+
+    "aouRT/measurementSnomed",
+    "aouRT/measurementLoinc",
+    "aouRT/measurementNoHierarchy",
+    "aouRT/measurementOccurrence",
+
+    "omop/observation",
+    "aouRT/observationOccurrence",
+    "aouRT/device",
+    "aouRT/deviceOccurrence",
+    "aouRT/visit",
+    "aouRT/visitOccurrence",
+
+    "omop/cpt4",
+    "omop/icd9cm",
+    "omop/icd9proc",
+    "omop/icd10cm",
+    "omop/icd10pcs",
+
+    "aouRT/activitySummary",
+    "aouRT/heartRateLevel",
+    "aouRT/heartRateSummary",
+    "aouRT/sleepDailySummary",
+    "aouRT/sleepLevel",
+    "aouRT/stepsIntraday",
+    "aouCT/zipcodeSocioeconomic"
+  ],
+  "groupItemsEntityGroups": [
+    "omop/brandIngredient",
+
+    "aouRT/activitySummaryPerson",
+    "aouRT/heartRateLevelPerson",
+    "aouRT/heartRateSummaryPerson",
+    "aouRT/sleepDailySummaryPerson",
+    "aouRT/sleepLevelPerson",
+    "aouRT/stepsIntradayPerson",
+    "aouCT/zipcodeSocioeconomicPerson"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "omop/conditionPerson",
+    "omop/procedurePerson",
+
+    "omop/ingredientPerson",
+
+    "omop/measurementSnomedPerson",
+    "omop/measurementLoincPerson",
+    "aouRT/measurementNoHierarchyPerson",
+
+    "omop/observationPerson",
+    "omop/devicePerson",
+    "omop/visitPerson",
+
+    "omop/cpt4Person",
+    "omop/icd9cmPerson",
+    "omop/icd9procPerson",
+    "omop/icd10cmPerson",
+    "omop/icd10pcsPerson"
+  ],
+  "metadata": {
+    "displayName": "All Of Us Synthetic Dataset Controlled Tier",
+    "description": "SC2023Q3R1"
+  },
+  "uiConfigFile": "ui.json"
+}

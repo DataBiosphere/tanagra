@@ -37,6 +37,6 @@ describe("Basic tests", () => {
     cy.iframe().find(`a:Contains(${cohort1})`, { timeout: 20000 });
     cy.iframe().find(`a:Contains(${cohort2})`);
     cy.iframe().find("a:Contains(person)");
-    cy.iframe().find("a:Contains(condition_occurrence)");
+    cy.iframe().find("a:Contains(conditionOccurrence)");
   });
 });

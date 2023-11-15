@@ -1,6 +1,9 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.*;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_COHORT;
+import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
@@ -8,7 +11,12 @@ import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.CohortsApi;
-import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.generated.model.ApiCohort;
+import bio.terra.tanagra.generated.model.ApiCohortCreateInfo;
+import bio.terra.tanagra.generated.model.ApiCohortList;
+import bio.terra.tanagra.generated.model.ApiCohortUpdateInfo;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;

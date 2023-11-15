@@ -2,9 +2,10 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.api.query.EntityQueryRequest;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.generated.controller.ExportApi;
@@ -12,6 +13,7 @@ import bio.terra.tanagra.generated.model.ApiExportModel;
 import bio.terra.tanagra.generated.model.ApiExportModelList;
 import bio.terra.tanagra.generated.model.ApiExportRequest;
 import bio.terra.tanagra.generated.model.ApiExportResult;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -19,7 +21,7 @@ import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.query.UnderlayService;
+import bio.terra.tanagra.underlay.Underlay;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -81,20 +83,20 @@ public class ExportApiController implements ExportApi {
             .inputs(body.getInputs())
             .redirectBackUrl(body.getRedirectBackUrl())
             .includeAnnotations(body.isIncludeAnnotations());
-    List<EntityQueryRequest> entityQueryRequests =
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    List<ListQueryRequest> listQueryRequests =
         body.getInstanceQuerys().stream()
             .map(
                 apiQuery ->
                     FromApiUtils.fromApiObject(
-                        apiQuery.getQuery(),
-                        underlayService.getEntity(underlayName, apiQuery.getEntity())))
+                        apiQuery.getQuery(), underlay.getEntity(apiQuery.getEntity()), underlay))
             .collect(Collectors.toList());
     ExportResult result =
         dataExportService.run(
             studyId,
             body.getCohorts(),
             request,
-            entityQueryRequests,
+            listQueryRequests,
             // TODO: Remove the null handling here once the UI is passing the primary entity filter
             // to the export endpoint.
             body.getPrimaryEntityFilter() == null

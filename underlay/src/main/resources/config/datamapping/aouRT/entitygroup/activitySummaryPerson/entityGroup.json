@@ -1,0 +1,6 @@
+{
+  "name": "activitySummaryPerson",
+  "groupEntity": "person",
+  "itemsEntity": "activitySummary",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

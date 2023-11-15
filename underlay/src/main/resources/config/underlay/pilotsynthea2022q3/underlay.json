@@ -1,0 +1,61 @@
+{
+  "name": "pilotsynthea2022q3",
+  "primaryEntity": "person",
+  "entities": [
+    "omop/person",
+
+    "omop/condition",
+    "pilotsynthea2022q3/conditionOccurrence",
+    "omop/procedure",
+    "pilotsynthea2022q3/procedureOccurrence",
+
+    "omop/brand",
+    "omop/ingredient",
+    "pilotsynthea2022q3/ingredientOccurrence",
+
+    "omop/measurementLoinc",
+    "omop/measurementSnomed",
+    "omop/measurementOccurrence",
+
+    "omop/observation",
+    "omop/observationOccurrence",
+    "omop/device",
+    "pilotsynthea2022q3/deviceOccurrence",
+    "omop/visit",
+    "omop/visitOccurrence",
+
+    "omop/cpt4",
+    "omop/icd9cm",
+    "omop/icd9proc",
+    "omop/icd10cm"
+  ],
+  "groupItemsEntityGroups": [
+    "omop/brandIngredient"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "omop/conditionPerson",
+    "omop/procedurePerson",
+
+    "omop/ingredientPerson",
+
+    "omop/measurementLoincPerson",
+    "omop/measurementSnomedPerson",
+
+    "omop/observationPerson",
+    "omop/devicePerson",
+    "omop/visitPerson",
+
+    "omop/cpt4Person",
+    "omop/icd9cmPerson",
+    "omop/icd9procPerson",
+    "omop/icd10cmPerson"
+  ],
+  "metadata": {
+    "displayName": "Pilot Synthetic Dataset 2022q3",
+    "description": "Dataset For Pilot",
+    "properties": {
+      "lastUpdated": "5/22/23"
+    }
+  },
+  "uiConfigFile": "ui.json"
+}

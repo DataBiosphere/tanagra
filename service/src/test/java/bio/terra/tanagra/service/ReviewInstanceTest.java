@@ -2,26 +2,37 @@ package bio.terra.tanagra.service;
 
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_1;
 import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.CellValue;
+import bio.terra.tanagra.query.ColumnHeaderSchema;
+import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
-import bio.terra.tanagra.service.artifact.model.*;
-import bio.terra.tanagra.service.query.ReviewInstance;
-import bio.terra.tanagra.service.query.ReviewQueryOrderBy;
-import bio.terra.tanagra.service.query.ReviewQueryRequest;
-import bio.terra.tanagra.service.query.UnderlayService;
-import bio.terra.tanagra.service.query.filter.AnnotationFilter;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.service.artifact.model.AnnotationKey;
+import bio.terra.tanagra.service.artifact.model.AnnotationValue;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.Review;
+import bio.terra.tanagra.service.artifact.model.Study;
+import bio.terra.tanagra.service.artifact.reviewquery.AnnotationFilter;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewInstance;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -47,7 +58,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("requires-cloud-access")
 public class ReviewInstanceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewInstanceTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
@@ -862,7 +873,8 @@ public class ReviewInstanceTest {
 
   @Test
   void filters() {
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
 
     // Filter by an entity attribute.
     List<ReviewInstance> reviewInstancesByAttr =
@@ -874,6 +886,8 @@ public class ReviewInstanceTest {
                 ReviewQueryRequest.builder()
                     .entityFilter(
                         new AttributeFilter(
+                            underlay,
+                            primaryEntity,
                             primaryEntity.getAttribute("gender"),
                             BinaryFilterVariable.BinaryOperator.EQUALS,
                             new Literal(8_532L)))
@@ -926,6 +940,8 @@ public class ReviewInstanceTest {
                 ReviewQueryRequest.builder()
                     .entityFilter(
                         new AttributeFilter(
+                            underlay,
+                            primaryEntity,
                             primaryEntity.getAttribute("gender"),
                             BinaryFilterVariable.BinaryOperator.EQUALS,
                             new Literal(8_507L)))

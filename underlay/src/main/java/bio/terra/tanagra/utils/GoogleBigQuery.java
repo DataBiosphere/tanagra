@@ -4,7 +4,22 @@ import bio.terra.tanagra.exception.SystemException;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.*;
+import com.google.cloud.bigquery.BigQuery;
+import com.google.cloud.bigquery.BigQueryException;
+import com.google.cloud.bigquery.BigQueryOptions;
+import com.google.cloud.bigquery.Clustering;
+import com.google.cloud.bigquery.Dataset;
+import com.google.cloud.bigquery.DatasetId;
+import com.google.cloud.bigquery.Job;
+import com.google.cloud.bigquery.JobInfo;
+import com.google.cloud.bigquery.JobStatistics;
+import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.Schema;
+import com.google.cloud.bigquery.StandardTableDefinition;
+import com.google.cloud.bigquery.Table;
+import com.google.cloud.bigquery.TableId;
+import com.google.cloud.bigquery.TableInfo;
+import com.google.cloud.bigquery.TableResult;
 import com.google.cloud.bigquery.storage.v1.TableName;
 import com.google.protobuf.Descriptors;
 import java.io.IOException;
@@ -118,6 +133,31 @@ public final class GoogleBigQuery {
     }
   }
 
+  public void pollForTableExistenceOrThrow(
+      String projectId, String datasetId, String tableId, int maxCalls, Duration sleepDuration) {
+    try {
+      boolean tableExists =
+          RetryUtils.pollWithRetries(
+              () -> getTable(projectId, datasetId, tableId).isPresent(),
+              checkTableExistsResult -> checkTableExistsResult,
+              ex -> false,
+              maxCalls,
+              sleepDuration);
+      if (!tableExists) {
+        throw new SystemException(
+            "Error finding table "
+                + tableId
+                + ". Polling timed out after "
+                + maxCalls
+                + " tries, sleeping "
+                + sleepDuration.toString()
+                + " between each try.");
+      }
+    } catch (InterruptedException intEx) {
+      throw new SystemException("Error polling for table existence", intEx);
+    }
+  }
+
   /**
    * Create a new empty table from a schema.
    *
@@ -178,12 +218,23 @@ public final class GoogleBigQuery {
 
   private TableResult runUpdateQuery(QueryJobConfiguration queryConfig, boolean isDryRun) {
     if (isDryRun) {
-      Job job = bigQuery.create(JobInfo.of(queryConfig));
-      JobStatistics.QueryStatistics statistics = job.getStatistics();
-      LOGGER.info(
-          "BigQuery dry run performed successfully: {} bytes processed",
-          statistics.getTotalBytesProcessed());
-      return null;
+      try {
+        Job job = bigQuery.create(JobInfo.of(queryConfig));
+        JobStatistics.QueryStatistics statistics = job.getStatistics();
+        LOGGER.info(
+            "BigQuery dry run performed successfully: {} bytes processed",
+            statistics.getTotalBytesProcessed());
+        return null;
+      } catch (BigQueryException bqEx) {
+        if (bqEx.getCode() == HttpStatus.SC_NOT_FOUND) {
+          LOGGER.info(
+              "Query dry run failed because table has not been created yet: {}",
+              bqEx.getError().getMessage());
+          return null;
+        } else {
+          throw bqEx;
+        }
+      }
     } else {
       return callWithRetries(() -> bigQuery.query(queryConfig), "Retryable error running query");
     }
@@ -244,7 +295,7 @@ public final class GoogleBigQuery {
   public void insertWithStorageWriteApi(
       String projectId, String datasetId, String tableId, List<JSONObject> records) {
     try {
-      BigQueryStorageWriteApi.insertWithStorageWriteApi(
+      BigQueryStorageWriter.insertWithStorageWriteApi(
           FixedCredentialsProvider.create(credentials),
           TableName.of(projectId, datasetId, tableId),
           records);
@@ -254,8 +305,17 @@ public final class GoogleBigQuery {
   }
 
   public int getNumRows(String projectId, String datasetId, String tableId) {
+
+    return getNumRowsWhereFieldNotNull(projectId, datasetId, tableId, null);
+  }
+
+  public int getNumRowsWhereFieldNotNull(
+      String projectId, String datasetId, String tableId, @Nullable String field) {
     String queryRowCount =
         "SELECT COUNT(*) FROM `" + projectId + "." + datasetId + "." + tableId + "`";
+    if (field != null) {
+      queryRowCount += " WHERE " + field + " IS NOT NULL";
+    }
     QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(queryRowCount).build();
     TableResult results =
         callWithRetries(
@@ -299,14 +359,14 @@ public final class GoogleBigQuery {
    *     thrown by the BQ client or the retries
    */
   private <T> T callWithRetries(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     return handleClientExceptions(
         () ->
-            HttpUtils.callWithRetries(
+            RetryUtils.callWithRetries(
                 makeRequest,
                 GoogleBigQuery::isRetryable,
                 BQ_MAXIMUM_RETRIES,
-                HttpUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
+                RetryUtils.DEFAULT_DURATION_SLEEP_FOR_RETRY),
         errorMsg);
   }
 
@@ -319,7 +379,7 @@ public final class GoogleBigQuery {
    *     thrown by the BQ client or the retries
    */
   private <T> T handleClientExceptions(
-      HttpUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
+      RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     try {
       return makeRequest.makeRequest();
     } catch (IOException | InterruptedException ex) {

@@ -1,15 +1,30 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.*;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_COHORT;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_CONCEPT_SET;
+import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 
 import bio.terra.common.logging.RequestIdFilter;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.accesscontrol.*;
+import bio.terra.tanagra.service.accesscontrol.AccessControl;
+import bio.terra.tanagra.service.accesscontrol.Action;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.authentication.AppDefaultUtils;
 import bio.terra.tanagra.service.authentication.UserId;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.ws.rs.client.Client;
@@ -22,7 +37,10 @@ import org.vumc.vda.tanagra.admin.api.TestApi;
 import org.vumc.vda.tanagra.admin.api.UnauthenticatedApi;
 import org.vumc.vda.tanagra.admin.client.ApiClient;
 import org.vumc.vda.tanagra.admin.client.ApiException;
-import org.vumc.vda.tanagra.admin.model.*;
+import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
+import org.vumc.vda.tanagra.admin.model.ResourceAction;
+import org.vumc.vda.tanagra.admin.model.ResourceList;
+import org.vumc.vda.tanagra.admin.model.SystemVersion;
 
 public class VumcAdminAccessControl implements AccessControl {
   private static final Logger LOGGER = LoggerFactory.getLogger(VumcAdminAccessControl.class);

@@ -1,0 +1,21 @@
+{
+  "underlay": "aouSR2019q4r4",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "aou_synthetic_SR2019q4r4",
+      "sqlSubstitutions": {
+        "omopDataset": "verily-tanagra-dev.aou_synthetic_SR2019q4r4",
+        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep_uscentral1"
+      }
+    },
+    "indexData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "aouSR2019q4r4_index_110623",
+      "tablePrefix": "T"
+    },
+    "queryProjectId": "broad-tanagra-dev",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}

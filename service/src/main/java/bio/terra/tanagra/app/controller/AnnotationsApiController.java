@@ -1,12 +1,22 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.*;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.*;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_ANNOTATION_KEY;
+import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.ANNOTATION_KEY;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
 
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.generated.controller.AnnotationsApi;
-import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.generated.model.ApiAnnotation;
+import bio.terra.tanagra.generated.model.ApiAnnotationCreateInfo;
+import bio.terra.tanagra.generated.model.ApiAnnotationList;
+import bio.terra.tanagra.generated.model.ApiAnnotationUpdateInfo;
+import bio.terra.tanagra.generated.model.ApiDataType;
+import bio.terra.tanagra.generated.model.ApiLiteral;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;

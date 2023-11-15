@@ -1,19 +1,37 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.*;
+import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_REVIEW;
+import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
+import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
 
-import bio.terra.tanagra.api.query.EntityCountResult;
-import bio.terra.tanagra.api.query.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.ReviewsApi;
-import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.generated.model.ApiAnnotationValue;
+import bio.terra.tanagra.generated.model.ApiCohort;
+import bio.terra.tanagra.generated.model.ApiInstanceCountList;
+import bio.terra.tanagra.generated.model.ApiReview;
+import bio.terra.tanagra.generated.model.ApiReviewCountQuery;
+import bio.terra.tanagra.generated.model.ApiReviewCreateInfo;
+import bio.terra.tanagra.generated.model.ApiReviewInstance;
+import bio.terra.tanagra.generated.model.ApiReviewInstanceListResult;
+import bio.terra.tanagra.generated.model.ApiReviewList;
+import bio.terra.tanagra.generated.model.ApiReviewQuery;
+import bio.terra.tanagra.generated.model.ApiReviewUpdateInfo;
+import bio.terra.tanagra.generated.model.ApiValueDisplay;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -25,13 +43,20 @@ import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Review;
-import bio.terra.tanagra.service.query.*;
-import bio.terra.tanagra.service.query.filter.AnnotationFilter;
-import bio.terra.tanagra.underlay.Attribute;
-import bio.terra.tanagra.underlay.Entity;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.service.artifact.reviewquery.AnnotationFilter;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewInstance;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -179,11 +204,11 @@ public class ReviewsApiController implements ReviewsApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(REVIEW, QUERY_COUNTS),
         ResourceId.forReview(studyId, cohortId, reviewId));
-    EntityCountResult countResult =
+    CountQueryResult countResult =
         reviewService.countReviewInstances(studyId, cohortId, reviewId, body.getAttributes());
     ApiInstanceCountList apiCounts =
         new ApiInstanceCountList().sql(SqlFormatter.format(countResult.getSql()));
-    countResult.getEntityCounts().stream()
+    countResult.getCountInstances().stream()
         .forEach(count -> apiCounts.addInstanceCountsItem(ToApiUtils.toApiObject(count)));
     return ResponseEntity.ok(apiCounts);
   }
@@ -192,18 +217,19 @@ public class ReviewsApiController implements ReviewsApi {
     FromApiUtils.validateApiFilter(apiObj.getEntityFilter());
 
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    Entity entity = underlayService.getUnderlay(cohort.getUnderlay()).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+    Entity entity = underlay.getPrimaryEntity();
     List<Attribute> attributes = new ArrayList<>();
     if (apiObj.getIncludeAttributes() != null) {
       attributes =
           apiObj.getIncludeAttributes().stream()
-              .map(attrName -> FromApiUtils.getAttribute(entity, attrName))
+              .map(attrName -> entity.getAttribute(attrName))
               .collect(Collectors.toList());
     }
 
     EntityFilter entityFilter =
         (apiObj.getEntityFilter() != null)
-            ? FromApiUtils.fromApiObject(apiObj.getEntityFilter(), entity, cohort.getUnderlay())
+            ? FromApiUtils.fromApiObject(apiObj.getEntityFilter(), underlay)
             : null;
     AnnotationFilter annotationFilter;
     if (apiObj.getAnnotationFilter() != null) {
@@ -233,9 +259,7 @@ public class ReviewsApiController implements ReviewsApi {
                         : OrderByDirection.valueOf(orderBy.getDirection().name());
                 String attrName = orderBy.getAttribute();
                 if (attrName != null) {
-                  orderBys.add(
-                      new ReviewQueryOrderBy(
-                          FromApiUtils.getAttribute(entity, attrName), direction));
+                  orderBys.add(new ReviewQueryOrderBy(entity.getAttribute(attrName), direction));
                 } else {
                   orderBys.add(
                       new ReviewQueryOrderBy(

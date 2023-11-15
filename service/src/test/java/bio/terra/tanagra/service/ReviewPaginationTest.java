@@ -1,11 +1,14 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import bio.terra.tanagra.api.query.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.*;
+import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -13,8 +16,11 @@ import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
-import bio.terra.tanagra.service.query.*;
-import bio.terra.tanagra.underlay.Entity;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
+import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("requires-cloud-access")
 public class ReviewPaginationTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewPaginationTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
   @Autowired private UnderlayService underlayService;
 
   @Autowired private StudyService studyService;
@@ -64,7 +70,8 @@ public class ReviewPaginationTest {
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
-    Entity primaryEntity = underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity();
+    Underlay underlay = underlayService.getUnderlay(UNDERLAY_NAME);
+    Entity primaryEntity = underlay.getPrimaryEntity();
     review1 =
         reviewService.createReview(
             study1.getId(),
@@ -72,6 +79,8 @@ public class ReviewPaginationTest {
             Review.builder().size(10),
             userEmail,
             new AttributeFilter(
+                underlay,
+                primaryEntity,
                 primaryEntity.getAttribute("gender"),
                 BinaryFilterVariable.BinaryOperator.EQUALS,
                 new Literal(8532)));

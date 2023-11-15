@@ -1,9 +1,15 @@
 package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.underlay.*;
-import java.util.*;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +28,9 @@ public final class ValidationUtils {
     //   - Indexing e.g. to generate tables with unique names. Currently, we use the entity names.
     Map<String, List<String>> errorsForRelationship = new HashMap<>();
     Map<Set<Entity>, Relationship> relationshipMap = new HashMap<>();
-    for (EntityGroup entityGroup : underlay.getEntityGroups().values()) {
+    for (EntityGroup entityGroup : underlay.getEntityGroups()) {
       for (Relationship relationship : entityGroup.getRelationships()) {
-        Set<Entity> relatedEntities = relationship.getEntities();
+        Set<Entity> relatedEntities = Set.of(relationship.getEntityA(), relationship.getEntityB());
 
         if (relationshipMap.containsKey(relatedEntities)) {
           String relatedEntitiesStr =
@@ -32,7 +38,7 @@ public final class ValidationUtils {
                   .map(Entity::getName)
                   .sorted()
                   .collect(Collectors.joining(","));
-          if (relationshipMap.get(relatedEntities).isEquivalentTo(relationship)) {
+          if (relationshipMap.get(relatedEntities).equals(relationship)) {
             LOGGER.info(
                 "Found another equivalent definition of the relationship between entities: {}",
                 relatedEntitiesStr);
@@ -42,7 +48,6 @@ public final class ValidationUtils {
               errorMsgs = errorsForRelationship.get(relatedEntitiesStr);
             } else {
               errorMsgs = new ArrayList<>();
-              errorMsgs.add(relationshipMap.get(relatedEntities).getEntityGroup().getName());
               errorsForRelationship.put(relatedEntitiesStr, errorMsgs);
             }
             errorMsgs.add(entityGroup.getName());
@@ -72,57 +77,6 @@ public final class ValidationUtils {
                         .collect(Collectors.joining(",")));
               });
       throw new InvalidConfigException("Validation of entity relationships had errors");
-    }
-  }
-
-  public static void validateAttributes(Underlay underlay) {
-    // Check that the attribute data types are all defined and match the expected.
-    Map<String, List<String>> errorsForEntity = new HashMap<>();
-    underlay.getEntities().values().stream()
-        .sorted(Comparator.comparing(Entity::getName))
-        .forEach(
-            entity -> {
-              List<String> errors = new ArrayList<>();
-              entity.getAttributes().stream()
-                  .sorted(Comparator.comparing(Attribute::getName))
-                  .forEach(
-                      attribute -> {
-                        LOGGER.info(
-                            "Validating data type for entity {}, attribute {}",
-                            entity.getName(),
-                            attribute.getName());
-                        Literal.DataType computedDataType =
-                            attribute.getMapping(Underlay.MappingType.SOURCE).computeDataType();
-                        if (attribute.getDataType() == null
-                            || !attribute.getDataType().equals(computedDataType)) {
-                          String msg =
-                              "attribute: "
-                                  + attribute.getName()
-                                  + ", expected data type: "
-                                  + computedDataType
-                                  + ", actual data type: "
-                                  + attribute.getDataType();
-                          errors.add(msg);
-                          LOGGER.info("entity: {}, {}", entity.getName(), msg);
-                        }
-                      });
-              if (!errors.isEmpty()) {
-                errorsForEntity.put(entity.getName(), errors);
-              }
-            });
-
-    // Output any error messages.
-    if (errorsForEntity.isEmpty()) {
-      LOGGER.info("Validation of attribute data types succeeded");
-    } else {
-      errorsForEntity.keySet().stream()
-          .sorted()
-          .forEach(
-              entityName -> {
-                LOGGER.warn("Validation of attribute data types for entity {} failed", entityName);
-                errorsForEntity.get(entityName).stream().forEach(msg -> LOGGER.warn(msg));
-              });
-      throw new InvalidConfigException("Validation attribute data types had errors");
     }
   }
 }

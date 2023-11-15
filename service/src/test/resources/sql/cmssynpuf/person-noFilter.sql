@@ -1,1 +1,0 @@
-SELECT EXTRACT(YEAR FROM CURRENT_DATE()) - p.age AS age, p.ethnicity AS ethnicity, p.gender AS gender, p.id AS id, p.race AS race, p.t_display_ethnicity AS t_display_ethnicity, p.t_display_gender AS t_display_gender, p.t_display_race AS t_display_race, p.year_of_birth AS year_of_birth FROM `broad-tanagra-dev.cmssynpuf_index_082523`.person AS p LIMIT 30

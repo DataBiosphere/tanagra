@@ -3,13 +3,15 @@ package bio.terra.tanagra.query;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.filtervariable.HavingFilterVariable;
 import com.google.common.collect.ImmutableMap;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
 public class Query implements SQLExpression {
-  public static final String TANAGRA_FIELD_PREFIX = "t_";
-
   private final List<FieldVariable> select;
   private final List<TableVariable> tables;
   private final FilterVariable where;
@@ -69,6 +71,10 @@ public class Query implements SQLExpression {
 
     // render the FilterVariable
     if (where != null) {
+      // TODO: Check if the filter variable is a sub-query filter variable, with the same primary
+      // table as this query and no group bys.
+      //  If so, drop the nested sub-query filter variable, possibly replacing with a
+      // NotFilterVariable.
       template = "${sql} WHERE ${whereSQL}";
       params =
           ImmutableMap.<String, String>builder()
@@ -154,6 +160,10 @@ public class Query implements SQLExpression {
           "Query can only have one primary table, but found " + primaryTable.size());
     }
     return primaryTable.get(0);
+  }
+
+  public List<TableVariable> getTables() {
+    return tables;
   }
 
   public static class Builder {

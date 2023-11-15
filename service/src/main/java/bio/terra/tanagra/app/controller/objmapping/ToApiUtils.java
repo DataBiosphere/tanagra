@@ -1,13 +1,34 @@
 package bio.terra.tanagra.app.controller.objmapping;
 
-import bio.terra.tanagra.api.query.EntityInstanceCount;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.model.*;
+import bio.terra.tanagra.generated.model.ApiAnnotationValue;
+import bio.terra.tanagra.generated.model.ApiAttribute;
+import bio.terra.tanagra.generated.model.ApiBinaryOperator;
+import bio.terra.tanagra.generated.model.ApiCohort;
+import bio.terra.tanagra.generated.model.ApiCriteria;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
+import bio.terra.tanagra.generated.model.ApiDataType;
+import bio.terra.tanagra.generated.model.ApiInstanceCount;
+import bio.terra.tanagra.generated.model.ApiLiteral;
+import bio.terra.tanagra.generated.model.ApiLiteralValueUnion;
+import bio.terra.tanagra.generated.model.ApiProperties;
+import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
+import bio.terra.tanagra.generated.model.ApiStudy;
+import bio.terra.tanagra.generated.model.ApiUnderlay;
+import bio.terra.tanagra.generated.model.ApiValueDisplay;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.service.artifact.model.*;
-import bio.terra.tanagra.underlay.Attribute;
+import bio.terra.tanagra.service.artifact.model.AnnotationValue;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.CohortRevision;
+import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.ValueDisplay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -18,7 +39,10 @@ public final class ToApiUtils {
   public static ApiAttribute toApiObject(Attribute attribute) {
     return new ApiAttribute()
         .name(attribute.getName())
-        .type(ApiAttribute.TypeEnum.fromValue(attribute.getType().name()))
+        .type(
+            attribute.isSimple()
+                ? ApiAttribute.TypeEnum.SIMPLE
+                : ApiAttribute.TypeEnum.KEY_AND_DISPLAY)
         .dataType(ApiDataType.fromValue(attribute.getDataType().name()));
   }
 
@@ -110,17 +134,23 @@ public final class ToApiUtils {
         .tags(criteria.getTags());
   }
 
-  public static ApiInstanceCount toApiObject(EntityInstanceCount entityInstanceCount) {
-    ApiInstanceCount instanceCount = new ApiInstanceCount();
+  public static ApiInstanceCount toApiObject(CountInstance countInstance) {
     Map<String, ApiValueDisplay> attributes = new HashMap<>();
-    for (Map.Entry<Attribute, ValueDisplay> attributeValue :
-        entityInstanceCount.getAttributeValues().entrySet()) {
-      attributes.put(attributeValue.getKey().getName(), toApiObject(attributeValue.getValue()));
-    }
+    countInstance.getEntityFieldValues().entrySet().stream()
+        .forEach(
+            fieldValuePair -> {
+              ValueDisplayField field = fieldValuePair.getKey();
+              ValueDisplay value = fieldValuePair.getValue();
 
-    return instanceCount
-        .count(Math.toIntExact(entityInstanceCount.getCount()))
-        .attributes(attributes);
+              if (field instanceof AttributeField) {
+                attributes.put(
+                    ((AttributeField) field).getAttribute().getName(),
+                    ToApiUtils.toApiObject(value));
+              }
+            });
+    return new ApiInstanceCount()
+        .attributes(attributes)
+        .count(Math.toIntExact(countInstance.getCount()));
   }
 
   public static ApiAnnotationValue toApiObject(AnnotationValue annotationValue) {
@@ -151,9 +181,8 @@ public final class ToApiUtils {
   public static ApiUnderlay toApiObject(Underlay underlay) {
     return new ApiUnderlay()
         .name(underlay.getName())
-        // TODO: Add display name to underlay config files.
-        .displayName(underlay.getName())
+        .displayName(underlay.getDisplayName())
         .primaryEntity(underlay.getPrimaryEntity().getName())
-        .uiConfiguration(underlay.getUIConfig());
+        .uiConfiguration(underlay.getUiConfig());
   }
 }

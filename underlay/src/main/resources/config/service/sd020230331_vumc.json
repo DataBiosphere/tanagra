@@ -1,0 +1,20 @@
+{
+  "underlay": "sd020230331",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "sd-vumc-tanagra-test",
+      "datasetId": "sd_20230331",
+      "sqlSubstitutions": {
+        "omopDataset": "sd-vumc-tanagra-test.sd_20230331",
+        "staticTablesDataset": "sd-vumc-tanagra-test.sd_20230331"
+      }
+    },
+    "indexData": {
+      "projectId": "victr-tanagra-deploytest",
+      "datasetId": "sd_20230331_indexes"
+    },
+    "queryProjectId": "victr-tanagra-deploytest",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}

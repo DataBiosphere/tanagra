@@ -1,0 +1,19 @@
+{
+  "name": "measurementOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "measurement", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "measurement_concept_name" },
+    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_datetime" },
+    { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number" },
+    { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name" },
+    { "name": "unit", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name" },
+    { "name": "source_value", "dataType": "STRING", "valueFieldName": "measurement_source_value" },
+    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "measurement_source_concept_id" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "visit_occurrence_id", "dataType": "INT64" },
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
+  ],
+  "idAttribute": "id"
+}

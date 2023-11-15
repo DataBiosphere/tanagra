@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.accesscontrol;
 
 import static bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl.ALL_ACCESS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.service.accesscontrol.impl.MockVerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;

@@ -1,7 +1,14 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaValues.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static bio.terra.tanagra.service.CriteriaValues.CONDITION_EQ_DIABETES;
+import static bio.terra.tanagra.service.CriteriaValues.ETHNICITY_EQ_JAPANESE;
+import static bio.terra.tanagra.service.CriteriaValues.GENDER_EQ_WOMAN;
+import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
@@ -36,7 +43,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class ConceptSetServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConceptSetServiceTest.class);
-  private static final String UNDERLAY_NAME = "cms_synpuf";
+  private static final String UNDERLAY_NAME = "cmssynpuf";
 
   @Autowired private StudyService studyService;
   @Autowired private ConceptSetService conceptSetService;

@@ -49,9 +49,9 @@ describe("Basic tests", () => {
       .click();
 
     cy.iframe().find("button:Contains(Add criteria)").last().click();
-    cy.iframe().find("input").type("clinical");
+    cy.iframe().find("input").type("imaging");
     cy.iframe()
-      .find("[data-testid='Imaging']", { timeout: 20000 })
+      .find("[data-testid='Imaging of soft tissue']", { timeout: 20000 })
       .first()
       .click();
 
@@ -70,7 +70,7 @@ describe("Basic tests", () => {
     cy.iframe().find(`button[name='${cohortName}']`).click();
     cy.iframe().find("button[name='Condition: Clinical finding']").click();
 
-    cy.iframe().find("button:Contains('condition_occurrence')", {
+    cy.iframe().find("button:Contains('conditionOccurrence')", {
       timeout: 40000,
     });
 

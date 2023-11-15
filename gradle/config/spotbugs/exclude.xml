@@ -24,6 +24,10 @@
         <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
     </Match>
 
+    <Match>
+        <Source name="~.*SZ.*\.java"/>
+        <Bug pattern="UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD,UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
 
     <!-- Do not check class -->
     <!--<Match>-->
