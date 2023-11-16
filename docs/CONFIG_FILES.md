@@ -13,7 +13,7 @@ underlying BigQuery datasets can all be configured. We separate the data mapping
 configuration. Data mapping configuration can be reused across multiple indexing runs or service deployments.
 
 - All config files live in the [main resources directory](../underlay/src/main/resources/config/) of the `underlay` Gradle sub-project.
-- The config schemas are defined in Java classes in the [serialization package](../underlay/src/main/java/underlay/serialization/).
+- The config schemas are defined in Java classes in the [serialization package](../underlay/src/main/java/bio/terra/tanagra/underlay/serialization/).
 - Documentation for all available properties in the config schemas are generated as Javadoc [here](generated/underlay_config/allclasses-index.html).
 
 ## Data Mapping
