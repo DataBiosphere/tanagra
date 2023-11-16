@@ -1,5 +1,5 @@
 {
-  "underlay": "aouSC2023Q3R1",
+  "underlay": "SC2023Q3R1",
   "bigQuery": {
     "sourceData": {
       "projectId": "fc-aou-cdr-synth-test-2",

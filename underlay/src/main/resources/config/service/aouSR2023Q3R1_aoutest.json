@@ -1,5 +1,5 @@
 {
-  "underlay": "aouSR2023Q3R1",
+  "underlay": "SR2023Q3R1",
   "bigQuery": {
     "sourceData": {
       "projectId": "all-of-us-ehr-dev",
