@@ -14,7 +14,7 @@ configuration. Data mapping configuration can be reused across multiple indexing
 
 - All config files live in the [main resources directory](../underlay/src/main/resources/config/) of the `underlay` Gradle sub-project.
 - The config schemas are defined in Java classes in the [serialization package](../underlay/src/main/java/bio/terra/tanagra/underlay/serialization/).
-- Documentation for all available properties in the config schemas are generated as Javadoc [here](generated/underlay_config/allclasses-index.html).
+- Documentation for all available properties in the config schemas are generated as Javadoc [here](https://htmlpreview.github.io/?https://github.com/DataBiosphere/tanagra/blob/main/docs/generated/underlay_config/allclasses-index.html).
 
 ## Data Mapping
 These config files specify the mapping from the source data to Tanagra's entity model.
