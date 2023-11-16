@@ -5,6 +5,7 @@ service for running queries against the dataset, and a UI for building cohorts a
 
 More information about this codebase can be found in the links below.
 
+* [Config Files](./docs/CONFIG_FILES.md)
 * [Entity Model](./docs/ENTITY_MODEL.md)
 * [Indexing](./docs/INDEXING.md)
 * [Access Control](./docs/ACCESS_CONTROL.md)

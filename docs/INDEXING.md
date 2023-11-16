@@ -1,7 +1,4 @@
 - [Indexing](#indexing)
-  * [Underlay Config Files](#underlay-config-files)
-    + [Environment](#environment)
-    + [Directory Structure](#directory-structure)
   * [Running Indexing Jobs](#running-indexing-jobs)
     + [Setup Credentials](#setup-credentials)
       + [Default Application Credentials](#default-application-credentials)
@@ -26,36 +23,6 @@ them instead**. Each underlay config also specifies a data pointer where Tanagra
 **Generating the index tables is part of the deployment process**; It is not managed by the service. There is a basic
 command line interface to run the indexing jobs. Currently, this CLI just uses Gradle's application plugin, so the
 commands are actually Gradle commands.
-
-## Underlay Config Files
-There should be a separate config for each set of source data. The underlay configs are static resources (defined at
-build-time) that are packaged with the JAR file in [`service/src/main/resources/config/`](../service/src/main/resources/config/).
-
-### Environment
-The underlay configs are organized by environment, in different sub-directories of `config/` (e.g. `broad/`, `vumc/`,
-`verily/`). A benefit of defining environment-specific config in the core Tanagra repo is that we can validate code
-changes against all known configs, to make sure we don't break any existing deployments. A downside of this approach is
-that all deployments will have to check in their config files to the core Tanagra repo. We should revisit this approach
-in the future (e.g. consider allowing run-time configs); this is most expedient for now.
-
-(TODO: Support an environment variable to indicate which environment the service is running in.)
-
-### Directory Structure
-Each underlay config consists of multiple JSON files with a specific directory structure. The top-level underlay file
-contains lists of the entity and entity group file names. Tanagra looks for these files in the `entity/` and
-`entitygroup/` sub-directories, respectively. The config schema allows pointers to raw SQL files to handle table
-definitions that are not supported by Tanagra's simple filtering syntax. Tanagra looks for these files in the `sql/`
-sub-directory. e.g.
-
-```
-underlay.json
-entity/
-  entity.json
-entitygroup/
-  entitygroup.json
-sql/
-  rawsql.sql
-```
 
 ## Running Indexing Jobs
 Before running the indexing jobs, you need to specify the underlay config files.
@@ -118,8 +85,6 @@ Change the location, project, and dataset name below to your own.
 ```
 bq mk --location=location project_id:dataset_id
 ```
-(TODO: Tanagra could do this in the future. Upside is fewer steps to run indexing and maybe easier for testing.
-Potential downside is more permissions needed by indexing service account.)
 
 ### Kickoff Jobs
 
@@ -138,9 +103,6 @@ This can take a long time to complete. If e.g. your computer falls asleep or you
 computer, you can re-run the same command again. You need to check that there are no in-progress Dataflow jobs in the
 project before kicking it off again, because the jobs check for the existence of the output BQ table to tell if they
 need to run.
-
-TODO: Cache the Dataflow job id somewhere so we can do a more accurate check for jobs that are still running before
-kicking them off again.
 
 #### Jobs for One Entity/Group
 You can also kickoff the indexing jobs for a single entity or entity group. This is helpful for testing and debugging.
