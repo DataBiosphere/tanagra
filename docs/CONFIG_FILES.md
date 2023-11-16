@@ -24,7 +24,7 @@ The top-level config file defines the list of entities and entity groups, along 
 group has its own set of config files.
 
 - Example underlay config file for the public CMS SynPUF dataset is [here](../underlay/src/main/resources/config/underlay/cmssynpuf/underlay.json).
-- Documentation for all available properties in the underlay config schema is [here](generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZUnderlay.html).
+- Documentation for all available properties in the underlay config schema is [here](https://htmlpreview.github.io/?https://github.com/DataBiosphere/tanagra/blob/main/docs/generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZUnderlay.html).
 
 ### Entity
 This config file defines the list of attributes, hierarchies, and text search. These files can be shared across underlays
@@ -33,7 +33,7 @@ references SQL files in the same directory. These SQL files should never include
 they should use SQL substitutions to preserve their reusability across underlays and dataset locations.
 
 - Example entity config files for the public CMS SynPUF dataset are [here](../underlay/src/main/resources/config/datamapping/omop/entity/condition/).
-- Documentation for all available properties in the entity config schema is [here](generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZEntity.html).
+- Documentation for all available properties in the entity config schema is [here](https://htmlpreview.github.io/?https://github.com/DataBiosphere/tanagra/blob/main/docs/generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZEntity.html).
 
 ### Entity Group
 This config file defines the relationships between multiple entities. These files can be shared across underlays (e.g. the
@@ -44,11 +44,11 @@ they should use SQL substitutions to preserver their reusability across underlay
 There are currently two types of entity groups: `GroupItems` and `CriteriaOccurrence`. Each has a different config file schema.
 
 - Example `GroupItems` entity group config files for the public CMS SynPUF dataset are [here](../underlay/src/main/resources/config/datamapping/omop/entitygroup/brandIngredient/).
-- Documentation for all available properties in the `GroupItems` config schema is [here](generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZGroupItems.html).
+- Documentation for all available properties in the `GroupItems` config schema is [here](https://htmlpreview.github.io/?https://github.com/DataBiosphere/tanagra/blob/main/docs/generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZGroupItems.html).
 
 
 - Example `CriteriaOccurrence` entity group config files for the public CMS SynPUF dataset are [here](../underlay/src/main/resources/config/datamapping/omop/entitygroup/conditionPerson/).
-- Documentation for all available properties in the `CriteriaOccurrence` config schema is [here](generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZCriteriaOccurrence.html).
+- Documentation for all available properties in the `CriteriaOccurrence` config schema is [here](https://htmlpreview.github.io/?https://github.com/DataBiosphere/tanagra/blob/main/docs/generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZCriteriaOccurrence.html).
 
 ## Runtime
 These config files specify pointers to where the data lives and configuration for the indexer and service.
@@ -59,7 +59,7 @@ properties. A single underlay can be referenced by multiple indexer configs. Thi
 the same underlay in two places (e.g. SD dataset is indexed on both Verily and VUMC infrastructure).
 
 - Example indexer config file for the public CMS SynPUF dataset on Verily infrastructure is [here](../underlay/src/main/resources/config/indexer/cmssynpuf_verily.json).
-- Documentation for all available properties in the indexer config schema is [here](generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZIndexer.html).
+- Documentation for all available properties in the indexer config schema is [here](https://htmlpreview.github.io/?https://github.com/DataBiosphere/tanagra/blob/main/docs/generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZIndexer.html).
 
 ### Service
 This config file specifies the underlay to be served, pointers to the source and index datasets, and UI config.
@@ -68,4 +68,4 @@ once, but serve it in two deployments (e.g. SD dataset is indexed in one project
 staging environments).
 
 - Example service config file for the public CMS SynPUF dataset on Verily infrastructure is [here](../underlay/src/main/resources/config/service/cmssynpuf_verily.json).
-- Documentation for all available properties in the service config schema is [here](generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZService.html).
+- Documentation for all available properties in the service config schema is [here](https://htmlpreview.github.io/?https://github.com/DataBiosphere/tanagra/blob/main/docs/generated/underlay_config/bio/terra/tanagra/underlay/serialization/SZService.html).
