@@ -15,16 +15,15 @@
 
 
 # Indexing
-Each **underlay config specifies the mapping from the source data** to Tanagra's [entity model](ENTITY_MODEL.md). 
 Tanagra can query the source data directly, but **for improved performance, Tanagra generates indexed tables and queries 
-them instead**. Each underlay config also specifies a data pointer where Tanagra can write indexed tables to.
+them instead**. The indexer config specifies where Tanagra can write generated index tables.
 
-**Generating the index tables is part of the deployment process**; It is not managed by the service. There is a basic
+**Generating index tables is part of the deployment process**; It is not managed by the service. There is a basic
 command line interface to run the indexing jobs. Currently, this CLI just uses Gradle's application plugin, so the
 commands are actually Gradle commands.
 
 ## Running Indexing Jobs
-Before running the indexing jobs, you need to specify the underlay config files.
+Before running the indexing jobs, you need to specify the data mapping and indexer [config files](CONFIG_FILES.md).
 
 There are 3 steps to generating the index tables:
 1. [Setup](#setup-credentials) credentials with read permissions on the source data, and read-write permissions on 

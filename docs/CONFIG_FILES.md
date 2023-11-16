@@ -8,8 +8,9 @@
     + [Service](#service)
 
 # Config Files
-We separate the data mapping configuration from the runtime configuration. Data mapping configuration can be reused
-across multiple indexing runs or service deployments.
+**The mapping from the source data** to Tanagra's [entity model](ENTITY_MODEL.md) along with the location of the 
+underlying BigQuery datasets can all be configured. We separate the data mapping configuration from the runtime 
+configuration. Data mapping configuration can be reused across multiple indexing runs or service deployments.
 
 - All config files live in the [main resources directory](../underlay/src/main/resources/config/) of the `underlay` Gradle sub-project.
 - The config schemas are defined in Java classes in the [serialization package](../underlay/src/main/java/underlay/serialization/).
