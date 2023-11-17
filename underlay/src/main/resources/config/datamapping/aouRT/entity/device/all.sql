@@ -1,5 +1,5 @@
 SELECT
-    c.concept_id,
+    DISTINCT c.concept_id,
     c.concept_name,
     c.vocabulary_id,
     v.vocabulary_name,
