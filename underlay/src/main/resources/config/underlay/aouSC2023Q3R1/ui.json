@@ -19,7 +19,7 @@
             "attribute": "condition",
             "entity": "condition",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -30,7 +30,7 @@
             "attribute":"source_criteria_id",
             "entity":"icd9cm",
             "entityAttribute":"id",
-            "hierarchy":"standard",
+            "hierarchy":"default",
             "defaultSort":{
               "attribute":"label",
               "direction":"ASC"
@@ -41,7 +41,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -60,7 +60,7 @@
             "attribute": "procedure",
             "entity": "procedure",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -71,7 +71,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -93,7 +93,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9proc",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -104,7 +104,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -115,7 +115,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10pcs",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -144,7 +144,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -166,7 +166,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -185,7 +185,7 @@
             "attribute": "id",
             "entity": "ingredient",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "t_rollup_count",
               "direction": "DESC"
@@ -207,7 +207,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -232,7 +232,7 @@
             "attribute": "measurement_concept_id",
             "entity": "measurementLoinc",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "name",
               "direction": "ASC"
@@ -243,7 +243,7 @@
             "attribute": "measurement_concept_id",
             "entity": "measurementSnomed",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "name",
               "direction": "ASC"
@@ -254,7 +254,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -276,7 +276,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd9proc",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -287,7 +287,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10cm",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -298,7 +298,7 @@
             "attribute": "source_criteria_id",
             "entity": "icd10pcs",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
@@ -337,7 +337,7 @@
             "attribute": "source_criteria_id",
             "entity": "cpt4",
             "entityAttribute": "id",
-            "hierarchy": "standard",
+            "hierarchy": "default",
             "defaultSort": {
               "attribute": "label",
               "direction": "ASC"
