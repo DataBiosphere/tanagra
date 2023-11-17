@@ -30,7 +30,7 @@
             "attribute":"source_criteria_id",
             "entity":"icd9cm",
             "entityAttribute":"id",
-            "hierarchy":"standard",
+            "hierarchy": "default",
             "defaultSort":{
               "attribute":"label",
               "direction":"ASC"
@@ -82,7 +82,7 @@
             "attribute":"source_criteria_id",
             "entity":"icd9cm",
             "entityAttribute":"id",
-            "hierarchy":"standard",
+            "hierarchy": "default",
             "defaultSort":{
               "attribute":"label",
               "direction":"ASC"
@@ -155,7 +155,7 @@
             "attribute":"source_criteria_id",
             "entity":"icd9cm",
             "entityAttribute":"id",
-            "hierarchy":"standard",
+            "hierarchy":"default",
             "defaultSort":{
               "attribute":"label",
               "direction":"ASC"
@@ -265,7 +265,7 @@
             "attribute":"source_criteria_id",
             "entity":"icd9cm",
             "entityAttribute":"id",
-            "hierarchy":"standard",
+            "hierarchy": "default",
             "defaultSort":{
               "attribute":"label",
               "direction":"ASC"
