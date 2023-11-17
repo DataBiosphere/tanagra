@@ -1,5 +1,5 @@
 {
-  "name": "aouSC2023Q3R1",
+  "name": "aouSR2023Q3R1",
   "primaryEntity": "person",
   "entities": [
     "aouRT/person",
@@ -70,7 +70,7 @@
   ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset Controlled Tier",
-    "description": "SC2023Q3R1"
+    "description": "SR2023Q3R1"
   },
   "uiConfigFile": "ui.json"
 }
