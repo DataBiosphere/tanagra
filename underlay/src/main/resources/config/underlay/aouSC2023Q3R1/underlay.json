@@ -15,7 +15,7 @@
 
     "aouRT/measurementSnomed",
     "aouRT/measurementLoinc",
-    "aouRT/measurementNoHierarchy",
+    "aouRT/measurementNonHierarchy",
     "aouRT/measurementOccurrence",
 
     "omop/observation",
@@ -58,7 +58,7 @@
 
     "omop/measurementSnomedPerson",
     "omop/measurementLoincPerson",
-    "aouRT/measurementNoHierarchyPerson",
+    "aouRT/measurementNonHierarchyPerson",
 
     "omop/observationPerson",
     "omop/devicePerson",
