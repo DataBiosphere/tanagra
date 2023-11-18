@@ -30,13 +30,12 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading a concept set.
   private static final String CONCEPT_SET_SELECT_SQL =
-      "SELECT id, underlay, entity, display_name, description, created, created_by, last_modified, last_modified_by, is_deleted FROM concept_set";
+      "SELECT id, underlay, display_name, description, created, created_by, last_modified, last_modified_by, is_deleted FROM concept_set";
   private static final RowMapper<ConceptSet.Builder> CONCEPT_SET_ROW_MAPPER =
       (rs, rowNum) ->
           ConceptSet.builder()
               .id(rs.getString("id"))
               .underlay(rs.getString("underlay"))
-              .entity(rs.getString("entity"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
               .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
@@ -68,6 +67,15 @@ public class ConceptSetDao {
           Pair.of(
               List.of(rs.getString("criteria_id"), rs.getString("concept_set_id")),
               Pair.of(rs.getString("criteria_key"), rs.getString("criteria_value")));
+
+  // SQL query and row mapper for reading an output attribute.
+  private static final String OUTPUT_ATTRIBUTE_SELECT_SQL =
+      "SELECT concept_set_id, entity, attribute FROM output_attribute";
+  private static final RowMapper<Pair<String, Pair<String, String>>> OUTPUT_ATTRIBUTE_ROW_MAPPER =
+      (rs, rowNum) ->
+          Pair.of(
+              rs.getString("concept_set_id"),
+              Pair.of(rs.getString("entity"), rs.getString("attribute")));
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -139,15 +147,14 @@ public class ConceptSetDao {
     // Write the concept set. The created and last_modified fields are set by the DB automatically
     // on insert.
     String sql =
-        "INSERT INTO concept_set (study_id, id, underlay, entity, created_by, last_modified_by, display_name, description, is_deleted) "
-            + "VALUES (:study_id, :id, :underlay, :entity, :created_by, :last_modified_by, :display_name, :description, false)";
+        "INSERT INTO concept_set (study_id, id, underlay, created_by, last_modified_by, display_name, description, is_deleted) "
+            + "VALUES (:study_id, :id, :underlay, :created_by, :last_modified_by, :display_name, :description, false)";
     LOGGER.debug("CREATE concept set: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
             .addValue("id", conceptSet.getId())
             .addValue("underlay", conceptSet.getUnderlay())
-            .addValue("entity", conceptSet.getEntity())
             .addValue("created_by", conceptSet.getCreatedBy())
             .addValue("last_modified_by", conceptSet.getLastModifiedBy())
             .addValue("display_name", conceptSet.getDisplayName())
@@ -156,7 +163,15 @@ public class ConceptSetDao {
     LOGGER.debug("CREATE concept set rowsAffected = {}", rowsAffected);
 
     // Write the criteria.
-    updateCriteriaHelper(conceptSet.getId(), conceptSet.getCriteria());
+    if (conceptSet.getCriteria() != null && !conceptSet.getCriteria().isEmpty()) {
+      updateCriteriaHelper(conceptSet.getId(), conceptSet.getCriteria());
+    }
+
+    // Write the output attributes.
+    if (conceptSet.getOutputColumnsPerEntity() != null
+        && !conceptSet.getOutputColumnsPerEntity().isEmpty()) {
+      updateOutputAttributesHelper(conceptSet.getId(), conceptSet.getOutputColumnsPerEntity());
+    }
   }
 
   @WriteTransaction
@@ -165,9 +180,12 @@ public class ConceptSetDao {
       String lastModifiedBy,
       String displayName,
       String description,
-      String entity,
-      List<Criteria> criteria) {
-    if (displayName == null && description == null && (criteria == null || criteria.isEmpty())) {
+      List<Criteria> criteria,
+      Map<String, List<String>> outputAttributesPerEntity) {
+    if (displayName == null
+        && description == null
+        && (criteria == null || criteria.isEmpty())
+        && (outputAttributesPerEntity == null || outputAttributesPerEntity.isEmpty())) {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
 
@@ -177,7 +195,7 @@ public class ConceptSetDao {
       throw new NotFoundException("Concept set " + id + " has been deleted.");
     }
 
-    // Update the concept set: display name, description, entity, last modified, last modified by.
+    // Update the concept set: display name, description, last modified, last modified by.
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("last_modified", JdbcUtils.sqlTimestampUTC())
@@ -187,9 +205,6 @@ public class ConceptSetDao {
     }
     if (description != null) {
       params.addValue("description", description);
-    }
-    if (entity != null) {
-      params.addValue("entity", entity);
     }
     String sql =
         String.format(
@@ -202,6 +217,11 @@ public class ConceptSetDao {
     // Write the criteria.
     if (criteria != null && !criteria.isEmpty()) {
       updateCriteriaHelper(id, criteria);
+    }
+
+    // Write the output attributes.
+    if (outputAttributesPerEntity != null && !outputAttributesPerEntity.isEmpty()) {
+      updateOutputAttributesHelper(id, outputAttributesPerEntity);
     }
   }
 
@@ -224,10 +244,15 @@ public class ConceptSetDao {
     List<Pair<String, Criteria.Builder>> criterias =
         jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER);
 
-    // Fetch criteria tags. (criteria id, concept set id -> tag)
+    // Fetch criteria tags. ([criteria id, concept set id] -> tag key-value pair)
     sql = CRITERIA_TAG_SELECT_SQL + " WHERE concept_set_id IN (:concept_set_ids)";
     List<Pair<List<String>, Pair<String, String>>> tags =
         jdbcTemplate.query(sql, params, CRITERIA_TAG_ROW_MAPPER);
+
+    // Fetch output attributes. (concept set id -> output entity-attribute pair)
+    sql = OUTPUT_ATTRIBUTE_SELECT_SQL + " WHERE concept_set_id IN (:concept_set_ids)";
+    List<Pair<String, Pair<String, String>>> outputAttributes =
+        jdbcTemplate.query(sql, params, OUTPUT_ATTRIBUTE_ROW_MAPPER);
 
     // Put the tags into their respective criteria.
     Map<List<String>, Criteria.Builder> criteriasMap =
@@ -255,6 +280,16 @@ public class ConceptSetDao {
               String conceptSetId = pair.getKey();
               Criteria criteria = pair.getValue().build();
               conceptSetsMap.get(conceptSetId).addCriteria(criteria);
+            });
+
+    // Put the output attributes into their respective concept sets.
+    outputAttributes.stream()
+        .forEach(
+            pair -> {
+              String conceptSetId = pair.getKey();
+              String entity = pair.getValue().getKey();
+              String attribute = pair.getValue().getValue();
+              conceptSetsMap.get(conceptSetId).addOutputAttribute(entity, attribute);
             });
 
     // Preserve the order returned by the original query.
@@ -327,5 +362,42 @@ public class ConceptSetDao {
                 jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
             .sum();
     LOGGER.debug("CREATE criteria tag rowsAffected = {}", rowsAffected);
+  }
+
+  private void updateOutputAttributesHelper(
+      String conceptSetId, Map<String, List<String>> outputAttributes) {
+    // Delete any existing output attributes.
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("concept_set_id", conceptSetId);
+    String sql = "DELETE FROM output_attribute WHERE concept_set_id = :concept_set_id";
+    LOGGER.debug("DELETE output attributes: {}", sql);
+    int rowsAffected = jdbcTemplate.update(sql, params);
+    LOGGER.debug("DELETE output attributes rowsAffected = {}", rowsAffected);
+
+    // Write the output attributes.
+    sql =
+        "INSERT INTO output_attribute (concept_set_id, entity, attribute) "
+            + "VALUES (:concept_set_id, :entity, :attribute)";
+    LOGGER.debug("CREATE output attribute: {}", sql);
+    List<MapSqlParameterSource> outputAttributeParamSets = new ArrayList<>();
+    outputAttributes.entrySet().stream()
+        .forEach(
+            entityAttributes -> {
+              String entity = entityAttributes.getKey();
+              entityAttributes.getValue().stream()
+                  .forEach(
+                      attribute ->
+                          outputAttributeParamSets.add(
+                              new MapSqlParameterSource()
+                                  .addValue("concept_set_id", conceptSetId)
+                                  .addValue("entity", entity)
+                                  .addValue("attribute", attribute)));
+            });
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(
+                    sql, outputAttributeParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE output attributes rowsAffected = {}", rowsAffected);
   }
 }

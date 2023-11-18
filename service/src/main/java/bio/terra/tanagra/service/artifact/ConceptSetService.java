@@ -7,8 +7,11 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +40,17 @@ public class ConceptSetService {
       String studyId, ConceptSet.Builder conceptSetBuilder, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
 
-    // Make sure underlay name, study id, and entity are valid.
+    // Make sure underlay, study id, and any entity-attribute pairs are valid.
     studyService.getStudy(studyId);
-    underlayService
-        .getUnderlay(conceptSetBuilder.getUnderlay())
-        .getEntity(conceptSetBuilder.getEntity());
+    Underlay underlay = underlayService.getUnderlay(conceptSetBuilder.getUnderlay());
+    if (conceptSetBuilder.getOutputAttributesPerEntity() != null) {
+      conceptSetBuilder.getOutputAttributesPerEntity().entrySet().stream()
+          .forEach(
+              entry -> {
+                Entity entity = underlay.getEntity(entry.getKey());
+                entry.getValue().stream().forEach(attrName -> entity.getAttribute(attrName));
+              });
+    }
 
     conceptSetDao.createConceptSet(
         studyId, conceptSetBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
@@ -85,17 +94,24 @@ public class ConceptSetService {
       String userEmail,
       @Nullable String displayName,
       @Nullable String description,
-      @Nullable String entity,
-      @Nullable List<Criteria> criteria) {
+      @Nullable List<Criteria> criteria,
+      @Nullable Map<String, List<String>> outputAttributesPerEntity) {
     featureConfiguration.artifactStorageEnabledCheck();
 
-    // Make sure entity name is valid.
-    if (entity != null) {
-      ConceptSet conceptSet = conceptSetDao.getConceptSet(conceptSetId);
-      underlayService.getUnderlay(conceptSet.getUnderlay()).getEntity(entity);
+    // Make sure any entity-attribute pairs are valid.
+    if (outputAttributesPerEntity != null) {
+      ConceptSet existingConceptSet = conceptSetDao.getConceptSet(conceptSetId);
+      Underlay underlay = underlayService.getUnderlay(existingConceptSet.getUnderlay());
+      outputAttributesPerEntity.entrySet().stream()
+          .forEach(
+              entry -> {
+                Entity entity = underlay.getEntity(entry.getKey());
+                entry.getValue().stream().forEach(attrName -> entity.getAttribute(attrName));
+              });
     }
+
     conceptSetDao.updateConceptSet(
-        conceptSetId, userEmail, displayName, description, entity, criteria);
+        conceptSetId, userEmail, displayName, description, criteria, outputAttributesPerEntity);
     return conceptSetDao.getConceptSet(conceptSetId);
   }
 }

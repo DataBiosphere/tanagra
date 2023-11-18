@@ -22,6 +22,7 @@ import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Study;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -44,6 +45,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ConceptSetServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConceptSetServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
+
+  private static final List<String> PERSON_ATTRIBUTES = List.of("gender", "age");
 
   @Autowired private StudyService studyService;
   @Autowired private ConceptSetService conceptSetService;
@@ -92,8 +95,8 @@ public class ConceptSetServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName(displayName)
                 .description(description)
-                .entity(GENDER_EQ_WOMAN.getKey())
-                .criteria(List.of(GENDER_EQ_WOMAN.getValue())),
+                .criteria(List.of(GENDER_EQ_WOMAN.getValue()))
+                .outputAttributesPerEntity(Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
             createdByEmail);
     assertNotNull(createdConceptSet);
     LOGGER.info(
@@ -104,15 +107,22 @@ public class ConceptSetServiceTest {
     assertEquals(createdByEmail, createdConceptSet.getCreatedBy());
     assertEquals(createdByEmail, createdConceptSet.getLastModifiedBy());
     assertEquals(createdConceptSet.getCreated(), createdConceptSet.getLastModified());
-    assertEquals(GENDER_EQ_WOMAN.getKey(), createdConceptSet.getEntity());
     assertEquals(1, createdConceptSet.getCriteria().size());
     assertTrue(createdConceptSet.getCriteria().contains(GENDER_EQ_WOMAN.getValue()));
+    assertEquals(1, createdConceptSet.getOutputColumnsPerEntity().keySet().size());
+    assertEquals(
+        PERSON_ATTRIBUTES.stream().sorted().collect(Collectors.toList()),
+        createdConceptSet.getOutputColumnsPerEntity().get(GENDER_EQ_WOMAN.getKey()).stream()
+            .sorted()
+            .collect(Collectors.toList()));
 
     // Update.
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the last modified and created timestamps differ.
     String displayName2 = "concept set 1 updated";
     String description2 = "first concept set updated";
     String updatedByEmail = "efg@123.com";
+    String outputEntity = "conditionOccurrence";
+    List<String> outputAttributes = List.of("condition", "person_id");
     ConceptSet updatedConceptSet =
         conceptSetService.updateConceptSet(
             study1.getId(),
@@ -120,8 +130,8 @@ public class ConceptSetServiceTest {
             updatedByEmail,
             displayName2,
             description2,
-            CONDITION_EQ_DIABETES.getKey(),
-            List.of(CONDITION_EQ_DIABETES.getValue()));
+            List.of(CONDITION_EQ_DIABETES.getValue()),
+            Map.of(outputEntity, outputAttributes));
     assertNotNull(updatedConceptSet);
     LOGGER.info(
         "Updated concept set {} at {}",
@@ -132,9 +142,14 @@ public class ConceptSetServiceTest {
     assertEquals(createdByEmail, updatedConceptSet.getCreatedBy());
     assertEquals(updatedByEmail, updatedConceptSet.getLastModifiedBy());
     assertTrue(updatedConceptSet.getLastModified().isAfter(updatedConceptSet.getCreated()));
-    assertEquals(CONDITION_EQ_DIABETES.getKey(), updatedConceptSet.getEntity());
     assertEquals(1, updatedConceptSet.getCriteria().size());
     assertTrue(updatedConceptSet.getCriteria().contains(CONDITION_EQ_DIABETES.getValue()));
+    assertEquals(1, updatedConceptSet.getOutputColumnsPerEntity().keySet().size());
+    assertEquals(
+        outputAttributes.stream().sorted().collect(Collectors.toList()),
+        updatedConceptSet.getOutputColumnsPerEntity().get(outputEntity).stream()
+            .sorted()
+            .collect(Collectors.toList()));
 
     // Delete.
     conceptSetService.deleteConceptSet(study1.getId(), createdConceptSet.getId());
@@ -166,8 +181,9 @@ public class ConceptSetServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("concept set 1")
                 .description("first concept set")
-                .entity(ETHNICITY_EQ_JAPANESE.getKey())
-                .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue())),
+                .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue()))
+                .outputAttributesPerEntity(
+                    Map.of(ETHNICITY_EQ_JAPANESE.getKey(), PERSON_ATTRIBUTES)),
             userEmail);
     assertNotNull(conceptSet1);
     LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
@@ -180,8 +196,9 @@ public class ConceptSetServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("concept set 2")
                 .description("second concept set")
-                .entity(PROCEDURE_EQ_AMPUTATION.getKey())
-                .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue())),
+                .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
+                .outputAttributesPerEntity(
+                    Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
             userEmail);
     assertNotNull(conceptSet2);
     LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
@@ -192,8 +209,8 @@ public class ConceptSetServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("concept set 3")
                 .description("third concept set")
-                .entity(GENDER_EQ_WOMAN.getKey())
-                .criteria(List.of(GENDER_EQ_WOMAN.getValue())),
+                .criteria(List.of(GENDER_EQ_WOMAN.getValue()))
+                .outputAttributesPerEntity(Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
             userEmail);
     assertNotNull(conceptSet3);
     LOGGER.info("Created concept set {} at {}", conceptSet3.getId(), conceptSet3.getCreated());
@@ -256,8 +273,18 @@ public class ConceptSetServiceTest {
         NotFoundException.class,
         () ->
             conceptSetService.createConceptSet(
+                study1.getId(), ConceptSet.builder().underlay("invalid_underlay"), "abc@123.com"));
+
+    // Specify invalid attribute.
+    assertThrows(
+        NotFoundException.class,
+        () ->
+            conceptSetService.createConceptSet(
                 study1.getId(),
-                ConceptSet.builder().underlay("invalid_underlay").entity(GENDER_EQ_WOMAN.getKey()),
+                ConceptSet.builder()
+                    .underlay("invalid_underlay")
+                    .outputAttributesPerEntity(
+                        Map.of(GENDER_EQ_WOMAN.getKey(), List.of("invalid_attribute"))),
                 "abc@123.com"));
   }
 }

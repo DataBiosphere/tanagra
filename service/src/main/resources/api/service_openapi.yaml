@@ -1810,14 +1810,20 @@ components:
           $ref: "#/components/schemas/ConceptSetId"
         underlayName:
           $ref: "#/components/schemas/UnderlayName"
-        entity:
-          $ref: "#/components/schemas/EntityName"
         displayName:
           $ref: "#/components/schemas/ConceptSetDisplayName"
         description:
           $ref: "#/components/schemas/ConceptSetDescription"
         criteria:
-          $ref: "#/components/schemas/Criteria"
+          type: array
+          description: Criteria that define the entity filter
+          items:
+            $ref: "#/components/schemas/Criteria"
+        entityOutputs:
+          type: array
+          description: Outputs per entity
+          items:
+            $ref: "#/components/schemas/EntityOutput"
         created:
           description: Timestamp of when the concept set was created
           type: string
@@ -1832,12 +1838,26 @@ components:
       required:
         - id
         - underlayName
-        - entity
         - displayName
         - criteria
+        - entityOutputs
         - created
         - createdBy
         - lastModified
+
+    EntityOutput:
+      type: object
+      properties:
+        entity:
+          description: Entity name
+          type: string
+        attributes:
+          type: array
+          description: Names of attributes to output
+          items:
+            type: string
+        required:
+          - entity
 
     ConceptSetList:
       type: array
@@ -1853,30 +1873,28 @@ components:
       properties:
         underlayName:
           $ref: "#/components/schemas/UnderlayName"
-        entity:
-          $ref: "#/components/schemas/EntityName"
         displayName:
           $ref: "#/components/schemas/ConceptSetDisplayName"
         description:
           $ref: "#/components/schemas/ConceptSetDescription"
-        criteria:
-          $ref: "#/components/schemas/Criteria"
 
     ConceptSetUpdateInfo:
       type: object
       properties:
-        entity:
-          $ref: "#/components/schemas/EntityName"
         displayName:
           $ref: "#/components/schemas/ConceptSetDisplayName"
         description:
           $ref: "#/components/schemas/ConceptSetDescription"
         criteria:
-          $ref: "#/components/schemas/Criteria"
-
-    EntityName:
-      type: string
-      description: Name of the entity (e.g. condition_occurrence)
+          type: array
+          description: Criteria that define the entity filter
+          items:
+            $ref: "#/components/schemas/Criteria"
+        entityOutputs:
+          type: array
+          description: Outputs per entity
+          items:
+            $ref: "#/components/schemas/EntityOutput"
 
     ConceptSetDisplayName:
       type: string
