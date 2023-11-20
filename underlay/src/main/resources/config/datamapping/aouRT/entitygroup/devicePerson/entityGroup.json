@@ -1,0 +1,20 @@
+{
+  "name": "devicePerson",
+  "criteriaEntity": "device",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "deviceOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "device"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "device_concept_id"
+  }
+}
