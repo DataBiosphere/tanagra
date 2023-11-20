@@ -1,0 +1,20 @@
+{
+  "name": "conditionPerson",
+  "criteriaEntity": "condition",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "conditionOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "condition"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "condition_concept_id"
+  }
+}
