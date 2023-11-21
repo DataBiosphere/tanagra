@@ -1856,8 +1856,8 @@ components:
           description: Names of attributes to exclude from output
           items:
             type: string
-        required:
-          - entity
+      required:
+        - entity
 
     ConceptSetList:
       type: array
