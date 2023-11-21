@@ -46,7 +46,7 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
-      "SELECT concept_set_id, id, display_name, plugin_name, plugin_version, selection_data, ui_config FROM criteria";
+      "SELECT concept_set_id, id, display_name, plugin_name, plugin_version, predefined_id, selection_data, ui_config FROM criteria";
   private static final RowMapper<Pair<String, Criteria.Builder>> CRITERIA_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
@@ -56,6 +56,7 @@ public class ConceptSetDao {
                   .displayName(rs.getString("display_name"))
                   .pluginName(rs.getString("plugin_name"))
                   .pluginVersion(rs.getInt("plugin_version"))
+                  .predefinedId(rs.getString("predefined_id"))
                   .selectionData(rs.getString("selection_data"))
                   .uiConfig(rs.getString("ui_config")));
 
@@ -70,12 +71,12 @@ public class ConceptSetDao {
 
   // SQL query and row mapper for reading an output attribute.
   private static final String OUTPUT_ATTRIBUTE_SELECT_SQL =
-      "SELECT concept_set_id, entity, attribute FROM output_attribute";
+      "SELECT concept_set_id, entity, exclude_attribute FROM output_attribute";
   private static final RowMapper<Pair<String, Pair<String, String>>> OUTPUT_ATTRIBUTE_ROW_MAPPER =
       (rs, rowNum) ->
           Pair.of(
               rs.getString("concept_set_id"),
-              Pair.of(rs.getString("entity"), rs.getString("attribute")));
+              Pair.of(rs.getString("entity"), rs.getString("exclude_attribute")));
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
@@ -168,9 +169,10 @@ public class ConceptSetDao {
     }
 
     // Write the output attributes.
-    if (conceptSet.getOutputColumnsPerEntity() != null
-        && !conceptSet.getOutputColumnsPerEntity().isEmpty()) {
-      updateOutputAttributesHelper(conceptSet.getId(), conceptSet.getOutputColumnsPerEntity());
+    if (conceptSet.getExcludeOutputAttributesPerEntity() != null
+        && !conceptSet.getExcludeOutputAttributesPerEntity().isEmpty()) {
+      updateOutputAttributesHelper(
+          conceptSet.getId(), conceptSet.getExcludeOutputAttributesPerEntity());
     }
   }
 
@@ -289,7 +291,7 @@ public class ConceptSetDao {
               String conceptSetId = pair.getKey();
               String entity = pair.getValue().getKey();
               String attribute = pair.getValue().getValue();
-              conceptSetsMap.get(conceptSetId).addOutputAttribute(entity, attribute);
+              conceptSetsMap.get(conceptSetId).addExcludeOutputAttribute(entity, attribute);
             });
 
     // Preserve the order returned by the original query.
@@ -315,8 +317,8 @@ public class ConceptSetDao {
 
     // Write the criteria.
     sql =
-        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, plugin_version, selection_data, ui_config, list_index) "
-            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :plugin_version, :selection_data, :ui_config, :list_index)";
+        "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, plugin_version, predefined_id, selection_data, ui_config, list_index) "
+            + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :plugin_version, :predefined_id, :selection_data, :ui_config, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
     List<MapSqlParameterSource> criteriaParamSets =
         criteria.stream()
@@ -328,6 +330,7 @@ public class ConceptSetDao {
                         .addValue("display_name", c.getDisplayName())
                         .addValue("plugin_name", c.getPluginName())
                         .addValue("plugin_version", c.getPluginVersion())
+                        .addValue("predefined_id", c.getPredefinedId())
                         .addValue("selection_data", c.getSelectionData())
                         .addValue("ui_config", c.getUiConfig())
                         .addValue("list_index", 0))
@@ -376,8 +379,8 @@ public class ConceptSetDao {
 
     // Write the output attributes.
     sql =
-        "INSERT INTO output_attribute (concept_set_id, entity, attribute) "
-            + "VALUES (:concept_set_id, :entity, :attribute)";
+        "INSERT INTO output_attribute (concept_set_id, entity, exclude_attribute) "
+            + "VALUES (:concept_set_id, :entity, :exclude_attribute)";
     LOGGER.debug("CREATE output attribute: {}", sql);
     List<MapSqlParameterSource> outputAttributeParamSets = new ArrayList<>();
     outputAttributes.entrySet().stream()
@@ -391,7 +394,7 @@ public class ConceptSetDao {
                               new MapSqlParameterSource()
                                   .addValue("concept_set_id", conceptSetId)
                                   .addValue("entity", entity)
-                                  .addValue("attribute", attribute)));
+                                  .addValue("exclude_attribute", attribute)));
             });
     rowsAffected =
         Arrays.stream(

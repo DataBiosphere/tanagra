@@ -96,7 +96,8 @@ public class ConceptSetServiceTest {
                 .displayName(displayName)
                 .description(description)
                 .criteria(List.of(GENDER_EQ_WOMAN.getValue()))
-                .outputAttributesPerEntity(Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
+                .excludeOutputAttributesPerEntity(
+                    Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
             createdByEmail);
     assertNotNull(createdConceptSet);
     LOGGER.info(
@@ -109,10 +110,11 @@ public class ConceptSetServiceTest {
     assertEquals(createdConceptSet.getCreated(), createdConceptSet.getLastModified());
     assertEquals(1, createdConceptSet.getCriteria().size());
     assertTrue(createdConceptSet.getCriteria().contains(GENDER_EQ_WOMAN.getValue()));
-    assertEquals(1, createdConceptSet.getOutputColumnsPerEntity().keySet().size());
+    assertEquals(1, createdConceptSet.getExcludeOutputAttributesPerEntity().keySet().size());
     assertEquals(
         PERSON_ATTRIBUTES.stream().sorted().collect(Collectors.toList()),
-        createdConceptSet.getOutputColumnsPerEntity().get(GENDER_EQ_WOMAN.getKey()).stream()
+        createdConceptSet.getExcludeOutputAttributesPerEntity().get(GENDER_EQ_WOMAN.getKey())
+            .stream()
             .sorted()
             .collect(Collectors.toList()));
 
@@ -144,10 +146,10 @@ public class ConceptSetServiceTest {
     assertTrue(updatedConceptSet.getLastModified().isAfter(updatedConceptSet.getCreated()));
     assertEquals(1, updatedConceptSet.getCriteria().size());
     assertTrue(updatedConceptSet.getCriteria().contains(CONDITION_EQ_DIABETES.getValue()));
-    assertEquals(1, updatedConceptSet.getOutputColumnsPerEntity().keySet().size());
+    assertEquals(1, updatedConceptSet.getExcludeOutputAttributesPerEntity().keySet().size());
     assertEquals(
         outputAttributes.stream().sorted().collect(Collectors.toList()),
-        updatedConceptSet.getOutputColumnsPerEntity().get(outputEntity).stream()
+        updatedConceptSet.getExcludeOutputAttributesPerEntity().get(outputEntity).stream()
             .sorted()
             .collect(Collectors.toList()));
 
@@ -182,7 +184,7 @@ public class ConceptSetServiceTest {
                 .displayName("concept set 1")
                 .description("first concept set")
                 .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue()))
-                .outputAttributesPerEntity(
+                .excludeOutputAttributesPerEntity(
                     Map.of(ETHNICITY_EQ_JAPANESE.getKey(), PERSON_ATTRIBUTES)),
             userEmail);
     assertNotNull(conceptSet1);
@@ -197,7 +199,7 @@ public class ConceptSetServiceTest {
                 .displayName("concept set 2")
                 .description("second concept set")
                 .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
-                .outputAttributesPerEntity(
+                .excludeOutputAttributesPerEntity(
                     Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
             userEmail);
     assertNotNull(conceptSet2);
@@ -210,7 +212,8 @@ public class ConceptSetServiceTest {
                 .displayName("concept set 3")
                 .description("third concept set")
                 .criteria(List.of(GENDER_EQ_WOMAN.getValue()))
-                .outputAttributesPerEntity(Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
+                .excludeOutputAttributesPerEntity(
+                    Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
             userEmail);
     assertNotNull(conceptSet3);
     LOGGER.info("Created concept set {} at {}", conceptSet3.getId(), conceptSet3.getCreated());
@@ -283,7 +286,7 @@ public class ConceptSetServiceTest {
                 study1.getId(),
                 ConceptSet.builder()
                     .underlay("invalid_underlay")
-                    .outputAttributesPerEntity(
+                    .excludeOutputAttributesPerEntity(
                         Map.of(GENDER_EQ_WOMAN.getKey(), List.of("invalid_attribute"))),
                 "abc@123.com"));
   }

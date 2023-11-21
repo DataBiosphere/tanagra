@@ -14,7 +14,7 @@ public class ConceptSet {
   private final String id;
   private final String underlay;
   private final List<Criteria> criteria;
-  private final Map<String, List<String>> outputColumnsPerEntity;
+  private final Map<String, List<String>> excludeOutputAttributesPerEntity;
   private final @Nullable String displayName;
   private final @Nullable String description;
   private final OffsetDateTime created;
@@ -27,7 +27,7 @@ public class ConceptSet {
     this.id = builder.id;
     this.underlay = builder.underlay;
     this.criteria = builder.criteria;
-    this.outputColumnsPerEntity = builder.outputAttributesPerEntity;
+    this.excludeOutputAttributesPerEntity = builder.excludeOutputAttributesPerEntity;
     this.displayName = builder.displayName;
     this.description = builder.description;
     this.created = builder.created;
@@ -53,8 +53,8 @@ public class ConceptSet {
     return criteria;
   }
 
-  public Map<String, List<String>> getOutputColumnsPerEntity() {
-    return outputColumnsPerEntity;
+  public Map<String, List<String>> getExcludeOutputAttributesPerEntity() {
+    return excludeOutputAttributesPerEntity;
   }
 
   public OffsetDateTime getCreated() {
@@ -91,7 +91,7 @@ public class ConceptSet {
     private String id;
     private String underlay;
     private List<Criteria> criteria = new ArrayList<>();
-    private Map<String, List<String>> outputAttributesPerEntity = new HashMap<>();
+    private Map<String, List<String>> excludeOutputAttributesPerEntity = new HashMap<>();
     private String displayName;
     private String description;
     private OffsetDateTime created;
@@ -115,8 +115,9 @@ public class ConceptSet {
       return this;
     }
 
-    public Builder outputAttributesPerEntity(Map<String, List<String>> outputAttributesPerEntity) {
-      this.outputAttributesPerEntity = outputAttributesPerEntity;
+    public Builder excludeOutputAttributesPerEntity(
+        Map<String, List<String>> excludeOutputAttributesPerEntity) {
+      this.excludeOutputAttributesPerEntity = excludeOutputAttributesPerEntity;
       return this;
     }
 
@@ -161,8 +162,8 @@ public class ConceptSet {
       }
       criteria = new ArrayList<>(criteria);
       criteria.sort(Comparator.comparing(Criteria::getId));
-      outputAttributesPerEntity =
-          outputAttributesPerEntity.entrySet().stream()
+      excludeOutputAttributesPerEntity =
+          excludeOutputAttributesPerEntity.entrySet().stream()
               .collect(
                   Collectors.toMap(
                       entry -> entry.getKey(),
@@ -178,21 +179,21 @@ public class ConceptSet {
       return underlay;
     }
 
-    public Map<String, List<String>> getOutputAttributesPerEntity() {
-      return outputAttributesPerEntity;
+    public Map<String, List<String>> getExcludeOutputAttributesPerEntity() {
+      return excludeOutputAttributesPerEntity;
     }
 
     public void addCriteria(Criteria newCriteria) {
       criteria.add(newCriteria);
     }
 
-    public void addOutputAttribute(String entity, String attribute) {
+    public void addExcludeOutputAttribute(String entity, String attribute) {
       List<String> outputAttributes =
-          outputAttributesPerEntity.containsKey(entity)
-              ? outputAttributesPerEntity.get(entity)
+          excludeOutputAttributesPerEntity.containsKey(entity)
+              ? excludeOutputAttributesPerEntity.get(entity)
               : new ArrayList<>();
       outputAttributes.add(attribute);
-      outputAttributesPerEntity.put(entity, outputAttributes);
+      excludeOutputAttributesPerEntity.put(entity, outputAttributes);
     }
   }
 }

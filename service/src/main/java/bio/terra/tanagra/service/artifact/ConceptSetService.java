@@ -43,8 +43,8 @@ public class ConceptSetService {
     // Make sure underlay, study id, and any entity-attribute pairs are valid.
     studyService.getStudy(studyId);
     Underlay underlay = underlayService.getUnderlay(conceptSetBuilder.getUnderlay());
-    if (conceptSetBuilder.getOutputAttributesPerEntity() != null) {
-      conceptSetBuilder.getOutputAttributesPerEntity().entrySet().stream()
+    if (conceptSetBuilder.getExcludeOutputAttributesPerEntity() != null) {
+      conceptSetBuilder.getExcludeOutputAttributesPerEntity().entrySet().stream()
           .forEach(
               entry -> {
                 Entity entity = underlay.getEntity(entry.getKey());

@@ -113,7 +113,7 @@ public class ConceptSetsApiController implements ConceptSetsApi {
         body.getEntityOutputs() == null
             ? null
             : body.getEntityOutputs().stream()
-                .collect(Collectors.toMap(eo -> eo.getEntity(), eo -> eo.getAttributes()));
+                .collect(Collectors.toMap(eo -> eo.getEntity(), eo -> eo.getExcludeAttributes()));
     ConceptSet updatedConceptSet =
         conceptSetService.updateConceptSet(
             studyId,
@@ -142,14 +142,14 @@ public class ConceptSetsApiController implements ConceptSetsApi {
                     .map(ToApiUtils::toApiObject)
                     .collect(Collectors.toList()))
         .entityOutputs(
-            conceptSet.getOutputColumnsPerEntity() == null
+            conceptSet.getExcludeOutputAttributesPerEntity() == null
                 ? null
-                : conceptSet.getOutputColumnsPerEntity().entrySet().stream()
+                : conceptSet.getExcludeOutputAttributesPerEntity().entrySet().stream()
                     .map(
                         entry ->
                             new ApiEntityOutput()
                                 .entity(entry.getKey())
-                                .attributes(entry.getValue()))
+                                .excludeAttributes(entry.getValue()))
                     .collect(Collectors.toList()));
   }
 }

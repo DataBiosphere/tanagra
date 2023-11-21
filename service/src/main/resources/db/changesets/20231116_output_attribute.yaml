@@ -22,15 +22,24 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: attribute
+                  name: exclude_attribute
                   type: ${text.type}
                   constraints:
                     nullable: false
         - addUniqueConstraint:
             constraintName: pk_oa
             tableName: output_attribute
-            columnNames: concept_set_id, entity, attribute
+            columnNames: concept_set_id, entity, exclude_attribute
 
-        -  dropNotNullConstraint:
-            tableName:  concept_set
-            columnName:  entity
+        -  dropColumn:
+             tableName: concept_set
+             columnName: entity
+
+        - addColumn:
+            tableName: criteria
+            columns:
+              - column:
+                  name: predefined_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: true

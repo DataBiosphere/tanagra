@@ -1851,9 +1851,9 @@ components:
         entity:
           description: Entity name
           type: string
-        attributes:
+        excludeAttributes:
           type: array
-          description: Names of attributes to output
+          description: Names of attributes to exclude from output
           items:
             type: string
         required:
@@ -1984,6 +1984,9 @@ components:
         pluginVersion:
           type: integer
           description: Version of the plugin that generated this criteria
+        predefinedId:
+          type: string
+          description: Id of the predefined criteria in the config
         selectionData:
           type: string # JSON formatted
           description: Serialized plugin-specific representation of the user's selection

@@ -122,7 +122,7 @@ public class BaseAccessControlTest {
                 .displayName("concept set 1")
                 .description("first concept set")
                 .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue()))
-                .outputAttributesPerEntity(
+                .excludeOutputAttributesPerEntity(
                     Map.of(ETHNICITY_EQ_JAPANESE.getKey(), List.of("gender"))),
             "abc@123.com");
     assertNotNull(conceptSet1);
@@ -136,7 +136,7 @@ public class BaseAccessControlTest {
                 .displayName("concept set 2")
                 .description("second concept set")
                 .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
-                .outputAttributesPerEntity(
+                .excludeOutputAttributesPerEntity(
                     Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
             "def@123.com");
     assertNotNull(conceptSet2);

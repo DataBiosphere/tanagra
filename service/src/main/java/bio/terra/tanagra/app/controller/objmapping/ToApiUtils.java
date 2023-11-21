@@ -129,6 +129,7 @@ public final class ToApiUtils {
         .displayName(criteria.getDisplayName())
         .pluginName(criteria.getPluginName())
         .pluginVersion(criteria.getPluginVersion())
+        .predefinedId(criteria.getPredefinedId())
         .selectionData(criteria.getSelectionData())
         .uiConfig(criteria.getUiConfig())
         .tags(criteria.getTags());
