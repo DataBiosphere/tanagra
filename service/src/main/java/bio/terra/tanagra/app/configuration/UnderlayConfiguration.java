@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "tanagra.underlay")
-@AnnotatedClass(name = "Underlays", markdown = "Configure the underlays served by the deployasdfment.")
+@AnnotatedClass(name = "Underlays", markdown = "Configure the underlays served by the deployment.")
 public class UnderlayConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(UnderlayConfiguration.class);
 
