@@ -1,0 +1,104 @@
+plugins {
+    id "java"
+    id "java-test-fixtures"
+    id "maven-publish"
+    id "tanagra.java-conventions"
+    id "com.google.cloud.tools.jib" version "3.1.2"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+    id "org.hidetake.swagger.generator" version "2.18.2"
+    id "org.springframework.boot" version "2.5.1"
+    id "org.barfuin.gradle.taskinfo" version "1.1.1"
+    id "net.linguica.maven-settings" version "0.5"
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+group = "bio.terra"
+version = gradle.tanagraVersion
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+    }
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+    }
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
+    maven {
+        name "github"
+        url "https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries"
+        credentials {
+            // Credentials required to access tanagra-client-libraries,
+            // GITHUB_ACTOR: user running build task
+            // GITHUB_TOKEN: user token or workflow token that grants access to libraries
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+    dependencies {
+        dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
+        dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
+    }
+}
+
+
+dependencies {
+    implementation project(path: ':underlay')
+    implementation project(path: ':service')
+    implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+    implementation group: "org.slf4j", name: "slf4j-api", version: "1.7.25"
+
+    // GCP libraries. Versions are controlled by the BOM specified in buildSrc.
+    implementation group: "com.google.guava", name: "guava"
+
+    // Jackson serialization
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.12.3"
+    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.12.3"
+
+    // SQL formatting
+    implementation group: "org.hibernate", name: "hibernate-core", version: "5.3.30.Final"
+
+    // JUnit
+    testImplementation group: "org.junit.jupiter", name: "junit-jupiter-api", version: "5.0.3"
+    testRuntimeOnly group: "org.junit.jupiter", name: "junit-jupiter-engine", version: "5.0.3"
+    testFixturesImplementation group: "org.junit.jupiter", name: "junit-jupiter-api", version: "5.0.3"
+
+    // Static analysis
+    compileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
+    testCompileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task noCloudAccessRequiredTests(type: Test) {
+    useJUnitPlatform {
+        excludeTags "requires-cloud-access"
+    }
+}
+
+tasks.withType(Test) {
+    // These System properties are used for the generated SQL strings to compare against during tests.
+    systemProperty("GRADLE_PROJECT_DIR", projectDir)
+    if (project.findProperty("generateSqlFiles")) {
+        systemProperty("GENERATE_SQL_FILES", "true")
+    }
+}
+
+// e.g. ./gradlew documentation:writeOutputFile -Dgenerator=DEPLOYMENT_CONFIG
+// Possible values for the "generator" property are the Main.Command enum values.
+task writeOutputFile(type:JavaExec) {
+    main = "bio.terra.tanagra.documentation.Main"
+    classpath = sourceSets.main.runtimeClasspath
+    args "$projectDir/..", System.hasProperty("generator") ? System.getProperty("generator") : ""
+}

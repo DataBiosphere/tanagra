@@ -22,30 +22,18 @@ public final class StartupInitializer {
   public static void initialize(ApplicationContext applicationContext) {
     LOGGER.info("Initializing application before startup");
 
-    // Load all the configuration beans.
-    AccessControlConfiguration accessControlConfiguration =
-        applicationContext.getBean(AccessControlConfiguration.class);
-    AuthenticationConfiguration authenticationConfiguration =
-        applicationContext.getBean(AuthenticationConfiguration.class);
-    ExportConfiguration exportConfiguration = applicationContext.getBean(ExportConfiguration.class);
-    FeatureConfiguration featureConfiguration =
-        applicationContext.getBean(FeatureConfiguration.class);
-    TanagraDatabaseProperties tanagraDatabaseProperties =
-        applicationContext.getBean(TanagraDatabaseProperties.class);
-    UnderlayConfiguration underlayConfiguration =
-        applicationContext.getBean(UnderlayConfiguration.class);
-    VersionConfiguration versionConfiguration =
-        applicationContext.getBean(VersionConfiguration.class);
-
     // Log the state of the application configuration.
     LOGGER.info("Logging the application config before startup");
-    accessControlConfiguration.log();
-    authenticationConfiguration.log();
-    exportConfiguration.log();
-    featureConfiguration.log();
+    applicationContext.getBean(AccessControlConfiguration.class).log();
+    applicationContext.getBean(AuthenticationConfiguration.class).log();
+    applicationContext.getBean(ExportConfiguration.class).log();
+    applicationContext.getBean(FeatureConfiguration.class).log();
+    applicationContext.getBean(UnderlayConfiguration.class).log();
+    applicationContext.getBean(VersionConfiguration.class).log();
+
+    TanagraDatabaseProperties tanagraDatabaseProperties =
+        applicationContext.getBean(TanagraDatabaseProperties.class);
     tanagraDatabaseProperties.log();
-    underlayConfiguration.log();
-    versionConfiguration.log();
 
     // Initialize or migrate the database depending on the configuration.
     LOGGER.info("Migrating database");
