@@ -1,10 +1,6 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
-  CAST(CASE
-    WHEN xvw.x_invalid = 'N' THEN 1
-    ELSE 0
-  END AS BOOLEAN) AS is_clean,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,
@@ -17,9 +13,6 @@ SELECT
   vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.measurement` AS mo
-
-LEFT JOIN `${omopDataset}.x_vs_wh` AS xvw
-    ON xvw.measurement_id = mo.measurement_id
 
 JOIN `${omopDataset}.person` AS p
     ON p.person_id = mo.person_id
