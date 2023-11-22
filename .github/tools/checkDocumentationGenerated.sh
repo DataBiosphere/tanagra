@@ -5,7 +5,7 @@
 ./gradlew documentation:writeOutputFile -Pgenerator=DEPLOYMENT_CONFIG
 
 exit_code=0
-diffOutput = $(git diff --cached)
+diffOutput=$(git diff --cached)
 if [[ $(echo ${diff_output} | wc -c) -gt 1 ]]
   then
     printf "Differences found:\n${diff_output}\n"
