@@ -67,15 +67,14 @@ public class TanagraDatabaseProperties extends BaseDatabaseProperties {
     this.ipTypes = ipTypes;
   }
 
-  /** Write the properties into the log. Add an entry here for each new property. */
-  public void logFlags() {
-    LOGGER.info("Database flag: initialize-on-start: {}", isInitializeOnStart());
-    LOGGER.info("Database flag: upgrade-on-start: {}", isUpgradeOnStart());
-    LOGGER.info("Database flag: uri: {}", getUri());
-    LOGGER.info("Database flag: username: {}", getUsername());
-    LOGGER.info("Database flag: cloud-sql-instance: {}", getCloudSqlInstance());
-    LOGGER.info("Database flag: socket-factory: {}", getSocketFactory());
-    LOGGER.info("Database flag: driver-class-name: {}", getDriverClassName());
-    LOGGER.info("Database flag: ip-types: {}", getIpTypes());
+  public void log() {
+    LOGGER.info("Application database: initialize-on-start: {}", isInitializeOnStart());
+    LOGGER.info("Application database: upgrade-on-start: {}", isUpgradeOnStart());
+    LOGGER.info("Application database: uri: {}", getUri());
+    LOGGER.info("Application database: username: {}", getUsername());
+    LOGGER.info("Application database: cloud-sql-instance: {}", getCloudSqlInstance());
+    LOGGER.info("Application database: socket-factory: {}", getSocketFactory());
+    LOGGER.info("Application database: driver-class-name: {}", getDriverClassName());
+    LOGGER.info("Application database: ip-types: {}", getIpTypes());
   }
 }

@@ -54,12 +54,16 @@ public class AccessControlConfiguration {
     this.oauthClientId = oauthClientId;
   }
 
-  /** Write the access control flags into the log. Add an entry here for each new flag. */
-  public void logConfig() {
+  public void log() {
     LOGGER.info("Access control: model: {}", getModel());
     LOGGER.info(
         "Access control: params: {}", getParams().stream().collect(Collectors.joining(",")));
     LOGGER.info("Access control: base-path: {}", getBasePath());
     LOGGER.info("Access control: oauth-client-id: {}", getOauthClientId());
+
+    if (model == null) {
+      LOGGER.warn("Access control: No model specified, using default");
+    }
+    // Each access control plugin will validate the configuration here in its constructor.
   }
 }

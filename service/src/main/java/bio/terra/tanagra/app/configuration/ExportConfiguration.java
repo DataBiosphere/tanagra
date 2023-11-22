@@ -36,19 +36,19 @@ public class ExportConfiguration {
   }
 
   /** Write the data export flags into the log. Add an entry here for each new flag. */
-  public void logConfig() {
-    LOGGER.info("Export shared gcs-project-id: {}", shared.getGcsProjectId());
+  public void log() {
+    LOGGER.info("Export: shared gcs-project-id: {}", shared.getGcsProjectId());
     LOGGER.info(
-        "Export shared gcs-bucket-names: {}",
+        "Export: shared gcs-bucket-names: {}",
         shared.getGcsBucketNames().stream().collect(Collectors.joining(",")));
     for (int i = 0; i < models.size(); i++) {
       PerModel m = models.get(i);
-      LOGGER.info("Export models[{}] name: {}", i, m.getName());
-      LOGGER.info("Export models[{}] display-name: {}", i, m.getDisplayName());
-      LOGGER.info("Export models[{}] type: {}", i, m.getType());
-      LOGGER.info("Export models[{}] redirect-away-url: {}", i, m.getRedirectAwayUrl());
+      LOGGER.info("Export: models[{}] name: {}", i, m.getName());
+      LOGGER.info("Export: models[{}] display-name: {}", i, m.getDisplayName());
+      LOGGER.info("Export: models[{}] type: {}", i, m.getType());
+      LOGGER.info("Export: models[{}] redirect-away-url: {}", i, m.getRedirectAwayUrl());
       LOGGER.info(
-          "Export models[{}] params: {}",
+          "Export: models[{}] params: {}",
           i,
           m.getParams().stream().collect(Collectors.joining(",")));
     }

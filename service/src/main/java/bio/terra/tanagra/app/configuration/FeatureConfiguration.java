@@ -44,8 +44,7 @@ public class FeatureConfiguration {
     }
   }
 
-  /** Write the feature flags into the log. Add an entry here for each new feature flag. */
-  public void logFeatures() {
+  public void log() {
     LOGGER.info("Feature: artifact-storage-enabled: {}", isArtifactStorageEnabled());
     LOGGER.info("Feature: activity-log-enabled: {}", isActivityLogEnabled());
   }

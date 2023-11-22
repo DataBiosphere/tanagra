@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "tanagra.auth")
-public class AuthConfiguration {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthConfiguration.class);
+public class AuthenticationConfiguration {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationConfiguration.class);
 
   private boolean disableChecks;
   private boolean iapGkeJwt;
@@ -89,14 +89,13 @@ public class AuthConfiguration {
     this.gkeBackendServiceId = gkeBackendServiceId;
   }
 
-  /** Write the auth flags into the log. Add an entry here for each new auth flag. */
-  public void logConfig() {
-    LOGGER.info("Auth config: disable-checks: {}", isDisableChecks());
-    LOGGER.info("Auth config: iap-gke-jwt: {}", isIapGkeJwt());
-    LOGGER.info("Auth config: iap-appengine-jwt: {}", isIapAppEngineJwt());
-    LOGGER.info("Auth config: bearer-token: {}", isBearerToken());
-    LOGGER.info("Auth config: gcp-project-number: {}", getGcpProjectNumber());
-    LOGGER.info("Auth config: gcp-project-id: {}", getGcpProjectId());
-    LOGGER.info("Auth config: gke-backend-service-id: {}", getGkeBackendServiceId());
+  public void log() {
+    LOGGER.info("Authentication: disable-checks: {}", isDisableChecks());
+    LOGGER.info("Authentication: iap-gke-jwt: {}", isIapGkeJwt());
+    LOGGER.info("Authentication: iap-appengine-jwt: {}", isIapAppEngineJwt());
+    LOGGER.info("Authentication: bearer-token: {}", isBearerToken());
+    LOGGER.info("Authentication: gcp-project-number: {}", getGcpProjectNumber());
+    LOGGER.info("Authentication: gcp-project-id: {}", getGcpProjectId());
+    LOGGER.info("Authentication: gke-backend-service-id: {}", getGkeBackendServiceId());
   }
 }

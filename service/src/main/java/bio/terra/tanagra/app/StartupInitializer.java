@@ -1,10 +1,14 @@
 package bio.terra.tanagra.app;
 
 import bio.terra.common.migrate.LiquibaseMigrator;
-import bio.terra.tanagra.app.configuration.AuthConfiguration;
+import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
+import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
+import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraDatabaseConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraDatabaseProperties;
+import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
+import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -17,23 +21,37 @@ public final class StartupInitializer {
 
   public static void initialize(ApplicationContext applicationContext) {
     LOGGER.info("Initializing application before startup");
-    // Initialize or upgrade the database depending on the configuration.
-    LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
-    TanagraDatabaseConfiguration tanagraDatabaseConfiguration =
-        applicationContext.getBean(TanagraDatabaseConfiguration.class);
-    TanagraDatabaseProperties tanagraDatabaseProperties =
-        applicationContext.getBean(TanagraDatabaseProperties.class);
+
+    // Load all the configuration beans.
+    AccessControlConfiguration accessControlConfiguration =
+        applicationContext.getBean(AccessControlConfiguration.class);
+    AuthenticationConfiguration authenticationConfiguration =
+        applicationContext.getBean(AuthenticationConfiguration.class);
+    ExportConfiguration exportConfiguration = applicationContext.getBean(ExportConfiguration.class);
     FeatureConfiguration featureConfiguration =
         applicationContext.getBean(FeatureConfiguration.class);
-    AuthConfiguration authConfiguration = applicationContext.getBean(AuthConfiguration.class);
+    TanagraDatabaseProperties tanagraDatabaseProperties =
+        applicationContext.getBean(TanagraDatabaseProperties.class);
+    UnderlayConfiguration underlayConfiguration =
+        applicationContext.getBean(UnderlayConfiguration.class);
+    VersionConfiguration versionConfiguration =
+        applicationContext.getBean(VersionConfiguration.class);
 
-    // Log the state of the database migration, feature flags, auth flags.
-    tanagraDatabaseProperties.logFlags();
-    featureConfiguration.logFeatures();
-    authConfiguration.logConfig();
+    // Log the state of the application configuration.
+    LOGGER.info("Logging the application config before startup");
+    accessControlConfiguration.log();
+    authenticationConfiguration.log();
+    exportConfiguration.log();
+    featureConfiguration.log();
+    tanagraDatabaseProperties.log();
+    underlayConfiguration.log();
+    versionConfiguration.log();
 
-    // Migrate the database.
+    // Initialize or migrate the database depending on the configuration.
     LOGGER.info("Migrating database");
+    TanagraDatabaseConfiguration tanagraDatabaseConfiguration =
+        applicationContext.getBean(TanagraDatabaseConfiguration.class);
+    LiquibaseMigrator migrateService = applicationContext.getBean(LiquibaseMigrator.class);
     if (tanagraDatabaseProperties.isInitializeOnStart()) {
       migrateService.initialize(CHANGELOG_PATH, tanagraDatabaseConfiguration.getDataSource());
     } else if (tanagraDatabaseProperties.isUpgradeOnStart()) {
