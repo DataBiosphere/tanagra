@@ -17,21 +17,23 @@ public class FeatureConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureConfiguration.class);
 
   @AnnotatedField(
-          name = "tanagra.feature.artifactStorageEnabled",
-          markdown = "When true, artifacts can be created, updated and deleted. " +
-                  "Artifacts include studies, cohorts, concept sets, reviews, and annotations.",
-          environmentVariable = "TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED",
-          optional = true,
-          defaultValue = "false")
+      name = "tanagra.feature.artifactStorageEnabled",
+      markdown =
+          "When true, artifacts can be created, updated and deleted. "
+              + "Artifacts include studies, cohorts, concept sets, reviews, and annotations.",
+      environmentVariable = "TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED",
+      optional = true,
+      defaultValue = "false")
   private boolean artifactStorageEnabled;
 
   @AnnotatedField(
-          name = "tanagra.feature.activityLogEnabled",
-          markdown = "When true, we store activity log events in the application database. " +
-                  "This is intended to support auditing requirements.",
-          environmentVariable = "TANAGRA_FEATURE_ACTIVITY_LOG_ENABLED",
-          optional = true,
-          defaultValue = "false")
+      name = "tanagra.feature.activityLogEnabled",
+      markdown =
+          "When true, we store activity log events in the application database. "
+              + "This is intended to support auditing requirements.",
+      environmentVariable = "TANAGRA_FEATURE_ACTIVITY_LOG_ENABLED",
+      optional = true,
+      defaultValue = "false")
   private boolean activityLogEnabled;
 
   public boolean isArtifactStorageEnabled() {
