@@ -99,7 +99,7 @@ export function Export() {
       studyId,
       `Untitled cohort ${new Date().toLocaleString()}`
     );
-    navigate("../" + cohortURL(cohort.id, cohort.groupSections[0].id));
+    navigate(cohortURL(cohort.id, cohort.groupSections[0].id));
   };
 
   const newFeatureSet = async () => {
@@ -108,7 +108,7 @@ export function Export() {
       studyId,
       `Untitled feature set ${new Date().toLocaleString()}`
     );
-    navigate("../" + featureSetURL(featureSet.id));
+    navigate(featureSetURL(featureSet.id));
   };
 
   const onToggle = <T,>(
@@ -217,8 +217,7 @@ export function Export() {
                           variant="outlined"
                           onClick={() =>
                             navigate(
-                              "../" +
-                                cohortURL(cohort.id, cohort.groupSections[0].id)
+                              cohortURL(cohort.id, cohort.groupSections[0].id)
                             )
                           }
                           sx={{ minWidth: "auto" }}
@@ -305,7 +304,7 @@ export function Export() {
                         <Button
                           data-testid={fs.name}
                           variant="outlined"
-                          onClick={() => navigate("../" + featureSetURL(fs.id))}
+                          onClick={() => navigate(featureSetURL(fs.id))}
                           sx={{ minWidth: "auto" }}
                         >
                           Edit

@@ -1,23 +1,15 @@
 import Button from "@mui/material/Button";
-import {
-  AddCohortCriteria,
-  AddConceptSetCriteria,
-  AddFeatureSetCriteria,
-} from "addCriteria";
+import { AddCohortCriteria, AddFeatureSetCriteria } from "addCriteria";
 import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
-import ConceptSetEdit from "conceptSetEdit";
-import ConceptSetRoot from "conceptSetRoot";
 import { SourceContextRoot } from "data/sourceContext";
-import { Datasets } from "datasets";
 import Edit from "edit";
 import { Export } from "export";
 import { FeatureSet } from "featureSet/featureSet";
 import { FeatureSetEdit } from "featureSet/featureSetEdit";
 import FeatureSetRoot from "featureSet/featureSetRoot";
 import { NewFeatureSet } from "featureSet/newFeatureSet";
-import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
 import { Overview } from "overview";
 import { useCallback, useEffect } from "react";
@@ -43,10 +35,6 @@ export function createAppRouter() {
       children: [
         {
           index: true,
-          element: <Datasets />,
-        },
-        {
-          path: "sets",
           element: <Export />,
         },
         {
@@ -90,29 +78,6 @@ export function createAppRouter() {
                   element: <CohortReview />,
                 },
               ],
-            },
-          ],
-        },
-        {
-          path: "conceptSets",
-          element: <ConceptSetRoot />,
-          children: [
-            {
-              path: "add",
-              children: [
-                {
-                  index: true,
-                  element: <AddConceptSetCriteria />,
-                },
-                {
-                  path: ":configId",
-                  element: <NewConceptSet />,
-                },
-              ],
-            },
-            {
-              path: "edit/:conceptSetId",
-              element: <ConceptSetEdit />,
             },
           ],
         },
@@ -331,25 +296,6 @@ export function absoluteExportURL(params: BaseParams) {
 
 export function absoluteExportSetsURL(params: BaseParams) {
   return absolutePrefix(params) + "sets";
-}
-
-export function absoluteConceptSetURL(
-  params: BaseParams,
-  conceptSetId: string
-) {
-  return absolutePrefix(params) + "conceptSets/edit/" + conceptSetId;
-}
-
-export function conceptSetURL(conceptSetId: string) {
-  return "conceptSets/edit/" + conceptSetId;
-}
-
-export function absoluteNewConceptSetURL(params: BaseParams) {
-  return absolutePrefix(params) + newConceptSetURL();
-}
-
-export function newConceptSetURL() {
-  return `conceptSets/add`;
 }
 
 export function criteriaURL() {

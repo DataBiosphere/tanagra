@@ -4,11 +4,6 @@ import {
   insertCohortCriteria,
   updateCohortCriteria,
 } from "cohortContext";
-import {
-  ConceptSetContext,
-  createConceptSet,
-  updateConceptSet,
-} from "conceptSetContext";
 import { FeatureSet } from "data/source";
 import { useSource } from "data/sourceContext";
 import {
@@ -138,18 +133,6 @@ export function useGroupSectionAndGroup() {
   };
 }
 
-function useOptionalConceptSet(throwOnUnknown: boolean) {
-  const conceptSet = useContext(ConceptSetContext)?.state?.conceptSet;
-  if (throwOnUnknown && !conceptSet) {
-    throw new PathError(`No valid concept set in current context.`);
-  }
-  return conceptSet;
-}
-
-export function useConceptSet() {
-  return useOptionalConceptSet(true) as NonNullable<tanagraUI.UIConceptSet>;
-}
-
 function useOptionalFeatureSet(throwOnUnknown: boolean) {
   const featureSet = useContext(FeatureSetContext)?.state?.present;
   if (throwOnUnknown && !featureSet) {
@@ -182,12 +165,10 @@ export function useFeatureSetAndCriteria() {
 export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   const cohort = useOptionalCohort(false);
   const { section, group } = useOptionalGroupSectionAndGroup(false);
-  const conceptSet = useOptionalConceptSet(false);
   const { featureSet, criteria: featureSetCriteria } =
     useOptionalFeatureSetAndCriteria(false);
 
   const cohortContext = useContext(CohortContext);
-  const conceptSetContext = useContext(ConceptSetContext);
   const featureSetContext = useContext(FeatureSetContext);
 
   if (cohort && section) {
@@ -237,28 +218,6 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
     }
     return (data: object) => {
       updateFeatureSetCriteria(featureSetContext, data, featureSetCriteria.id);
-    };
-  }
-
-  if (newCriteria) {
-    if (!conceptSetContext) {
-      throw new Error("Null concept set context when creating a concept set.");
-    }
-
-    return (data: object) => {
-      if (newCriteria) {
-        createConceptSet(conceptSetContext, { ...newCriteria, data: data });
-      }
-    };
-  }
-
-  if (conceptSet) {
-    if (!conceptSetContext) {
-      throw new Error("Null concept set context when updating a concept set.");
-    }
-
-    return (data: object) => {
-      updateConceptSet(conceptSetContext, data);
     };
   }
 
