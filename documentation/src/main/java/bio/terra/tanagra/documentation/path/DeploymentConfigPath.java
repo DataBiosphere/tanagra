@@ -1,5 +1,7 @@
 package bio.terra.tanagra.documentation.path;
 
+import bio.terra.tanagra.app.configuration.ExportConfiguration;
+import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraDatabaseProperties;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import java.util.Arrays;
@@ -14,6 +16,9 @@ public class DeploymentConfigPath extends AnnotationPath {
           + "This documentation is generated from annotations in the configuration classes.";
 
   private enum AnnotatedClass {
+    EXPORT_SHARED(ExportConfiguration.Shared.class),
+    EXPORT_PER_MODEL(ExportConfiguration.PerModel.class),
+    FEATURE(FeatureConfiguration.class),
     APPLICATION_DATABASE(TanagraDatabaseProperties.class),
     UNDERLAY(UnderlayConfiguration.class);
 

@@ -1,5 +1,7 @@
 package bio.terra.tanagra.app.configuration;
 
+import bio.terra.tanagra.annotation.AnnotatedClass;
+import bio.terra.tanagra.annotation.AnnotatedField;
 import bio.terra.tanagra.service.export.DataExport;
 import java.util.Collections;
 import java.util.List;
@@ -54,9 +56,25 @@ public class ExportConfiguration {
     }
   }
 
+  @AnnotatedClass(name = "Export (Shared)", markdown = "Configure the export options shared by all models.")
   public static class Shared {
+    @AnnotatedField(
+            name = "tanagra.export.shared.gcsProjectId",
+            markdown = "GCP project id that contains the GCS bucket(s) that all export models can use. " +
+                    "Required if there are any export models that need to write to GCS.",
+            environmentVariable = "TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID",
+            optional = true,
+            exampleValue = "broad-tanagra-dev")
     private String gcsProjectId;
 
+    @AnnotatedField(
+            name = "tanagra.export.shared.gcsBucketNames",
+            markdown = "Comma separated list of all GCS bucket names that all export models can use. " +
+                    "Only include the bucket name, not the gs:// prefix. " +
+                    "Required if there are any export models that need to write to GCS.",
+            environmentVariable = "TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES",
+            optional = true,
+            exampleValue = "broad-tanagra-dev-bq-export-uscentral1,broad-tanagra-dev-bq-export-useast1")
     private List<String> gcsBucketNames;
 
     public String getGcsProjectId() {
@@ -76,7 +94,18 @@ public class ExportConfiguration {
     }
   }
 
+  @AnnotatedClass(name = "Export (Per Model)", markdown = "Configure the export options for each model.")
   public static class PerModel {
+    @AnnotatedField(
+            name = "tanagra.export.models.name",
+            markdown = "Name of the export model. " +
+                    "This must be unique across all models for a given deployment. " +
+                    "Defaults to the name of the export model. " +
+                    "It's useful to override the default if you have more than one instance of the same model " +
+                    "(e.g. export to VWB parameterized with the dev environment URL, and another with the test environment URL).",
+            environmentVariable = "TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you will have 0 and 1 env vars.)",
+            optional = true,
+            exampleValue = "VWB_FILE_IMPORT_TO_DEV")
     private String name;
     private String displayName;
     private DataExport.Type type;
