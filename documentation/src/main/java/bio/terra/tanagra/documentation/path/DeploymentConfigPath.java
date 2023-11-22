@@ -1,7 +1,6 @@
 package bio.terra.tanagra.documentation.path;
 
-import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
-import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
+import bio.terra.tanagra.app.configuration.TanagraDatabaseProperties;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import java.util.Arrays;
 import java.util.List;
@@ -15,8 +14,7 @@ public class DeploymentConfigPath extends AnnotationPath {
           + "This documentation is generated from annotations in the configuration classes.";
 
   private enum AnnotatedClass {
-    ACCESS_CONTROL(AccessControlConfiguration.class),
-    AUTHENTICATION(AuthenticationConfiguration.class),
+    APPLICATION_DATABASE(TanagraDatabaseProperties.class),
     UNDERLAY(UnderlayConfiguration.class);
 
     private final Class<?> clazz;

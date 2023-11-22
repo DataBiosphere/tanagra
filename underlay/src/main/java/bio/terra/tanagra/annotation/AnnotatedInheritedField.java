@@ -1,13 +1,15 @@
 package bio.terra.tanagra.annotation;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface AnnotatedField {
+@Target(ElementType.TYPE)
+@Repeatable(AnnotatedInheritedFields.class)
+public @interface AnnotatedInheritedField {
   String name() default "";
 
   String markdown() default "";

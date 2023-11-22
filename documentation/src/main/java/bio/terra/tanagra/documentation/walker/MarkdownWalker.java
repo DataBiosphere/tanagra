@@ -2,6 +2,7 @@ package bio.terra.tanagra.documentation.walker;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
+import bio.terra.tanagra.annotation.AnnotatedInheritedField;
 import bio.terra.tanagra.documentation.path.AnnotationPath;
 import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
@@ -48,8 +49,46 @@ public class MarkdownWalker extends AnnotationWalker {
           .append(fieldAnnotation.environmentVariable())
           .append("`\n\n");
     }
+    if (!fieldAnnotation.defaultValue().isEmpty()) {
+      markdown.append("*Default value:* `").append(fieldAnnotation.defaultValue()).append("`\n\n");
+    }
     if (!fieldAnnotation.exampleValue().isEmpty()) {
       markdown.append("*Example value:* `").append(fieldAnnotation.exampleValue()).append("`\n\n");
+    }
+    return markdown.toString();
+  }
+
+  @Override
+  protected String walkInheritedField(AnnotatedInheritedField inheritedFieldAnnotation) {
+    // Start a new level 3 subsection for each field.
+    StringBuilder markdown =
+        new StringBuilder()
+            .append("### ")
+            .append(inheritedFieldAnnotation.name())
+            .append('\n')
+
+            // Add the markdown defined in the annotation.
+            .append(inheritedFieldAnnotation.optional() ? "**optional**" : "**required**")
+            .append("\n\n")
+            .append(inheritedFieldAnnotation.markdown())
+            .append("\n\n");
+    if (!inheritedFieldAnnotation.exampleValue().isEmpty()) {
+      markdown
+          .append("*Environment variable:* `")
+          .append(inheritedFieldAnnotation.environmentVariable())
+          .append("`\n\n");
+    }
+    if (!inheritedFieldAnnotation.defaultValue().isEmpty()) {
+      markdown
+          .append("*Default value:* `")
+          .append(inheritedFieldAnnotation.defaultValue())
+          .append("`\n\n");
+    }
+    if (!inheritedFieldAnnotation.exampleValue().isEmpty()) {
+      markdown
+          .append("*Example value:* `")
+          .append(inheritedFieldAnnotation.exampleValue())
+          .append("`\n\n");
     }
     return markdown.toString();
   }
