@@ -3,7 +3,6 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import { getCriteriaTitle } from "cohort";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
@@ -16,11 +15,8 @@ import GridLayout from "layout/gridLayout";
 import React, { useCallback, useMemo } from "react";
 import {
   absoluteCohortURL,
-  absoluteConceptSetURL,
-  absoluteExportSetsURL,
   absoluteExportURL,
   absoluteFeatureSetURL,
-  absoluteNewConceptSetURL,
   useBaseParams,
 } from "router";
 import { Header } from "sampleApp/header";
@@ -31,7 +27,6 @@ import emptyImage from "../images/empty.svg";
 enum ArtifactType {
   Cohort = "Cohort",
   FeatureSet = "Feature set",
-  ConceptSet = "Data feature",
 }
 
 type Artifact = {
@@ -85,17 +80,7 @@ export function StudyOverview() {
             cohortGroupSectionId: "",
           }))
       ),
-      source.listConceptSets(studyId).then((res) =>
-        res
-          .filter((cs) => cs.underlayName === underlay.name)
-          .map((cs) => ({
-            type: ArtifactType.ConceptSet,
-            name: getCriteriaTitle(cs.criteria),
-            id: cs.id,
-            cohortGroupSectionId: "",
-          }))
-      ),
-    ]).then((res) => [...res[0], ...res[1], ...res[2]]);
+    ]).then((res) => res.flat());
   }, [source, studyId]);
 
   const artifactsState = useSWR(
@@ -112,9 +97,6 @@ export function StudyOverview() {
             break;
           case ArtifactType.FeatureSet:
             await source.deleteFeatureSet(studyId, artifact.id);
-            break;
-          case ArtifactType.ConceptSet:
-            await source.deleteConceptSet(studyId, artifact.id);
             break;
           default:
             throw new Error(
@@ -203,9 +185,6 @@ export function StudyOverview() {
       case ArtifactType.FeatureSet:
         navigate(absoluteFeatureSetURL(params, artifact.id).substring(1));
         break;
-      case ArtifactType.ConceptSet:
-        navigate(absoluteConceptSetURL(params, artifact.id).substring(1));
-        break;
     }
   };
 
@@ -225,25 +204,9 @@ export function StudyOverview() {
             </Button>
             <Button
               variant="contained"
-              onClick={() =>
-                navigate(absoluteNewConceptSetURL(params).substring(1))
-              }
-            >
-              New data feature
-            </Button>
-            <Button
-              variant="contained"
               onClick={() => navigate(absoluteExportURL(params).substring(1))}
             >
               Export
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() =>
-                navigate(absoluteExportSetsURL(params).substring(1))
-              }
-            >
-              Feature sets export
             </Button>
           </GridLayout>
         </GridBox>

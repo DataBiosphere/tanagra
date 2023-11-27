@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: output_attribute
+      author: marikomedlock
+      dbms: postgresql,mariadb,mysql
+      changes:
+        - createTable:
+            tableName: output_attribute
+            columns:
+              - column:
+                  name: concept_set_id
+                  type: ${id.type}
+                  constraints:
+                    references: concept_set(id)
+                    foreignKeyName: fk_oa_cs
+                    nullable: false
+                    deleteCascade: true
+                  remarks: Deleting a concept set will cascade to delete the output attributes contained in it
+              - column:
+                  name: entity
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+              - column:
+                  name: exclude_attribute
+                  type: ${text.type}
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            constraintName: pk_oa
+            tableName: output_attribute
+            columnNames: concept_set_id, entity, exclude_attribute
+
+        -  dropColumn:
+             tableName: concept_set
+             columnName: entity
+
+        - addColumn:
+            tableName: criteria
+            columns:
+              - column:
+                  name: predefined_id
+                  type: ${id.type}
+                  constraints:
+                    nullable: true

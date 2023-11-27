@@ -263,15 +263,22 @@ class FakeConceptSetsAPI {
         displayName: "Test data feature",
         lastModified: new Date(),
         underlayName: "test_underlay",
-        entity: "test_entity",
-        criteria: {
-          id: "entity_id",
-          displayName: "test_entity",
-          pluginName: "test_plugin",
-          selectionData: "test_data",
-          uiConfig: "test_config",
-          tags: {},
-        },
+        criteria: [
+          {
+            id: "entity_id",
+            displayName: "test_entity",
+            pluginName: "test_plugin",
+            selectionData: "test_data",
+            uiConfig: "test_config",
+            tags: {},
+          },
+        ],
+        entityOutputs: [
+          {
+            entity: "test_entity",
+            excludeAttributes: ["test_attribute"],
+          },
+        ],
       },
     ];
   }
