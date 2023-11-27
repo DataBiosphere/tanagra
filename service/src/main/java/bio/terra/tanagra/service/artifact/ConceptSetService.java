@@ -2,6 +2,7 @@ package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ConceptSetDao;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
@@ -18,21 +19,31 @@ import org.springframework.stereotype.Component;
 public class ConceptSetService {
   private final ConceptSetDao conceptSetDao;
   private final FeatureConfiguration featureConfiguration;
+  private final UnderlayService underlayService;
+  private final StudyService studyService;
 
   @Autowired
-  public ConceptSetService(ConceptSetDao conceptSetDao, FeatureConfiguration featureConfiguration) {
+  public ConceptSetService(
+      ConceptSetDao conceptSetDao,
+      FeatureConfiguration featureConfiguration,
+      UnderlayService underlayService,
+      StudyService studyService) {
     this.conceptSetDao = conceptSetDao;
     this.featureConfiguration = featureConfiguration;
+    this.underlayService = underlayService;
+    this.studyService = studyService;
   }
 
   public ConceptSet createConceptSet(
       String studyId, ConceptSet.Builder conceptSetBuilder, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
 
+    // Make sure study and underlay are valid.
+    studyService.getStudy(studyId);
+    underlayService.getUnderlay(conceptSetBuilder.getUnderlay());
+
     // TODO: Put this validation back once the UI config overhaul is complete.
-    //    // Make sure underlay, study id, and any entity-attribute pairs are valid.
-    //    studyService.getStudy(studyId);
-    //    Underlay underlay = underlayService.getUnderlay(conceptSetBuilder.getUnderlay());
+    //    // Make sure any entity-attribute pairs are valid.
     //    if (conceptSetBuilder.getExcludeOutputAttributesPerEntity() != null) {
     //      conceptSetBuilder.getExcludeOutputAttributesPerEntity().entrySet().stream()
     //          .forEach(
