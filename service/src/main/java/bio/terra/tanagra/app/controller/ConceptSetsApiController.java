@@ -109,6 +109,17 @@ public class ConceptSetsApiController implements ConceptSetsApi {
             : body.getCriteria().stream()
                 .map(FromApiUtils::fromApiObject)
                 .collect(Collectors.toList());
+    if (body.getEntityOutputs() != null) {
+      body.getEntityOutputs().stream().forEach(eo ->
+              {
+                System.out.println("entity="+eo.getEntity());
+                System.out.println("exclAttrs="+eo.getExcludeAttributes());
+                if (eo.getExcludeAttributes() != null) {
+                  System.out.println("exclAttrrs="+eo.getExcludeAttributes().stream().collect(Collectors.joining(",")));
+                }
+              });
+    }
+
     Map<String, List<String>> outputAttributesPerEntity =
         body.getEntityOutputs() == null
             ? null

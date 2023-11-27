@@ -13,7 +13,7 @@ databaseChangeLog:
                   constraints:
                     references: concept_set(id)
                     foreignKeyName: fk_oa_cs
-                    nullable: true
+                    nullable: false
                     deleteCascade: true
                   remarks: Deleting a concept set will cascade to delete the output attributes contained in it
               - column:
