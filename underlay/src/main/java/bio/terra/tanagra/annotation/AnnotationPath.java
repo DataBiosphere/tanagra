@@ -1,4 +1,4 @@
-package bio.terra.tanagra.documentation.path;
+package bio.terra.tanagra.annotation;
 
 import java.util.List;
 

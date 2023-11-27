@@ -1,9 +1,5 @@
-package bio.terra.tanagra.documentation.walker;
+package bio.terra.tanagra.annotation;
 
-import bio.terra.tanagra.annotation.AnnotatedClass;
-import bio.terra.tanagra.annotation.AnnotatedField;
-import bio.terra.tanagra.annotation.AnnotatedInheritedField;
-import bio.terra.tanagra.documentation.path.AnnotationPath;
 import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;

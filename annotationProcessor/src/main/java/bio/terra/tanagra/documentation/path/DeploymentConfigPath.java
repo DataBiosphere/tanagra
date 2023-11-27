@@ -1,12 +1,13 @@
 package bio.terra.tanagra.documentation.path;
 
+import bio.terra.tanagra.annotation.AnnotationPath;
+import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
+import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.configuration.TanagraDatabaseProperties;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DeploymentConfigPath extends AnnotationPath {
   private static final String FILE_TITLE = "Deployment Configuration";
@@ -15,23 +16,15 @@ public class DeploymentConfigPath extends AnnotationPath {
           + "You can set the properties either with an `application.yaml` file or with environment variables.\n"
           + "This documentation is generated from annotations in the configuration classes.";
 
-  private enum AnnotatedClass {
-    EXPORT_SHARED(ExportConfiguration.Shared.class),
-    EXPORT_PER_MODEL(ExportConfiguration.PerModel.class),
-    FEATURE(FeatureConfiguration.class),
-    APPLICATION_DATABASE(TanagraDatabaseProperties.class),
-    UNDERLAY(UnderlayConfiguration.class);
-
-    private final Class<?> clazz;
-
-    AnnotatedClass(Class<?> clazz) {
-      this.clazz = clazz;
-    }
-
-    public Class<?> getClazz() {
-      return clazz;
-    }
-  }
+  private static final List<Class<?>> CLASSES_TO_WALK =
+      List.of(
+          AccessControlConfiguration.class,
+          AuthenticationConfiguration.class,
+          ExportConfiguration.Shared.class,
+          ExportConfiguration.PerModel.class,
+          FeatureConfiguration.class,
+          TanagraDatabaseProperties.class,
+          UnderlayConfiguration.class);
 
   @Override
   public String getTitle() {
@@ -45,8 +38,6 @@ public class DeploymentConfigPath extends AnnotationPath {
 
   @Override
   public List<Class<?>> getClassesToWalk() {
-    return Arrays.stream(AnnotatedClass.values())
-        .map(AnnotatedClass::getClazz)
-        .collect(Collectors.toList());
+    return CLASSES_TO_WALK;
   }
 }

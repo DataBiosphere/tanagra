@@ -1,8 +1,8 @@
 package bio.terra.tanagra.documentation;
 
+import bio.terra.tanagra.annotation.AnnotationWalker;
+import bio.terra.tanagra.annotation.MarkdownWalker;
 import bio.terra.tanagra.documentation.path.DeploymentConfigPath;
-import bio.terra.tanagra.documentation.walker.AnnotationWalker;
-import bio.terra.tanagra.documentation.walker.MarkdownWalker;
 import bio.terra.tanagra.exception.SystemException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,7 +13,7 @@ public final class Main {
   private Main() {}
 
   private enum Command {
-    DEPLOYMENT_CONFIG(new MarkdownWalker(new DeploymentConfigPath(), "DEPLOYMENT_CONFIG.md"));
+    DEPLOYMENT_CONFIG_DOCS(new MarkdownWalker(new DeploymentConfigPath(), "DEPLOYMENT_CONFIG.md"));
     private final AnnotationWalker annotationWalker;
 
     Command(AnnotationWalker annotationWalker) {

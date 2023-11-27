@@ -109,16 +109,66 @@ public class ExportConfiguration {
                 + "This must be unique across all models for a given deployment. "
                 + "Defaults to the name of the export model. "
                 + "It's useful to override the default if you have more than one instance of the same model "
-                + "(e.g. export to VWB parameterized with the dev environment URL, and another with the test environment URL).",
+                + "(e.g. export to workbench parameterized with the dev environment URL, and another parameterized "
+                + "with the test environment URL).",
         environmentVariable =
             "TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you will have 0 and 1 env vars.)",
         optional = true,
         exampleValue = "VWB_FILE_IMPORT_TO_DEV")
     private String name;
 
+    @AnnotatedField(
+        name = "tanagra.export.models.displayName",
+        markdown =
+            "Displayed name of the export model. "
+                + "This is for display only and will be shown in the export dialog when the user "
+                + "initiates an export. Defaults to the display name provided by the export model. "
+                + "It's useful to override the default if you have more than one instance of the same model "
+                + "(e.g. export to workbench parameterized with the dev environment URL, and another parameterized "
+                + "with the test environment URL).",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_DISPLAY_NAME (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "Export File to Workbench (dev instance)")
     private String displayName;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.type",
+        markdown =
+            "Pointer to the access control model Java class. Currently this must be one of the enum values in the"
+                + "`bio.terra.tanagra.service.export.DataExport.Type` Java class. In the future, "
+                + "it will support arbitrary class names",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_TYPE (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "IPYNB_FILE_DOWNLOAD")
     private DataExport.Type type;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.redirectAwayUrl",
+        markdown =
+            "URL to redirect the user to once the Tanagra export model has run. "
+                + "This is useful when you want to import a file to another site. e.g. Write the exported data "
+                + "to CSV files in GCS and then redirect to a workbench URL, passing the URL to the CSV files so "
+                + "the workbench can import them somewhere.",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue =
+            "https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra")
     private String redirectAwayUrl;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.params",
+        markdown =
+            "Map of parameters to pass to the export model. This is useful when you want to parameterize a "
+                + "model beyond just the redirect URL. e.g. A description for a generated notebook file.",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_PARAMS_0 (Note the first 0 is the list index of the export models, so "
+                + "if you have 2 models, you may have 0 and 1 env vars. The second 0 is the list index of "
+                + "the parameters, so if you have 2 parameters, you will need 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "Notebook file generated for Workbench v35")
     private List<String> params;
 
     public String getName() {
