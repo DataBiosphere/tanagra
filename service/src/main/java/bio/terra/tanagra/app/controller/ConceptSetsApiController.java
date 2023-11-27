@@ -130,7 +130,7 @@ public class ConceptSetsApiController implements ConceptSetsApi {
     return new ApiConceptSet()
         .id(conceptSet.getId())
         .underlayName(conceptSet.getUnderlay())
-        .displayName(conceptSet.getDisplayName())
+        .displayName(conceptSet.getDisplayNameOrDefault())
         .description(conceptSet.getDescription())
         .created(conceptSet.getCreated())
         .createdBy(conceptSet.getCreatedBy())

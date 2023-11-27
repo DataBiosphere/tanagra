@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -85,6 +86,15 @@ public class ConceptSet {
 
   public boolean isDeleted() {
     return isDeleted;
+  }
+
+  public String getDisplayNameOrDefault() {
+    if (displayName != null && !displayName.isEmpty()) {
+      return displayName;
+    } else {
+      DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy, hh:mm:ss a");
+      return "Untitled " + outputFormatter.format(created);
+    }
   }
 
   public static class Builder {
