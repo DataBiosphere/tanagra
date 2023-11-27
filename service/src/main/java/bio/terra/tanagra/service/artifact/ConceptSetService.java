@@ -2,13 +2,10 @@ package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ConceptSetDao;
-import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
-import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,36 +18,29 @@ import org.springframework.stereotype.Component;
 public class ConceptSetService {
   private final ConceptSetDao conceptSetDao;
   private final FeatureConfiguration featureConfiguration;
-  private final UnderlayService underlayService;
-  private final StudyService studyService;
 
   @Autowired
-  public ConceptSetService(
-      ConceptSetDao conceptSetDao,
-      FeatureConfiguration featureConfiguration,
-      UnderlayService underlayService,
-      StudyService studyService) {
+  public ConceptSetService(ConceptSetDao conceptSetDao, FeatureConfiguration featureConfiguration) {
     this.conceptSetDao = conceptSetDao;
     this.featureConfiguration = featureConfiguration;
-    this.underlayService = underlayService;
-    this.studyService = studyService;
   }
 
   public ConceptSet createConceptSet(
       String studyId, ConceptSet.Builder conceptSetBuilder, String userEmail) {
     featureConfiguration.artifactStorageEnabledCheck();
 
-    // Make sure underlay, study id, and any entity-attribute pairs are valid.
-    studyService.getStudy(studyId);
-    Underlay underlay = underlayService.getUnderlay(conceptSetBuilder.getUnderlay());
-    if (conceptSetBuilder.getExcludeOutputAttributesPerEntity() != null) {
-      conceptSetBuilder.getExcludeOutputAttributesPerEntity().entrySet().stream()
-          .forEach(
-              entry -> {
-                Entity entity = underlay.getEntity(entry.getKey());
-                entry.getValue().stream().forEach(attrName -> entity.getAttribute(attrName));
-              });
-    }
+    // TODO: Put this validation back once the UI config overhaul is complete.
+    //    // Make sure underlay, study id, and any entity-attribute pairs are valid.
+    //    studyService.getStudy(studyId);
+    //    Underlay underlay = underlayService.getUnderlay(conceptSetBuilder.getUnderlay());
+    //    if (conceptSetBuilder.getExcludeOutputAttributesPerEntity() != null) {
+    //      conceptSetBuilder.getExcludeOutputAttributesPerEntity().entrySet().stream()
+    //          .forEach(
+    //              entry -> {
+    //                Entity entity = underlay.getEntity(entry.getKey());
+    //                entry.getValue().stream().forEach(attrName -> entity.getAttribute(attrName));
+    //              });
+    //    }
 
     conceptSetDao.createConceptSet(
         studyId, conceptSetBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
@@ -98,17 +88,18 @@ public class ConceptSetService {
       @Nullable Map<String, List<String>> outputAttributesPerEntity) {
     featureConfiguration.artifactStorageEnabledCheck();
 
-    // Make sure any entity-attribute pairs are valid.
-    if (outputAttributesPerEntity != null) {
-      ConceptSet existingConceptSet = conceptSetDao.getConceptSet(conceptSetId);
-      Underlay underlay = underlayService.getUnderlay(existingConceptSet.getUnderlay());
-      outputAttributesPerEntity.entrySet().stream()
-          .forEach(
-              entry -> {
-                Entity entity = underlay.getEntity(entry.getKey());
-                entry.getValue().stream().forEach(attrName -> entity.getAttribute(attrName));
-              });
-    }
+    // TODO: Put this validation back once the UI config overhaul is complete.
+    //    // Make sure any entity-attribute pairs are valid.
+    //    if (outputAttributesPerEntity != null) {
+    //      ConceptSet existingConceptSet = conceptSetDao.getConceptSet(conceptSetId);
+    //      Underlay underlay = underlayService.getUnderlay(existingConceptSet.getUnderlay());
+    //      outputAttributesPerEntity.entrySet().stream()
+    //          .forEach(
+    //              entry -> {
+    //                Entity entity = underlay.getEntity(entry.getKey());
+    //                entry.getValue().stream().forEach(attrName -> entity.getAttribute(attrName));
+    //              });
+    //    }
 
     conceptSetDao.updateConceptSet(
         conceptSetId, userEmail, displayName, description, criteria, outputAttributesPerEntity);
