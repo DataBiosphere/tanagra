@@ -567,9 +567,13 @@ function PreviewTable(props: PreviewTableProps) {
             </GridLayout>
             <GridBox>
               {queriesMode ? (
-                <Typography sx={{ whiteSpace: "pre", fontFamily: "monospace" }}>
-                  {tabDataState.data?.[tab]?.sql}
-                </Typography>
+                <GridBox sx={{ overflow: "auto" }}>
+                  <Typography
+                    sx={{ whiteSpace: "pre", fontFamily: "monospace" }}
+                  >
+                    {tabDataState.data?.[tab]?.sql}
+                  </Typography>
+                </GridBox>
               ) : tabDataState.data?.[tab]?.data ? (
                 tabDataState.data?.[tab]?.data?.root?.children?.length ? (
                   <TreeGrid

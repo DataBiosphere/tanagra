@@ -1,10 +1,14 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
-  CAST(CASE
+  CASE
     WHEN xvw.x_invalid = 'N' THEN 1
     ELSE 0
-  END AS BOOLEAN) AS is_clean,
+  END AS is_clean,
+  CASE
+    WHEN xvw.x_invalid = 'N' THEN 'Clean'
+    ELSE 'Raw'
+  END AS is_clean_name,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,
