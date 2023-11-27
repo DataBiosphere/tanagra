@@ -887,7 +887,7 @@ export class BackendSource implements Source {
           ],
           entityOutputs: featureSet.output.map((o) => ({
             entity: o.occurrence,
-            excludedAttributes: o.excludedAttributes,
+            excludeAttributes: o.excludedAttributes,
           })),
         },
       })
