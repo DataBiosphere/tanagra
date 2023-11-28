@@ -10,15 +10,18 @@ public class Criteria {
   private final String displayName;
   private final String pluginName;
   private final int pluginVersion;
+  private final String predefinedId;
   private final String selectionData;
   private final String uiConfig;
   private final Map<String, String> tags;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private Criteria(
       String id,
       String displayName,
       String pluginName,
       int pluginVersion,
+      String predefinedId,
       String selectionData,
       String uiConfig,
       Map<String, String> tags) {
@@ -26,6 +29,7 @@ public class Criteria {
     this.displayName = displayName;
     this.pluginName = pluginName;
     this.pluginVersion = pluginVersion;
+    this.predefinedId = predefinedId;
     this.selectionData = selectionData;
     this.uiConfig = uiConfig;
     this.tags = tags;
@@ -51,6 +55,10 @@ public class Criteria {
     return pluginVersion;
   }
 
+  public String getPredefinedId() {
+    return predefinedId;
+  }
+
   public String getSelectionData() {
     return selectionData;
   }
@@ -68,6 +76,7 @@ public class Criteria {
     private String displayName;
     private String pluginName;
     private int pluginVersion;
+    private String predefinedId;
     private String selectionData;
     private String uiConfig;
     private Map<String, String> tags = new HashMap<>();
@@ -92,6 +101,11 @@ public class Criteria {
       return this;
     }
 
+    public Builder predefinedId(String predefinedId) {
+      this.predefinedId = predefinedId;
+      return this;
+    }
+
     public Builder selectionData(String selectionData) {
       this.selectionData = selectionData;
       return this;
@@ -112,7 +126,7 @@ public class Criteria {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
       return new Criteria(
-          id, displayName, pluginName, pluginVersion, selectionData, uiConfig, tags);
+          id, displayName, pluginName, pluginVersion, predefinedId, selectionData, uiConfig, tags);
     }
 
     public String getId() {
@@ -140,6 +154,7 @@ public class Criteria {
         && displayName.equals(criteria.displayName)
         && pluginName.equals(criteria.pluginName)
         && pluginVersion == criteria.pluginVersion
+        && Objects.equals(predefinedId, criteria.predefinedId)
         && selectionData.equals(criteria.selectionData)
         && uiConfig.equals(criteria.uiConfig)
         && tags.equals(criteria.tags);
@@ -147,6 +162,7 @@ public class Criteria {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, displayName, pluginName, pluginVersion, selectionData, uiConfig, tags);
+    return Objects.hash(
+        id, displayName, pluginName, pluginVersion, predefinedId, selectionData, uiConfig, tags);
   }
 }

@@ -31,6 +31,7 @@ import bio.terra.tanagra.service.authentication.UserId;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -120,8 +121,9 @@ public class BaseAccessControlTest {
                 .underlay(CMS_SYNPUF)
                 .displayName("concept set 1")
                 .description("first concept set")
-                .entity(ETHNICITY_EQ_JAPANESE.getKey())
-                .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue())),
+                .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue()))
+                .excludeOutputAttributesPerEntity(
+                    Map.of(ETHNICITY_EQ_JAPANESE.getKey(), List.of("gender"))),
             "abc@123.com");
     assertNotNull(conceptSet1);
     LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
@@ -133,8 +135,9 @@ public class BaseAccessControlTest {
                 .underlay(CMS_SYNPUF)
                 .displayName("concept set 2")
                 .description("second concept set")
-                .entity(PROCEDURE_EQ_AMPUTATION.getKey())
-                .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue())),
+                .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
+                .excludeOutputAttributesPerEntity(
+                    Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
             "def@123.com");
     assertNotNull(conceptSet2);
     LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());

@@ -1,11 +1,5 @@
-import {
-  defaultSection,
-  generateCohortFilter,
-  generateId,
-  getCriteriaPlugin,
-} from "cohort";
+import { defaultSection, generateCohortFilter } from "cohort";
 import { getReasonPhrase } from "http-status-codes";
-import produce from "immer";
 import * as tanagra from "tanagra-api";
 import * as tanagraUI from "tanagra-ui";
 import { Underlay } from "underlaysSlice";
@@ -167,29 +161,6 @@ export type FeatureSet = {
   output: FeatureSetOutput[];
 };
 
-// TODO(tjennison): Temporary storage for feature set until API is ready.
-export type FeatureSetStorage = {
-  [studyId: string]: FeatureSet[];
-};
-
-function getLocalFeatureSets(): FeatureSetStorage {
-  const featureSets: FeatureSetStorage = JSON.parse(
-    window.localStorage.getItem("featureSets") ?? "{}"
-  );
-  // Dates get stored as strings to convert them back when loading, overriding
-  // the expected type information.
-  Object.values(featureSets).forEach((study) => {
-    study.forEach((fs) => {
-      fs.lastModified = new Date(fs.lastModified as unknown as string);
-    });
-  });
-  return featureSets;
-}
-
-function setLocalFeatureSets(storage: FeatureSetStorage) {
-  window.localStorage.setItem("featureSets", JSON.stringify(storage));
-}
-
 export interface Source {
   config: Configuration;
   underlay: Underlay;
@@ -311,23 +282,6 @@ export interface Source {
   updateFeatureSet(studyId: string, featureSet: FeatureSet): void;
 
   deleteFeatureSet(studyId: string, featureSetId: string): void;
-
-  getConceptSet(
-    studyId: string,
-    conceptSetId: string
-  ): Promise<tanagraUI.UIConceptSet>;
-
-  listConceptSets(studyId: string): Promise<tanagraUI.UIConceptSet[]>;
-
-  createConceptSet(
-    underlayName: string,
-    studyId: string,
-    criteria: tanagraUI.UICriteria
-  ): Promise<tanagraUI.UIConceptSet>;
-
-  updateConceptSet(studyId: string, conceptSet: tanagraUI.UIConceptSet): void;
-
-  deleteConceptSet(studyId: string, conceptSetId: string): void;
 
   listAnnotations(studyId: string, cohortId: string): Promise<Annotation[]>;
 
@@ -879,18 +833,19 @@ export class BackendSource implements Source {
     studyId: string,
     featureSetId: string
   ): Promise<FeatureSet> {
-    const storage = getLocalFeatureSets();
-    const featureSet = storage[studyId]?.find((fs) => fs.id === featureSetId);
-    if (!featureSet) {
-      throw new Error(
-        "Unknown feature set ${featureSetId} in study ${studyId}."
-      );
-    }
-    return featureSet;
+    return parseAPIError(
+      this.conceptSetsApi
+        .getConceptSet({ studyId, conceptSetId: featureSetId })
+        .then((cs) => fromAPIFeatureSet(cs))
+    );
   }
 
   public async listFeatureSets(studyId: string): Promise<FeatureSet[]> {
-    return getLocalFeatureSets()[studyId] ?? [];
+    return parseAPIError(
+      this.conceptSetsApi
+        .listConceptSets({ studyId })
+        .then((res) => res.map((cs) => fromAPIFeatureSet(cs)))
+    );
   }
 
   public async createFeatureSet(
@@ -898,113 +853,52 @@ export class BackendSource implements Source {
     studyId: string,
     displayName: string
   ): Promise<FeatureSet> {
-    const storage = getLocalFeatureSets();
-    const study = storage[studyId] ?? [];
-    const featureSet: FeatureSet = {
-      id: generateId(),
-      name: displayName,
-      underlayName,
-      lastModified: new Date(),
-      criteria: [],
-      predefinedCriteria: [],
-      output: [],
-    };
-    study.push(featureSet);
-    storage[studyId] = study;
-    setLocalFeatureSets(storage);
-
-    return featureSet;
-  }
-
-  public async updateFeatureSet(studyId: string, featureSet: FeatureSet) {
-    const storage = getLocalFeatureSets();
-    const index = storage[studyId]?.findIndex((fs) => fs.id === featureSet.id);
-    if (index < 0) {
-      throw new Error(
-        "Unknown feature set ${featureSetId} in study ${studyId}."
-      );
-    }
-
-    storage[studyId][index] = produce(featureSet, (fs) => {
-      fs.lastModified = new Date();
-    });
-    setLocalFeatureSets(storage);
-  }
-
-  public async deleteFeatureSet(studyId: string, featureSetId: string) {
-    const storage = getLocalFeatureSets();
-    const index = storage[studyId]?.findIndex((fs) => fs.id === featureSetId);
-    if (index < 0) {
-      throw new Error(
-        "Unknown feature set ${featureSetId} in study ${studyId}."
-      );
-    }
-
-    storage[studyId].splice(index, 1);
-    setLocalFeatureSets(storage);
-  }
-
-  public async getConceptSet(
-    studyId: string,
-    conceptSetId: string
-  ): Promise<tanagraUI.UIConceptSet> {
-    return parseAPIError(
-      this.conceptSetsApi
-        .getConceptSet({ studyId, conceptSetId })
-        .then((c) => fromAPIConceptSet(c))
-    );
-  }
-
-  public listConceptSets(studyId: string): Promise<tanagraUI.UIConceptSet[]> {
-    return parseAPIError(
-      this.conceptSetsApi
-        .listConceptSets({ studyId })
-        .then((res) => res.map((c) => fromAPIConceptSet(c)))
-    );
-  }
-
-  public createConceptSet(
-    underlayName: string,
-    studyId: string,
-    criteria: tanagraUI.UICriteria
-  ): Promise<tanagraUI.UIConceptSet> {
     return parseAPIError(
       this.conceptSetsApi
         .createConceptSet({
           studyId,
           conceptSetCreateInfo: {
             underlayName,
-            criteria: toAPICriteria(criteria),
-            entity: findEntity(
-              getCriteriaPlugin(criteria).filterOccurrenceIds()[0],
-              this.config
-            ).entity,
+            displayName,
           },
         })
-        .then((cs) => fromAPIConceptSet(cs))
+        .then((cs) => fromAPIFeatureSet(cs))
     );
   }
 
-  public async updateConceptSet(
-    studyId: string,
-    conceptSet: tanagraUI.UIConceptSet
-  ) {
+  public async updateFeatureSet(studyId: string, featureSet: FeatureSet) {
     await parseAPIError(
       this.conceptSetsApi.updateConceptSet({
         studyId,
-        conceptSetId: conceptSet.id,
+        conceptSetId: featureSet.id,
         conceptSetUpdateInfo: {
-          criteria: toAPICriteria(conceptSet.criteria),
+          displayName: featureSet.name,
+          criteria: [
+            ...featureSet.criteria.map((c) => toAPICriteria(c)),
+            ...featureSet.predefinedCriteria.map((c) => ({
+              id: c,
+              displayName: "",
+              pluginName: "",
+              predefinedId: c,
+              selectionData: "",
+              uiConfig: "",
+              tags: {},
+            })),
+          ],
+          entityOutputs: featureSet.output.map((o) => ({
+            entity: o.occurrence,
+            excludeAttributes: o.excludedAttributes,
+          })),
         },
       })
     );
   }
 
-  public async deleteConceptSet(studyId: string, conceptSetId: string) {
+  public async deleteFeatureSet(studyId: string, featureSetId: string) {
     await parseAPIError(
       this.conceptSetsApi.deleteConceptSet({
         studyId,
-        conceptSetId,
+        conceptSetId: featureSetId,
       })
     );
   }
@@ -1772,13 +1666,23 @@ function fromAPICriteria(criteria: tanagra.Criteria): tanagraUI.UICriteria {
   };
 }
 
-function fromAPIConceptSet(
-  conceptSet: tanagra.ConceptSet
-): tanagraUI.UIConceptSet {
+function fromAPIFeatureSet(conceptSet: tanagra.ConceptSet): FeatureSet {
   return {
     id: conceptSet.id,
     underlayName: conceptSet.underlayName,
-    criteria: conceptSet.criteria && fromAPICriteria(conceptSet.criteria),
+    name: conceptSet.displayName,
+    lastModified: conceptSet.lastModified,
+
+    criteria: conceptSet.criteria
+      .filter((c) => !c.predefinedId)
+      .map((c) => fromAPICriteria(c)),
+    predefinedCriteria: conceptSet.criteria
+      .map((c) => c.predefinedId)
+      .filter(isValid),
+    output: conceptSet.entityOutputs.map((eo) => ({
+      occurrence: eo.entity,
+      excludedAttributes: eo.excludeAttributes ?? [],
+    })),
   };
 }
 

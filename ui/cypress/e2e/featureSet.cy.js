@@ -1,13 +1,8 @@
 ///<reference types="cypress-iframe" />
 import "cypress-iframe";
 
-function generateCohort() {
-  return `New cohort ${Math.floor(1000000 * Math.random())}`;
-}
-
 describe("Basic tests", () => {
   it("Export", () => {
-    const featureSet = "featureSet";
     cy.get("button:Contains(New feature set)").click();
     cy.wait(2000);
 

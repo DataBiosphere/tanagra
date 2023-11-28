@@ -15,6 +15,7 @@ import bio.terra.tanagra.generated.model.ApiConceptSet;
 import bio.terra.tanagra.generated.model.ApiConceptSetCreateInfo;
 import bio.terra.tanagra.generated.model.ApiConceptSetList;
 import bio.terra.tanagra.generated.model.ApiConceptSetUpdateInfo;
+import bio.terra.tanagra.generated.model.ApiEntityOutput;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -23,6 +24,8 @@ import bio.terra.tanagra.service.artifact.ConceptSetService;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,17 +50,13 @@ public class ConceptSetsApiController implements ConceptSetsApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(STUDY, CREATE_CONCEPT_SET),
         ResourceId.forStudy(studyId));
-    Criteria singleCriteria =
-        body.getCriteria() == null ? null : FromApiUtils.fromApiObject(body.getCriteria());
     ConceptSet createdConceptSet =
         conceptSetService.createConceptSet(
             studyId,
             ConceptSet.builder()
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .underlay(body.getUnderlayName())
-                .entity(body.getEntity())
-                .criteria(List.of(singleCriteria)),
+                .underlay(body.getUnderlayName()),
             SpringAuthentication.getCurrentUser().getEmail());
     return ResponseEntity.ok(ConceptSetsApiController.toApiObject(createdConceptSet));
   }
@@ -104,8 +103,18 @@ public class ConceptSetsApiController implements ConceptSetsApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(CONCEPT_SET, UPDATE),
         ResourceId.forConceptSet(studyId, conceptSetId));
-    Criteria singleCriteria =
-        body.getCriteria() == null ? null : FromApiUtils.fromApiObject(body.getCriteria());
+    List<Criteria> criteria =
+        body.getCriteria() == null
+            ? null
+            : body.getCriteria().stream()
+                .map(FromApiUtils::fromApiObject)
+                .collect(Collectors.toList());
+
+    Map<String, List<String>> outputAttributesPerEntity =
+        body.getEntityOutputs() == null
+            ? null
+            : body.getEntityOutputs().stream()
+                .collect(Collectors.toMap(eo -> eo.getEntity(), eo -> eo.getExcludeAttributes()));
     ConceptSet updatedConceptSet =
         conceptSetService.updateConceptSet(
             studyId,
@@ -113,8 +122,8 @@ public class ConceptSetsApiController implements ConceptSetsApi {
             SpringAuthentication.getCurrentUser().getEmail(),
             body.getDisplayName(),
             body.getDescription(),
-            body.getEntity(),
-            List.of(singleCriteria));
+            criteria,
+            outputAttributesPerEntity);
     return ResponseEntity.ok(toApiObject(updatedConceptSet));
   }
 
@@ -122,8 +131,7 @@ public class ConceptSetsApiController implements ConceptSetsApi {
     return new ApiConceptSet()
         .id(conceptSet.getId())
         .underlayName(conceptSet.getUnderlay())
-        .entity(conceptSet.getEntity())
-        .displayName(conceptSet.getDisplayName())
+        .displayName(conceptSet.getDisplayNameOrDefault())
         .description(conceptSet.getDescription())
         .created(conceptSet.getCreated())
         .createdBy(conceptSet.getCreatedBy())
@@ -131,6 +139,18 @@ public class ConceptSetsApiController implements ConceptSetsApi {
         .criteria(
             conceptSet.getCriteria() == null
                 ? null
-                : ToApiUtils.toApiObject(conceptSet.getCriteria().get(0)));
+                : conceptSet.getCriteria().stream()
+                    .map(ToApiUtils::toApiObject)
+                    .collect(Collectors.toList()))
+        .entityOutputs(
+            conceptSet.getExcludeOutputAttributesPerEntity() == null
+                ? null
+                : conceptSet.getExcludeOutputAttributesPerEntity().entrySet().stream()
+                    .map(
+                        entry ->
+                            new ApiEntityOutput()
+                                .entity(entry.getKey())
+                                .excludeAttributes(entry.getValue()))
+                    .collect(Collectors.toList()));
   }
 }

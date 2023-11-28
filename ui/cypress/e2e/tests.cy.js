@@ -1,13 +1,13 @@
 ///<reference types="cypress-iframe" />
 import "cypress-iframe";
 
-function generateCohort() {
-  return `New cohort ${Math.floor(1000000 * Math.random())}`;
+function generateName(type) {
+  return `New ${type} ${Math.floor(1000000 * Math.random())}`;
 }
 
 describe("Basic tests", () => {
   it("Basic walkthrough", () => {
-    const cohortName = generateCohort();
+    const cohortName = generateName("cohort");
 
     cy.get("button:Contains(New cohort)").click();
     cy.wait(2000);
@@ -57,19 +57,30 @@ describe("Basic tests", () => {
 
     cy.iframe().find("[aria-label=back]").click();
 
-    cy.get("button:Contains(New data feature)").click();
+    const featureSetName = generateName("feature set");
+
+    cy.get("button:Contains(New feature set)").click();
     cy.wait(2000);
 
+    cy.iframe().find("[data-testid='EditIcon']").first().click();
+    cy.iframe()
+      .find("input[name=text]")
+      .type("{selectall}" + featureSetName);
+    cy.iframe().find("button:Contains(Update)").click();
+
+    cy.iframe().find("a:Contains(Add a data feature)").first().click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("[data-testid='AccountTreeIcon']").first().click();
     cy.iframe().find("[data-testid='Clinical finding']").click();
+    cy.iframe().find("[aria-label=back]").click();
 
     cy.get("button:Contains(Export)").click();
     cy.wait(2000);
 
     cy.iframe().find(`button[name='${cohortName}']`).click();
-    cy.iframe().find("button[name='Condition: Clinical finding']").click();
+    cy.iframe().find(`button[name='${featureSetName}']`).click();
 
+    cy.iframe().find("button:Contains(Data)").click();
     cy.iframe().find("button:Contains('conditionOccurrence')", {
       timeout: 40000,
     });
