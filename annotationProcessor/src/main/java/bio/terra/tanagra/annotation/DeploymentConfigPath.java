@@ -1,6 +1,5 @@
-package bio.terra.tanagra.documentation.path;
+package bio.terra.tanagra.annotation;
 
-import bio.terra.tanagra.annotation.AnnotationPath;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;

@@ -1,8 +1,5 @@
-package bio.terra.tanagra.documentation;
+package bio.terra.tanagra.annotation;
 
-import bio.terra.tanagra.annotation.AnnotationWalker;
-import bio.terra.tanagra.annotation.MarkdownWalker;
-import bio.terra.tanagra.documentation.path.DeploymentConfigPath;
 import bio.terra.tanagra.exception.SystemException;
 import java.io.IOException;
 import java.nio.file.Path;
