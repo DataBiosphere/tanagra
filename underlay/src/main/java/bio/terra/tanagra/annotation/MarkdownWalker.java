@@ -1,15 +1,11 @@
 package bio.terra.tanagra.annotation;
 
-import bio.terra.tanagra.utils.FileUtils;
-import org.apache.commons.text.StringSubstitutor;
-
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.text.StringSubstitutor;
 
 public class MarkdownWalker extends AnnotationWalker {
   private final List<String> tableOfContents = new ArrayList<>();
@@ -22,7 +18,7 @@ public class MarkdownWalker extends AnnotationWalker {
   @Override
   protected String arriveAtClass(AnnotatedClass classAnnotation, String className) {
     // Add a bookmark for this class.
-    String bookmark = addBookmark(classAnnotation.name(), classAnnotation.name());
+    addBookmark(classAnnotation.name(), classAnnotation.name());
 
     // Add this class to the table of contents.
     tableOfContents.add("* [" + classAnnotation.name() + "](${" + classAnnotation.name() + "})");
@@ -134,9 +130,8 @@ public class MarkdownWalker extends AnnotationWalker {
     return StringSubstitutor.replace(fileHeader + bodyContents, bookmarks);
   }
 
-  private String addBookmark(String name, String title) {
-    String bookmark = "#" + title.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-');
-     bookmarks.put(name, bookmark);
-     return bookmark;
+  private void addBookmark(String name, String title) {
+    bookmarks.put(
+        name, "#" + title.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-'));
   }
 }

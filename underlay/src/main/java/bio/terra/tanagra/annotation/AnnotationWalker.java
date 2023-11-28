@@ -1,12 +1,11 @@
 package bio.terra.tanagra.annotation;
 
+import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
-
-import bio.terra.tanagra.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,15 +73,15 @@ public abstract class AnnotationWalker {
   }
 
   protected final String walk() {
-      return annotationPath.getClassesToWalk().stream()
-              .sorted(Comparator.comparing(Class::getSimpleName))
-              .map(clazz -> walk(clazz))
-              .collect(Collectors.joining());
+    return annotationPath.getClassesToWalk().stream()
+        .sorted(Comparator.comparing(Class::getSimpleName))
+        .map(clazz -> walk(clazz))
+        .collect(Collectors.joining());
   }
 
   public abstract String getOutputFileContents();
 
   public final void writeOutputFile(Path outputDir) throws IOException {
-      FileUtils.writeStringToFile(outputDir.resolve(outputFilename), getOutputFileContents());
+    FileUtils.writeStringToFile(outputDir.resolve(outputFilename), getOutputFileContents());
   }
 }
