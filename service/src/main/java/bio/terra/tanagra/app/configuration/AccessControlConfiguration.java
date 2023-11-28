@@ -52,9 +52,9 @@ public class AccessControlConfiguration {
   @AnnotatedField(
       name = "tanagra.access-control.params",
       markdown =
-          "Map of parameters to pass to the access control model. This is useful when you want to "
-              + "parameterize a model beyond just the base path and OAuth client id. e.g. Name of a Google Group "
-              + "you want to use to restrict access.",
+          "Map of parameters to pass to the access control model. Pass the map as a list e.g. key1,value1,key2,value2,... "
+              + "This is useful when you want to parameterize a model beyond just the base path and OAuth client id. "
+              + "e.g. Name of a Google Group you want to use to restrict access.",
       environmentVariable = "TANAGRA_ACCESS_CONTROL_PARAMS",
       optional = true,
       exampleValue = "googleGroupName,admin-users@googlegroups.com")

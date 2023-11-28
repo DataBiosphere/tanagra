@@ -21,4 +21,6 @@ public @interface AnnotatedInheritedField {
   String environmentVariable() default "";
 
   String defaultValue() default "";
+
+  String typeName() default "";
 }

@@ -1,30 +1,31 @@
 package bio.terra.tanagra.annotation;
 
-import bio.terra.tanagra.utils.FileUtils;
-import java.io.IOException;
-import java.nio.file.Path;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.text.StringSubstitutor;
 
 public class MarkdownWalker extends AnnotationWalker {
-  private final String outputFilename;
   private final List<String> tableOfContents = new ArrayList<>();
+  private final Map<String, String> bookmarks = new HashMap<>();
 
   public MarkdownWalker(AnnotationPath annotationPath, String outputFilename) {
-    super(annotationPath);
-    this.outputFilename = outputFilename;
+    super(annotationPath, outputFilename);
   }
 
   @Override
   protected String arriveAtClass(AnnotatedClass classAnnotation, String className) {
+    // Add a bookmark for this class.
+    addBookmark(classAnnotation.name(), classAnnotation.name());
+    addBookmarkLink(className, classAnnotation.name());
+
     // Add this class to the table of contents.
-    tableOfContents.add(
-        "* ["
-            + classAnnotation.name()
-            + "](#"
-            + classAnnotation.name().toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-')
-            + ")");
+    tableOfContents.add("* [" + classAnnotation.name() + "](${" + classAnnotation.name() + "})");
 
     // Start a new level 2 subsection for this class.
     return new StringBuilder()
@@ -37,19 +38,45 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
-  protected String walkField(AnnotatedField fieldAnnotation, String fieldName) {
+  protected String walkField(AnnotatedField fieldAnnotation, Field field) {
+    // Add a bookmark for this field.
+    String fieldTitle = fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
+    addBookmark(fieldAnnotation.name(), fieldTitle);
+
     // Start a new level 3 subsection for each field.
     StringBuilder markdown =
         new StringBuilder()
             .append("### ")
-            .append(fieldAnnotation.name().isEmpty() ? fieldName : fieldAnnotation.name())
+            .append(fieldTitle)
             .append('\n')
+            .append(fieldAnnotation.optional() ? "**optional** " : "**required** ");
 
-            // Add the markdown defined in the annotation.
-            .append(fieldAnnotation.optional() ? "**optional**" : "**required**")
-            .append("\n\n")
-            .append(fieldAnnotation.markdown())
-            .append("\n\n");
+    // Add the markdown for field type.
+    if (field.getGenericType() instanceof ParameterizedType) {
+      // This is a type-parameterized class (e.g. List, Map).
+      ParameterizedType pType = (ParameterizedType) field.getGenericType();
+      markdown
+          .append(getSimpleName(pType.getRawType().getTypeName()))
+          .append(" [ ")
+          .append(
+              Arrays.stream(pType.getActualTypeArguments())
+                  .map(
+                      typeParam -> {
+                        return annotationPath.getClassesToWalk().contains(typeParam.getTypeName())
+                            ? "${" + typeParam.getTypeName() + "}"
+                            : getSimpleName(typeParam.getTypeName());
+                      })
+                  .collect(Collectors.joining(", ")))
+          .append(" ]");
+    } else {
+      markdown.append(
+          annotationPath.getClassesToWalk().contains(field.getType())
+              ? "${" + field.getType().getTypeName() + "}"
+              : field.getType().getSimpleName());
+    }
+
+    // Add the markdown defined in the annotation.
+    markdown.append("\n\n").append(fieldAnnotation.markdown()).append("\n\n");
     if (!fieldAnnotation.environmentVariable().isEmpty()) {
       markdown
           .append("*Environment variable:* `")
@@ -67,6 +94,9 @@ public class MarkdownWalker extends AnnotationWalker {
 
   @Override
   protected String walkInheritedField(AnnotatedInheritedField inheritedFieldAnnotation) {
+    // Add a bookmark for this field.
+    addBookmark(inheritedFieldAnnotation.name(), inheritedFieldAnnotation.name());
+
     // Start a new level 3 subsection for each field.
     StringBuilder markdown =
         new StringBuilder()
@@ -74,12 +104,13 @@ public class MarkdownWalker extends AnnotationWalker {
             .append(inheritedFieldAnnotation.name())
             .append('\n')
 
-            // Add the markdown defined in the annotation.
-            .append(inheritedFieldAnnotation.optional() ? "**optional**" : "**required**")
+            // Add the field type and markdown defined in the annotation.
+            .append(inheritedFieldAnnotation.optional() ? "**optional** " : "**required** ")
+            .append(inheritedFieldAnnotation.typeName())
             .append("\n\n")
             .append(inheritedFieldAnnotation.markdown())
             .append("\n\n");
-    if (!inheritedFieldAnnotation.exampleValue().isEmpty()) {
+    if (!inheritedFieldAnnotation.environmentVariable().isEmpty()) {
       markdown
           .append("*Environment variable:* `")
           .append(inheritedFieldAnnotation.environmentVariable())
@@ -106,12 +137,9 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
-  public void writeOutputFiles(Path outputDir) throws IOException {
+  public String getOutputFileContents() {
     // Walk all the classes, appending them all together.
-    String bodyContents =
-        annotationPath.getClassesToWalk().stream()
-            .map(clazz -> walk(clazz))
-            .collect(Collectors.joining());
+    String bodyContents = walk();
 
     // Prepend the class-specific output with a header and the table of contents.
     String fileHeader =
@@ -125,6 +153,24 @@ public class MarkdownWalker extends AnnotationWalker {
             .append("\n\n")
             .toString();
 
-    FileUtils.writeStringToFile(outputDir.resolve(outputFilename), fileHeader + bodyContents);
+    // Substitute in all the bookmarks.
+    return StringSubstitutor.replace(fileHeader + bodyContents, bookmarks);
+  }
+
+  private void addBookmark(String name, String title) {
+    bookmarks.put(name, getBookmark(title));
+  }
+
+  private void addBookmarkLink(String name, String title) {
+    bookmarks.put(name, "[" + title + "](" + getBookmark(title) + ")");
+  }
+
+  private static String getBookmark(String title) {
+    return "#" + title.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-');
+  }
+
+  private static String getSimpleName(String className) {
+    String[] pieces = className.split("\\.");
+    return pieces[pieces.length - 1];
   }
 }
