@@ -96,9 +96,9 @@ tasks.withType(Test) {
     }
 }
 
-// e.g. ./gradlew documentation:writeOutputFile -Pgenerator=DEPLOYMENT_CONFIG
+// e.g. ./gradlew annotationProcessor:run -Pgenerator=DEPLOYMENT_CONFIG
 // Possible values for the "generator" property are the Main.Command enum values.
-task writeOutputFile(type:JavaExec) {
+task run(type:JavaExec) {
     main = "bio.terra.tanagra.documentation.Main"
     classpath = sourceSets.main.runtimeClasspath
     args "$projectDir/..", project.hasProperty("generator") ? project.findProperty("generator") : "undefined"

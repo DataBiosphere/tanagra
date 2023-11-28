@@ -3,10 +3,13 @@ package bio.terra.tanagra.annotation;
 import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class MarkdownWalker extends AnnotationWalker {
   private final String outputFilename;
+  private final List<String> tableOfContents = new ArrayList<>();
 
   public MarkdownWalker(AnnotationPath annotationPath, String outputFilename) {
     super(annotationPath);
@@ -15,6 +18,14 @@ public class MarkdownWalker extends AnnotationWalker {
 
   @Override
   protected String arriveAtClass(AnnotatedClass classAnnotation, String className) {
+    // Add this class to the table of contents.
+    tableOfContents.add(
+        "* ["
+            + classAnnotation.name()
+            + "](#"
+            + classAnnotation.name().toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-')
+            + ")");
+
     // Start a new level 2 subsection for this class.
     return new StringBuilder()
         .append("## ")
@@ -102,13 +113,15 @@ public class MarkdownWalker extends AnnotationWalker {
             .map(clazz -> walk(clazz))
             .collect(Collectors.joining());
 
-    // Prepend the class-specific output with a header.
+    // Prepend the class-specific output with a header and the table of contents.
     String fileHeader =
         new StringBuilder()
             .append("# ")
             .append(annotationPath.getTitle())
             .append("\n\n")
             .append(annotationPath.getIntroduction())
+            .append("\n\n")
+            .append(tableOfContents.stream().collect(Collectors.joining("\n")))
             .append("\n\n")
             .toString();
 

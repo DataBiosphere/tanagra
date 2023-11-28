@@ -4,6 +4,14 @@ This file lists all the configuration properties available for a deployment of t
 You can set the properties either with an `application.yaml` file or with environment variables.
 This documentation is generated from annotations in the configuration classes.
 
+* [Access Control](#access-control)
+* [Authentication](#authentication)
+* [Export (Shared)](#export-shared)
+* [Export (Per Model)](#export-per-model)
+* [Feature Flags](#feature-flags)
+* [Application Database](#application-database)
+* [Underlays](#underlays)
+
 ## Access Control
 Configure the access control or authorization model.
 
@@ -48,7 +56,7 @@ Map of parameters to pass to the access control model. This is useful when you w
 ## Authentication
 Configure the authentication model.
 
-There are four separate flags that control which model is used: `tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`. In the future these will be combined into a single flag. For now, you must set all four flags and only one should be true. 
+There are four separate flags that control which model is used: `tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`. In the future these will be combined into a single flag. For now, **you must set all four flags and only one should be true**. 
 
 ### tanagra.auth.bearerToken
 **required**
