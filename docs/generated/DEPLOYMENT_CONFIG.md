@@ -215,7 +215,7 @@ GCP project id that contains the GCS bucket(s) that all export models can use. R
 Configure the application database.
 
 ### tanagra.db.password
-**required**
+**required** String
 
 Password for the application database.
 
@@ -224,7 +224,7 @@ Password for the application database.
 *Example value:* `dbpwd`
 
 ### tanagra.db.uri
-**required**
+**required** String
 
 URI of the application database.
 
@@ -233,7 +233,7 @@ URI of the application database.
 *Example value:* `jdbc:postgresql://127.0.0.1:5432/tanagra_db`
 
 ### tanagra.db.username
-**required**
+**required** String
 
 Username for the application database.
 

@@ -37,7 +37,7 @@ public abstract class AnnotationWalker {
 
     StringBuilder output = new StringBuilder();
     AnnotatedClass classAnnotation = clazz.getAnnotation(AnnotatedClass.class);
-    output.append(arriveAtClass(classAnnotation, clazz.getSimpleName()));
+    output.append(arriveAtClass(classAnnotation, clazz.getTypeName()));
 
     // Walk through each inherited field with an annotation.
     if (clazz.getAnnotation(AnnotatedInheritedFields.class) != null) {

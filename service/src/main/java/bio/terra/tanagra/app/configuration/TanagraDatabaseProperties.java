@@ -14,17 +14,20 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
     name = "tanagra.db.uri",
     markdown = "URI of the application database.",
     environmentVariable = "TANAGRA_DB_URI",
-    exampleValue = "jdbc:postgresql://127.0.0.1:5432/tanagra_db")
+    exampleValue = "jdbc:postgresql://127.0.0.1:5432/tanagra_db",
+    typeName = "String")
 @AnnotatedInheritedField(
     name = "tanagra.db.username",
     markdown = "Username for the application database.",
     environmentVariable = "TANAGRA_DB_USERNAME",
-    exampleValue = "dbuser")
+    exampleValue = "dbuser",
+    typeName = "String")
 @AnnotatedInheritedField(
     name = "tanagra.db.password",
     markdown = "Password for the application database.",
     environmentVariable = "TANAGRA_DB_PASSWORD",
-    exampleValue = "dbpwd")
+    exampleValue = "dbpwd",
+    typeName = "String")
 public class TanagraDatabaseProperties extends BaseDatabaseProperties {
   private static final Logger LOGGER = LoggerFactory.getLogger(TanagraDatabaseProperties.class);
 

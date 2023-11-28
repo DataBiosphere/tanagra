@@ -62,17 +62,16 @@ public class MarkdownWalker extends AnnotationWalker {
               Arrays.stream(pType.getActualTypeArguments())
                   .map(
                       typeParam -> {
-                        String typeParamSimpleName = getSimpleName(typeParam.getTypeName());
-                        return annotationPath.getClassesToWalk().contains(typeParamSimpleName)
-                            ? "${" + typeParamSimpleName + "}"
-                            : typeParamSimpleName;
+                        return annotationPath.getClassesToWalk().contains(typeParam.getTypeName())
+                            ? "${" + typeParam.getTypeName() + "}"
+                            : getSimpleName(typeParam.getTypeName());
                       })
                   .collect(Collectors.joining(", ")))
           .append(" ]");
     } else {
       markdown.append(
           annotationPath.getClassesToWalk().contains(field.getType())
-              ? "${" + field.getType().getSimpleName() + "}"
+              ? "${" + field.getType().getTypeName() + "}"
               : field.getType().getSimpleName());
     }
 
@@ -105,8 +104,9 @@ public class MarkdownWalker extends AnnotationWalker {
             .append(inheritedFieldAnnotation.name())
             .append('\n')
 
-            // Add the markdown defined in the annotation.
-            .append(inheritedFieldAnnotation.optional() ? "**optional**" : "**required**")
+            // Add the field type and markdown defined in the annotation.
+            .append(inheritedFieldAnnotation.optional() ? "**optional** " : "**required** ")
+            .append(inheritedFieldAnnotation.typeName())
             .append("\n\n")
             .append(inheritedFieldAnnotation.markdown())
             .append("\n\n");
@@ -162,10 +162,10 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   private void addBookmarkLink(String name, String title) {
-    bookmarks.put(name, "[" + title + "](#" + getBookmark(title) + ")");
+    bookmarks.put(name, "[" + title + "](" + getBookmark(title) + ")");
   }
 
-  private String getBookmark(String title) {
+  private static String getBookmark(String title) {
     return "#" + title.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-');
   }
 
