@@ -2,6 +2,7 @@ package bio.terra.tanagra.annotation;
 
 import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -21,7 +22,7 @@ public abstract class AnnotationWalker {
 
   protected abstract String arriveAtClass(AnnotatedClass classAnnotation, String className);
 
-  protected abstract String walkField(AnnotatedField fieldAnnotation, String fieldName);
+  protected abstract String walkField(AnnotatedField fieldAnnotation, Field field);
 
   protected abstract String walkInheritedField(AnnotatedInheritedField inheritedFieldAnnotation);
 
@@ -65,7 +66,7 @@ public abstract class AnnotationWalker {
         .forEach(
             field -> {
               AnnotatedField fieldAnnotation = field.getAnnotation(AnnotatedField.class);
-              output.append(walkField(fieldAnnotation, field.getName()));
+              output.append(walkField(fieldAnnotation, field));
             });
 
     output.append(leaveClass(classAnnotation, clazz.getSimpleName()));

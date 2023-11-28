@@ -1,6 +1,9 @@
 package bio.terra.tanagra.annotation;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,7 @@ public class MarkdownWalker extends AnnotationWalker {
   protected String arriveAtClass(AnnotatedClass classAnnotation, String className) {
     // Add a bookmark for this class.
     addBookmark(classAnnotation.name(), classAnnotation.name());
+    addBookmarkLink(className, classAnnotation.name());
 
     // Add this class to the table of contents.
     tableOfContents.add("* [" + classAnnotation.name() + "](${" + classAnnotation.name() + "})");
@@ -34,9 +38,9 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
-  protected String walkField(AnnotatedField fieldAnnotation, String fieldName) {
+  protected String walkField(AnnotatedField fieldAnnotation, Field field) {
     // Add a bookmark for this field.
-    String fieldTitle = fieldAnnotation.name().isEmpty() ? fieldName : fieldAnnotation.name();
+    String fieldTitle = fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
     addBookmark(fieldAnnotation.name(), fieldTitle);
 
     // Start a new level 3 subsection for each field.
@@ -45,12 +49,35 @@ public class MarkdownWalker extends AnnotationWalker {
             .append("### ")
             .append(fieldTitle)
             .append('\n')
+            .append(fieldAnnotation.optional() ? "**optional** " : "**required** ");
 
-            // Add the markdown defined in the annotation.
-            .append(fieldAnnotation.optional() ? "**optional**" : "**required**")
-            .append("\n\n")
-            .append(fieldAnnotation.markdown())
-            .append("\n\n");
+    // Add the markdown for field type.
+    if (field.getGenericType() instanceof ParameterizedType) {
+      // This is a type-parameterized class (e.g. List, Map).
+      ParameterizedType pType = (ParameterizedType) field.getGenericType();
+      markdown
+          .append(getSimpleName(pType.getRawType().getTypeName()))
+          .append(" [ ")
+          .append(
+              Arrays.stream(pType.getActualTypeArguments())
+                  .map(
+                      typeParam -> {
+                        String typeParamSimpleName = getSimpleName(typeParam.getTypeName());
+                        return annotationPath.getClassesToWalk().contains(typeParamSimpleName)
+                            ? "${" + typeParamSimpleName + "}"
+                            : typeParamSimpleName;
+                      })
+                  .collect(Collectors.joining(", ")))
+          .append(" ]");
+    } else {
+      markdown.append(
+          annotationPath.getClassesToWalk().contains(field.getType())
+              ? "${" + field.getType().getSimpleName() + "}"
+              : field.getType().getSimpleName());
+    }
+
+    // Add the markdown defined in the annotation.
+    markdown.append("\n\n").append(fieldAnnotation.markdown()).append("\n\n");
     if (!fieldAnnotation.environmentVariable().isEmpty()) {
       markdown
           .append("*Environment variable:* `")
@@ -131,7 +158,19 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   private void addBookmark(String name, String title) {
-    bookmarks.put(
-        name, "#" + title.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-'));
+    bookmarks.put(name, getBookmark(title));
+  }
+
+  private void addBookmarkLink(String name, String title) {
+    bookmarks.put(name, "[" + title + "](#" + getBookmark(title) + ")");
+  }
+
+  private String getBookmark(String title) {
+    return "#" + title.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-');
+  }
+
+  private static String getSimpleName(String className) {
+    String[] pieces = className.split("\\.");
+    return pieces[pieces.length - 1];
   }
 }
