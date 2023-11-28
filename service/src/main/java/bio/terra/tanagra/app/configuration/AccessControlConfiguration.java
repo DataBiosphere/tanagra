@@ -22,7 +22,7 @@ public class AccessControlConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlConfiguration.class);
 
   @AnnotatedField(
-      name = "tanagra.underlay.files",
+      name = "tanagra.access-control.model",
       markdown =
           "Pointer to the access control model Java class. Currently this must be one of the enum values in the"
               + "`bio.terra.tanagra.service.accesscontrol.AccessControl.Model` Java class. In the future, "
@@ -57,10 +57,9 @@ public class AccessControlConfiguration {
               + "you want to use to restrict access.",
       environmentVariable = "TANAGRA_ACCESS_CONTROL_PARAMS",
       optional = true,
-      exampleValue = "admin-users@googlegroups.com")
+      exampleValue = "googleGroupName,admin-users@googlegroups.com")
   private List<String> params;
 
-  /** Default this property to the OPEN_ACCESS model. */
   public AccessControl.Model getModel() {
     return model != null ? model : AccessControl.Model.OPEN_ACCESS;
   }

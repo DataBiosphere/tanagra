@@ -84,7 +84,7 @@ public class TanagraDatabaseProperties extends BaseDatabaseProperties {
               + "Used to configure a CloudSQL connector (e.g. when deployed in AppEngine). "
               + "Not required to use a CloudSQL connector. Leave empty to use GCP's default. "
               + "More information in [GCP documentation](https://cloud.google.com/sql/docs/mysql/connect-connectors#java).",
-      environmentVariable = "TANAGRA_DB_DRIVER_IP_TYPES",
+      environmentVariable = "TANAGRA_DB_IP_TYPES",
       exampleValue = "PUBLIC,PRIVATE",
       optional = true)
   private String ipTypes;

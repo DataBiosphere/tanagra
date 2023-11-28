@@ -39,7 +39,7 @@ public class MarkdownWalker extends AnnotationWalker {
             .append("\n\n")
             .append(fieldAnnotation.markdown())
             .append("\n\n");
-    if (!fieldAnnotation.exampleValue().isEmpty()) {
+    if (!fieldAnnotation.environmentVariable().isEmpty()) {
       markdown
           .append("*Environment variable:* `")
           .append(fieldAnnotation.environmentVariable())
