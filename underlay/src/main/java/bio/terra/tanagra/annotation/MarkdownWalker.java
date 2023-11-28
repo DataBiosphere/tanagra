@@ -138,6 +138,9 @@ public class MarkdownWalker extends AnnotationWalker {
 
   @Override
   public String getOutputFileContents() {
+    // Walk all the classes, appending them all together.
+    String bodyContents = walk();
+
     // Prepend the class-specific output with a header and the table of contents.
     String fileHeader =
         new StringBuilder()
@@ -149,9 +152,6 @@ public class MarkdownWalker extends AnnotationWalker {
             .append(tableOfContents.stream().collect(Collectors.joining("\n")))
             .append("\n\n")
             .toString();
-
-    // Walk all the classes, appending them all together.
-    String bodyContents = walk();
 
     // Substitute in all the bookmarks.
     return StringSubstitutor.replace(fileHeader + bodyContents, bookmarks);
