@@ -1,30 +1,31 @@
 package bio.terra.tanagra.annotation;
 
 import bio.terra.tanagra.utils.FileUtils;
+import org.apache.commons.text.StringSubstitutor;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MarkdownWalker extends AnnotationWalker {
-  private final String outputFilename;
   private final List<String> tableOfContents = new ArrayList<>();
+  private final Map<String, String> bookmarks = new HashMap<>();
 
   public MarkdownWalker(AnnotationPath annotationPath, String outputFilename) {
-    super(annotationPath);
-    this.outputFilename = outputFilename;
+    super(annotationPath, outputFilename);
   }
 
   @Override
   protected String arriveAtClass(AnnotatedClass classAnnotation, String className) {
+    // Add a bookmark for this class.
+    String bookmark = addBookmark(classAnnotation.name(), classAnnotation.name());
+
     // Add this class to the table of contents.
-    tableOfContents.add(
-        "* ["
-            + classAnnotation.name()
-            + "](#"
-            + classAnnotation.name().toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-')
-            + ")");
+    tableOfContents.add("* [" + classAnnotation.name() + "](${" + classAnnotation.name() + "})");
 
     // Start a new level 2 subsection for this class.
     return new StringBuilder()
@@ -38,11 +39,15 @@ public class MarkdownWalker extends AnnotationWalker {
 
   @Override
   protected String walkField(AnnotatedField fieldAnnotation, String fieldName) {
+    // Add a bookmark for this field.
+    String fieldTitle = fieldAnnotation.name().isEmpty() ? fieldName : fieldAnnotation.name();
+    addBookmark(fieldAnnotation.name(), fieldTitle);
+
     // Start a new level 3 subsection for each field.
     StringBuilder markdown =
         new StringBuilder()
             .append("### ")
-            .append(fieldAnnotation.name().isEmpty() ? fieldName : fieldAnnotation.name())
+            .append(fieldTitle)
             .append('\n')
 
             // Add the markdown defined in the annotation.
@@ -67,6 +72,9 @@ public class MarkdownWalker extends AnnotationWalker {
 
   @Override
   protected String walkInheritedField(AnnotatedInheritedField inheritedFieldAnnotation) {
+    // Add a bookmark for this field.
+    addBookmark(inheritedFieldAnnotation.name(), inheritedFieldAnnotation.name());
+
     // Start a new level 3 subsection for each field.
     StringBuilder markdown =
         new StringBuilder()
@@ -79,7 +87,7 @@ public class MarkdownWalker extends AnnotationWalker {
             .append("\n\n")
             .append(inheritedFieldAnnotation.markdown())
             .append("\n\n");
-    if (!inheritedFieldAnnotation.exampleValue().isEmpty()) {
+    if (!inheritedFieldAnnotation.environmentVariable().isEmpty()) {
       markdown
           .append("*Environment variable:* `")
           .append(inheritedFieldAnnotation.environmentVariable())
@@ -106,13 +114,7 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
-  public void writeOutputFiles(Path outputDir) throws IOException {
-    // Walk all the classes, appending them all together.
-    String bodyContents =
-        annotationPath.getClassesToWalk().stream()
-            .map(clazz -> walk(clazz))
-            .collect(Collectors.joining());
-
+  public String getOutputFileContents() {
     // Prepend the class-specific output with a header and the table of contents.
     String fileHeader =
         new StringBuilder()
@@ -125,6 +127,16 @@ public class MarkdownWalker extends AnnotationWalker {
             .append("\n\n")
             .toString();
 
-    FileUtils.writeStringToFile(outputDir.resolve(outputFilename), fileHeader + bodyContents);
+    // Walk all the classes, appending them all together.
+    String bodyContents = walk();
+
+    // Substitute in all the bookmarks.
+    return StringSubstitutor.replace(fileHeader + bodyContents, bookmarks);
+  }
+
+  private String addBookmark(String name, String title) {
+    String bookmark = "#" + title.toLowerCase().replaceAll("[^A-Za-z0-9 ]", "").replace(' ', '-');
+     bookmarks.put(name, bookmark);
+     return bookmark;
   }
 }

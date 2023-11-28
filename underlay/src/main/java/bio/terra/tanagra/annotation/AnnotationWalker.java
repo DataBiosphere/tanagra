@@ -4,15 +4,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.stream.Collectors;
+
+import bio.terra.tanagra.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AnnotationWalker {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationWalker.class);
   protected final AnnotationPath annotationPath;
+  private final String outputFilename;
 
-  public AnnotationWalker(AnnotationPath annotationPath) {
+  public AnnotationWalker(AnnotationPath annotationPath, String outputFilename) {
     this.annotationPath = annotationPath;
+    this.outputFilename = outputFilename;
   }
 
   protected abstract String arriveAtClass(AnnotatedClass classAnnotation, String className);
@@ -23,7 +28,7 @@ public abstract class AnnotationWalker {
 
   protected abstract String leaveClass(AnnotatedClass classAnnotation, String className);
 
-  protected String walk(Class<?> clazz) {
+  private String walk(Class<?> clazz) {
     if (!clazz.isAnnotationPresent(AnnotatedClass.class)) {
       LOGGER.warn(
           "Skipping {} because it is not annotated with AnnotatedClass", clazz.getCanonicalName());
@@ -68,5 +73,16 @@ public abstract class AnnotationWalker {
     return output.toString();
   }
 
-  public abstract void writeOutputFiles(Path outputDir) throws IOException;
+  protected final String walk() {
+      return annotationPath.getClassesToWalk().stream()
+              .sorted(Comparator.comparing(Class::getSimpleName))
+              .map(clazz -> walk(clazz))
+              .collect(Collectors.joining());
+  }
+
+  public abstract String getOutputFileContents();
+
+  public final void writeOutputFile(Path outputDir) throws IOException {
+      FileUtils.writeStringToFile(outputDir.resolve(outputFilename), getOutputFileContents());
+  }
 }

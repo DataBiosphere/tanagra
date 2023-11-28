@@ -32,6 +32,6 @@ public final class Main {
     Command command = Command.valueOf(args[1]);
 
     Path outputDir = Path.of(parentDir).resolve(DOCS_GENERATED_DIR).toAbsolutePath();
-    command.getAnnotationWalker().writeOutputFiles(outputDir);
+    command.getAnnotationWalker().writeOutputFile(outputDir);
   }
 }
