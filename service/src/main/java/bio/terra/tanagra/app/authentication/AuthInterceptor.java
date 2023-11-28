@@ -3,7 +3,7 @@ package bio.terra.tanagra.app.authentication;
 import bio.terra.common.exception.InternalServerErrorException;
 import bio.terra.common.iam.BearerToken;
 import bio.terra.common.iam.BearerTokenFactory;
-import bio.terra.tanagra.app.configuration.AuthConfiguration;
+import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.service.authentication.BearerTokenUtils;
 import bio.terra.tanagra.service.authentication.IapJwtUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
@@ -31,11 +31,11 @@ public class AuthInterceptor implements HandlerInterceptor {
   // proxy.
   private static final String OPENAPI_TAG_AUTH_NOT_REQUIRED = "Unauthenticated";
 
-  private final AuthConfiguration authConfiguration;
+  private final AuthenticationConfiguration authenticationConfiguration;
 
   @Autowired
-  public AuthInterceptor(AuthConfiguration authConfiguration) {
-    this.authConfiguration = authConfiguration;
+  public AuthInterceptor(AuthenticationConfiguration authenticationConfiguration) {
+    this.authenticationConfiguration = authenticationConfiguration;
   }
 
   /**
@@ -75,22 +75,24 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     UserId userId;
     try {
-      if (authConfiguration.isIapGkeJwt()) {
+      if (authenticationConfiguration.isIapGkeJwt()) {
         String jwt = IapJwtUtils.getJwtFromHeader(request);
         userId =
             IapJwtUtils.verifyJwtForComputeEngineOrGKE(
                 jwt,
-                authConfiguration.getGcpProjectNumber(),
-                authConfiguration.getGkeBackendServiceId());
-      } else if (authConfiguration.isIapAppEngineJwt()) {
+                authenticationConfiguration.getGcpProjectNumber(),
+                authenticationConfiguration.getGkeBackendServiceId());
+      } else if (authenticationConfiguration.isIapAppEngineJwt()) {
         String jwt = IapJwtUtils.getJwtFromHeader(request);
         userId =
             IapJwtUtils.verifyJwtForAppEngine(
-                jwt, authConfiguration.getGcpProjectNumber(), authConfiguration.getGcpProjectId());
-      } else if (authConfiguration.isBearerToken()) {
+                jwt,
+                authenticationConfiguration.getGcpProjectNumber(),
+                authenticationConfiguration.getGcpProjectId());
+      } else if (authenticationConfiguration.isBearerToken()) {
         BearerToken bearerToken = new BearerTokenFactory().from(request);
         userId = BearerTokenUtils.getUserIdFromToken(bearerToken);
-      } else if (authConfiguration.isDisableChecks()) {
+      } else if (authenticationConfiguration.isDisableChecks()) {
         LOGGER.warn(
             "Authentication checks are disabled. This should only happen for local development.");
         userId = UserId.forDisabledAuthentication();

@@ -1,5 +1,7 @@
 package bio.terra.tanagra.app.configuration;
 
+import bio.terra.tanagra.annotation.AnnotatedClass;
+import bio.terra.tanagra.annotation.AnnotatedField;
 import bio.terra.tanagra.service.export.DataExport;
 import java.util.Collections;
 import java.util.List;
@@ -36,27 +38,47 @@ public class ExportConfiguration {
   }
 
   /** Write the data export flags into the log. Add an entry here for each new flag. */
-  public void logConfig() {
-    LOGGER.info("Export shared gcs-project-id: {}", shared.getGcsProjectId());
+  public void log() {
+    LOGGER.info("Export: shared gcs-project-id: {}", shared.getGcsProjectId());
     LOGGER.info(
-        "Export shared gcs-bucket-names: {}",
+        "Export: shared gcs-bucket-names: {}",
         shared.getGcsBucketNames().stream().collect(Collectors.joining(",")));
     for (int i = 0; i < models.size(); i++) {
       PerModel m = models.get(i);
-      LOGGER.info("Export models[{}] name: {}", i, m.getName());
-      LOGGER.info("Export models[{}] display-name: {}", i, m.getDisplayName());
-      LOGGER.info("Export models[{}] type: {}", i, m.getType());
-      LOGGER.info("Export models[{}] redirect-away-url: {}", i, m.getRedirectAwayUrl());
+      LOGGER.info("Export: models[{}] name: {}", i, m.getName());
+      LOGGER.info("Export: models[{}] display-name: {}", i, m.getDisplayName());
+      LOGGER.info("Export: models[{}] type: {}", i, m.getType());
+      LOGGER.info("Export: models[{}] redirect-away-url: {}", i, m.getRedirectAwayUrl());
       LOGGER.info(
-          "Export models[{}] params: {}",
+          "Export: models[{}] params: {}",
           i,
           m.getParams().stream().collect(Collectors.joining(",")));
     }
   }
 
+  @AnnotatedClass(
+      name = "Export (Shared)",
+      markdown = "Configure the export options shared by all models.")
   public static class Shared {
+    @AnnotatedField(
+        name = "tanagra.export.shared.gcsProjectId",
+        markdown =
+            "GCP project id that contains the GCS bucket(s) that all export models can use. "
+                + "Required if there are any export models that need to write to GCS.",
+        environmentVariable = "TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID",
+        optional = true,
+        exampleValue = "broad-tanagra-dev")
     private String gcsProjectId;
 
+    @AnnotatedField(
+        name = "tanagra.export.shared.gcsBucketNames",
+        markdown =
+            "Comma separated list of all GCS bucket names that all export models can use. "
+                + "Only include the bucket name, not the gs:// prefix. "
+                + "Required if there are any export models that need to write to GCS.",
+        environmentVariable = "TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES",
+        optional = true,
+        exampleValue = "broad-tanagra-dev-bq-export-uscentral1,broad-tanagra-dev-bq-export-useast1")
     private List<String> gcsBucketNames;
 
     public String getGcsProjectId() {
@@ -76,11 +98,77 @@ public class ExportConfiguration {
     }
   }
 
+  @AnnotatedClass(
+      name = "Export (Per Model)",
+      markdown = "Configure the export options for each model.")
   public static class PerModel {
+    @AnnotatedField(
+        name = "tanagra.export.models.name",
+        markdown =
+            "Name of the export model. "
+                + "This must be unique across all models for a given deployment. "
+                + "Defaults to the name of the export model. "
+                + "It's useful to override the default if you have more than one instance of the same model "
+                + "(e.g. export to workbench parameterized with the dev environment URL, and another parameterized "
+                + "with the test environment URL).",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you will have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "VWB_FILE_IMPORT_TO_DEV")
     private String name;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.displayName",
+        markdown =
+            "Displayed name of the export model. "
+                + "This is for display only and will be shown in the export dialog when the user "
+                + "initiates an export. Defaults to the display name provided by the export model. "
+                + "It's useful to override the default if you have more than one instance of the same model "
+                + "(e.g. export to workbench parameterized with the dev environment URL, and another parameterized "
+                + "with the test environment URL).",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_DISPLAY_NAME (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "Export File to Workbench (dev instance)")
     private String displayName;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.type",
+        markdown =
+            "Pointer to the access control model Java class. Currently this must be one of the enum values in the"
+                + "`bio.terra.tanagra.service.export.DataExport.Type` Java class. In the future, "
+                + "it will support arbitrary class names",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_TYPE (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "IPYNB_FILE_DOWNLOAD")
     private DataExport.Type type;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.redirectAwayUrl",
+        markdown =
+            "URL to redirect the user to once the Tanagra export model has run. "
+                + "This is useful when you want to import a file to another site. e.g. Write the exported data "
+                + "to CSV files in GCS and then redirect to a workbench URL, passing the URL to the CSV files so "
+                + "the workbench can import them somewhere.",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue =
+            "https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra")
     private String redirectAwayUrl;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.params",
+        markdown =
+            "Map of parameters to pass to the export model. This is useful when you want to parameterize a "
+                + "model beyond just the redirect URL. e.g. A description for a generated notebook file.",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_PARAMS_0 (Note the first 0 is the list index of the export models, so "
+                + "if you have 2 models, you may have 0 and 1 env vars. The second 0 is the list index of "
+                + "the parameters, so if you have 2 parameters, you will need 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "Notebook file generated for Workbench v35")
     private List<String> params;
 
     public String getName() {

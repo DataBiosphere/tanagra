@@ -1,0 +1,70 @@
+plugins {
+    id "java"
+    id "tanagra.java-conventions"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+    id "org.springframework.boot" version "2.5.1"
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+group = "bio.terra"
+version = gradle.tanagraVersion
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+    }
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+    }
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
+    maven {
+        name "github"
+        url "https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries"
+        credentials {
+            // Credentials required to access tanagra-client-libraries,
+            // GITHUB_ACTOR: user running build task
+            // GITHUB_TOKEN: user token or workflow token that grants access to libraries
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+    dependencies {
+        dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
+    }
+}
+
+
+dependencies {
+    implementation project(path: ':underlay')
+    implementation project(path: ':service')
+    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
+    implementation group: "org.slf4j", name: "slf4j-api", version: "1.7.25"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task noCloudAccessRequiredTests(type: Test) {
+    useJUnitPlatform {
+        excludeTags "requires-cloud-access"
+    }
+}
+
+// e.g. ./gradlew annotationProcessor:run -Pgenerator=DEPLOYMENT_CONFIG
+// Possible values for the "generator" property are the Main.Command enum values.
+task run(type:JavaExec) {
+    main = "bio.terra.tanagra.annotation.Main"
+    classpath = sourceSets.main.runtimeClasspath
+    args "$projectDir/..", project.hasProperty("generator") ? project.findProperty("generator") : "undefined"
+}
