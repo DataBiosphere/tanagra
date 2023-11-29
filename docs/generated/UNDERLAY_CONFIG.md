@@ -8,6 +8,7 @@ This documentation is generated from annotations in the configuration classes.
 * [SZDataType](#szdatatype)
 * [SZDataflow](#szdataflow)
 * [SZEntity](#szentity)
+* [SZGroupItems](#szgroupitems)
 * [SZHierarchy](#szhierarchy)
 * [SZIndexer](#szindexer)
 * [SZMetadata](#szmetadata)
@@ -259,6 +260,66 @@ You can currently specify a maximum of four attributes, because we implement thi
 Text search configuration.
 
 This is used when filtering a list of instances of this entity (e.g. list of conditions) by text. If unset, filtering by text is unsupported.
+
+
+
+## SZGroupItems
+Group-Items entity group configuration.
+
+Define a version of this file for each entity group of this type. This entity group type defines a one-to-many relationship between two entities. For each group entity instance, there are one or more items entity instances.
+
+### SZGroupItems.foreignKeyAttributeItemsEntity
+**optional** String
+
+Attribute of the items entity that is a foreign key to the id attribute of the group entity.
+
+If this property is set, then the [id pairs SQL](#szgroupitemsidpairssqlfile) must be unset.
+
+### SZGroupItems.groupEntity
+**required** String
+
+Name of the group entity.
+
+### SZGroupItems.groupEntityIdFieldName
+**optional** String
+
+Name of the field or column name that maps to the group entity id.
+
+Required if the [id pairs SQL](#szgroupitemsidpairssqlfile) is defined.
+
+*Example value:* `group_id`
+
+### SZGroupItems.idPairsSqlFile
+**optional** String
+
+Name of the group entity - items entity id pairs SQL file.
+
+If this property is set, then the [id pairs SQL](#szgroupitemsidpairssqlfile) must be unset. File must be in the same directory as the entity group file. Name includes file extension.
+
+There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the group and items entity ids are required. If this property is set, then the [foreign key atttribute](#szgroupitemsforeignkeyattributeitemsentity) must be unset.
+
+*Example value:* `idPairs.sql`
+
+### SZGroupItems.itemsEntity
+**required** String
+
+Name of the items entity.
+
+### SZGroupItems.itemsEntityIdFieldName
+**optional** String
+
+Name of the field or column name that maps to the items entity id.
+
+Required if the [id pairs SQL](#szgroupitemsidpairssqlfile) is defined.
+
+*Example value:* `items_id`
+
+### SZGroupItems.name
+**required** String
+
+Name of the entity group.
+
+This is the unique identifier for the entity group. In a single underlay, the entity group names of any group type cannot overlap. Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.
 
 
 
