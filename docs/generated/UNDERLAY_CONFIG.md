@@ -3,12 +3,71 @@
 This file lists all the configuration properties available for an underlay, including defining the data mapping and the indexing and service deployment data pointers. 
 This documentation is generated from annotations in the configuration classes.
 
+* [SZAttribute](#szattribute)
 * [SZBigQuery](#szbigquery)
+* [SZDataType](#szdatatype)
 * [SZDataflow](#szdataflow)
+* [SZEntity](#szentity)
+* [SZHierarchy](#szhierarchy)
 * [SZIndexer](#szindexer)
 * [SZMetadata](#szmetadata)
 * [SZService](#szservice)
+* [SZTextSearch](#sztextsearch)
 * [SZUnderlay](#szunderlay)
+
+## SZAttribute
+Attribute or property of an entity.
+
+Define an attribute for each column you want to display (e.g. `condition.vocabulary_id`) or filter on (e.g. `conditionOccurrence.person_id`).
+
+### SZAttribute.dataType
+**required** [SZDataType](#szdatatype)
+
+Data type of the attribute.
+
+### SZAttribute.displayFieldName
+**optional** String
+
+Field or column name in the [all instances SQL file](#szentityallinstancessqlfile) that maps to the display string of this attribute. If unset, we assume the attribute has only a value, no separate display.
+
+A separate display field is useful for enum-type attributes, which often use a foreign-key to another table to get a readable string from a code (e.g. in OMOP, `person.gender_concept_id` and `concept.concept_name`).
+
+### SZAttribute.isComputeDisplayHint
+**optional** boolean
+
+When set to true, an indexing job will try to compute a display hint for this attribute (e.g. set of enum values and counts, range of numeric values). Not all data types are supported by the indexing job, yet.
+
+*Default value:* `false`
+
+### SZAttribute.name
+**required** String
+
+Name of the attribute.
+
+This is the unique identifier for the attribute. In a single entity, the attribute names cannot overlap.
+
+Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.
+
+### SZAttribute.runtimeDataType
+**optional** [SZDataType](#szdatatype)
+
+Data type of the attribute at runtime.
+
+If the [runtime SQL wrapper](#szattributeruntimesqlfunctionwrapper) is set, this field must also be set. The data type at runtime may be different from the data type at rest when the column is passed to a function at runtime. Otherwise, the data type at runtime will always match the attribute [data type](#szdatatype), so no need to specify it again here.
+
+### SZAttribute.runtimeSqlFunctionWrapper
+**optional** String
+
+SQL function to apply at runtime (i.e. when running the query), instead of at indexing time. Useful for attributes we expect to be updated dynamically (e.g. a person's age).
+
+For a simple function call that just wraps the column (e.g. `UPPER(column)`), you can specify just the function name (e.g. `UPPER`). For a more complicated function call, put `${fieldSql}` where the column name should be substituted (e.g. `CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)`).
+
+### SZAttribute.valueFieldName
+**optional** String
+
+Field or column name in the [all instances SQL file](#szentityallinstancessqlfile) that maps to the value of this attribute. If unset, we assume the field name is the same as the attribute name.
+
+
 
 ## SZBigQuery
 Pointers to the source and index BigQuery datasets.
@@ -36,6 +95,41 @@ However, sometimes it will be different. For example, the source dataset may be 
 **required** SourceData
 
 Pointer to the source BigQuery dataset.
+
+
+
+## SZDataType
+Supported data types. Each type corresponds to one or more data types in the underlying database.
+
+### SZDataType.BOOLEAN
+**required** [SZDataType](#szdatatype)
+
+Maps to BigQuery `BOOLEAN` data type.
+
+### SZDataType.DATE
+**required** [SZDataType](#szdatatype)
+
+Maps to BigQuery `DATE` data type.
+
+### SZDataType.DOUBLE
+**required** [SZDataType](#szdatatype)
+
+Maps to BigQuery `NUMERIC` and `FLOAT` data types.
+
+### SZDataType.INT64
+**required** [SZDataType](#szdatatype)
+
+Maps to BigQuery `INTEGER` data type.
+
+### SZDataType.STRING
+**required** [SZDataType](#szdatatype)
+
+Maps to BigQuery `STRING` data type.
+
+### SZDataType.TIMESTAMP
+**required** [SZDataType](#szdatatype)
+
+Maps to BigQuery `TIMESTAMP` data type.
 
 
 
@@ -91,6 +185,156 @@ Machine type of the Dataflow runners.
 The available options are [documented](https://cloud.google.com/compute/docs/machine-resource) for GCP Compute Engine. If this property is unset, Dataflow will choose a machine type. More information in the Dataflow pipeline worker-level options [documentation](https://cloud.google.com/dataflow/docs/reference/pipeline-options#worker-level_options).
 
 We have been using the `n1-standard-4` machine type for all underlays so far. Given that the machine type Dataflow will choose may not remain the same in the future, recommend setting this property.
+
+
+
+## SZEntity
+Entity configuration.
+
+Define a version of this file for each entity.
+
+### SZEntity.allInstancesSqlFile
+**required** String
+
+Name of the all instances SQL file.
+
+File must be in the same directory as the entity file. Name includes file extension.
+
+*Example value:* `all.sql`
+
+### SZEntity.attributes
+**required** List [ SZEntity$Attribute ]
+
+List of all the entity attributes.
+
+The generated index table will preserve the order of the attributes as defined here. The list must include the id attribute.
+
+### SZEntity.description
+**optional** String
+
+Description of the entity.
+
+### SZEntity.displayName
+**optional** String
+
+Display name for the entity.
+
+Unlike the entity [name](#szentityname), it may include spaces and special characters.
+
+### SZEntity.hierarchies
+**optional** Set [ SZEntity$Hierarchy ]
+
+List of hierarchies.
+
+While the code supports multiple hierarchies, we currently only have examples with zero or one hierarchy.
+
+### SZEntity.idAttribute
+**required** String
+
+Name of the id attribute.
+
+This must be a unique identifier for each entity instance. It must also have the `INT64` [data type](#szdatatype).
+
+### SZEntity.name
+**required** String
+
+Name of the entity.
+
+This is the unique identifier for the entity. In a single underlay, the entity names cannot overlap.
+
+Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.
+
+### SZEntity.optimizeGroupByAttributes
+**optional** List [ String ]
+
+List of attributes to optimize for group by queries.
+
+The typical use case for this is to optimize cohort breakdown queries on the primary entity. For example, to optimize breakdowns by age, race, gender, specify those attributes here. Order matters.
+
+You can currently specify a maximum of four attributes, because we implement this using BigQuery clustering which has this [limitation](https://cloud.google.com/bigquery/docs/clustered-tables#limitations).
+
+### SZEntity.textSearch
+**optional** [SZTextSearch](#sztextsearch)
+
+Text search configuration.
+
+This is used when filtering a list of instances of this entity (e.g. list of conditions) by text. If unset, filtering by text is unsupported.
+
+
+
+## SZHierarchy
+Hierarchy for an entity.
+
+### SZHierarchy.childIdFieldName
+**required** String
+
+Name of the field or column name in the [child parent id pairs SQL](#szhierarchychildparentidpairssqlfile) that maps to the child id.
+
+*Example value:* `child`
+
+### SZHierarchy.childParentIdPairsSqlFile
+**required** String
+
+Name of the child parent id pairs SQL file.
+
+File must be in the same directory as the entity file. Name includes file extension.
+
+There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the child and parent ids are required.
+
+*Example value:* `childParent.sql`
+
+### SZHierarchy.keepOrphanNodes
+**optional** boolean
+
+An orphan node has no parents or children. When false, indexing jobs will filter out orphan nodes. When true, indexing jobs skip this filtering step and we keep the orphan nodes in the hierarchy.
+
+*Default value:* `false`
+
+### SZHierarchy.maxDepth
+**required** int
+
+Maximum depth of the hierarchy. If there are branches of the hierarchy that are deeper than the number specified here, they will be truncated.
+
+### SZHierarchy.name
+**optional** String
+
+Name of the hierarchy.
+
+This is the unique identifier for the hierarchy. In a single entity, the hierarchy names cannot overlap. Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.
+
+If there is only one hierarchy, the name is optional and, if unspecified, will be set to `default`. If there are multiple hierarchies, the name is required for each one.
+
+*Default value:* `default`
+
+### SZHierarchy.parentIdFieldName
+**required** String
+
+Name of the field or column name in the [child parent id pairs SQL](#szhierarchychildparentidpairssqlfile) that maps to the parent id.
+
+*Example value:* `parent`
+
+### SZHierarchy.rootIdFieldName
+**optional** String
+
+Name of the field or column name that maps to the root id.
+
+If the [root node ids SQL](#szhierarchyrootnodeidssqlfile) is defined, then this property is required. If the [root node ids set](#szhierarchyrootnodeids) is defined, then this property must be unset.
+
+*Example value:* `root_id`
+
+### SZHierarchy.rootNodeIds
+**optional** Set [ Long ]
+
+Set of root ids. Indexing jobs will filter out any hierarchy root nodes that are not in this set. If the [root node ids SQL](#szhierarchyrootnodeidssqlfile) is defined, then this property must be unset.
+
+### SZHierarchy.rootNodeIdsSqlFile
+**optional** String
+
+Name of the root id SQL file. File must be in the same directory as the entity file. Name includes file extension.
+
+There can be other columns selected in the SQL file (e.g. `SELECT * FROM roots`), but the root id is required. Indexing jobs will filter out any hierarchy root nodes that are not returned by this query. If the [root node ids set](#szhierarchyrootnodeids) is defined, then this property must be unset.
+
+*Example value:* `rootNode.sql`
 
 
 
@@ -166,6 +410,39 @@ Name of the underlay to make available in the service deployment.
 If a single deployment serves multiple underlays, you need a separate configuration for each. Name is specified in the underlay file, and also matches the name of the config/underlay sub-directory in the underlay sub-project resources.
 
 *Example value:* `cmssynpuf`
+
+
+
+## SZTextSearch
+Text search configuration for an entity.
+
+### SZTextSearch.attributes
+**optional** Set [ String ]
+
+Set of attributes to allow text search on. Text search on attributes not included here is unsupported.
+
+### SZTextSearch.idFieldName
+**optional** String
+
+Name of the field or column name that maps to the entity id. If the [id text pairs SQL](#sztextsearchidtextpairssqlfile) is defined, then this property is required.
+
+*Example value:* `id`
+
+### SZTextSearch.idTextPairsSqlFile
+**optional** String
+
+Name of the id text pairs SQL file. File must be in the same directory as the entity file. Name includes file extension.
+
+There can be other columns selected in the SQL file (e.g. `SELECT * FROM synonyms`), but the entity id and text string is required. The SQL query may return multiple rows per entity id.
+
+*Example value:* `textSearch.sql`
+
+### SZTextSearch.textFieldName
+**optional** String
+
+Name of the field or column name that maps to the text search string. If the [id text pairs SQL](#sztextsearchidtextpairssqlfile) is defined, then this property is required.
+
+*Example value:* `text`
 
 
 

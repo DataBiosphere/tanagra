@@ -61,11 +61,10 @@ public class MarkdownWalker extends AnnotationWalker {
           .append(
               Arrays.stream(pType.getActualTypeArguments())
                   .map(
-                      typeParam -> {
-                        return annotationPath.getClassesToWalk().contains(typeParam.getTypeName())
-                            ? "${" + typeParam.getTypeName() + "}"
-                            : getSimpleName(typeParam.getTypeName());
-                      })
+                      typeParam ->
+                          annotationPath.getClassesToWalk().contains(typeParam.getTypeName())
+                              ? "${" + typeParam.getTypeName() + "}"
+                              : getSimpleName(typeParam.getTypeName()))
                   .collect(Collectors.joining(", ")))
           .append(" ]");
     } else {
