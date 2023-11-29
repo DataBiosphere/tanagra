@@ -6,7 +6,9 @@ This documentation is generated from annotations in the configuration classes.
 * [SZBigQuery](#szbigquery)
 * [SZDataflow](#szdataflow)
 * [SZIndexer](#szindexer)
+* [SZMetadata](#szmetadata)
 * [SZService](#szservice)
+* [SZUnderlay](#szunderlay)
 
 ## SZBigQuery
 Pointers to the source and index BigQuery datasets.
@@ -120,6 +122,32 @@ Name is specified in the underlay file, and also matches the name of the config/
 
 
 
+## SZMetadata
+Metadata for the underlay.
+
+Information in this object is not used in the operation of the indexer or service, it is for display purposes only.
+
+### SZMetadata.description
+**optional** String
+
+Description of the underlay.
+
+### SZMetadata.displayName
+**required** String
+
+Display name for the underlay.
+
+Unlike the underlay [name](#szunderlayname), it may include spaces and special characters.
+
+### SZMetadata.properties
+**optional** Map [ String, String ]
+
+Key-value map of underlay properties.
+
+Keys may not include spaces or special characters, only letters and numbers.
+
+
+
 ## SZService
 Service configuration.
 
@@ -138,6 +166,88 @@ Name of the underlay to make available in the service deployment.
 If a single deployment serves multiple underlays, you need a separate configuration for each. Name is specified in the underlay file, and also matches the name of the config/underlay sub-directory in the underlay sub-project resources.
 
 *Example value:* `cmssynpuf`
+
+
+
+## SZUnderlay
+Underlay configuration.
+
+Define a version of this file for each dataset. If you index and/or serve a dataset in multiple places or deployments, you only need one version of this file.
+
+### SZUnderlay.criteriaOccurrenceEntityGroups
+**required** Set [ String ]
+
+List of paths of `criteria-occurrence` type entity groups.
+
+A `criteria-occurrence` type entity group defines a relationship between three entities.
+
+Path consists of two parts: [Data-Mapping Group]/[Entity Group Name] (e.g. `omop/conditionPerson`).
+
+[Data-Mapping Group] is the name of a sub-directory of the config/datamapping/ sub-directory in the underlay sub-project resources (e.g. `omop`).
+
+[Entity Group Name] is specified in the entity group file, and also matches the name of the sub-directory of the config/datamapping/[Data-Mapping Group]/entitygroup sub-directory in the underlay sub-project resources (e.g. `conditionPerson`).
+
+Using the path here instead of just the entity group name allows us to share entity group definitions across underlays. For example, the `omop` data-mapping group contains template entity group definitions for standing up a new underlay.
+
+### SZUnderlay.entities
+**required** Set [ String ]
+
+List of paths of all the entities.
+
+An entity is any object that the UI might show a list of (e.g. list of persons, conditions, condition occurrences). The list must include the primary entity.
+
+Path consists of two parts: [Data-Mapping Group]/[Entity Name] (e.g. `omop/condition`).
+
+[Data-Mapping Group] is the name of a sub-directory of the config/datamapping/ sub-directory in the underlay sub-project resources (e.g. `omop`).
+
+[Entity Name] is specified in the entity file, and also matches the name of the sub-directory of the config/datamapping/[Data-Mapping Group]/entity sub-directory in the underlay sub-project resources (e.g. `condition`).
+
+Using the path here instead of just the entity name allows us to share entity definitions across underlays. For example, the `omop` data-mapping group contains template entity definitions for standing up a new underlay.
+
+### SZUnderlay.groupItemsEntityGroups
+**required** Set [ String ]
+
+List of paths of `group-items` type entity groups.
+
+A `group-items` type entity group defines a relationship between two entities.
+
+Path consists of two parts: [Data-Mapping Group]/[Entity Group Name] (e.g. `omop/brandIngredient`).
+
+[Data-Mapping Group] is the name of a sub-directory of the config/datamapping/ sub-directory in the underlay sub-project resources (e.g. `omop`).
+
+[Entity Group Name] is specified in the entity group file, and also matches the name of the sub-directory of the config/datamapping/[Data-Mapping Group]/entitygroup sub-directory in the underlay sub-project resources (e.g. `brandIngredient`).
+
+Using the path here instead of just the entity group name allows us to share entity group definitions across underlays. For example, the `omop` data-mapping group contains template entity group definitions for standing up a new underlay.
+
+### SZUnderlay.metadata
+**required** [SZMetadata](#szmetadata)
+
+Metadata for the underlay.
+
+### SZUnderlay.name
+**required** String
+
+Name of the underlay.
+
+This is the unique identifier for the underlay. If you serve multiple underlays in a single service deployment, the underlay names cannot overlap. Name may not include spaces or special characters, only letters and numbers.
+
+This name is stored in the application database for cohorts and data feature sets, so once there are artifacts associated with an underlay, you can't change the underlay name.
+
+### SZUnderlay.primaryEntity
+**required** String
+
+Name of the primary entity.
+
+A cohort contains instances of the primary entity (e.g. persons).
+
+### SZUnderlay.uiConfigFile
+**required** String
+
+Name of the UI config file.
+
+File must be in the same directory as the underlay file. Name includes file extension.
+
+*Example value:* `ui.json`
 
 
 
