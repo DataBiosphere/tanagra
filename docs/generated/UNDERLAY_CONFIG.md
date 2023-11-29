@@ -6,6 +6,7 @@ This documentation is generated from annotations in the configuration classes.
 * [SZBigQuery](#szbigquery)
 * [SZDataflow](#szdataflow)
 * [SZIndexer](#szindexer)
+* [SZService](#szservice)
 
 ## SZBigQuery
 Pointers to the source and index BigQuery datasets.
@@ -92,6 +93,8 @@ We have been using the `n1-standard-4` machine type for all underlays so far. Gi
 
 
 ## SZIndexer
+Indexer configuration.
+
 Define a version of this file for each place you will run indexing. If you later copy the index dataset to other places, you do not need a separate configuration for those.
 
 ### SZIndexer.bigQuery
@@ -112,6 +115,27 @@ Required for indexing jobs that use batch processing (e.g. computing the ancesto
 Name of the underlay to index.
 
 Name is specified in the underlay file, and also matches the name of the config/underlay sub-directory in the underlay sub-project resources.
+
+*Example value:* `cmssynpuf`
+
+
+
+## SZService
+Service configuration.
+
+Define a version of this file for each place you will deploy the service. If you share the same index dataset across multiple service deployments, you need a separate configuration for each.
+
+### SZService.bigQuery
+**required** [SZBigQuery](#szbigquery)
+
+Pointers to the source and index BigQuery datasets.
+
+### SZService.underlay
+**required** String
+
+Name of the underlay to make available in the service deployment.
+
+If a single deployment serves multiple underlays, you need a separate configuration for each. Name is specified in the underlay file, and also matches the name of the config/underlay sub-directory in the underlay sub-project resources.
 
 *Example value:* `cmssynpuf`
 

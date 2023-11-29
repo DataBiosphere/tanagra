@@ -6,7 +6,8 @@ import bio.terra.tanagra.annotation.AnnotatedField;
 @AnnotatedClass(
     name = "SZIndexer",
     markdown =
-        "Define a version of this file for each place you will run indexing. If you later copy the "
+        "Indexer configuration.\n\n"
+            + "Define a version of this file for each place you will run indexing. If you later copy the "
             + "index dataset to other places, you do not need a separate configuration for those.")
 public class SZIndexer {
   @AnnotatedField(
