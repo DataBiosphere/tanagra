@@ -1186,7 +1186,7 @@
           "occurrence": "note_occurrence",
           "title": "title",
           "subtitles": ["note", "date"],
-          "text": "text",
+          "text": "note_text",
           "categoryAttribute": "note",
           "sortOrder": {
             "attribute": "date",
