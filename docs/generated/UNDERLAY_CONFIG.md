@@ -3,8 +3,38 @@
 This file lists all the configuration properties available for an underlay, including defining the data mapping and the indexing and service deployment data pointers. 
 This documentation is generated from annotations in the configuration classes.
 
+* [SZBigQuery](#szbigquery)
 * [SZDataflow](#szdataflow)
 * [SZIndexer](#szindexer)
+
+## SZBigQuery
+Pointers to the source and index BigQuery datasets.
+
+### SZBigQuery.dataLocation
+**required** String
+
+Valid locations for BigQuery are listed in the GCP [documentation](https://cloud.google.com/bigquery/docs/locations).
+
+### SZBigQuery.indexData
+**required** IndexData
+
+Pointer to the index BigQuery dataset.
+
+### SZBigQuery.queryProjectId
+**required** String
+
+Queries will be run in this project.
+
+This is the project that will be billed for running queries. For the indexer, this project is also where the Dataflow jobs will be kicked off. Often this project will be the same project as the one where the index and/or source datasets live.
+
+However, sometimes it will be different. For example, the source dataset may be a public dataset that we don't have billing access to. In that case, the indexer configuration must specify a different query project id. As another example, the source and index datasets may live in a project that is shared across service deployments. In that case, the service configurations may specify a different query project id for each deployment.
+
+### SZBigQuery.sourceData
+**required** SourceData
+
+Pointer to the source BigQuery dataset.
+
+
 
 ## SZDataflow
 Properties to pass to Dataflow when kicking off jobs.
@@ -65,7 +95,7 @@ We have been using the `n1-standard-4` machine type for all underlays so far. Gi
 Define a version of this file for each place you will run indexing. If you later copy the index dataset to other places, you do not need a separate configuration for those.
 
 ### SZIndexer.bigQuery
-**required** SZBigQuery
+**required** [SZBigQuery](#szbigquery)
 
 Pointers to the source and index BigQuery datasets.
 
