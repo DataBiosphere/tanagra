@@ -5,6 +5,8 @@ This documentation is generated from annotations in the configuration classes.
 
 * [SZAttribute](#szattribute)
 * [SZBigQuery](#szbigquery)
+* [SZCriteriaOccurrence](#szcriteriaoccurrence)
+* [SZCriteriaRelationship](#szcriteriarelationship)
 * [SZDataType](#szdatatype)
 * [SZDataflow](#szdataflow)
 * [SZEntity](#szentity)
@@ -12,6 +14,9 @@ This documentation is generated from annotations in the configuration classes.
 * [SZHierarchy](#szhierarchy)
 * [SZIndexer](#szindexer)
 * [SZMetadata](#szmetadata)
+* [SZOccurrenceEntity](#szoccurrenceentity)
+* [SZPrimaryCriteriaRelationship](#szprimarycriteriarelationship)
+* [SZPrimaryRelationship](#szprimaryrelationship)
 * [SZService](#szservice)
 * [SZTextSearch](#sztextsearch)
 * [SZUnderlay](#szunderlay)
@@ -96,6 +101,70 @@ However, sometimes it will be different. For example, the source dataset may be 
 **required** SourceData
 
 Pointer to the source BigQuery dataset.
+
+
+
+## SZCriteriaOccurrence
+Criteria-Occurrence entity group configuration.
+
+Define a version of this file for each entity group of this type. This entity group type defines a relationship between three entities. For each criteria entity instance and primary entity instance, there are one or more occurrence entity instances.
+
+### SZCriteriaOccurrence.criteriaEntity
+**required** String
+
+Name of the criteria entity.
+
+### SZCriteriaOccurrence.name
+**required** String
+
+Name of the entity group.
+
+This is the unique identifier for the entity group. In a single underlay, the entity group names of any group type cannot overlap. Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.
+
+### SZCriteriaOccurrence.occurrenceEntities
+**required** Set [ SZCriteriaOccurrence$OccurrenceEntity ]
+
+Set of occurrence entity configurations.
+
+Most entity groups of this type will have a single occurrence entity (e.g. SNOMED condition code only maps to condition occurrences), but we also support the case of multiple (e.g. ICD9-CM condition code maps to condition, measurement, observation and procedure occurrences).
+
+### SZCriteriaOccurrence.primaryCriteriaRelationship
+**required** [SZPrimaryCriteriaRelationship](#szprimarycriteriarelationship)
+
+Relationship or join between the primary and criteria entities.
+
+
+
+## SZCriteriaRelationship
+Relationship or join between an occurrence entity and the criteria entity (e.g. condition occurrence and ICD9-CM).
+
+### SZCriteriaRelationship.criteriaEntityIdFieldName
+**optional** String
+
+Name of the field or column name that maps to the criteria entity id. Required if the [id pairs SQL](#szcriteriarelationshipidpairssqlfile) is defined.
+
+*Example value:* `criteria_id`
+
+### SZCriteriaRelationship.foreignKeyAttributeOccurrenceEntity
+**optional** String
+
+Attribute of the occurrence entity that is a foreign key to the id attribute of the criteria entity. If this property is set, then the [id pairs SQL](#szcriteriarelationshipidpairssqlfile) must be unset.
+
+### SZCriteriaRelationship.idPairsSqlFile
+**optional** String
+
+Name of the occurrence entity - criteria entity id pairs SQL file. File must be in the same directory as the entity group file. Name includes file extension. If this property is set, then the [foreign key attribute](#szcriteriarelationshipforeignkeyattributeoccurrenceentity) must be unset.
+
+There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the occurrence and criteria entity ids are required.
+
+*Example value:* `occurrenceCriteria.sql`
+
+### SZCriteriaRelationship.occurrenceEntityIdFieldName
+**optional** String
+
+Name of the field or column name that maps to the occurrence entity id. Required if the [id pairs SQL](#szcriteriarelationshipidpairssqlfile) is defined.
+
+*Example value:* `occurrence_id`
 
 
 
@@ -450,6 +519,92 @@ Unlike the underlay [name](#szunderlayname), it may include spaces and special c
 Key-value map of underlay properties.
 
 Keys may not include spaces or special characters, only letters and numbers.
+
+
+
+## SZOccurrenceEntity
+Occurrence entity configuration.
+
+### SZOccurrenceEntity.attributesWithInstanceLevelHints
+**required** Set [ String ]
+
+Names of attributes that we want to calculate instance-level hints for.
+
+Instance-level hints are ranges of possible values for a particular criteria instance. They are used to support criteria-specific modifiers (e.g. range of values for measurement code "glucose test").
+
+### SZOccurrenceEntity.criteriaRelationship
+**required** [SZCriteriaRelationship](#szcriteriarelationship)
+
+Relationship or join between this occurrence entity and the criteria entity (e.g. condition occurrence and ICD9-CM).
+
+### SZOccurrenceEntity.occurrenceEntity
+**required** String
+
+Name of occurrence entity.
+
+### SZOccurrenceEntity.primaryRelationship
+**required** [SZPrimaryRelationship](#szprimaryrelationship)
+
+Relationship or join between this occurrence entity and the primary entity (e.g. condition occurrence and person).
+
+
+
+## SZPrimaryCriteriaRelationship
+Relationship or join between the primary and criteria entities (e.g. condition and person).
+
+### SZPrimaryCriteriaRelationship.criteriaEntityIdFieldName
+**required** String
+
+Name of the field or column name that maps to the criteria entity id.
+
+*Example value:* `criteria_id`
+
+### SZPrimaryCriteriaRelationship.idPairsSqlFile
+**required** String
+
+Name of the primary entity - criteria entity id pairs SQL file. File must be in the same directory as the entity group file. Name includes file extension. There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the primary and criteria entity ids are required.
+
+*Example value:* `primaryCriteria.sql`
+
+### SZPrimaryCriteriaRelationship.primaryEntityIdFieldName
+**required** String
+
+Name of the field or column name that maps to the primary entity id.
+
+*Example value:* `primary_id`
+
+
+
+## SZPrimaryRelationship
+Relationship or join between an occurrence entity and the primary entity (e.g. condition occurrence and person).
+
+### SZPrimaryRelationship.foreignKeyAttributeOccurrenceEntity
+**optional** String
+
+Attribute of the occurrence entity that is a foreign key to the id attribute of the primary entity. If this property is set, then the [id pairs SQL](#szprimaryrelationshipidpairssqlfile) must be unset.
+
+### SZPrimaryRelationship.idPairsSqlFile
+**optional** String
+
+Name of the occurrence entity - primary entity id pairs SQL file. File must be in the same directory as the entity group file. Name includes file extension. If this property is set, then the [foreign key attribute](#szprimaryrelationshipforeignkeyattributeoccurrenceentity) must be unset.
+
+There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the occurrence and primary entity ids are required.
+
+*Example value:* `occurrencePrimary.sql`
+
+### SZPrimaryRelationship.occurrenceEntityIdFieldName
+**optional** String
+
+Name of the field or column name that maps to the occurrence entity id. Required if the [id pairs SQL](#szprimaryrelationshipidpairssqlfile) is defined.
+
+*Example value:* `occurrence_id`
+
+### SZPrimaryRelationship.primaryEntityIdFieldName
+**optional** String
+
+Name of the field or column name that maps to the primary entity id. Required if the [id pairs SQL](#szprimaryrelationshipidpairssqlfile) is defined.
+
+*Example value:* `primary_id`
 
 
 
