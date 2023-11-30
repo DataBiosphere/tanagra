@@ -13,7 +13,7 @@ import {
   makeArrayFilter,
   UnaryFilterOperator,
 } from "data/filter";
-import { Source } from "data/source";
+import { UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
@@ -77,7 +77,11 @@ interface Data {
 
 @registerCriteriaPlugin(
   "biovu",
-  (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
+  (
+    underlaySource: UnderlaySource,
+    c: CriteriaConfig,
+    dataEntry?: DataEntry
+  ) => {
     return {
       sampleFilter: (dataEntry?.key as SampleFilter) ?? SampleFilter.NONE,
     };
@@ -290,7 +294,7 @@ function BioVUInline(props: BioVUInlineProps) {
 }
 
 async function search(
-  source: Source,
+  underlaySource: UnderlaySource,
   c: CriteriaConfig,
   query: string
 ): Promise<DataEntry[]> {

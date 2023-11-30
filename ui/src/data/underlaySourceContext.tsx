@@ -1,35 +1,30 @@
-import {
-  AnnotationsApiContext,
-  CohortsApiContext,
-  ConceptSetsApiContext,
-  ExportApiContext,
-  ReviewsApiContext,
-  StudiesApiContext,
-  UnderlaysApiContext,
-  UsersApiContext,
-} from "apiContext";
+import { ExportApiContext, UnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
+import { BackendUnderlaySource, UnderlaySource } from "data/source";
 import { createContext, useCallback, useContext } from "react";
 import { Outlet, useParams } from "react-router-dom";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
-import { BackendSource, Source } from "./source";
 
-type SourceContextData = {
-  source: Source;
+type UnderlaySourceContextData = {
+  source: UnderlaySource;
 };
 
-export const SourceContext = createContext<SourceContextData | null>(null);
+const UnderlaySourceContext = createContext<UnderlaySourceContextData | null>(
+  null
+);
 
-export function useSource() {
-  const context = useContext(SourceContext);
+export function useUnderlaySource() {
+  const context = useContext(UnderlaySourceContext);
   if (!context) {
-    throw new Error("Attempting to use source context when not provided.");
+    throw new Error(
+      "Attempting to use underlay source context when not provided."
+    );
   }
   return context.source;
 }
 
-export function SourceContextRoot() {
+export function UnderlaySourceContextRoot() {
   const { underlayName } = useParams<{ underlayName: string }>();
   if (!underlayName) {
     throw new Error("Underlay name not in URL when creating data source.");
@@ -37,17 +32,7 @@ export function SourceContextRoot() {
 
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
   const underlaysApi = useContext(UnderlaysApiContext) as tanagra.UnderlaysApi;
-  const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesApi;
-  const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsApi;
-  const conceptSetsApi = useContext(
-    ConceptSetsApiContext
-  ) as tanagra.ConceptSetsApi;
-  const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsApi;
-  const annotationsApi = useContext(
-    AnnotationsApiContext
-  ) as tanagra.AnnotationsApi;
   const exportApi = useContext(ExportApiContext) as tanagra.ExportApi;
-  const usersApi = useContext(UsersApiContext) as tanagra.UsersApi;
 
   const sourceState = useSWRImmutable(
     { type: "underlay", underlayName },
@@ -77,15 +62,9 @@ export function SourceContextRoot() {
       };
 
       return {
-        source: new BackendSource(
+        source: new BackendUnderlaySource(
           underlaysApi,
-          studiesApi,
-          cohortsApi,
-          conceptSetsApi,
-          reviewsApi,
-          annotationsApi,
           exportApi,
-          usersApi,
           underlay,
           underlay.uiConfiguration.dataConfig
         ),
@@ -95,9 +74,9 @@ export function SourceContextRoot() {
 
   return (
     <Loading status={sourceState}>
-      <SourceContext.Provider value={sourceState.data ?? null}>
+      <UnderlaySourceContext.Provider value={sourceState.data ?? null}>
         <Outlet />
-      </SourceContext.Provider>
+      </UnderlaySourceContext.Provider>
     </Loading>
   );
 }

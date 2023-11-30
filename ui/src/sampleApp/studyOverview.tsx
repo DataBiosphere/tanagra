@@ -7,7 +7,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
 import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
 import { DataKey } from "data/types";
 import { useStudyId, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
@@ -55,12 +55,12 @@ const columns = [
 ];
 
 export function StudyOverview() {
-  const source = useSource();
+  const studySource = useStudySource();
   const studyId = useStudyId();
 
   const listArtifacts = useCallback(async () => {
     return await Promise.all([
-      source.listCohorts(studyId).then((res) =>
+      studySource.listCohorts(studyId).then((res) =>
         res
           .filter((c) => c.underlayName === underlay.name)
           .map((c) => ({
@@ -70,7 +70,7 @@ export function StudyOverview() {
             cohortGroupSectionId: c.groupSections[0].id,
           }))
       ),
-      source.listFeatureSets(studyId).then((res) =>
+      studySource.listFeatureSets(studyId).then((res) =>
         res
           .filter((fs) => fs.underlayName === underlay.name)
           .map((fs) => ({
@@ -81,7 +81,7 @@ export function StudyOverview() {
           }))
       ),
     ]).then((res) => res.flat());
-  }, [source, studyId]);
+  }, [studySource, studyId]);
 
   const artifactsState = useSWR(
     { type: "studyOverview", studyId },
@@ -93,10 +93,10 @@ export function StudyOverview() {
       artifactsState.mutate(async () => {
         switch (artifact.type) {
           case ArtifactType.Cohort:
-            await source.deleteCohort(studyId, artifact.id);
+            await studySource.deleteCohort(studyId, artifact.id);
             break;
           case ArtifactType.FeatureSet:
-            await source.deleteFeatureSet(studyId, artifact.id);
+            await studySource.deleteFeatureSet(studyId, artifact.id);
             break;
           default:
             throw new Error(
@@ -107,7 +107,7 @@ export function StudyOverview() {
         return await listArtifacts();
       });
     },
-    [source, artifactsState.data]
+    [studySource, artifactsState.data]
   );
 
   const [confirmDialog, showConfirmDialog] = useSimpleDialog();
@@ -156,7 +156,7 @@ export function StudyOverview() {
     });
 
     return data;
-  }, [source, artifactsState.data]);
+  }, [studySource, artifactsState.data]);
 
   const navigate = useNavigate();
 
@@ -164,12 +164,12 @@ export function StudyOverview() {
   const params = useBaseParams();
 
   const newCohort = async () => {
-    const cohort = await source.createCohort(underlay.name, studyId);
+    const cohort = await studySource.createCohort(underlay.name, studyId);
     navigate(absoluteCohortURL(params, cohort.id).substring(1));
   };
 
   const newFeatureSet = async () => {
-    const featureSet = await source.createFeatureSet(
+    const featureSet = await studySource.createFeatureSet(
       underlay.name,
       studyId,
       `Untitled feature set ${new Date().toLocaleString()}`

@@ -11,8 +11,8 @@ import Checkbox from "components/checkbox";
 import { HintDataSelect, Selection } from "components/hintDataSelect";
 import { Search } from "components/search";
 import { SortDirection, SortOrder } from "data/configuration";
-import { useSource } from "data/sourceContext";
 import { DataValue } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { findAll } from "highlight-words-core";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -57,7 +57,7 @@ type SearchState = {
 };
 
 function TextSearch({ id, config }: { id: string; config: Config }) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
 
   const context = useCohortReviewContext();
   if (!context) {
@@ -123,7 +123,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
     async () => {
       return {
         hintData: config.categoryAttribute
-          ? await source.getHintData(
+          ? await underlaySource.getHintData(
               config.occurrence,
               config?.categoryAttribute
             )

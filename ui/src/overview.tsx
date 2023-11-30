@@ -28,7 +28,7 @@ import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { SaveStatus } from "components/saveStatus";
 import { useTextInputDialog } from "components/textInputDialog";
-import { useSource } from "data/sourceContext";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { DemographicCharts } from "demographicCharts";
 import { useCohort, useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
@@ -197,7 +197,7 @@ function ParticipantsGroupSection(props: {
   groupSection: tanagraUI.UIGroupSection;
   sectionIndex: number;
 }) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const cohort = useCohort();
   const context = useCohortContext();
   const navigate = useNavigate();
@@ -210,7 +210,7 @@ function ParticipantsGroupSection(props: {
     };
 
     const filter = generateCohortFilter(cohortForFilter);
-    return (await source.filterCount(filter))[0].count;
+    return (await underlaySource.filterCount(filter))[0].count;
   }, [cohort.underlayName, props.sectionIndex, props.groupSection]);
 
   const sectionCountState = useSWRImmutable(
@@ -402,7 +402,7 @@ function ParticipantsGroup(props: {
   groupSection: tanagraUI.UIGroupSection;
   group: tanagraUI.UIGroup;
 }) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const cohort = useCohort();
   const navigate = useNavigate();
   const context = useCohortContext();
@@ -422,7 +422,7 @@ function ParticipantsGroup(props: {
     };
 
     const filter = generateCohortFilter(cohortForFilter);
-    return (await source.filterCount(filter))[0].count;
+    return (await underlaySource.filterCount(filter))[0].count;
   }, [cohort.underlayName, props.group]);
 
   const groupCountState = useSWRImmutable(
@@ -475,7 +475,7 @@ function ParticipantsGroup(props: {
               context,
               props.groupSection.id,
               props.group.id,
-              createCriteria(source, config)
+              createCriteria(underlaySource, config)
             );
           }}
         >

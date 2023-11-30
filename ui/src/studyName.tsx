@@ -1,15 +1,15 @@
 import Typography from "@mui/material/Typography";
 import Loading from "components/loading";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
 import { useStudyId } from "hooks";
 import useSWR from "swr";
 
 export function StudyName() {
-  const source = useSource();
+  const studySource = useStudySource();
   const studyId = useStudyId();
 
   const studyState = useSWR({ type: "Study", studyId }, async () => {
-    return await source.getStudy(studyId);
+    return await studySource.getStudy(studyId);
   });
 
   return (

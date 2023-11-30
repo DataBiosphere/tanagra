@@ -33,8 +33,9 @@ import {
   useArrayAsTreeGridData,
 } from "components/treegrid";
 import { Annotation, AnnotationType } from "data/source";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
 import { CohortReview } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
 import { DemographicCharts } from "demographicCharts";
 import { useCohort, useStudyId } from "hooks";
@@ -129,7 +130,8 @@ export function CohortReviewList() {
 
 function Reviews() {
   const theme = useTheme();
-  const source = useSource();
+  const studySource = useStudySource();
+  const underlaySource = useUnderlaySource();
   const navigate = useNavigate();
   const params = useBaseParams();
   const { reviewId } = useParams<{ reviewId: string }>();
@@ -139,7 +141,7 @@ function Reviews() {
     { component: "CohortReviewList", cohortId: cohort.id },
     async () => {
       const res = wrapResults(
-        await source.listCohortReviews(params.studyId, cohort.id)
+        await studySource.listCohortReviews(params.studyId, cohort.id)
       );
       if (!reviewId) {
         const first = firstReview(res);
@@ -169,9 +171,15 @@ function Reviews() {
   const onCreateNewReview = (name: string, size: number) => {
     reviewsState.mutate(
       async () => {
-        await source.createCohortReview(params.studyId, cohort, name, size);
+        await studySource.createCohortReview(
+          params.studyId,
+          underlaySource,
+          cohort,
+          name,
+          size
+        );
         const res = wrapResults(
-          await source.listCohortReviews(params.studyId, cohort.id)
+          await studySource.listCohortReviews(params.studyId, cohort.id)
         );
         if (!reviewId) {
           const first = firstReview(res);
@@ -201,7 +209,7 @@ function Reviews() {
     reviewsState.mutate(
       async () => {
         if (selectedReview?.id) {
-          await source.deleteCohortReview(
+          await studySource.deleteCohortReview(
             params.studyId,
             cohort.id,
             selectedReview.id
@@ -209,7 +217,7 @@ function Reviews() {
           navigate(absoluteCohortReviewListURL(params, cohort.id));
         }
         return wrapResults(
-          await source.listCohortReviews(params.studyId, cohort.id)
+          await studySource.listCohortReviews(params.studyId, cohort.id)
         );
       },
       {
@@ -224,7 +232,7 @@ function Reviews() {
     reviewsState.mutate(
       async () => {
         if (selectedReview?.id) {
-          await source.renameCohortReview(
+          await studySource.renameCohortReview(
             params.studyId,
             cohort.id,
             selectedReview.id,
@@ -232,7 +240,7 @@ function Reviews() {
           );
         }
         return wrapResults(
-          await source.listCohortReviews(params.studyId, cohort.id)
+          await studySource.listCohortReviews(params.studyId, cohort.id)
         );
       },
       {
@@ -587,7 +595,7 @@ function Summary(props: SummaryProps) {
 }
 
 function Annotations() {
-  const source = useSource();
+  const studySource = useStudySource();
   const studyId = useStudyId();
   const cohort = useCohort();
 
@@ -600,7 +608,7 @@ function Annotations() {
         annotationType: AnnotationType,
         enumVals?: string[]
       ) => {
-        await source.createAnnotation(
+        await studySource.createAnnotation(
           studyId,
           cohort.id,
           displayName,
@@ -687,7 +695,7 @@ function Annotations() {
                               initialText: annotation.displayName,
                               buttonLabel: "Update",
                               onConfirm: async (name: string) => {
-                                await source.updateAnnotation(
+                                await studySource.updateAnnotation(
                                   studyId,
                                   cohort.id,
                                   annotation.id,
@@ -709,7 +717,7 @@ function Annotations() {
                               primaryButtonColor: "error",
                               onButton: async (button) => {
                                 if (button === 1) {
-                                  await source.deleteAnnotation(
+                                  await studySource.deleteAnnotation(
                                     studyId,
                                     cohort.id,
                                     annotation.id

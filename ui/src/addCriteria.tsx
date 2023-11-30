@@ -22,8 +22,8 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { MergedItem } from "data/mergeLists";
-import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import {
   insertFeatureSetCriteria,
   insertPredefinedFeatureSetCriteria,
@@ -136,7 +136,7 @@ type AddCriteriaProps = {
 
 function AddCriteria(props: AddCriteriaProps) {
   const underlay = useUnderlay();
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const navigate = useNavigate();
 
   const query = useLocalSearchState<LocalSearchState>()[0].search ?? "";
@@ -163,7 +163,8 @@ function AddCriteria(props: AddCriteriaProps) {
     criteriaConfigs.forEach((cc) =>
       options.push({
         criteriaConfig: cc,
-        showMore: !!getCriteriaPlugin(createCriteria(source, cc)).renderEdit,
+        showMore: !!getCriteriaPlugin(createCriteria(underlaySource, cc))
+          .renderEdit,
         ...cc,
       })
     );
@@ -265,7 +266,7 @@ function AddCriteria(props: AddCriteriaProps) {
     (option: AddCriteriaOption, dataEntry?: DataEntry) => {
       if (option.criteriaConfig) {
         const criteria = createCriteria(
-          source,
+          underlaySource,
           option.criteriaConfig,
           dataEntry
         );
@@ -278,7 +279,7 @@ function AddCriteria(props: AddCriteriaProps) {
         props.onInsertPredefinedCriteria?.(option.id, option.title);
       }
     },
-    [source, navigate]
+    [underlaySource, navigate]
   );
 
   const search = useCallback(async () => {
@@ -289,7 +290,7 @@ function AddCriteria(props: AddCriteriaProps) {
 
     if (query) {
       const res = await searchCriteria(
-        source,
+        underlaySource,
         selectedOptions.map((o) => o.criteriaConfig).filter(isValid),
         query
       );
@@ -317,7 +318,7 @@ function AddCriteria(props: AddCriteriaProps) {
     }
 
     return data;
-  }, [source, query, selectedOptions, optionsMap]);
+  }, [underlaySource, query, selectedOptions, optionsMap]);
   const searchState = useSWRImmutable<TreeGridData>(
     {
       component: "AddCriteria",
