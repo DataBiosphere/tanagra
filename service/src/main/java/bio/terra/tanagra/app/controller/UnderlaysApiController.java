@@ -44,13 +44,15 @@ import bio.terra.tanagra.generated.model.ApiInstanceListResult;
 import bio.terra.tanagra.generated.model.ApiInstanceRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiUnderlay;
-import bio.terra.tanagra.generated.model.ApiUnderlayList;
+import bio.terra.tanagra.generated.model.ApiUnderlaySerializedConfiguration;
+import bio.terra.tanagra.generated.model.ApiUnderlaySummaryList;
 import bio.terra.tanagra.generated.model.ApiValueDisplay;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.underlay.DataMappingSerialization;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
@@ -77,12 +79,12 @@ public class UnderlaysApiController implements UnderlaysApi {
   }
 
   @Override
-  public ResponseEntity<ApiUnderlayList> listUnderlays() {
+  public ResponseEntity<ApiUnderlaySummaryList> listUnderlaySummaries() {
     ResourceCollection authorizedUnderlayNames =
         accessControlService.listAuthorizedResources(
             SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ));
     List<Underlay> authorizedUnderlays = underlayService.listUnderlays(authorizedUnderlayNames);
-    ApiUnderlayList apiUnderlays = new ApiUnderlayList();
+    ApiUnderlaySummaryList apiUnderlays = new ApiUnderlaySummaryList();
     authorizedUnderlays.stream()
         .forEach(underlay -> apiUnderlays.addUnderlaysItem(ToApiUtils.toApiObject(underlay)));
     return ResponseEntity.ok(apiUnderlays);
@@ -94,7 +96,11 @@ public class UnderlaysApiController implements UnderlaysApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    return ResponseEntity.ok(ToApiUtils.toApiObject(underlayService.getUnderlay(underlayName)));
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    return ResponseEntity.ok(
+        new ApiUnderlay()
+            .summary(ToApiUtils.toApiObject(underlay))
+            .serializedConfiguration(toApiObject(underlay.getDataMappingSerialization())));
   }
 
   @Override
@@ -240,6 +246,16 @@ public class UnderlaysApiController implements UnderlaysApi {
                 hintQueryResult.getHintInstances().stream()
                     .map(hintInstance -> toApiObject(hintInstance))
                     .collect(Collectors.toList())));
+  }
+
+  private ApiUnderlaySerializedConfiguration toApiObject(
+      DataMappingSerialization dataMappingSerialization) {
+    return new ApiUnderlaySerializedConfiguration()
+        .underlay(dataMappingSerialization.serializeUnderlay())
+        .entities(dataMappingSerialization.serializeEntities())
+        .groupItemsEntityGroups(dataMappingSerialization.serializeGroupItemsEntityGroups())
+        .criteriaOccurrenceEntityGroups(
+            dataMappingSerialization.serializeCriteriaOccurrenceEntityGroups());
   }
 
   private ApiEntity toApiObject(Entity entity) {
