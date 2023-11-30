@@ -1191,7 +1191,8 @@ components:
           type: string
       required:
         - summary
-        - configuration
+        - serializedConfiguration
+        - uiConfiguration
 
     Entity:
       type: object

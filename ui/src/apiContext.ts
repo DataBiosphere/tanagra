@@ -3,10 +3,12 @@ import * as tanagra from "./tanagra-api";
 
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
 class FakeUnderlaysApi {
-  async listUnderlays(): Promise<tanagra.UnderlayList> {
-    return {
-      underlays: [await this.getUnderlay({ underlayName: "underlay_name" })],
-    };
+  async listUnderlaySummaries(): Promise<tanagra.UnderlaySummaryList> {
+    return { underlays: [{
+      name: "underlay_name",
+      displayName: "Test Underlay",
+      primaryEntity: "person",
+    }] };
   }
 
   async getUnderlay(req: { underlayName: string }): Promise<tanagra.Underlay> {
@@ -90,9 +92,17 @@ class FakeUnderlaysApi {
     };
 
     return {
-      name: req.underlayName,
-      displayName: "Test Underlay",
-      primaryEntity: "person",
+      summary: {
+        name: "underlay_name",
+        displayName: "Test Underlay",
+        primaryEntity: "person",
+      },
+      serializedConfiguration: {
+        underlay: "",
+        entities: [],
+        groupItemsEntityGroups: [],
+        criteriaOccurrenceEntityGroups: []
+      },
       uiConfiguration: JSON.stringify(uiConfiguration),
     };
   }
