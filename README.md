@@ -27,4 +27,4 @@ More information about this codebase can be found in the links below.
 
 ![UI Integration Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/ui-integration-test.yaml/badge.svg?branch=main)
 
-![Documentation Generated](https://github.com/DataBiosphere/tanagra/actions/workflows/documentation-generated.yaml/badge.svg?branch=main)
+![Generated Files](https://github.com/DataBiosphere/tanagra/actions/workflows/generated-files.yaml/badge.svg?branch=main)

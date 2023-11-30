@@ -20,7 +20,7 @@ public abstract class AnnotationWalker {
     this.outputFilename = outputFilename;
   }
 
-  protected abstract String arriveAtClass(AnnotatedClass classAnnotation, String className);
+  protected abstract String arriveAtClass(AnnotatedClass classAnnotation, Class<?> clazz);
 
   protected abstract String walkField(AnnotatedField fieldAnnotation, Field field);
 
@@ -37,7 +37,7 @@ public abstract class AnnotationWalker {
 
     StringBuilder output = new StringBuilder();
     AnnotatedClass classAnnotation = clazz.getAnnotation(AnnotatedClass.class);
-    output.append(arriveAtClass(classAnnotation, clazz.getTypeName()));
+    output.append(arriveAtClass(classAnnotation, clazz));
 
     // Walk through each inherited field with an annotation.
     if (clazz.getAnnotation(AnnotatedInheritedFields.class) != null) {
@@ -86,7 +86,9 @@ public abstract class AnnotationWalker {
         .collect(Collectors.joining());
   }
 
-  public abstract String getOutputFileContents();
+  public String getOutputFileContents() {
+    return walk();
+  }
 
   public final void writeOutputFile(Path outputDir) throws IOException {
     FileUtils.writeStringToFile(outputDir.resolve(outputFilename), getOutputFileContents());
