@@ -8,6 +8,7 @@ import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,39 +39,25 @@ public final class DataMappingSerialization {
   }
 
   public List<String> serializeEntities() {
-    return entities.stream()
-        .map(
-            szEntity -> {
-              try {
-                return JacksonMapper.serializeJavaObject(szEntity);
-              } catch (JsonProcessingException jpEx) {
-                throw new SystemException("Error serializing SZEntity", jpEx);
-              }
-            })
-        .collect(Collectors.toList());
+    return serializeObjects(entities);
   }
 
   public List<String> serializeGroupItemsEntityGroups() {
-    return groupItemsEntityGroups.stream()
-        .map(
-            szEntity -> {
-              try {
-                return JacksonMapper.serializeJavaObject(szEntity);
-              } catch (JsonProcessingException jpEx) {
-                throw new SystemException("Error serializing SZGroupItems", jpEx);
-              }
-            })
-        .collect(Collectors.toList());
+    return serializeObjects(groupItemsEntityGroups);
   }
 
   public List<String> serializeCriteriaOccurrenceEntityGroups() {
-    return criteriaOccurrenceEntityGroups.stream()
+    return serializeObjects(criteriaOccurrenceEntityGroups);
+  }
+
+  private static <T> List<String> serializeObjects(Collection<T> objects) {
+    return objects.stream()
         .map(
-            szEntity -> {
+            obj -> {
               try {
-                return JacksonMapper.serializeJavaObject(szEntity);
+                return JacksonMapper.serializeJavaObject(obj);
               } catch (JsonProcessingException jpEx) {
-                throw new SystemException("Error serializing SZCriteriaOccurrence", jpEx);
+                throw new SystemException("Serialization error", jpEx);
               }
             })
         .collect(Collectors.toList());
