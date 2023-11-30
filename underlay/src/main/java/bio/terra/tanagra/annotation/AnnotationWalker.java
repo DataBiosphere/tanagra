@@ -75,7 +75,13 @@ public abstract class AnnotationWalker {
 
   protected final String walk() {
     return annotationPath.getClassesToWalk().stream()
-        .sorted(Comparator.comparing(Class::getSimpleName))
+        .sorted(
+            Comparator.comparing(
+                clazz -> {
+                  return !clazz.isAnnotationPresent(AnnotatedClass.class)
+                      ? clazz.getSimpleName()
+                      : clazz.getAnnotation(AnnotatedClass.class).name();
+                }))
         .map(clazz -> walk(clazz))
         .collect(Collectors.joining());
   }
