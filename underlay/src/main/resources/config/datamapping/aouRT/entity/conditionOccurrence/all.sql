@@ -14,15 +14,9 @@ SELECT
   vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.condition_occurrence` AS co
-
-JOIN `${omopDataset}.person` AS p
-    ON p.person_id = co.person_id
-
-JOIN `${omopDataset}.concept` AS cc
-    ON cc.concept_id = co.condition_concept_id
-
-LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
-    ON vo.visit_occurrence_id = co.visit_occurrence_id
-
-LEFT JOIN `${omopDataset}.concept` AS vc
-    ON vc.concept_id = vo.visit_concept_id
+JOIN `${omopDataset}.person` AS p ON p.person_id = co.person_id
+JOIN `${omopDataset}.concept` AS cc ON cc.concept_id = co.condition_concept_id
+LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = co.visit_occurrence_id
+LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
+WHERE co.condition_concept_id IS NOT null
+  AND co.condition_concept_id != 0
