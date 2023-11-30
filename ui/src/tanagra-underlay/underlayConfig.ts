@@ -36,7 +36,7 @@ export enum SZDataType {
   INT64 = "INT64",
   STRING = "STRING",
   TIMESTAMP = "TIMESTAMP",
-};
+}
 
 export type SZDataflow = {
   dataflowLocation: string;
@@ -146,4 +146,3 @@ export type SZUnderlay = {
   primaryEntity: string;
   uiConfigFile: string;
 };
-
