@@ -24,8 +24,10 @@ public class TypescriptWalker extends AnnotationWalker {
     // Start a new type declaration for this class.
     return new StringBuilder()
         .append("export ")
-        .append(clazz.isEnum() ? "enum " : "type = ")
+        .append(clazz.isEnum() ? "enum" : "type")
+        .append(' ')
         .append(classAnnotation.name())
+        .append(clazz.isEnum() ? "" : " =")
         .append(" {\n")
         .toString();
   }

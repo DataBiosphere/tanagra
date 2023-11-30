@@ -1,4 +1,4 @@
-export type = SZAttribute {
+export type SZAttribute = {
   dataType: SZDataType;
   displayFieldName?: string;
   isComputeDisplayHint?: boolean;
@@ -8,21 +8,21 @@ export type = SZAttribute {
   valueFieldName?: string;
 };
 
-export type = SZBigQuery {
+export type SZBigQuery = {
   dataLocation: string;
   indexData: SZIndexData;
   queryProjectId: string;
   sourceData: SZSourceData;
 };
 
-export type = SZCriteriaOccurrence {
+export type SZCriteriaOccurrence = {
   criteriaEntity: string;
   name: string;
   occurrenceEntities: SZOccurrenceEntity[];
   primaryCriteriaRelationship: SZPrimaryCriteriaRelationship;
 };
 
-export type = SZCriteriaRelationship {
+export type SZCriteriaRelationship = {
   criteriaEntityIdFieldName?: string;
   foreignKeyAttributeOccurrenceEntity?: string;
   idPairsSqlFile?: string;
@@ -38,7 +38,7 @@ export enum SZDataType {
   TIMESTAMP = "TIMESTAMP",
 };
 
-export type = SZDataflow {
+export type SZDataflow = {
   dataflowLocation: string;
   gcsTempDirectory?: string;
   serviceAccountEmail: string;
@@ -47,7 +47,7 @@ export type = SZDataflow {
   workerMachineType?: string;
 };
 
-export type = SZEntity {
+export type SZEntity = {
   allInstancesSqlFile: string;
   attributes: SZAttribute[];
   description?: string;
@@ -59,7 +59,7 @@ export type = SZEntity {
   textSearch?: SZTextSearch;
 };
 
-export type = SZGroupItems {
+export type SZGroupItems = {
   foreignKeyAttributeItemsEntity?: string;
   groupEntity: string;
   groupEntityIdFieldName?: string;
@@ -69,7 +69,7 @@ export type = SZGroupItems {
   name: string;
 };
 
-export type = SZHierarchy {
+export type SZHierarchy = {
   childIdFieldName: string;
   childParentIdPairsSqlFile: string;
   keepOrphanNodes?: boolean;
@@ -81,63 +81,63 @@ export type = SZHierarchy {
   rootNodeIdsSqlFile?: string;
 };
 
-export type = SZIndexData {
+export type SZIndexData = {
   datasetId: string;
   projectId: string;
   tablePrefix?: string;
 };
 
-export type = SZIndexer {
+export type SZIndexer = {
   bigQuery: SZBigQuery;
   dataflow: SZDataflow;
   underlay: string;
 };
 
-export type = SZMetadata {
+export type SZMetadata = {
   description?: string;
   displayName: string;
   properties?: { [key: string]: string };
 };
 
-export type = SZOccurrenceEntity {
+export type SZOccurrenceEntity = {
   attributesWithInstanceLevelHints: string[];
   criteriaRelationship: SZCriteriaRelationship;
   occurrenceEntity: string;
   primaryRelationship: SZPrimaryRelationship;
 };
 
-export type = SZPrimaryCriteriaRelationship {
+export type SZPrimaryCriteriaRelationship = {
   criteriaEntityIdFieldName: string;
   idPairsSqlFile: string;
   primaryEntityIdFieldName: string;
 };
 
-export type = SZPrimaryRelationship {
+export type SZPrimaryRelationship = {
   foreignKeyAttributeOccurrenceEntity?: string;
   idPairsSqlFile?: string;
   occurrenceEntityIdFieldName?: string;
   primaryEntityIdFieldName?: string;
 };
 
-export type = SZService {
+export type SZService = {
   bigQuery: SZBigQuery;
   underlay: string;
 };
 
-export type = SZSourceData {
+export type SZSourceData = {
   datasetId: string;
   projectId: string;
   sqlSubstitutions?: { [key: string]: string };
 };
 
-export type = SZTextSearch {
+export type SZTextSearch = {
   attributes?: string[];
   idFieldName?: string;
   idTextPairsSqlFile?: string;
   textFieldName?: string;
 };
 
-export type = SZUnderlay {
+export type SZUnderlay = {
   criteriaOccurrenceEntityGroups: string[];
   entities: string[];
   groupItemsEntityGroups: string[];
