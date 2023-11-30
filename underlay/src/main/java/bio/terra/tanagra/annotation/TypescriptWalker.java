@@ -23,9 +23,10 @@ public class TypescriptWalker extends AnnotationWalker {
 
     // Start a new type declaration for this class.
     return new StringBuilder()
-        .append(clazz.isEnum() ? "enum " : "type ")
+        .append("export ")
+        .append(clazz.isEnum() ? "enum " : "type = ")
         .append(classAnnotation.name())
-        .append(" = {\n")
+        .append(" {\n")
         .toString();
   }
 
@@ -48,19 +49,21 @@ public class TypescriptWalker extends AnnotationWalker {
             .append(getTypeNameOrSubstitutionLink(pType.getActualTypeArguments()[0].getTypeName()))
             .append("[]");
       } else if (pTypeName.equals(Map.class.getTypeName())) {
-        // Convert to Typescript map e.g. [key: string]: string
+        // Convert to Typescript map e.g. { [key: string]: string }
         fieldNameAndType
-            .append("[key: ")
+            .append("{ [key: ")
             .append(getTypeNameOrSubstitutionLink(pType.getActualTypeArguments()[0].getTypeName()))
             .append("]: ")
-            .append(getTypeNameOrSubstitutionLink(pType.getActualTypeArguments()[1].getTypeName()));
+            .append(getTypeNameOrSubstitutionLink(pType.getActualTypeArguments()[1].getTypeName()))
+            .append(" }");
       } else {
         throw new SystemException("Undefined conversion to Typescript for Java type: " + pTypeName);
       }
+      fieldNameAndType.append(';');
     } else if (field.getDeclaringClass().isEnum()) {
       // This is an enum value.
       try {
-        fieldNameAndType.append(" = \"").append(field.get(null).toString()).append('"');
+        fieldNameAndType.append(" = \"").append(field.get(null).toString()).append("\",");
       } catch (IllegalAccessException iaEx) {
         throw new SystemException(
             "Error reading enum string from Java field: " + field.getName(), iaEx);
@@ -69,10 +72,11 @@ public class TypescriptWalker extends AnnotationWalker {
       // This is a field with a simple type (e.g. String).
       fieldNameAndType
           .append(": ")
-          .append(getTypeNameOrSubstitutionLink(field.getType().getTypeName()));
+          .append(getTypeNameOrSubstitutionLink(field.getType().getTypeName()))
+          .append(';');
     }
 
-    return fieldNameAndType.append(";\n").toString();
+    return fieldNameAndType.append('\n').toString();
   }
 
   private String getTypeNameOrSubstitutionLink(String typeName) {
@@ -83,7 +87,10 @@ public class TypescriptWalker extends AnnotationWalker {
       return "${" + typeName + "}";
     } else {
       String[] pieces = typeName.split("\\.");
-      return pieces[pieces.length - 1].toLowerCase();
+      String javaTypeName = pieces[pieces.length - 1].toLowerCase();
+
+      final List<String> javaTypesThatMapToNumber = List.of("int", "long");
+      return javaTypesThatMapToNumber.contains(javaTypeName) ? "number" : javaTypeName;
     }
   }
 
