@@ -1,181 +1,198 @@
 package bio.terra.tanagra.underlay.serialization;
 
+import bio.terra.tanagra.annotation.AnnotatedClass;
+import bio.terra.tanagra.annotation.AnnotatedField;
 import java.util.Set;
 
-/**
- * Criteria-Occurrence entity group configuration.
- *
- * <p>Define a version of this file for each entity group of this type.
- *
- * <p>This entity group type defines a relationship between three entities. For each criteria entity
- * instance and primary entity instance, there are one or more occurrence entity instances.
- */
+@AnnotatedClass(
+    name = "SZCriteriaOccurrence",
+    markdown =
+        "Criteria-Occurrence entity group configuration.\n\n"
+            + "Define a version of this file for each entity group of this type. "
+            + "This entity group type defines a relationship between three entities. For each criteria entity "
+            + "instance and primary entity instance, there are one or more occurrence entity instances.")
 public class SZCriteriaOccurrence {
-  /**
-   * Name of the entity group.
-   *
-   * <p>This is the unique identifier for the entity group. In a single underlay, the entity group
-   * names of any group type cannot overlap.
-   *
-   * <p>Name may not include spaces or special characters, only letters and numbers. The first
-   * character must be a letter.
-   */
+  @AnnotatedField(
+      name = "SZCriteriaOccurrence.name",
+      markdown =
+          "Name of the entity group.\n\n"
+              + "This is the unique identifier for the entity group. In a single underlay, the entity group "
+              + "names of any group type cannot overlap. Name may not include spaces or special characters, "
+              + "only letters and numbers. The first character must be a letter.")
   public String name;
 
-  /** Name of the criteria entity. */
+  @AnnotatedField(
+      name = "SZCriteriaOccurrence.criteriaEntity",
+      markdown = "Name of the criteria entity.")
   public String criteriaEntity;
 
-  /**
-   * Set of occurrence entity configurations.
-   *
-   * <p>Most entity groups of this type will have a single occurrence entity (e.g. SNOMED condition
-   * code only maps to condition occurrences), but we also support the case of multiple (e.g.
-   * ICD9-CM condition code maps to condition, measurement, observation and procedure occurrences).
-   */
+  @AnnotatedField(
+      name = "SZCriteriaOccurrence.occurrenceEntities",
+      markdown =
+          "Set of occurrence entity configurations.\n\n"
+              + "Most entity groups of this type will have a single occurrence entity (e.g. SNOMED condition "
+              + "code only maps to condition occurrences), but we also support the case of multiple (e.g. "
+              + "ICD9-CM condition code maps to condition, measurement, observation and procedure occurrences).")
   public Set<OccurrenceEntity> occurrenceEntities;
 
-  /** Relationship or join between the primary and criteria entities. */
-  // TODO: Remove this. We should be able to infer this relationship from the criteria-occurrence
-  // and occurrence-primary relationships.
+  // TODO: Remove this. We can infer this relationship from the criteria-occurrence and
+  // occurrence-primary relationships.
+  @AnnotatedField(
+      name = "SZCriteriaOccurrence.primaryCriteriaRelationship",
+      markdown = "Relationship or join between the primary and criteria entities.")
   public PrimaryCriteriaRelationship primaryCriteriaRelationship;
 
-  /** Occurrence entity configuration. */
+  @AnnotatedClass(name = "SZOccurrenceEntity", markdown = "Occurrence entity configuration.")
   public static class OccurrenceEntity {
-    /** Name of occurrence entity. */
     @SuppressWarnings("PMD.AvoidFieldNameMatchingTypeName")
+    @AnnotatedField(
+        name = "SZOccurrenceEntity.occurrenceEntity",
+        markdown = "Name of occurrence entity.")
     public String occurrenceEntity;
 
-    /**
-     * Relationship or join between this occurrence entity and the criteria entity (e.g. condition
-     * occurrence and ICD9-CM).
-     */
+    @AnnotatedField(
+        name = "SZOccurrenceEntity.criteriaRelationship",
+        markdown =
+            "Relationship or join between this occurrence entity and the criteria entity "
+                + "(e.g. condition occurrence and ICD9-CM).")
     public CriteriaRelationship criteriaRelationship;
 
-    /**
-     * Relationship or join between this occurrence entity and the primary entity (e.g. condition
-     * occurrence and person).
-     */
+    @AnnotatedField(
+        name = "SZOccurrenceEntity.primaryRelationship",
+        markdown =
+            "Relationship or join between this occurrence entity and the primary entity (e.g. condition "
+                + "occurrence and person).")
     public PrimaryRelationship primaryRelationship;
 
-    /**
-     * Names of attributes that we want to calculate instance-level hints for.
-     *
-     * <p>Instance-level hints are ranges of possible values for a particular criteria instance.
-     * They are used to support criteria-specific modifiers (e.g. range of values for measurement
-     * code "glucose test").
-     */
+    @AnnotatedField(
+        name = "SZOccurrenceEntity.attributesWithInstanceLevelHints",
+        markdown =
+            "Names of attributes that we want to calculate instance-level hints for.\n\n"
+                + "Instance-level hints are ranges of possible values for a particular criteria instance. "
+                + "They are used to support criteria-specific modifiers (e.g. range of values for measurement "
+                + "code \"glucose test\").")
     public Set<String> attributesWithInstanceLevelHints;
 
-    /**
-     * Relationship or join between an occurrence entity and the criteria entity (e.g. condition
-     * occurrence and ICD9-CM).
-     */
+    @AnnotatedClass(
+        name = "SZCriteriaRelationship",
+        markdown =
+            "Relationship or join between an occurrence entity and the criteria entity (e.g. condition "
+                + "occurrence and ICD9-CM).")
     public static class CriteriaRelationship {
-      /**
-       * <strong>(optional)</strong> Attribute of the occurrence entity that is a foreign key to the
-       * id attribute of the criteria entity.
-       *
-       * <p>If this property is set, then the {@link #idPairsSqlFile} must be unset.
-       */
+      @AnnotatedField(
+          name = "SZCriteriaRelationship.foreignKeyAttributeOccurrenceEntity",
+          markdown =
+              "Attribute of the occurrence entity that is a foreign key to the "
+                  + "id attribute of the criteria entity. If this property is set, then the "
+                  + "[id pairs SQL](${SZCriteriaRelationship.idPairsSqlFile}) must be unset.",
+          optional = true)
       public String foreignKeyAttributeOccurrenceEntity;
 
-      /**
-       * <strong>(optional)</strong> Name of the occurrence entity - criteria entity id pairs SQL
-       * file.
-       *
-       * <p>File must be in the same directory as the entity group file. Name includes file
-       * extension (e.g. occurrenceCriteria.sql).
-       *
-       * <p>There can be other columns selected in the SQL file (e.g. <code>
-       * SELECT * FROM relationships</code>), but the occurrence and criteria entity ids are
-       * required.
-       *
-       * <p>If this property is set, then the {@link #foreignKeyAttributeOccurrenceEntity} must be
-       * unset.
-       */
+      @AnnotatedField(
+          name = "SZCriteriaRelationship.idPairsSqlFile",
+          markdown =
+              "Name of the occurrence entity - criteria entity id pairs SQL file. "
+                  + "File must be in the same directory as the entity group file. Name includes file extension. "
+                  + "If this property is set, then the "
+                  + "[foreign key attribute](${SZCriteriaRelationship.foreignKeyAttributeOccurrenceEntity}) must be unset.\n\n"
+                  + "There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the "
+                  + "occurrence and criteria entity ids are required.",
+          optional = true,
+          exampleValue = "occurrenceCriteria.sql")
       public String idPairsSqlFile;
 
-      /**
-       * <strong>(optional)</strong> Name of the field or column name that maps to the occurrence
-       * entity id.
-       *
-       * <p>If the {@link #idPairsSqlFile} property is defined, then this property is required.
-       */
+      @AnnotatedField(
+          name = "SZCriteriaRelationship.occurrenceEntityIdFieldName",
+          markdown =
+              "Name of the field or column name that maps to the occurrence entity id. "
+                  + "Required if the [id pairs SQL](${SZCriteriaRelationship.idPairsSqlFile}) is defined.",
+          optional = true,
+          exampleValue = "occurrence_id")
       public String occurrenceEntityIdFieldName;
 
-      /**
-       * <strong>(optional)</strong> Name of the field or column name that maps to the criteria
-       * entity id.
-       *
-       * <p>If the {@link #idPairsSqlFile} property is defined, then this property is required.
-       */
+      @AnnotatedField(
+          name = "SZCriteriaRelationship.criteriaEntityIdFieldName",
+          markdown =
+              "Name of the field or column name that maps to the criteria entity id. "
+                  + "Required if the [id pairs SQL](${SZCriteriaRelationship.idPairsSqlFile}) is defined.",
+          optional = true,
+          exampleValue = "criteria_id")
       public String criteriaEntityIdFieldName;
     }
 
-    /**
-     * Relationship or join between an occurrence entity and the primary entity (e.g. condition
-     * occurrence and person).
-     */
+    @AnnotatedClass(
+        name = "SZPrimaryRelationship",
+        markdown =
+            "Relationship or join between an occurrence entity and the primary entity (e.g. condition "
+                + "occurrence and person).")
     public static class PrimaryRelationship {
-      /**
-       * <strong>(optional)</strong> Attribute of the occurrence entity that is a foreign key to the
-       * id attribute of the primary entity.
-       *
-       * <p>If this property is set, then the {@link #idPairsSqlFile} must be unset.
-       */
+      @AnnotatedField(
+          name = "SZPrimaryRelationship.foreignKeyAttributeOccurrenceEntity",
+          markdown =
+              "Attribute of the occurrence entity that is a foreign key to the "
+                  + "id attribute of the primary entity. If this property is set, then the "
+                  + "[id pairs SQL](${SZPrimaryRelationship.idPairsSqlFile}) must be unset.",
+          optional = true)
       public String foreignKeyAttributeOccurrenceEntity;
 
-      /**
-       * <strong>(optional)</strong> Name of the occurrence entity - primary entity id pairs SQL
-       * file.
-       *
-       * <p>File must be in the same directory as the entity group file. Name includes file
-       * extension (e.g. occurrencePrimary.sql).
-       *
-       * <p>There can be other columns selected in the SQL file (e.g. <code>
-       * SELECT * FROM relationships</code>), but the occurrence and primary entity ids are
-       * required.
-       *
-       * <p>If this property is set, then the {@link #foreignKeyAttributeOccurrenceEntity} must be
-       * unset.
-       */
+      @AnnotatedField(
+          name = "SZPrimaryRelationship.idPairsSqlFile",
+          markdown =
+              "Name of the occurrence entity - primary entity id pairs SQL file. "
+                  + "File must be in the same directory as the entity group file. Name includes file extension. "
+                  + "If this property is set, then the "
+                  + "[foreign key attribute](${SZPrimaryRelationship.foreignKeyAttributeOccurrenceEntity}) must be unset.\n\n"
+                  + "There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the "
+                  + "occurrence and primary entity ids are required.",
+          optional = true,
+          exampleValue = "occurrencePrimary.sql")
       public String idPairsSqlFile;
 
-      /**
-       * <strong>(optional)</strong> Name of the field or column name that maps to the occurrence
-       * entity id.
-       *
-       * <p>If the {@link #idPairsSqlFile} property is defined, then this property is required.
-       */
+      @AnnotatedField(
+          name = "SZPrimaryRelationship.occurrenceEntityIdFieldName",
+          markdown =
+              "Name of the field or column name that maps to the occurrence entity id. "
+                  + "Required if the [id pairs SQL](${SZPrimaryRelationship.idPairsSqlFile}) is defined.",
+          optional = true,
+          exampleValue = "occurrence_id")
       public String occurrenceEntityIdFieldName;
 
-      /**
-       * <strong>(optional)</strong> Name of the field or column name that maps to the primary
-       * entity id.
-       *
-       * <p>If the {@link #idPairsSqlFile} property is defined, then this property is required.
-       */
+      @AnnotatedField(
+          name = "SZPrimaryRelationship.primaryEntityIdFieldName",
+          markdown =
+              "Name of the field or column name that maps to the primary entity id. "
+                  + "Required if the [id pairs SQL](${SZPrimaryRelationship.idPairsSqlFile}) is defined.",
+          optional = true,
+          exampleValue = "primary_id")
       public String primaryEntityIdFieldName;
     }
   }
 
-  /** Relationship or join between the primary and criteria entities. */
+  @AnnotatedClass(
+      name = "SZPrimaryCriteriaRelationship",
+      markdown =
+          "Relationship or join between the primary and criteria entities (e.g. condition and person).")
   public static class PrimaryCriteriaRelationship {
-    /**
-     * Name of the primary entity - criteria entity id pairs SQL file.
-     *
-     * <p>File must be in the same directory as the entity group file. Name includes file extension
-     * (e.g. primaryCriteria.sql).
-     *
-     * <p>There can be other columns selected in the SQL file (e.g. <code>
-     * SELECT * FROM relationships</code>), but the primary and criteria entity ids are required.
-     */
+    @AnnotatedField(
+        name = "SZPrimaryCriteriaRelationship.idPairsSqlFile",
+        markdown =
+            "Name of the primary entity - criteria entity id pairs SQL file. "
+                + "File must be in the same directory as the entity group file. Name includes file extension. "
+                + "There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the "
+                + "primary and criteria entity ids are required.",
+        exampleValue = "primaryCriteria.sql")
     public String idPairsSqlFile;
 
-    /** Name of the field or column name that maps to the primary entity id. */
+    @AnnotatedField(
+        name = "SZPrimaryCriteriaRelationship.primaryEntityIdFieldName",
+        markdown = "Name of the field or column name that maps to the primary entity id.",
+        exampleValue = "primary_id")
     public String primaryEntityIdFieldName;
 
-    /** Name of the field or column name that maps to the criteria entity id. */
+    @AnnotatedField(
+        name = "SZPrimaryCriteriaRelationship.criteriaEntityIdFieldName",
+        markdown = "Name of the field or column name that maps to the criteria entity id.",
+        exampleValue = "criteria_id")
     public String criteriaEntityIdFieldName;
   }
 }

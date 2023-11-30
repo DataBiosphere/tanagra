@@ -10,7 +10,8 @@ public final class Main {
   private Main() {}
 
   private enum Command {
-    DEPLOYMENT_CONFIG_DOCS(new MarkdownWalker(new DeploymentConfigPath(), "DEPLOYMENT_CONFIG.md"));
+    DEPLOYMENT_CONFIG_DOCS(new MarkdownWalker(new DeploymentConfigPath(), "DEPLOYMENT_CONFIG.md")),
+    UNDERLAY_CONFIG_DOCS(new MarkdownWalker(new UnderlayConfigPath(), "UNDERLAY_CONFIG.md"));
     private final AnnotationWalker annotationWalker;
 
     Command(AnnotationWalker annotationWalker) {
