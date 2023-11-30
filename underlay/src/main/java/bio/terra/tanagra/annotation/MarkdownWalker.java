@@ -19,10 +19,10 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
-  protected String arriveAtClass(AnnotatedClass classAnnotation, String className) {
+  protected String arriveAtClass(AnnotatedClass classAnnotation, Class<?> clazz) {
     // Add a bookmark for this class.
     addBookmark(classAnnotation.name(), classAnnotation.name());
-    addBookmarkLink(className, classAnnotation.name());
+    addBookmarkLink(clazz.getTypeName(), classAnnotation.name());
 
     // Add this class to the table of contents.
     tableOfContents.add("* [" + classAnnotation.name() + "](${" + classAnnotation.name() + "})");

@@ -9,6 +9,7 @@ import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.util.List;
 
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 public class UnderlayConfigPath extends AnnotationPath {
   private static final String FILE_TITLE = "Underlay Configuration";
   private static final String FILE_INTRODUCTION =
@@ -22,6 +23,8 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZIndexer.Dataflow.class,
           SZService.class,
           SZBigQuery.class,
+          SZBigQuery.SourceData.class,
+          SZBigQuery.IndexData.class,
           SZUnderlay.class,
           SZUnderlay.Metadata.class,
           SZEntity.class,
