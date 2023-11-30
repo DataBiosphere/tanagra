@@ -4,7 +4,7 @@ FROM `${omopDataset}.condition_occurrence` AS co
               ON c.concept_id = co.condition_source_concept_id
 WHERE c.vocabulary_id = 'ICD10CM'
   AND co.condition_source_concept_id IS NOT null
-  AND co.condition_concept_id != 0
+  AND co.condition_source_concept_id != 0
 
 UNION ALL
 

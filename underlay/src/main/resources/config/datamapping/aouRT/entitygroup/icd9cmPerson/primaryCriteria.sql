@@ -4,7 +4,7 @@ JOIN `${omopDataset}.concept` AS c
     ON c.concept_id = co.condition_source_concept_id
 WHERE c.vocabulary_id = 'ICD9CM'
   AND co.condition_source_concept_id IS NOT null
-  AND co.condition_concept_id != 0
+  AND co.condition_source_concept_id != 0
 
 UNION ALL
 
