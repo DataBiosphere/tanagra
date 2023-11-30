@@ -8,8 +8,8 @@ import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
 import { FilterType, makeArrayFilter } from "data/filter";
 import { HintData } from "data/source";
-import { useSource } from "data/sourceContext";
 import { DataKey, DataValue } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -60,7 +60,7 @@ export type ValueDataEditProps = {
 };
 
 export function ValueDataEdit(props: ValueDataEditProps) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
 
   const hintDataState = useSWRImmutable(
     {
@@ -71,7 +71,11 @@ export function ValueDataEdit(props: ValueDataEditProps) {
     },
     async (key) => {
       const hintData = props.valueConfigs
-        ? await source.getAllHintData(key.occurrence, key.entity, key.key)
+        ? await underlaySource.getAllHintData(
+            key.occurrence,
+            key.entity,
+            key.key
+          )
         : undefined;
       // TODO(tjennison): Remove once index is updated.
       if (!hintData?.find((hd) => hd.attribute === "is_clean")) {

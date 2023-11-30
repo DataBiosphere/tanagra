@@ -5,7 +5,7 @@ import {
   updateCohortCriteria,
 } from "cohortContext";
 import { FeatureSet } from "data/source";
-import { useSource } from "data/sourceContext";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import {
   FeatureSetContext,
   insertFeatureSetCriteria,
@@ -18,13 +18,13 @@ import * as tanagraUI from "tanagra-ui";
 export class PathError extends Error {}
 
 export function useUnderlay() {
-  return useSource().underlay;
+  return useUnderlaySource().underlay;
 }
 
 export function useStudyId() {
   const { studyId } = useParams<{ studyId: string }>();
   if (!studyId) {
-    throw new PathError("Study id not found in URL.");
+    throw new PathError("Underlay id not found in URL.");
   }
   return studyId;
 }
@@ -84,7 +84,7 @@ let newCriteria: tanagraUI.UICriteria | undefined;
 let newCriteriaRefCount = 0;
 
 function useOptionalNewCriteria(throwOnUnknown: boolean) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const underlay = useUnderlay();
   const { configId } = useParams<{ configId: string }>();
 
@@ -94,7 +94,7 @@ function useOptionalNewCriteria(throwOnUnknown: boolean) {
         continue;
       }
 
-      newCriteria = createCriteria(source, config);
+      newCriteria = createCriteria(underlaySource, config);
     }
   }
 

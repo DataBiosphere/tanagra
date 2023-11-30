@@ -7,7 +7,7 @@ import {
   ValueDataEdit,
 } from "criteria/valueData";
 import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
-import { Source } from "data/source";
+import { UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
@@ -31,7 +31,11 @@ export interface Data {
 // attributes can be set simultaneously.
 @registerCriteriaPlugin(
   "multiAttribute",
-  (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
+  (
+    underlaySource: UnderlaySource,
+    c: CriteriaConfig,
+    dataEntry?: DataEntry
+  ) => {
     const valueData: ValueData[] = [];
     if (dataEntry) {
       valueData.push({
@@ -176,13 +180,13 @@ function MultiAttributeInline(props: MultiAttributeInlineProps) {
 }
 
 async function search(
-  source: Source,
+  underlaySource: UnderlaySource,
   c: CriteriaConfig,
   query: string
 ): Promise<DataEntry[]> {
   const config = c as Config;
 
-  const allHintData = await source.getAllHintData(config.occurrence);
+  const allHintData = await underlaySource.getAllHintData(config.occurrence);
 
   const [re] = safeRegExp(query);
   const results: DataEntry[] = [];

@@ -161,7 +161,7 @@ export type FeatureSet = {
   output: FeatureSetOutput[];
 };
 
-export interface Source {
+export interface UnderlaySource {
   config: Configuration;
   underlay: Underlay;
 
@@ -214,10 +214,24 @@ export interface Source {
     groupByAttributes?: string[]
   ): Promise<FilterCountValue[]>;
 
+  listExportModels(underlayName: string): Promise<ExportModel[]>;
+
+  export(
+    underlayName: string,
+    studyId: string,
+    modelId: string,
+    returnURL: string,
+    cohortIds: string[],
+    entities: ExportRequestEntity[]
+  ): Promise<ExportResult>;
+}
+
+export interface StudySource {
   listCohortReviews(studyId: string, cohortId: string): Promise<CohortReview[]>;
 
   createCohortReview(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohort: tanagraUI.UICohort,
     displayName: string,
     size: number
@@ -240,6 +254,7 @@ export interface Source {
 
   listReviewInstances(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohortId: string,
     reviewId: string,
     includeAttributes: string[]
@@ -255,7 +270,11 @@ export interface Source {
 
   // TODO(tjennison): Use internal types for cohorts and related objects instead
   // of V1 types from the service definition.
-  getCohort(studyId: string, cohortId: string): Promise<tanagraUI.UICohort>;
+  getCohort(
+    studyId: string,
+    cohortId: string,
+    cohortRevisionId?: string
+  ): Promise<tanagraUI.UICohort>;
 
   listCohorts(studyId: string): Promise<tanagraUI.UICohort[]>;
 
@@ -323,30 +342,13 @@ export interface Source {
     entityKey: DataKey
   ): Promise<void>;
 
-  listExportModels(underlayName: string): Promise<ExportModel[]>;
-
-  export(
-    underlayName: string,
-    studyId: string,
-    modelId: string,
-    returnURL: string,
-    cohortIds: string[],
-    entities: ExportRequestEntity[]
-  ): Promise<ExportResult>;
-
   getUser(): Promise<User>;
 }
 
-export class BackendSource implements Source {
+export class BackendUnderlaySource implements UnderlaySource {
   constructor(
     private underlaysApi: tanagra.UnderlaysApi,
-    private studiesApi: tanagra.StudiesApi,
-    private cohortsApi: tanagra.CohortsApi,
-    private conceptSetsApi: tanagra.ConceptSetsApi,
-    private reviewsApi: tanagra.ReviewsApi,
-    private annotationsApi: tanagra.AnnotationsApi,
     private exportApi: tanagra.ExportApi,
-    private usersApi: tanagra.UsersApi,
     public underlay: Underlay,
     public config: Configuration
   ) {}
@@ -626,6 +628,115 @@ export class BackendSource implements Source {
     });
   }
 
+  public async listExportModels(underlayName: string): Promise<ExportModel[]> {
+    return await parseAPIError(
+      this.exportApi
+        .listExportModels({
+          underlayName,
+        })
+        .then((res) =>
+          res.map((model) => ({
+            id: model.name ?? "",
+            displayName: model.displayName ?? "",
+            description: model.description ?? "",
+            inputs: model.inputs ?? {},
+            outputs: model.outputs ?? {},
+          }))
+        )
+    );
+  }
+
+  public async export(
+    underlayName: string,
+    studyId: string,
+    modelId: string,
+    returnURL: string,
+    cohortIds: string[],
+    entities: ExportRequestEntity[]
+  ): Promise<ExportResult> {
+    return await parseAPIError(
+      this.exportApi
+        .exportInstancesAndAnnotations({
+          underlayName,
+          exportRequest: {
+            study: studyId,
+            exportModel: modelId,
+            redirectBackUrl: returnURL,
+            includeAnnotations: true,
+            cohorts: cohortIds,
+            instanceQuerys: entities.map((e) => ({
+              entity: findEntity(e.occurrenceID, this.config).entity,
+              query: this.makeQuery(
+                e.requestedAttributes,
+                e.occurrenceID,
+                e.cohort,
+                e.conceptSet
+              ),
+            })),
+          },
+        })
+        .then((res) => ({
+          redirectURL: res.redirectAwayUrl,
+          outputs: res.outputs ?? {},
+        }))
+    );
+  }
+
+  private makeQuery(
+    requestedAttributes: string[],
+    occurrenceID: string,
+    cohort: Filter,
+    conceptSet: Filter | null,
+    limit?: number
+  ): tanagra.Query {
+    let cohortFilter = generateFilter(this, cohort);
+    if (!cohortFilter) {
+      throw new Error("Cohort filter is empty.");
+    }
+
+    if (occurrenceID) {
+      const primaryEntity = this.config.primaryEntity.entity;
+      cohortFilter = {
+        filterType: tanagra.FilterFilterTypeEnum.Relationship,
+        filterUnion: {
+          relationshipFilter: {
+            entity: primaryEntity,
+            subfilter: cohortFilter,
+          },
+        },
+      };
+    }
+
+    let filter = cohortFilter;
+    const conceptSetFilter = generateFilter(this, conceptSet);
+    if (conceptSetFilter) {
+      const combined = makeBooleanLogicFilter(
+        tanagra.BooleanLogicFilterOperatorEnum.And,
+        [cohortFilter, conceptSetFilter]
+      );
+      if (combined) {
+        filter = combined;
+      }
+    }
+
+    return {
+      includeAttributes: requestedAttributes,
+      filter,
+      limit: limit ?? 50,
+    };
+  }
+}
+
+export class BackendStudySource implements StudySource {
+  constructor(
+    private studiesApi: tanagra.StudiesApi,
+    private cohortsApi: tanagra.CohortsApi,
+    private conceptSetsApi: tanagra.ConceptSetsApi,
+    private reviewsApi: tanagra.ReviewsApi,
+    private annotationsApi: tanagra.AnnotationsApi,
+    private usersApi: tanagra.UsersApi
+  ) {}
+
   public async listCohortReviews(
     studyId: string,
     cohortId: string
@@ -639,6 +750,7 @@ export class BackendSource implements Source {
 
   public createCohortReview(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohort: tanagraUI.UICohort,
     displayName: string,
     size: number
@@ -651,7 +763,9 @@ export class BackendSource implements Source {
           reviewCreateInfo: {
             displayName,
             size,
-            filter: generateFilter(this, generateCohortFilter(cohort)) ?? {},
+            filter:
+              generateFilter(underlaySource, generateCohortFilter(cohort)) ??
+              {},
           },
         })
         .then((r) => fromAPICohortReview(r))
@@ -702,6 +816,7 @@ export class BackendSource implements Source {
 
   public async listReviewInstances(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohortId: string,
     reviewId: string,
     includeAttributes: string[]
@@ -722,7 +837,7 @@ export class BackendSource implements Source {
             : res.instances.map((i) =>
                 fromAPIReviewInstance(
                   reviewId,
-                  this.config.primaryEntity.key,
+                  underlaySource.config.primaryEntity.key,
                   i
                 )
               );
@@ -769,11 +884,12 @@ export class BackendSource implements Source {
 
   public async getCohort(
     studyId: string,
-    cohortId: string
+    cohortId: string,
+    cohortRevisionId?: string
   ): Promise<tanagraUI.UICohort> {
     return parseAPIError(
       this.cohortsApi
-        .getCohort({ studyId, cohortId })
+        .getCohort({ studyId, cohortId, cohortRevisionId })
         .then((c) => fromAPICohort(c))
     );
   }
@@ -1004,110 +1120,12 @@ export class BackendSource implements Source {
     );
   }
 
-  public async listExportModels(underlayName: string): Promise<ExportModel[]> {
-    return await parseAPIError(
-      this.exportApi
-        .listExportModels({
-          underlayName,
-        })
-        .then((res) =>
-          res.map((model) => ({
-            id: model.name ?? "",
-            displayName: model.displayName ?? "",
-            description: model.description ?? "",
-            inputs: model.inputs ?? {},
-            outputs: model.outputs ?? {},
-          }))
-        )
-    );
-  }
-
-  public async export(
-    underlayName: string,
-    studyId: string,
-    modelId: string,
-    returnURL: string,
-    cohortIds: string[],
-    entities: ExportRequestEntity[]
-  ): Promise<ExportResult> {
-    return await parseAPIError(
-      this.exportApi
-        .exportInstancesAndAnnotations({
-          underlayName,
-          exportRequest: {
-            study: studyId,
-            exportModel: modelId,
-            redirectBackUrl: returnURL,
-            includeAnnotations: true,
-            cohorts: cohortIds,
-            instanceQuerys: entities.map((e) => ({
-              entity: findEntity(e.occurrenceID, this.config).entity,
-              query: this.makeQuery(
-                e.requestedAttributes,
-                e.occurrenceID,
-                e.cohort,
-                e.conceptSet
-              ),
-            })),
-          },
-        })
-        .then((res) => ({
-          redirectURL: res.redirectAwayUrl,
-          outputs: res.outputs ?? {},
-        }))
-    );
-  }
-
   public async getUser(): Promise<User> {
     return parseAPIError(
       this.usersApi.getMe({}).then((res) => ({
         email: res.email,
       }))
     );
-  }
-
-  private makeQuery(
-    requestedAttributes: string[],
-    occurrenceID: string,
-    cohort: Filter,
-    conceptSet: Filter | null,
-    limit?: number
-  ): tanagra.Query {
-    let cohortFilter = generateFilter(this, cohort);
-    if (!cohortFilter) {
-      throw new Error("Cohort filter is empty.");
-    }
-
-    if (occurrenceID) {
-      const primaryEntity = this.config.primaryEntity.entity;
-      cohortFilter = {
-        filterType: tanagra.FilterFilterTypeEnum.Relationship,
-        filterUnion: {
-          relationshipFilter: {
-            entity: primaryEntity,
-            subfilter: cohortFilter,
-          },
-        },
-      };
-    }
-
-    let filter = cohortFilter;
-    const conceptSetFilter = generateFilter(this, conceptSet);
-    if (conceptSetFilter) {
-      const combined = makeBooleanLogicFilter(
-        tanagra.BooleanLogicFilterOperatorEnum.And,
-        [cohortFilter, conceptSetFilter]
-      );
-      if (combined) {
-        filter = combined;
-      }
-    }
-
-    return {
-      includeAttributes: requestedAttributes,
-      filter,
-      limit: limit ?? 50,
-    };
   }
 }
 
@@ -1336,10 +1354,8 @@ function makeDataEntry(
   return data;
 }
 
-// TODO(tjennison): Move this to BackendSource and make it private once the
-// count API uses have been converted.
-export function generateFilter(
-  source: Source,
+function generateFilter(
+  underlaySource: UnderlaySource,
   filter: Filter | null
 ): tanagra.Filter | null {
   if (!filter) {
@@ -1348,7 +1364,7 @@ export function generateFilter(
 
   if (isArrayFilter(filter)) {
     const operands = filter.operands
-      .map((o) => generateFilter(source, o))
+      .map((o) => generateFilter(underlaySource, o))
       .filter(isValid);
     if (operands.length === 0) {
       return null;
@@ -1357,7 +1373,7 @@ export function generateFilter(
     return makeBooleanLogicFilter(arrayFilterOperator(filter), operands);
   }
   if (isUnaryFilter(filter)) {
-    const operand = generateFilter(source, filter.operand);
+    const operand = generateFilter(underlaySource, filter.operand);
     if (!operand) {
       return null;
     }
@@ -1374,8 +1390,8 @@ export function generateFilter(
   }
 
   if (isRelationshipFilter(filter)) {
-    const entity = findEntity(filter.entityId, source.config);
-    const subfilter = generateFilter(source, filter.subfilter);
+    const entity = findEntity(filter.entityId, underlaySource.config);
+    const subfilter = generateFilter(underlaySource, filter.subfilter);
 
     return {
       filterType: tanagra.FilterFilterTypeEnum.Relationship,
@@ -1394,7 +1410,7 @@ export function generateFilter(
   }
 
   if (isClassificationFilter(filter)) {
-    const entity = findEntity(filter.occurrenceId, source.config);
+    const entity = findEntity(filter.occurrenceId, underlaySource.config);
     const classification = findByID(
       filter.classificationId,
       entity.classifications

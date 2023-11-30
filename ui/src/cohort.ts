@@ -10,7 +10,7 @@ import {
   UnaryFilterOperator,
 } from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
-import { Source } from "data/source";
+import { UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
@@ -175,7 +175,7 @@ export function getCriteriaTitleFull<DataType>(
 }
 
 export function searchCriteria(
-  source: Source,
+  underlaySource: UnderlaySource,
   configs: CriteriaConfig[],
   query: string
 ): Promise<SearchResponse> {
@@ -189,7 +189,7 @@ export function searchCriteria(
       // The compiler can't seem to understand this expression if it's not
       // explicitly typed.
       const p: Promise<[string, DataEntry[]]> = entry
-        .search(source, config, query)
+        .search(underlaySource, config, query)
         .then((res) => [config.id, res]);
       return p;
     })
@@ -234,7 +234,7 @@ export type OccurrenceFilters = {
 };
 
 export function getOccurrenceList(
-  source: Source,
+  underlaySource: UnderlaySource,
   selectedCriteria: Set<string>,
   userCriteria?: tanagraUI.UICriteria[],
   predefinedCriteria?: PredefinedCriteria[]
@@ -275,8 +275,8 @@ export function getOccurrenceList(
     .map(([id, filters]) => {
       return {
         id,
-        name: findEntity(id, source.config).entity,
-        attributes: source.listAttributes(id),
+        name: findEntity(id, underlaySource.config).entity,
+        attributes: underlaySource.listAttributes(id),
         filters,
         sourceCriteria,
       };
@@ -300,13 +300,13 @@ export function registerCriteriaPlugin(
 }
 
 type InitializeDataFn = (
-  source: Source,
+  underlaySource: UnderlaySource,
   config: CriteriaConfig,
   dataEntry?: DataEntry
 ) => object;
 
 type SearchFn = (
-  source: Source,
+  underlaySource: UnderlaySource,
   config: CriteriaConfig,
   query: string
 ) => Promise<DataEntry[]>;
@@ -316,7 +316,7 @@ export type SearchResponse = {
 };
 
 export function createCriteria(
-  source: Source,
+  underlaySource: UnderlaySource,
   config: CriteriaConfig,
   dataEntry?: DataEntry
 ): tanagraUI.UICriteria {
@@ -324,7 +324,7 @@ export function createCriteria(
   return {
     id: generateId(),
     type: config.type,
-    data: entry.initializeData(source, config, dataEntry),
+    data: entry.initializeData(underlaySource, config, dataEntry),
     config: config,
   };
 }

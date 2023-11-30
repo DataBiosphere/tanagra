@@ -7,7 +7,7 @@ import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
 import { DataKey } from "data/types";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
@@ -35,18 +35,18 @@ const columns = [
 ];
 
 export function StudiesList() {
-  const source = useSource();
+  const studySource = useStudySource();
 
   const userState = useSWRImmutable({ type: "user" }, async () => {
-    return await source.getUser();
+    return await studySource.getUser();
   });
 
   const listStudies = useCallback(async () => {
     const domain = userState.data?.email?.split("@")[1];
-    return await source.listStudies({
+    return await studySource.listStudies({
       createdBy: domain ? "@" + domain : undefined,
     });
-  }, [source, userState.data?.email]);
+  }, [studySource, userState.data?.email]);
 
   const studiesState = useSWR(
     () =>
@@ -60,14 +60,14 @@ export function StudiesList() {
 
   const onCreateNewStudy = (name: string) => {
     studiesState.mutate(async () => {
-      await source.createStudy(name);
+      await studySource.createStudy(name);
       return listStudies();
     });
   };
 
   const onDeleteStudy = (studyId: string) => {
     studiesState.mutate(async () => {
-      await source.deleteStudy(studyId);
+      await studySource.deleteStudy(studyId);
       return listStudies();
     });
   };
@@ -126,7 +126,7 @@ export function StudiesList() {
     });
 
     return data;
-  }, [source, studiesState.data]);
+  }, [studySource, studiesState.data]);
 
   return (
     <GridLayout

@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { FilterCountValue } from "data/source";
-import { useSource } from "data/sourceContext";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
@@ -144,7 +144,7 @@ export function DemographicCharts({
   extraControls,
 }: DemographicChartsProps) {
   const underlay = useUnderlay();
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
 
   const generatePropertyString = (
     property: ChartConfigProperty,
@@ -177,7 +177,7 @@ export function DemographicCharts({
     const groupByAttributes =
       underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
 
-    const demographicData = await source.filterCount(
+    const demographicData = await underlaySource.filterCount(
       generateCohortFilter(cohort),
       groupByAttributes
     );

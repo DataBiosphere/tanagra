@@ -6,7 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { generateCohortFilter } from "cohort";
 import Loading from "components/loading";
-import { useSource } from "data/sourceContext";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { TextField } from "mui-rff";
@@ -47,7 +47,7 @@ export type NewReviewDialogProps = {
 } & UseNewReviewDialogProps;
 
 export function NewReviewDialog(props: NewReviewDialogProps) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
 
   const countState = useSWRImmutable(
     {
@@ -55,7 +55,9 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
       cohort: props.cohort,
     },
     async () => {
-      return await source.filterCount(generateCohortFilter(props.cohort));
+      return await underlaySource.filterCount(
+        generateCohortFilter(props.cohort)
+      );
     }
   );
 

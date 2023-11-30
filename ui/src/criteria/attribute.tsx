@@ -8,9 +8,9 @@ import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
 import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
 import { FilterType } from "data/filter";
-import { IntegerHint, Source } from "data/source";
-import { useSource } from "data/sourceContext";
+import { IntegerHint, UnderlaySource } from "data/source";
 import { DataEntry, DataValue } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import React, { useCallback, useMemo } from "react";
@@ -39,7 +39,11 @@ interface Data {
 
 @registerCriteriaPlugin(
   "attribute",
-  (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
+  (
+    underlaySource: UnderlaySource,
+    c: CriteriaConfig,
+    dataEntry?: DataEntry
+  ) => {
     return {
       selected: dataEntry
         ? [{ value: dataEntry.key, name: dataEntry.name }]
@@ -189,11 +193,14 @@ type AttributeInlineProps = {
 };
 
 function AttributeInline(props: AttributeInlineProps) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
 
   const fetchHintData = useCallback(() => {
-    return source.getHintData(props.entity ?? "", props.config.attribute);
+    return underlaySource.getHintData(
+      props.entity ?? "",
+      props.config.attribute
+    );
   }, [props.config.attribute]);
   const hintDataState = useSWRImmutable(
     { component: "Attribute", attribute: props.config.attribute },
@@ -309,13 +316,13 @@ function AttributeInline(props: AttributeInlineProps) {
 }
 
 async function search(
-  source: Source,
+  underlaySource: UnderlaySource,
   c: CriteriaConfig,
   query: string
 ): Promise<DataEntry[]> {
   const config = c as Config;
 
-  const hintData = await source.getHintData("", config.attribute);
+  const hintData = await underlaySource.getHintData("", config.attribute);
   if (!hintData?.enumHintOptions) {
     return [];
   }
