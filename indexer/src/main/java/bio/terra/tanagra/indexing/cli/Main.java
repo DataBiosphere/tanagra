@@ -10,7 +10,7 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "tanagra",
     header = "Tanagra command-line interface.",
-    subcommands = Index.class)
+    subcommands = {Index.class, Clean.class})
 public class Main extends BaseMain {
 
   /**

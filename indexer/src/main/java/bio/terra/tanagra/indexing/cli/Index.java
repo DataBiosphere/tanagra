@@ -1,6 +1,8 @@
 package bio.terra.tanagra.indexing.cli;
 
 import bio.terra.tanagra.indexing.cli.index.Entity;
+import bio.terra.tanagra.indexing.cli.index.EntityGroup;
+import bio.terra.tanagra.indexing.cli.index.Underlay;
 import picocli.CommandLine;
 
 /**
@@ -10,5 +12,5 @@ import picocli.CommandLine;
 @CommandLine.Command(
     name = "index",
     header = "Commands to run indexing.",
-    subcommands = Entity.class)
+    subcommands = {Entity.class, EntityGroup.class, Underlay.class})
 public class Index {}
