@@ -44,6 +44,7 @@ export function CohortReview() {
 
   const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
+  const participantIdAttribute = uiConfig.participantIdAttribute ?? primaryKey;
 
   const pagePlugins = useMemo(
     () => uiConfig.pages.map((p) => getCohortReviewPlugin(p)),
@@ -191,7 +192,8 @@ export function CohortReview() {
               <GridLayout rows colAlign="center">
                 <Typography variant="body1em">Participant</Typography>
                 <Typography variant="body1em">
-                  {instance?.data?.[primaryKey]}
+                  {instance?.data?.[participantIdAttribute] ??
+                    instance?.data?.[primaryKey]}
                 </Typography>
                 <Typography variant="body1">
                   {instanceIndex + 1}/{count}

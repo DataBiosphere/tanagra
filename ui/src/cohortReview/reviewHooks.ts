@@ -26,9 +26,14 @@ export function useReviewParams(): ReviewParams {
 
   const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
+  const participantIdAttribute = uiConfig.participantIdAttribute ?? primaryKey;
 
   const primaryAttributes = useMemo(
-    () => [primaryKey, ...uiConfig.attributes.map((a) => a.key)],
+    () => [
+      primaryKey,
+      participantIdAttribute,
+      ...uiConfig.attributes.map((a) => a.key),
+    ],
     [uiConfig]
   );
 
