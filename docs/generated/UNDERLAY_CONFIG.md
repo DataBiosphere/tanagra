@@ -40,6 +40,24 @@ Field or column name in the [all instances SQL file](#szentityallinstancessqlfil
 
 A separate display field is useful for enum-type attributes, which often use a foreign-key to another table to get a readable string from a code (e.g. in OMOP, `person.gender_concept_id` and `concept.concept_name`).
 
+### SZAttribute.displayHintRangeMax
+**optional** double
+
+The maximum value to display when filtering on this attribute. This is useful when the underlying data has outliers that we want to exclude from the display, but not from the available data.
+
+e.g. A person has an invalid date of birth that produces an age range that spans very large numbers. This causes the slider when filtering by age to span very large numbers also. Setting this property sets the right end of the slider. It does not remove the person with the invalid date of birth from the table. So if they have asthma, they would still show up in a cohort filtering on this condition.
+
+The #szattributedisplayhintrangemin may be set as well, but they are not required to be set together. The #szattributeiscomputedisplayhint is also independent of this property. You can still calculate the actual maximum in the data, if you set this property.
+
+### SZAttribute.displayHintRangeMin
+**optional** double
+
+The minimum value to display when filtering on this attribute. This is useful when the underlying data has outliers that we want to exclude from the display, but not from the available data.
+
+e.g. A person has an invalid date of birth that produces an age range that spans negative numbers. This causes the slider when filtering by age to span negative numbers also. Setting this property sets the left end of the slider. It does not remove the person with the invalid date of birth from the table. So if they have asthma, they would still show up in a cohort filtering on this condition.
+
+The #szattributedisplayhintrangemax may be set as well, but they are not required to be set together. The #szattributeiscomputedisplayhint is also independent of this property. You can still calculate the actual minimum in the data, if you set this property.
+
 ### SZAttribute.isComputeDisplayHint
 **optional** boolean
 
