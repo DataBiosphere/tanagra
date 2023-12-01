@@ -1,15 +1,8 @@
-//buildscript {
-//    dependencies {
-//        classpath "org.asciidoctor:asciidoctor-gradle-jvm:3.3.2"
-//    }
-//}
-
 plugins {
     id "application"
     id "java"
     id "java-test-fixtures"
     id "tanagra.java-conventions"
-    id "org.asciidoctor.jvm.convert" version "4.0.0-alpha.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -107,23 +100,9 @@ application {
 
 task generateManpageAsciiDoc(type: JavaExec) {
     dependsOn(classes)
-    group = "Documentation"
+    group = "documentation"
     description = "Generate AsciiDoc manpage"
     classpath(configurations.compileClasspath, configurations.annotationProcessor, sourceSets.main.runtimeClasspath)
-    main 'picocli.codegen.docgen.manpage.ManPageGenerator'
-    args "bio.terra.tanagra.indexing.cli.Main", "--outdir=$projectDir/../docs/generated/indexer-cli", "-v", "-f"
-//    args "bio.terra.tanagra.indexing.cli.Main", "--outdir=${project.buildDir}/generated-picocli-docs", "-v", "--template-dir=src/docs/mantemplates", "-f"
+    main "picocli.codegen.docgen.manpage.ManPageGenerator"
+    args "bio.terra.tanagra.indexing.cli.Main", "--outdir=$projectDir/../docs/generated/indexer-cli", "--verbose", "--force"
 }
-
-//apply plugin: 'org.asciidoctor.jvm.convert'
-//asciidoctor {
-//    dependsOn(generateManpageAsciiDoc)
-//    sourceDir = file("${project.buildDir}/generated-picocli-docs")
-//    outputDir = file("$projectDir/../docs/generated/indexer-cli/")
-//    logDocuments = true
-//    outputOptions {
-//        backends = ['markdown_strict']
-//    }
-//}
-//assemble.dependsOn(asciidoctor)
-
