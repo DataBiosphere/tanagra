@@ -55,8 +55,8 @@ paths:
 
   "/v2/underlays":
     get:
-      summary: List the underlays
-      operationId: listUnderlays
+      summary: List the underlay summaries
+      operationId: listUnderlaySummaries
       tags: [Underlays]
       responses:
         200:
@@ -64,7 +64,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UnderlayList"
+                $ref: "#/components/schemas/UnderlaySummaryList"
         500:
           $ref: "#/components/responses/ServerError"
 
@@ -1117,9 +1117,9 @@ components:
         - email
         - subjectId
 
-    Underlay:
+    UnderlaySummary:
       type: object
-      description: Underlay
+      description: Underlay summary
       properties:
         name:
           description: Name
@@ -1127,24 +1127,72 @@ components:
         displayName:
           description: Display name
           type: string
+        description:
+          description: Description
+          type: string
         primaryEntity:
           description: Primary entity name
           type: string
-        uiConfiguration:
-          description: UI configuration
-          type: string
       required:
         - name
+        - displayName
         - primaryEntity
 
-    UnderlayList:
+    UnderlaySummaryList:
       type: object
-      description: List of underlays
+      description: List of underlay summaries
       properties:
         underlays:
           type: array
           items:
-            $ref: "#/components/schemas/Underlay"
+            $ref: "#/components/schemas/UnderlaySummary"
+
+    UnderlaySerializedConfiguration:
+      type: object
+      description: Contents of the underlay config files
+      properties:
+        underlay:
+          description: Contents of the underlay.json file
+          type: string
+        entities:
+          description: Contents of the entity.json files
+          type: array
+          items:
+            type: string
+        groupItemsEntityGroups:
+          description: Contents of the group-items type entityGroup.json files
+          type: array
+          items:
+            type: string
+        criteriaOccurrenceEntityGroups:
+          description: Contents of the criteria-occurrence type entityGroup.json files
+          type: array
+          items:
+            type: string
+      required:
+        - underlay
+        - entities
+        - groupItemsEntityGroups
+        - criteriaOccurrenceEntityGroups
+
+    Underlay:
+      type: object
+      description: Underlay
+      properties:
+        summary:
+          description: Summary information
+          $ref: "#/components/schemas/UnderlaySummary"
+        serializedConfiguration:
+          description: Contents of the underlay configuration files
+          $ref: "#/components/schemas/UnderlaySerializedConfiguration"
+        # TODO: Remove this uiConfiguration property from the service API once the UI config overhaul is done.
+        uiConfiguration:
+          description: UI configuration
+          type: string
+      required:
+        - summary
+        - serializedConfiguration
+        - uiConfiguration
 
     Entity:
       type: object
