@@ -29,7 +29,8 @@ import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import {
   deleteFeatureSetCriteria,
   deletePredefinedFeatureSetCriteria,
@@ -62,7 +63,7 @@ export function FeatureSet() {
   const featureSet = useFeatureSet();
   const exit = useExitAction();
   const underlay = useUnderlay();
-  const source = useSource();
+  const studySource = useStudySource();
   const navigate = useNavigate();
   const params = useBaseParams();
   const studyId = useStudyId();
@@ -70,7 +71,7 @@ export function FeatureSet() {
   const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
 
   const newCohort = async () => {
-    const cohort = await source.createCohort(underlay.name, studyId);
+    const cohort = await studySource.createCohort(underlay.name, studyId);
     navigate(absoluteCohortURL(params, cohort.id));
   };
 
@@ -270,7 +271,7 @@ type PreviewTabData = {
 function Preview() {
   const featureSet = useFeatureSet();
   const underlay = useUnderlay();
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const navigate = useNavigate();
 
   const occurrenceList = useMemo(() => {
@@ -282,7 +283,7 @@ function Preview() {
     );
 
     return getOccurrenceList(
-      source,
+      underlaySource,
       selectedCriteria,
       featureSet.criteria,
       underlay.uiConfiguration.prepackagedConceptSets
@@ -292,7 +293,7 @@ function Preview() {
   // TODO(tjennison): Look at supporting a "true" filter instead.
   const cohortFilter: Filter = {
     type: FilterType.Attribute,
-    attribute: source.lookupOccurrence("").key,
+    attribute: underlaySource.lookupOccurrence("").key,
     ranges: [{ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }],
   };
 
@@ -305,7 +306,7 @@ function Preview() {
     async () => {
       return Promise.all(
         occurrenceList.map(async (params) => {
-          const res = await source.listData(
+          const res = await underlaySource.listData(
             params.attributes,
             params.id,
             cohortFilter,

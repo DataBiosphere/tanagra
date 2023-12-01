@@ -1,308 +1,317 @@
 package bio.terra.tanagra.underlay.serialization;
 
+import bio.terra.tanagra.annotation.AnnotatedClass;
+import bio.terra.tanagra.annotation.AnnotatedField;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Entity configuration.
- *
- * <p>Define a version of this file for each entity.
- */
+@AnnotatedClass(
+    name = "SZEntity",
+    markdown = "Entity configuration.\n\n" + "Define a version of this file for each entity.")
 public class SZEntity {
-  /**
-   * Name of the entity.
-   *
-   * <p>This is the unique identifier for the entity. In a single underlay, the entity names cannot
-   * overlap.
-   *
-   * <p>Name may not include spaces or special characters, only letters and numbers. The first
-   * character must be a letter.
-   */
+  @AnnotatedField(
+      name = "SZEntity.name",
+      markdown =
+          "Name of the entity.\n\n"
+              + "This is the unique identifier for the entity. In a single underlay, the entity names cannot overlap.\n\n"
+              + "Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.")
   public String name;
 
-  /**
-   * Display name for the entity.
-   *
-   * <p>Unlike the entity {@link bio.terra.tanagra.underlay.serialization.SZEntity#name}, it may
-   * include spaces and special characters.
-   */
+  @AnnotatedField(
+      name = "SZEntity.displayName",
+      markdown =
+          "Display name for the entity.\n\n"
+              + "Unlike the entity [name](${SZEntity.name}), it may include spaces and special characters.",
+      optional = true)
   public String displayName;
 
-  /** <strong>(optional)</strong> Description of the entity. */
+  @AnnotatedField(
+      name = "SZEntity.description",
+      markdown = "Description of the entity.",
+      optional = true)
   public String description;
 
-  /**
-   * Name of the all instances SQL file.
-   *
-   * <p>File must be in the same directory as the entity file. Name includes file extension (e.g.
-   * all.sql).
-   */
+  @AnnotatedField(
+      name = "SZEntity.allInstancesSqlFile",
+      markdown =
+          "Name of the all instances SQL file.\n\n"
+              + "File must be in the same directory as the entity file. Name includes file extension.",
+      exampleValue = "all.sql")
   public String allInstancesSqlFile;
 
-  /**
-   * List of all the entity attributes.
-   *
-   * <p>The generated index table will preserve the order of the attributes as defined here.
-   *
-   * <p>The list must include the id attribute.
-   */
+  @AnnotatedField(
+      name = "SZEntity.attributes",
+      markdown =
+          "List of all the entity attributes.\n\n"
+              + "The generated index table will preserve the order of the attributes as defined here. "
+              + "The list must include the id attribute.")
   public List<Attribute> attributes;
 
-  /**
-   * Name of the id attribute.
-   *
-   * <p>This must be a unique identifier for each entity instance. It must also have the <code>INT64
-   * </code> ${@link bio.terra.tanagra.underlay.serialization.SZEntity.DataType}.
-   */
+  @AnnotatedField(
+      name = "SZEntity.idAttribute",
+      markdown =
+          "Name of the id attribute.\n\n"
+              + "This must be a unique identifier for each entity instance. It must also have the `INT64` "
+              + "[data type](${SZDataType}).")
   public String idAttribute;
 
-  /**
-   * List of attributes to optimize for group by queries.
-   *
-   * <p>The typical use case for this is to optimize cohort breakdown queries on the primary entity.
-   * For example, to optimize breakdowns by age, race, gender, specify those attributes here. Order
-   * matters.
-   *
-   * <p>You can currently specify a maximum of four attributes, because we implement this using
-   * BigQuery clustering which has this <a
-   * href="https://cloud.google.com/bigquery/docs/clustered-tables#limitations">limitation</a>.
-   */
+  @AnnotatedField(
+      name = "SZEntity.optimizeGroupByAttributes",
+      markdown =
+          "List of attributes to optimize for group by queries.\n\n"
+              + "The typical use case for this is to optimize cohort breakdown queries on the primary entity. "
+              + "For example, to optimize breakdowns by age, race, gender, specify those attributes here. Order matters.\n\n"
+              + "You can currently specify a maximum of four attributes, because we implement this using "
+              + "BigQuery clustering which has this [limitation](https://cloud.google.com/bigquery/docs/clustered-tables#limitations).",
+      optional = true)
   public List<String> optimizeGroupByAttributes;
 
-  /**
-   * <strong>(optional)</strong> List of hierarchies.
-   *
-   * <p>While the code supports multiple hierarchies, we currently only have examples with zero or
-   * one hierarchy.
-   */
+  @AnnotatedField(
+      name = "SZEntity.hierarchies",
+      markdown =
+          "List of hierarchies.\n\n"
+              + "While the code supports multiple hierarchies, we currently only have examples with zero or one hierarchy.",
+      optional = true)
   public Set<Hierarchy> hierarchies;
 
-  /**
-   * <strong>(optional)</strong> Text search configuration.
-   *
-   * <p>This is used when filtering a list of instances of this entity (e.g. list of conditions) by
-   * text. If unset, filtering by text is unsupported.
-   */
+  @AnnotatedField(
+      name = "SZEntity.textSearch",
+      markdown =
+          "Text search configuration.\n\n"
+              + "This is used when filtering a list of instances of this entity (e.g. list of conditions) by "
+              + "text. If unset, filtering by text is unsupported.",
+      optional = true)
   public TextSearch textSearch;
 
-  /**
-   * Attribute or property of an entity.
-   *
-   * <p>Define an attribute for each column you want to display (e.g. <code>condition.vocabulary_id
-   * </code>) or filter on (e.g. <code>conditionOccurrence.person_id</code>).
-   */
+  @AnnotatedClass(
+      name = "SZAttribute",
+      markdown =
+          "Attribute or property of an entity.\n\n"
+              + "Define an attribute for each column you want to display (e.g. `condition.vocabulary_id`) "
+              + "or filter on (e.g. `conditionOccurrence.person_id`).")
   public static class Attribute {
-    /**
-     * Name of the attribute.
-     *
-     * <p>This is the unique identifier for the attribute. In a single entity, the attribute names
-     * cannot overlap.
-     *
-     * <p>Name may not include spaces or special characters, only letters and numbers. The first
-     * character must be a letter.
-     */
+    @AnnotatedField(
+        name = "SZAttribute.name",
+        markdown =
+            "Name of the attribute.\n\n"
+                + "This is the unique identifier for the attribute. In a single entity, the attribute names "
+                + "cannot overlap.\n\n"
+                + "Name may not include spaces or special characters, only letters and numbers. The first "
+                + "character must be a letter.")
     public String name;
 
-    /** Data type. */
+    @AnnotatedField(name = "SZAttribute.dataType", markdown = "Data type of the attribute.")
     public DataType dataType;
 
-    /**
-     * <strong>(optional)</strong> Field or column name in the {@link
-     * bio.terra.tanagra.underlay.serialization.SZEntity#allInstancesSqlFile} that maps to the value
-     * of this attribute.
-     *
-     * <p>If unset, we assume the field name is the same as the attribute name.
-     */
+    @AnnotatedField(
+        name = "SZAttribute.valueFieldName",
+        markdown =
+            "Field or column name in the [all instances SQL file](${SZEntity.allInstancesSqlFile}) that "
+                + "maps to the value of this attribute. If unset, we assume the field name is the same "
+                + "as the attribute name.",
+        optional = true)
     public String valueFieldName;
 
-    /**
-     * <strong>(optional)</strong> Field or column name in the {@link
-     * bio.terra.tanagra.underlay.serialization.SZEntity#allInstancesSqlFile} that maps to the
-     * display string of this attribute.
-     *
-     * <p>A separate display field is useful for enum-type attributes, which often use a foreign-key
-     * to another table to get a readable string from a code (e.g. in OMOP, <code>
-     * person.gender_concept_id</code> and <code>concept.concept_name</code>).
-     *
-     * <p>If unset, we assume the attribute has only a value, no separate display.
-     */
+    @AnnotatedField(
+        name = "SZAttribute.displayFieldName",
+        markdown =
+            "Field or column name in the [all instances SQL file](${SZEntity.allInstancesSqlFile}) that "
+                + "maps to the display string of this attribute. If unset, we assume the attribute has only "
+                + "a value, no separate display.\n\n"
+                + "A separate display field is useful for enum-type attributes, which often use a foreign-key "
+                + "to another table to get a readable string from a code (e.g. in OMOP, `person.gender_concept_id` "
+                + "and `concept.concept_name`).",
+        optional = true)
     public String displayFieldName;
 
-    /**
-     * <strong>(optional)</strong> SQL function to apply at runtime (i.e. when running the query),
-     * instead of at indexing time.
-     *
-     * <p>Useful for attributes we expect to be updated dynamically (e.g. a person's age).
-     *
-     * <p>For a simple function call that just wraps the column (e.g. <code>UPPER(column)</code>),
-     * you can specify just the function name (e.g. <code>UPPER</code>). For a more complicated
-     * function call, put <code>${fieldSql}</code> where the column name should be substituted (e.g.
-     * <code>CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)
-     * </code>).
-     */
+    @AnnotatedField(
+        name = "SZAttribute.runtimeSqlFunctionWrapper",
+        markdown =
+            "SQL function to apply at runtime (i.e. when running the query), instead of at indexing time. "
+                + "Useful for attributes we expect to be updated dynamically (e.g. a person's age).\n\n"
+                + "For a simple function call that just wraps the column (e.g. `UPPER(column)`), "
+                + "you can specify just the function name (e.g. `UPPER`). For a more complicated "
+                + "function call, put `${fieldSql}` where the column name should be substituted "
+                + "(e.g. `CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)`).",
+        optional = true)
     public String runtimeSqlFunctionWrapper;
 
-    /**
-     * <strong>(optional)</strong> Data type of the attribute at runtime.
-     *
-     * <p>If {@link #runtimeSqlFunctionWrapper} is set, this field must also be set.
-     *
-     * <p>The data type at runtime may be different from the data type at rest when the column is
-     * passed to a function at runtime. Otherwise, the data type at runtime will always match the
-     * {@link #dataType}, so no need to specify it again here.
-     */
+    @AnnotatedField(
+        name = "SZAttribute.runtimeDataType",
+        markdown =
+            "Data type of the attribute at runtime.\n\n"
+                + "If the [runtime SQL wrapper](${SZAttribute.runtimeSqlFunctionWrapper}) is set, this field must also be set. "
+                + "The data type at runtime may be different from the data type at rest when the column is "
+                + "passed to a function at runtime. Otherwise, the data type at runtime will always match the "
+                + "attribute [data type](${SZDataType}), so no need to specify it again here.",
+        optional = true)
     public DataType runtimeDataType;
 
-    /**
-     * <strong>(optional)</strong> Whether to compute a display hint for the attribute.
-     *
-     * <p>If set to true, an indexing job will try to create a display hint for this attribute (e.g.
-     * set of enum values and counts, range of numeric values). Not all data types are supported by
-     * the indexing job, yet. Default is false, no hint.
-     */
+    @AnnotatedField(
+        name = "SZAttribute.isComputeDisplayHint",
+        markdown =
+            "When set to true, an indexing job will try to compute a display hint for this attribute "
+                + "(e.g. set of enum values and counts, range of numeric values). Not all data types are supported by "
+                + "the indexing job, yet.",
+        optional = true,
+        defaultValue = "false")
     public boolean isComputeDisplayHint;
   }
 
-  /** Hierarchy for an entity.> */
+  @AnnotatedClass(name = "SZHierarchy", markdown = "Hierarchy for an entity.")
   public static class Hierarchy {
-    /**
-     * <strong>(optional)</strong> Name of the hierarchy.
-     *
-     * <p>This is the unique identifier for the hierarchy. In a single entity, the hierarchy names
-     * cannot overlap.
-     *
-     * <p>Name may not include spaces or special characters, only letters and numbers. The first
-     * character must be a letter.
-     *
-     * <p>If there is only one hierarchy, the name is optional and, if unspecified, will be set to
-     * "default".
-     */
+    @AnnotatedField(
+        name = "SZHierarchy.name",
+        markdown =
+            "Name of the hierarchy.\n\n"
+                + "This is the unique identifier for the hierarchy. In a single entity, the hierarchy names cannot overlap. "
+                + "Name may not include spaces or special characters, only letters and numbers. "
+                + "The first character must be a letter.\n\n"
+                + "If there is only one hierarchy, the name is optional and, if unspecified, will be set to `default`. "
+                + "If there are multiple hierarchies, the name is required for each one.",
+        optional = true,
+        defaultValue = "default")
     public String name;
 
-    /**
-     * Name of the child parent id pairs SQL file.
-     *
-     * <p>File must be in the same directory as the entity file. Name includes file extension (e.g.
-     * childParent.sql).
-     *
-     * <p>There can be other columns selected in the SQL file (e.g. <code>
-     * SELECT * FROM relationships</code>), but the child and parent ids are required.
-     */
+    @AnnotatedField(
+        name = "SZHierarchy.childParentIdPairsSqlFile",
+        markdown =
+            "Name of the child parent id pairs SQL file.\n\n"
+                + "File must be in the same directory as the entity file. Name includes file extension.\n\n"
+                + "There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), "
+                + "but the child and parent ids are required.",
+        exampleValue = "childParent.sql")
     public String childParentIdPairsSqlFile;
 
-    /** Name of the field or column name that maps to the child id. */
+    @AnnotatedField(
+        name = "SZHierarchy.childIdFieldName",
+        markdown =
+            "Name of the field or column name in the [child parent id pairs SQL](${SZHierarchy.childParentIdPairsSqlFile}) "
+                + "that maps to the child id.",
+        exampleValue = "child")
     public String childIdFieldName;
 
-    /** Name of the field or column name that maps to the parent id. */
+    @AnnotatedField(
+        name = "SZHierarchy.parentIdFieldName",
+        markdown =
+            "Name of the field or column name in the [child parent id pairs SQL](${SZHierarchy.childParentIdPairsSqlFile}) "
+                + "that maps to the parent id.",
+        exampleValue = "parent")
     public String parentIdFieldName;
 
-    /**
-     * <strong>(optional)</strong> Set of root ids.
-     *
-     * <p>Indexing jobs will filter out any hierarchy root nodes that are not in this set.
-     *
-     * <p>If the {@link #rootNodeIdsSqlFile} property is defined, then this property must be unset.
-     */
+    @AnnotatedField(
+        name = "SZHierarchy.rootNodeIds",
+        markdown =
+            "Set of root ids. Indexing jobs will filter out any hierarchy root nodes that are not in this set. "
+                + "If the [root node ids SQL](${SZHierarchy.rootNodeIdsSqlFile}) is defined, then this property "
+                + "must be unset.",
+        optional = true)
     public Set<Long> rootNodeIds;
 
-    /**
-     * <strong>(optional)</strong> Name of the root id SQL file.
-     *
-     * <p>File must be in the same directory as the entity file. Name includes file extension (e.g.
-     * rootNode.sql). There can be other columns selected in the SQL file (e.g. <code>
-     * SELECT * FROM roots</code>), but the root id is required.
-     *
-     * <p>Indexing jobs will filter out any hierarchy root nodes that are not returned by this
-     * query.
-     *
-     * <p>If the {@link #rootNodeIds} property is defined, then this property must be unset.
-     */
+    @AnnotatedField(
+        name = "SZHierarchy.rootNodeIdsSqlFile",
+        markdown =
+            "Name of the root id SQL file. File must be in the same directory as the entity file. Name includes file extension.\n\n"
+                + "There can be other columns selected in the SQL file (e.g. `SELECT * FROM roots`), but the root id is required. "
+                + "Indexing jobs will filter out any hierarchy root nodes that are not returned by this query. "
+                + "If the [root node ids set](${SZHierarchy.rootNodeIds}) is defined, then this property must be unset.",
+        optional = true,
+        exampleValue = "rootNode.sql")
     public String rootNodeIdsSqlFile;
 
-    /**
-     * <strong>(optional)</strong> Name of the field or column name that maps to the root id.
-     *
-     * <p>If the {@link #rootNodeIdsSqlFile} property is defined, then this property is required.
-     *
-     * <p>If the {@link #rootNodeIds} property is defined, then this property must be unset.
-     */
+    @AnnotatedField(
+        name = "SZHierarchy.rootIdFieldName",
+        markdown =
+            "Name of the field or column name that maps to the root id.\n\n"
+                + "If the [root node ids SQL](${SZHierarchy.rootNodeIdsSqlFile}) is defined, then this property is required. "
+                + "If the [root node ids set](${SZHierarchy.rootNodeIds}) is defined, then this property must be unset.",
+        optional = true,
+        exampleValue = "root_id")
     public String rootIdFieldName;
 
-    /**
-     * Maximum depth of the hierarchy.
-     *
-     * <p>If there are branches of the hierarchy that are deeper than the number specified here,
-     * they will be truncated.
-     */
+    @AnnotatedField(
+        name = "SZHierarchy.maxDepth",
+        markdown =
+            "Maximum depth of the hierarchy. If there are branches of the hierarchy that are deeper "
+                + "than the number specified here, they will be truncated.")
     public int maxDepth;
 
-    /**
-     * <strong>(optional)</strong> Whether to keep orphan nodes in the hierarchy.
-     *
-     * <p>An orphan node has no parents or children. Default is false, indexing jobs will filter out
-     * orphan nodes. If set to true, we will skip this filtering step.
-     */
+    @AnnotatedField(
+        name = "SZHierarchy.keepOrphanNodes",
+        markdown =
+            "An orphan node has no parents or children. "
+                + "When false, indexing jobs will filter out orphan nodes. "
+                + "When true, indexing jobs skip this filtering step and we keep the orphan nodes in the hierarchy.",
+        optional = true,
+        defaultValue = "false")
     public boolean keepOrphanNodes;
   }
 
-  /** Text search instructions for an entity. */
+  @AnnotatedClass(name = "SZTextSearch", markdown = "Text search configuration for an entity.")
   public static class TextSearch {
 
-    /**
-     * <strong>(optional)</strong> Set of attributes to allow text search on.
-     *
-     * <p>Text search on attributes not included here is unsupported.
-     */
+    @AnnotatedField(
+        name = "SZTextSearch.attributes",
+        markdown =
+            "Set of attributes to allow text search on. Text search on attributes not included here is unsupported.",
+        optional = true)
     public Set<String> attributes;
 
-    /**
-     * <strong>(optional)</strong> Name of the id text pairs SQL file.
-     *
-     * <p>File must be in the same directory as the entity file. Name includes file extension (e.g.
-     * textSearch.sql). There can be other columns selected in the SQL file (e.g. <code>
-     * SELECT * FROM synonyms</code>), but the entity id and text string is required. The SQL query
-     * may return multiple rows per entity id.
-     */
+    @AnnotatedField(
+        name = "SZTextSearch.idTextPairsSqlFile",
+        markdown =
+            "Name of the id text pairs SQL file. "
+                + "File must be in the same directory as the entity file. Name includes file extension.\n\n"
+                + "There can be other columns selected in the SQL file (e.g. `SELECT * FROM synonyms`), "
+                + "but the entity id and text string is required. The SQL query may return multiple rows per entity id.",
+        optional = true,
+        exampleValue = "textSearch.sql")
     public String idTextPairsSqlFile;
 
-    /**
-     * <strong>(optional)</strong> Name of the field or column name that maps to the entity id.
-     *
-     * <p>If the {@link #idTextPairsSqlFile} property is defined, then this property is required.
-     */
+    @AnnotatedField(
+        name = "SZTextSearch.idFieldName",
+        markdown =
+            "Name of the field or column name that maps to the entity id. "
+                + "If the [id text pairs SQL](${SZTextSearch.idTextPairsSqlFile}) is defined, then this property is required.",
+        optional = true,
+        exampleValue = "id")
     public String idFieldName;
 
-    /**
-     * <strong>(optional)</strong> Name of the field or column name that maps to the text search
-     * string.
-     *
-     * <p>If the {@link #idTextPairsSqlFile} property is defined, then this property is required.
-     */
+    @AnnotatedField(
+        name = "SZTextSearch.textFieldName",
+        markdown =
+            "Name of the field or column name that maps to the text search string. "
+                + "If the [id text pairs SQL](${SZTextSearch.idTextPairsSqlFile}) is defined, then this property is required.",
+        optional = true,
+        exampleValue = "text")
     public String textFieldName;
   }
 
-  /**
-   * Set of supported data types.
-   *
-   * <p>Each type corresponds to one or more data types in the underlying database.
-   */
+  @AnnotatedClass(
+      name = "SZDataType",
+      markdown =
+          "Supported data types. Each type corresponds to one or more data types in the underlying database.")
   public enum DataType {
-    /** Maps to BigQuery <code>INTEGER</code> data type. */
+    @AnnotatedField(name = "SZDataType.INT64", markdown = "Maps to BigQuery `INTEGER` data type.")
     INT64,
 
-    /** Maps to BigQuery <code>STRING</code> data type. */
+    @AnnotatedField(name = "SZDataType.STRING", markdown = "Maps to BigQuery `STRING` data type.")
     STRING,
 
-    /** Maps to BigQuery <code>BOOLEAN</code> data type. */
+    @AnnotatedField(name = "SZDataType.BOOLEAN", markdown = "Maps to BigQuery `BOOLEAN` data type.")
     BOOLEAN,
 
-    /** Maps to BigQuery <code>DATE</code> data type. */
+    @AnnotatedField(name = "SZDataType.DATE", markdown = "Maps to BigQuery `DATE` data type.")
     DATE,
 
-    /** Maps to BigQuery <code>NUMERIC</code> and <code>FLOAT</code> data types. */
+    @AnnotatedField(
+        name = "SZDataType.DOUBLE",
+        markdown = "Maps to BigQuery `NUMERIC` and `FLOAT` data types.")
     DOUBLE,
 
-    /** Maps to BigQuery <code>TIMESTAMP</code> data type. */
+    @AnnotatedField(
+        name = "SZDataType.TIMESTAMP",
+        markdown = "Maps to BigQuery `TIMESTAMP` data type.")
     TIMESTAMP
   }
 }

@@ -1,8 +1,8 @@
 ///<reference types="cypress-iframe" />
 import "cypress-iframe";
 
-function generateCohort() {
-  return `New cohort ${Math.floor(1000000 * Math.random())}`;
+function generateName(type) {
+  return `New ${type} ${Math.floor(1000000 * Math.random())}`;
 }
 
 describe("Basic tests", () => {
@@ -13,20 +13,33 @@ describe("Basic tests", () => {
     const cohort2 = "export2";
     cy.createCohortFromSearch(cohort2, "Papule of skin");
 
-    cy.get("button:Contains(New data feature)").click();
+    cy.get("button:Contains(New feature set)").click();
     cy.wait(2000);
 
+    const featureSetName = generateName("feature set");
+
+    cy.iframe().find("[data-testid='EditIcon']").first().click();
+    cy.iframe()
+      .find("input[name=text]")
+      .type("{selectall}" + featureSetName);
+    cy.iframe().find("button:Contains(Update)").click();
+
+    cy.iframe().find("a:Contains(Add a data feature)").first().click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("input").type("Red color");
     cy.iframe().find("[data-testid='Red color']").click();
+
+    cy.iframe().find("button:Contains(Add data feature)").first().click();
+    cy.iframe().find("[data-testid='_demographics']").click();
+
+    cy.iframe().find("[aria-label=back]").click();
 
     cy.get("button:Contains(Export)").click();
     cy.wait(2000);
 
     cy.iframe().find(`button[name='${cohort1}']`).click();
     cy.iframe().find(`button[name='${cohort2}']`).click();
-    cy.iframe().find("button[name='Demographics']").click();
-    cy.iframe().find("button[name='Condition: Red color']").click();
+    cy.iframe().find(`button[name='${featureSetName}']`).click();
 
     cy.iframe().find("button:Contains(Export)").click();
 

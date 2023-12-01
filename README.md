@@ -12,6 +12,8 @@ More information about this codebase can be found in the links below.
 * [Data Export](./docs/DATA_EXPORT.md)
 * [VUMC Admin Service](./docs/VUMC_ADMIN_SERVICE.md)
 * [Contribute Code](./docs/CONTRIBUTING.md)
+* [Deployment Config Properties](./docs/generated/DEPLOYMENT_CONFIG.md)
+* [Underlay Config Properties](./docs/generated/UNDERLAY_CONFIG.md)
 
 ![Underlay Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/underlay-test.yaml/badge.svg?branch=main)
 
@@ -24,3 +26,5 @@ More information about this codebase can be found in the links below.
 ![UI Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/ui-test.yaml/badge.svg?branch=main)
 
 ![UI Integration Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/ui-integration-test.yaml/badge.svg?branch=main)
+
+![Generated Files](https://github.com/DataBiosphere/tanagra/actions/workflows/generated-files.yaml/badge.svg?branch=main)

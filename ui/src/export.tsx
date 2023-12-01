@@ -31,7 +31,8 @@ import { Tabs as TanagraTabs } from "components/tabs";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, makeArrayFilter } from "data/filter";
 import { ExportModel, FeatureSet } from "data/source";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { useStudyId, useUnderlay } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
@@ -56,7 +57,7 @@ import { useNavigate } from "util/searchState";
 import { isValid } from "util/valid";
 
 export function Export() {
-  const source = useSource();
+  const studySource = useStudySource();
   const studyId = useStudyId();
   const exit = useExitAction();
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export function Export() {
 
   const cohortsState = useSWR(
     { type: "cohort", studyId, list: true },
-    async () => await source.listCohorts(studyId)
+    async () => await studySource.listCohorts(studyId)
   );
 
   const cohorts = useMemo(
@@ -77,7 +78,7 @@ export function Export() {
 
   const featureSetsState = useSWR(
     { type: "featureSet", studyId, list: true },
-    async () => await source.listFeatureSets(studyId)
+    async () => await studySource.listFeatureSets(studyId)
   );
 
   const featureSets = useMemo(
@@ -94,21 +95,21 @@ export function Export() {
   );
 
   const newCohort = async () => {
-    const cohort = await source.createCohort(
+    const cohort = await studySource.createCohort(
       underlay.name,
       studyId,
       `Untitled cohort ${new Date().toLocaleString()}`
     );
-    navigate("../" + cohortURL(cohort.id, cohort.groupSections[0].id));
+    navigate(cohortURL(cohort.id, cohort.groupSections[0].id));
   };
 
   const newFeatureSet = async () => {
-    const featureSet = await source.createFeatureSet(
+    const featureSet = await studySource.createFeatureSet(
       underlay.name,
       studyId,
       `Untitled feature set ${new Date().toLocaleString()}`
     );
-    navigate("../" + featureSetURL(featureSet.id));
+    navigate(featureSetURL(featureSet.id));
   };
 
   const onToggle = <T,>(
@@ -217,8 +218,7 @@ export function Export() {
                           variant="outlined"
                           onClick={() =>
                             navigate(
-                              "../" +
-                                cohortURL(cohort.id, cohort.groupSections[0].id)
+                              cohortURL(cohort.id, cohort.groupSections[0].id)
                             )
                           }
                           sx={{ minWidth: "auto" }}
@@ -305,7 +305,7 @@ export function Export() {
                         <Button
                           data-testid={fs.name}
                           variant="outlined"
-                          onClick={() => navigate("../" + featureSetURL(fs.id))}
+                          onClick={() => navigate(featureSetURL(fs.id))}
                           sx={{ minWidth: "auto" }}
                         >
                           Edit
@@ -338,7 +338,7 @@ type PreviewProps = {
 
 function Preview(props: PreviewProps) {
   const underlay = useUnderlay();
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
 
   const filteredCohorts = useMemo(
     () =>
@@ -366,7 +366,7 @@ function Preview(props: PreviewProps) {
   const occurrenceFilters = useMemo(() => {
     const occurrenceLists = filteredFeatureSets.map((fs) => {
       const ol = getOccurrenceList(
-        source,
+        underlaySource,
         new Set(fs.criteria.map((c) => c.id).concat(fs.predefinedCriteria)),
         fs.criteria,
         underlay.uiConfiguration.prepackagedConceptSets
@@ -480,7 +480,7 @@ type PreviewTableProps = {
 };
 
 function PreviewTable(props: PreviewTableProps) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
 
   const [tab, setTab] = useState(0);
   const [queriesMode, setQueriesMode] = useState<boolean | null>(false);
@@ -498,7 +498,7 @@ function PreviewTable(props: PreviewTableProps) {
             throw new Error("No selected cohort contain any criteria.");
           }
 
-          const res = await source.listData(
+          const res = await underlaySource.listData(
             filters.attributes,
             filters.id,
             props.cohortsFilter,
@@ -568,9 +568,13 @@ function PreviewTable(props: PreviewTableProps) {
             </GridLayout>
             <GridBox>
               {queriesMode ? (
-                <Typography sx={{ whiteSpace: "pre", fontFamily: "monospace" }}>
-                  {tabDataState.data?.[tab]?.sql}
-                </Typography>
+                <GridBox sx={{ overflow: "auto" }}>
+                  <Typography
+                    sx={{ whiteSpace: "pre", fontFamily: "monospace" }}
+                  >
+                    {tabDataState.data?.[tab]?.sql}
+                  </Typography>
+                </GridBox>
               ) : tabDataState.data?.[tab]?.data ? (
                 tabDataState.data?.[tab]?.data?.root?.children?.length ? (
                   <TreeGrid
@@ -688,7 +692,7 @@ function useExportDialog(props: ExportDialogProps): [ReactNode, () => void] {
 function ExportDialog(
   props: ExportDialogProps & { open: boolean; hide: () => void }
 ) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const underlay = useUnderlay();
   const studyId = useStudyId();
   const params = useBaseParams();
@@ -704,7 +708,7 @@ function ExportDialog(
       underlayName: underlay.name,
     },
     async () => {
-      return await source.listExportModels(underlay.name);
+      return await underlaySource.listExportModels(underlay.name);
     }
   );
 
@@ -732,7 +736,7 @@ function ExportDialog(
     setExporting(true);
     setOutput(null);
 
-    const result = await source.export(
+    const result = await underlaySource.export(
       underlay.name,
       studyId,
       model.id,

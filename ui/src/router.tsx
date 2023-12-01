@@ -1,23 +1,17 @@
 import Button from "@mui/material/Button";
-import {
-  AddCohortCriteria,
-  AddConceptSetCriteria,
-  AddFeatureSetCriteria,
-} from "addCriteria";
+import { CohortRevision } from "activityLog/cohortRevision";
+import { AddCohortCriteria, AddFeatureSetCriteria } from "addCriteria";
 import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
-import ConceptSetEdit from "conceptSetEdit";
-import ConceptSetRoot from "conceptSetRoot";
-import { SourceContextRoot } from "data/sourceContext";
-import { Datasets } from "datasets";
+import { StudySourceContextRoot } from "data/studySourceContext";
+import { UnderlaySourceContextRoot } from "data/underlaySourceContext";
 import Edit from "edit";
 import { Export } from "export";
 import { FeatureSet } from "featureSet/featureSet";
 import { FeatureSetEdit } from "featureSet/featureSetEdit";
 import FeatureSetRoot from "featureSet/featureSetRoot";
 import { NewFeatureSet } from "featureSet/newFeatureSet";
-import NewConceptSet from "newConceptSet";
 import NewCriteria from "newCriteria";
 import { Overview } from "overview";
 import { useCallback, useEffect } from "react";
@@ -38,114 +32,103 @@ import { UnderlaySelect } from "sampleApp/underlaySelect";
 export function createAppRouter() {
   return createHashRouter([
     {
-      path: prefix + "export?/",
-      element: <SourceContextRoot />,
+      path: "tanagra/underlays/:underlayName",
+      element: <UnderlaySourceContextRoot />,
       children: [
         {
-          index: true,
-          element: <Datasets />,
-        },
-        {
-          path: "sets",
-          element: <Export />,
-        },
-        {
-          element: <CohortRoot />,
+          path: "studies/:studyId/export?/",
+          element: <StudySourceContextRoot />,
           children: [
             {
-              path: "cohorts/:cohortId/:groupSectionId/:groupId",
+              index: true,
+              element: <Export />,
+            },
+            {
+              element: <CohortRoot />,
               children: [
                 {
-                  index: true,
-                  element: <Overview />,
-                },
-                {
-                  path: "add",
+                  path: "cohorts/:cohortId/:groupSectionId/:groupId",
                   children: [
                     {
                       index: true,
-                      element: <AddCohortCriteria />,
+                      element: <Overview />,
                     },
                     {
-                      path: ":configId",
-                      element: <NewCriteria />,
+                      path: "add",
+                      children: [
+                        {
+                          index: true,
+                          element: <AddCohortCriteria />,
+                        },
+                        {
+                          path: ":configId",
+                          element: <NewCriteria />,
+                        },
+                      ],
+                    },
+                    {
+                      path: "edit",
+                      element: <Edit />,
                     },
                   ],
                 },
                 {
-                  path: "edit",
-                  element: <Edit />,
-                },
-              ],
-            },
-            {
-              path: "reviews/:cohortId/:reviewId?",
-              children: [
-                {
-                  index: true,
-                  element: <CohortReviewList />,
-                },
-                {
-                  path: "review",
-                  element: <CohortReview />,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          path: "conceptSets",
-          element: <ConceptSetRoot />,
-          children: [
-            {
-              path: "add",
-              children: [
-                {
-                  index: true,
-                  element: <AddConceptSetCriteria />,
-                },
-                {
-                  path: ":configId",
-                  element: <NewConceptSet />,
-                },
-              ],
-            },
-            {
-              path: "edit/:conceptSetId",
-              element: <ConceptSetEdit />,
-            },
-          ],
-        },
-        {
-          element: <FeatureSetRoot />,
-          children: [
-            {
-              path: "featureSets/:featureSetId",
-              children: [
-                {
-                  index: true,
-                  element: <FeatureSet />,
-                },
-                {
-                  path: "add",
+                  path: "reviews/:cohortId/:reviewId?",
                   children: [
                     {
                       index: true,
-                      element: <AddFeatureSetCriteria />,
+                      element: <CohortReviewList />,
                     },
                     {
-                      path: ":configId",
-                      element: <NewFeatureSet />,
+                      path: "review",
+                      element: <CohortReview />,
                     },
                   ],
                 },
+              ],
+            },
+            {
+              element: <FeatureSetRoot />,
+              children: [
                 {
-                  path: "edit/:criteriaId",
-                  element: <FeatureSetEdit />,
+                  path: "featureSets/:featureSetId",
+                  children: [
+                    {
+                      index: true,
+                      element: <FeatureSet />,
+                    },
+                    {
+                      path: "add",
+                      children: [
+                        {
+                          index: true,
+                          element: <AddFeatureSetCriteria />,
+                        },
+                        {
+                          path: ":configId",
+                          element: <NewFeatureSet />,
+                        },
+                      ],
+                    },
+                    {
+                      path: "edit/:criteriaId",
+                      element: <FeatureSetEdit />,
+                    },
+                  ],
                 },
               ],
             },
           ],
+        },
+      ],
+    },
+    {
+      path: "tanagra/studies/:studyId",
+      element: <StudySourceContextRoot />,
+      children: [
+        {
+          path: "activityLog/cohorts/:cohortId/:revisionId",
+          element: <CohortRevision />,
         },
       ],
     },
@@ -169,19 +152,25 @@ function additionalRoutes() {
           element: <UnderlaySelect />,
         },
         {
-          element: <SourceContextRoot />,
+          element: <StudySourceContextRoot />,
           children: [
             {
               path: "underlays/:underlayName",
-              element: <StudiesList />,
-            },
-            {
-              path: "underlays/:underlayName/studies/:studyId",
-              element: <StudyOverview />,
-            },
-            {
-              path: "underlays/:underlayName/studies/:studyId/*",
-              element: <TanagraContainer />,
+              element: <UnderlaySourceContextRoot />,
+              children: [
+                {
+                  index: true,
+                  element: <StudiesList />,
+                },
+                {
+                  path: "studies/:studyId",
+                  element: <StudyOverview />,
+                },
+                {
+                  path: "studies/:studyId/*",
+                  element: <TanagraContainer />,
+                },
+              ],
             },
           ],
         },
@@ -285,10 +274,11 @@ export function useBaseParams(): BaseParams {
 
 // TODO(tjennison): This is becoming spaghetti. Consider alternative ways to set
 // this up or perhaps alternative libraries.
-const prefix = "tanagra/underlays/:underlayName/studies/:studyId/";
-
 function absolutePrefix(params: BaseParams) {
-  return generatePath("/" + prefix, params);
+  return generatePath(
+    "/tanagra/underlays/:underlayName/studies/:studyId/",
+    params
+  );
 }
 
 export function underlayURL(underlayName: string) {
@@ -331,25 +321,6 @@ export function absoluteExportURL(params: BaseParams) {
 
 export function absoluteExportSetsURL(params: BaseParams) {
   return absolutePrefix(params) + "sets";
-}
-
-export function absoluteConceptSetURL(
-  params: BaseParams,
-  conceptSetId: string
-) {
-  return absolutePrefix(params) + "conceptSets/edit/" + conceptSetId;
-}
-
-export function conceptSetURL(conceptSetId: string) {
-  return "conceptSets/edit/" + conceptSetId;
-}
-
-export function absoluteNewConceptSetURL(params: BaseParams) {
-  return absolutePrefix(params) + newConceptSetURL();
-}
-
-export function newConceptSetURL() {
-  return `conceptSets/add`;
 }
 
 export function criteriaURL() {

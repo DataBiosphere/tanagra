@@ -27,9 +27,9 @@ import {
 } from "data/configuration";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
-import { ClassificationNode, Source } from "data/source";
-import { useSource } from "data/sourceContext";
+import { ClassificationNode, UnderlaySource } from "data/source";
 import { DataEntry, DataKey } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
@@ -81,7 +81,11 @@ export interface Data {
 // references another entity, often using hierarchies and/or groupings.
 @registerCriteriaPlugin(
   "classification",
-  (source: Source, c: CriteriaConfig, dataEntry?: DataEntry) => {
+  (
+    underlaySource: UnderlaySource,
+    c: CriteriaConfig,
+    dataEntry?: DataEntry
+  ) => {
     const config = c as Config;
 
     const data: Data = {
@@ -211,10 +215,12 @@ type ClassificationEditProps = {
 };
 
 function ClassificationEdit(props: ClassificationEditProps) {
-  const source = useSource();
-  const occurrence = source.lookupOccurrence(firstOf(props.config.occurrences));
+  const underlaySource = useUnderlaySource();
+  const occurrence = underlaySource.lookupOccurrence(
+    firstOf(props.config.occurrences)
+  );
   const classifications = props.config.classifications.map((c) =>
-    source.lookupClassification(firstOf(props.config.occurrences), c)
+    underlaySource.lookupClassification(firstOf(props.config.occurrences), c)
   );
   const updateCriteria = useUpdateCriteria();
   const isNewCriteria = useIsNewCriteria();
@@ -316,7 +322,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
     };
 
     if (searchState.hierarchyClassification) {
-      const classification = source.lookupClassification(
+      const classification = underlaySource.lookupClassification(
         firstOf(props.config.occurrences),
         searchState.hierarchyClassification
       );
@@ -331,14 +337,19 @@ function ClassificationEdit(props: ClassificationEditProps) {
       searchClassifications.map(async (c) => [
         c,
         (
-          await source.searchClassification(attributes, occurrence.id, c, {
-            query: !searchState?.hierarchy
-              ? searchState?.query ?? ""
-              : undefined,
-            includeGroupings: !searchState?.hierarchy,
-            sortOrder: sortOrder,
-            limit: props.config.limit,
-          })
+          await underlaySource.searchClassification(
+            attributes,
+            occurrence.id,
+            c,
+            {
+              query: !searchState?.hierarchy
+                ? searchState?.query ?? ""
+                : undefined,
+              includeGroupings: !searchState?.hierarchy,
+              sortOrder: sortOrder,
+              limit: props.config.limit,
+            }
+          )
         ).nodes,
       ])
     );
@@ -350,7 +361,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       (n) => n.data[sortOrder.attribute]
     );
     return processEntities(merged, searchState?.hierarchy);
-  }, [source, attributes, processEntities, searchState]);
+  }, [underlaySource, attributes, processEntities, searchState]);
   const classificationState = useSWRImmutable(
     {
       component: "Classification",
@@ -447,7 +458,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   return undefined;
                 }
 
-                const classification = source.lookupClassification(
+                const classification = underlaySource.lookupClassification(
                   firstOf(props.config.occurrences),
                   item.classification
                 );
@@ -573,7 +584,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 }
 
                 if (item?.node.grouping) {
-                  return source
+                  return underlaySource
                     .searchGrouping(
                       attributes,
                       occurrence.id,
@@ -597,7 +608,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       );
                     });
                 } else {
-                  return source
+                  return underlaySource
                     .searchClassification(
                       attributes,
                       occurrence.id,
@@ -638,8 +649,8 @@ type ClassificationInlineProps = {
 };
 
 function ClassificationInline(props: ClassificationInlineProps) {
-  const source = useSource();
-  const classification = source.lookupClassification(
+  const underlaySource = useUnderlaySource();
+  const classification = underlaySource.lookupClassification(
     firstOf(props.config.occurrences),
     props.data.selected[0].classification ?? props.config.classifications[0]
   );
@@ -669,14 +680,14 @@ function ClassificationInline(props: ClassificationInlineProps) {
 }
 
 async function search(
-  source: Source,
+  underlaySource: UnderlaySource,
   c: CriteriaConfig,
   query: string
 ): Promise<DataEntry[]> {
   const config = c as Config;
   const results = await Promise.all(
     config.classifications.map((classification) =>
-      source
+      underlaySource
         .searchClassification(
           config.columns.map(({ key }) => key),
           firstOf(config.occurrences),

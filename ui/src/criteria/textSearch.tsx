@@ -9,8 +9,8 @@ import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Loading from "components/loading";
 import { FilterType, makeArrayFilter } from "data/filter";
 import { EnumHintOption } from "data/source";
-import { useSource } from "data/sourceContext";
 import { DataValue } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import GridLayout from "layout/gridLayout";
@@ -117,7 +117,7 @@ type TextSearchInlineProps = {
 };
 
 function TextSearchInline(props: TextSearchInlineProps) {
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const updateCriteria = useUpdateCriteria(props.groupId);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -147,7 +147,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
     { type: "hintData", attribute: props.config.categoryAttribute },
     async () => {
       const hintData = props.config.categoryAttribute
-        ? await source.getHintData(
+        ? await underlaySource.getHintData(
             props.config.occurrenceId,
             props.config.categoryAttribute
           )

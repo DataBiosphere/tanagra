@@ -1023,8 +1023,9 @@
     ]
   },
   "cohortReviewConfig": {
+    "participantIdAttribute": "person_source_value",
     "participantsListColumns": [
-      { "key": "id", "width": 100, "title": "Id" },
+      { "key": "person_source_value", "width": 100, "title": "GRID" },
       { "key": "gender", "width": 100, "title": "Gender" },
       { "key": "race", "width": 100, "title": "Race" },
       { "key": "ethnicity", "width": 100, "title": "Ethnicity" },
@@ -1186,7 +1187,7 @@
           "occurrence": "note_occurrence",
           "title": "title",
           "subtitles": ["note", "date"],
-          "text": "text",
+          "text": "note_text",
           "categoryAttribute": "note",
           "sortOrder": {
             "attribute": "date",

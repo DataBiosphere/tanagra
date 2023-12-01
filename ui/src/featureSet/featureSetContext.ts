@@ -1,6 +1,6 @@
 import { getCriteriaTitle, upgradeCriteria } from "cohort";
 import { FeatureSet } from "data/source";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
 import { useUnderlay } from "hooks";
 import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -45,7 +45,7 @@ export function useNewFeatureSetContext(
   showSnackbar: (message: string) => void
 ) {
   const underlay = useUnderlay();
-  const source = useSource();
+  const studySource = useStudySource();
   const { studyId, featureSetId } =
     useParams<{ studyId: string; featureSetId: string }>();
 
@@ -63,7 +63,7 @@ export function useNewFeatureSetContext(
     featureSetId,
   };
   const status = useSWR(key, async () => {
-    const featureSet = await source.getFeatureSet(studyId, featureSetId);
+    const featureSet = await studySource.getFeatureSet(studyId, featureSetId);
     for (const c of featureSet.criteria) {
       upgradeCriteria(c, underlay.uiConfiguration.criteriaConfigs);
     }
@@ -92,7 +92,7 @@ export function useNewFeatureSetContext(
       throw new Error("Invalid null featureSet update.");
     }
     setState(newState);
-    await source.updateFeatureSet(studyId, newState.present);
+    await studySource.updateFeatureSet(studyId, newState.present);
 
     setState(
       produce(newState, (state) => {

@@ -65,11 +65,6 @@ task noCloudAccessRequiredTests(type: Test) {
     }
 }
 
-task generateConfigJavadoc(type: Javadoc) {
-    source = sourceSets.main.java.filter { it.name.startsWith("SZ") }
-    destinationDir = file("../docs/generated/underlay_config/")
-}
-
 // Apply Gradle Script Plugins for more modular gradle files.
 // See also https://docs.gradle.org/current/userguide/plugins.html#sec:script_plugins
 apply from: "$rootDir/underlay/gradle/task-dependencies.gradle"

@@ -23,8 +23,9 @@ import Loading from "components/loading";
 import { Tabs } from "components/tabs";
 import { FilterType } from "data/filter";
 import { Annotation, AnnotationType, ReviewInstance } from "data/source";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
 import { DataEntry, DataValue } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
@@ -35,13 +36,15 @@ import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 
 export function CohortReview() {
-  const source = useSource();
+  const studySource = useStudySource();
+  const underlaySource = useUnderlaySource();
   const underlay = useUnderlay();
   const baseParams = useBaseParams();
   const params = useReviewParams();
 
   const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
+  const participantIdAttribute = uiConfig.participantIdAttribute ?? primaryKey;
 
   const pagePlugins = useMemo(
     () => uiConfig.pages.map((p) => getCohortReviewPlugin(p)),
@@ -56,7 +59,7 @@ export function CohortReview() {
       cohortId: params.cohort.id,
     },
     async (key) => {
-      return await source.getCohortReview(
+      return await studySource.getCohortReview(
         key.studyId,
         key.cohortId,
         key.reviewId
@@ -83,8 +86,9 @@ export function CohortReview() {
     instancesState.mutate(
       async () => {
         await updateRemote();
-        return await source.listReviewInstances(
+        return await studySource.listReviewInstances(
           params.studyId,
+          underlaySource,
           params.cohort.id,
           params.reviewId,
           params.primaryAttributes
@@ -131,8 +135,8 @@ export function CohortReview() {
 
       const res = await Promise.all(
         occurrenceIds.map((id) => {
-          return source.listData(
-            source.listAttributes(id),
+          return underlaySource.listData(
+            underlaySource.listAttributes(id),
             id,
             {
               type: FilterType.Attribute,
@@ -188,7 +192,8 @@ export function CohortReview() {
               <GridLayout rows colAlign="center">
                 <Typography variant="body1em">Participant</Typography>
                 <Typography variant="body1em">
-                  {instance?.data?.[primaryKey]}
+                  {instance?.data?.[participantIdAttribute] ??
+                    instance?.data?.[primaryKey]}
                 </Typography>
                 <Typography variant="body1">
                   {instanceIndex + 1}/{count}
@@ -311,7 +316,7 @@ function AnnotationComponent(props: {
     updateLocal: (instance: ReviewInstance) => void
   ) => void;
 }) {
-  const source = useSource();
+  const studySource = useStudySource();
 
   // TODO(tjennison): Expand handling of older and newer revisions and improve
   // their UI once the API is updated.
@@ -331,7 +336,7 @@ function AnnotationComponent(props: {
 
       props.mutateInstance(
         async () =>
-          await source.deleteAnnotationValue(
+          await studySource.deleteAnnotationValue(
             props.studyId,
             props.cohortId,
             props.reviewId,
@@ -347,7 +352,7 @@ function AnnotationComponent(props: {
     } else {
       props.mutateInstance(
         async () =>
-          await source.createUpdateAnnotationValue(
+          await studySource.createUpdateAnnotationValue(
             props.studyId,
             props.cohortId,
             props.reviewId,

@@ -1,5 +1,6 @@
 import { useCohortContext } from "cohortContext";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
@@ -25,9 +26,14 @@ export function useReviewParams(): ReviewParams {
 
   const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
+  const participantIdAttribute = uiConfig.participantIdAttribute ?? primaryKey;
 
   const primaryAttributes = useMemo(
-    () => [primaryKey, ...uiConfig.attributes.map((a) => a.key)],
+    () => [
+      primaryKey,
+      participantIdAttribute,
+      ...uiConfig.attributes.map((a) => a.key),
+    ],
     [uiConfig]
   );
 
@@ -52,7 +58,8 @@ export function useReviewParams(): ReviewParams {
 }
 
 export function useReviewInstances() {
-  const source = useSource();
+  const studySource = useStudySource();
+  const underlaySource = useUnderlaySource();
   const params = useReviewParams();
 
   return useSWR(
@@ -63,8 +70,9 @@ export function useReviewInstances() {
       cohortId: params.cohort.id,
     },
     async (key) => {
-      return await source.listReviewInstances(
+      return await studySource.listReviewInstances(
         key.studyId,
+        underlaySource,
         key.cohortId,
         key.reviewId,
         params.primaryAttributes
@@ -74,7 +82,7 @@ export function useReviewInstances() {
 }
 
 export function useReviewAnnotations() {
-  const source = useSource();
+  const studySource = useStudySource();
   const params = useBaseParams();
 
   const cohort = useCohortContext().state?.present;
@@ -89,7 +97,7 @@ export function useReviewAnnotations() {
       cohortId: cohort.id,
     },
     async (key) => {
-      return await source.listAnnotations(key.studyId, key.cohortId);
+      return await studySource.listAnnotations(key.studyId, key.cohortId);
     }
   );
 }

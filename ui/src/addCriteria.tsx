@@ -21,10 +21,9 @@ import {
   TreeGridItem,
   TreeGridRowData,
 } from "components/treegrid";
-import { createConceptSet, useConceptSetContext } from "conceptSetContext";
 import { MergedItem } from "data/mergeLists";
-import { useSource } from "data/sourceContext";
 import { DataEntry, DataKey } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import {
   insertFeatureSetCriteria,
   insertPredefinedFeatureSetCriteria,
@@ -39,12 +38,7 @@ import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
-import {
-  cohortURL,
-  featureSetURL,
-  newCriteriaURL,
-  useExitAction,
-} from "router";
+import { cohortURL, featureSetURL, newCriteriaURL } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
@@ -65,28 +59,6 @@ import {
 type LocalSearchState = {
   search?: string;
 };
-
-export function AddConceptSetCriteria() {
-  const context = useConceptSetContext();
-  const exit = useExitAction();
-
-  const onInsertCriteria = useCallback(
-    (criteria: tanagraUI.UICriteria) => {
-      createConceptSet(context, criteria);
-      exit();
-    },
-    [context]
-  );
-
-  return (
-    <AddCriteria
-      conceptSet
-      title="Adding data feature"
-      backAction={exit}
-      onInsertCriteria={onInsertCriteria}
-    />
-  );
-}
 
 export function AddCohortCriteria() {
   const navigate = useNavigate();
@@ -164,7 +136,7 @@ type AddCriteriaProps = {
 
 function AddCriteria(props: AddCriteriaProps) {
   const underlay = useUnderlay();
-  const source = useSource();
+  const underlaySource = useUnderlaySource();
   const navigate = useNavigate();
 
   const query = useLocalSearchState<LocalSearchState>()[0].search ?? "";
@@ -191,7 +163,8 @@ function AddCriteria(props: AddCriteriaProps) {
     criteriaConfigs.forEach((cc) =>
       options.push({
         criteriaConfig: cc,
-        showMore: !!getCriteriaPlugin(createCriteria(source, cc)).renderEdit,
+        showMore: !!getCriteriaPlugin(createCriteria(underlaySource, cc))
+          .renderEdit,
         ...cc,
       })
     );
@@ -293,7 +266,7 @@ function AddCriteria(props: AddCriteriaProps) {
     (option: AddCriteriaOption, dataEntry?: DataEntry) => {
       if (option.criteriaConfig) {
         const criteria = createCriteria(
-          source,
+          underlaySource,
           option.criteriaConfig,
           dataEntry
         );
@@ -306,7 +279,7 @@ function AddCriteria(props: AddCriteriaProps) {
         props.onInsertPredefinedCriteria?.(option.id, option.title);
       }
     },
-    [source, navigate]
+    [underlaySource, navigate]
   );
 
   const search = useCallback(async () => {
@@ -317,7 +290,7 @@ function AddCriteria(props: AddCriteriaProps) {
 
     if (query) {
       const res = await searchCriteria(
-        source,
+        underlaySource,
         selectedOptions.map((o) => o.criteriaConfig).filter(isValid),
         query
       );
@@ -345,7 +318,7 @@ function AddCriteria(props: AddCriteriaProps) {
     }
 
     return data;
-  }, [source, query, selectedOptions, optionsMap]);
+  }, [underlaySource, query, selectedOptions, optionsMap]);
   const searchState = useSWRImmutable<TreeGridData>(
     {
       component: "AddCriteria",

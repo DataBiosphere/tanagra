@@ -1,5 +1,5 @@
 import { defaultGroup, defaultSection } from "cohort";
-import { useSource } from "data/sourceContext";
+import { useStudySource } from "data/studySourceContext";
 import { useUnderlay } from "hooks";
 import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -46,7 +46,7 @@ export function useCohortContext() {
 
 export function useNewCohortContext(showSnackbar: (message: string) => void) {
   const underlay = useUnderlay();
-  const source = useSource();
+  const studySource = useStudySource();
   const { studyId, cohortId } =
     useParams<{ studyId: string; cohortId: string }>();
 
@@ -64,7 +64,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
     cohortId,
   };
   const status = useSWR(key, async () => {
-    const cohort = await source.getCohort(studyId, cohortId);
+    const cohort = await studySource.getCohort(studyId, cohortId);
     for (const gs of cohort.groupSections) {
       for (const g of gs.groups) {
         for (const c of g.criteria) {
@@ -97,7 +97,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
       throw new Error("Invalid null cohort update.");
     }
     setState(newState);
-    await source.updateCohort(studyId, newState.present);
+    await studySource.updateCohort(studyId, newState.present);
 
     setState(
       produce(newState, (state) => {
