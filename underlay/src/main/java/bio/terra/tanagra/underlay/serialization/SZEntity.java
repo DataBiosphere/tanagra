@@ -156,6 +156,38 @@ public class SZEntity {
         optional = true,
         defaultValue = "false")
     public boolean isComputeDisplayHint;
+
+    @AnnotatedField(
+        name = "SZAttribute.displayHintRangeMin",
+        markdown =
+            "The minimum value to display when filtering on this attribute. This is useful when the underlying "
+                + "data has outliers that we want to exclude from the display, but not from the available data.\n\n"
+                + "e.g. A person has an invalid date of birth that produces an age range that spans negative "
+                + "numbers. This causes the slider when filtering by age to span negative numbers also. Setting this "
+                + "property sets the left end of the slider. It does not remove the person with the invalid date of "
+                + "birth from the table. So if they have asthma, they would still show up in a cohort filtering on "
+                + "this condition.\n\n"
+                + "The ${SZAttribute.displayHintRangeMax} may be set as well, but they are not required to be set "
+                + "together. The ${SZAttribute.isComputeDisplayHint} is also independent of this property. You can "
+                + "still calculate the actual minimum in the data, if you set this property.",
+        optional = true)
+    public double displayHintRangeMin;
+
+    @AnnotatedField(
+        name = "SZAttribute.displayHintRangeMax",
+        markdown =
+            "The maximum value to display when filtering on this attribute. This is useful when the underlying "
+                + "data has outliers that we want to exclude from the display, but not from the available data.\n\n"
+                + "e.g. A person has an invalid date of birth that produces an age range that spans very large "
+                + "numbers. This causes the slider when filtering by age to span very large numbers also. Setting this "
+                + "property sets the right end of the slider. It does not remove the person with the invalid date of "
+                + "birth from the table. So if they have asthma, they would still show up in a cohort filtering on "
+                + "this condition.\n\n"
+                + "The ${SZAttribute.displayHintRangeMin} may be set as well, but they are not required to be set "
+                + "together. The ${SZAttribute.isComputeDisplayHint} is also independent of this property. You can "
+                + "still calculate the actual maximum in the data, if you set this property.",
+        optional = true)
+    public double displayHintRangeMax;
   }
 
   @AnnotatedClass(name = "SZHierarchy", markdown = "Hierarchy for an entity.")
