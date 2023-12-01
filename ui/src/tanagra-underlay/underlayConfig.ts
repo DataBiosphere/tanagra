@@ -1,8 +1,8 @@
 export type SZAttribute = {
   dataType: SZDataType;
   displayFieldName?: string;
-  displayHintRangeMax?: double;
-  displayHintRangeMin?: double;
+  displayHintRangeMax?: number;
+  displayHintRangeMin?: number;
   isComputeDisplayHint?: boolean;
   name: string;
   runtimeDataType?: SZDataType;

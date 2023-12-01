@@ -91,7 +91,7 @@ public class TypescriptWalker extends AnnotationWalker {
       String[] pieces = typeName.split("\\.");
       String javaTypeName = pieces[pieces.length - 1].toLowerCase();
 
-      final List<String> javaTypesThatMapToNumber = List.of("int", "long");
+      final List<String> javaTypesThatMapToNumber = List.of("int", "long", "double");
       return javaTypesThatMapToNumber.contains(javaTypeName) ? "number" : javaTypeName;
     }
   }
