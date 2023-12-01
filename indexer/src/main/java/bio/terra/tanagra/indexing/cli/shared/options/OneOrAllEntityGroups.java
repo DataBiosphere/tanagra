@@ -13,7 +13,10 @@ public class OneOrAllEntityGroups {
   @CommandLine.Option(names = "--group", description = "Entity group name.")
   public String entityGroup;
 
-  @CommandLine.Option(names = "--all", description = "Include all entity groups.")
+  @CommandLine.Option(
+      names = "--all",
+      description = "Include all entity groups.",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   public boolean allEntityGroups;
 
   public void validate() {

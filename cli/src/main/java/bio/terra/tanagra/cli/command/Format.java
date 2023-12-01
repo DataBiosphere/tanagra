@@ -29,11 +29,9 @@ public class Format {
   @CommandLine.Option(
       names = "--format",
       showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
-      description =
-          "Set the format for printing command output: ${COMPLETION-CANDIDATES}."
-              + " Defaults to the config format property.")
-  @SuppressWarnings("PMD.AvoidFieldNameMatchingTypeName")
-  private FormatOptions format;
+      description = "Set the format for printing command output: ${COMPLETION-CANDIDATES}.")
+  @SuppressWarnings({"PMD.AvoidFieldNameMatchingTypeName", "PMD.ImmutableField"})
+  private FormatOptions format = FormatOptions.TEXT;
 
   /**
    * Default implementation of printing this command's return value in JSON format. This method uses

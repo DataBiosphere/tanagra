@@ -12,7 +12,10 @@ public class OneOrAllEntities {
   @CommandLine.Option(names = "--entity", description = "Entity name.")
   public String entity;
 
-  @CommandLine.Option(names = "--all", description = "Include all entities.")
+  @CommandLine.Option(
+      names = "--all",
+      description = "Include all entities.",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
   public boolean allEntities;
 
   public void validate() {

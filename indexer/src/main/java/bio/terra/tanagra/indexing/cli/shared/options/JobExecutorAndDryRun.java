@@ -11,12 +11,14 @@ import picocli.CommandLine;
 public class JobExecutorAndDryRun {
   @CommandLine.Option(
       names = "--job-executor",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description =
-          "Executor to use when running jobs. Recommend serial for debugging, parallel otherwise.")
+          "Executor to use when running jobs: ${COMPLETION-CANDIDATES}. Recommend serial for debugging, parallel otherwise.")
   public JobSequencer.JobExecutor jobExecutor = JobSequencer.JobExecutor.PARALLEL;
 
   @CommandLine.Option(
       names = "--dry-run",
+      showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
       description =
           "Do a dry run. No indexing tables will be written and no Dataflow jobs will be kicked off.")
   public boolean dryRun;
