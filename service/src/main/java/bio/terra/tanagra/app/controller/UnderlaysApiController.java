@@ -100,7 +100,8 @@ public class UnderlaysApiController implements UnderlaysApi {
     return ResponseEntity.ok(
         new ApiUnderlay()
             .summary(ToApiUtils.toApiObject(underlay))
-            .serializedConfiguration(toApiObject(underlay.getDataMappingSerialization())));
+            .serializedConfiguration(toApiObject(underlay.getDataMappingSerialization()))
+            .uiConfiguration(underlay.getUiConfig()));
   }
 
   @Override
