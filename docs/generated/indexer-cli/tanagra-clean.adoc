@@ -1,0 +1,60 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Tanagra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= tanagra-clean(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+tanagra-clean - Commands to clean up indexing outputs.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*tanagra clean* [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+xref:tanagra-clean-entity.adoc[*entity*]::
+  Clean the outputs of all jobs for a single entity, or all entities.
+
+xref:tanagra-clean-group.adoc[*group*]::
+  Clean the outputs of all jobs for a single entity group, or all entity groups.
+
+xref:tanagra-clean-underlay.adoc[*underlay*]::
+  Clean the outputs of all jobs for underlay.
+
+// end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
+
+// end::picocli-generated-full-manpage[]
