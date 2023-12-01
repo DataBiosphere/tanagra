@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.export;
 
 import bio.terra.tanagra.generated.model.ApiCohort;
 import bio.terra.tanagra.generated.model.ApiStudy;
-import bio.terra.tanagra.generated.model.ApiUnderlay;
+import bio.terra.tanagra.generated.model.ApiUnderlaySummary;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class ExportRequest {
   private final Map<String, String> inputs;
   private final String redirectBackUrl;
   private final boolean includeAnnotations;
-  private final ApiUnderlay underlay;
+  private final ApiUnderlaySummary underlay;
   private final ApiStudy study;
   private final List<ApiCohort> cohorts;
   private final Supplier<Map<String, String>> generateSqlQueriesFn;
@@ -60,7 +60,7 @@ public class ExportRequest {
     return includeAnnotations;
   }
 
-  public ApiUnderlay getUnderlay() {
+  public ApiUnderlaySummary getUnderlay() {
     return underlay;
   }
 
@@ -97,7 +97,7 @@ public class ExportRequest {
     private Map<String, String> inputs;
     private String redirectBackUrl;
     private boolean includeAnnotations;
-    private ApiUnderlay underlay;
+    private ApiUnderlaySummary underlay;
     private ApiStudy study;
     private List<ApiCohort> cohorts;
     private Supplier<Map<String, String>> generateSqlQueriesFn;
@@ -126,7 +126,7 @@ public class ExportRequest {
       return this;
     }
 
-    public Builder underlay(ApiUnderlay underlay) {
+    public Builder underlay(ApiUnderlaySummary underlay) {
       this.underlay = underlay;
       return this;
     }

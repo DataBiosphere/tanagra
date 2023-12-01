@@ -19,7 +19,7 @@ import bio.terra.tanagra.generated.model.ApiLiteralValueUnion;
 import bio.terra.tanagra.generated.model.ApiProperties;
 import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
 import bio.terra.tanagra.generated.model.ApiStudy;
-import bio.terra.tanagra.generated.model.ApiUnderlay;
+import bio.terra.tanagra.generated.model.ApiUnderlaySummary;
 import bio.terra.tanagra.generated.model.ApiValueDisplay;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
@@ -179,11 +179,11 @@ public final class ToApiUtils {
         .isDeleted(study.isDeleted());
   }
 
-  public static ApiUnderlay toApiObject(Underlay underlay) {
-    return new ApiUnderlay()
+  public static ApiUnderlaySummary toApiObject(Underlay underlay) {
+    return new ApiUnderlaySummary()
         .name(underlay.getName())
         .displayName(underlay.getDisplayName())
-        .primaryEntity(underlay.getPrimaryEntity().getName())
-        .uiConfiguration(underlay.getUiConfig());
+        .description(underlay.getDescription())
+        .primaryEntity(underlay.getPrimaryEntity().getName());
   }
 }

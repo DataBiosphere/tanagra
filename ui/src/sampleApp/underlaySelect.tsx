@@ -18,7 +18,7 @@ export function UnderlaySelect() {
   const underlaysState = useSWRImmutable(
     { type: "underlay" },
     useCallback(async () => {
-      const res = await underlaysApi.listUnderlays({});
+      const res = await underlaysApi.listUnderlaySummaries({});
       if (!res?.underlays?.length) {
         throw new Error("No underlays are configured.");
       }
