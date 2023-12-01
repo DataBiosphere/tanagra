@@ -1,4 +1,5 @@
 plugins {
+    id "application"
     id "java"
     id "java-test-fixtures"
     id "tanagra.java-conventions"
@@ -29,6 +30,11 @@ dependencies {
 
     implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
     implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+
+    // Command parsing
+    implementation project(":cli")
+    compileOnly group: "info.picocli", name: "picocli", version: "4.6.3"
+    annotationProcessor group: "info.picocli", name: "picocli-codegen", version: "4.6.3"
 
     // GCP libraries. Versions are controlled by the BOM specified in buildSrc.
     implementation group: "com.google.cloud", name: "google-cloud-bigquery"
@@ -73,14 +79,21 @@ tasks.withType(Test) {
     }
 }
 
-task index (type:JavaExec) {
-    main = "bio.terra.tanagra.indexing.Main"
-    classpath = sourceSets.main.runtimeClasspath
-    systemProperties System.getProperties()
-    args System.getProperty("exec.args", "").split()
+application {
+    mainClass = "bio.terra.tanagra.indexing.cli.Main"
+    applicationName = "tanagra"
+    executableDir = "bin"
 
-    // Needed to avoid OOM in GHA. Not sure why this isn't needed for local runs.
-    // https://github.com/DataBiosphere/tanagra/actions/runs/4547100642/jobs/8016560406
-    // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-    jvmArgs "-Xmx7000m", "-XX:+HeapDumpOnOutOfMemoryError"
+    // TODO: Suppress Jersey PATCH related warnings.
+    applicationDefaultJvmArgs = [
+        "--add-opens",
+        "java.base/sun.net.www.protocol.https=ALL-UNNAMED",
+        "--add-opens",
+        "java.base/java.net=ALL-UNNAMED",
+        // Needed to avoid OOM in GHA. Not sure why this isn't needed for local runs.
+        // https://github.com/DataBiosphere/tanagra/actions/runs/4547100642/jobs/8016560406
+        // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+        "-Xmx7000m",
+        "-XX:+HeapDumpOnOutOfMemoryError"
+    ]
 }

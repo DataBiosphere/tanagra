@@ -1,0 +1,57 @@
+plugins {
+    id "java"
+    id "java-test-fixtures"
+    id "tanagra.java-conventions"
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+
+ext {
+    resourceDir = "${projectDir}/src/main/resources"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+    }
+    maven {
+        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+    }
+    maven {
+        url "https://packages.confluent.io/maven/"
+    }
+}
+
+dependencies {
+    implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+
+    // GCP libraries. Versions are controlled by the BOM specified in buildSrc.
+    implementation group: "com.google.guava", name: "guava"
+
+    // Command parsing
+    implementation group: "info.picocli", name: "picocli", version: "4.6.3"
+    annotationProcessor group: "info.picocli", name: "picocli-codegen", version: "4.6.3"
+
+    // Jackson serialization
+    implementation group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.12.3"
+    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.12.3"
+
+    // Logging
+    implementation group: "ch.qos.logback", name: "logback-classic", version: "1.4.0"
+    implementation group: "org.slf4j", name: "slf4j-api", version: "2.0.0"
+
+    // Static analysis
+    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task noCloudAccessRequiredTests(type: Test) {
+    useJUnitPlatform {
+        excludeTags "requires-cloud-access"
+    }
+}

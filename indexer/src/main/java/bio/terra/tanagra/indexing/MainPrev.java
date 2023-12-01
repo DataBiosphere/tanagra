@@ -1,8 +1,8 @@
 package bio.terra.tanagra.indexing;
 
-import static bio.terra.tanagra.indexing.Main.Command.INDEX_ALL;
-import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY;
-import static bio.terra.tanagra.indexing.Main.Command.INDEX_ENTITY_GROUP;
+import static bio.terra.tanagra.indexing.MainPrev.Command.INDEX_ALL;
+import static bio.terra.tanagra.indexing.MainPrev.Command.INDEX_ENTITY;
+import static bio.terra.tanagra.indexing.MainPrev.Command.INDEX_ENTITY_GROUP;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.IndexingJob;
@@ -10,8 +10,8 @@ import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 
-public final class Main {
-  private Main() {}
+public final class MainPrev {
+  private MainPrev() {}
 
   enum Command {
     INDEX_ENTITY,
