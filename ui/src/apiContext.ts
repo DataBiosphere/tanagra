@@ -97,7 +97,7 @@ class FakeUnderlaysApi {
 
     return {
       summary: {
-        name: "underlay_name",
+        name: req.underlayName,
         displayName: "Test Underlay",
         primaryEntity: "person",
       },
