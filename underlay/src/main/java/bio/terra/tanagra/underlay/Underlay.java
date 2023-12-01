@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ public final class Underlay {
   private final ImmutableList<EntityGroup> entityGroups;
   private final SourceSchema sourceSchema;
   private final IndexSchema indexSchema;
+  private final DataMappingSerialization dataMappingSerialization;
   private final String uiConfig;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -55,6 +57,7 @@ public final class Underlay {
       List<EntityGroup> entityGroups,
       SourceSchema sourceSchema,
       IndexSchema indexSchema,
+      DataMappingSerialization dataMappingSerialization,
       String uiConfig) {
     this.name = name;
     this.displayName = displayName;
@@ -65,6 +68,7 @@ public final class Underlay {
     this.entityGroups = ImmutableList.copyOf(entityGroups);
     this.sourceSchema = sourceSchema;
     this.indexSchema = indexSchema;
+    this.dataMappingSerialization = dataMappingSerialization;
     this.uiConfig = uiConfig;
   }
 
@@ -73,7 +77,7 @@ public final class Underlay {
   }
 
   public String getDisplayName() {
-    return displayName;
+    return displayName == null || displayName.isEmpty() ? name : displayName;
   }
 
   public String getDescription() {
@@ -129,6 +133,10 @@ public final class Underlay {
     return indexSchema;
   }
 
+  public DataMappingSerialization getDataMappingSerialization() {
+    return dataMappingSerialization;
+  }
+
   public String getUiConfig() {
     return uiConfig;
   }
@@ -141,28 +149,38 @@ public final class Underlay {
     IndexSchema indexSchema = IndexSchema.fromConfig(szBigQuery, szUnderlay, configReader);
 
     // Build the entities.
+    Set<SZEntity> szEntities = new HashSet<>();
     List<Entity> entities =
         szUnderlay.entities.stream()
             .map(
-                entityPath ->
-                    fromConfigEntity(configReader.readEntity(entityPath), szUnderlay.primaryEntity))
+                entityPath -> {
+                  SZEntity szEntity = configReader.readEntity(entityPath);
+                  szEntities.add(szEntity);
+                  return fromConfigEntity(szEntity, szUnderlay.primaryEntity);
+                })
             .collect(Collectors.toList());
 
     // Build the entity groups.
+    Set<SZGroupItems> szGroupItemsEntityGroups = new HashSet<>();
+    Set<SZCriteriaOccurrence> szCriteriaOccurrenceEntityGroups = new HashSet<>();
     List<EntityGroup> entityGroups = new ArrayList<>();
     szUnderlay.groupItemsEntityGroups.stream()
         .forEach(
-            groupItemsPath ->
-                entityGroups.add(
-                    fromConfigGroupItems(configReader.readGroupItems(groupItemsPath), entities)));
+            groupItemsPath -> {
+              SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
+              szGroupItemsEntityGroups.add(szGroupItems);
+              entityGroups.add(fromConfigGroupItems(szGroupItems, entities));
+            });
     szUnderlay.criteriaOccurrenceEntityGroups.stream()
         .forEach(
-            criteriaOccurrencePath ->
-                entityGroups.add(
-                    fromConfigCriteriaOccurrence(
-                        configReader.readCriteriaOccurrence(criteriaOccurrencePath),
-                        entities,
-                        szUnderlay.primaryEntity)));
+            criteriaOccurrencePath -> {
+              SZCriteriaOccurrence szCriteriaOccurrence =
+                  configReader.readCriteriaOccurrence(criteriaOccurrencePath);
+              szCriteriaOccurrenceEntityGroups.add(szCriteriaOccurrence);
+              entityGroups.add(
+                  fromConfigCriteriaOccurrence(
+                      szCriteriaOccurrence, entities, szUnderlay.primaryEntity));
+            });
 
     // Build the query executor.
     BigQueryExecutor queryExecutor =
@@ -181,6 +199,8 @@ public final class Underlay {
         entityGroups,
         sourceSchema,
         indexSchema,
+        new DataMappingSerialization(
+            szUnderlay, szEntities, szGroupItemsEntityGroups, szCriteriaOccurrenceEntityGroups),
         uiConfig);
   }
 

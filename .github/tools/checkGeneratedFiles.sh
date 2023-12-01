@@ -15,6 +15,8 @@ if [[ $(echo ${diff_output} | wc -c) -gt 1 ]]
     printf "./gradlew annotationProcessor:run -Pgenerator=UNDERLAY_CONFIG_DOCS\n"
     printf "./gradlew annotationProcessor:run -Pgenerator=UNDERLAY_CONFIG_TYPESCRIPT\n"
     exit_code=1
+  else
+    printf "No differences found\n"
 fi
 
 exit ${exit_code}

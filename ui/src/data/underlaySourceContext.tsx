@@ -55,8 +55,8 @@ export function UnderlaySourceContextRoot() {
 
       const underlay = {
         name: underlayName,
-        displayName: apiUnderlay.displayName ?? underlayName,
-        primaryEntity: apiUnderlay.primaryEntity,
+        displayName: apiUnderlay.summary.displayName ?? underlayName,
+        primaryEntity: apiUnderlay.summary.primaryEntity,
         entities: entitiesRes.entities,
         uiConfiguration: JSON.parse(apiUnderlay.uiConfiguration),
       };

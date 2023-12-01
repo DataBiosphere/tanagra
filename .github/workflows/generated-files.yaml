@@ -30,3 +30,5 @@ jobs:
           restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
       - name: Regenerate documentation and Typescript files and check for changes
         run: .github/tools/checkGeneratedFiles.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
