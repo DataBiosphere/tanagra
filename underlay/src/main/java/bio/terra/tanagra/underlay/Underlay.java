@@ -141,10 +141,11 @@ public final class Underlay {
     return uiConfig;
   }
 
-  public static Underlay fromConfig(SZBigQuery szBigQuery, SZUnderlay szUnderlay) {
+  public static Underlay fromConfig(
+      SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
     // Build the source and index table schemas.
-    ConfigReader configReader =
-        new ConfigReader(szUnderlay.name, szBigQuery.sourceData.sqlSubstitutions);
+    configReader.setUnderlay(szUnderlay.name);
+    configReader.setSqlSubstitutions(szBigQuery.sourceData.sqlSubstitutions);
     SourceSchema sourceSchema = SourceSchema.fromConfig(szBigQuery, szUnderlay, configReader);
     IndexSchema indexSchema = IndexSchema.fromConfig(szBigQuery, szUnderlay, configReader);
 

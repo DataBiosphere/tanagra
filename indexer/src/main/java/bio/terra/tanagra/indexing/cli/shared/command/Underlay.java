@@ -26,10 +26,12 @@ public abstract class Underlay extends BaseCommand {
   /** Index/clean all entities and entity groups. */
   @Override
   protected void execute() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer(indexerConfig.name);
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
+    ConfigReader configReader = ConfigReader.fromDiskFile(indexerConfig.getGitHubDirWithDefault());
+    SZIndexer szIndexer = configReader.readIndexer(indexerConfig.name);
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     bio.terra.tanagra.underlay.Underlay underlay =
-        bio.terra.tanagra.underlay.Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
+        bio.terra.tanagra.underlay.Underlay.fromConfig(
+            szIndexer.bigQuery, szUnderlay, configReader);
 
     List<SequencedJobSet> entityJobSets =
         underlay.getEntities().stream()

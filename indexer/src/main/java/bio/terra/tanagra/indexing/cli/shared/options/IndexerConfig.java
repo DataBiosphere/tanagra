@@ -1,5 +1,6 @@
 package bio.terra.tanagra.indexing.cli.shared.options;
 
+import java.nio.file.Path;
 import picocli.CommandLine;
 
 /**
@@ -13,4 +14,16 @@ public class IndexerConfig {
       required = true,
       description = "Indexer config name")
   public String name;
+
+  @CommandLine.Option(
+      names = "--github-dir",
+      description =
+          "Absolute path of the top-level directory for the local clone of the tanagra GitHub repo. Defaults to the current directory.")
+  public String githubDir;
+
+  public Path getGitHubDirWithDefault() {
+    return githubDir == null || githubDir.isEmpty()
+        ? Path.of(System.getProperty("user.home"))
+        : Path.of(githubDir);
+  }
 }

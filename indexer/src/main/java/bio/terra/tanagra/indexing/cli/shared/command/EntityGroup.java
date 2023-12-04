@@ -28,9 +28,10 @@ public abstract class EntityGroup extends BaseCommand {
   @Override
   protected void execute() {
     oneOrAllEntityGroups.validate();
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer(indexerConfig.name);
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
-    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
+    ConfigReader configReader = ConfigReader.fromDiskFile(indexerConfig.getGitHubDirWithDefault());
+    SZIndexer szIndexer = configReader.readIndexer(indexerConfig.name);
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
 
     List<SequencedJobSet> jobSets =
         oneOrAllEntityGroups.allEntityGroups
