@@ -59,6 +59,11 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
   }
 
   @Override
+  public String getEntity() {
+    return entity.getName();
+  }
+
+  @Override
   protected String getOutputTableName() {
     return indexHintsTable.getTablePointer().getTableName();
   }

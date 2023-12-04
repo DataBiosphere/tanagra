@@ -22,4 +22,10 @@ public class JobExecutorAndDryRun {
       description =
           "Do a dry run. No indexing tables will be written and no Dataflow jobs will be kicked off.")
   public boolean dryRun;
+
+  @CommandLine.Option(
+      names = "--output-dir",
+      description =
+          "Absolute path to the directory where the html report will be written. Defaults to the current directory.")
+  public String outputDir;
 }

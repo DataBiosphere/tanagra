@@ -1,6 +1,5 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,15 +33,5 @@ public abstract class JobRunner {
 
   public List<JobResult> getJobResults() {
     return jobResults;
-  }
-
-  public void throwIfAnyFailures() {
-    jobResults.stream()
-        .forEach(
-            jobResult -> {
-              if (jobResult.isFailure()) {
-                throw new SystemException("There were job failures");
-              }
-            });
   }
 }

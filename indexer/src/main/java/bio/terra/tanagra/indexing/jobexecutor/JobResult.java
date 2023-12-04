@@ -3,6 +3,7 @@ package bio.terra.tanagra.indexing.jobexecutor;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,8 @@ public class JobResult {
 
   private final String jobName;
   private final String threadName;
+  @Nullable private final String entity;
+  @Nullable private final String entityGroup;
 
   private IndexingJob.JobStatus jobStatus;
   private boolean threadTerminatedOnTime;
@@ -23,9 +26,12 @@ public class JobResult {
   private String exceptionStackTrace;
   private String exceptionMessage;
 
-  public JobResult(String jobName, String threadName) {
+  public JobResult(
+      String jobName, String threadName, @Nullable String entity, @Nullable String entityGroup) {
     this.jobName = jobName;
     this.threadName = threadName;
+    this.entity = entity;
+    this.entityGroup = entityGroup;
 
     this.threadTerminatedOnTime = false;
     this.jobStatusAsExpected = false;
@@ -63,6 +69,16 @@ public class JobResult {
 
   public String getThreadName() {
     return threadName;
+  }
+
+  @Nullable
+  public String getEntity() {
+    return entity;
+  }
+
+  @Nullable
+  public String getEntityGroup() {
+    return entityGroup;
   }
 
   public IndexingJob.JobStatus getJobStatus() {

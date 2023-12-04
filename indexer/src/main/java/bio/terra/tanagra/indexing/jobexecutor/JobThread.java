@@ -23,7 +23,12 @@ public class JobThread implements Callable<JobResult> {
 
   @Override
   public JobResult call() {
-    JobResult result = new JobResult(jobName, Thread.currentThread().getName());
+    JobResult result =
+        new JobResult(
+            jobName,
+            Thread.currentThread().getName(),
+            indexingJob.getEntity(),
+            indexingJob.getEntityGroup());
 
     long startTime = System.nanoTime();
     try {
