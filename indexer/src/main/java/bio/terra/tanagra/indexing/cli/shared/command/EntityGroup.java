@@ -8,6 +8,7 @@ import bio.terra.tanagra.indexing.cli.shared.options.JobExecutorAndDryRun;
 import bio.terra.tanagra.indexing.cli.shared.options.OneOrAllEntityGroups;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
+import bio.terra.tanagra.indexing.jobresultwriter.SysOutWriter;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import picocli.CommandLine;
@@ -27,13 +28,13 @@ public abstract class EntityGroup extends BaseCommand {
     SZIndexer szIndexer = ConfigReader.deserializeIndexer(indexerConfig.name);
     Indexer indexer = Indexer.fromConfig(szIndexer);
 
-    JobRunner entityJobRunner;
+    JobRunner jobRunner;
     if (oneOrAllEntityGroups.allEntityGroups) {
-      entityJobRunner =
+      jobRunner =
           indexer.runJobsForAllEntityGroups(
               jobExecutorAndDryRun.jobExecutor, jobExecutorAndDryRun.dryRun, getRunType());
     } else {
-      entityJobRunner =
+      jobRunner =
           indexer.runJobsForSingleEntityGroup(
               jobExecutorAndDryRun.jobExecutor,
               jobExecutorAndDryRun.dryRun,
@@ -41,8 +42,8 @@ public abstract class EntityGroup extends BaseCommand {
               oneOrAllEntityGroups.entityGroup);
     }
 
-    entityJobRunner.printJobResultSummary();
-    entityJobRunner.throwIfAnyFailures();
+    new SysOutWriter(jobRunner).run();
+    jobRunner.throwIfAnyFailures();
     formatOption.printReturnValue("done", this::printText);
   }
 

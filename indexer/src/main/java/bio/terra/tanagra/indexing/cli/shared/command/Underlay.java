@@ -7,6 +7,7 @@ import bio.terra.tanagra.indexing.cli.shared.options.IndexerConfig;
 import bio.terra.tanagra.indexing.cli.shared.options.JobExecutorAndDryRun;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
+import bio.terra.tanagra.indexing.jobresultwriter.SysOutWriter;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import picocli.CommandLine;
@@ -33,9 +34,9 @@ public abstract class Underlay extends BaseCommand {
             : indexer.runJobsForAllEntityGroups(
                 jobExecutorAndDryRun.jobExecutor, jobExecutorAndDryRun.dryRun, getRunType());
 
-    entityJobRunnerAll.printJobResultSummary();
+    new SysOutWriter(entityJobRunnerAll).run();
     if (entityGroupJobRunnerAll != null) {
-      entityGroupJobRunnerAll.printJobResultSummary();
+      new SysOutWriter(entityGroupJobRunnerAll).run();
     }
     entityJobRunnerAll.throwIfAnyFailures();
     if (entityGroupJobRunnerAll != null) {

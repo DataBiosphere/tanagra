@@ -1,13 +1,8 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
-import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ANSI_GREEN;
-import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ANSI_RED;
-import static bio.terra.tanagra.indexing.jobexecutor.ParallelRunner.TERMINAL_ESCAPE_RESET;
-
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +11,7 @@ import org.slf4j.LoggerFactory;
 public class JobResult {
   private static final Logger LOGGER = LoggerFactory.getLogger(JobResult.class);
 
-  private final String jobDescription;
+  private final String jobName;
   private final String threadName;
 
   private IndexingJob.JobStatus jobStatus;
@@ -28,8 +23,8 @@ public class JobResult {
   private String exceptionStackTrace;
   private String exceptionMessage;
 
-  public JobResult(String jobDescription, String threadName) {
-    this.jobDescription = jobDescription;
+  public JobResult(String jobName, String threadName) {
+    this.jobName = jobName;
     this.threadName = threadName;
 
     this.threadTerminatedOnTime = false;
@@ -37,27 +32,6 @@ public class JobResult {
     this.exceptionWasThrown = false;
     this.exceptionStackTrace = null;
     this.exceptionMessage = null;
-  }
-
-  @SuppressWarnings("PMD.SystemPrintln")
-  public void print() {
-    System.out.println(
-        String.format(
-            "%s %s",
-            jobDescription,
-            isFailure()
-                ? (TERMINAL_ANSI_RED + "FAILED" + TERMINAL_ESCAPE_RESET)
-                : (TERMINAL_ANSI_GREEN + "SUCCESS" + TERMINAL_ESCAPE_RESET)));
-    System.out.println(String.format("   thread: %s", threadName));
-    System.out.println(String.format("   job status: %s", jobStatus));
-    System.out.println(String.format("   job status as expected: %s", jobStatusAsExpected));
-    System.out.println(
-        String.format(
-            "   elapsed time (sec): %d",
-            TimeUnit.MINUTES.convert(elapsedTimeNS, TimeUnit.NANOSECONDS)));
-    System.out.println(String.format("   thread terminated on time: %s", threadTerminatedOnTime));
-    System.out.println(String.format("   exception msg: %s", exceptionMessage));
-    System.out.println(String.format("   exception stack trace: %s", exceptionStackTrace));
   }
 
   /**
@@ -83,8 +57,12 @@ public class JobResult {
     return exceptionWasThrown || !threadTerminatedOnTime || !jobStatusAsExpected;
   }
 
-  public String getJobDescription() {
-    return jobDescription;
+  public String getJobName() {
+    return jobName;
+  }
+
+  public String getThreadName() {
+    return threadName;
   }
 
   public IndexingJob.JobStatus getJobStatus() {
@@ -95,19 +73,43 @@ public class JobResult {
     this.jobStatus = jobStatus;
   }
 
+  public boolean isThreadTerminatedOnTime() {
+    return threadTerminatedOnTime;
+  }
+
   public void setThreadTerminatedOnTime(boolean threadTerminatedOnTime) {
     this.threadTerminatedOnTime = threadTerminatedOnTime;
+  }
+
+  public boolean isJobStatusAsExpected() {
+    return jobStatusAsExpected;
   }
 
   public void setJobStatusAsExpected(boolean jobStatusAsExpected) {
     this.jobStatusAsExpected = jobStatusAsExpected;
   }
 
+  public long getElapsedTimeNS() {
+    return elapsedTimeNS;
+  }
+
   public void setElapsedTimeNS(long elapsedTimeNS) {
     this.elapsedTimeNS = elapsedTimeNS;
   }
 
+  public boolean isExceptionWasThrown() {
+    return exceptionWasThrown;
+  }
+
   public void setExceptionWasThrown(boolean exceptionWasThrown) {
     this.exceptionWasThrown = exceptionWasThrown;
+  }
+
+  public String getExceptionStackTrace() {
+    return exceptionStackTrace;
+  }
+
+  public String getExceptionMessage() {
+    return exceptionMessage;
   }
 }

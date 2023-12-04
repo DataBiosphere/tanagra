@@ -24,7 +24,7 @@ public final class ParallelRunner extends JobRunner {
   }
 
   @Override
-  protected String getName() {
+  public String getName() {
     return "PARALLEL";
   }
 
