@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.jobresultwriter;
 
 import bio.terra.tanagra.cli.exception.InternalErrorException;
+import bio.terra.tanagra.cli.utils.Context;
 import bio.terra.tanagra.indexing.jobexecutor.JobResult;
 import bio.terra.tanagra.utils.FileUtils;
 import java.io.IOException;
@@ -115,6 +116,7 @@ public class HtmlWriter extends JobResultWriter {
             + " failures out of "
             + getNumJobs()
             + " jobs.");
+    outStream.println("Log statements written to: " + Context.getLogFile());
     outStream.println("Results report written to: " + getOutputFile());
   }
 
