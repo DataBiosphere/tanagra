@@ -91,7 +91,7 @@ If you make a change to any Java code, you should re-build.
 
 #### Available Commands
 Documentation for the indexing commands is generated from annotations in the Java classes as 
-a [manpage](docs/generated/indexer-cli/tanagra.adoc).
+a [manpage](generated/indexer-cli/tanagra.adoc).
 You can also see usage help for the commands by omitting arguments. e.g.
 ```
 > tanagra
