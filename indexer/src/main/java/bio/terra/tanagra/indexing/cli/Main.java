@@ -1,5 +1,6 @@
 package bio.terra.tanagra.indexing.cli;
 
+import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.cli.BaseMain;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import picocli.CommandLine;
@@ -26,6 +27,6 @@ public class Main extends BaseMain {
 
   @Override
   public Boolean isUserActionableException(Exception ex) {
-    return ex instanceof InvalidConfigException;
+    return ex instanceof InvalidConfigException || ex instanceof NotFoundException;
   }
 }

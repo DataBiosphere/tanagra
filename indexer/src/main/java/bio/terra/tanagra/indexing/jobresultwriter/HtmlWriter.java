@@ -142,7 +142,9 @@ public class HtmlWriter extends JobResultWriter {
             summary ->
                 summaryRows.append(
                     "            <tr class=\"tablerow0\">\n"
-                        + "                <td><b>"
+                        + "                <td><b><a href=\"#"
+                        + summary.getEntityGroup()
+                        + "\">"
                         + summary.getEntityGroup()
                         + "</b></td>\n"
                         + "                <td>"
