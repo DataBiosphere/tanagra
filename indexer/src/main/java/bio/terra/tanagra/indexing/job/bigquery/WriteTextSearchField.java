@@ -41,7 +41,7 @@ public class WriteTextSearchField extends BigQueryJob {
 
   @Override
   public String getEntity() {
-    return sourceTable.getEntity();
+    return entity.getName();
   }
 
   @Override
