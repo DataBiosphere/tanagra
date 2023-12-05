@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.cli.shared.options;
 
 import bio.terra.tanagra.indexing.JobSequencer;
+import java.nio.file.Path;
 import picocli.CommandLine;
 
 /**
@@ -28,4 +29,8 @@ public class JobExecutorAndDryRun {
       description =
           "Absolute path to the directory where the html report will be written. Defaults to the current directory.")
   public String outputDir;
+
+  public Path getOutputDirWithDefault() {
+    return outputDir == null || outputDir.isEmpty() ? Path.of("") : Path.of(outputDir);
+  }
 }

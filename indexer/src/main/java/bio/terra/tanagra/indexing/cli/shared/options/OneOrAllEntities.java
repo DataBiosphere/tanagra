@@ -9,7 +9,7 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class OneOrAllEntities {
-  @CommandLine.Option(names = "--entity", description = "Entity name.")
+  @CommandLine.Option(names = "--name", description = "Entity name.")
   public String entity;
 
   @CommandLine.Option(

@@ -39,8 +39,8 @@ public class HtmlWriter extends JobResultWriter {
           + "        <p>Git Hash <a href=\"${version.gitUrl}\">${version.gitHash}</a></p>\n"
           + "        <p>Build ${version.build}</p>\n"
           + "        <br/>\n"
+          + "        <p><b>Total # jobs failed: ${jobWriter.numFailures}</b></p>\n"
           + "        <p><b>Total # jobs run: ${jobWriter.numJobs}</b></p>\n"
-          + "        <p><b>Total # jobs run: ${jobWriter.numFailures}</b></p>\n"
           + "        <br/>\n"
           + "        <h2>Summary</h2>\n"
           + "        <table width=\"75%\" cellpadding=\"5\" cellspacing=\"2\">\n"
@@ -68,14 +68,14 @@ public class HtmlWriter extends JobResultWriter {
           + "${jobWriter.stackTraces}"
           + "    </body>\n"
           + "</html>\n";
-  private final String outputDir;
+  private final Path outputDir;
 
   public HtmlWriter(
       List<JobResult> jobResults,
       String jobRunnerName,
       PrintStream outStream,
       PrintStream errStream,
-      String outputDir) {
+      Path outputDir) {
     super(jobResults, jobRunnerName, outStream, errStream);
     this.outputDir = outputDir;
   }
@@ -113,7 +113,7 @@ public class HtmlWriter extends JobResultWriter {
   }
 
   public Path getOutputFile() {
-    return Path.of(outputDir).resolve(FILE_NAME).toAbsolutePath();
+    return outputDir.resolve(FILE_NAME).toAbsolutePath();
   }
 
   private String summaryTableRows() {

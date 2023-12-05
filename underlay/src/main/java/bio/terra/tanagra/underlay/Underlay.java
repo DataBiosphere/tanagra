@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
@@ -160,6 +161,14 @@ public final class Underlay {
                   return fromConfigEntity(szEntity, szUnderlay.primaryEntity);
                 })
             .collect(Collectors.toList());
+
+    // Check for the primary entity.
+    if (entities.stream()
+        .filter(entity -> entity.getName().equals(szUnderlay.primaryEntity))
+        .findAny()
+        .isEmpty()) {
+      throw new InvalidConfigException("Primary entity not found: " + szUnderlay.primaryEntity);
+    }
 
     // Build the entity groups.
     Set<SZGroupItems> szGroupItemsEntityGroups = new HashSet<>();

@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.cli;
 
 import bio.terra.tanagra.cli.BaseMain;
+import bio.terra.tanagra.exception.InvalidConfigException;
 import picocli.CommandLine;
 
 /**
@@ -21,5 +22,10 @@ public class Main extends BaseMain {
    */
   public static void main(String... args) {
     new Main().runCommandAndExit(args);
+  }
+
+  @Override
+  public Boolean isUserActionableException(Exception ex) {
+    return ex instanceof InvalidConfigException;
   }
 }

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.export.impl;
 
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.DeploymentConfig;
@@ -9,6 +10,7 @@ import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.SqlFormatter;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
@@ -49,9 +51,14 @@ public class IpynbFileDownload implements DataExport {
   @Override
   public ExportResult run(ExportRequest request) {
     // Read in the ipynb template file.
-    String ipynbTemplate =
-        FileUtils.readStringFromFile(
-            FileUtils.getResourceFileStream(Path.of(IPYNB_TEMPLATE_RESOURCE_FILE)));
+    String ipynbTemplate;
+    try {
+      ipynbTemplate =
+          FileUtils.readStringFromFile(
+              FileUtils.getResourceFileStream(Path.of(IPYNB_TEMPLATE_RESOURCE_FILE)));
+    } catch (FileNotFoundException fnfEx) {
+      throw new SystemException("Resource file not found: " + IPYNB_TEMPLATE_RESOURCE_FILE, fnfEx);
+    }
 
     // Generate the SQL for the primary entity and escape it to substitute into a notebook cell (=
     // JSON property).

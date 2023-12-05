@@ -239,9 +239,14 @@ public final class ConfigReader {
   }
 
   private InputStream getStream(Path resourcesPath) {
-    return useResourcesInputStream
-        ? FileUtils.getResourceFileStream(resourcesPath)
-        : FileUtils.getFileStream(topLevelProjectDir.resolve(RESOURCES_DIR_DISK_PATH));
+    try {
+      return useResourcesInputStream
+          ? FileUtils.getResourceFileStream(resourcesPath)
+          : FileUtils.getFileStream(
+              topLevelProjectDir.resolve(RESOURCES_DIR_DISK_PATH).resolve(resourcesPath));
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException("Error loading config file: " + resourcesPath, ioEx);
+    }
   }
 
   private static Path resolveUnderlayDir(String underlay) {

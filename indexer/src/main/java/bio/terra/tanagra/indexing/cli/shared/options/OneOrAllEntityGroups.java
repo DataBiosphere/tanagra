@@ -10,7 +10,7 @@ import picocli.CommandLine;
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
 public class OneOrAllEntityGroups {
-  @CommandLine.Option(names = "--group", description = "Entity group name.")
+  @CommandLine.Option(names = "--name", description = "Entity group name.")
   public String entityGroup;
 
   @CommandLine.Option(

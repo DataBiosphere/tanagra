@@ -22,8 +22,6 @@ public class IndexerConfig {
   public String githubDir;
 
   public Path getGitHubDirWithDefault() {
-    return githubDir == null || githubDir.isEmpty()
-        ? Path.of(System.getProperty("user.home"))
-        : Path.of(githubDir);
+    return githubDir == null || githubDir.isEmpty() ? Path.of("") : Path.of(githubDir);
   }
 }

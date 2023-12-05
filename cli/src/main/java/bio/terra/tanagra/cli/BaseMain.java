@@ -8,6 +8,7 @@ import bio.terra.tanagra.cli.utils.UserIO;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
@@ -48,7 +49,8 @@ public abstract class BaseMain implements Runnable {
   public int runCommand(String... args) {
     CommandLine cmd = new CommandLine(this);
     cmd.setExecutionStrategy(new CommandLine.RunLast());
-    cmd.setExecutionExceptionHandler(new UserActionableAndSystemExceptionHandler());
+    cmd.setExecutionExceptionHandler(
+        new UserActionableAndSystemExceptionHandler(this::isUserActionableException));
     cmd.setColorScheme(COLOR_SCHEME);
     cmd.setCaseInsensitiveEnumValuesAllowed(true);
 
@@ -72,6 +74,10 @@ public abstract class BaseMain implements Runnable {
     }
 
     return exitCode;
+  }
+
+  public Boolean isUserActionableException(Exception ex) {
+    return false;
   }
 
   /**
@@ -128,6 +134,13 @@ public abstract class BaseMain implements Runnable {
     private static final int SYSTEM_EXIT_CODE = 2;
     private static final int UNEXPECTED_EXIT_CODE = 3;
 
+    private final Function<Exception, Boolean> isUserActionableExceptionFn;
+
+    UserActionableAndSystemExceptionHandler(
+        Function<Exception, Boolean> isUserActionableExceptionFn) {
+      this.isUserActionableExceptionFn = isUserActionableExceptionFn;
+    }
+
     @Override
     public int handleExecutionException(
         Exception ex, CommandLine cmd, CommandLine.ParseResult parseResult) {
@@ -135,7 +148,7 @@ public abstract class BaseMain implements Runnable {
       CommandLine.Help.Ansi.Text formattedErrorMessage;
       int exitCode;
       boolean printPointerToLogFile;
-      if (ex instanceof UserActionableException) {
+      if (ex instanceof UserActionableException || isUserActionableExceptionFn.apply(ex)) {
         errorMessage = ex.getMessage();
         formattedErrorMessage =
             cmd.getColorScheme()

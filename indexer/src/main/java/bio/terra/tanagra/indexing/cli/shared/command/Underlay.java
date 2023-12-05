@@ -66,7 +66,7 @@ public abstract class Underlay extends BaseCommand {
             jobExecutorAndDryRun.jobExecutor.name(),
             OUT,
             ERR,
-            jobExecutorAndDryRun.outputDir)
+            jobExecutorAndDryRun.getOutputDirWithDefault())
         .run();
   }
 }
