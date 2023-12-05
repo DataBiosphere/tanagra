@@ -19,9 +19,9 @@ tanagra-index-entity - Run all jobs for a single entity, or all entities.
 // tag::picocli-generated-man-section-synopsis[]
 == Synopsis
 
-*tanagra index entity* [*--all*] [*--dry-run*] [*--entity*=_<entity>_]
-                     [*--format*=_<format>_] *--indexer-config*=_<name>_
-                     [*--job-executor*=_<jobExecutor>_]
+*tanagra index entity* [*--all*] [*--dry-run*] [*--github-dir*=_<githubDir>_]
+                     *--indexer-config*=_<name>_ [*--job-executor*=_<jobExecutor>_]
+                     [*--name*=_<entity>_] [*--output-dir*=_<outputDir>_]
 
 // end::picocli-generated-man-section-synopsis[]
 
@@ -45,13 +45,8 @@ Run all jobs for a single entity, or all entities.
 +
   Default: false
 
-*--entity*=_<entity>_::
-  Entity name.
-
-*--format*=_<format>_::
-  Set the format for printing command output: JSON, TEXT.
-+
-  Default: TEXT
+*--github-dir*=_<githubDir>_::
+  Absolute path of the top-level directory for the local clone of the tanagra GitHub repo. Defaults to the current directory.
 
 *--indexer-config*=_<name>_::
   Indexer config name
@@ -60,6 +55,12 @@ Run all jobs for a single entity, or all entities.
   Executor to use when running jobs: PARALLEL, SERIAL. Recommend serial for debugging, parallel otherwise.
 +
   Default: PARALLEL
+
+*--name*=_<entity>_::
+  Entity name.
+
+*--output-dir*=_<outputDir>_::
+  Absolute path to the directory where the html report will be written. Defaults to the current directory.
 
 // end::picocli-generated-man-section-options[]
 
