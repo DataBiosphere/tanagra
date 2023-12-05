@@ -48,6 +48,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -411,7 +412,7 @@ public class ReviewService {
     return EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
   }
 
-  public String buildTsvStringForAnnotationValues(Study study, Cohort cohort) {
+  public String buildCsvStringForAnnotationValues(Study study, Cohort cohort) {
     // Build the column headers: id column name in source data, then annotation key display names.
     // Sort the annotation keys by display name, so that we get a consistent ordering.
     // e.g. person_id, key1, key2
@@ -423,7 +424,8 @@ public class ReviewService {
             .getAttributeValueColumnSchemas()
             .get(underlay.getPrimaryEntity().getIdAttribute().getName())
             .getColumnName();
-    StringBuilder columnHeaders = new StringBuilder(primaryIdSourceColumnName);
+    StringBuilder columnHeaders =
+        new StringBuilder(StringEscapeUtils.escapeCsv(primaryIdSourceColumnName));
     List<AnnotationKey> annotationKeys =
         annotationService
             .listAnnotationKeys(
@@ -436,42 +438,42 @@ public class ReviewService {
             .sorted(Comparator.comparing(AnnotationKey::getDisplayName))
             .collect(Collectors.toList());
     annotationKeys.forEach(
-        annotation -> {
-          columnHeaders.append(String.format("\t%s", annotation.getDisplayName()));
-        });
+        annotation ->
+            columnHeaders.append(
+                String.format(",%s", StringEscapeUtils.escapeCsv(annotation.getDisplayName()))));
     StringBuilder fileContents = new StringBuilder(columnHeaders + "\n");
 
     // Get all the annotation values for the latest revision.
     List<AnnotationValue> annotationValues = listAnnotationValues(study.getId(), cohort.getId());
 
-    // Convert the list of annotation values to a TSV-ready table.
-    Table<String, String, String> tsvValues = HashBasedTable.create();
+    // Convert the list of annotation values to a CSV-ready table.
+    Table<String, String, String> csvValues = HashBasedTable.create();
     annotationValues.forEach(
         value -> {
           AnnotationKey key =
               annotationService.getAnnotationKey(
                   study.getId(), cohort.getId(), value.getAnnotationKeyId());
-          tsvValues.put(
+          csvValues.put(
               value.getInstanceId(), // row
               key.getDisplayName(), // column
               value.getLiteral().toString() // value
               );
         });
 
-    // Convert table of annotation values to String representing TSV file.
+    // Convert table of annotation values to String representing CSV file contents.
     // Sort the instance ids, so that we get a consistent ordering.
-    tsvValues.rowKeySet().stream()
+    csvValues.rowKeySet().stream()
         .sorted()
         .forEach(
             instanceId -> {
-              StringBuilder row = new StringBuilder(instanceId);
+              StringBuilder row = new StringBuilder(StringEscapeUtils.escapeCsv(instanceId));
               annotationKeys.forEach(
                   annotationKey -> {
-                    String tsvValue =
-                        tsvValues.contains(instanceId, annotationKey.getDisplayName())
-                            ? tsvValues.get(instanceId, annotationKey.getDisplayName())
+                    String csvValue =
+                        csvValues.contains(instanceId, annotationKey.getDisplayName())
+                            ? csvValues.get(instanceId, annotationKey.getDisplayName())
                             : "";
-                    row.append("\t" + tsvValue);
+                    row.append(String.format(",%s", StringEscapeUtils.escapeCsv(csvValue)));
                   });
               fileContents.append(String.format(row + "\n"));
             });
