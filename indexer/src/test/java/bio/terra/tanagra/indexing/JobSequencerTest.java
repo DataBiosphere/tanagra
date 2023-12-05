@@ -29,9 +29,10 @@ import org.junit.Test;
 public class JobSequencerTest {
   @Test
   public void person() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
-    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZIndexer szIndexer = configReader.readIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"));
 
@@ -49,9 +50,10 @@ public class JobSequencerTest {
 
   @Test
   public void condition() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
-    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZIndexer szIndexer = configReader.readIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("condition"));
 
@@ -101,9 +103,10 @@ public class JobSequencerTest {
 
   @Test
   public void brandIngredient() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
-    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZIndexer szIndexer = configReader.readIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForGroupItems(
             szIndexer, underlay, (GroupItems) underlay.getEntityGroup("brandIngredient"));
@@ -119,9 +122,10 @@ public class JobSequencerTest {
 
   @Test
   public void conditionPerson() {
-    SZIndexer szIndexer = ConfigReader.deserializeIndexer("sd020230331_verily");
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szIndexer.underlay);
-    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay);
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZIndexer szIndexer = configReader.readIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForCriteriaOccurrence(
             szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));

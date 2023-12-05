@@ -29,6 +29,11 @@
         <Bug pattern="UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD,UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
 
+    <Match>
+        <Source name="~.*/bio/terra/tanagra/indexing/cli/.*\.java"/>
+        <Bug pattern="NM_SAME_SIMPLE_NAME_AS_SUPERCLASS"/>
+    </Match>
+
     <!-- Do not check class -->
     <!--<Match>-->
         <!--<Class name="com.foobar.ClassNotToBeAnalyzed" />-->

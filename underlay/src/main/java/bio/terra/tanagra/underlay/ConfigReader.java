@@ -11,10 +11,10 @@ import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +28,7 @@ import org.apache.commons.text.StringSubstitutor;
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
     justification = "Jackson object mapper writes the POJO fields during deserialization")
 public final class ConfigReader {
+  private static final String RESOURCES_DIR_DISK_PATH = "underlay/src/main/resources/";
   private static final String RESOURCES_CONFIG_PATH = "config/";
   private static final String INDEXER_CONFIG_SUBDIR = "indexer/";
   private static final String SERVICE_CONFIG_SUBDIR = "service/";
@@ -45,25 +46,44 @@ public final class ConfigReader {
   private final Map<String, SZCriteriaOccurrence> szCriteriaOccurrenceCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entitySqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
-  private final String underlay;
-  private final ImmutableMap<String, String> sqlSubstitutions;
+  private String underlay;
+  private ImmutableMap<String, String> sqlSubstitutions;
+  private final boolean useResourcesInputStream;
+  private final @Nullable Path topLevelProjectDir;
 
-  public ConfigReader(String underlay, Map<String, String> sqlSubstitutions) {
+  private ConfigReader(boolean useResourcesInputStream, @Nullable Path topLevelProjectDir) {
+    this.useResourcesInputStream = useResourcesInputStream;
+    this.topLevelProjectDir = topLevelProjectDir;
+  }
+
+  public static ConfigReader fromJarResources() {
+    return new ConfigReader(true, null);
+  }
+
+  public static ConfigReader fromDiskFile(Path topLevelProjectDir) {
+    return new ConfigReader(false, topLevelProjectDir);
+  }
+
+  public ConfigReader setUnderlay(String underlay) {
     this.underlay = underlay;
-    this.sqlSubstitutions =
-        sqlSubstitutions == null ? ImmutableMap.of() : ImmutableMap.copyOf(sqlSubstitutions);
+    return this;
+  }
+
+  public ConfigReader setSqlSubstitutions(Map<String, String> sqlSubstitutions) {
+    this.sqlSubstitutions = ImmutableMap.copyOf(sqlSubstitutions);
+    return this;
   }
 
   public SZEntity readEntity(String entityPath) {
     if (!szEntityCache.containsKey(entityPath)) {
-      szEntityCache.put(entityPath, ConfigReader.deserializeEntity(entityPath));
+      szEntityCache.put(entityPath, deserializeEntity(entityPath));
     }
     return szEntityCache.get(entityPath);
   }
 
   public SZGroupItems readGroupItems(String groupItemsPath) {
     if (!szGroupItemsCache.containsKey(groupItemsPath)) {
-      szGroupItemsCache.put(groupItemsPath, ConfigReader.deserializeGroupItems(groupItemsPath));
+      szGroupItemsCache.put(groupItemsPath, deserializeGroupItems(groupItemsPath));
     }
     return szGroupItemsCache.get(groupItemsPath);
   }
@@ -71,8 +91,7 @@ public final class ConfigReader {
   public SZCriteriaOccurrence readCriteriaOccurrence(String criteriaOccurrencePath) {
     if (!szCriteriaOccurrenceCache.containsKey(criteriaOccurrencePath)) {
       szCriteriaOccurrenceCache.put(
-          criteriaOccurrencePath,
-          ConfigReader.deserializeCriteriaOccurrence(criteriaOccurrencePath));
+          criteriaOccurrencePath, deserializeCriteriaOccurrence(criteriaOccurrencePath));
     }
     return szCriteriaOccurrenceCache.get(criteriaOccurrencePath);
   }
@@ -80,7 +99,7 @@ public final class ConfigReader {
   public String readEntitySql(String entityPath, String fileName) {
     if (!entitySqlCache.containsKey(Pair.of(entityPath, fileName))) {
       Path sqlFile = resolveEntityDir(entityPath).resolve(fileName);
-      String sql = FileUtils.readStringFromFile(FileUtils.getResourceFileStream(sqlFile));
+      String sql = FileUtils.readStringFromFile(getStream(sqlFile));
       entitySqlCache.put(
           Pair.of(entityPath, fileName), StringSubstitutor.replace(sql, sqlSubstitutions));
     }
@@ -90,7 +109,7 @@ public final class ConfigReader {
   public String readEntityGroupSql(String entityGroupPath, String fileName) {
     if (!entityGroupSqlCache.containsKey(Pair.of(entityGroupPath, fileName))) {
       Path sqlFile = resolveEntityGroupDir(entityGroupPath).resolve(fileName);
-      String sql = FileUtils.readStringFromFile(FileUtils.getResourceFileStream(sqlFile));
+      String sql = FileUtils.readStringFromFile(getStream(sqlFile));
       entityGroupSqlCache.put(
           Pair.of(entityGroupPath, fileName), StringSubstitutor.replace(sql, sqlSubstitutions));
     }
@@ -99,42 +118,38 @@ public final class ConfigReader {
 
   public String readUIConfig(String fileName) {
     Path uiConfigFile = resolveUnderlayDir(underlay).resolve(fileName);
-    return FileUtils.readStringFromFile(FileUtils.getResourceFileStream(uiConfigFile));
+    return FileUtils.readStringFromFile(getStream(uiConfigFile));
   }
 
-  public static SZIndexer deserializeIndexer(String indexer) {
+  public SZIndexer readIndexer(String indexer) {
     Path indexerFile =
         Path.of(RESOURCES_CONFIG_PATH)
             .resolve(INDEXER_CONFIG_SUBDIR)
             .resolve(indexer + FILE_EXTENSION);
     try {
-      return JacksonMapper.readFileIntoJavaObject(
-          FileUtils.getResourceFileStream(indexerFile), SZIndexer.class);
+      return JacksonMapper.readFileIntoJavaObject(getStream(indexerFile), SZIndexer.class);
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing indexer config file", ioEx);
     }
   }
 
-  public static SZService deserializeService(String service) {
+  public SZService readService(String service) {
     Path serviceFile =
         Path.of(RESOURCES_CONFIG_PATH)
             .resolve(SERVICE_CONFIG_SUBDIR)
             .resolve(service + FILE_EXTENSION);
     try {
-      return JacksonMapper.readFileIntoJavaObject(
-          FileUtils.getResourceFileStream(serviceFile), SZService.class);
+      return JacksonMapper.readFileIntoJavaObject(getStream(serviceFile), SZService.class);
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing service config file", ioEx);
     }
   }
 
-  @VisibleForTesting
-  public static SZUnderlay deserializeUnderlay(String underlay) {
+  public SZUnderlay readUnderlay(String underlay) {
     try {
       SZUnderlay szUnderlay =
           JacksonMapper.readFileIntoJavaObject(
-              FileUtils.getResourceFileStream(
-                  resolveUnderlayDir(underlay).resolve(UNDERLAY_FILE_NAME + FILE_EXTENSION)),
+              getStream(resolveUnderlayDir(underlay).resolve(UNDERLAY_FILE_NAME + FILE_EXTENSION)),
               SZUnderlay.class);
 
       // Initialize null collections to empty collections.
@@ -155,13 +170,11 @@ public final class ConfigReader {
     }
   }
 
-  @VisibleForTesting
-  public static SZEntity deserializeEntity(String entityPath) {
+  private SZEntity deserializeEntity(String entityPath) {
     try {
       SZEntity szEntity =
           JacksonMapper.readFileIntoJavaObject(
-              FileUtils.getResourceFileStream(
-                  resolveEntityDir(entityPath).resolve(ENTITY_FILE_NAME + FILE_EXTENSION)),
+              getStream(resolveEntityDir(entityPath).resolve(ENTITY_FILE_NAME + FILE_EXTENSION)),
               SZEntity.class);
 
       // Initialize null collections to empty collections.
@@ -183,10 +196,10 @@ public final class ConfigReader {
     }
   }
 
-  private static SZGroupItems deserializeGroupItems(String groupItemsPath) {
+  private SZGroupItems deserializeGroupItems(String groupItemsPath) {
     try {
       return JacksonMapper.readFileIntoJavaObject(
-          FileUtils.getResourceFileStream(
+          getStream(
               resolveEntityGroupDir(groupItemsPath)
                   .resolve(ENTITY_GROUP_FILE_NAME + FILE_EXTENSION)),
           SZGroupItems.class);
@@ -196,12 +209,11 @@ public final class ConfigReader {
     }
   }
 
-  @VisibleForTesting
-  public static SZCriteriaOccurrence deserializeCriteriaOccurrence(String criteriaOccurrencePath) {
+  private SZCriteriaOccurrence deserializeCriteriaOccurrence(String criteriaOccurrencePath) {
     try {
       SZCriteriaOccurrence szCriteriaOccurrence =
           JacksonMapper.readFileIntoJavaObject(
-              FileUtils.getResourceFileStream(
+              getStream(
                   resolveEntityGroupDir(criteriaOccurrencePath)
                       .resolve(ENTITY_GROUP_FILE_NAME + FILE_EXTENSION)),
               SZCriteriaOccurrence.class);
@@ -223,6 +235,17 @@ public final class ConfigReader {
     } catch (IOException ioEx) {
       throw new InvalidConfigException(
           "Error deserializing criteria occurrence entity group config file", ioEx);
+    }
+  }
+
+  private InputStream getStream(Path resourcesPath) {
+    try {
+      return useResourcesInputStream
+          ? FileUtils.getResourceFileStream(resourcesPath)
+          : FileUtils.getFileStream(
+              topLevelProjectDir.resolve(RESOURCES_DIR_DISK_PATH).resolve(resourcesPath));
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException("Error loading config file: " + resourcesPath, ioEx);
     }
   }
 

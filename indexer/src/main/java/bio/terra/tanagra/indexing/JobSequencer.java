@@ -393,7 +393,7 @@ public final class JobSequencer {
     return jobSet;
   }
 
-  enum JobExecutor {
+  public enum JobExecutor {
     PARALLEL,
     SERIAL;
 

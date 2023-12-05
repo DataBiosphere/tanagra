@@ -108,6 +108,11 @@ public class WriteRollupCounts extends BigQueryJob {
   }
 
   @Override
+  public String getEntityGroup() {
+    return entityGroup.getName();
+  }
+
+  @Override
   public String getName() {
     return String.format(
         "%s-%s-%s",

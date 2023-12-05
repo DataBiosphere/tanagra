@@ -4,6 +4,7 @@
 ./gradlew annotationProcessor:run -Pgenerator=DEPLOYMENT_CONFIG_DOCS
 ./gradlew annotationProcessor:run -Pgenerator=UNDERLAY_CONFIG_DOCS
 ./gradlew annotationProcessor:run -Pgenerator=UNDERLAY_CONFIG_TYPESCRIPT
+./gradlew indexer:generateManpageAsciiDoc
 
 exit_code=0
 diff_output=$(git diff docs/generated)
@@ -14,6 +15,7 @@ if [[ $(echo ${diff_output} | wc -c) -gt 1 ]]
     printf "./gradlew annotationProcessor:run -Pgenerator=DEPLOYMENT_CONFIG_DOCS\n"
     printf "./gradlew annotationProcessor:run -Pgenerator=UNDERLAY_CONFIG_DOCS\n"
     printf "./gradlew annotationProcessor:run -Pgenerator=UNDERLAY_CONFIG_TYPESCRIPT\n"
+    printf "./gradlew indexer:generateManpageAsciiDoc\n"
     exit_code=1
   else
     printf "No differences found\n"

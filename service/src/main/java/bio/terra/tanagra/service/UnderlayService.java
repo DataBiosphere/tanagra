@@ -29,9 +29,10 @@ public class UnderlayService {
     // Read in underlays from resource files.
     Map<String, CachedUnderlay> underlayCacheBuilder = new HashMap<>();
     for (String serviceConfig : underlayConfiguration.getFiles()) {
-      SZService szService = ConfigReader.deserializeService(serviceConfig);
-      SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
-      Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
+      ConfigReader configReader = ConfigReader.fromJarResources();
+      SZService szService = configReader.readService(serviceConfig);
+      SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+      Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
       underlayCacheBuilder.put(underlay.getName(), new CachedUnderlay(underlay));
     }
     this.underlayCache = ImmutableMap.copyOf(underlayCacheBuilder);

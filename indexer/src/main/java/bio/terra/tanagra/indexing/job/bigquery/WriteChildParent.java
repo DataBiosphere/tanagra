@@ -28,6 +28,11 @@ public class WriteChildParent extends BigQueryJob {
   }
 
   @Override
+  public String getEntity() {
+    return sourceTable.getEntity();
+  }
+
+  @Override
   protected String getOutputTableName() {
     return indexTable.getTablePointer().getTableName();
   }

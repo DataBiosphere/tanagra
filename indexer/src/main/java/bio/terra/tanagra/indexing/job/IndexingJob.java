@@ -18,6 +18,14 @@ public interface IndexingJob {
     RUN
   }
 
+  default String getEntity() {
+    return null;
+  }
+
+  default String getEntityGroup() {
+    return null;
+  }
+
   String getName();
 
   JobStatus checkStatus();

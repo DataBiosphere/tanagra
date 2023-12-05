@@ -1,0 +1,79 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Tanagra Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= tanagra-index-entity(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+tanagra-index-entity - Run all jobs for a single entity, or all entities.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*tanagra index entity* [*--all*] [*--dry-run*] [*--github-dir*=_<githubDir>_]
+                     *--indexer-config*=_<name>_ [*--job-executor*=_<jobExecutor>_]
+                     [*--name*=_<entity>_] [*--output-dir*=_<outputDir>_]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Run all jobs for a single entity, or all entities.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*--all*::
+  Include all entities.
++
+  Default: false
+
+*--dry-run*::
+  Do a dry run. No indexing tables will be written and no Dataflow jobs will be kicked off.
++
+  Default: false
+
+*--github-dir*=_<githubDir>_::
+  Absolute path of the top-level directory for the local clone of the tanagra GitHub repo. Defaults to the current directory.
+
+*--indexer-config*=_<name>_::
+  Indexer config name
+
+*--job-executor*=_<jobExecutor>_::
+  Executor to use when running jobs: PARALLEL, SERIAL. Recommend serial for debugging, parallel otherwise.
++
+  Default: PARALLEL
+
+*--name*=_<entity>_::
+  Entity name.
+
+*--output-dir*=_<outputDir>_::
+  Absolute path to the directory where the html report will be written. Defaults to the current directory.
+
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
+// tag::picocli-generated-man-section-commands[]
+// end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
+
+// end::picocli-generated-full-manpage[]

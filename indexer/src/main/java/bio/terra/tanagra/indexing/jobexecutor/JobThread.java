@@ -11,22 +11,24 @@ public class JobThread implements Callable<JobResult> {
   private final IndexingJob indexingJob;
   private final boolean isDryRun;
   private final IndexingJob.RunType runType;
-  private final String jobDescription;
+  private final String jobName;
 
   public JobThread(
-      IndexingJob indexingJob,
-      boolean isDryRun,
-      IndexingJob.RunType runType,
-      String jobDescription) {
+      IndexingJob indexingJob, boolean isDryRun, IndexingJob.RunType runType, String jobName) {
     this.indexingJob = indexingJob;
     this.isDryRun = isDryRun;
     this.runType = runType;
-    this.jobDescription = jobDescription;
+    this.jobName = jobName;
   }
 
   @Override
   public JobResult call() {
-    JobResult result = new JobResult(jobDescription, Thread.currentThread().getName());
+    JobResult result =
+        new JobResult(
+            jobName,
+            Thread.currentThread().getName(),
+            indexingJob.getEntity(),
+            indexingJob.getEntityGroup());
 
     long startTime = System.nanoTime();
     try {

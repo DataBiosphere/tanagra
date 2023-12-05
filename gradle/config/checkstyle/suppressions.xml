@@ -34,5 +34,6 @@
   <suppress checks="WhitespaceAround"/>
 
   <suppress files="underlay/src/main/java/bio/terra/tanagra/underlay/serialization/SZ*" checks="VisibilityModifier"/>
+  <suppress files="indexer/src/main/java/bio/terra/tanagra/indexing/cli/*" checks="VisibilityModifier"/>
 
 </suppressions>

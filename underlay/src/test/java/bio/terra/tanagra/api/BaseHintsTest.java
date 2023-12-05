@@ -29,9 +29,10 @@ public abstract class BaseHintsTest {
 
   @BeforeEach
   void setup() {
-    SZService szService = ConfigReader.deserializeService(getServiceConfigName());
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
-    underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZService szService = configReader.readService(getServiceConfigName());
+    SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+    underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
   }
 
   protected abstract String getServiceConfigName();

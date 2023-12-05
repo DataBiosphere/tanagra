@@ -26,6 +26,11 @@ public class WriteRelationshipIntermediateTable extends BigQueryJob {
   }
 
   @Override
+  public String getEntityGroup() {
+    return sourceTable.getEntityGroup();
+  }
+
+  @Override
   protected String getOutputTableName() {
     return indexTable.getTablePointer().getTableName();
   }

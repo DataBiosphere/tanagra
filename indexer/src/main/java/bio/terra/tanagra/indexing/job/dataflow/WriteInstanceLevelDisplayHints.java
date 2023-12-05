@@ -76,6 +76,11 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
   }
 
   @Override
+  public String getEntityGroup() {
+    return criteriaOccurrence.getName();
+  }
+
+  @Override
   protected String getOutputTableName() {
     return indexTable.getTablePointer().getTableName();
   }

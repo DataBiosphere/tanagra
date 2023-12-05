@@ -4,13 +4,17 @@
       + [Default Application Credentials](#default-application-credentials)
       + [gcloud Credentials](#gcloud-credentials)
     + [Create Index Dataset](#create-index-dataset)
-    + [Kickoff Jobs](#kickoff-jobs)
+    + [Build Code](#build-code)
+    + [Run Jobs](#run-jobs)
+      + [Available Commands](#available-commands)
+      + [Dry Run](#dry-run)
       + [All Jobs](#all-jobs)
-      + [Jobs for One Entity/Group](#jobs-for-one-entitygroup)
+      + [Jobs for Entity/Group](#jobs-for-entitygroup)
   * [Troubleshooting](#troubleshooting)
     + [Concurrency](#concurrency)
     + [Re-Run Jobs](#re-run-jobs)
     + [Run dataflow locally](#run-dataflow-locally)
+    + [Filter On One Person](#filter-on-one-person)
   * [OMOP Example](#omop-example)
 
 
@@ -25,12 +29,12 @@ commands are actually Gradle commands.
 ## Running Indexing Jobs
 Before running the indexing jobs, you need to specify the data mapping and indexer [config files](CONFIG_FILES.md).
 
-There are 3 steps to generating the index tables:
+There are 4 steps to generating the index tables:
 1. [Setup](#setup-credentials) credentials with read permissions on the source data, and read-write permissions on 
 the index data.
-2. [Validate](#validate-underlay-config) the user-specified underlay config.
-3. [Create](#create-index-dataset) the index dataset, if it doesn't already exist.
-4. [Kickoff](#kickoff-jobs) the jobs.
+2. [Create](#create-index-dataset) the index dataset.
+3. [Build](#build-code) the indexer code.
+4. [Run](#run-jobs) the jobs.
 
 Below you can see an [example](#omop-example) of the commands for an OMOP dataset.
 
@@ -74,81 +78,124 @@ Change the location, project, and dataset name below to your own.
 bq mk --location=location project_id:dataset_id
 ```
 
-### Kickoff Jobs
+### Build Code
+Build the indexer code once.
+```
+source indexer/tools/local-dev.sh
+```
 
-#### All Jobs
-Do a dry run of all the indexing jobs. This provides a sanity check that the indexing jobs inputs, especially the SQL 
-query inputs, are valid. This step is not required, but highly recommended to help catch errors/bugs sooner and without 
+If you make a change to any config file, no need to re-build.
+If you make a change to any Java code, you should re-build.
+
+### Run Jobs
+
+#### Available Commands
+Documentation for the indexing commands is generated from annotations in the Java classes as 
+a [manpage](docs/generated/indexer-cli/tanagra.adoc).
+You can also see usage help for the commands by omitting arguments. e.g.
+```
+> tanagra
+Tanagra command-line interface.
+Usage: tanagra [COMMAND]
+Commands:
+  index  Commands to run indexing.
+  clean  Commands to clean up indexing outputs.
+Exit codes:
+  0     Successful program execution
+  1     User-actionable error (e.g. missing parameter)
+  2     System or internal error (e.g. validation error from within the Tanagra
+         code)
+  3     Unexpected error (e.g. Java exception)
+```
+
+#### Dry Run
+Do a dry run first for validation. This provides a sanity check that the indexing jobs inputs, especially the SQL
+query inputs, are valid. This step is not required, but highly recommended to help catch errors/bugs sooner and without
 running a bunch of computation first. Dry run includes validating that the attribute data types specified match those
 returned by running the SQL query. The second argument is the name of an indexer config file.
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL cmssynpuf_verily DRY_RUN"
+tanagra index underlay --indexer-config=cmssynpuf_verily --dry-run
 ```
-Now actually kick off all the indexing jobs.
+
+#### All Jobs
+Kick off all jobs for the underlay.
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL cmssynpuf_verily"
+tanagra index underlay --indexer-config=cmssynpuf_verily
 ```
 This can take a long time to complete. If e.g. your computer falls asleep or you need to kill the process on your
 computer, you can re-run the same command again. You need to check that there are no in-progress Dataflow jobs in the
 project before kicking it off again, because the jobs check for the existence of the output BQ table (not whether there
 are any in-progress Dataflow jobs) to tell if they need to run.
 
-#### Jobs for One Entity/Group
-You can also kickoff the indexing jobs for a single entity or entity group. This is helpful for testing and debugging.
-To kick off all the indexing jobs for a particular entity:
+#### Jobs for Entity/Group
+You can also kick off the jobs for a single entity or entity group. This is helpful for testing and debugging.
+To kick off all the jobs for a single entity:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY cmssynpuf_verily person DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY cmssynpuf_verily person"
+tanagra index entity --name=person --indexer-config=cmssynpuf_verily --dry-run
+tanagra index entity --name=person --indexer-config=cmssynpuf_verily
 ```
-or entity group:
+all entities:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP cmssynpuf_verily DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ENTITY_GROUP cmssynpuf_verily conditionPerson"
+tanagra index entity --all --indexer-config=cmssynpuf_verily --dry-run
+tanagra index entity --all --indexer-config=cmssynpuf_verily
 ```
-All the entities in a group should be indexed before the group. The `INDEX_ALL` command ensures this ordering, but keep 
-this in mind if you're running the jobs for each entity or entity group separately.
+a single entity group:
+```
+tanagra index group --name=conditionPerson --indexer-config=cmssynpuf_verily --dry-run
+tanagra index group --name=conditionPerson --indexer-config=cmssynpuf_verily
+```
+all entity groups:
+```
+tanagra index group --all --indexer-config=cmssynpuf_verily --dry-run
+tanagra index group --all --indexer-config=cmssynpuf_verily
+```
+
+All the entities in a group must be indexed before the group. The `tanagra index underlay` command ensures this ordering, 
+but keep this in mind if you're running the jobs for each entity or entity group separately.
 
 ## Troubleshooting
 
 ### Concurrency
 By default, the indexing jobs are run concurrently as much as possible. You can force it to run jobs serially by
-appending `SERIAL` to the command:
+overriding the default job executor:
 ```
-./gradlew indexer:index -Dexec.args="INDEX_ALL cmssynpuf_verily DRY_RUN SERIAL"
-./gradlew indexer:index -Dexec.args="INDEX_ALL cmssynpuf_verily NOT_DRY_RUN SERIAL"
+tanagra index underlay --indexer-config=cmssynpuf_verily --job-executor=SERIAL
 ```
 
 ### Re-Run Jobs
 Indexing jobs will not overwrite existing index tables. If you want to re-run indexing, either for a single entity/group 
 or for everything, you need to delete any existing index tables. You can either do that manually or using the clean
-commands below. Similar to the indexing commands, the clean commands also respect the dry run flag.
+commands below. Similar to the indexing commands, the clean commands also allow dry runs.
 
 To clean the generated index tables for everything:
 ```
-./gradlew indexer:index -Dexec.args="CLEAN_ALL cmssynpuf_verily DRY_RUN"
-./gradlew indexer:index -Dexec.args="CLEAN_ALL cmssynpuf_verily"
+tanagra clean underlay --indexer-config=cmssynpuf_verily --dry-run
+tanagra clean underlay --indexer-config=cmssynpuf_verily
 ```
-or a particular entity:
+a single entity:
 ```
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY cmssynpuf_verily person DRY_RUN"
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY cmssynpuf_verily person"
+tanagra clean entity --name=person --indexer-config=cmssynpuf_verily --dry-run
+tanagra clean entity --name=person --indexer-config=cmssynpuf_verily
 ```
-or a particular entity group:
+a single entity group:
 ```
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP cmssynpuf_verily person DRY_RUN"
-./gradlew indexer:index -Dexec.args="CLEAN_ENTITY_GROUP cmssynpuf_verily person"
+tanagra clean group --name=conditionPerson --indexer-config=cmssynpuf_verily --dry-run
+tanagra clean group --name=conditionPerson --indexer-config=cmssynpuf_verily
 ```
 
-### Run dataflow locally
+### Run Dataflow Locally
 While developing a job, running locally is faster. Also, you can use Intellij debugger.
-- Add to `BigQueryIndexingJob.buildDataflowPipelineOptions()`:
+
+Add to `BigQueryIndexingJob.buildDataflowPipelineOptions()`:
   ```
   import org.apache.beam.runners.direct.DirectRunner;
   
   dataflowOptions.setRunner(DirectRunner.class);
   dataflowOptions.setTempLocation("gs://dataflow-staging-us-central1-694046000181/temp");
   ```
-- Filter your queries on one person, eg:
+
+### Filter On One Person
+Filter your queries on one person, eg:
   ```
   .where(
       new BinaryFilterVariable(
@@ -166,6 +213,6 @@ You can see the top-level underlay config file for this dataset [here](../underl
 ```
 bq mk --location=US verily-tanagra-dev:cmssynpuf_index
 
-./gradlew indexer:index -Dexec.args="INDEX_ALL cmssynpuf_verily DRY_RUN"
-./gradlew indexer:index -Dexec.args="INDEX_ALL cmssynpuf_verily"
+tanagra index underlay --indexer-config=cmssynpuf_verily --dry-run
+tanagra index underlay --indexer-config=cmssynpuf_verily
 ```

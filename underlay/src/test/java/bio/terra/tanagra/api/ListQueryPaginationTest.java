@@ -27,9 +27,10 @@ public class ListQueryPaginationTest {
 
   @BeforeEach
   void setup() {
-    SZService szService = ConfigReader.deserializeService(SERVICE_CONFIG_NAME);
-    SZUnderlay szUnderlay = ConfigReader.deserializeUnderlay(szService.underlay);
-    underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay);
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZService szService = configReader.readService(SERVICE_CONFIG_NAME);
+    SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+    underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
   }
 
   @Test

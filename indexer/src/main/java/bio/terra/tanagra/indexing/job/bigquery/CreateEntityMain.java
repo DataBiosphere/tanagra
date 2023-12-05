@@ -23,6 +23,11 @@ public class CreateEntityMain extends BigQueryJob {
   }
 
   @Override
+  public String getEntity() {
+    return entity.getName();
+  }
+
+  @Override
   protected String getOutputTableName() {
     return indexTable.getTablePointer().getTableName();
   }

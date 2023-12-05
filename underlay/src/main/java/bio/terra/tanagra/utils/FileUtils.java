@@ -4,6 +4,7 @@ import bio.terra.tanagra.exception.SystemException;
 import com.google.common.io.CharStreams;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,11 +26,12 @@ public final class FileUtils {
    * @return the new file stream
    * @throws RuntimeException if the resource file doesn't exist
    */
-  public static InputStream getResourceFileStream(Path resourceFilePath) {
+  public static InputStream getResourceFileStream(Path resourceFilePath)
+      throws FileNotFoundException {
     InputStream inputStream =
         FileUtils.class.getClassLoader().getResourceAsStream(resourceFilePath.toString());
     if (inputStream == null) {
-      throw new SystemException("Resource file not found: " + resourceFilePath);
+      throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
     }
     return inputStream;
   }
@@ -40,12 +42,8 @@ public final class FileUtils {
    * @return the new file stream
    * @throws RuntimeException if the file doesn't exist
    */
-  public static InputStream getFileStream(Path filePath) {
-    try {
-      return Files.newInputStream(Path.of(filePath.toAbsolutePath().toString()));
-    } catch (IOException ioEx) {
-      throw new SystemException("Error opening file stream: " + filePath, ioEx);
-    }
+  public static InputStream getFileStream(Path filePath) throws IOException {
+    return Files.newInputStream(Path.of(filePath.toAbsolutePath().toString()));
   }
 
   /** Create the file and any parent directories if they don't already exist. */

@@ -14,7 +14,7 @@ public final class SerialRunner extends JobRunner {
   }
 
   @Override
-  protected String getName() {
+  public String getName() {
     return "SERIAL";
   }
 
