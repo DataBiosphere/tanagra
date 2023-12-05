@@ -259,7 +259,7 @@ public class DataExportServiceTest {
     fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
     assertFalse(fileContents.isEmpty());
     LOGGER.info("Annotations fileContents: {}", fileContents);
-    assertTrue(fileContents.startsWith("person_id\tannotation key"));
+    assertTrue(fileContents.startsWith("person_id,annotation key"));
     assertEquals(2, fileContents.split("\n").length); // 1 annotation + header row
   }
 
@@ -315,9 +315,9 @@ public class DataExportServiceTest {
 
     // Validate the entity instances and annotations files.
     String annotationsFileContents =
-        fileContents1.startsWith("person_id\tannotation key") ? fileContents1 : fileContents2;
+        fileContents1.startsWith("person_id,annotation key") ? fileContents1 : fileContents2;
     LOGGER.info("Annotations fileContents: {}", annotationsFileContents);
-    assertTrue(annotationsFileContents.startsWith("person_id\tannotation key"));
+    assertTrue(annotationsFileContents.startsWith("person_id,annotation key"));
     assertEquals(2, annotationsFileContents.split("\n").length); // 1 annotation + header row
 
     String entityInstancesFileContents =
