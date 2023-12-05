@@ -736,7 +736,7 @@ public class AnnotationServiceTest {
   }
 
   @Test
-  void tsv() {
+  void csv() {
     // Create one annotation key and value for cohort2, review2.
     AnnotationKey annotationKeyStr1 =
         annotationService.createAnnotationKey(
@@ -754,7 +754,8 @@ public class AnnotationServiceTest {
         List.of(new Literal("val 1")));
     LOGGER.info("Created annotation value");
 
-    // Create one annotation key and value for cohort2, review3.
+    // Create one annotation key and several values for cohort2, review3.
+    // Include values with characters that need to be escaped in CSV.
     AnnotationKey annotationKeyStr2 =
         annotationService.createAnnotationKey(
             study1.getId(),
@@ -765,14 +766,39 @@ public class AnnotationServiceTest {
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort2.getId(),
-        annotationKeyStr2.getId(),
+        annotationKeyStr1.getId(),
         review3.getId(),
         "25",
         List.of(new Literal("val 2")));
     LOGGER.info("Created annotation value");
+    annotationService.updateAnnotationValues(
+        study1.getId(),
+        cohort2.getId(),
+        annotationKeyStr2.getId(),
+        review3.getId(),
+        "25",
+        List.of(new Literal("val,2")));
+    LOGGER.info("Created annotation value with comma");
+    annotationService.updateAnnotationValues(
+        study1.getId(),
+        cohort2.getId(),
+        annotationKeyStr1.getId(),
+        review3.getId(),
+        "26",
+        List.of(new Literal("val\"2")));
+    LOGGER.info("Created annotation value with double quote");
+    annotationService.updateAnnotationValues(
+        study1.getId(),
+        cohort2.getId(),
+        annotationKeyStr2.getId(),
+        review3.getId(),
+        "26",
+        List.of(new Literal("val\n2")));
+    LOGGER.info("Created annotation value with newline");
 
-    // Generate a TSV string with the annotation values data.
-    String tsv = reviewService.buildTsvStringForAnnotationValues(study1, cohort2);
-    assertEquals("person_id\tkey1\tkey2\n24\tval 1\t\n25\t\tval 2\n", tsv);
+    // Generate a CSV string with the annotation values data.
+    String csv = reviewService.buildCsvStringForAnnotationValues(study1, cohort2);
+    assertEquals(
+        "person_id,key1,key2\n24,val 1,\n25,val 2,\"val,2\"\n26,\"val\"\"2\",\"val\n2\"\n", csv);
   }
 }
