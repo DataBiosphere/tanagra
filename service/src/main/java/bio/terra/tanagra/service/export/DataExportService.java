@@ -216,7 +216,7 @@ public class DataExportService {
                       simplifyStringForName(cohort.getDisplayName() + "_" + cohort.getId());
                   String fileName = getFileName(fileNameTemplate, "cohort", cohortIdAndName);
                   String fileContents =
-                      reviewService.buildTsvStringForAnnotationValues(study, cohort);
+                      reviewService.buildCsvStringForAnnotationValues(study, cohort);
                   BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
                   return blobId.toGsUtilUri();
                 }));

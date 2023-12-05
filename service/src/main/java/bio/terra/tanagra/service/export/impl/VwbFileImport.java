@@ -50,7 +50,7 @@ public class VwbFileImport implements DataExport {
     Map<String, String> entityToGcsUrl =
         request.writeEntityDataToGcs("tanagra_${entity}_" + Instant.now() + "_*.csv");
     Map<Cohort, String> cohortToGcsUrl =
-        request.writeAnnotationDataToGcs("tanagra_${cohort}_" + Instant.now() + "_*.tsv");
+        request.writeAnnotationDataToGcs("tanagra_${cohort}_" + Instant.now() + "_*.csv");
     List<String> unsignedUrls = new ArrayList<>();
     unsignedUrls.addAll(entityToGcsUrl.values());
     unsignedUrls.addAll(cohortToGcsUrl.values());
