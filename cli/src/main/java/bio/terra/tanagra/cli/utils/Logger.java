@@ -71,7 +71,7 @@ public final class Logger {
             .toString());
     rollingPolicy.setParent(rollingFileAppender);
 
-    // The base file name (e.g. terra.log) is not included in rollingPolicy's count, so subtract one
+    // The base file name (e.g. cli.log) is not included in rollingPolicy's count, so subtract one
     // here to account for that.
     // e.g. MAX_NUM_FILES=3: terra.log, 1.terra.log, 2.terra.log
     if (MAX_NUM_FILES < 1) {

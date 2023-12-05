@@ -1,9 +1,12 @@
 package bio.terra.tanagra.cli.command;
 
+import bio.terra.tanagra.cli.BaseMain;
 import bio.terra.tanagra.cli.utils.UserIO;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 /**
@@ -28,6 +31,7 @@ import picocli.CommandLine;
             + "the command classes, we can't set the output streams in the constructor and make them "
             + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BaseCommand.class);
   // Output streams for commands to write to.
   @SuppressWarnings({"checkstyle:StaticVariableName", "PMD.FieldNamingConventions"})
   protected static PrintStream OUT;
@@ -43,6 +47,7 @@ public abstract class BaseCommand implements Callable<Integer> {
     ERR = UserIO.getErr();
 
     // Execute the command
+    LOGGER.debug("[COMMAND ARGS] " + String.join(" ", BaseMain.getArgList()));
     execute();
 
     // Set the command exit code

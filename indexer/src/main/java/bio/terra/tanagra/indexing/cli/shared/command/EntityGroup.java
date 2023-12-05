@@ -1,5 +1,6 @@
 package bio.terra.tanagra.indexing.cli.shared.command;
 
+import bio.terra.tanagra.cli.BaseMain;
 import bio.terra.tanagra.cli.command.BaseCommand;
 import bio.terra.tanagra.indexing.JobSequencer;
 import bio.terra.tanagra.indexing.cli.shared.options.IndexerConfig;
@@ -52,6 +53,7 @@ public abstract class EntityGroup extends BaseCommand {
     jobRunner.runJobSets();
 
     new HtmlWriter(
+            BaseMain.getArgList(),
             jobRunner.getJobResults(),
             jobExecutorAndDryRun.jobExecutor.name(),
             OUT,

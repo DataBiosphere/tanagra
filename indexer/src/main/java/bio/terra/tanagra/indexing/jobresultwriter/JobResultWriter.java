@@ -1,5 +1,6 @@
 package bio.terra.tanagra.indexing.jobresultwriter;
 
+import bio.terra.tanagra.cli.BaseMain;
 import bio.terra.tanagra.indexing.jobexecutor.JobResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 public abstract class JobResultWriter {
+  protected final List<String> commandArgs;
   protected final List<JobResult> jobResults;
   protected final String jobRunnerName;
   protected final PrintStream outStream;
@@ -21,10 +23,12 @@ public abstract class JobResultWriter {
   private final Map<String, Summary> entityGroupSummaries = new HashMap<>();
 
   protected JobResultWriter(
+      List<String> commandArgs,
       List<JobResult> jobResults,
       String jobRunnerName,
       PrintStream outStream,
       PrintStream errStream) {
+    this.commandArgs = commandArgs;
     this.jobResults = jobResults;
     this.jobRunnerName = jobRunnerName;
     this.outStream = outStream;
@@ -68,11 +72,11 @@ public abstract class JobResultWriter {
     return ImmutableMap.copyOf(entityGroupSummaries);
   }
 
-  public abstract void run();
-
-  public boolean hasFailures() {
-    return numFailures > 0;
+  protected String getCommand() {
+    return "tanagra " + String.join(" ", BaseMain.getArgList());
   }
+
+  public abstract void run();
 
   public static class Summary {
     private final @Nullable String entity;

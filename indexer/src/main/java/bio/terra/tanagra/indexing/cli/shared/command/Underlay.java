@@ -1,5 +1,6 @@
 package bio.terra.tanagra.indexing.cli.shared.command;
 
+import bio.terra.tanagra.cli.BaseMain;
 import bio.terra.tanagra.cli.command.BaseCommand;
 import bio.terra.tanagra.indexing.JobSequencer;
 import bio.terra.tanagra.indexing.cli.shared.options.IndexerConfig;
@@ -62,6 +63,7 @@ public abstract class Underlay extends BaseCommand {
     allResults.addAll(entityGroupJobRunner.getJobResults());
 
     new HtmlWriter(
+            BaseMain.getArgList(),
             allResults,
             jobExecutorAndDryRun.jobExecutor.name(),
             OUT,

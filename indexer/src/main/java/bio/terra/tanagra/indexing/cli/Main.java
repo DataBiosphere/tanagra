@@ -14,7 +14,6 @@ import picocli.CommandLine;
     header = "Tanagra command-line interface.",
     subcommands = {Index.class, Clean.class})
 public class Main extends BaseMain {
-
   /**
    * Main entry point into the CLI application. This creates and executes the top-level command,
    * sets the exit code and terminates the process.

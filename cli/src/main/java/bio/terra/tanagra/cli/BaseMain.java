@@ -6,7 +6,9 @@ import bio.terra.tanagra.cli.utils.Context;
 import bio.terra.tanagra.cli.utils.Logger;
 import bio.terra.tanagra.cli.utils.UserIO;
 import com.google.common.annotations.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,9 @@ public abstract class BaseMain implements Runnable {
           .stackTraces(CommandLine.Help.Ansi.Style.italic)
           .build();
 
+  /** List of user input command and arguments. */
+  private static List<String> argList = List.of();
+
   /**
    * Create and execute the top-level command. Tests call this method instead of {@link
    * #runCommandAndExit(String...)} so that the process isn't terminated.
@@ -64,9 +69,6 @@ public abstract class BaseMain implements Runnable {
     Logger.setupLogging(
         Context.getConfig().CONSOLE_LOGGING_LEVEL, Context.getConfig().FILE_LOGGING_LEVEL);
 
-    // Log the command
-    LOGGER.debug("[COMMAND RUN] main " + String.join(" ", Arrays.asList(args)));
-
     // Delegate to the appropriate command class, or print the usage if no command was specified.
     int exitCode = cmd.execute(args);
     if (args.length == 0) {
@@ -87,12 +89,25 @@ public abstract class BaseMain implements Runnable {
    *
    * @param args from stdin
    */
+  @SuppressFBWarnings(
+      value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
+      justification =
+          "Each command is run in its own JVM, and there will only be one instance of the main class for each command.")
   public void runCommandAndExit(String... args) {
+    // Save the user input args so that {@link BaseCommand} can log the command and arguments being
+    // executed.
+    argList = Arrays.asList(args);
+
     // Run the command.
     int exitCode = runCommand(args);
 
     // Set the exit code and terminate the process.
     System.exit(exitCode);
+  }
+
+  /** Get the user input arguments */
+  public static List<String> getArgList() {
+    return argList;
   }
 
   /** Required method to implement Runnable, but not actually called by picocli. */

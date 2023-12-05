@@ -14,11 +14,12 @@ public class SysOutWriter extends JobResultWriter {
   private static final String TERMINAL_ANSI_RED = "\u001b[31m";
 
   public SysOutWriter(
+      List<String> commandArgs,
       List<JobResult> jobResults,
       String jobRunnerName,
       PrintStream outStream,
       PrintStream errStream) {
-    super(jobResults, jobRunnerName, outStream, errStream);
+    super(commandArgs, jobResults, jobRunnerName, outStream, errStream);
   }
 
   @Override

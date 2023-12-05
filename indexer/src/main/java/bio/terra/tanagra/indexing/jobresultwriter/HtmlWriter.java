@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -33,11 +34,14 @@ public class HtmlWriter extends JobResultWriter {
           + "    </head>\n"
           + "    <body>\n"
           + "        <h1>Indexing Jobs Report</h1>\n"
-          + "        <p><b>Job Runner:</b> ${jobRunner.name}</p>\n"
           + "        <p><b>Code Version</b></p>\n"
           + "        <p>Git Tag ${version.gitTag}</p>\n"
           + "        <p>Git Hash <a href=\"${version.gitUrl}\">${version.gitHash}</a></p>\n"
           + "        <p>Build ${version.build}</p>\n"
+          + "        <br/>\n"
+          + "        <p><b>Command:</b> ${jobWriter.command}</p>\n"
+          + "        <p><b>Job Runner:</b> ${jobRunner.name}</p>\n"
+          + "        <p><b>Working Directory:</b> ${jobRunner.workingDirectory}</p>\n"
           + "        <br/>\n"
           + "        <p><b>Total # jobs failed: ${jobWriter.numFailures}</b></p>\n"
           + "        <p><b>Total # jobs run: ${jobWriter.numJobs}</b></p>\n"
@@ -71,30 +75,32 @@ public class HtmlWriter extends JobResultWriter {
   private final Path outputDir;
 
   public HtmlWriter(
+      List<String> commandArgs,
       List<JobResult> jobResults,
       String jobRunnerName,
       PrintStream outStream,
       PrintStream errStream,
       Path outputDir) {
-    super(jobResults, jobRunnerName, outStream, errStream);
+    super(commandArgs, jobResults, jobRunnerName, outStream, errStream);
     this.outputDir = outputDir;
   }
 
   @Override
   public void run() {
     VersionInformation versionInformation = VersionInformation.fromResourceFile();
-    Map<String, String> substitutionParams =
-        Map.of(
-            "jobRunner.name", jobRunnerName,
-            "version.gitTag", versionInformation.getGitTag(),
-            "version.gitHash", versionInformation.getGitHash(),
-            "version.gitUrl", versionInformation.getGithubUrl(),
-            "version.build", versionInformation.getBuild(),
-            "jobWriter.numJobs", String.valueOf(getNumJobs()),
-            "jobWriter.numFailures", String.valueOf(getNumFailures()),
-            "jobWriter.summaryTableRows", summaryTableRows(),
-            "jobWriter.detailTableRows", detailTableRows(),
-            "jobWriter.stackTraces", stackTraces());
+    Map<String, String> substitutionParams = new HashMap<>();
+    substitutionParams.put("version.gitTag", versionInformation.getGitTag());
+    substitutionParams.put("version.gitHash", versionInformation.getGitHash());
+    substitutionParams.put("version.gitUrl", versionInformation.getGithubUrl());
+    substitutionParams.put("version.build", versionInformation.getBuild());
+    substitutionParams.put("jobWriter.command", getCommand());
+    substitutionParams.put("jobRunner.name", jobRunnerName);
+    substitutionParams.put("jobRunner.workingDirectory", Path.of("").toAbsolutePath().toString());
+    substitutionParams.put("jobWriter.numJobs", String.valueOf(getNumJobs()));
+    substitutionParams.put("jobWriter.numFailures", String.valueOf(getNumFailures()));
+    substitutionParams.put("jobWriter.summaryTableRows", summaryTableRows());
+    substitutionParams.put("jobWriter.detailTableRows", detailTableRows());
+    substitutionParams.put("jobWriter.stackTraces", stackTraces());
     String fileContents = StringSubstitutor.replace(FILE_TEMPLATE, substitutionParams);
 
     try {
