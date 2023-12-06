@@ -1275,6 +1275,11 @@ components:
               type: number
               format: double
 
+    LiteralList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Literal"
+
     DataType:
       type: string
       enum: ["INT64", "STRING", "BOOLEAN", "DATE", "TIMESTAMP", "DOUBLE"]
@@ -2032,6 +2037,8 @@ components:
         pluginVersion:
           type: integer
           description: Version of the plugin that generated this criteria
+        pluginData:
+          $ref: "#/components/schemas/PluginData"
         predefinedId:
           type: string
           description: Id of the predefined criteria in the config
@@ -2054,9 +2061,17 @@ components:
         - id
         - displayName
         - pluginName
+        - pluginData
         - selectionData
         - uiConfig
         - tags
+
+    PluginData:
+      type: object
+      additionalProperties:
+        type: object
+        nullable: true
+        $ref: "#/components/schemas/LiteralList"
 
     Review:
       type: object

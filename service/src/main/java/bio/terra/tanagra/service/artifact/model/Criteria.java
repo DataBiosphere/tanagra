@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import bio.terra.tanagra.query.Literal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -53,6 +55,17 @@ public class Criteria {
 
   public int getPluginVersion() {
     return pluginVersion;
+  }
+
+  public Map<String, List<Literal>> getPluginData() {
+    // TODO: Pull from DB instead of hard-coding here.
+    return Map.of(
+        "attribute",
+        List.of(new Literal("age")),
+        "range_min",
+        List.of(new Literal(10)),
+        "range_max",
+        List.of(new Literal(24)));
   }
 
   public String getPredefinedId() {

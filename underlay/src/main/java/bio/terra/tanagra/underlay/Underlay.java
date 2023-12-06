@@ -142,6 +142,10 @@ public final class Underlay {
     return uiConfig;
   }
 
+  public List<String> getUiPlugins() {
+    return List.of("ATTRIBUTE");
+  }
+
   public static Underlay fromConfig(
       SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
     // Build the source and index table schemas.
