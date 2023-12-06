@@ -1275,11 +1275,6 @@ components:
               type: number
               format: double
 
-    LiteralList:
-      type: array
-      items:
-        $ref: "#/components/schemas/Literal"
-
     DataType:
       type: string
       enum: ["INT64", "STRING", "BOOLEAN", "DATE", "TIMESTAMP", "DOUBLE"]
@@ -2072,6 +2067,11 @@ components:
         type: object
         nullable: true
         $ref: "#/components/schemas/LiteralList"
+
+    LiteralList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Literal"
 
     Review:
       type: object

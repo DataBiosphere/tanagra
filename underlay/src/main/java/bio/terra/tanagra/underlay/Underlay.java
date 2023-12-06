@@ -143,6 +143,7 @@ public final class Underlay {
   }
 
   public List<String> getUiPlugins() {
+    // TODO: Pull this from the config instead of hard-coding here.
     return List.of("ATTRIBUTE");
   }
 
