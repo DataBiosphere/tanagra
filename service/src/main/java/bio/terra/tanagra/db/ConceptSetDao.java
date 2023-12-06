@@ -186,7 +186,7 @@ public class ConceptSetDao {
       Map<String, List<String>> outputAttributesPerEntity) {
     if (displayName == null
         && description == null
-        && (criteria == null || criteria.isEmpty())
+        && (criteria == null)
         && (outputAttributesPerEntity == null || outputAttributesPerEntity.isEmpty())) {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
@@ -217,7 +217,7 @@ public class ConceptSetDao {
     LOGGER.debug("UPDATE concept set rowsAffected = {}", rowsAffected);
 
     // Write the criteria.
-    if (criteria != null && !criteria.isEmpty()) {
+    if (criteria != null) {
       updateCriteriaHelper(id, criteria);
     }
 
