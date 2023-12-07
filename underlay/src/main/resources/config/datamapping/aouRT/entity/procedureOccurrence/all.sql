@@ -12,17 +12,9 @@ SELECT
   vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.procedure_occurrence` AS po
-
-JOIN `${omopDataset}.person` AS p
-    ON p.person_id = po.person_id
-
-JOIN `${omopDataset}.concept` AS pc
-    ON pc.concept_id = po.procedure_concept_id
-
-LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
-    ON vo.visit_occurrence_id = po.visit_occurrence_id
-
-LEFT JOIN `${omopDataset}.concept` AS vc
-    ON vc.concept_id = vo.visit_concept_id
-    AND vc.domain_id = 'Visit'
-    AND vc.standard_concept = 'S'
+JOIN `${omopDataset}.person` AS p ON p.person_id = po.person_id
+JOIN `${omopDataset}.concept` AS pc ON pc.concept_id = po.procedure_concept_id
+LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = po.visit_occurrence_id
+LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
+WHERE po.procedure_concept_id IS NOT null
+  AND po.procedure_concept_id != 0
