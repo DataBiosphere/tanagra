@@ -318,6 +318,18 @@ function apiForEnvironment<Real, Fake>(
       if (accessToken) {
         config.accessToken = accessToken;
       }
+    } else {
+      // Check parent window's localStorage for auth token
+      // Use try/catch block to prevent UI from breaking in case of CORS error
+      try {
+        const accessToken =
+          window.parent.localStorage.getItem("tanagraAccessToken");
+        if (accessToken) {
+          config.accessToken = accessToken;
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
     return new real(new tanagra.Configuration(config));
   };
