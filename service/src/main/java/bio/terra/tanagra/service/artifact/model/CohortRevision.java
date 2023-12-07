@@ -369,6 +369,11 @@ public class CohortRevision {
       return entity;
     }
 
+    public String getEntityGroup() {
+      // TODO: Pull this from the db instead of hard-coding here.
+      return "conditionPerson";
+    }
+
     public BinaryFilterVariable.BinaryOperator getGroupByCountOperator() {
       return groupByCountOperator;
     }

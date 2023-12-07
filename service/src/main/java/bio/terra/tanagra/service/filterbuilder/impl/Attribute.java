@@ -6,7 +6,7 @@ import bio.terra.tanagra.generated.model.ApiBooleanLogicFilter;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiFilterFilterUnion;
 import bio.terra.tanagra.generated.model.ApiLiteral;
-import bio.terra.tanagra.generated.model.ApiLiteralList;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.service.filterbuilder.FilterBuilderInput;
 import java.util.List;
@@ -21,12 +21,13 @@ public class Attribute extends FilterBuilder {
 
   @Override
   public ApiFilter buildFilter(FilterBuilderInput input) {
-    String attribute = input.getPluginDataSingleString(ATTRIBUTE);
-    ApiLiteral rangeMin = input.getPluginDataSingleLiteral(RANGE_MIN);
-    ApiLiteral rangeMax = input.getPluginDataSingleLiteral(RANGE_MAX);
-    ApiLiteralList values = input.getPluginData(VALUES);
+    // TODO: Pull from plugin-specific schema.
+    String attribute = "age";
+    int rangeMin = 10;
+    int rangeMax = 12;
+    List<Literal> values = List.of(new Literal(12));
 
-    if (rangeMin != null) {
+    if (rangeMin >= 0) {
       ApiFilter rangeMinFilter =
           new ApiFilter()
               .filterType(ApiFilter.FilterTypeEnum.ATTRIBUTE)
@@ -36,7 +37,7 @@ public class Attribute extends FilterBuilder {
                           new ApiAttributeFilter()
                               .attribute(attribute)
                               .operator(ApiBinaryOperator.GREATER_THAN_OR_EQUAL)
-                              .value(rangeMin)));
+                              .value(new ApiLiteral())));
       ApiFilter rangeMaxFilter =
           new ApiFilter()
               .filterType(ApiFilter.FilterTypeEnum.ATTRIBUTE)
@@ -46,7 +47,7 @@ public class Attribute extends FilterBuilder {
                           new ApiAttributeFilter()
                               .attribute(attribute)
                               .operator(ApiBinaryOperator.LESS_THAN_OR_EQUAL)
-                              .value(rangeMax)));
+                              .value(new ApiLiteral())));
       return new ApiFilter()
           .filterType(ApiFilter.FilterTypeEnum.BOOLEAN_LOGIC)
           .filterUnion(
@@ -69,7 +70,7 @@ public class Attribute extends FilterBuilder {
                                       new ApiAttributeFilter()
                                           .attribute(attribute)
                                           .operator(ApiBinaryOperator.EQUALS)
-                                          .value(values.get(0)))))
+                                          .value(new ApiLiteral()))))
               .collect(Collectors.toList());
       if (values.size() == 1) {
         return subFilters.get(0);

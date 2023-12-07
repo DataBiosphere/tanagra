@@ -17,7 +17,6 @@ import bio.terra.tanagra.generated.model.ApiCohortList;
 import bio.terra.tanagra.generated.model.ApiCohortUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -138,12 +137,6 @@ public class CohortsApiController implements CohortsApi {
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
         .entity(apiObj.getEntity())
-        .groupByCountOperator(
-            apiObj.getGroupByCountOperator() == null
-                ? null
-                : BinaryFilterVariable.BinaryOperator.valueOf(
-                    apiObj.getGroupByCountOperator().name()))
-        .groupByCountValue(apiObj.getGroupByCountValue())
         .criteria(
             apiObj.getCriteria().stream()
                 .map(FromApiUtils::fromApiObject)

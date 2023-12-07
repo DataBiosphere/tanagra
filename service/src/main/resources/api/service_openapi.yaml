@@ -2003,18 +2003,16 @@ components:
         entity:
           description: Entity referenced by the criteria
           type: string
-        groupByCountOperator:
-          description: Operator to use for the optional group by count modifier
-          $ref: "#/components/schemas/BinaryOperator"
-        groupByCountValue:
-          type: integer
-          description: Value to use for the optional group by count modifier
+        entityGroup:
+          description: Entity group that connects the entity referenced by the criteria to the primary entity
+          type: string
           nullable: true
       required:
         - id
         - displayName
         - criteria
         - entity
+        - entityGroup
 
     Criteria:
       type: object
@@ -2032,8 +2030,6 @@ components:
         pluginVersion:
           type: integer
           description: Version of the plugin that generated this criteria
-        pluginData:
-          $ref: "#/components/schemas/PluginData"
         predefinedId:
           type: string
           description: Id of the predefined criteria in the config
@@ -2056,22 +2052,9 @@ components:
         - id
         - displayName
         - pluginName
-        - pluginData
         - selectionData
         - uiConfig
         - tags
-
-    PluginData:
-      type: object
-      additionalProperties:
-        type: object
-        nullable: true
-        $ref: "#/components/schemas/LiteralList"
-
-    LiteralList:
-      type: array
-      items:
-        $ref: "#/components/schemas/Literal"
 
     Review:
       type: object

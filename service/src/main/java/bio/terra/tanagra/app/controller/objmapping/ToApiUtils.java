@@ -7,7 +7,6 @@ import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAnnotationValue;
 import bio.terra.tanagra.generated.model.ApiAttribute;
-import bio.terra.tanagra.generated.model.ApiBinaryOperator;
 import bio.terra.tanagra.generated.model.ApiCohort;
 import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
@@ -15,9 +14,7 @@ import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
 import bio.terra.tanagra.generated.model.ApiDataType;
 import bio.terra.tanagra.generated.model.ApiInstanceCount;
 import bio.terra.tanagra.generated.model.ApiLiteral;
-import bio.terra.tanagra.generated.model.ApiLiteralList;
 import bio.terra.tanagra.generated.model.ApiLiteralValueUnion;
-import bio.terra.tanagra.generated.model.ApiPluginData;
 import bio.terra.tanagra.generated.model.ApiProperties;
 import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
 import bio.terra.tanagra.generated.model.ApiStudy;
@@ -32,7 +29,6 @@ import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -115,11 +111,6 @@ public final class ToApiUtils {
         .id(criteriaGroup.getId())
         .displayName(criteriaGroup.getDisplayName())
         .entity(criteriaGroup.getEntity())
-        .groupByCountOperator(
-            criteriaGroup.getGroupByCountOperator() == null
-                ? null
-                : ApiBinaryOperator.valueOf(criteriaGroup.getGroupByCountOperator().name()))
-        .groupByCountValue(criteriaGroup.getGroupByCountValue())
         .criteria(
             criteriaGroup.getCriteria().stream()
                 .map(criteria -> toApiObject(criteria))
@@ -132,28 +123,10 @@ public final class ToApiUtils {
         .displayName(criteria.getDisplayName())
         .pluginName(criteria.getPluginName())
         .pluginVersion(criteria.getPluginVersion())
-        .pluginData(toApiObject(criteria.getPluginData()))
         .predefinedId(criteria.getPredefinedId())
         .selectionData(criteria.getSelectionData())
         .uiConfig(criteria.getUiConfig())
         .tags(criteria.getTags());
-  }
-
-  public static ApiPluginData toApiObject(Map<String, List<Literal>> pluginData) {
-    ApiPluginData apiPluginData = new ApiPluginData();
-    pluginData.entrySet().stream()
-        .forEach(
-            entry -> {
-              String key = entry.getKey();
-              List<ApiLiteral> apiLiterals =
-                  entry.getValue().stream()
-                      .map(literal -> toApiObject(literal))
-                      .collect(Collectors.toList());
-              ApiLiteralList apiLiteralList = new ApiLiteralList();
-              apiLiteralList.addAll(apiLiterals);
-              apiPluginData.put(key, apiLiteralList);
-            });
-    return apiPluginData;
   }
 
   public static ApiInstanceCount toApiObject(CountInstance countInstance) {
