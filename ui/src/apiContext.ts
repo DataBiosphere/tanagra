@@ -312,6 +312,7 @@ function apiForEnvironment<Real, Fake>(
     };
     // For local dev only, get the bearer token from the iframe url param
     if (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN) {
+      console.log("local auth");
       const accessToken = new URLSearchParams(
         window.location.href.split("?")[1]
       ).get("token");
@@ -319,6 +320,7 @@ function apiForEnvironment<Real, Fake>(
         config.accessToken = accessToken;
       }
     } else {
+      console.log(window.parent.localStorage.getItem("tanagraAccessToken"));
       // Check parent window's localStorage for auth token
       // Use try/catch block to prevent UI from breaking in case of CORS error
       try {
