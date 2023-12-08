@@ -22,5 +22,5 @@ LEFT JOIN `${omopDataset}.concept` AS evc ON evc.concept_id = mo.value_as_concep
 LEFT JOIN `${omopDataset}.concept` AS uc ON uc.concept_id = mo.unit_concept_id
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = mo.visit_occurrence_id
 LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
-WHERE mo.measeurement_concept_id IS NOT null
+WHERE mo.measurement_concept_id IS NOT null
   AND mo.measurement_concept_id != 0

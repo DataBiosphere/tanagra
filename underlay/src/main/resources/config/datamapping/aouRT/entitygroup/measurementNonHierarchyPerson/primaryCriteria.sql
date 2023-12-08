@@ -8,7 +8,7 @@ WHERE mo.measurement_concept_id
       WHERE c.domain_id = 'Measurement'
         AND c.vocabulary_id = 'HCPCS'
         AND c.standard_concept = 'S'
-      UNION
+      UNION DISTINCT
       SELECT concept_id
       FROM `${omopDataset}.concept` c
       WHERE c.domain_id = 'Measurement'
