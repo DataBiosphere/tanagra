@@ -15,25 +15,12 @@ SELECT
   mo.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
-
 FROM `${omopDataset}.measurement` AS mo
-
-JOIN `${omopDataset}.person` AS p
-    ON p.person_id = mo.person_id
-
-LEFT JOIN `${omopDataset}.concept` AS mc
-    ON mc.concept_id = mo.measurement_concept_id
-
-LEFT JOIN `${omopDataset}.concept` AS evc
-    ON evc.concept_id = mo.value_as_concept_id
-
-LEFT JOIN `${omopDataset}.concept` AS uc
-    ON uc.concept_id = mo.unit_concept_id
-
-LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
-    ON vo.visit_occurrence_id = mo.visit_occurrence_id
-
-LEFT JOIN `${omopDataset}.concept` AS vc
-    ON vc.concept_id = vo.visit_concept_id
-
-WHERE mo.measurement_concept_id != 0
+JOIN `${omopDataset}.person` AS p ON p.person_id = mo.person_id
+LEFT JOIN `${omopDataset}.concept` AS mc ON mc.concept_id = mo.measurement_concept_id
+LEFT JOIN `${omopDataset}.concept` AS evc ON evc.concept_id = mo.value_as_concept_id
+LEFT JOIN `${omopDataset}.concept` AS uc ON uc.concept_id = mo.unit_concept_id
+LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = mo.visit_occurrence_id
+LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
+WHERE mo.measurement_concept_id IS NOT null
+  AND mo.measurement_concept_id != 0
