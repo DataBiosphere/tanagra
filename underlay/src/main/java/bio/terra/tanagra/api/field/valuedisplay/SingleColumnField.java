@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.field;
+package bio.terra.tanagra.api.field.valuedisplay;
 
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public abstract class SingleColumnField extends ValueDisplayField {
+
   @Override
   public List<FieldVariable> buildFieldVariables(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
@@ -34,7 +35,7 @@ public abstract class SingleColumnField extends ValueDisplayField {
 
   protected abstract FieldPointer getField();
 
-  protected String getFieldAlias() {
+  public String getFieldAlias() {
     return getField().getColumnName();
   }
 

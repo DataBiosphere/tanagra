@@ -1,12 +1,12 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
-import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.HierarchyIsMemberField;
-import bio.terra.tanagra.api.field.HierarchyIsRootField;
-import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
-import bio.terra.tanagra.api.field.HierarchyPathField;
-import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
+import bio.terra.tanagra.api.field.valuedisplay.HierarchyIsMemberField;
+import bio.terra.tanagra.api.field.valuedisplay.HierarchyIsRootField;
+import bio.terra.tanagra.api.field.valuedisplay.HierarchyNumChildrenField;
+import bio.terra.tanagra.api.field.valuedisplay.HierarchyPathField;
+import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;

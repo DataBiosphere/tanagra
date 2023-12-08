@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.field;
+package bio.terra.tanagra.api.field.valuedisplay;
 
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.query.ColumnSchema;

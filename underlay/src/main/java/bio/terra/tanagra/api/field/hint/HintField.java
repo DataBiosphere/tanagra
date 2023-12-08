@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.field;
+package bio.terra.tanagra.api.field.hint;
 
 import bio.terra.tanagra.api.query.hint.Hint;
 import bio.terra.tanagra.exception.SystemException;

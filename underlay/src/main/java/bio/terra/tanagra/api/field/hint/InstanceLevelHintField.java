@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.field;
+package bio.terra.tanagra.api.field.hint;
 
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.hint.Hint;
@@ -11,30 +11,36 @@ import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class EntityLevelHintField extends HintField {
-  private final ITEntityLevelDisplayHints indexTable;
+public class InstanceLevelHintField extends HintField {
+  private final ITInstanceLevelDisplayHints indexTable;
 
-  public EntityLevelHintField(Underlay underlay, Entity entity) {
-    this.indexTable = underlay.getIndexSchema().getEntityLevelDisplayHints(entity.getName());
+  public InstanceLevelHintField(
+      Underlay underlay, EntityGroup entityGroup, Entity hintedEntity, Entity relatedEntity) {
+    this.indexTable =
+        underlay
+            .getIndexSchema()
+            .getInstanceLevelDisplayHints(
+                entityGroup.getName(), hintedEntity.getName(), relatedEntity.getName());
   }
 
   @Override
   public List<FieldVariable> buildFieldVariables(
-      TableVariable elHintTableVar, List<TableVariable> tableVars) {
-    return Arrays.stream(ITEntityLevelDisplayHints.Column.values())
+      TableVariable ilHintTableVar, List<TableVariable> tableVars) {
+    return Arrays.stream(ITInstanceLevelDisplayHints.Column.values())
         .map(
             column ->
                 new FieldPointer.Builder()
                     .tablePointer(indexTable.getTablePointer())
                     .columnName(column.getSchema().getColumnName())
                     .build()
-                    .buildVariable(elHintTableVar, tableVars))
+                    .buildVariable(ilHintTableVar, tableVars))
         .collect(Collectors.toList());
   }
 
@@ -48,38 +54,37 @@ public class EntityLevelHintField extends HintField {
     String attributeName =
         getCellValueOrThrow(
                 rowResult,
-                ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName())
+                ITInstanceLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName())
             .orElseThrow(
                 () ->
                     new SystemException(
-                        "Null attribute name in entity-level display hints table: "
-                            + indexTable.getEntity()))
+                        "Null attribute name in instance-level display hints table: "
+                            + indexTable.getHintedEntity()))
             .getStringVal();
     Optional<Literal> min =
         getCellValueOrThrow(
-            rowResult, ITEntityLevelDisplayHints.Column.MIN.getSchema().getColumnName());
+            rowResult, ITInstanceLevelDisplayHints.Column.MIN.getSchema().getColumnName());
     boolean isRangeHint = min.isPresent();
 
     if (isRangeHint) {
       Optional<Literal> max =
           getCellValueOrThrow(
-              rowResult, ITEntityLevelDisplayHints.Column.MAX.getSchema().getColumnName());
+              rowResult, ITInstanceLevelDisplayHints.Column.MAX.getSchema().getColumnName());
       return new Hint(attributeName, min.get().getDoubleVal(), max.get().getDoubleVal());
     } else {
       Optional<Literal> enumVal =
           getCellValueOrThrow(
-              rowResult, ITEntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName());
+              rowResult, ITInstanceLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName());
       Optional<Literal> enumDisplay =
           getCellValueOrThrow(
-              rowResult, ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName());
+              rowResult,
+              ITInstanceLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName());
       Optional<Literal> enumCount =
           getCellValueOrThrow(
-              rowResult, ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName());
+              rowResult, ITInstanceLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName());
       return new Hint(
           attributeName,
-          new ValueDisplay(
-              enumVal.orElse(new Literal(null)),
-              enumDisplay.isPresent() ? enumDisplay.get().getStringVal() : null),
+          new ValueDisplay(enumVal.get(), enumDisplay.get().getStringVal()),
           enumCount.get().getInt64Val());
     }
   }

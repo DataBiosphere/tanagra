@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.field;
+package bio.terra.tanagra.api.field.valuedisplay;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.FieldPointer;
@@ -18,6 +18,10 @@ public class EntityIdCountField extends SingleColumnField {
     this.idAttribute = entity.getIdAttribute();
   }
 
+  public Attribute getIdAttribute() {
+    return idAttribute;
+  }
+
   @Override
   protected FieldPointer getField() {
     return indexTable
@@ -28,7 +32,7 @@ public class EntityIdCountField extends SingleColumnField {
   }
 
   @Override
-  protected String getFieldAlias() {
+  public String getFieldAlias() {
     return NameHelper.getReservedFieldName(FIELD_ALIAS);
   }
 

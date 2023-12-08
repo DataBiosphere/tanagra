@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.field;
+package bio.terra.tanagra.api.field.valuedisplay;
 
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
@@ -17,6 +17,7 @@ import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class AttributeField extends ValueDisplayField {
@@ -101,11 +102,11 @@ public class AttributeField extends ValueDisplayField {
         : indexTable.getAttributeDisplayField(attribute.getName());
   }
 
-  private String getValueFieldAlias() {
+  public String getValueFieldAlias() {
     return indexTable.getAttributeValueField(attribute.getName()).getColumnName();
   }
 
-  private String getDisplayFieldAlias() {
+  public String getDisplayFieldAlias() {
     return indexTable.getAttributeDisplayField(attribute.getName()).getColumnName();
   }
 
@@ -125,5 +126,20 @@ public class AttributeField extends ValueDisplayField {
 
   public boolean isExcludeDisplay() {
     return excludeDisplay;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    AttributeField that = (AttributeField) o;
+    return excludeDisplay == that.excludeDisplay
+        && isSource == that.isSource
+        && attribute.equals(that.attribute);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(attribute, excludeDisplay, isSource);
   }
 }

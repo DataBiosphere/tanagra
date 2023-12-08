@@ -1,9 +1,9 @@
 package bio.terra.tanagra.api.query;
 
-import bio.terra.tanagra.api.field.EntityIdCountField;
-import bio.terra.tanagra.api.field.EntityLevelHintField;
-import bio.terra.tanagra.api.field.HintField;
-import bio.terra.tanagra.api.field.InstanceLevelHintField;
+import bio.terra.tanagra.api.field.hint.EntityLevelHintField;
+import bio.terra.tanagra.api.field.hint.HintField;
+import bio.terra.tanagra.api.field.hint.InstanceLevelHintField;
+import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
 import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;

@@ -1,8 +1,8 @@
 package bio.terra.tanagra.api.omop;
 
 import bio.terra.tanagra.api.BaseQueriesTest;
-import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
+import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.query.EntityQueryRunner;

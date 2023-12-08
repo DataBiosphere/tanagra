@@ -1,4 +1,4 @@
-package bio.terra.tanagra.api.field;
+package bio.terra.tanagra.api.field.valuedisplay;
 
 import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.FieldPointer;
@@ -27,6 +27,10 @@ public class RelatedEntityIdCountField extends SingleColumnField {
     this.hierarchy = hierarchy;
   }
 
+  public EntityGroup getEntityGroup() {
+    return entityGroup;
+  }
+
   @Override
   protected FieldPointer getField() {
     return indexTable.getEntityGroupCountField(
@@ -44,5 +48,9 @@ public class RelatedEntityIdCountField extends SingleColumnField {
 
   public Hierarchy getHierarchy() {
     return hierarchy;
+  }
+
+  public boolean hasHierarchy() {
+    return hierarchy != null;
   }
 }
