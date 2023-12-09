@@ -18,13 +18,13 @@ SELECT
 FROM `${omopDataset}.observation` AS o
 JOIN `${omopDataset}.person` AS p ON p.person_id = o.person_id
 JOIN `${omopDataset}.concept` AS oc ON oc.concept_id = o.observation_concept_id
+    AND oc.domain_id = 'Observation'
+    AND oc.standard_concept = 'S'
+    AND oc.vocabulary_id != 'PPI'
+AND oc.concept_class_id != 'Survey'
 LEFT JOIN `${omopDataset}.concept` AS ovc ON ovc.concept_id = o.value_as_concept_id
 LEFT JOIN `${omopDataset}.concept` AS ouc ON ouc.concept_id = o.unit_concept_id
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = o.visit_occurrence_id
 LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
-WHERE vc.domain_id = 'Visit'
-AND vc.standard_concept = 'S'
-AND oc.domain_id = 'Observation'
-AND oc.standard_concept = 'S'
-AND oc.vocabulary_id != 'PPI'
-AND oc.concept_class_id != 'Survey'
+    AND vc.domain_id = 'Visit'
+    AND vc.standard_concept = 'S'
