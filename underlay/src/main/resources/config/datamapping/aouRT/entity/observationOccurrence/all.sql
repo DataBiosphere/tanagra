@@ -26,5 +26,3 @@ LEFT JOIN `${omopDataset}.concept` AS ovc ON ovc.concept_id = o.value_as_concept
 LEFT JOIN `${omopDataset}.concept` AS ouc ON ouc.concept_id = o.unit_concept_id
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = o.visit_occurrence_id
 LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
-    AND vc.domain_id = 'Visit'
-    AND vc.standard_concept = 'S'
