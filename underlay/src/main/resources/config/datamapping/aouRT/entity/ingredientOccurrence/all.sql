@@ -20,11 +20,6 @@ JOIN `${omopDataset}.concept` AS ic
     ON ic.concept_id = de.drug_concept_id
         AND de.drug_concept_id IS NOT null
         AND de.drug_concept_id != 0
-        AND ic.domain_id = 'Drug'
-        AND (
-        (ic.vocabulary_id = 'ATC' AND ic.standard_concept = 'C')
-        OR (ic.vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND ic.standard_concept = 'S')
-        )
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = de.visit_occurrence_id
 LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
 
