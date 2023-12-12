@@ -14,19 +14,12 @@ SELECT
   de.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
-
 FROM `${omopDataset}.drug_exposure` AS de
-
-JOIN `${omopDataset}.person` AS p
-    ON p.person_id = de.person_id
-
+JOIN `${omopDataset}.person` AS p ON p.person_id = de.person_id
 JOIN `${omopDataset}.concept` AS ic
     ON ic.concept_id = de.drug_concept_id
+        AND de.drug_concept_id IS NOT null
+        AND de.drug_concept_id != 0
+LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = de.visit_occurrence_id
+LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
 
-LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
-    ON vo.visit_occurrence_id = de.visit_occurrence_id
-
-LEFT JOIN `${omopDataset}.concept` AS vc
-    ON vc.concept_id = vo.visit_concept_id
-    AND vc.domain_id = 'Visit'
-    AND vc.standard_concept = 'S'
