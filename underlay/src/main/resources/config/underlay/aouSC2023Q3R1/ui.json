@@ -218,6 +218,12 @@
               "attribute": "label",
               "direction": "ASC"
             }
+          },
+          {
+            "id": "ingredient_non_hierarchy",
+            "attribute": "drug_concept_id",
+            "entity": "ingredientNonHierarchy",
+            "entityAttribute": "id"
           }
         ]
       },
@@ -488,7 +494,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "ingredient_occurrence",
-      "classifications": ["ingredient"],
+      "classifications": ["ingredient", "ingredient_non_hierarchy"],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
