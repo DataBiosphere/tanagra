@@ -1,6 +1,6 @@
 SELECT
   de.person_id,
-  de.procedure_concept_id
+  de.drug_concept_id
 FROM `${omopDataset}.drug_exposure` AS de
 WHERE de.drug_concept_id
   IN (SELECT concept_id

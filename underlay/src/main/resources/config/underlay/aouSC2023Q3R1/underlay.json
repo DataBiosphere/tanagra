@@ -13,6 +13,7 @@
     "aouRT/brand",
     "aouRT/ingredient",
     "aouRT/ingredientOccurrence",
+    "aouRT/ingredientNonHierarchy",
 
     "aouRT/measurementSnomed",
     "aouRT/measurementLoinc",
@@ -56,6 +57,7 @@
     "aouRT/procedurePerson",
 
     "aouRT/ingredientPerson",
+    "aouRT/ingredientNonHierarchyPerson",
 
     "aouRT/measurementSnomedPerson",
     "aouRT/measurementLoincPerson",
