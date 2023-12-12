@@ -8,6 +8,7 @@
     "aouRT/conditionOccurrence",
     "aouRT/procedure",
     "aouRT/procedureOccurrence",
+    "aouRT/procedureNonHierarchy",
 
     "aouRT/brand",
     "aouRT/ingredient",
@@ -57,6 +58,7 @@
     "aouRT/measurementSnomedPerson",
     "aouRT/measurementLoincPerson",
     "aouRT/measurementNonHierarchyPerson",
+    "aouRT/procedureNonHierarchyPerson",
 
     "aouRT/observationPerson",
     "aouRT/devicePerson",

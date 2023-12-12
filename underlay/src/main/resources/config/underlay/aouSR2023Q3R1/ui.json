@@ -120,6 +120,12 @@
               "attribute": "label",
               "direction": "ASC"
             }
+          },
+          {
+            "id": "procedure_non_hierarchy",
+            "attribute": "procedure_concept_id",
+            "entity": "procedureNonHierarchy",
+            "entityAttribute": "id"
           }
         ]
       },
@@ -390,7 +396,7 @@
       "title": "Condition",
       "conceptSet": true,
       "category": "Domains",
-      "tags": ["Standard Codes"], 
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -434,7 +440,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "procedure_occurrence",
-      "classifications": ["procedure"],
+      "classifications": ["procedure", "procedure_non_hierarchy"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
