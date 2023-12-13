@@ -2,6 +2,7 @@ package bio.terra.tanagra.query2.bigquery;
 
 import static bio.terra.tanagra.query2.sql.SqlGeneration.FUNCTION_TEMPLATE_FIELD_VAR_BRACES;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.FUNCTION_TEMPLATE_VALUES_VAR_BRACES;
+import static bio.terra.tanagra.query2.sql.SqlGeneration.havingSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.inSelectFilterSql;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
@@ -12,9 +13,6 @@ import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
-import bio.terra.tanagra.api.filter.ItemIsInGroupFilter;
-import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
-import bio.terra.tanagra.api.filter.PrimaryForCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.exception.SystemException;
@@ -322,24 +320,43 @@ public final class BigQueryFilterSqlUtils {
             .getIndexSchema()
             .getEntityMain(relationshipFilter.getSelectEntity().getName())
             .getAttributeValueField(foreignKeyAttribute.getName());
-    if (isFilterOnAttribute(relationshipFilter.getSubFilter(), relationshipFilter.getFilterEntity().getIdAttribute())) {
+    if (isFilterOnAttribute(
+            relationshipFilter.getSubFilter(),
+            relationshipFilter.getFilterEntity().getIdAttribute())
+        && !relationshipFilter.hasGroupByFilter()) {
       // subFilter(idField=foreignKey)
       return buildFilterSql(
           underlay, relationshipFilter.getSubFilter(), tableAlias, sqlParams, foreignKeyField);
     } else {
-      // foreignKey IN (SELECT id FROM filterEntity WHERE subFilter(idField=id))
+      // foreignKey IN (SELECT id FROM filterEntity WHERE subFilter(idField=id) [GROUP BY
+      // groupByAttr HAVING groupByOp groupByCount])
       ITEntityMain filterEntityTable =
           underlay.getIndexSchema().getEntityMain(relationshipFilter.getFilterEntity().getName());
       FieldPointer filterEntityIdField =
           filterEntityTable.getAttributeValueField(
               relationshipFilter.getFilterEntity().getIdAttribute().getName());
+      String inSelectFilterSql =
+          buildFilterSql(
+              underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField);
+      if (relationshipFilter.hasGroupByFilter()) {
+        FieldPointer groupByField =
+            filterEntityTable.getAttributeValueField(
+                relationshipFilter.getGroupByCountAttribute().getName());
+        inSelectFilterSql +=
+            ' '
+                + SqlGeneration.havingSql(
+                    relationshipFilter.getGroupByCountOperator(),
+                    relationshipFilter.getGroupByCountValue(),
+                    groupByField,
+                    null,
+                    sqlParams);
+      }
       return inSelectFilterSql(
           foreignKeyField,
           tableAlias,
           filterEntityIdField,
           filterEntityTable.getTablePointer(),
-          buildFilterSql(
-              underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField),
+          inSelectFilterSql,
           sqlParams);
     }
   }
@@ -351,29 +368,47 @@ public final class BigQueryFilterSqlUtils {
       SqlParams sqlParams,
       FieldPointer idField) {
     Attribute foreignKeyAttribute =
-            relationshipFilter
-                    .getRelationship()
-                    .getForeignKeyAttribute(relationshipFilter.getFilterEntity());
+        relationshipFilter
+            .getRelationship()
+            .getForeignKeyAttribute(relationshipFilter.getFilterEntity());
     ITEntityMain filterEntityTable =
-            underlay.getIndexSchema().getEntityMain(relationshipFilter.getFilterEntity().getName());
+        underlay.getIndexSchema().getEntityMain(relationshipFilter.getFilterEntity().getName());
     FieldPointer foreignKeyField =
-            filterEntityTable.getAttributeValueField(foreignKeyAttribute.getName());
-    if (isFilterOnAttribute(relationshipFilter.getSubFilter(), foreignKeyAttribute)) {
+        filterEntityTable.getAttributeValueField(foreignKeyAttribute.getName());
+    if (isFilterOnAttribute(relationshipFilter.getSubFilter(), foreignKeyAttribute)
+        && !relationshipFilter.hasGroupByFilter()) {
       // subFilter(idField=foreignKey)
-      return buildFilterSql(underlay, relationshipFilter.getSubFilter(), tableAlias, sqlParams, foreignKeyField);
+      return buildFilterSql(
+          underlay, relationshipFilter.getSubFilter(), tableAlias, sqlParams, foreignKeyField);
     } else {
-      // id IN (SELECT foreignKey FROM filterEntity WHERE subFilter(idField=id))
+      // id IN (SELECT foreignKey FROM filterEntity WHERE subFilter(idField=id) [GROUP BY
+      // groupByAttr HAVING groupByOp groupByCount])
       FieldPointer filterEntityIdField =
-              filterEntityTable.getAttributeValueField(
-                      relationshipFilter.getFilterEntity().getIdAttribute().getName());
+          filterEntityTable.getAttributeValueField(
+              relationshipFilter.getFilterEntity().getIdAttribute().getName());
+      String inSelectFilterSql =
+          buildFilterSql(
+              underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField);
+      if (relationshipFilter.hasGroupByFilter()) {
+        FieldPointer groupByField =
+            filterEntityTable.getAttributeValueField(
+                relationshipFilter.getGroupByCountAttribute().getName());
+        inSelectFilterSql +=
+            ' '
+                + SqlGeneration.havingSql(
+                    relationshipFilter.getGroupByCountOperator(),
+                    relationshipFilter.getGroupByCountValue(),
+                    groupByField,
+                    null,
+                    sqlParams);
+      }
       return inSelectFilterSql(
-              idField,
-              tableAlias,
-              foreignKeyField,
-              filterEntityTable.getTablePointer(),
-              buildFilterSql(
-                      underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField),
-              sqlParams);
+          idField,
+          tableAlias,
+          foreignKeyField,
+          filterEntityTable.getTablePointer(),
+          inSelectFilterSql,
+          sqlParams);
     }
   }
 
@@ -394,23 +429,52 @@ public final class BigQueryFilterSqlUtils {
         idPairsTable.getEntityIdField(relationshipFilter.getSelectEntity().getName());
     FieldPointer filterId =
         idPairsTable.getEntityIdField(relationshipFilter.getFilterEntity().getName());
-    if (isFilterOnAttribute(relationshipFilter.getSubFilter(), relationshipFilter.getFilterEntity().getIdAttribute())) {
-      // id IN (SELECT selectId FROM intermediateTable WHERE subFilter(idField=filterId))
+    if (isFilterOnAttribute(
+            relationshipFilter.getSubFilter(),
+            relationshipFilter.getFilterEntity().getIdAttribute())
+        && (!relationshipFilter.hasGroupByFilter()
+            || relationshipFilter.getGroupByCountAttribute().isId())) {
+      // id IN (SELECT selectId FROM intermediateTable WHERE subFilter(idField=filterId) [GROUP BY
+      // groupByAttr HAVING groupByOp groupByCount])
+      String subFilterSql =
+          buildFilterSql(underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterId);
+      if (relationshipFilter.hasGroupByFilter()) {
+        subFilterSql +=
+            ' '
+                + havingSql(
+                    relationshipFilter.getGroupByCountOperator(),
+                    relationshipFilter.getGroupByCountValue(),
+                    filterId,
+                    null,
+                    sqlParams);
+      }
       return inSelectFilterSql(
-          idField,
-          tableAlias,
-          selectId,
-          idPairsTable.getTablePointer(),
-          buildFilterSql(underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterId),
-          sqlParams);
+          idField, tableAlias, selectId, idPairsTable.getTablePointer(), subFilterSql, sqlParams);
     } else {
       // id IN (SELECT selectId FROM intermediateTable WHERE filterId IN (SELECT id FROM
-      // filterEntity WHERE subFilter(idField=id))
+      // filterEntity WHERE subFilter(idField=id) [GROUP BY groupByAttr HAVING groupByOp
+      // groupByCount])
       ITEntityMain filterEntityTable =
           underlay.getIndexSchema().getEntityMain(relationshipFilter.getFilterEntity().getName());
       FieldPointer filterEntityIdField =
           filterEntityTable.getAttributeValueField(
               relationshipFilter.getFilterEntity().getIdAttribute().getName());
+      String subFilterSql =
+          buildFilterSql(
+              underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField);
+      if (relationshipFilter.hasGroupByFilter()) {
+        FieldPointer groupByField =
+            filterEntityTable.getAttributeValueField(
+                relationshipFilter.getGroupByCountAttribute().getName());
+        subFilterSql +=
+            ' '
+                + havingSql(
+                    relationshipFilter.getGroupByCountOperator(),
+                    relationshipFilter.getGroupByCountValue(),
+                    groupByField,
+                    null,
+                    sqlParams);
+      }
       return inSelectFilterSql(
           idField,
           tableAlias,
@@ -421,8 +485,7 @@ public final class BigQueryFilterSqlUtils {
               null,
               filterEntityIdField,
               filterEntityTable.getTablePointer(),
-              buildFilterSql(
-                  underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterId),
+              subFilterSql,
               sqlParams),
           sqlParams);
     }
@@ -433,11 +496,11 @@ public final class BigQueryFilterSqlUtils {
       return ((AttributeFilter) entityFilter).getAttribute().equals(attribute);
     } else if (entityFilter instanceof BooleanAndOrFilter) {
       return ((BooleanAndOrFilter) entityFilter)
-              .getSubFilters()
-              .parallelStream()
-              .filter(subFilter -> !isFilterOnAttribute(subFilter, attribute))
-              .findAny()
-              .isEmpty();
+          .getSubFilters()
+          .parallelStream()
+          .filter(subFilter -> !isFilterOnAttribute(subFilter, attribute))
+          .findAny()
+          .isEmpty();
     } else if (entityFilter instanceof BooleanNotFilter) {
       return isFilterOnAttribute(((BooleanNotFilter) entityFilter).getSubFilter(), attribute);
     } else if (entityFilter instanceof HierarchyHasAncestorFilter) {
@@ -452,10 +515,10 @@ public final class BigQueryFilterSqlUtils {
       return attribute.isId();
     } else if (entityFilter instanceof TextSearchFilter) {
       return ((TextSearchFilter) entityFilter).isForSpecificAttribute()
-              && ((TextSearchFilter) entityFilter).getAttribute().equals(attribute);
+          && ((TextSearchFilter) entityFilter).getAttribute().equals(attribute);
     } else {
       throw new SystemException(
-              "Unsupported filter type: " + entityFilter.getClass().getSimpleName());
+          "Unsupported filter type: " + entityFilter.getClass().getSimpleName());
     }
   }
 }

@@ -4,6 +4,7 @@ import static bio.terra.tanagra.query2.sql.SqlGeneration.binaryFilterSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.booleanAndOrFilterSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.booleanNotFilterSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.functionFilterSql;
+import static bio.terra.tanagra.query2.sql.SqlGeneration.havingSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.inSelectFilterSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.orderBySql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.selectSql;
@@ -283,5 +284,25 @@ public class SqlGenerationTest {
     String sql = booleanNotFilterSql(subFilterSql);
     assertEquals("NOT tableAlias.columnName <= @val", sql);
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+  }
+
+  @Test
+  void having() {
+    TablePointer table = new TablePointer("projectId", "datasetId", "tableName");
+    String tableAlias = "tableAlias";
+    FieldPointer groupByField =
+        new FieldPointer.Builder().tablePointer(table).columnName("columnName").build();
+    SqlParams sqlParams = new SqlParams();
+    Literal groupByCount = new Literal(4);
+
+    String havingSql =
+        havingSql(
+            BinaryFilterVariable.BinaryOperator.GREATER_THAN_OR_EQUAL,
+            groupByCount.getInt64Val().intValue(),
+            groupByField,
+            tableAlias,
+            sqlParams);
+    assertEquals("GROUP BY tableAlias.columnName HAVING COUNT(*) >= @groupByCount", havingSql);
+    assertEquals(ImmutableMap.of("groupByCount", groupByCount), sqlParams.getParams());
   }
 }

@@ -23,12 +23,10 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
-import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -284,146 +282,609 @@ public class BigQueryListRunnerFilterTest extends BigQueryListRunnerTest {
 
   @Test
   void relationshipFilterFKSelect() throws IOException {
-    CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    // e.g. SELECT occurrence FILTER ON person (foreign key is on the occurrence table).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
     Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
 
     // Sub-filter on filter entity id.
-    AttributeFilter idAttributeFilter = new AttributeFilter(underlay, criteriaOccurrence.getCriteriaEntity(), criteriaOccurrence.getCriteriaEntity().getIdAttribute(), BinaryFilterVariable.BinaryOperator.EQUALS, new Literal(201_826L));
+    AttributeFilter idAttributeFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(456L));
     RelationshipFilter relationshipFilter =
-            new RelationshipFilter(underlay, criteriaOccurrence, occurrenceEntity, criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity.getName()),idAttributeFilter,null, null,null);
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            idAttributeFilter,
+            null,
+            null,
+            null);
     AttributeField simpleAttribute =
-            new AttributeField(underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+        new AttributeField(
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
     ListQueryResult listQueryResult =
-            new BigQueryListRunner()
-                    .run(
-                            new ListQueryRequest(
-                                    underlay,
-                                    occurrenceEntity,
-                                    List.of(simpleAttribute),
-                                    relationshipFilter,
-                                    null,
-                                    null,
-                                    null,
-                                    null));
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    occurrenceEntity,
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
     TablePointer occurrenceTable =
-            underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    TablePointer criteriaTable =
-            underlay.getIndexSchema().getEntityMain(criteriaOccurrence.getCriteriaEntity().getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly("relationshipFilterFKSelectIdFilter", listQueryResult.getSql(), occurrenceTable, criteriaTable);
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    TablePointer primaryTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKSelectIdFilter",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
 
     // Sub-filter not on filter entity id.
-    AttributeFilter notIdAttributeFilter = new AttributeFilter(underlay, criteriaOccurrence.getCriteriaEntity(), criteriaOccurrence.getCriteriaEntity().getAttribute("concept_code"), BinaryFilterVariable.BinaryOperator.EQUALS, new Literal("44054006"));
+    AttributeFilter notIdAttributeFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("gender"),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(8_207L));
     relationshipFilter =
-            new RelationshipFilter(underlay, criteriaOccurrence, occurrenceEntity, criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity.getName()),notIdAttributeFilter,null, null,null);
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            notIdAttributeFilter,
+            null,
+            null,
+            null);
     listQueryResult =
-            new BigQueryListRunner()
-                    .run(
-                            new ListQueryRequest(
-                                    underlay,
-                                    occurrenceEntity,
-                                    List.of(simpleAttribute),
-                                    relationshipFilter,
-                                    null,
-                                    null,
-                                    null,
-                                    null));
-    assertSqlMatchesWithTableNameOnly("relationshipFilterFKSelectNotIdFilter", listQueryResult.getSql(), occurrenceTable, criteriaTable);
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    occurrenceEntity,
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKSelectNotIdFilter",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
   }
 
   @Test
   void relationshipFilterFKFilter() throws IOException {
-    CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    // e.g. SELECT person FILTER ON occurrence (foreign key is on the occurrence table).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
     Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
 
     // Sub-filter on filter entity id.
-    AttributeFilter attributeFilter = new AttributeFilter(underlay, occurrenceEntity, occurrenceEntity.getAttribute("person_id"), BinaryFilterVariable.BinaryOperator.EQUALS ,new Literal(15));
+    AttributeFilter attributeFilter =
+        new AttributeFilter(
+            underlay,
+            occurrenceEntity,
+            occurrenceEntity.getAttribute("person_id"),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(15));
     RelationshipFilter relationshipFilter =
-            new RelationshipFilter(underlay, criteriaOccurrence, underlay.getPrimaryEntity(), criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),attributeFilter,null, null,null);
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            underlay.getPrimaryEntity(),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            attributeFilter,
+            null,
+            null,
+            null);
     AttributeField simpleAttribute =
-            new AttributeField(underlay, underlay.getPrimaryEntity(), underlay.getPrimaryEntity().getAttribute("year_of_birth"), false, false);
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("year_of_birth"),
+            false,
+            false);
     ListQueryResult listQueryResult =
-            new BigQueryListRunner()
-                    .run(
-                            new ListQueryRequest(
-                                    underlay,
-                                    underlay.getPrimaryEntity(),
-                                    List.of(simpleAttribute),
-                                    relationshipFilter,
-                                    null,
-                                    null,
-                                    null,
-                                    null));
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    underlay.getPrimaryEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
     TablePointer occurrenceTable =
-            underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     TablePointer primaryTable =
-            underlay.getIndexSchema().getEntityMain(underlay.getPrimaryEntity().getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly("relationshipFilterFKFilterIdFilter", listQueryResult.getSql(), occurrenceTable, primaryTable);
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterIdFilter",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
 
     // Sub-filter not on filter entity id.
-    attributeFilter = new AttributeFilter(underlay, occurrenceEntity, occurrenceEntity.getAttribute("stop_reason"), FunctionFilterVariable.FunctionTemplate.IS_NULL ,List.of());
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            occurrenceEntity,
+            occurrenceEntity.getAttribute("stop_reason"),
+            FunctionFilterVariable.FunctionTemplate.IS_NULL,
+            List.of());
     relationshipFilter =
-            new RelationshipFilter(underlay, criteriaOccurrence, underlay.getPrimaryEntity(), criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),attributeFilter,null, null,null);
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            underlay.getPrimaryEntity(),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            attributeFilter,
+            null,
+            null,
+            null);
     listQueryResult =
-            new BigQueryListRunner()
-                    .run(
-                            new ListQueryRequest(
-                                    underlay,
-                                    underlay.getPrimaryEntity(),
-                                    List.of(simpleAttribute),
-                                    relationshipFilter,
-                                    null,
-                                    null,
-                                    null,
-                                    null));
-    assertSqlMatchesWithTableNameOnly("relationshipFilterFKFilterNotIdFilter", listQueryResult.getSql(), occurrenceTable, primaryTable);
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    underlay.getPrimaryEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterNotIdFilter",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
   }
+
   @Test
   void relationshipFilterIntermediateTable() throws IOException {
     GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
 
     // Sub-filter on filter entity id.
-    AttributeFilter attributeFilter = new AttributeFilter(underlay, groupItems.getGroupEntity(), groupItems.getGroupEntity().getIdAttribute(), BinaryFilterVariable.BinaryOperator.EQUALS ,new Literal(15));
+    AttributeFilter attributeFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(15));
     RelationshipFilter relationshipFilter =
-            new RelationshipFilter(underlay, groupItems, groupItems.getItemsEntity(), groupItems.getGroupItemsRelationship(),attributeFilter,null, null,null);
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            attributeFilter,
+            null,
+            null,
+            null);
     AttributeField simpleAttribute =
-            new AttributeField(underlay, groupItems.getItemsEntity(), groupItems.getItemsEntity().getAttribute("name"), false, false);
+        new AttributeField(
+            underlay,
+            groupItems.getItemsEntity(),
+            groupItems.getItemsEntity().getAttribute("name"),
+            false,
+            false);
     ListQueryResult listQueryResult =
-            new BigQueryListRunner()
-                    .run(
-                            new ListQueryRequest(
-                                    underlay,
-                                    groupItems.getItemsEntity(),
-                                    List.of(simpleAttribute),
-                                    relationshipFilter,
-                                    null,
-                                    null,
-                                    null,
-                                    null));
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    groupItems.getItemsEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
     TablePointer groupTable =
-            underlay.getIndexSchema().getEntityMain(groupItems.getGroupEntity().getName()).getTablePointer();
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
     TablePointer itemsTable =
-            underlay.getIndexSchema().getEntityMain(groupItems.getItemsEntity().getName()).getTablePointer();
-    TablePointer idPairsTable = underlay.getIndexSchema().getRelationshipIdPairs(groupItems.getName(), groupItems.getGroupEntity().getName(), groupItems.getItemsEntity().getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly("relationshipFilterIntTableIdFilter", listQueryResult.getSql(), groupTable, itemsTable, idPairsTable);
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    TablePointer idPairsTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableIdFilter",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
 
     // Sub-filter not on filter entity id.
-    attributeFilter = new AttributeFilter(underlay, groupItems.getGroupEntity(), groupItems.getGroupEntity().getAttribute("concept_code"), BinaryFilterVariable.BinaryOperator.EQUALS ,new Literal("161"));
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getAttribute("concept_code"),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal("161"));
     relationshipFilter =
-            new RelationshipFilter(underlay, groupItems, groupItems.getItemsEntity(), groupItems.getGroupItemsRelationship(),attributeFilter,null, null,null);
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            attributeFilter,
+            null,
+            null,
+            null);
     listQueryResult =
-            new BigQueryListRunner()
-                    .run(
-                            new ListQueryRequest(
-                                    underlay,
-                                    groupItems.getItemsEntity(),
-                                    List.of(simpleAttribute),
-                                    relationshipFilter,
-                                    null,
-                                    null,
-                                    null,
-                                    null));
-    assertSqlMatchesWithTableNameOnly("relationshipFilterIntTableNotIdFilter", listQueryResult.getSql(), groupTable, itemsTable, idPairsTable);
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    groupItems.getItemsEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableNotIdFilter",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
   }
+
+  @Test
+  void relationshipFilterFKSelectWithGroupBy() throws IOException {
+    // e.g. SELECT occurrence FILTER ON person (foreign key is on the occurrence table).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
+
+    // Sub-filter on filter entity id.
+    AttributeFilter idAttributeFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(456L));
+    RelationshipFilter relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            idAttributeFilter,
+            null,
+            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+            0);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+    ListQueryResult listQueryResult =
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    occurrenceEntity,
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    TablePointer occurrenceTable =
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    TablePointer primaryTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKSelectIdFilterWithGroupBy",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
+
+    // Sub-filter not on filter entity id.
+    AttributeFilter notIdAttributeFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("gender"),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(8_207L));
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            notIdAttributeFilter,
+            null,
+            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+            0);
+    listQueryResult =
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    occurrenceEntity,
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKSelectNotIdFilterWithGroupBy",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
+  }
+
+  @Test
+  void relationshipFilterFKFilterWithGroupBy() throws IOException {
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
+
+    // Sub-filter on filter entity id.
+    AttributeFilter attributeFilter =
+        new AttributeFilter(
+            underlay,
+            occurrenceEntity,
+            occurrenceEntity.getAttribute("person_id"),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(15));
+    RelationshipFilter relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            underlay.getPrimaryEntity(),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            attributeFilter,
+            occurrenceEntity.getAttribute("start_date"),
+            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+            1);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("year_of_birth"),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    underlay.getPrimaryEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    TablePointer occurrenceTable =
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    TablePointer primaryTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterIdFilterWithGroupBy",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
+
+    // Sub-filter not on filter entity id.
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            occurrenceEntity,
+            occurrenceEntity.getAttribute("stop_reason"),
+            FunctionFilterVariable.FunctionTemplate.IS_NULL,
+            List.of());
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            underlay.getPrimaryEntity(),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            attributeFilter,
+            occurrenceEntity.getAttribute("start_date"),
+            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+            1);
+    listQueryResult =
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    underlay.getPrimaryEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterNotIdFilterWithGroupBy",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
+  }
+
+  @Test
+  void relationshipFilterIntermediateTableWithGroupBy() throws IOException {
+    GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
+
+    // Sub-filter on filter entity id, group by on filter entity id.
+    AttributeFilter attributeFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal(15));
+    RelationshipFilter relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            attributeFilter,
+            null,
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            1);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getItemsEntity(),
+            groupItems.getItemsEntity().getAttribute("name"),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    groupItems.getItemsEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    TablePointer groupTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
+    TablePointer itemsTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    TablePointer idPairsTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableIdFilterWithGroupByOnId",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
+
+    // Sub-filter on filter entity id, group by not on filter entity id.
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            attributeFilter,
+            groupItems.getGroupEntity().getAttribute("concept_code"),
+            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+            1);
+    listQueryResult =
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    groupItems.getItemsEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableIdFilterWithGroupByNotOnId",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
+
+    // Sub-filter not on filter entity id.
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getAttribute("concept_code"),
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            new Literal("161"));
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            attributeFilter,
+            null,
+            BinaryFilterVariable.BinaryOperator.EQUALS,
+            1);
+    listQueryResult =
+        new BigQueryListRunner()
+            .run(
+                new ListQueryRequest(
+                    underlay,
+                    groupItems.getItemsEntity(),
+                    List.of(simpleAttribute),
+                    relationshipFilter,
+                    null,
+                    null,
+                    null,
+                    null));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableNotIdFilterWithGroupBy",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
+  }
+
   @Test
   void textSearchFilter() throws IOException {
     Entity entity = underlay.getEntity("condition");

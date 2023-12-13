@@ -10,5 +10,9 @@
             FROM
                 ${ENT_person}              
             WHERE
-                gender = @val         
+                id = @val              
+            GROUP BY
+                id              
+            HAVING
+                COUNT(*) > @groupByCount         
         )

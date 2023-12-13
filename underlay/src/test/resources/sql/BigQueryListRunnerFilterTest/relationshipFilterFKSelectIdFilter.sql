@@ -4,4 +4,4 @@
     FROM
         ${ENT_conditionOccurrence} AS c      
     WHERE
-        c.condition = @val
+        c.person_id = @val

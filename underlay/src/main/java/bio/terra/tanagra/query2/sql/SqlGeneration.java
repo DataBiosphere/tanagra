@@ -184,4 +184,18 @@ public final class SqlGeneration {
         throw new SystemException("Unknown logical operator: " + operator);
     }
   }
+
+  public static String havingSql(
+      BinaryFilterVariable.BinaryOperator groupByOperator,
+      Integer groupByCount,
+      FieldPointer groupByField,
+      @Nullable String tableAlias,
+      SqlParams sqlParams) {
+    sqlParams.addParam("groupByCount", new Literal(groupByCount));
+    return "GROUP BY "
+        + whereSql(groupByField, tableAlias)
+        + " HAVING COUNT(*) "
+        + binaryOperatorSql(groupByOperator)
+        + " @groupByCount";
+  }
 }
