@@ -3,6 +3,7 @@ package bio.terra.tanagra.api.filter;
 import bio.terra.tanagra.query.FilterVariable;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,14 @@ public class BooleanAndOrFilter extends EntityFilter {
       BooleanAndOrFilterVariable.LogicalOperator operator, List<EntityFilter> subFilters) {
     this.operator = operator;
     this.subFilters = subFilters;
+  }
+
+  public BooleanAndOrFilterVariable.LogicalOperator getOperator() {
+    return operator;
+  }
+
+  public ImmutableList<EntityFilter> getSubFilters() {
+    return ImmutableList.copyOf(subFilters);
   }
 
   @Override

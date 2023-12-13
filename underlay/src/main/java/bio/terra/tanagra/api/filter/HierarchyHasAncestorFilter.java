@@ -20,6 +20,8 @@ public class HierarchyHasAncestorFilter extends EntityFilter {
   private final ITEntityMain indexEntityTable;
   private final ITHierarchyAncestorDescendant indexAncestorDescendantTable;
   private final Attribute idAttribute;
+  private final Entity entity;
+  private final Hierarchy hierarchy;
   private final Literal ancestorId;
 
   public HierarchyHasAncestorFilter(
@@ -30,7 +32,21 @@ public class HierarchyHasAncestorFilter extends EntityFilter {
             .getIndexSchema()
             .getHierarchyAncestorDescendant(entity.getName(), hierarchy.getName());
     this.idAttribute = entity.getIdAttribute();
+    this.entity = entity;
+    this.hierarchy = hierarchy;
     this.ancestorId = ancestorId;
+  }
+
+  public Entity getEntity() {
+    return entity;
+  }
+
+  public Hierarchy getHierarchy() {
+    return hierarchy;
+  }
+
+  public Literal getAncestorId() {
+    return ancestorId;
   }
 
   @Override

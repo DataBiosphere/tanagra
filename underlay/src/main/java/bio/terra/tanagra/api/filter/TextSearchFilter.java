@@ -14,6 +14,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class TextSearchFilter extends EntityFilter {
+  private final Entity entity;
   private final ITEntityMain indexTable;
   private final FunctionFilterVariable.FunctionTemplate functionTemplate;
   private final String text;
@@ -25,6 +26,7 @@ public class TextSearchFilter extends EntityFilter {
       FunctionFilterVariable.FunctionTemplate functionTemplate,
       String text,
       @Nullable Attribute attribute) {
+    this.entity = entity;
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.functionTemplate = functionTemplate;
     this.text = text;
@@ -44,5 +46,26 @@ public class TextSearchFilter extends EntityFilter {
                 : indexTable.getAttributeValueField(attribute.getName()));
     return new FunctionFilterVariable(
         functionTemplate, new FieldVariable(searchField, entityTableVar), new Literal(text));
+  }
+
+  public Entity getEntity() {
+    return entity;
+  }
+
+  public boolean isForSpecificAttribute() {
+    return attribute != null;
+  }
+
+  @Nullable
+  public Attribute getAttribute() {
+    return attribute;
+  }
+
+  public FunctionFilterVariable.FunctionTemplate getFunctionTemplate() {
+    return functionTemplate;
+  }
+
+  public String getText() {
+    return text;
   }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 
 public class AttributeFilter extends EntityFilter {
   private final ITEntityMain indexTable;
+  private final Entity entity;
   private final Attribute attribute;
   private final BinaryFilterVariable.BinaryOperator operator;
   private final FunctionFilterVariable.FunctionTemplate functionTemplate;
@@ -28,6 +29,7 @@ public class AttributeFilter extends EntityFilter {
       BinaryFilterVariable.BinaryOperator operator,
       Literal value) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.entity = entity;
     this.attribute = attribute;
     this.operator = operator;
     this.functionTemplate = null;
@@ -41,6 +43,7 @@ public class AttributeFilter extends EntityFilter {
       FunctionFilterVariable.FunctionTemplate functionTemplate,
       List<Literal> values) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.entity = entity;
     this.attribute = attribute;
     this.operator = null;
     this.functionTemplate = functionTemplate;
@@ -64,5 +67,29 @@ public class AttributeFilter extends EntityFilter {
         ? new BinaryFilterVariable(valueFieldVar, operator, values.get(0))
         : new FunctionFilterVariable(
             functionTemplate, valueFieldVar, values.toArray(new Literal[0]));
+  }
+
+  public Attribute getAttribute() {
+    return attribute;
+  }
+
+  public Entity getEntity() {
+    return entity;
+  }
+
+  public BinaryFilterVariable.BinaryOperator getOperator() {
+    return operator;
+  }
+
+  public FunctionFilterVariable.FunctionTemplate getFunctionTemplate() {
+    return functionTemplate;
+  }
+
+  public ImmutableList<Literal> getValues() {
+    return values;
+  }
+
+  public boolean hasFunctionTemplate() {
+    return functionTemplate != null;
   }
 }

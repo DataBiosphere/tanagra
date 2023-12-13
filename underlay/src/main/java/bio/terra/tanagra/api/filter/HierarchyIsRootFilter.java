@@ -13,11 +13,21 @@ import java.util.List;
 
 public class HierarchyIsRootFilter extends EntityFilter {
   private final ITEntityMain indexTable;
+  private final Entity entity;
   private final Hierarchy hierarchy;
 
   public HierarchyIsRootFilter(Underlay underlay, Entity entity, Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.entity = entity;
     this.hierarchy = hierarchy;
+  }
+
+  public Entity getEntity() {
+    return entity;
+  }
+
+  public Hierarchy getHierarchy() {
+    return hierarchy;
   }
 
   @Override

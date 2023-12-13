@@ -13,7 +13,6 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest.OrderBy;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -21,13 +20,12 @@ import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.utils.SqlFormatter;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class BigQueryListRunnerFieldTest {
+public class BigQueryListRunnerFieldTest extends BigQueryListRunnerTest {
   private static final String SERVICE_CONFIG_NAME = "cmssynpuf_broad";
   private Underlay underlay;
 
@@ -74,7 +72,7 @@ public class BigQueryListRunnerFieldTest {
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly(listQueryResult.getSql(), table, "attributeField");
+    assertSqlMatchesWithTableNameOnly("attributeField", listQueryResult.getSql(), table);
   }
 
   @Test
@@ -92,7 +90,7 @@ public class BigQueryListRunnerFieldTest {
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly(listQueryResult.getSql(), table, "entityIdCountField");
+    assertSqlMatchesWithTableNameOnly("entityIdCountField", listQueryResult.getSql(), table);
   }
 
   @Test
@@ -123,7 +121,7 @@ public class BigQueryListRunnerFieldTest {
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly(listQueryResult.getSql(), table, "hierarchyFields");
+    assertSqlMatchesWithTableNameOnly("hierarchyFields", listQueryResult.getSql(), table);
   }
 
   @Test
@@ -152,13 +150,6 @@ public class BigQueryListRunnerFieldTest {
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(countForEntity.getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly(listQueryResult.getSql(), table, "relatedEntityIdCountField");
-  }
-
-  private void assertSqlMatchesWithTableNameOnly(String sql, TablePointer table, String testName)
-      throws IOException {
-    GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
-        SqlFormatter.format(sql.replace(table.renderSQL(), "${" + table.getTableName() + "}")),
-        "sql/" + this.getClass().getSimpleName() + "/" + testName + ".sql");
+    assertSqlMatchesWithTableNameOnly("relatedEntityIdCountField", listQueryResult.getSql(), table);
   }
 }

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class RelationshipFilter extends EntityFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(RelationshipFilter.class);
 
+  private final EntityGroup entityGroup;
   private final Entity selectEntity;
   private final Entity filterEntity;
   private final Relationship relationship;
@@ -47,6 +48,7 @@ public class RelationshipFilter extends EntityFilter {
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
+    this.entityGroup = entityGroup;
     this.selectEntity = selectEntity;
     this.filterEntity =
         relationship.getEntityA().equals(selectEntity)
@@ -68,6 +70,49 @@ public class RelationshipFilter extends EntityFilter {
                     relationship.getEntityA().getName(),
                     relationship.getEntityB().getName())
             : null;
+  }
+
+  public EntityGroup getEntityGroup() {
+    return entityGroup;
+  }
+
+  public Entity getSelectEntity() {
+    return selectEntity;
+  }
+
+  public Entity getFilterEntity() {
+    return filterEntity;
+  }
+
+  public Relationship getRelationship() {
+    return relationship;
+  }
+
+  public EntityFilter getSubFilter() {
+    return subFilter;
+  }
+
+  @Nullable
+  public Attribute getGroupByCountAttribute() {
+    return groupByCountAttribute;
+  }
+
+  @Nullable
+  public BinaryFilterVariable.BinaryOperator getGroupByCountOperator() {
+    return groupByCountOperator;
+  }
+
+  @Nullable
+  public Integer getGroupByCountValue() {
+    return groupByCountValue;
+  }
+
+  public boolean isForeignKeyOnSelectTable() {
+    return relationship.isForeignKeyAttribute(selectEntity);
+  }
+
+  public boolean isForeignKeyOnFilterTable() {
+    return relationship.isForeignKeyAttribute(filterEntity);
   }
 
   @Override

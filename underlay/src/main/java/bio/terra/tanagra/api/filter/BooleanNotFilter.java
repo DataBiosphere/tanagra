@@ -12,6 +12,10 @@ public class BooleanNotFilter extends EntityFilter {
     this.subFilter = subFilter;
   }
 
+  public EntityFilter getSubFilter() {
+    return subFilter;
+  }
+
   @Override
   public FilterVariable getFilterVariable(
       TableVariable entityTableVar, List<TableVariable> tableVars) {
