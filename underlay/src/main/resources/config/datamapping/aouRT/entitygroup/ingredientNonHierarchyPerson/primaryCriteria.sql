@@ -12,5 +12,5 @@ WHERE de.drug_concept_id
       SELECT concept_id
       FROM `${omopDataset}.concept` c
       WHERE c.domain_id = 'Drug'
-        AND c.vocabulary_id = 'LOINC'
+        AND c.vocabulary_id = 'CVX'
         AND c.standard_concept = 'S')
