@@ -10,10 +10,10 @@
       }
     },
     "indexData": {
-      "projectId": "victr-tanagra-deploytest",
-      "datasetId": "sd_20230331_indexes"
+      "projectId": "sd-vumc-tanagra-test",
+      "datasetId": "indexed_sd_20230331"
     },
-    "queryProjectId": "victr-tanagra-deploytest",
+    "queryProjectId": "sd-vumc-tanagra-test",
     "dataLocation": "us-central1"
   },
   "uiConfigFile": "ui.json"
