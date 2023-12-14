@@ -11,15 +11,18 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 
 public abstract class BQRunnerTest {
-  private static final String SERVICE_CONFIG_NAME = "cmssynpuf_broad";
   protected Underlay underlay;
 
   @BeforeEach
   void setup() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService(SERVICE_CONFIG_NAME);
+    SZService szService = configReader.readService(getServiceConfigName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
+  }
+
+  protected String getServiceConfigName() {
+    return "cmssynpuf_broad";
   }
 
   protected void assertSqlMatchesWithTableNameOnly(

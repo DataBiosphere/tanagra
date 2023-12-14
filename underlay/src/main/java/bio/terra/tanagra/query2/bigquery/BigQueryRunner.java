@@ -9,13 +9,17 @@ import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
 import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.hint.HintQueryRequest;
+import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.QueryRunner;
 import bio.terra.tanagra.query2.sql.SqlParams;
+import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +55,7 @@ public class BigQueryRunner implements QueryRunner {
                     .stream()
                     .forEach(field -> selectFields.add(selectSql(field, null))));
 
-    // SELECT [select fields] FROM [entity main] AS [entity main alias]
+    // SELECT [select fields] FROM [entity main]
     sql.append("SELECT ")
         .append(selectFields.stream().collect(Collectors.joining(", ")))
         .append(" FROM ")
@@ -141,7 +145,7 @@ public class BigQueryRunner implements QueryRunner {
                     .stream()
                     .forEach(field -> selectFields.add(selectSql(field, null))));
 
-    // SELECT [id count field],[group by fields] FROM [entity main] AS [entity main alias]
+    // SELECT [id count field],[group by fields] FROM [entity main]
     sql.append("SELECT ")
         .append(selectFields.stream().collect(Collectors.joining(", ")))
         .append(" FROM ")
@@ -184,5 +188,47 @@ public class BigQueryRunner implements QueryRunner {
     // TODO: Use the entity-level display hints to fill in any attribute display fields.
 
     return new CountQueryResult(sql.toString(), List.of(), null);
+  }
+
+  @Override
+  public HintQueryResult run(HintQueryRequest hintQueryRequest) {
+    // Build the SQL query.
+    StringBuilder sql = new StringBuilder();
+    SqlParams sqlParams = new SqlParams();
+
+    if (hintQueryRequest.isEntityLevel()) {
+      ITEntityLevelDisplayHints eldhTable =
+          hintQueryRequest
+              .getUnderlay()
+              .getIndexSchema()
+              .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
+
+      // SELECT * FROM [entity-level hint]
+      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().renderSQL());
+    } else {
+      ITInstanceLevelDisplayHints ildhTable =
+          hintQueryRequest
+              .getUnderlay()
+              .getIndexSchema()
+              .getInstanceLevelDisplayHints(
+                  hintQueryRequest.getEntityGroup().getName(),
+                  hintQueryRequest.getHintedEntity().getName(),
+                  hintQueryRequest.getRelatedEntity().getName());
+
+      // SELECT * FROM [instance-level hint]
+      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().renderSQL());
+
+      // WHERE [filter on related entity id]
+      String relatedEntityIdParam =
+          sqlParams.addParam("relatedEntityId", hintQueryRequest.getRelatedEntityId());
+      sql.append(" WHERE ")
+          .append(ITInstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName())
+          .append(" = @")
+          .append(relatedEntityIdParam);
+    }
+
+    // TODO: Execute the SQL query, include dry-run flag.
+
+    return new HintQueryResult(sql.toString(), List.of());
   }
 }
