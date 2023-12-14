@@ -8,11 +8,13 @@ import bio.terra.tanagra.api.field.valuedisplay.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.valuedisplay.HierarchyPathField;
 import bio.terra.tanagra.api.field.valuedisplay.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
-import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -20,17 +22,16 @@ public final class BigQueryFieldSqlUtils {
   private BigQueryFieldSqlUtils() {}
 
   public static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      ListQueryRequest listQueryRequest,
+      Underlay underlay,
+      Entity entity,
       ValueDisplayField valueDisplayField,
-      boolean isForOrderBy) {
-    ITEntityMain indexTable =
-        listQueryRequest
-            .getUnderlay()
-            .getIndexSchema()
-            .getEntityMain(listQueryRequest.getEntity().getName());
+      boolean includeValueField,
+      boolean includeDisplayField) {
+    ITEntityMain indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
 
     if (valueDisplayField instanceof AttributeField) {
-      return getFieldsAndAliases((AttributeField) valueDisplayField, indexTable, isForOrderBy);
+      return getFieldsAndAliases(
+          (AttributeField) valueDisplayField, indexTable, includeValueField, includeDisplayField);
     } else if (valueDisplayField instanceof EntityIdCountField) {
       return getFieldsAndAliases((EntityIdCountField) valueDisplayField, indexTable);
     } else if (valueDisplayField instanceof HierarchyIsMemberField) {
@@ -50,7 +51,10 @@ public final class BigQueryFieldSqlUtils {
   }
 
   private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      AttributeField attributeField, ITEntityMain indexTable, boolean isForOrderBy) {
+      AttributeField attributeField,
+      ITEntityMain indexTable,
+      boolean includeValueField,
+      boolean includeDisplayField) {
     Attribute attribute = attributeField.getAttribute();
     FieldPointer valueField = indexTable.getAttributeValueField(attribute.getName());
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
@@ -70,9 +74,14 @@ public final class BigQueryFieldSqlUtils {
     FieldPointer displayField = indexTable.getAttributeDisplayField(attribute.getName());
     Pair<FieldPointer, String> displayFieldAndAlias =
         Pair.of(displayField, attributeField.getDisplayFieldAlias());
-    return isForOrderBy
-        ? List.of(displayFieldAndAlias)
-        : List.of(valueFieldAndAlias, displayFieldAndAlias);
+    List<Pair<FieldPointer, String>> fieldsAndAliases = new ArrayList<>();
+    if (includeValueField) {
+      fieldsAndAliases.add(valueFieldAndAlias);
+    }
+    if (includeDisplayField) {
+      fieldsAndAliases.add(displayFieldAndAlias);
+    }
+    return fieldsAndAliases;
   }
 
   private static List<Pair<FieldPointer, String>> getFieldsAndAliases(

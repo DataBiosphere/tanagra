@@ -48,8 +48,22 @@ public final class SqlGeneration {
     }
   }
 
+  public static String groupBySql(
+      Pair<FieldPointer, String> fieldAndAlias,
+      @Nullable String tableAlias,
+      boolean fieldIsSelected) {
+    if (fieldIsSelected) {
+      String alias = fieldAndAlias.getRight();
+      return alias == null || alias.isEmpty() ? fieldAndAlias.getLeft().getColumnName() : alias;
+    } else {
+      return fieldSql(fieldAndAlias, tableAlias, true);
+    }
+  }
+
   private static String fieldSql(
-      Pair<FieldPointer, String> fieldAndAlias, @Nullable String tableAlias, boolean isForOrderBy) {
+      Pair<FieldPointer, String> fieldAndAlias,
+      @Nullable String tableAlias,
+      boolean isForOrderOrGroupBy) {
     FieldPointer field = fieldAndAlias.getLeft();
     String alias = fieldAndAlias.getRight();
     String baseFieldSql =
@@ -65,7 +79,7 @@ public final class SqlGeneration {
     } else {
       baseFieldSql = field.getSqlFunctionWrapper() + '(' + baseFieldSql + ')';
     }
-    return isForOrderBy || alias == null || alias.isEmpty()
+    return isForOrderOrGroupBy || alias == null || alias.isEmpty()
         ? baseFieldSql
         : (baseFieldSql + " AS " + alias);
   }
