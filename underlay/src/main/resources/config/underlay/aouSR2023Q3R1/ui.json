@@ -407,9 +407,9 @@
         { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
-        { "key": "concept_code", "width": "100%", "title": "Code" },
-        { "key": "name", "width": "120", "title": "Concept Name" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "concept_code", "width": "15%", "title": "Code" },
+        { "key": "name", "width": "60%", "title": "Concept Name" },
+        { "key": "t_rollup_count", "width": "10%", "title": "Roll-up count" }
       ],
       "occurrences": "condition_occurrence",
       "classifications": ["condition", "condition_non_hierarchy"],
