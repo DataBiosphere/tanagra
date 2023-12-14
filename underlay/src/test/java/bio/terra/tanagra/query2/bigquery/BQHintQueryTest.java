@@ -19,7 +19,7 @@ public class BQHintQueryTest extends BQRunnerTest {
   void entityLevelHint() throws IOException {
     Entity hintedEntity = underlay.getPrimaryEntity();
     HintQueryResult hintQueryResult =
-        new BigQueryRunner().run(new HintQueryRequest(underlay, hintedEntity, null, null, null));
+        bigQueryRunner.run(new HintQueryRequest(underlay, hintedEntity, null, null, null));
 
     TablePointer eldhTable =
         underlay
@@ -36,14 +36,13 @@ public class BQHintQueryTest extends BQRunnerTest {
     Entity hintedEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
     Entity relatedEntity = criteriaOccurrence.getCriteriaEntity();
     HintQueryResult hintQueryResult =
-        new BigQueryRunner()
-            .run(
-                new HintQueryRequest(
-                    underlay,
-                    hintedEntity,
-                    relatedEntity,
-                    new Literal(46_272_910L),
-                    criteriaOccurrence));
+        bigQueryRunner.run(
+            new HintQueryRequest(
+                underlay,
+                hintedEntity,
+                relatedEntity,
+                new Literal(46_272_910L),
+                criteriaOccurrence));
 
     TablePointer eldhTable =
         underlay

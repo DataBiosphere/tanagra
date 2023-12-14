@@ -20,10 +20,8 @@ public class BQListQueryTest extends BQRunnerTest {
     assertThrows(
         InvalidQueryException.class,
         () ->
-            new BigQueryRunner()
-                .run(
-                    new ListQueryRequest(
-                        underlay, entity, List.of(), null, null, null, null, null)));
+            bigQueryRunner.run(
+                new ListQueryRequest(underlay, entity, List.of(), null, null, null, null, null)));
   }
 
   @Test
@@ -32,10 +30,9 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        new BigQueryRunner()
-            .run(
-                new ListQueryRequest(
-                    underlay, entity, List.of(simpleAttribute), null, null, null, null, null));
+        bigQueryRunner.run(
+            new ListQueryRequest(
+                underlay, entity, List.of(simpleAttribute), null, null, null, null, null));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("noFilter", listQueryResult.getSql(), table);
@@ -47,18 +44,16 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField selectAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
     ListQueryResult listQueryResult =
-        new BigQueryRunner()
-            .run(
-                new ListQueryRequest(
-                    underlay,
-                    entity,
-                    List.of(selectAttribute),
-                    null,
-                    List.of(
-                        new ListQueryRequest.OrderBy(selectAttribute, OrderByDirection.DESCENDING)),
-                    null,
-                    null,
-                    null));
+        bigQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(selectAttribute),
+                null,
+                List.of(new ListQueryRequest.OrderBy(selectAttribute, OrderByDirection.DESCENDING)),
+                null,
+                null,
+                null));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByInSelect", listQueryResult.getSql(), table);
@@ -72,18 +67,16 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField orderByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
     ListQueryResult listQueryResult =
-        new BigQueryRunner()
-            .run(
-                new ListQueryRequest(
-                    underlay,
-                    entity,
-                    List.of(selectAttribute),
-                    null,
-                    List.of(
-                        new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
-                    null,
-                    null,
-                    null));
+        bigQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(selectAttribute),
+                null,
+                List.of(new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
+                null,
+                null,
+                null));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByNotInSelect", listQueryResult.getSql(), table);
@@ -97,18 +90,16 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField orderByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
     ListQueryResult listQueryResult =
-        new BigQueryRunner()
-            .run(
-                new ListQueryRequest(
-                    underlay,
-                    entity,
-                    List.of(selectAttribute),
-                    null,
-                    List.of(
-                        new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
-                    null,
-                    null,
-                    null));
+        bigQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(selectAttribute),
+                null,
+                List.of(new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
+                null,
+                null,
+                null));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
@@ -121,10 +112,9 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField selectAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        new BigQueryRunner()
-            .run(
-                new ListQueryRequest(
-                    underlay, entity, List.of(selectAttribute), null, List.of(), 45, null, null));
+        bigQueryRunner.run(
+            new ListQueryRequest(
+                underlay, entity, List.of(selectAttribute), null, List.of(), 45, null, null));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withLimit", listQueryResult.getSql(), table);

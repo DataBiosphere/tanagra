@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public abstract class BQRunnerTest {
   protected Underlay underlay;
+  protected BigQueryRunner bigQueryRunner;
 
   @BeforeEach
   void setup() {
@@ -19,6 +20,8 @@ public abstract class BQRunnerTest {
     SZService szService = configReader.readService(getServiceConfigName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
+    bigQueryRunner =
+        new BigQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
   }
 
   protected String getServiceConfigName() {

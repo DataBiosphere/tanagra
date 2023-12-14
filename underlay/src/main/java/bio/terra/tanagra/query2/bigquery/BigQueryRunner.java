@@ -14,18 +14,43 @@ import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.QueryRunner;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
+import bio.terra.tanagra.utils.GoogleBigQuery;
+import com.google.auth.oauth2.GoogleCredentials;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BigQueryRunner implements QueryRunner {
-  public BigQueryRunner() {}
+  private final String queryProjectId;
+  private final String datasetLocation;
+  private GoogleBigQuery bigQueryService;
+
+  public BigQueryRunner(String queryProjectId, String datasetLocation) {
+    this.queryProjectId = queryProjectId;
+    this.datasetLocation = datasetLocation;
+  }
+
+  public GoogleBigQuery getBigQueryService() {
+    // Lazy load the BigQuery service.
+    if (bigQueryService == null) {
+      GoogleCredentials credentials;
+      try {
+        credentials = GoogleCredentials.getApplicationDefault();
+      } catch (IOException ioEx) {
+        throw new SystemException("Error loading application default credentials", ioEx);
+      }
+      bigQueryService = new GoogleBigQuery(credentials, queryProjectId);
+    }
+    return bigQueryService;
+  }
 
   @Override
   public ListQueryResult run(ListQueryRequest listQueryRequest) {
