@@ -31,63 +31,51 @@ import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class BigQueryFilterSqlUtils {
-  private BigQueryFilterSqlUtils() {}
+public final class BigQueryFilterBuilder {
+  private final Underlay underlay;
+  private final SqlParams sqlParams;
 
-  public static String buildFilterSql(
-      Underlay underlay,
-      EntityFilter entityFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  public BigQueryFilterBuilder(Underlay underlay, SqlParams sqlParams) {
+    this.underlay = underlay;
+    this.sqlParams = sqlParams;
+  }
+
+  public String buildFilterSql(EntityFilter entityFilter, String tableAlias, FieldPointer idField) {
     if (entityFilter instanceof AttributeFilter) {
-      return attributeFilterSql(
-          underlay, (AttributeFilter) entityFilter, tableAlias, sqlParams, idField);
+      return attributeFilterSql((AttributeFilter) entityFilter, tableAlias, idField);
     } else if (entityFilter instanceof BooleanAndOrFilter) {
-      return booleanAndOrFilterSql(
-          underlay, (BooleanAndOrFilter) entityFilter, tableAlias, sqlParams, idField);
+      return booleanAndOrFilterSql((BooleanAndOrFilter) entityFilter, tableAlias, idField);
     } else if (entityFilter instanceof BooleanNotFilter) {
-      return booleanNotFilterSql(
-          underlay, (BooleanNotFilter) entityFilter, tableAlias, sqlParams, idField);
+      return booleanNotFilterSql((BooleanNotFilter) entityFilter, tableAlias, idField);
     } else if (entityFilter instanceof HierarchyHasAncestorFilter) {
       return hierarchyHasAncestorFilterSql(
-          underlay, (HierarchyHasAncestorFilter) entityFilter, tableAlias, sqlParams, idField);
+          (HierarchyHasAncestorFilter) entityFilter, tableAlias, idField);
     } else if (entityFilter instanceof HierarchyHasParentFilter) {
       return hierarchyHasParentFilterSql(
-          underlay, (HierarchyHasParentFilter) entityFilter, tableAlias, sqlParams, idField);
+          (HierarchyHasParentFilter) entityFilter, tableAlias, idField);
     } else if (entityFilter instanceof HierarchyIsMemberFilter) {
-      return hierarchyIsMemberFilterSql(
-          underlay, (HierarchyIsMemberFilter) entityFilter, tableAlias, sqlParams);
+      return hierarchyIsMemberFilterSql((HierarchyIsMemberFilter) entityFilter, tableAlias);
     } else if (entityFilter instanceof HierarchyIsRootFilter) {
-      return hierarchyIsRootFilterSql(
-          underlay, (HierarchyIsRootFilter) entityFilter, tableAlias, sqlParams);
+      return hierarchyIsRootFilterSql((HierarchyIsRootFilter) entityFilter, tableAlias);
     } else if (entityFilter instanceof RelationshipFilter) {
       RelationshipFilter relationshipFilter = (RelationshipFilter) entityFilter;
       if (relationshipFilter.isForeignKeyOnSelectTable()) {
-        return relationshipFilterFKSelectSql(
-            underlay, relationshipFilter, tableAlias, sqlParams, idField);
+        return relationshipFilterFKSelectSql(relationshipFilter, tableAlias, idField);
       } else if (relationshipFilter.isForeignKeyOnFilterTable()) {
-        return relationshipFilterFKFilterSql(
-            underlay, relationshipFilter, tableAlias, sqlParams, idField);
+        return relationshipFilterFKFilterSql(relationshipFilter, tableAlias, idField);
       } else {
-        return relationshipFilterIntermediateTableSql(
-            underlay, relationshipFilter, tableAlias, sqlParams, idField);
+        return relationshipFilterIntermediateTableSql(relationshipFilter, tableAlias, idField);
       }
     } else if (entityFilter instanceof TextSearchFilter) {
-      return textFilterSql(
-          underlay, (TextSearchFilter) entityFilter, tableAlias, sqlParams, idField);
+      return textFilterSql((TextSearchFilter) entityFilter, tableAlias, idField);
     } else {
       throw new SystemException(
           "Unsupported filter type: " + entityFilter.getClass().getSimpleName());
     }
   }
 
-  private static String attributeFilterSql(
-      Underlay underlay,
-      AttributeFilter attributeFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String attributeFilterSql(
+      AttributeFilter attributeFilter, String tableAlias, FieldPointer idField) {
     ITEntityMain indexTable =
         underlay.getIndexSchema().getEntityMain(attributeFilter.getEntity().getName());
 
@@ -116,36 +104,24 @@ public final class BigQueryFilterSqlUtils {
             sqlParams);
   }
 
-  private static String booleanAndOrFilterSql(
-      Underlay underlay,
-      BooleanAndOrFilter booleanAndOrFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String booleanAndOrFilterSql(
+      BooleanAndOrFilter booleanAndOrFilter, String tableAlias, FieldPointer idField) {
     List<String> subFilterSqls =
         booleanAndOrFilter.getSubFilters().stream()
-            .map(subFilter -> buildFilterSql(underlay, subFilter, tableAlias, sqlParams, idField))
+            .map(subFilter -> buildFilterSql(subFilter, tableAlias, idField))
             .collect(Collectors.toList());
     return SqlGeneration.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
   }
 
-  private static String booleanNotFilterSql(
-      Underlay underlay,
-      BooleanNotFilter booleanNotFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String booleanNotFilterSql(
+      BooleanNotFilter booleanNotFilter, String tableAlias, FieldPointer idField) {
     return SqlGeneration.booleanNotFilterSql(
-        buildFilterSql(underlay, booleanNotFilter.getSubFilter(), tableAlias, sqlParams, idField));
+        buildFilterSql(booleanNotFilter.getSubFilter(), tableAlias, idField));
   }
 
-  private static String textFilterSql(
-      Underlay underlay,
-      TextSearchFilter textSearchFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String textFilterSql(
+      TextSearchFilter textSearchFilter, String tableAlias, FieldPointer idField) {
     ITEntityMain indexTable =
         underlay.getIndexSchema().getEntityMain(textSearchFilter.getEntity().getName());
     FieldPointer textSearchField;
@@ -173,11 +149,9 @@ public final class BigQueryFilterSqlUtils {
         sqlParams);
   }
 
-  private static String hierarchyHasAncestorFilterSql(
-      Underlay underlay,
+  private String hierarchyHasAncestorFilterSql(
       HierarchyHasAncestorFilter hierarchyHasAncestorFilter,
       String tableAlias,
-      SqlParams sqlParams,
       FieldPointer idField) {
     //  entity.id IN (SELECT ancestorId UNION ALL SELECT descendant FROM ancestorDescendantTable
     // WHERE ancestor=ancestorId)
@@ -204,12 +178,8 @@ public final class BigQueryFilterSqlUtils {
         hierarchyHasAncestorFilter.getAncestorId());
   }
 
-  private static String hierarchyHasParentFilterSql(
-      Underlay underlay,
-      HierarchyHasParentFilter hierarchyHasParentFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String hierarchyHasParentFilterSql(
+      HierarchyHasParentFilter hierarchyHasParentFilter, String tableAlias, FieldPointer idField) {
     //  entity.id IN (SELECT child FROM childParentTable WHERE parent=parentId)
     ITHierarchyChildParent childParentIndexTable =
         underlay
@@ -231,11 +201,8 @@ public final class BigQueryFilterSqlUtils {
         sqlParams);
   }
 
-  private static String hierarchyIsMemberFilterSql(
-      Underlay underlay,
-      HierarchyIsMemberFilter hierarchyIsMemberFilter,
-      String tableAlias,
-      SqlParams sqlParams) {
+  private String hierarchyIsMemberFilterSql(
+      HierarchyIsMemberFilter hierarchyIsMemberFilter, String tableAlias) {
     ITEntityMain indexTable =
         underlay.getIndexSchema().getEntityMain(hierarchyIsMemberFilter.getEntity().getName());
 
@@ -250,11 +217,8 @@ public final class BigQueryFilterSqlUtils {
         sqlParams);
   }
 
-  private static String hierarchyIsRootFilterSql(
-      Underlay underlay,
-      HierarchyIsRootFilter hierarchyIsMemberFilter,
-      String tableAlias,
-      SqlParams sqlParams) {
+  private String hierarchyIsRootFilterSql(
+      HierarchyIsRootFilter hierarchyIsMemberFilter, String tableAlias) {
     ITEntityMain indexTable =
         underlay.getIndexSchema().getEntityMain(hierarchyIsMemberFilter.getEntity().getName());
 
@@ -305,12 +269,8 @@ public final class BigQueryFilterSqlUtils {
     }
   }
 
-  private static String relationshipFilterFKSelectSql(
-      Underlay underlay,
-      RelationshipFilter relationshipFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String relationshipFilterFKSelectSql(
+      RelationshipFilter relationshipFilter, String tableAlias, FieldPointer idField) {
     Attribute foreignKeyAttribute =
         relationshipFilter
             .getRelationship()
@@ -325,8 +285,7 @@ public final class BigQueryFilterSqlUtils {
             relationshipFilter.getFilterEntity().getIdAttribute())
         && !relationshipFilter.hasGroupByFilter()) {
       // subFilter(idField=foreignKey)
-      return buildFilterSql(
-          underlay, relationshipFilter.getSubFilter(), tableAlias, sqlParams, foreignKeyField);
+      return buildFilterSql(relationshipFilter.getSubFilter(), tableAlias, foreignKeyField);
     } else {
       // foreignKey IN (SELECT id FROM filterEntity WHERE subFilter(idField=id) [GROUP BY
       // groupByAttr HAVING groupByOp groupByCount])
@@ -336,8 +295,7 @@ public final class BigQueryFilterSqlUtils {
           filterEntityTable.getAttributeValueField(
               relationshipFilter.getFilterEntity().getIdAttribute().getName());
       String inSelectFilterSql =
-          buildFilterSql(
-              underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField);
+          buildFilterSql(relationshipFilter.getSubFilter(), null, filterEntityIdField);
       if (relationshipFilter.hasGroupByFilter()) {
         FieldPointer groupByField =
             filterEntityTable.getAttributeValueField(
@@ -361,12 +319,8 @@ public final class BigQueryFilterSqlUtils {
     }
   }
 
-  private static String relationshipFilterFKFilterSql(
-      Underlay underlay,
-      RelationshipFilter relationshipFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String relationshipFilterFKFilterSql(
+      RelationshipFilter relationshipFilter, String tableAlias, FieldPointer idField) {
     Attribute foreignKeyAttribute =
         relationshipFilter
             .getRelationship()
@@ -378,8 +332,7 @@ public final class BigQueryFilterSqlUtils {
     if (isFilterOnAttribute(relationshipFilter.getSubFilter(), foreignKeyAttribute)
         && !relationshipFilter.hasGroupByFilter()) {
       // subFilter(idField=foreignKey)
-      return buildFilterSql(
-          underlay, relationshipFilter.getSubFilter(), tableAlias, sqlParams, foreignKeyField);
+      return buildFilterSql(relationshipFilter.getSubFilter(), tableAlias, foreignKeyField);
     } else {
       // id IN (SELECT foreignKey FROM filterEntity WHERE subFilter(idField=id) [GROUP BY
       // groupByAttr HAVING groupByOp groupByCount])
@@ -387,8 +340,7 @@ public final class BigQueryFilterSqlUtils {
           filterEntityTable.getAttributeValueField(
               relationshipFilter.getFilterEntity().getIdAttribute().getName());
       String inSelectFilterSql =
-          buildFilterSql(
-              underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField);
+          buildFilterSql(relationshipFilter.getSubFilter(), null, filterEntityIdField);
       if (relationshipFilter.hasGroupByFilter()) {
         FieldPointer groupByField =
             filterEntityTable.getAttributeValueField(
@@ -412,12 +364,8 @@ public final class BigQueryFilterSqlUtils {
     }
   }
 
-  private static String relationshipFilterIntermediateTableSql(
-      Underlay underlay,
-      RelationshipFilter relationshipFilter,
-      String tableAlias,
-      SqlParams sqlParams,
-      FieldPointer idField) {
+  private String relationshipFilterIntermediateTableSql(
+      RelationshipFilter relationshipFilter, String tableAlias, FieldPointer idField) {
     ITRelationshipIdPairs idPairsTable =
         underlay
             .getIndexSchema()
@@ -436,8 +384,7 @@ public final class BigQueryFilterSqlUtils {
             || relationshipFilter.getGroupByCountAttribute().isId())) {
       // id IN (SELECT selectId FROM intermediateTable WHERE subFilter(idField=filterId) [GROUP BY
       // groupByAttr HAVING groupByOp groupByCount])
-      String subFilterSql =
-          buildFilterSql(underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterId);
+      String subFilterSql = buildFilterSql(relationshipFilter.getSubFilter(), null, filterId);
       if (relationshipFilter.hasGroupByFilter()) {
         subFilterSql +=
             ' '
@@ -460,8 +407,7 @@ public final class BigQueryFilterSqlUtils {
           filterEntityTable.getAttributeValueField(
               relationshipFilter.getFilterEntity().getIdAttribute().getName());
       String subFilterSql =
-          buildFilterSql(
-              underlay, relationshipFilter.getSubFilter(), null, sqlParams, filterEntityIdField);
+          buildFilterSql(relationshipFilter.getSubFilter(), null, filterEntityIdField);
       if (relationshipFilter.hasGroupByFilter()) {
         FieldPointer groupByField =
             filterEntityTable.getAttributeValueField(

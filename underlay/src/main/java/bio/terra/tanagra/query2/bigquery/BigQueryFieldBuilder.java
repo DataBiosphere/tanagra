@@ -10,51 +10,58 @@ import bio.terra.tanagra.api.field.valuedisplay.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 
-public final class BigQueryFieldSqlUtils {
-  private BigQueryFieldSqlUtils() {}
+public final class BigQueryFieldBuilder {
+  private final ITEntityMain indexTable;
+  private final boolean includeValueField;
+  private final boolean includeDisplayField;
 
-  public static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      Underlay underlay,
-      Entity entity,
-      ValueDisplayField valueDisplayField,
-      boolean includeValueField,
-      boolean includeDisplayField) {
-    ITEntityMain indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+  private BigQueryFieldBuilder(
+      ITEntityMain indexTable, boolean includeValueField, boolean includeDisplayField) {
+    this.indexTable = indexTable;
+    this.includeValueField = includeValueField;
+    this.includeDisplayField = includeDisplayField;
+  }
 
+  public static BigQueryFieldBuilder includeValueOnly(ITEntityMain indexTable) {
+    return new BigQueryFieldBuilder(indexTable, true, false);
+  }
+
+  public static BigQueryFieldBuilder includeDisplayOnly(ITEntityMain indexTable) {
+    return new BigQueryFieldBuilder(indexTable, false, true);
+  }
+
+  public static BigQueryFieldBuilder includeBothValueAndDisplay(ITEntityMain indexTable) {
+    return new BigQueryFieldBuilder(indexTable, true, true);
+  }
+
+  public List<Pair<FieldPointer, String>> getFieldsAndAliases(ValueDisplayField valueDisplayField) {
     if (valueDisplayField instanceof AttributeField) {
-      return getFieldsAndAliases(
-          (AttributeField) valueDisplayField, indexTable, includeValueField, includeDisplayField);
+      return getFieldsAndAliases((AttributeField) valueDisplayField);
     } else if (valueDisplayField instanceof EntityIdCountField) {
-      return getFieldsAndAliases((EntityIdCountField) valueDisplayField, indexTable);
+      return getFieldsAndAliases((EntityIdCountField) valueDisplayField);
     } else if (valueDisplayField instanceof HierarchyIsMemberField) {
-      return getFieldsAndAliases((HierarchyIsMemberField) valueDisplayField, indexTable);
+      return getFieldsAndAliases((HierarchyIsMemberField) valueDisplayField);
     } else if (valueDisplayField instanceof HierarchyIsRootField) {
-      return getFieldsAndAliases((HierarchyIsRootField) valueDisplayField, indexTable);
+      return getFieldsAndAliases((HierarchyIsRootField) valueDisplayField);
     } else if (valueDisplayField instanceof HierarchyNumChildrenField) {
-      return getFieldsAndAliases((HierarchyNumChildrenField) valueDisplayField, indexTable);
+      return getFieldsAndAliases((HierarchyNumChildrenField) valueDisplayField);
     } else if (valueDisplayField instanceof HierarchyPathField) {
-      return getFieldsAndAliases((HierarchyPathField) valueDisplayField, indexTable);
+      return getFieldsAndAliases((HierarchyPathField) valueDisplayField);
     } else if (valueDisplayField instanceof RelatedEntityIdCountField) {
-      return getFieldsAndAliases((RelatedEntityIdCountField) valueDisplayField, indexTable);
+      return getFieldsAndAliases((RelatedEntityIdCountField) valueDisplayField);
     } else {
       throw new SystemException(
           "Unsupported value display field type: " + valueDisplayField.getClass().getSimpleName());
     }
   }
 
-  private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      AttributeField attributeField,
-      ITEntityMain indexTable,
-      boolean includeValueField,
-      boolean includeDisplayField) {
+  private List<Pair<FieldPointer, String>> getFieldsAndAliases(AttributeField attributeField) {
     Attribute attribute = attributeField.getAttribute();
     FieldPointer valueField = indexTable.getAttributeValueField(attribute.getName());
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
@@ -84,8 +91,8 @@ public final class BigQueryFieldSqlUtils {
     return fieldsAndAliases;
   }
 
-  private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      EntityIdCountField entityIdCountField, ITEntityMain indexTable) {
+  private List<Pair<FieldPointer, String>> getFieldsAndAliases(
+      EntityIdCountField entityIdCountField) {
     final String countFnStr = "COUNT";
     FieldPointer field =
         indexTable
@@ -96,8 +103,8 @@ public final class BigQueryFieldSqlUtils {
     return List.of(Pair.of(field, entityIdCountField.getFieldAlias()));
   }
 
-  private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      HierarchyIsMemberField hierarchyIsMemberField, ITEntityMain indexTable) {
+  private List<Pair<FieldPointer, String>> getFieldsAndAliases(
+      HierarchyIsMemberField hierarchyIsMemberField) {
     final String isMemberFnStr = "(${fieldSql} IS NOT NULL)";
     FieldPointer field =
         indexTable
@@ -108,8 +115,8 @@ public final class BigQueryFieldSqlUtils {
     return List.of(Pair.of(field, hierarchyIsMemberField.getFieldAlias()));
   }
 
-  private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      HierarchyIsRootField hierarchyIsRootField, ITEntityMain indexTable) {
+  private List<Pair<FieldPointer, String>> getFieldsAndAliases(
+      HierarchyIsRootField hierarchyIsRootField) {
     final String isRootFnStr = "(${fieldSql} IS NOT NULL AND ${fieldSql}='')";
     FieldPointer field =
         indexTable
@@ -120,22 +127,22 @@ public final class BigQueryFieldSqlUtils {
     return List.of(Pair.of(field, hierarchyIsRootField.getFieldAlias()));
   }
 
-  private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      HierarchyNumChildrenField hierarchyNumChildrenField, ITEntityMain indexTable) {
+  private List<Pair<FieldPointer, String>> getFieldsAndAliases(
+      HierarchyNumChildrenField hierarchyNumChildrenField) {
     FieldPointer field =
         indexTable.getHierarchyNumChildrenField(hierarchyNumChildrenField.getHierarchy().getName());
     return List.of(Pair.of(field, hierarchyNumChildrenField.getFieldAlias()));
   }
 
-  private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      HierarchyPathField hierarchyPathField, ITEntityMain indexTable) {
+  private List<Pair<FieldPointer, String>> getFieldsAndAliases(
+      HierarchyPathField hierarchyPathField) {
     FieldPointer field =
         indexTable.getHierarchyPathField(hierarchyPathField.getHierarchy().getName());
     return List.of(Pair.of(field, hierarchyPathField.getFieldAlias()));
   }
 
-  private static List<Pair<FieldPointer, String>> getFieldsAndAliases(
-      RelatedEntityIdCountField relatedEntityIdCountField, ITEntityMain indexTable) {
+  private List<Pair<FieldPointer, String>> getFieldsAndAliases(
+      RelatedEntityIdCountField relatedEntityIdCountField) {
     FieldPointer field =
         indexTable.getEntityGroupCountField(
             relatedEntityIdCountField.getEntityGroup().getName(),

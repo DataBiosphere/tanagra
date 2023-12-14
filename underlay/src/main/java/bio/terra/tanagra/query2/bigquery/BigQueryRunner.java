@@ -46,13 +46,8 @@ public class BigQueryRunner implements QueryRunner {
     listQueryRequest.getSelectFields().stream()
         .forEach(
             valueDisplayField ->
-                BigQueryFieldSqlUtils.getFieldsAndAliases(
-                        listQueryRequest.getUnderlay(),
-                        listQueryRequest.getEntity(),
-                        valueDisplayField,
-                        true,
-                        true)
-                    .stream()
+                BigQueryFieldBuilder.includeBothValueAndDisplay(entityMain)
+                    .getFieldsAndAliases(valueDisplayField).stream()
                     .forEach(field -> selectFields.add(selectSql(field, null))));
 
     // SELECT [select fields] FROM [entity main]
@@ -68,12 +63,8 @@ public class BigQueryRunner implements QueryRunner {
               listQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
           .append(
-              BigQueryFilterSqlUtils.buildFilterSql(
-                  listQueryRequest.getUnderlay(),
-                  listQueryRequest.getFilter(),
-                  null,
-                  sqlParams,
-                  idField));
+              new BigQueryFilterBuilder(listQueryRequest.getUnderlay(), sqlParams)
+                  .buildFilterSql(listQueryRequest.getFilter(), null, idField));
     }
 
     // ORDER BY [order by fields]
@@ -83,13 +74,8 @@ public class BigQueryRunner implements QueryRunner {
       listQueryRequest.getOrderBys().stream()
           .forEach(
               orderBy ->
-                  BigQueryFieldSqlUtils.getFieldsAndAliases(
-                          listQueryRequest.getUnderlay(),
-                          listQueryRequest.getEntity(),
-                          orderBy.getEntityField(),
-                          false,
-                          true)
-                      .stream()
+                  BigQueryFieldBuilder.includeDisplayOnly(entityMain)
+                      .getFieldsAndAliases(orderBy.getEntityField()).stream()
                       .forEach(
                           field ->
                               orderByFields.add(
@@ -136,13 +122,8 @@ public class BigQueryRunner implements QueryRunner {
     selectValueDisplayFields.stream()
         .forEach(
             valueDisplayField ->
-                BigQueryFieldSqlUtils.getFieldsAndAliases(
-                        countQueryRequest.getUnderlay(),
-                        countQueryRequest.getEntity(),
-                        valueDisplayField,
-                        true,
-                        false)
-                    .stream()
+                BigQueryFieldBuilder.includeValueOnly(entityMain)
+                    .getFieldsAndAliases(valueDisplayField).stream()
                     .forEach(field -> selectFields.add(selectSql(field, null))));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
@@ -158,12 +139,8 @@ public class BigQueryRunner implements QueryRunner {
               countQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
           .append(
-              BigQueryFilterSqlUtils.buildFilterSql(
-                  countQueryRequest.getUnderlay(),
-                  countQueryRequest.getFilter(),
-                  null,
-                  sqlParams,
-                  idField));
+              new BigQueryFilterBuilder(countQueryRequest.getUnderlay(), sqlParams)
+                  .buildFilterSql(countQueryRequest.getFilter(), null, idField));
     }
 
     // GROUP BY [group by fields]
@@ -172,12 +149,7 @@ public class BigQueryRunner implements QueryRunner {
       countQueryRequest.getGroupByFields().stream()
           .forEach(
               groupBy ->
-                  BigQueryFieldSqlUtils.getFieldsAndAliases(
-                          countQueryRequest.getUnderlay(),
-                          countQueryRequest.getEntity(),
-                          groupBy,
-                          true,
-                          false)
+                  BigQueryFieldBuilder.includeValueOnly(entityMain).getFieldsAndAliases(groupBy)
                       .stream()
                       .forEach(field -> groupByFields.add(groupBySql(field, null, true))));
       sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
