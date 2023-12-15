@@ -120,6 +120,12 @@
               "attribute": "label",
               "direction": "ASC"
             }
+          },
+          {
+            "id": "procedure_non_hierarchy",
+            "attribute": "procedure_concept_id",
+            "entity": "procedureNonHierarchy",
+            "entityAttribute": "id"
           }
         ]
       },
@@ -212,6 +218,12 @@
               "attribute": "label",
               "direction": "ASC"
             }
+          },
+          {
+            "id": "ingredient_non_hierarchy",
+            "attribute": "drug_concept_id",
+            "entity": "ingredientNonHierarchy",
+            "entityAttribute": "id"
           }
         ]
       },
@@ -390,7 +402,7 @@
       "title": "Condition",
       "conceptSet": true,
       "category": "Domains",
-      "tags": ["Standard Codes"], 
+      "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },
         { "key": "id", "width": 100, "title": "Concept ID" },
@@ -426,7 +438,8 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Procedure" },
@@ -434,7 +447,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "procedure_occurrence",
-      "classifications": ["procedure"],
+      "classifications": ["procedure", "procedure_non_hierarchy"],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
@@ -469,7 +482,8 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Drug" },
@@ -477,7 +491,7 @@
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "ingredient_occurrence",
-      "classifications": ["ingredient"],
+      "classifications": ["ingredient", "ingredient_non_hierarchy"],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -583,7 +597,8 @@
         { "key": "is_standard", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
@@ -621,7 +636,8 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
@@ -658,7 +674,8 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
@@ -690,7 +707,8 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
@@ -727,7 +745,8 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
+        { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
