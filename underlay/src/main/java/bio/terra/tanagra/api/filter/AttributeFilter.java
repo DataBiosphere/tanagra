@@ -16,6 +16,7 @@ import java.util.List;
 
 public class AttributeFilter extends EntityFilter {
   private final ITEntityMain indexTable;
+  private final Underlay underlay;
   private final Entity entity;
   private final Attribute attribute;
   private final BinaryFilterVariable.BinaryOperator operator;
@@ -29,6 +30,7 @@ public class AttributeFilter extends EntityFilter {
       BinaryFilterVariable.BinaryOperator operator,
       Literal value) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.underlay = underlay;
     this.entity = entity;
     this.attribute = attribute;
     this.operator = operator;
@@ -43,6 +45,7 @@ public class AttributeFilter extends EntityFilter {
       FunctionFilterVariable.FunctionTemplate functionTemplate,
       List<Literal> values) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.underlay = underlay;
     this.entity = entity;
     this.attribute = attribute;
     this.operator = null;
@@ -67,6 +70,10 @@ public class AttributeFilter extends EntityFilter {
         ? new BinaryFilterVariable(valueFieldVar, operator, values.get(0))
         : new FunctionFilterVariable(
             functionTemplate, valueFieldVar, values.toArray(new Literal[0]));
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
   }
 
   public Attribute getAttribute() {

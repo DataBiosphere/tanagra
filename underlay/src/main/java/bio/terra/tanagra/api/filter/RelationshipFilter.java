@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class RelationshipFilter extends EntityFilter {
   private static final Logger LOGGER = LoggerFactory.getLogger(RelationshipFilter.class);
 
+  private final Underlay underlay;
   private final EntityGroup entityGroup;
   private final Entity selectEntity;
   private final Entity filterEntity;
@@ -48,6 +49,7 @@ public class RelationshipFilter extends EntityFilter {
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
+    this.underlay = underlay;
     this.entityGroup = entityGroup;
     this.selectEntity = selectEntity;
     this.filterEntity =
@@ -70,6 +72,10 @@ public class RelationshipFilter extends EntityFilter {
                     relationship.getEntityA().getName(),
                     relationship.getEntityB().getName())
             : null;
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
   }
 
   public EntityGroup getEntityGroup() {

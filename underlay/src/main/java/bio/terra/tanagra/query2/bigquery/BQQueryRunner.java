@@ -1,17 +1,12 @@
 package bio.terra.tanagra.query2.bigquery;
 
+import static bio.terra.tanagra.query2.bigquery.BQTranslator.translator;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.groupBySql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.orderByDirectionSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.orderBySql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.selectSql;
 
-import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyIsMemberField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyIsRootField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyNumChildrenField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyPathField;
-import bio.terra.tanagra.api.field.valuedisplay.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
@@ -22,25 +17,17 @@ import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.QueryRunner;
-import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQAttributeFieldTranslator;
-import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQEntityIdCountFieldTranslator;
-import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQHierarchyIsMemberFieldTranslator;
-import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQHierarchyIsRootFieldTranslator;
-import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQHierarchyNumChildrenFieldTranslator;
-import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQHierarchyPathFieldTranslator;
-import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQRelatedEntityIdCountFieldTranslator;
-import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class BQQueryRunner implements QueryRunner {
   private final BQQueryExecutor bigQueryExecutor;
+
   public BQQueryRunner(String queryProjectId, String datasetLocation) {
     this.bigQueryExecutor = new BQQueryExecutor(queryProjectId, datasetLocation);
   }
@@ -64,7 +51,7 @@ public class BQQueryRunner implements QueryRunner {
     listQueryRequest.getSelectFields().stream()
         .forEach(
             valueDisplayField ->
-                    translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
+                translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
                     .forEach(sqlField -> selectFields.add(selectSql(sqlField, null))));
 
     // SELECT [select fields] FROM [entity main]
@@ -79,9 +66,7 @@ public class BQQueryRunner implements QueryRunner {
           entityMain.getAttributeValueField(
               listQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
-          .append(
-              new BigQueryFilterBuilder(listQueryRequest.getUnderlay(), sqlParams)
-                  .buildFilterSql(listQueryRequest.getFilter(), null, idField));
+          .append(translator(listQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
     }
 
     // ORDER BY [order by fields]
@@ -91,7 +76,7 @@ public class BQQueryRunner implements QueryRunner {
       listQueryRequest.getOrderBys().stream()
           .forEach(
               orderBy ->
-                      translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy().stream()
+                  translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy().stream()
                       .forEach(
                           sqlField ->
                               orderByFields.add(
@@ -112,8 +97,9 @@ public class BQQueryRunner implements QueryRunner {
     }
 
     // TODO: Execute the SQL query.
-//    SqlQueryRequest sqlQueryRequest = new SqlQueryRequest(sql.toString(), sqlParams, columnHeaderSchema, listQueryRequest.getPageMarker(), listQueryRequest.getPageSize());
-//    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
+    //    SqlQueryRequest sqlQueryRequest = new SqlQueryRequest(sql.toString(), sqlParams,
+    // columnHeaderSchema, listQueryRequest.getPageMarker(), listQueryRequest.getPageSize());
+    //    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // TODO: Process the rows returned.
 
@@ -142,8 +128,7 @@ public class BQQueryRunner implements QueryRunner {
     selectValueDisplayFields.stream()
         .forEach(
             valueDisplayField ->
-                    translator(valueDisplayField).buildSqlFieldsForCountSelect()
-                            .stream()
+                translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
                     .forEach(sqlField -> selectFields.add(selectSql(sqlField, null))));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
@@ -158,9 +143,7 @@ public class BQQueryRunner implements QueryRunner {
           entityMain.getAttributeValueField(
               countQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
-          .append(
-              new BigQueryFilterBuilder(countQueryRequest.getUnderlay(), sqlParams)
-                  .buildFilterSql(countQueryRequest.getFilter(), null, idField));
+          .append(translator(countQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
     }
 
     // GROUP BY [group by fields]
@@ -168,8 +151,8 @@ public class BQQueryRunner implements QueryRunner {
       List<String> groupByFields = new ArrayList<>();
       countQueryRequest.getGroupByFields().stream()
           .forEach(
-              groupBy -> translator(groupBy).buildSqlFieldsForGroupBy()
-                      .stream()
+              groupBy ->
+                  translator(groupBy).buildSqlFieldsForGroupBy().stream()
                       .forEach(sqlField -> groupByFields.add(groupBySql(sqlField, null, true))));
       sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
     }
@@ -221,25 +204,5 @@ public class BQQueryRunner implements QueryRunner {
     // TODO: Execute the SQL query, include dry-run flag.
 
     return new HintQueryResult(sql.toString(), List.of());
-  }
-
-  private SqlFieldTranslator translator(ValueDisplayField valueDisplayField) {
-    if (valueDisplayField instanceof AttributeField) {
-      return new BQAttributeFieldTranslator((AttributeField) valueDisplayField);
-    } else if (valueDisplayField instanceof EntityIdCountField) {
-      return new BQEntityIdCountFieldTranslator((EntityIdCountField)valueDisplayField);
-    } else if (valueDisplayField instanceof HierarchyIsMemberField) {
-      return new BQHierarchyIsMemberFieldTranslator((HierarchyIsMemberField) valueDisplayField);
-    } else if (valueDisplayField instanceof HierarchyIsRootField) {
-      return new BQHierarchyIsRootFieldTranslator((HierarchyIsRootField) valueDisplayField);
-    } else if (valueDisplayField instanceof HierarchyNumChildrenField) {
-      return new BQHierarchyNumChildrenFieldTranslator((HierarchyNumChildrenField) valueDisplayField);
-    } else if (valueDisplayField instanceof HierarchyPathField) {
-      return new BQHierarchyPathFieldTranslator((HierarchyPathField) valueDisplayField);
-    } else if (valueDisplayField instanceof RelatedEntityIdCountField) {
-      return new BQRelatedEntityIdCountFieldTranslator((RelatedEntityIdCountField) valueDisplayField);
-    } else {
-      throw new InvalidQueryException("Unsupported field for BigQuery runner");
-    }
   }
 }

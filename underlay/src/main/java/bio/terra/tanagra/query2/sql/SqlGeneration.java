@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.StringSubstitutor;
 
 public final class SqlGeneration {
@@ -27,8 +26,7 @@ public final class SqlGeneration {
 
   private SqlGeneration() {}
 
-  public static String selectSql(
-      SqlField sqlField, @Nullable String tableAlias) {
+  public static String selectSql(SqlField sqlField, @Nullable String tableAlias) {
     return fieldSql(sqlField, tableAlias, false);
   }
 
@@ -37,9 +35,7 @@ public final class SqlGeneration {
   }
 
   public static String orderBySql(
-          SqlField sqlField,
-      @Nullable String tableAlias,
-      boolean fieldIsSelected) {
+      SqlField sqlField, @Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {
       String alias = sqlField.getAlias();
       return alias == null || alias.isEmpty() ? sqlField.getField().getColumnName() : alias;
@@ -49,9 +45,7 @@ public final class SqlGeneration {
   }
 
   public static String groupBySql(
-          SqlField sqlField,
-      @Nullable String tableAlias,
-      boolean fieldIsSelected) {
+      SqlField sqlField, @Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {
       String alias = sqlField.getAlias();
       return alias == null || alias.isEmpty() ? sqlField.getField().getColumnName() : alias;
@@ -61,9 +55,7 @@ public final class SqlGeneration {
   }
 
   private static String fieldSql(
-          SqlField sqlField,
-      @Nullable String tableAlias,
-      boolean isForOrderOrGroupBy) {
+      SqlField sqlField, @Nullable String tableAlias, boolean isForOrderOrGroupBy) {
     FieldPointer field = sqlField.getField();
     String alias = sqlField.getAlias();
     String baseFieldSql =

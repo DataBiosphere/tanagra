@@ -7,50 +7,58 @@ import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-
 import java.util.List;
 
 public class BQEntityIdCountFieldTranslator implements SqlFieldTranslator {
-    private static final String FIELD_ALIAS = "IDCT";
-    private final EntityIdCountField entityIdCountField;
-    public BQEntityIdCountFieldTranslator(EntityIdCountField entityIdCountField) {
-        this.entityIdCountField = entityIdCountField;
-    }
+  private static final String FIELD_ALIAS = "IDCT";
+  private final EntityIdCountField entityIdCountField;
 
-    @Override
-    public List<SqlField> buildSqlFieldsForListSelect() {
-        return buildSqlFields();
-    }
+  public BQEntityIdCountFieldTranslator(EntityIdCountField entityIdCountField) {
+    this.entityIdCountField = entityIdCountField;
+  }
 
-    @Override
-    public List<SqlField> buildSqlFieldsForCountSelect() {
-        return buildSqlFields();
-    }
+  @Override
+  public List<SqlField> buildSqlFieldsForListSelect() {
+    return buildSqlFields();
+  }
 
-    @Override
-    public List<SqlField> buildSqlFieldsForOrderBy() {
-        return buildSqlFields();
-    }
+  @Override
+  public List<SqlField> buildSqlFieldsForCountSelect() {
+    return buildSqlFields();
+  }
 
-    @Override
-    public List<SqlField> buildSqlFieldsForGroupBy() {
-        return buildSqlFields();
-    }
-    private List<SqlField> buildSqlFields() {
-        ITEntityMain indexTable = entityIdCountField.getUnderlay().getIndexSchema().getEntityMain(entityIdCountField.getEntity().getName());
-        final String countFnStr = "COUNT";
-        FieldPointer field =
-                indexTable
-                        .getAttributeValueField(entityIdCountField.getIdAttribute().getName())
-                        .toBuilder()
-                        .sqlFunctionWrapper(countFnStr)
-                        .build();
-        return List.of(SqlField.of(field, getFieldAlias()));
-    }
-    private String getFieldAlias() {return NameHelper.getReservedFieldName(FIELD_ALIAS);}
+  @Override
+  public List<SqlField> buildSqlFieldsForOrderBy() {
+    return buildSqlFields();
+  }
 
-    @Override
-    public ValueDisplay parseValueDisplayFromResult() {
-        return null;
-    }
+  @Override
+  public List<SqlField> buildSqlFieldsForGroupBy() {
+    return buildSqlFields();
+  }
+
+  private List<SqlField> buildSqlFields() {
+    ITEntityMain indexTable =
+        entityIdCountField
+            .getUnderlay()
+            .getIndexSchema()
+            .getEntityMain(entityIdCountField.getEntity().getName());
+    final String countFnStr = "COUNT";
+    FieldPointer field =
+        indexTable
+            .getAttributeValueField(entityIdCountField.getIdAttribute().getName())
+            .toBuilder()
+            .sqlFunctionWrapper(countFnStr)
+            .build();
+    return List.of(SqlField.of(field, getFieldAlias()));
+  }
+
+  private String getFieldAlias() {
+    return NameHelper.getReservedFieldName(FIELD_ALIAS);
+  }
+
+  @Override
+  public ValueDisplay parseValueDisplayFromResult() {
+    return null;
+  }
 }

@@ -19,6 +19,7 @@ import java.util.List;
 public class HierarchyHasAncestorFilter extends EntityFilter {
   private final ITEntityMain indexEntityTable;
   private final ITHierarchyAncestorDescendant indexAncestorDescendantTable;
+  private final Underlay underlay;
   private final Attribute idAttribute;
   private final Entity entity;
   private final Hierarchy hierarchy;
@@ -32,9 +33,14 @@ public class HierarchyHasAncestorFilter extends EntityFilter {
             .getIndexSchema()
             .getHierarchyAncestorDescendant(entity.getName(), hierarchy.getName());
     this.idAttribute = entity.getIdAttribute();
+    this.underlay = underlay;
     this.entity = entity;
     this.hierarchy = hierarchy;
     this.ancestorId = ancestorId;
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
   }
 
   public Entity getEntity() {

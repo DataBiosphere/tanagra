@@ -19,6 +19,7 @@ public class HierarchyHasParentFilter extends EntityFilter {
   private final ITEntityMain indexEntityTable;
   private final ITHierarchyChildParent indexChildParentTable;
   private final Attribute idAttribute;
+  private final Underlay underlay;
   private final Entity entity;
   private final Hierarchy hierarchy;
   private final Literal parentId;
@@ -29,9 +30,14 @@ public class HierarchyHasParentFilter extends EntityFilter {
     this.indexChildParentTable =
         underlay.getIndexSchema().getHierarchyChildParent(entity.getName(), hierarchy.getName());
     this.idAttribute = entity.getIdAttribute();
+    this.underlay = underlay;
     this.entity = entity;
     this.hierarchy = hierarchy;
     this.parentId = parentId;
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
   }
 
   public Entity getEntity() {
