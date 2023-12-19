@@ -21,8 +21,8 @@
             "entityAttribute": "id",
             "hierarchy": "default",
             "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
+              "attribute": "name",
+              "direction": "ASC"
             }
           },
           {
@@ -30,7 +30,7 @@
             "attribute":"source_criteria_id",
             "entity":"icd9cm",
             "entityAttribute":"id",
-            "hierarchy":"default",
+            "hierarchy": "default",
             "defaultSort":{
               "attribute":"label",
               "direction":"ASC"
@@ -46,6 +46,12 @@
               "attribute": "label",
               "direction": "ASC"
             }
+          },
+          {
+            "id": "condition_non_hierarchy",
+            "attribute": "condition_concept_id",
+            "entity": "conditionNonHierarchy",
+            "entityAttribute": "id"
           }
         ]
       },
@@ -161,7 +167,7 @@
             "attribute":"source_criteria_id",
             "entity":"icd9cm",
             "entityAttribute":"id",
-            "hierarchy": "default",
+            "hierarchy":"default",
             "defaultSort":{
               "attribute":"label",
               "direction":"ASC"
@@ -419,12 +425,12 @@
         { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
-        { "key": "name", "width": "100%", "title": "Condition" },
-        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "concept_code", "width": "100%", "title": "Code" },
+        { "key": "name", "width": "120", "title": "Concept Name" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
       "occurrences": "condition_occurrence",
-      "classifications": ["condition"],
+      "classifications": ["condition", "condition_non_hierarchy"],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",

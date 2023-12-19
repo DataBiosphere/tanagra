@@ -6,6 +6,7 @@
 
     "aouRT/condition",
     "aouRT/conditionOccurrence",
+    "aouRT/conditionNonHierarchy",
     "aouRT/procedure",
     "aouRT/procedureOccurrence",
     "aouRT/procedureNonHierarchy",
@@ -52,6 +53,8 @@
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
+    "aouRT/conditionNonHierarchyPerson",
+
     "aouRT/procedurePerson",
 
     "aouRT/ingredientPerson",
