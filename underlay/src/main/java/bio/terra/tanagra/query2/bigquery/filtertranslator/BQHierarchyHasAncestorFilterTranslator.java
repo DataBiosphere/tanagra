@@ -8,15 +8,17 @@ import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
+import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 
-public class BQHierarchyHasAncestorFilterTranslator implements SqlFilterTranslator {
+public class BQHierarchyHasAncestorFilterTranslator extends SqlFilterTranslator {
   private final HierarchyHasAncestorFilter hierarchyHasAncestorFilter;
 
-  public BQHierarchyHasAncestorFilterTranslator(
+  public BQHierarchyHasAncestorFilterTranslator(SqlTranslator sqlTranslator,
       HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
+    super(sqlTranslator);
     this.hierarchyHasAncestorFilter = hierarchyHasAncestorFilter;
   }
 

@@ -1,6 +1,5 @@
 package bio.terra.tanagra.query2.bigquery;
 
-import static bio.terra.tanagra.query2.bigquery.BQTranslator.translator;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.groupBySql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.orderByDirectionSql;
 import static bio.terra.tanagra.query2.sql.SqlGeneration.orderBySql;
@@ -37,6 +36,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
+    BQTranslator bqTranslator = new BQTranslator();
 
     // All the select fields come from the index entity main table.
     if (listQueryRequest.getSelectFields().isEmpty()) {
@@ -51,7 +51,7 @@ public class BQQueryRunner implements QueryRunner {
     listQueryRequest.getSelectFields().stream()
         .forEach(
             valueDisplayField ->
-                translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
+                    bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
                     .forEach(sqlField -> selectFields.add(selectSql(sqlField, null))));
 
     // SELECT [select fields] FROM [entity main]
@@ -66,7 +66,7 @@ public class BQQueryRunner implements QueryRunner {
           entityMain.getAttributeValueField(
               listQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
-          .append(translator(listQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
+          .append(bqTranslator.translator(listQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
     }
 
     // ORDER BY [order by fields]
@@ -76,7 +76,7 @@ public class BQQueryRunner implements QueryRunner {
       listQueryRequest.getOrderBys().stream()
           .forEach(
               orderBy ->
-                  translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy().stream()
+                      bqTranslator.translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy().stream()
                       .forEach(
                           sqlField ->
                               orderByFields.add(
@@ -111,6 +111,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
+    BQTranslator bqTranslator = new BQTranslator();
 
     // The select fields are the COUNT(id) field + the GROUP BY fields (values only).
     List<ValueDisplayField> selectValueDisplayFields = new ArrayList<>();
@@ -128,7 +129,7 @@ public class BQQueryRunner implements QueryRunner {
     selectValueDisplayFields.stream()
         .forEach(
             valueDisplayField ->
-                translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
+                    bqTranslator.translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
                     .forEach(sqlField -> selectFields.add(selectSql(sqlField, null))));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
@@ -143,7 +144,7 @@ public class BQQueryRunner implements QueryRunner {
           entityMain.getAttributeValueField(
               countQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
-          .append(translator(countQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
+          .append(bqTranslator.translator(countQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
     }
 
     // GROUP BY [group by fields]
@@ -152,7 +153,7 @@ public class BQQueryRunner implements QueryRunner {
       countQueryRequest.getGroupByFields().stream()
           .forEach(
               groupBy ->
-                  translator(groupBy).buildSqlFieldsForGroupBy().stream()
+                      bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy().stream()
                       .forEach(sqlField -> groupByFields.add(groupBySql(sqlField, null, true))));
       sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
     }

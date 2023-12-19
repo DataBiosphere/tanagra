@@ -1,29 +1,30 @@
-package bio.terra.tanagra.query2.bigquery.filtertranslator;
+package bio.terra.tanagra.query2.sql.filtertranslator;
 
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
+import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 
-public class BQBooleanNotFilterTranslator implements SqlFilterTranslator {
+public class BooleanNotFilterTranslator extends SqlFilterTranslator {
   private final BooleanNotFilter booleanNotFilter;
 
-  public BQBooleanNotFilterTranslator(BooleanNotFilter booleanNotFilter) {
+  public BooleanNotFilterTranslator(SqlTranslator sqlTranslator, BooleanNotFilter booleanNotFilter) {
+    super(sqlTranslator);
     this.booleanNotFilter = booleanNotFilter;
   }
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
     return SqlGeneration.booleanNotFilterSql(
-        BQTranslator.translator(booleanNotFilter.getSubFilter())
+            sqlTranslator.translator(booleanNotFilter.getSubFilter())
             .buildSql(sqlParams, tableAlias, idField));
   }
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return BQTranslator.translator(booleanNotFilter).isFilterOnAttribute(attribute);
+    return sqlTranslator.translator(booleanNotFilter).isFilterOnAttribute(attribute);
   }
 }

@@ -1,19 +1,20 @@
-package bio.terra.tanagra.query2.bigquery.filtertranslator;
+package bio.terra.tanagra.query2.sql.filtertranslator;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
+import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BQBooleanAndOrFilterTranslator implements SqlFilterTranslator {
+public class BooleanAndOrFilterTranslator extends SqlFilterTranslator {
   private final BooleanAndOrFilter booleanAndOrFilter;
 
-  public BQBooleanAndOrFilterTranslator(BooleanAndOrFilter booleanAndOrFilter) {
+  public BooleanAndOrFilterTranslator(SqlTranslator sqlTranslator, BooleanAndOrFilter booleanAndOrFilter) {
+    super(sqlTranslator);
     this.booleanAndOrFilter = booleanAndOrFilter;
   }
 
@@ -23,7 +24,7 @@ public class BQBooleanAndOrFilterTranslator implements SqlFilterTranslator {
         booleanAndOrFilter.getSubFilters().stream()
             .map(
                 subFilter ->
-                    BQTranslator.translator(subFilter).buildSql(sqlParams, tableAlias, idField))
+                    sqlTranslator.translator(subFilter).buildSql(sqlParams, tableAlias, idField))
             .collect(Collectors.toList());
     return SqlGeneration.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
@@ -34,7 +35,7 @@ public class BQBooleanAndOrFilterTranslator implements SqlFilterTranslator {
     return booleanAndOrFilter
         .getSubFilters()
         .parallelStream()
-        .filter(subFilter -> !BQTranslator.translator(subFilter).isFilterOnAttribute(attribute))
+        .filter(subFilter -> !sqlTranslator.translator(subFilter).isFilterOnAttribute(attribute))
         .findAny()
         .isEmpty();
   }

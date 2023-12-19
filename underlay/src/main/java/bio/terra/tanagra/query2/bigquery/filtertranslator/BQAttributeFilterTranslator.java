@@ -6,13 +6,15 @@ import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
+import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 
-public class BQAttributeFilterTranslator implements SqlFilterTranslator {
+public class BQAttributeFilterTranslator extends SqlFilterTranslator {
   private final AttributeFilter attributeFilter;
 
-  public BQAttributeFilterTranslator(AttributeFilter attributeFilter) {
+  public BQAttributeFilterTranslator(SqlTranslator sqlTranslator, AttributeFilter attributeFilter) {
+    super(sqlTranslator);
     this.attributeFilter = attributeFilter;
   }
 

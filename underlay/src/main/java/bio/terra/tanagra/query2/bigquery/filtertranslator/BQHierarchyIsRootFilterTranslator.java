@@ -7,14 +7,16 @@ import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
+import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQHierarchyIsRootFilterTranslator implements SqlFilterTranslator {
+public class BQHierarchyIsRootFilterTranslator extends SqlFilterTranslator {
   private final HierarchyIsRootFilter hierarchyIsRootFilter;
 
-  public BQHierarchyIsRootFilterTranslator(HierarchyIsRootFilter hierarchyIsRootFilter) {
+  public BQHierarchyIsRootFilterTranslator(SqlTranslator sqlTranslator, HierarchyIsRootFilter hierarchyIsRootFilter) {
+    super(sqlTranslator);
     this.hierarchyIsRootFilter = hierarchyIsRootFilter;
   }
 
