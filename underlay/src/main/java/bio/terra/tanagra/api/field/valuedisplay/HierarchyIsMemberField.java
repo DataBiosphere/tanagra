@@ -11,10 +11,14 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 public class HierarchyIsMemberField extends SingleColumnField {
   private static final String FIELD_ALIAS = "ISMEM";
   private final ITEntityMain indexTable;
+  private final Underlay underlay;
+  private final Entity entity;
   private final Hierarchy hierarchy;
 
   public HierarchyIsMemberField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.underlay = underlay;
+    this.entity = entity;
     this.hierarchy = hierarchy;
   }
 
@@ -36,6 +40,14 @@ public class HierarchyIsMemberField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.BOOLEAN;
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
+  }
+
+  public Entity getEntity() {
+    return entity;
   }
 
   public Hierarchy getHierarchy() {

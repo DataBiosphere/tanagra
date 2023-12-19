@@ -20,7 +20,7 @@ public class BQListQueryTest extends BQRunnerTest {
     assertThrows(
         InvalidQueryException.class,
         () ->
-            bigQueryRunner.run(
+            BQQueryRunner.run(
                 new ListQueryRequest(underlay, entity, List.of(), null, null, null, null, null)));
   }
 
@@ -30,7 +30,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, List.of(simpleAttribute), null, null, null, null, null));
     TablePointer table =
@@ -44,7 +44,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField selectAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
     ListQueryResult listQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -67,7 +67,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField orderByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
     ListQueryResult listQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -90,7 +90,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField orderByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
     ListQueryResult listQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -112,7 +112,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField selectAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, List.of(selectAttribute), null, List.of(), 45, null, null));
     TablePointer table =

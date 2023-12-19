@@ -31,13 +31,13 @@ public class SqlGenerationTest {
         new FieldPointer.Builder().tablePointer(table).columnName("columnName").build();
 
     // SELECT
-    String selectSql = selectSql(Pair.of(field, null), tableAlias);
+    String selectSql = selectSql(SqlField.of(field, null), tableAlias);
     assertEquals("tableAlias.columnName", selectSql);
 
     // ORDER BY
-    String orderBySql = orderBySql(Pair.of(field, null), tableAlias, false);
+    String orderBySql = orderBySql(SqlField.of(field, null), tableAlias, false);
     assertEquals("tableAlias.columnName", orderBySql);
-    orderBySql = orderBySql(Pair.of(field, null), tableAlias, true);
+    orderBySql = orderBySql(SqlField.of(field, null), tableAlias, true);
     assertEquals("columnName", orderBySql);
   }
 
@@ -48,13 +48,13 @@ public class SqlGenerationTest {
         new FieldPointer.Builder().tablePointer(table).columnName("columnName").build();
 
     // SELECT
-    String selectSql = selectSql(Pair.of(field, null), null);
+    String selectSql = selectSql(SqlField.of(field, null), null);
     assertEquals("columnName", selectSql);
 
     // ORDER BY
-    String orderBySql = orderBySql(Pair.of(field, null), null, false);
+    String orderBySql = orderBySql(SqlField.of(field, null), null, false);
     assertEquals("columnName", orderBySql);
-    orderBySql = orderBySql(Pair.of(field, null), null, true);
+    orderBySql = orderBySql(SqlField.of(field, null), null, true);
     assertEquals("columnName", orderBySql);
   }
 
@@ -67,13 +67,13 @@ public class SqlGenerationTest {
     String fieldAlias = "fieldAlias";
 
     // SELECT
-    String selectSql = selectSql(Pair.of(field, fieldAlias), tableAlias);
+    String selectSql = selectSql(SqlField.of(field, fieldAlias), tableAlias);
     assertEquals("tableAlias.columnName AS fieldAlias", selectSql);
 
     // ORDER BY
-    String orderBySql = orderBySql(Pair.of(field, fieldAlias), tableAlias, false);
+    String orderBySql = orderBySql(SqlField.of(field, fieldAlias), tableAlias, false);
     assertEquals("tableAlias.columnName", orderBySql);
-    orderBySql = orderBySql(Pair.of(field, fieldAlias), tableAlias, true);
+    orderBySql = orderBySql(SqlField.of(field, fieldAlias), tableAlias, true);
     assertEquals("fieldAlias", orderBySql);
   }
 
@@ -90,13 +90,13 @@ public class SqlGenerationTest {
     String fieldAlias = "fieldAlias";
 
     // SELECT
-    String selectSql = selectSql(Pair.of(field, fieldAlias), tableAlias);
+    String selectSql = selectSql(SqlField.of(field, fieldAlias), tableAlias);
     assertEquals("MAX(tableAlias.columnName) AS fieldAlias", selectSql);
 
     // ORDER BY
-    String orderBySql = orderBySql(Pair.of(field, fieldAlias), tableAlias, false);
+    String orderBySql = orderBySql(SqlField.of(field, fieldAlias), tableAlias, false);
     assertEquals("MAX(tableAlias.columnName)", orderBySql);
-    orderBySql = orderBySql(Pair.of(field, fieldAlias), tableAlias, true);
+    orderBySql = orderBySql(SqlField.of(field, fieldAlias), tableAlias, true);
     assertEquals("fieldAlias", orderBySql);
   }
 
@@ -114,17 +114,17 @@ public class SqlGenerationTest {
     String fieldAlias = "fieldAlias";
 
     // SELECT
-    String selectSql = selectSql(Pair.of(field, fieldAlias), tableAlias);
+    String selectSql = selectSql(SqlField.of(field, fieldAlias), tableAlias);
     assertEquals(
         "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64) AS fieldAlias",
         selectSql);
 
     // ORDER BY
-    String orderBySql = orderBySql(Pair.of(field, fieldAlias), tableAlias, false);
+    String orderBySql = orderBySql(SqlField.of(field, fieldAlias), tableAlias, false);
     assertEquals(
         "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64)",
         orderBySql);
-    orderBySql = orderBySql(Pair.of(field, fieldAlias), tableAlias, true);
+    orderBySql = orderBySql(SqlField.of(field, fieldAlias), tableAlias, true);
     assertEquals("fieldAlias", orderBySql);
   }
 

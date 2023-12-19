@@ -8,11 +8,11 @@ import com.google.api.client.util.Preconditions;
 import com.google.cloud.bigquery.FieldValueList;
 
 /** A {@link RowResult} for BigQuery's {@link FieldValueList}. */
-class BigQueryRowResult implements RowResult {
+public class BigQueryRowResult implements RowResult {
   private final FieldValueList fieldValues;
   private final ColumnHeaderSchema columnHeaderSchema;
 
-  BigQueryRowResult(FieldValueList fieldValues, ColumnHeaderSchema columnHeaderSchema) {
+  public BigQueryRowResult(FieldValueList fieldValues, ColumnHeaderSchema columnHeaderSchema) {
     Preconditions.checkArgument(
         fieldValues.size() == columnHeaderSchema.getColumnSchemas().size(),
         "Field values size %d did not match column schemas size %d.",

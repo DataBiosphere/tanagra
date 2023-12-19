@@ -9,10 +9,14 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 
 public class HierarchyNumChildrenField extends SingleColumnField {
   private final ITEntityMain indexTable;
+  private final Underlay underlay;
+  private final Entity entity;
   private final Hierarchy hierarchy;
 
   public HierarchyNumChildrenField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.underlay = underlay;
+    this.entity = entity;
     this.hierarchy = hierarchy;
   }
 
@@ -24,6 +28,14 @@ public class HierarchyNumChildrenField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.INT64;
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
+  }
+
+  public Entity getEntity() {
+    return entity;
   }
 
   public Hierarchy getHierarchy() {

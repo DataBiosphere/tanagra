@@ -11,11 +11,23 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 public class EntityIdCountField extends SingleColumnField {
   private static final String FIELD_ALIAS = "IDCT";
   private final ITEntityMain indexTable;
+  private final Underlay underlay;
+  private final Entity entity;
   private final Attribute idAttribute;
 
   public EntityIdCountField(Underlay underlay, Entity entity) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.underlay = underlay;
+    this.entity = entity;
     this.idAttribute = entity.getIdAttribute();
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
+  }
+
+  public Entity getEntity() {
+    return entity;
   }
 
   public Attribute getIdAttribute() {

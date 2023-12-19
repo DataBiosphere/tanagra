@@ -23,6 +23,8 @@ import java.util.Optional;
 public class AttributeField extends ValueDisplayField {
   private final STEntityAttributes sourceTable;
   private final ITEntityMain indexTable;
+  private final Underlay underlay;
+  private final Entity entity;
   private final Attribute attribute;
   private final boolean excludeDisplay;
   private final boolean isSource;
@@ -35,9 +37,19 @@ public class AttributeField extends ValueDisplayField {
       boolean isSource) {
     this.sourceTable = underlay.getSourceSchema().getEntityAttributes(entity.getName());
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.underlay = underlay;
+    this.entity = entity;
     this.attribute = attribute;
     this.excludeDisplay = excludeDisplay;
     this.isSource = isSource;
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
+  }
+
+  public Entity getEntity() {
+    return entity;
   }
 
   @Override
@@ -110,13 +122,13 @@ public class AttributeField extends ValueDisplayField {
     return indexTable.getAttributeDisplayField(attribute.getName()).getColumnName();
   }
 
-  private ColumnSchema getValueColumnSchema() {
+  public ColumnSchema getValueColumnSchema() {
     return new ColumnSchema(
         getValueFieldAlias(),
         CellValue.SQLDataType.fromUnderlayDataType(attribute.getRuntimeDataType()));
   }
 
-  private ColumnSchema getDisplayColumnSchema() {
+  public ColumnSchema getDisplayColumnSchema() {
     return new ColumnSchema(getDisplayFieldAlias(), CellValue.SQLDataType.STRING);
   }
 

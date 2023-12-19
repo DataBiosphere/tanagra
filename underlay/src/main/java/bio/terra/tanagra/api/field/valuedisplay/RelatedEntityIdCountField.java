@@ -11,6 +11,8 @@ import javax.annotation.Nullable;
 
 public class RelatedEntityIdCountField extends SingleColumnField {
   private final ITEntityMain indexTable;
+  private final Underlay underlay;
+  private final Entity countForEntity;
   private final Entity countedEntity;
   private final EntityGroup entityGroup;
   private final @Nullable Hierarchy hierarchy;
@@ -22,6 +24,8 @@ public class RelatedEntityIdCountField extends SingleColumnField {
       EntityGroup entityGroup,
       @Nullable Hierarchy hierarchy) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(countForEntity.getName());
+    this.underlay = underlay;
+    this.countForEntity = countForEntity;
     this.countedEntity = countedEntity;
     this.entityGroup = entityGroup;
     this.hierarchy = hierarchy;
@@ -40,6 +44,14 @@ public class RelatedEntityIdCountField extends SingleColumnField {
   @Override
   protected CellValue.SQLDataType getFieldDataType() {
     return CellValue.SQLDataType.INT64;
+  }
+
+  public Underlay getUnderlay() {
+    return underlay;
+  }
+
+  public Entity getCountForEntity() {
+    return countForEntity;
   }
 
   public Entity getCountedEntity() {

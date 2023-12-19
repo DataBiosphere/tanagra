@@ -26,7 +26,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     AttributeField groupByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     CountQueryResult countQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, List.of(groupByAttribute), attributeFilter, null, null, null));
     TablePointer entityMainTable =
@@ -40,7 +40,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     AttributeField groupByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     CountQueryResult countQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, List.of(groupByAttribute), null, null, null, null));
     TablePointer entityMainTable =
@@ -52,7 +52,7 @@ public class BQCountQueryTest extends BQRunnerTest {
   void noGroupByFields() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     CountQueryResult countQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new CountQueryRequest(underlay, entity, List.of(), null, null, null, null));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
@@ -66,7 +66,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     AttributeField groupByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
     CountQueryResult countQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, List.of(groupByAttribute), null, null, null, null));
     TablePointer entityMainTable =
@@ -81,7 +81,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     AttributeField groupByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
     CountQueryResult countQueryResult =
-        bigQueryRunner.run(
+        BQQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, List.of(groupByAttribute), null, null, null, null));
     TablePointer entityMainTable =

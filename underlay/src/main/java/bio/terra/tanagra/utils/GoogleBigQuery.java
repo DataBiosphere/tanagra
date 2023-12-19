@@ -255,11 +255,23 @@ public final class GoogleBigQuery {
       String query, @Nullable String pageToken, @Nullable Integer pageSize) {
     QueryJobConfiguration queryConfig =
         QueryJobConfiguration.newBuilder(query).setUseLegacySql(false).build();
+    return queryBigQuery(queryConfig, pageToken, pageSize);
+  }
+
+  /**
+   * Execute a query.
+   *
+   * @param queryConfig the query job configuration to run
+   * @return the result of the BQ query
+   * @throws InterruptedException from the bigQuery.query() method
+   */
+  public TableResult queryBigQuery(
+          QueryJobConfiguration queryConfig, @Nullable String pageToken, @Nullable Integer pageSize) {
     Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
 
     List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
     queryResultsOptions.add(
-        BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
+            BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
     if (pageToken != null) {
       queryResultsOptions.add(BigQuery.QueryResultsOption.pageToken(pageToken));
     }
@@ -268,8 +280,8 @@ public final class GoogleBigQuery {
     }
 
     return callWithRetries(
-        () -> job.getQueryResults(queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0])),
-        "Error running BigQuery query: " + query);
+            () -> job.getQueryResults(queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0])),
+            "Error running BigQuery query: " + queryConfig.getQuery());
   }
 
   /**

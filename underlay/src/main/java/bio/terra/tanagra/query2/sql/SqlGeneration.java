@@ -28,44 +28,44 @@ public final class SqlGeneration {
   private SqlGeneration() {}
 
   public static String selectSql(
-      Pair<FieldPointer, String> fieldAndAlias, @Nullable String tableAlias) {
-    return fieldSql(fieldAndAlias, tableAlias, false);
+      SqlField sqlField, @Nullable String tableAlias) {
+    return fieldSql(sqlField, tableAlias, false);
   }
 
   public static String whereSql(FieldPointer field, @Nullable String tableAlias) {
-    return fieldSql(Pair.of(field, null), tableAlias, false);
+    return fieldSql(SqlField.of(field, null), tableAlias, false);
   }
 
   public static String orderBySql(
-      Pair<FieldPointer, String> fieldAndAlias,
+          SqlField sqlField,
       @Nullable String tableAlias,
       boolean fieldIsSelected) {
     if (fieldIsSelected) {
-      String alias = fieldAndAlias.getRight();
-      return alias == null || alias.isEmpty() ? fieldAndAlias.getLeft().getColumnName() : alias;
+      String alias = sqlField.getAlias();
+      return alias == null || alias.isEmpty() ? sqlField.getField().getColumnName() : alias;
     } else {
-      return fieldSql(fieldAndAlias, tableAlias, true);
+      return fieldSql(sqlField, tableAlias, true);
     }
   }
 
   public static String groupBySql(
-      Pair<FieldPointer, String> fieldAndAlias,
+          SqlField sqlField,
       @Nullable String tableAlias,
       boolean fieldIsSelected) {
     if (fieldIsSelected) {
-      String alias = fieldAndAlias.getRight();
-      return alias == null || alias.isEmpty() ? fieldAndAlias.getLeft().getColumnName() : alias;
+      String alias = sqlField.getAlias();
+      return alias == null || alias.isEmpty() ? sqlField.getField().getColumnName() : alias;
     } else {
-      return fieldSql(fieldAndAlias, tableAlias, true);
+      return fieldSql(sqlField, tableAlias, true);
     }
   }
 
   private static String fieldSql(
-      Pair<FieldPointer, String> fieldAndAlias,
+          SqlField sqlField,
       @Nullable String tableAlias,
       boolean isForOrderOrGroupBy) {
-    FieldPointer field = fieldAndAlias.getLeft();
-    String alias = fieldAndAlias.getRight();
+    FieldPointer field = sqlField.getField();
+    String alias = sqlField.getAlias();
     String baseFieldSql =
         tableAlias == null ? field.getColumnName() : (tableAlias + '.' + field.getColumnName());
     if (!field.hasSqlFunctionWrapper()) {
@@ -165,7 +165,7 @@ public final class SqlGeneration {
     List<String> selectSqls = new ArrayList<>();
     selectSqls.add(
         "SELECT "
-            + selectSql(Pair.of(selectField, null), null)
+            + selectSql(SqlField.of(selectField, null), null)
             + " FROM "
             + table.renderSQL()
             + " WHERE "

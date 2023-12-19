@@ -41,7 +41,7 @@ public abstract class SingleColumnField extends ValueDisplayField {
 
   protected abstract CellValue.SQLDataType getFieldDataType();
 
-  protected ColumnSchema getColumnSchema() {
+  public ColumnSchema getColumnSchema() {
     return new ColumnSchema(getFieldAlias(), getFieldDataType());
   }
 }
