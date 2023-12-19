@@ -1,13 +1,8 @@
 package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
-import static bio.terra.tanagra.query2.sql.SqlGeneration.havingSql;
-import static bio.terra.tanagra.query2.sql.SqlGeneration.inSelectFilterSql;
-
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
-import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -70,14 +65,14 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
                 relationshipFilter.getGroupByCountAttribute().getName());
         inSelectFilterSql +=
             ' '
-                + SqlGeneration.havingSql(
+                + sqlTranslator.havingSql(
                     relationshipFilter.getGroupByCountOperator(),
                     relationshipFilter.getGroupByCountValue(),
                     groupByField,
                     null,
                     sqlParams);
       }
-      return inSelectFilterSql(
+      return sqlTranslator.inSelectFilterSql(
           foreignKeyField,
           tableAlias,
           filterEntityIdField,
@@ -121,14 +116,14 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
                 relationshipFilter.getGroupByCountAttribute().getName());
         inSelectFilterSql +=
             ' '
-                + SqlGeneration.havingSql(
+                + sqlTranslator.havingSql(
                     relationshipFilter.getGroupByCountOperator(),
                     relationshipFilter.getGroupByCountValue(),
                     groupByField,
                     null,
                     sqlParams);
       }
-      return inSelectFilterSql(
+      return sqlTranslator.inSelectFilterSql(
           idField,
           tableAlias,
           foreignKeyField,
@@ -164,14 +159,14 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
       if (relationshipFilter.hasGroupByFilter()) {
         subFilterSql +=
             ' '
-                + havingSql(
+                + sqlTranslator.havingSql(
                     relationshipFilter.getGroupByCountOperator(),
                     relationshipFilter.getGroupByCountValue(),
                     filterId,
                     null,
                     sqlParams);
       }
-      return inSelectFilterSql(
+      return sqlTranslator.inSelectFilterSql(
           idField, tableAlias, selectId, idPairsTable.getTablePointer(), subFilterSql, sqlParams);
     } else {
       // id IN (SELECT selectId FROM intermediateTable WHERE filterId IN (SELECT id FROM
@@ -194,19 +189,19 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
                 relationshipFilter.getGroupByCountAttribute().getName());
         subFilterSql +=
             ' '
-                + havingSql(
+                + sqlTranslator.havingSql(
                     relationshipFilter.getGroupByCountOperator(),
                     relationshipFilter.getGroupByCountValue(),
                     groupByField,
                     null,
                     sqlParams);
       }
-      return inSelectFilterSql(
+      return sqlTranslator.inSelectFilterSql(
           idField,
           tableAlias,
           selectId,
           idPairsTable.getTablePointer(),
-          inSelectFilterSql(
+              sqlTranslator.inSelectFilterSql(
               filterId,
               null,
               filterEntityIdField,

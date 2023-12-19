@@ -3,7 +3,6 @@ package bio.terra.tanagra.query2.sql.filtertranslator;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
-import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -26,7 +25,7 @@ public class BooleanAndOrFilterTranslator extends SqlFilterTranslator {
                 subFilter ->
                     sqlTranslator.translator(subFilter).buildSql(sqlParams, tableAlias, idField))
             .collect(Collectors.toList());
-    return SqlGeneration.booleanAndOrFilterSql(
+    return sqlTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
   }
 

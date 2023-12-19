@@ -3,7 +3,6 @@ package bio.terra.tanagra.query2.sql.filtertranslator;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
-import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -18,7 +17,7 @@ public class BooleanNotFilterTranslator extends SqlFilterTranslator {
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
-    return SqlGeneration.booleanNotFilterSql(
+    return sqlTranslator.booleanNotFilterSql(
             sqlTranslator.translator(booleanNotFilter.getSubFilter())
             .buildSql(sqlParams, tableAlias, idField));
   }

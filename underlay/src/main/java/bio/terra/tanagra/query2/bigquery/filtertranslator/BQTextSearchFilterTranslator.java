@@ -3,9 +3,7 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
-import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -44,9 +42,9 @@ public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
       // Search the text index specified in the underlay config.
       textSearchField = indexTable.getTextSearchField();
     }
-    return SqlGeneration.functionFilterSql(
+    return sqlTranslator.functionFilterSql(
         textSearchField,
-        BQTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
+            sqlTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
         List.of(new Literal(textSearchFilter.getText())),
         tableAlias,
         sqlParams);

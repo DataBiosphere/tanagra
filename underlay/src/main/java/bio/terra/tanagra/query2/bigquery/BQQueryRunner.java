@@ -1,10 +1,5 @@
 package bio.terra.tanagra.query2.bigquery;
 
-import static bio.terra.tanagra.query2.sql.SqlGeneration.groupBySql;
-import static bio.terra.tanagra.query2.sql.SqlGeneration.orderByDirectionSql;
-import static bio.terra.tanagra.query2.sql.SqlGeneration.orderBySql;
-import static bio.terra.tanagra.query2.sql.SqlGeneration.selectSql;
-
 import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
 import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
@@ -52,7 +47,7 @@ public class BQQueryRunner implements QueryRunner {
         .forEach(
             valueDisplayField ->
                     bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
-                    .forEach(sqlField -> selectFields.add(selectSql(sqlField, null))));
+                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField, null))));
 
     // SELECT [select fields] FROM [entity main]
     sql.append("SELECT ")
@@ -80,14 +75,14 @@ public class BQQueryRunner implements QueryRunner {
                       .forEach(
                           sqlField ->
                               orderByFields.add(
-                                  orderBySql(
+                                  bqTranslator.orderBySql(
                                           sqlField,
                                           null,
                                           listQueryRequest
                                               .getSelectFields()
                                               .contains(orderBy.getEntityField()))
                                       + ' '
-                                      + orderByDirectionSql(orderBy.getDirection()))));
+                                      + bqTranslator.orderByDirectionSql(orderBy.getDirection()))));
       sql.append(" ORDER BY ").append(orderByFields.stream().collect(Collectors.joining(", ")));
     }
 
@@ -130,7 +125,7 @@ public class BQQueryRunner implements QueryRunner {
         .forEach(
             valueDisplayField ->
                     bqTranslator.translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
-                    .forEach(sqlField -> selectFields.add(selectSql(sqlField, null))));
+                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField, null))));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
     sql.append("SELECT ")
@@ -154,7 +149,7 @@ public class BQQueryRunner implements QueryRunner {
           .forEach(
               groupBy ->
                       bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy().stream()
-                      .forEach(sqlField -> groupByFields.add(groupBySql(sqlField, null, true))));
+                      .forEach(sqlField -> groupByFields.add(bqTranslator.groupBySql(sqlField, null, true))));
       sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
     }
 

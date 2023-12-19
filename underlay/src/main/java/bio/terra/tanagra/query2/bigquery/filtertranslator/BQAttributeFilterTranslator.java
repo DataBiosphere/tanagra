@@ -2,9 +2,7 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
-import bio.terra.tanagra.query2.sql.SqlGeneration;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -37,13 +35,13 @@ public class BQAttributeFilterTranslator extends SqlFilterTranslator {
               .build();
     }
     return attributeFilter.hasFunctionTemplate()
-        ? SqlGeneration.functionFilterSql(
+        ? sqlTranslator.functionFilterSql(
             valueField,
-            BQTranslator.functionTemplateSql(attributeFilter.getFunctionTemplate()),
+            sqlTranslator.functionTemplateSql(attributeFilter.getFunctionTemplate()),
             attributeFilter.getValues(),
             tableAlias,
             sqlParams)
-        : SqlGeneration.binaryFilterSql(
+        : sqlTranslator.binaryFilterSql(
             valueField,
             attributeFilter.getOperator(),
             attributeFilter.getValues().get(0),
