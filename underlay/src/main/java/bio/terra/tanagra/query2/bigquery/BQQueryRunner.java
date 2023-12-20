@@ -14,11 +14,13 @@ import bio.terra.tanagra.api.query.list.ListInstance;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query2.QueryRunner;
 import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlQueryRequest;
 import bio.terra.tanagra.query2.sql.SqlQueryResult;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
@@ -275,9 +277,78 @@ public class BQQueryRunner implements QueryRunner {
         new SqlQueryRequest(sql.toString(), sqlParams, null, null, hintQueryRequest.isDryRun());
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
-    // TODO: Process the rows returned.
+    // Process the rows returned.
     List<HintInstance> hintInstances = new ArrayList<>();
-    sqlQueryResult.getRowResults().iterator().forEachRemaining(sqlRowResult -> {});
+    Map<Attribute, Map<ValueDisplay, Long>> enumValues = new HashMap<>();
+    sqlQueryResult
+        .getRowResults()
+        .iterator()
+        .forEachRemaining(
+            sqlRowResult -> {
+              String attributeColName;
+              String minColName;
+              String maxColName;
+              String enumValColName;
+              String enumDisplayColName;
+              String enumCountColName;
+              if (hintQueryRequest.isEntityLevel()) {
+                attributeColName =
+                    ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName();
+                minColName = ITEntityLevelDisplayHints.Column.MIN.getSchema().getColumnName();
+                maxColName = ITEntityLevelDisplayHints.Column.MAX.getSchema().getColumnName();
+                enumValColName =
+                    ITEntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName();
+                enumDisplayColName =
+                    ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName();
+                enumCountColName =
+                    ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName();
+              } else {
+                attributeColName =
+                    ITInstanceLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName();
+                minColName = ITInstanceLevelDisplayHints.Column.MIN.getSchema().getColumnName();
+                maxColName = ITInstanceLevelDisplayHints.Column.MAX.getSchema().getColumnName();
+                enumValColName =
+                    ITInstanceLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName();
+                enumDisplayColName =
+                    ITInstanceLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName();
+                enumCountColName =
+                    ITInstanceLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName();
+              }
+
+              Attribute attribute =
+                  hintQueryRequest
+                      .getHintedEntity()
+                      .getAttribute(
+                          sqlRowResult
+                              .get(attributeColName, Literal.DataType.STRING)
+                              .getStringVal());
+              if (attribute.isValueDisplay()
+                  || attribute.getRuntimeDataType().equals(Literal.DataType.STRING)) {
+                // This is one value/count pair of an enum values hint.
+                Literal enumVal = sqlRowResult.get(enumValColName, Literal.DataType.INT64);
+                String enumDisplay =
+                    sqlRowResult.get(enumDisplayColName, Literal.DataType.STRING).getStringVal();
+                Long enumCount =
+                    sqlRowResult.get(enumCountColName, Literal.DataType.INT64).getInt64Val();
+                Map<ValueDisplay, Long> enumValuesForAttr =
+                    enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
+                enumValuesForAttr.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
+                enumValues.put(attribute, enumValuesForAttr);
+              } else {
+                // This is a range hint.
+                double min = sqlRowResult.get(minColName, Literal.DataType.DOUBLE).getDoubleVal();
+                double max = sqlRowResult.get(maxColName, Literal.DataType.DOUBLE).getDoubleVal();
+                hintInstances.add(new HintInstance(attribute, min, max));
+              }
+            });
+    // Assemble the value/count pairs into a single enum values hint for each attribute.
+    enumValues.entrySet().stream()
+        .forEach(
+            entry -> {
+              Attribute attribute = entry.getKey();
+              Map<ValueDisplay, Long> enumValuesForAttr = entry.getValue();
+              hintInstances.add(new HintInstance(attribute, enumValuesForAttr));
+            });
 
     return new HintQueryResult(sql.toString(), hintInstances);
   }
