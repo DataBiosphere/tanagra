@@ -211,7 +211,7 @@ public class BQQueryRunner implements QueryRunner {
                               ((BQAttributeFieldTranslator)
                                       bqTranslator.translator((AttributeField) valueDisplayField))
                                   .parseValueDisplayFromCountResult(
-                                      countQueryRequest.getEntityLevelHints());
+                                      sqlRowResult, countQueryRequest.getEntityLevelHints());
                         } else {
                           // Just parse the field result normally.
                           valueDisplay =

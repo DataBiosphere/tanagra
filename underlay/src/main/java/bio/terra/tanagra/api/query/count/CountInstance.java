@@ -75,4 +75,8 @@ public final class CountInstance {
   public ImmutableMap<ValueDisplayField, ValueDisplay> getEntityFieldValues() {
     return entityFieldValues;
   }
+
+  public ValueDisplay getEntityFieldValue(ValueDisplayField valueDisplayField) {
+    return entityFieldValues.get(valueDisplayField);
+  }
 }

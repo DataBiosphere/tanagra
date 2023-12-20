@@ -2,6 +2,7 @@ package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 
 import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.Literal;
@@ -12,8 +13,12 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BQAttributeFieldTranslator implements SqlFieldTranslator {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BQAttributeFieldTranslator.class);
   private final AttributeField attributeField;
   private final ITEntityMain indexTable;
 
@@ -99,7 +104,30 @@ public class BQAttributeFieldTranslator implements SqlFieldTranslator {
     }
   }
 
-  public ValueDisplay parseValueDisplayFromCountResult(HintQueryResult entityLevelHints) {
-    return null;
+  public ValueDisplay parseValueDisplayFromCountResult(
+      SqlRowResult sqlRowResult, HintQueryResult entityLevelHints) {
+    Literal valueField =
+        sqlRowResult.get(getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
+
+    if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
+      return new ValueDisplay(valueField);
+    } else {
+      Optional<HintInstance> entityLevelHint =
+          entityLevelHints.getHintInstance(attributeField.getAttribute());
+      if (entityLevelHint.isEmpty()) {
+        LOGGER.warn(
+            "Entity-level hint not found for attribute: "
+                + attributeField.getAttribute().getName());
+        return new ValueDisplay(valueField);
+      }
+      Optional<String> displayField = entityLevelHint.get().getEnumDisplay(valueField);
+      if (displayField.isEmpty()) {
+        LOGGER.warn(
+            "Entity-level hint enum display not found for attribute: "
+                + attributeField.getAttribute().getName());
+        return new ValueDisplay(valueField);
+      }
+      return new ValueDisplay(valueField, displayField.get());
+    }
   }
 }
