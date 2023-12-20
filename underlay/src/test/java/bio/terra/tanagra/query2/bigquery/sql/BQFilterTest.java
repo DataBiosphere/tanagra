@@ -1,4 +1,4 @@
-package bio.terra.tanagra.query2.bigquery;
+package bio.terra.tanagra.query2.bigquery.sql;
 
 import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
@@ -17,6 +17,7 @@ import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
+import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;

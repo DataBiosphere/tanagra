@@ -28,4 +28,8 @@ public final class ListInstance {
   public ImmutableMap<ValueDisplayField, ValueDisplay> getEntityFieldValues() {
     return entityFieldValues;
   }
+
+  public ValueDisplay getEntityFieldValue(ValueDisplayField valueDisplayField) {
+    return entityFieldValues.get(valueDisplayField);
+  }
 }

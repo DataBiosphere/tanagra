@@ -12,5 +12,5 @@ public interface SqlFieldTranslator {
 
   List<SqlField> buildSqlFieldsForGroupBy();
 
-  ValueDisplay parseValueDisplayFromResult();
+  ValueDisplay parseValueDisplayFromResult(SqlRowResult sqlRowResult);
 }

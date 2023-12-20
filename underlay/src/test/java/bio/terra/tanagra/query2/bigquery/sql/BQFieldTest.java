@@ -1,4 +1,4 @@
-package bio.terra.tanagra.query2.bigquery;
+package bio.terra.tanagra.query2.bigquery.sql;
 
 import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
@@ -13,6 +13,7 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest.OrderBy;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;

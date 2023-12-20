@@ -3,8 +3,10 @@ package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 import bio.terra.tanagra.api.field.valuedisplay.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
+import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class BQRelatedEntityIdCountFieldTranslator implements SqlFieldTranslator
   }
 
   @Override
-  public ValueDisplay parseValueDisplayFromResult() {
-    return null;
+  public ValueDisplay parseValueDisplayFromResult(SqlRowResult sqlRowResult) {
+    return new ValueDisplay(sqlRowResult.get(getField().getColumnName(), Literal.DataType.INT64));
   }
 }

@@ -1,9 +1,10 @@
-package bio.terra.tanagra.query2.bigquery;
+package bio.terra.tanagra.query2.bigquery.sql;
 
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import java.io.IOException;

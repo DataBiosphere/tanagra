@@ -123,7 +123,7 @@ public class BQQueryRunner implements QueryRunner {
                               valueDisplayField,
                               bqTranslator
                                   .translator(valueDisplayField)
-                                  .parseValueDisplayFromResult()));
+                                  .parseValueDisplayFromResult(sqlRowResult)));
               listInstances.add(new ListInstance(fieldValues));
             });
 
@@ -210,21 +210,21 @@ public class BQQueryRunner implements QueryRunner {
                           valueDisplay =
                               ((BQAttributeFieldTranslator)
                                       bqTranslator.translator((AttributeField) valueDisplayField))
-                                  .parseValueDisplayFromResult(
+                                  .parseValueDisplayFromCountResult(
                                       countQueryRequest.getEntityLevelHints());
                         } else {
                           // Just parse the field result normally.
                           valueDisplay =
                               bqTranslator
                                   .translator(valueDisplayField)
-                                  .parseValueDisplayFromResult();
+                                  .parseValueDisplayFromResult(sqlRowResult);
                         }
                         fieldValues.put(valueDisplayField, valueDisplay);
                       });
               long count =
                   bqTranslator
                       .translator(entityIdCountField)
-                      .parseValueDisplayFromResult()
+                      .parseValueDisplayFromResult(sqlRowResult)
                       .getValue()
                       .getInt64Val();
               countInstances.add(new CountInstance(count, fieldValues));

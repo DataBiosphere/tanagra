@@ -1,4 +1,4 @@
-package bio.terra.tanagra.query2.bigquery;
+package bio.terra.tanagra.query2.bigquery.sql;
 
 import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
@@ -7,6 +7,7 @@ import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.io.IOException;
 import java.util.List;

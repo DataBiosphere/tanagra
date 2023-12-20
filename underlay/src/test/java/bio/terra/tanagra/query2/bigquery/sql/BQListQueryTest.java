@@ -1,4 +1,4 @@
-package bio.terra.tanagra.query2.bigquery;
+package bio.terra.tanagra.query2.bigquery.sql;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.io.IOException;
 import java.util.List;

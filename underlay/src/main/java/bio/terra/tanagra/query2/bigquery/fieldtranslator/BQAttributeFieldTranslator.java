@@ -4,8 +4,10 @@ import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
+import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.ArrayList;
@@ -85,11 +87,19 @@ public class BQAttributeFieldTranslator implements SqlFieldTranslator {
   }
 
   @Override
-  public ValueDisplay parseValueDisplayFromResult() {
-    return null;
+  public ValueDisplay parseValueDisplayFromResult(SqlRowResult sqlRowResult) {
+    Literal valueField =
+        sqlRowResult.get(getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
+
+    if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
+      return new ValueDisplay(valueField);
+    } else {
+      Literal displayField = sqlRowResult.get(getDisplayFieldAlias(), Literal.DataType.STRING);
+      return new ValueDisplay(valueField, displayField.getStringVal());
+    }
   }
 
-  public ValueDisplay parseValueDisplayFromResult(HintQueryResult entityLevelHints) {
+  public ValueDisplay parseValueDisplayFromCountResult(HintQueryResult entityLevelHints) {
     return null;
   }
 }
