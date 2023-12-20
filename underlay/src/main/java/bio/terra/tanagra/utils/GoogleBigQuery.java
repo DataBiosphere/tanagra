@@ -285,6 +285,16 @@ public final class GoogleBigQuery {
   }
 
   /**
+   * Get the job statistics for a query, without running it. Intended for dry running queries.
+   */
+  public JobStatistics.QueryStatistics queryStatistics(QueryJobConfiguration queryConfig) {
+    Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
+    return callWithRetries(
+            () -> job.getStatistics(),
+            "Error getting job statistics for query: " + queryConfig.getQuery());
+  }
+
+  /**
    * Delete a table. Do nothing if the table is not found (i.e. assume that means it's already
    * deleted).
    */

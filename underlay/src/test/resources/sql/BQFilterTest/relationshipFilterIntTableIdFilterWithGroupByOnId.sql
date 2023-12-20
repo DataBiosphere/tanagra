@@ -12,7 +12,7 @@
             WHERE
                 entity_A_id = @val              
             GROUP BY
-                entity_A_id              
+                entity_B_id              
             HAVING
                 COUNT(*) = @groupByCount         
         )

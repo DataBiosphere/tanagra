@@ -13,14 +13,14 @@ import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 public class BQHierarchyHasAncestorFilterTranslator extends SqlFilterTranslator {
   private final HierarchyHasAncestorFilter hierarchyHasAncestorFilter;
 
-  public BQHierarchyHasAncestorFilterTranslator(SqlTranslator sqlTranslator,
-      HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
+  public BQHierarchyHasAncestorFilterTranslator(
+      SqlTranslator sqlTranslator, HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
     super(sqlTranslator);
     this.hierarchyHasAncestorFilter = hierarchyHasAncestorFilter;
   }
 
   @Override
-  public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
+  public String buildSql(SqlParams sqlParams, String tableAlias) {
     //  entity.id IN (SELECT ancestorId UNION ALL SELECT descendant FROM ancestorDescendantTable
     // WHERE ancestor=ancestorId)
     ITHierarchyAncestorDescendant ancestorDescendantTable =
@@ -30,17 +30,19 @@ public class BQHierarchyHasAncestorFilterTranslator extends SqlFilterTranslator 
             .getHierarchyAncestorDescendant(
                 hierarchyHasAncestorFilter.getEntity().getName(),
                 hierarchyHasAncestorFilter.getHierarchy().getName());
-    ITEntityMain entityMainIndexTable =
-        hierarchyHasAncestorFilter
+    Attribute idAttribute = hierarchyHasAncestorFilter.getEntity().getIdAttribute();
+    FieldPointer idField = attributeSwapFields.containsKey(idAttribute) ? attributeSwapFields.get(idAttribute)
+            : hierarchyHasAncestorFilter
             .getUnderlay()
             .getIndexSchema()
-            .getEntityMain(hierarchyHasAncestorFilter.getEntity().getName());
+            .getEntityMain(hierarchyHasAncestorFilter.getEntity().getName())
+            .getAttributeValueField(idAttribute.getName());
     return sqlTranslator.inSelectFilterSql(
         idField,
         tableAlias,
         ancestorDescendantTable.getDescendantField(),
         ancestorDescendantTable.getTablePointer(),
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             ancestorDescendantTable.getAncestorField(),
             BinaryFilterVariable.BinaryOperator.EQUALS,
             hierarchyHasAncestorFilter.getAncestorId(),

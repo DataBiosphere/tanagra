@@ -98,7 +98,7 @@ public class RelationshipFilter extends EntityFilter {
     return subFilter;
   }
 
-  public boolean hasGroupByAttribute() {
+  public boolean hasGroupByCountAttribute() {
     return groupByCountAttribute != null;
   }
 
@@ -107,7 +107,7 @@ public class RelationshipFilter extends EntityFilter {
   }
 
   public Attribute getGroupByCountAttribute() {
-    return groupByCountAttribute == null ? filterEntity.getIdAttribute() : groupByCountAttribute;
+    return groupByCountAttribute;
   }
 
   @Nullable

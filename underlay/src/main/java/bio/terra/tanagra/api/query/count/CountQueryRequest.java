@@ -21,6 +21,7 @@ public class CountQueryRequest {
   private final PageMarker pageMarker;
   private final Integer pageSize;
   private final @Nullable HintQueryResult entityLevelHints;
+  private final boolean isDryRun;
 
   public CountQueryRequest(
       Underlay underlay,
@@ -29,7 +30,8 @@ public class CountQueryRequest {
       EntityFilter filter,
       PageMarker pageMarker,
       Integer pageSize,
-      @Nullable HintQueryResult entityLevelHints) {
+      @Nullable HintQueryResult entityLevelHints,
+      boolean isDryRun) {
     this.underlay = underlay;
     this.entity = entity;
     this.groupByFields = ImmutableList.copyOf(groupByFields);
@@ -37,6 +39,7 @@ public class CountQueryRequest {
     this.pageMarker = pageMarker;
     this.pageSize = (pageMarker == null && pageSize == null) ? DEFAULT_PAGE_SIZE : pageSize;
     this.entityLevelHints = entityLevelHints;
+    this.isDryRun = isDryRun;
   }
 
   public Underlay getUnderlay() {
@@ -65,5 +68,9 @@ public class CountQueryRequest {
 
   public @Nullable HintQueryResult getEntityLevelHints() {
     return entityLevelHints;
+  }
+
+  public boolean isDryRun() {
+    return isDryRun;
   }
 }

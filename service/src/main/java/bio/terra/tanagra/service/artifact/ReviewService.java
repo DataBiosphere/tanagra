@@ -303,7 +303,7 @@ public class ReviewService {
                     new AttributeField(underlay, primaryEntity, attribute, false, false)));
     ListQueryRequest listQueryRequest =
         new ListQueryRequest(
-            underlay, primaryEntity, attributeFields, entityFilter, null, null, null, null);
+            underlay, primaryEntity, attributeFields, entityFilter, null, null, null, null, false);
     ListQueryResult listQueryResult =
         EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
 
@@ -408,7 +408,7 @@ public class ReviewService {
                 .collect(Collectors.toList()));
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
-            underlay, entity, groupByAttributeFields, entityFilter, null, null, null);
+            underlay, entity, groupByAttributeFields, entityFilter, null, null, null, isDryRun);
     return EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
   }
 

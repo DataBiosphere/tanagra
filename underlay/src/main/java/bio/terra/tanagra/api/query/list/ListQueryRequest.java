@@ -21,6 +21,7 @@ public class ListQueryRequest {
   private final @Nullable Integer limit;
   private final @Nullable PageMarker pageMarker;
   private final Integer pageSize;
+  private final boolean isDryRun;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   public ListQueryRequest(
@@ -31,7 +32,8 @@ public class ListQueryRequest {
       @Nullable List<OrderBy> orderBys,
       @Nullable Integer limit,
       @Nullable PageMarker pageMarker,
-      @Nullable Integer pageSize) {
+      @Nullable Integer pageSize,
+      boolean isDryRun) {
     this.underlay = underlay;
     this.entity = entity;
     this.selectFields =
@@ -41,6 +43,7 @@ public class ListQueryRequest {
     this.limit = limit;
     this.pageMarker = pageMarker;
     this.pageSize = (pageMarker == null && pageSize == null) ? DEFAULT_PAGE_SIZE : pageSize;
+    this.isDryRun = isDryRun;
   }
 
   public Underlay getUnderlay() {
@@ -73,6 +76,10 @@ public class ListQueryRequest {
 
   public Integer getPageSize() {
     return pageSize;
+  }
+
+  public boolean isDryRun() {
+    return isDryRun;
   }
 
   public static class OrderBy {

@@ -49,7 +49,8 @@ public class ListQueryPaginationTest {
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             null,
-            null);
+            null,
+            false);
     ListQueryResult listQueryResult =
         EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
 
@@ -74,7 +75,8 @@ public class ListQueryPaginationTest {
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             null,
-            3);
+            3,
+            false);
 
     // First query request gets the first page of results.
     ListQueryResult listQueryResult1 =
@@ -95,7 +97,8 @@ public class ListQueryPaginationTest {
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             listQueryResult1.getPageMarker(),
-            7);
+            7,
+            false);
     ListQueryResult listQueryResult2 =
         EntityQueryRunner.run(listQueryRequest2, underlay.getQueryExecutor());
 

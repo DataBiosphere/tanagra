@@ -21,7 +21,8 @@ public class BQListQueryTest extends BQRunnerTest {
         InvalidQueryException.class,
         () ->
             BQQueryRunner.run(
-                new ListQueryRequest(underlay, entity, List.of(), null, null, null, null, null)));
+                new ListQueryRequest(
+                    underlay, entity, List.of(), null, null, null, null, null, true)));
   }
 
   @Test
@@ -32,7 +33,7 @@ public class BQListQueryTest extends BQRunnerTest {
     ListQueryResult listQueryResult =
         BQQueryRunner.run(
             new ListQueryRequest(
-                underlay, entity, List.of(simpleAttribute), null, null, null, null, null));
+                underlay, entity, List.of(simpleAttribute), null, null, null, null, null, true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("noFilter", listQueryResult.getSql(), table);
@@ -53,7 +54,8 @@ public class BQListQueryTest extends BQRunnerTest {
                 List.of(new ListQueryRequest.OrderBy(selectAttribute, OrderByDirection.DESCENDING)),
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByInSelect", listQueryResult.getSql(), table);
@@ -76,7 +78,8 @@ public class BQListQueryTest extends BQRunnerTest {
                 List.of(new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByNotInSelect", listQueryResult.getSql(), table);
@@ -99,7 +102,8 @@ public class BQListQueryTest extends BQRunnerTest {
                 List.of(new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
@@ -114,7 +118,7 @@ public class BQListQueryTest extends BQRunnerTest {
     ListQueryResult listQueryResult =
         BQQueryRunner.run(
             new ListQueryRequest(
-                underlay, entity, List.of(selectAttribute), null, List.of(), 45, null, null));
+                underlay, entity, List.of(selectAttribute), null, List.of(), 45, null, null, true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withLimit", listQueryResult.getSql(), table);

@@ -10,16 +10,18 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 public class BooleanNotFilterTranslator extends SqlFilterTranslator {
   private final BooleanNotFilter booleanNotFilter;
 
-  public BooleanNotFilterTranslator(SqlTranslator sqlTranslator, BooleanNotFilter booleanNotFilter) {
+  public BooleanNotFilterTranslator(
+      SqlTranslator sqlTranslator, BooleanNotFilter booleanNotFilter) {
     super(sqlTranslator);
     this.booleanNotFilter = booleanNotFilter;
   }
 
   @Override
-  public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
+  public String buildSql(SqlParams sqlParams, String tableAlias) {
     return sqlTranslator.booleanNotFilterSql(
-            sqlTranslator.translator(booleanNotFilter.getSubFilter())
-            .buildSql(sqlParams, tableAlias, idField));
+        sqlTranslator
+            .translator(booleanNotFilter.getSubFilter())
+            .buildSql(sqlParams, tableAlias));
   }
 
   @Override

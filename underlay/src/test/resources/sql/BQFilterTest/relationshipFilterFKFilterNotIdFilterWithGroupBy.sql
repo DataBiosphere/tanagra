@@ -12,6 +12,7 @@
             WHERE
                 stop_reason IS NULL              
             GROUP BY
+                person_id,
                 start_date              
             HAVING
                 COUNT(*) > @groupByCount         

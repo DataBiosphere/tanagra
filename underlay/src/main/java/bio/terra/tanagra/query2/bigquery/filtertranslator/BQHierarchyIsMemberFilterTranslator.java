@@ -13,13 +13,14 @@ import java.util.List;
 public class BQHierarchyIsMemberFilterTranslator extends SqlFilterTranslator {
   private final HierarchyIsMemberFilter hierarchyIsMemberFilter;
 
-  public BQHierarchyIsMemberFilterTranslator(SqlTranslator sqlTranslator, HierarchyIsMemberFilter hierarchyIsMemberFilter) {
+  public BQHierarchyIsMemberFilterTranslator(
+      SqlTranslator sqlTranslator, HierarchyIsMemberFilter hierarchyIsMemberFilter) {
     super(sqlTranslator);
     this.hierarchyIsMemberFilter = hierarchyIsMemberFilter;
   }
 
   @Override
-  public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
+  public String buildSql(SqlParams sqlParams, String tableAlias) {
     ITEntityMain indexTable =
         hierarchyIsMemberFilter
             .getUnderlay()
@@ -31,7 +32,7 @@ public class BQHierarchyIsMemberFilterTranslator extends SqlFilterTranslator {
         indexTable.getHierarchyPathField(hierarchyIsMemberFilter.getHierarchy().getName());
     return sqlTranslator.functionFilterSql(
         pathField,
-            sqlTranslator.functionTemplateSql(FunctionFilterVariable.FunctionTemplate.IS_NOT_NULL),
+        sqlTranslator.functionTemplateSql(FunctionFilterVariable.FunctionTemplate.IS_NOT_NULL),
         List.of(),
         tableAlias,
         sqlParams);

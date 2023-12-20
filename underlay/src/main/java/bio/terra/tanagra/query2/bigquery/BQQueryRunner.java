@@ -12,6 +12,8 @@ import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.QueryRunner;
 import bio.terra.tanagra.query2.sql.SqlParams;
+import bio.terra.tanagra.query2.sql.SqlQueryRequest;
+import bio.terra.tanagra.query2.sql.SqlQueryResult;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
@@ -20,10 +22,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BQQueryRunner implements QueryRunner {
-  private final BQQueryExecutor bigQueryExecutor;
+  private final BQExecutor bigQueryExecutor;
 
   public BQQueryRunner(String queryProjectId, String datasetLocation) {
-    this.bigQueryExecutor = new BQQueryExecutor(queryProjectId, datasetLocation);
+    this.bigQueryExecutor = new BQExecutor(queryProjectId, datasetLocation);
   }
 
   @Override
@@ -46,7 +48,7 @@ public class BQQueryRunner implements QueryRunner {
     listQueryRequest.getSelectFields().stream()
         .forEach(
             valueDisplayField ->
-                    bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
+                bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
                     .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField, null))));
 
     // SELECT [select fields] FROM [entity main]
@@ -57,11 +59,11 @@ public class BQQueryRunner implements QueryRunner {
 
     // WHERE [filter]
     if (listQueryRequest.getFilter() != null) {
-      FieldPointer idField =
-          entityMain.getAttributeValueField(
-              listQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
-          .append(bqTranslator.translator(listQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
+          .append(
+              bqTranslator
+                  .translator(listQueryRequest.getFilter())
+                  .buildSql(sqlParams, null));
     }
 
     // ORDER BY [order by fields]
@@ -71,7 +73,8 @@ public class BQQueryRunner implements QueryRunner {
       listQueryRequest.getOrderBys().stream()
           .forEach(
               orderBy ->
-                      bqTranslator.translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy().stream()
+                  bqTranslator.translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy()
+                      .stream()
                       .forEach(
                           sqlField ->
                               orderByFields.add(
@@ -91,14 +94,19 @@ public class BQQueryRunner implements QueryRunner {
       sql.append(" LIMIT ").append(listQueryRequest.getLimit());
     }
 
-    // TODO: Execute the SQL query.
-    //    SqlQueryRequest sqlQueryRequest = new SqlQueryRequest(sql.toString(), sqlParams,
-    // columnHeaderSchema, listQueryRequest.getPageMarker(), listQueryRequest.getPageSize());
-    //    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
+    // Execute the SQL query.
+    SqlQueryRequest sqlQueryRequest =
+        new SqlQueryRequest(
+            sql.toString(),
+            sqlParams,
+            listQueryRequest.getPageMarker(),
+            listQueryRequest.getPageSize(),
+            listQueryRequest.isDryRun());
+    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // TODO: Process the rows returned.
 
-    return new ListQueryResult(sql.toString(), List.of(), null);
+    return new ListQueryResult(sql.toString(), List.of(), sqlQueryResult.getNextPageMarker());
   }
 
   @Override
@@ -124,7 +132,7 @@ public class BQQueryRunner implements QueryRunner {
     selectValueDisplayFields.stream()
         .forEach(
             valueDisplayField ->
-                    bqTranslator.translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
+                bqTranslator.translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
                     .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField, null))));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
@@ -135,11 +143,11 @@ public class BQQueryRunner implements QueryRunner {
 
     // WHERE [filter]
     if (countQueryRequest.getFilter() != null) {
-      FieldPointer idField =
-          entityMain.getAttributeValueField(
-              countQueryRequest.getEntity().getIdAttribute().getName());
       sql.append(" WHERE ")
-          .append(bqTranslator.translator(countQueryRequest.getFilter()).buildSql(sqlParams, null, idField));
+          .append(
+              bqTranslator
+                  .translator(countQueryRequest.getFilter())
+                  .buildSql(sqlParams, null));
     }
 
     // GROUP BY [group by fields]
@@ -148,16 +156,27 @@ public class BQQueryRunner implements QueryRunner {
       countQueryRequest.getGroupByFields().stream()
           .forEach(
               groupBy ->
-                      bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy().stream()
-                      .forEach(sqlField -> groupByFields.add(bqTranslator.groupBySql(sqlField, null, true))));
+                  bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy().stream()
+                      .forEach(
+                          sqlField ->
+                              groupByFields.add(bqTranslator.groupBySql(sqlField, null, true))));
       sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
     }
 
-    // TODO: Execute the SQL query, include dry-run flag.
+    // Execute the SQL query.
+    SqlQueryRequest sqlQueryRequest =
+        new SqlQueryRequest(
+            sql.toString(),
+            sqlParams,
+            countQueryRequest.getPageMarker(),
+            countQueryRequest.getPageSize(),
+            countQueryRequest.isDryRun());
+    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
+    // TODO: Process the rows returned.
     // TODO: Use the entity-level display hints to fill in any attribute display fields.
 
-    return new CountQueryResult(sql.toString(), List.of(), null);
+    return new CountQueryResult(sql.toString(), List.of(), sqlQueryResult.getNextPageMarker());
   }
 
   @Override
@@ -197,7 +216,12 @@ public class BQQueryRunner implements QueryRunner {
           .append(relatedEntityIdParam);
     }
 
-    // TODO: Execute the SQL query, include dry-run flag.
+    // Execute the SQL query.
+    SqlQueryRequest sqlQueryRequest =
+        new SqlQueryRequest(sql.toString(), sqlParams, null, null, hintQueryRequest.isDryRun());
+    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
+
+    // TODO: Process the rows returned.
 
     return new HintQueryResult(sql.toString(), List.of());
   }

@@ -102,7 +102,8 @@ public abstract class OmopIngredientTest extends BaseQueriesTest {
             null,
             DEFAULT_LIMIT,
             null,
-            null);
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/ingredient-relationshipFilter.sql");

@@ -170,7 +170,8 @@ public class UnderlaysApiController implements UnderlaysApi {
     if (entityLevelHintsCached.isPresent()) {
       entityLevelHints = entityLevelHintsCached.get();
     } else {
-      HintQueryRequest hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null);
+      HintQueryRequest hintQueryRequest =
+          new HintQueryRequest(underlay, entity, null, null, null, false);
       entityLevelHints = EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());
       underlayService.cacheEntityLevelHints(underlayName, entityName, entityLevelHints);
     }
@@ -199,7 +200,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
-            underlay, entity, attributeFields, filter, null, null, entityLevelHints);
+            underlay, entity, attributeFields, filter, null, null, entityLevelHints, isDryRun);
 
     // Run the count query and map the results back to API objects.
     CountQueryResult countQueryResult =
@@ -226,7 +227,7 @@ public class UnderlaysApiController implements UnderlaysApi {
     boolean isEntityLevelHints = body == null || body.getRelatedEntity() == null;
     HintQueryRequest hintQueryRequest;
     if (isEntityLevelHints) {
-      hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null);
+      hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null, false);
     } else { // isInstanceLevelHints
       Entity relatedEntity = underlay.getEntity(body.getRelatedEntity().getName());
       hintQueryRequest =
@@ -236,7 +237,8 @@ public class UnderlaysApiController implements UnderlaysApi {
               relatedEntity,
               FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
               FromApiUtils.getRelationship(underlay.getEntityGroups(), entity, relatedEntity)
-                  .getLeft());
+                  .getLeft(),
+              false);
     }
     HintQueryResult hintQueryResult =
         EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());

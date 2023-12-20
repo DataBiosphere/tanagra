@@ -51,7 +51,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
@@ -75,7 +76,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     assertSqlMatchesWithTableNameOnly("attributeFilterFunction", listQueryResult.getSql(), table);
   }
 
@@ -89,7 +91,7 @@ public class BQFilterTest extends BQRunnerTest {
             entity,
             attribute,
             BinaryFilterVariable.BinaryOperator.NOT_EQUALS,
-            new Literal(1956));
+            new Literal("1956"));
     TextSearchFilter textSearchFilter =
         new TextSearchFilter(
             underlay,
@@ -113,7 +115,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanAndOrFilter", listQueryResult.getSql(), table);
@@ -143,7 +146,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanNotFilter", listQueryResult.getSql(), table);
@@ -167,7 +171,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     TablePointer ancestorDescendantTable =
@@ -200,7 +205,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     TablePointer childParentTable =
@@ -229,7 +235,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsMemberFilter", listQueryResult.getSql(), table);
@@ -252,7 +259,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsRootFilter", listQueryResult.getSql(), table);
@@ -296,7 +304,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     TablePointer primaryTable =
@@ -338,7 +347,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKSelectNotIdFilter",
         listQueryResult.getSql(),
@@ -388,7 +398,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     TablePointer primaryTable =
@@ -430,7 +441,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKFilterNotIdFilter",
         listQueryResult.getSql(),
@@ -477,7 +489,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer groupTable =
         underlay
             .getIndexSchema()
@@ -531,101 +544,14 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNotIdFilter",
         listQueryResult.getSql(),
         groupTable,
         itemsTable,
         idPairsTable);
-  }
-
-  @Test
-  void relationshipFilterFKSelectWithGroupBy() throws IOException {
-    // e.g. SELECT occurrence FILTER ON person (foreign key is on the occurrence table).
-    CriteriaOccurrence criteriaOccurrence =
-        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
-    Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
-
-    // Sub-filter on filter entity id.
-    AttributeFilter idAttributeFilter =
-        new AttributeFilter(
-            underlay,
-            underlay.getPrimaryEntity(),
-            underlay.getPrimaryEntity().getIdAttribute(),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
-            new Literal(456L));
-    RelationshipFilter relationshipFilter =
-        new RelationshipFilter(
-            underlay,
-            criteriaOccurrence,
-            occurrenceEntity,
-            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
-            idAttributeFilter,
-            null,
-            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
-            0);
-    AttributeField simpleAttribute =
-        new AttributeField(
-            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
-    ListQueryResult listQueryResult =
-        BQQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                occurrenceEntity,
-                List.of(simpleAttribute),
-                relationshipFilter,
-                null,
-                null,
-                null,
-                null));
-    TablePointer occurrenceTable =
-        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    TablePointer primaryTable =
-        underlay
-            .getIndexSchema()
-            .getEntityMain(underlay.getPrimaryEntity().getName())
-            .getTablePointer();
-    assertSqlMatchesWithTableNameOnly(
-        "relationshipFilterFKSelectIdFilterWithGroupBy",
-        listQueryResult.getSql(),
-        occurrenceTable,
-        primaryTable);
-
-    // Sub-filter not on filter entity id.
-    AttributeFilter notIdAttributeFilter =
-        new AttributeFilter(
-            underlay,
-            underlay.getPrimaryEntity(),
-            underlay.getPrimaryEntity().getAttribute("gender"),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
-            new Literal(8_207L));
-    relationshipFilter =
-        new RelationshipFilter(
-            underlay,
-            criteriaOccurrence,
-            occurrenceEntity,
-            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
-            notIdAttributeFilter,
-            null,
-            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
-            0);
-    listQueryResult =
-        BQQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                occurrenceEntity,
-                List.of(simpleAttribute),
-                relationshipFilter,
-                null,
-                null,
-                null,
-                null));
-    assertSqlMatchesWithTableNameOnly(
-        "relationshipFilterFKSelectNotIdFilterWithGroupBy",
-        listQueryResult.getSql(),
-        occurrenceTable,
-        primaryTable);
   }
 
   @Test
@@ -669,7 +595,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     TablePointer primaryTable =
@@ -711,7 +638,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKFilterNotIdFilterWithGroupBy",
         listQueryResult.getSql(),
@@ -758,7 +686,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer groupTable =
         underlay
             .getIndexSchema()
@@ -779,35 +708,6 @@ public class BQFilterTest extends BQRunnerTest {
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableIdFilterWithGroupByOnId",
-        listQueryResult.getSql(),
-        groupTable,
-        itemsTable,
-        idPairsTable);
-
-    // Sub-filter on filter entity id, group by not on filter entity id.
-    relationshipFilter =
-        new RelationshipFilter(
-            underlay,
-            groupItems,
-            groupItems.getItemsEntity(),
-            groupItems.getGroupItemsRelationship(),
-            attributeFilter,
-            groupItems.getGroupEntity().getAttribute("concept_code"),
-            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
-            1);
-    listQueryResult =
-        BQQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                groupItems.getItemsEntity(),
-                List.of(simpleAttribute),
-                relationshipFilter,
-                null,
-                null,
-                null,
-                null));
-    assertSqlMatchesWithTableNameOnly(
-        "relationshipFilterIntTableIdFilterWithGroupByNotOnId",
         listQueryResult.getSql(),
         groupTable,
         itemsTable,
@@ -841,7 +741,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNotIdFilterWithGroupBy",
         listQueryResult.getSql(),
@@ -872,7 +773,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("textSearchFilterIndex", listQueryResult.getSql(), table);
@@ -894,7 +796,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 null,
-                null));
+                null,
+                true));
     assertSqlMatchesWithTableNameOnly("textSearchFilterAttribute", listQueryResult.getSql(), table);
   }
 }

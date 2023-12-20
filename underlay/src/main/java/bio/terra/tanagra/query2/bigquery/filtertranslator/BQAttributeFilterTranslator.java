@@ -17,7 +17,7 @@ public class BQAttributeFilterTranslator extends SqlFilterTranslator {
   }
 
   @Override
-  public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
+  public String buildSql(SqlParams sqlParams, String tableAlias) {
     ITEntityMain indexTable =
         attributeFilter
             .getUnderlay()
@@ -25,8 +25,7 @@ public class BQAttributeFilterTranslator extends SqlFilterTranslator {
             .getEntityMain(attributeFilter.getEntity().getName());
 
     Attribute attribute = attributeFilter.getAttribute();
-    FieldPointer valueField =
-        attribute.isId() ? idField : indexTable.getAttributeValueField(attribute.getName());
+    FieldPointer valueField = attributeSwapFields.containsKey(attribute) ? attributeSwapFields.get(attribute) : indexTable.getAttributeValueField(attribute.getName());
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
       valueField =
           valueField

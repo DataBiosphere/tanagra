@@ -39,7 +39,8 @@ public abstract class BaseHintsTest {
 
   protected void assertEntityLevelHintsMatch(String entityName, List<HintInstance> expectedHints) {
     Entity entity = underlay.getEntity(entityName);
-    HintQueryRequest hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null);
+    HintQueryRequest hintQueryRequest =
+        new HintQueryRequest(underlay, entity, null, null, null, false);
     assertHintsMatch(hintQueryRequest, expectedHints);
   }
 
@@ -53,7 +54,7 @@ public abstract class BaseHintsTest {
     Entity relatedEntity = underlay.getEntity(relatedEntityName);
     EntityGroup entityGroup = underlay.getEntityGroup(entityGroupName);
     HintQueryRequest hintQueryRequest =
-        new HintQueryRequest(underlay, entity, relatedEntity, relatedEntityId, entityGroup);
+        new HintQueryRequest(underlay, entity, relatedEntity, relatedEntityId, entityGroup, false);
     assertHintsMatch(hintQueryRequest, expectedHints);
   }
 

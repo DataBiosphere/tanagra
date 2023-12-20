@@ -244,7 +244,8 @@ public final class FromApiUtils {
         orderByFields,
         apiObj.getLimit(),
         PageMarker.deserialize(apiObj.getPageMarker()),
-        apiObj.getPageSize());
+        apiObj.getPageSize(),
+        false);
   }
 
   public static AttributeField buildAttributeField(

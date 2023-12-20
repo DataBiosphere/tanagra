@@ -12,18 +12,21 @@ public class HintQueryRequest {
   private final @Nullable Entity relatedEntity;
   private final @Nullable Literal relatedEntityId;
   private final @Nullable EntityGroup entityGroup;
+  private final boolean isDryRun;
 
   public HintQueryRequest(
       Underlay underlay,
       Entity hintedEntity,
       @Nullable Entity relatedEntity,
       @Nullable Literal relatedEntityId,
-      @Nullable EntityGroup entityGroup) {
+      @Nullable EntityGroup entityGroup,
+      boolean isDryRun) {
     this.underlay = underlay;
     this.hintedEntity = hintedEntity;
     this.relatedEntity = relatedEntity;
     this.relatedEntityId = relatedEntityId;
     this.entityGroup = entityGroup;
+    this.isDryRun = isDryRun;
   }
 
   public boolean isEntityLevel() {
@@ -48,5 +51,9 @@ public class HintQueryRequest {
 
   public EntityGroup getEntityGroup() {
     return entityGroup;
+  }
+
+  public boolean isDryRun() {
+    return isDryRun;
   }
 }

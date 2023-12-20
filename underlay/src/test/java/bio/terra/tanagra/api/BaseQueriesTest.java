@@ -80,7 +80,8 @@ public abstract class BaseQueriesTest {
             .map(attribute -> new AttributeField(underlay, entity, attribute, false, false))
             .collect(Collectors.toList());
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(underlay, entity, selectFields, null, null, DEFAULT_LIMIT, null, null);
+        new ListQueryRequest(
+            underlay, entity, selectFields, null, null, DEFAULT_LIMIT, null, null, false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/" + getEntity().getName() + "-noFilter.sql");
@@ -117,7 +118,15 @@ public abstract class BaseQueriesTest {
             .collect(Collectors.toList());
     ListQueryRequest listQueryRequest =
         new ListQueryRequest(
-            underlay, entity, selectFields, textSearchFilter, null, DEFAULT_LIMIT, null, null);
+            underlay,
+            entity,
+            selectFields,
+            textSearchFilter,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/" + getSqlDirectoryName() + "/" + getEntity().getName() + "-textFilter.sql");
@@ -141,7 +150,15 @@ public abstract class BaseQueriesTest {
         new HierarchyIsRootFilter(underlay, entity, hierarchy);
     ListQueryRequest listQueryRequest =
         new ListQueryRequest(
-            underlay, entity, selectFields, hierarchyIsRootFilter, null, DEFAULT_LIMIT, null, null);
+            underlay,
+            entity,
+            selectFields,
+            hierarchyIsRootFilter,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
@@ -178,7 +195,8 @@ public abstract class BaseQueriesTest {
             null,
             DEFAULT_LIMIT,
             null,
-            null);
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
@@ -216,7 +234,8 @@ public abstract class BaseQueriesTest {
             null,
             DEFAULT_LIMIT,
             null,
-            null);
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
@@ -256,7 +275,8 @@ public abstract class BaseQueriesTest {
             null,
             DEFAULT_LIMIT,
             null,
-            null);
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
@@ -329,7 +349,8 @@ public abstract class BaseQueriesTest {
             null,
             DEFAULT_LIMIT,
             null,
-            null);
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
@@ -389,7 +410,8 @@ public abstract class BaseQueriesTest {
             null,
             DEFAULT_LIMIT,
             null,
-            null);
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
@@ -416,7 +438,15 @@ public abstract class BaseQueriesTest {
         List.of(new AttributeField(underlay, selectEntity, entity.getIdAttribute(), false, false));
     ListQueryRequest listQueryRequest =
         new ListQueryRequest(
-            underlay, selectEntity, selectFields, cohortFilter, null, DEFAULT_LIMIT, null, null);
+            underlay,
+            selectEntity,
+            selectFields,
+            cohortFilter,
+            null,
+            DEFAULT_LIMIT,
+            null,
+            null,
+            false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(listQueryRequest).getSql(),
         "sql/"
@@ -495,7 +525,8 @@ public abstract class BaseQueriesTest {
                         false))
             .collect(Collectors.toList());
     CountQueryRequest countQueryRequest =
-        new CountQueryRequest(underlay, countEntity, groupByFields, cohortFilter, null, null, null);
+        new CountQueryRequest(
+            underlay, countEntity, groupByFields, cohortFilter, null, null, null, false);
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         EntityQueryRunner.buildQueryRequest(countQueryRequest).getSql(),
         "sql/"

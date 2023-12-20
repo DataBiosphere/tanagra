@@ -12,6 +12,7 @@
             WHERE
                 person_id = @val              
             GROUP BY
+                person_id,
                 start_date              
             HAVING
                 COUNT(*) > @groupByCount         

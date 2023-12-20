@@ -28,7 +28,14 @@ public class BQCountQueryTest extends BQRunnerTest {
     CountQueryResult countQueryResult =
         BQQueryRunner.run(
             new CountQueryRequest(
-                underlay, entity, List.of(groupByAttribute), attributeFilter, null, null, null));
+                underlay,
+                entity,
+                List.of(groupByAttribute),
+                attributeFilter,
+                null,
+                null,
+                null,
+                true));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withFilter", countQueryResult.getSql(), entityMainTable);
@@ -42,7 +49,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     CountQueryResult countQueryResult =
         BQQueryRunner.run(
             new CountQueryRequest(
-                underlay, entity, List.of(groupByAttribute), null, null, null, null));
+                underlay, entity, List.of(groupByAttribute), null, null, null, null, true));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("noFilter", countQueryResult.getSql(), entityMainTable);
@@ -53,7 +60,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     Entity entity = underlay.getPrimaryEntity();
     CountQueryResult countQueryResult =
         BQQueryRunner.run(
-            new CountQueryRequest(underlay, entity, List.of(), null, null, null, null));
+            new CountQueryRequest(underlay, entity, List.of(), null, null, null, null, true));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
@@ -68,7 +75,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     CountQueryResult countQueryResult =
         BQQueryRunner.run(
             new CountQueryRequest(
-                underlay, entity, List.of(groupByAttribute), null, null, null, null));
+                underlay, entity, List.of(groupByAttribute), null, null, null, null, true));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
@@ -83,7 +90,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     CountQueryResult countQueryResult =
         BQQueryRunner.run(
             new CountQueryRequest(
-                underlay, entity, List.of(groupByAttribute), null, null, null, null));
+                underlay, entity, List.of(groupByAttribute), null, null, null, null, true));
     TablePointer entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(

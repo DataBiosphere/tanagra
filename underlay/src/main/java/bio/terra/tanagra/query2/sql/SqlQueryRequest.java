@@ -1,18 +1,26 @@
 package bio.terra.tanagra.query2.sql;
 
 import bio.terra.tanagra.query.PageMarker;
+import javax.annotation.Nullable;
 
 public class SqlQueryRequest {
   private final String sql;
   private final SqlParams sqlParams;
   private final PageMarker pageMarker;
   private final Integer pageSize;
+  private final boolean isDryRun;
 
-  public SqlQueryRequest(String sql, SqlParams sqlParams, PageMarker pageMarker, Integer pageSize) {
+  public SqlQueryRequest(
+      String sql,
+      SqlParams sqlParams,
+      @Nullable PageMarker pageMarker,
+      @Nullable Integer pageSize,
+      boolean isDryRun) {
     this.sql = sql;
     this.sqlParams = sqlParams;
     this.pageMarker = pageMarker;
     this.pageSize = pageSize;
+    this.isDryRun = isDryRun;
   }
 
   public String getSql() {
@@ -23,11 +31,15 @@ public class SqlQueryRequest {
     return sqlParams;
   }
 
-  public PageMarker getPageMarker() {
+  public @Nullable PageMarker getPageMarker() {
     return pageMarker;
   }
 
-  public Integer getPageSize() {
+  public @Nullable Integer getPageSize() {
     return pageSize;
+  }
+
+  public boolean isDryRun() {
+    return isDryRun;
   }
 }

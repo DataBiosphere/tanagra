@@ -106,10 +106,8 @@ public final class BQTranslator implements SqlTranslator {
     return new BQTextSearchFilterTranslator(this, textSearchFilter);
   }
 
-
   @Override
-  public String functionTemplateSql(
-      FunctionFilterVariable.FunctionTemplate functionTemplate) {
+  public String functionTemplateSql(FunctionFilterVariable.FunctionTemplate functionTemplate) {
     switch (functionTemplate) {
       case TEXT_FUZZY_MATCH:
         return "bqutil.fn.levenshtein(UPPER("

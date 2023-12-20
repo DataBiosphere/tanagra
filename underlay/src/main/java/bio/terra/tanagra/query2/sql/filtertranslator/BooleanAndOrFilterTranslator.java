@@ -12,18 +12,19 @@ import java.util.stream.Collectors;
 public class BooleanAndOrFilterTranslator extends SqlFilterTranslator {
   private final BooleanAndOrFilter booleanAndOrFilter;
 
-  public BooleanAndOrFilterTranslator(SqlTranslator sqlTranslator, BooleanAndOrFilter booleanAndOrFilter) {
+  public BooleanAndOrFilterTranslator(
+      SqlTranslator sqlTranslator, BooleanAndOrFilter booleanAndOrFilter) {
     super(sqlTranslator);
     this.booleanAndOrFilter = booleanAndOrFilter;
   }
 
   @Override
-  public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
+  public String buildSql(SqlParams sqlParams, String tableAlias) {
     List<String> subFilterSqls =
         booleanAndOrFilter.getSubFilters().stream()
             .map(
                 subFilter ->
-                    sqlTranslator.translator(subFilter).buildSql(sqlParams, tableAlias, idField))
+                    sqlTranslator.translator(subFilter).buildSql(sqlParams, tableAlias))
             .collect(Collectors.toList());
     return sqlTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));

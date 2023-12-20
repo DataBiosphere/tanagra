@@ -12,13 +12,13 @@ import com.google.common.collect.ImmutableMap;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test the generic SQL generation functions that we expect to apply to all SQL dialects.
- * These are the functions that are implemented as defaults in {@link bio.terra.tanagra.query2.sql.SqlTranslator}.
+ * Test the generic SQL generation functions that we expect to apply to all SQL dialects. These are
+ * the functions that are implemented as defaults in {@link
+ * bio.terra.tanagra.query2.sql.SqlTranslator}.
  */
 public class SqlTranslatorTest {
   private SqlTranslator sqlTranslator;
@@ -143,7 +143,7 @@ public class SqlTranslatorTest {
     SqlParams sqlParams = new SqlParams();
     Literal val = Literal.forTimestamp(Timestamp.from(Instant.now()));
     String sql =
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             field,
             BinaryFilterVariable.BinaryOperator.LESS_THAN_OR_EQUAL,
             val,
@@ -162,7 +162,7 @@ public class SqlTranslatorTest {
     sqlParams = new SqlParams();
     val = new Literal(25);
     sql =
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             field, BinaryFilterVariable.BinaryOperator.GREATER_THAN, val, tableAlias, sqlParams);
     assertEquals(
         "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64) > @val",
@@ -180,7 +180,7 @@ public class SqlTranslatorTest {
     SqlParams sqlParams = new SqlParams();
     Literal val = new Literal("test");
     String sql =
-            sqlTranslator.functionFilterSql(
+        sqlTranslator.functionFilterSql(
             field, "REGEXP_CONTAINS(${fieldSql},${values})", List.of(val), tableAlias, sqlParams);
     assertEquals("REGEXP_CONTAINS(tableAlias.columnName,@val)", sql);
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
@@ -189,7 +189,7 @@ public class SqlTranslatorTest {
     Literal val1 = new Literal(25);
     Literal val2 = new Literal(26);
     sql =
-            sqlTranslator.functionFilterSql(
+        sqlTranslator.functionFilterSql(
             field, "${fieldSql} IN (${values})", List.of(val1, val2), tableAlias, sqlParams);
     assertEquals("tableAlias.columnName IN (@val,@val0)", sql);
     assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
@@ -209,10 +209,11 @@ public class SqlTranslatorTest {
     SqlParams sqlParams = new SqlParams();
     Literal val = new Literal(14);
     String joinFilterSql =
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             joinField, BinaryFilterVariable.BinaryOperator.EQUALS, val, null, sqlParams);
     String sql =
-            sqlTranslator.inSelectFilterSql(field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams);
+        sqlTranslator.inSelectFilterSql(
+            field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val)",
         sql);
@@ -221,12 +222,12 @@ public class SqlTranslatorTest {
     // With literals.
     sqlParams = new SqlParams();
     joinFilterSql =
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             joinField, BinaryFilterVariable.BinaryOperator.EQUALS, val, null, sqlParams);
     Literal val0 = new Literal(24);
     Literal val1 = new Literal(25);
     sql =
-            sqlTranslator.inSelectFilterSql(
+        sqlTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams, val0, val1);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val UNION ALL SELECT @val0 UNION ALL SELECT @val1)",
@@ -244,7 +245,7 @@ public class SqlTranslatorTest {
 
     Literal val1 = Literal.forTimestamp(Timestamp.from(Instant.now()));
     String filterSql1 =
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             field,
             BinaryFilterVariable.BinaryOperator.LESS_THAN_OR_EQUAL,
             val1,
@@ -256,13 +257,14 @@ public class SqlTranslatorTest {
         new FieldPointer.Builder().tablePointer(table).columnName("joinColumnName").build();
     Literal val2 = new Literal(14);
     String joinFilterSql =
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             joinField, BinaryFilterVariable.BinaryOperator.EQUALS, val2, null, sqlParams);
     String filterSql2 =
-            sqlTranslator.inSelectFilterSql(field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams);
+        sqlTranslator.inSelectFilterSql(
+            field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams);
 
     String sql =
-            sqlTranslator.booleanAndOrFilterSql(
+        sqlTranslator.booleanAndOrFilterSql(
             BooleanAndOrFilterVariable.LogicalOperator.OR, filterSql1, filterSql2);
     assertEquals(
         "tableAlias.columnName <= @val OR tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0)",
@@ -280,7 +282,7 @@ public class SqlTranslatorTest {
 
     Literal val = Literal.forTimestamp(Timestamp.from(Instant.now()));
     String subFilterSql =
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             field,
             BinaryFilterVariable.BinaryOperator.LESS_THAN_OR_EQUAL,
             val,
@@ -301,10 +303,10 @@ public class SqlTranslatorTest {
     Literal groupByCount = new Literal(4);
 
     String havingSql =
-            sqlTranslator.havingSql(
+        sqlTranslator.havingSql(
             BinaryFilterVariable.BinaryOperator.GREATER_THAN_OR_EQUAL,
             groupByCount.getInt64Val().intValue(),
-            groupByField,
+            List.of(groupByField),
             tableAlias,
             sqlParams);
     assertEquals("GROUP BY tableAlias.columnName HAVING COUNT(*) >= @groupByCount", havingSql);

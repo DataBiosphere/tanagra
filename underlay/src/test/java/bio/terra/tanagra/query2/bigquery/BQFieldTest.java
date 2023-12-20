@@ -52,7 +52,7 @@ public class BQFieldTest extends BQRunnerTest {
     ListQueryResult listQueryResult =
         BQQueryRunner.run(
             new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, limit, null, null));
+                underlay, entity, selectAttributes, null, orderBys, limit, null, null, true));
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
@@ -69,7 +69,7 @@ public class BQFieldTest extends BQRunnerTest {
     ListQueryResult listQueryResult =
         BQQueryRunner.run(
             new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, null, null, null));
+                underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
@@ -99,7 +99,7 @@ public class BQFieldTest extends BQRunnerTest {
     ListQueryResult listQueryResult =
         BQQueryRunner.run(
             new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, null, null, null));
+                underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
@@ -127,7 +127,15 @@ public class BQFieldTest extends BQRunnerTest {
     ListQueryResult listQueryResult =
         BQQueryRunner.run(
             new ListQueryRequest(
-                underlay, countForEntity, selectAttributes, null, orderBys, null, null, null));
+                underlay,
+                countForEntity,
+                selectAttributes,
+                null,
+                orderBys,
+                null,
+                null,
+                null,
+                true));
 
     TablePointer table =
         underlay.getIndexSchema().getEntityMain(countForEntity.getName()).getTablePointer();

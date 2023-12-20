@@ -13,13 +13,14 @@ import java.util.List;
 public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
   private final TextSearchFilter textSearchFilter;
 
-  public BQTextSearchFilterTranslator(SqlTranslator sqlTranslator, TextSearchFilter textSearchFilter) {
+  public BQTextSearchFilterTranslator(
+      SqlTranslator sqlTranslator, TextSearchFilter textSearchFilter) {
     super(sqlTranslator);
     this.textSearchFilter = textSearchFilter;
   }
 
   @Override
-  public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
+  public String buildSql(SqlParams sqlParams, String tableAlias) {
     ITEntityMain indexTable =
         textSearchFilter
             .getUnderlay()
@@ -29,8 +30,7 @@ public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
     if (textSearchFilter.isForSpecificAttribute()) {
       // Search only on the specified attribute.
       Attribute attribute = textSearchFilter.getAttribute();
-      textSearchField =
-          attribute.isId() ? idField : indexTable.getAttributeValueField(attribute.getName());
+      textSearchField = attributeSwapFields.containsKey(attribute) ? attributeSwapFields.get(attribute) : indexTable.getAttributeValueField(attribute.getName());
       if (attribute.hasRuntimeSqlFunctionWrapper()) {
         textSearchField =
             textSearchField
@@ -44,7 +44,7 @@ public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
     }
     return sqlTranslator.functionFilterSql(
         textSearchField,
-            sqlTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
+        sqlTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
         List.of(new Literal(textSearchFilter.getText())),
         tableAlias,
         sqlParams);

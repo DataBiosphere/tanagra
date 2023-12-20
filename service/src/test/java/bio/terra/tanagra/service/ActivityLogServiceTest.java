@@ -212,7 +212,8 @@ public class ActivityLogServiceTest {
                 selectFields.add(
                     new AttributeField(underlay, primaryEntity, attribute, false, false)));
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(underlay, primaryEntity, selectFields, null, null, 5, null, null);
+        new ListQueryRequest(
+            underlay, primaryEntity, selectFields, null, null, 5, null, null, false);
     EntityFilter primaryEntityFilter =
         new AttributeFilter(
             underlay,

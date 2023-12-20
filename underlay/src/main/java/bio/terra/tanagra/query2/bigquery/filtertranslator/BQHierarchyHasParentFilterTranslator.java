@@ -12,13 +12,14 @@ import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 public class BQHierarchyHasParentFilterTranslator extends SqlFilterTranslator {
   private final HierarchyHasParentFilter hierarchyHasParentFilter;
 
-  public BQHierarchyHasParentFilterTranslator(SqlTranslator sqlTranslator, HierarchyHasParentFilter hierarchyHasParentFilter) {
+  public BQHierarchyHasParentFilterTranslator(
+      SqlTranslator sqlTranslator, HierarchyHasParentFilter hierarchyHasParentFilter) {
     super(sqlTranslator);
     this.hierarchyHasParentFilter = hierarchyHasParentFilter;
   }
 
   @Override
-  public String buildSql(SqlParams sqlParams, String tableAlias, FieldPointer idField) {
+  public String buildSql(SqlParams sqlParams, String tableAlias) {
     //  entity.id IN (SELECT child FROM childParentTable WHERE parent=parentId)
     ITHierarchyChildParent childParentIndexTable =
         hierarchyHasParentFilter
@@ -27,12 +28,19 @@ public class BQHierarchyHasParentFilterTranslator extends SqlFilterTranslator {
             .getHierarchyChildParent(
                 hierarchyHasParentFilter.getEntity().getName(),
                 hierarchyHasParentFilter.getHierarchy().getName());
+    Attribute idAttribute = hierarchyHasParentFilter.getEntity().getIdAttribute();
+    FieldPointer idField = attributeSwapFields.containsKey(idAttribute) ? attributeSwapFields.get(idAttribute)
+            : hierarchyHasParentFilter
+            .getUnderlay()
+            .getIndexSchema()
+            .getEntityMain(hierarchyHasParentFilter.getEntity().getName())
+            .getAttributeValueField(idAttribute.getName());
     return sqlTranslator.inSelectFilterSql(
         idField,
         tableAlias,
         childParentIndexTable.getChildField(),
         childParentIndexTable.getTablePointer(),
-            sqlTranslator.binaryFilterSql(
+        sqlTranslator.binaryFilterSql(
             childParentIndexTable.getParentField(),
             BinaryFilterVariable.BinaryOperator.EQUALS,
             hierarchyHasParentFilter.getParentId(),

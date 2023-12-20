@@ -368,7 +368,8 @@ public class DataExportServiceTest {
         primaryEntity.getAttributes().stream()
             .map(attribute -> new AttributeField(underlay, primaryEntity, attribute, false, false))
             .collect(Collectors.toList());
-    return new ListQueryRequest(underlay, primaryEntity, selectFields, null, null, 5, null, null);
+    return new ListQueryRequest(
+        underlay, primaryEntity, selectFields, null, null, 5, null, null, false);
   }
 
   private EntityFilter buildPrimaryEntityFilter() {
