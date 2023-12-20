@@ -5,6 +5,8 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.query.bigquery.BigQueryExecutor;
+import bio.terra.tanagra.query2.QueryRunner;
+import bio.terra.tanagra.query2.bigquery.BQQueryRunner;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -40,6 +42,7 @@ public final class Underlay {
   private @Nullable final String description;
   private final ImmutableMap<String, String> properties;
   private final QueryExecutor queryExecutor;
+  private final QueryRunner queryRunner;
   private final ImmutableList<Entity> entities;
   private final ImmutableList<EntityGroup> entityGroups;
   private final SourceSchema sourceSchema;
@@ -54,6 +57,7 @@ public final class Underlay {
       @Nullable String description,
       @Nullable Map<String, String> properties,
       QueryExecutor queryExecutor,
+      QueryRunner queryRunner,
       List<Entity> entities,
       List<EntityGroup> entityGroups,
       SourceSchema sourceSchema,
@@ -65,6 +69,7 @@ public final class Underlay {
     this.description = description;
     this.properties = properties == null ? ImmutableMap.of() : ImmutableMap.copyOf(properties);
     this.queryExecutor = queryExecutor;
+    this.queryRunner = queryRunner;
     this.entities = ImmutableList.copyOf(entities);
     this.entityGroups = ImmutableList.copyOf(entityGroups);
     this.sourceSchema = sourceSchema;
@@ -124,6 +129,10 @@ public final class Underlay {
 
   public QueryExecutor getQueryExecutor() {
     return queryExecutor;
+  }
+
+  public QueryRunner getQueryRunner() {
+    return queryRunner;
   }
 
   public SourceSchema getSourceSchema() {
@@ -195,6 +204,8 @@ public final class Underlay {
     // Build the query executor.
     BigQueryExecutor queryExecutor =
         new BigQueryExecutor(szBigQuery.queryProjectId, szBigQuery.dataLocation);
+    BQQueryRunner queryRunner =
+        new BQQueryRunner(szBigQuery.queryProjectId, szBigQuery.dataLocation);
 
     // Read the UI config.
     String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
@@ -205,6 +216,7 @@ public final class Underlay {
         szUnderlay.metadata.description,
         szUnderlay.metadata.properties,
         queryExecutor,
+        queryRunner,
         entities,
         entityGroups,
         sourceSchema,

@@ -5,7 +5,6 @@ import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.EntityQueryRunner;
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
@@ -15,7 +14,6 @@ import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.PageMarker;
-import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.UnderlayService;
@@ -91,7 +89,7 @@ public class ReviewService {
       EntityFilter entityFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
 
-    QueryResult randomSampleQueryResult =
+    List<Long> randomSampleQueryResult =
         cohortService.getRandomSample(studyId, cohortId, entityFilter, reviewBuilder.getSize());
     long cohortRecordsCount = cohortService.getRecordsCount(studyId, cohortId, entityFilter);
     return createReviewHelper(
@@ -104,16 +102,16 @@ public class ReviewService {
       String cohortId,
       Review.Builder reviewBuilder,
       String userEmail,
-      QueryResult queryResult,
+      List<Long> primaryEntityIds,
       long cohortRecordsCount) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (!queryResult.getRowResults().iterator().hasNext()) {
+    if (primaryEntityIds.isEmpty()) {
       throw new IllegalArgumentException("Cannot create a review with an empty query result");
     }
     reviewDao.createReview(
         cohortId,
         reviewBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build(),
-        queryResult,
+        primaryEntityIds,
         cohortRecordsCount);
     Review review = reviewDao.getReview(reviewBuilder.getId());
     activityLogService.logReview(
@@ -304,8 +302,7 @@ public class ReviewService {
     ListQueryRequest listQueryRequest =
         new ListQueryRequest(
             underlay, primaryEntity, attributeFields, entityFilter, null, null, null, null, false);
-    ListQueryResult listQueryResult =
-        EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
+    ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
 
     // Get the annotation values.
     List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId, reviewId);
@@ -408,8 +405,8 @@ public class ReviewService {
                 .collect(Collectors.toList()));
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
-            underlay, entity, groupByAttributeFields, entityFilter, null, null, null, isDryRun);
-    return EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
+            underlay, entity, groupByAttributeFields, entityFilter, null, null, null, false);
+    return underlay.getQueryRunner().run(countQueryRequest);
   }
 
   public String buildCsvStringForAnnotationValues(Study study, Cohort cohort) {

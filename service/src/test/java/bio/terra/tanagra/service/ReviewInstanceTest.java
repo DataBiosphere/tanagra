@@ -14,9 +14,7 @@ import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.QueryResult;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -104,70 +102,46 @@ public class ReviewInstanceTest {
     // r4: 1858841, 1838382, 799353, 2104705
     ColumnHeaderSchema columnHeaderSchema =
         new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult queryResult =
-        new QueryResult(
-            List.of(2_014_950L, 1_858_841L, 2_180_409L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review1 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(11),
             userEmail,
-            queryResult,
+            List.of(2_014_950L, 1_858_841L, 2_180_409L),
             1_500_000L);
     assertNotNull(review1);
     LOGGER.info("Created review1 {} at {}", review1.getId(), review1.getCreated());
 
-    queryResult =
-        new QueryResult(
-            List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review2 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(14),
             userEmail,
-            queryResult,
+            List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L),
             1_500_000L);
     assertNotNull(review2);
     LOGGER.info("Created review2 {} at {}", review2.getId(), review2.getCreated());
 
-    queryResult =
-        new QueryResult(
-            List.of(1_858_841L, 2_180_409L, 1_838_382L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review3 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(3),
             userEmail,
-            queryResult,
+            List.of(1_858_841L, 2_180_409L, 1_838_382L),
             1_500_000L);
     assertNotNull(review3);
     LOGGER.info("Created review3 {} at {}", review3.getId(), review3.getCreated());
 
-    queryResult =
-        new QueryResult(
-            List.of(1_858_841L, 1_838_382L, 799_353L, 2_104_705L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review4 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(4),
             userEmail,
-            queryResult,
+            List.of(1_858_841L, 1_838_382L, 799_353L, 2_104_705L),
             1_500_000L);
     assertNotNull(review4);
     LOGGER.info("Created review4 {} at {}", review4.getId(), review4.getCreated());

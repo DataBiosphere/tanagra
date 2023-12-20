@@ -14,8 +14,6 @@ import bio.terra.tanagra.query.CellValue;
 import bio.terra.tanagra.query.ColumnHeaderSchema;
 import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -145,19 +143,14 @@ public class BaseAccessControlTest {
     // Create 2 reviews.
     ColumnHeaderSchema columnHeaderSchema =
         new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult queryResult =
-        new QueryResult(
-            List.of(123L, 456L, 789L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
+    List<Long> randomSampleQueryResult = List.of(123L, 456L, 789L);
     review1 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
             "abc@123.com",
-            queryResult,
+            randomSampleQueryResult,
             14);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
@@ -167,7 +160,7 @@ public class BaseAccessControlTest {
             cohort2.getId(),
             Review.builder().displayName("review 2").description("second review").size(3),
             "def@123.com",
-            queryResult,
+            randomSampleQueryResult,
             15);
     assertNotNull(review2);
     LOGGER.info("Created review {} at {}", review2.getId(), review2.getCreated());

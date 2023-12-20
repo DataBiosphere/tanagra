@@ -1,18 +1,13 @@
 package bio.terra.tanagra.service.artifact;
 
+import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.EntityQueryRunner;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.OrderByVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.QueryRequest;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -20,8 +15,6 @@ import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -162,9 +155,8 @@ public class CohortService {
             null,
             null,
             null,
-            isDryRun);
-    CountQueryResult countQueryResult =
-        EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
+            false);
+    CountQueryResult countQueryResult = underlay.getQueryRunner().run(countQueryRequest);
     LOGGER.debug("getRecordsCount SQL: {}", countQueryResult.getSql());
     if (countQueryResult.getCountInstances().size() > 1) {
       LOGGER.warn(
@@ -174,41 +166,36 @@ public class CohortService {
   }
 
   /** Build a query of a random sample of primary entity instance ids in the cohort. */
-  public QueryResult getRandomSample(
+  public List<Long> getRandomSample(
       String studyId, String cohortId, EntityFilter entityFilter, int sampleSize) {
     Cohort cohort = getCohort(studyId, cohortId);
     Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
 
     // Build a query of a random sample of primary entity instance ids in the cohort.
-    // TODO: Make a random sample query part of the underlay/api, so we're not building Query
-    // objects outside the underlay sub-project.
-    ITEntityMain primaryEntityIndexTable =
-        underlay.getIndexSchema().getEntityMain(underlay.getPrimaryEntity().getName());
-    TableVariable entityTableVar =
-        TableVariable.forPrimary(primaryEntityIndexTable.getTablePointer());
-    List<TableVariable> tableVars = Lists.newArrayList(entityTableVar);
-    FieldVariable idFieldVar =
-        primaryEntityIndexTable
-            .getAttributeValueField(underlay.getPrimaryEntity().getIdAttribute().getName())
-            .buildVariable(entityTableVar, tableVars);
-    Query query =
-        new Query.Builder()
-            .select(List.of(idFieldVar))
-            .tables(tableVars)
-            .where(entityFilter.getFilterVariable(entityTableVar, tableVars))
-            .orderBy(List.of(OrderByVariable.forRandom()))
-            .limit(sampleSize)
-            .build();
-    QueryRequest queryRequest =
-        new QueryRequest(
-            query.renderSQL(),
-            new ColumnHeaderSchema(
-                List.of(
-                    primaryEntityIndexTable.getAttributeValueColumnSchema(
-                        underlay.getPrimaryEntity().getIdAttribute()))));
-    LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", queryRequest.getSql());
-
-    // Run the query and get an iterator to its results.
-    return underlay.getQueryExecutor().execute(queryRequest);
+    AttributeField idAttributeField =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            false,
+            false);
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            underlay.getPrimaryEntity(),
+            List.of(idAttributeField),
+            entityFilter,
+            List.of(ListQueryRequest.OrderBy.random()),
+            sampleSize,
+            null,
+            null,
+            false);
+    ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
+    LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", listQueryResult.getSql());
+    return listQueryResult.getListInstances().stream()
+        .map(
+            listInstance ->
+                listInstance.getEntityFieldValue(idAttributeField).getValue().getInt64Val())
+        .collect(Collectors.toList());
   }
 }

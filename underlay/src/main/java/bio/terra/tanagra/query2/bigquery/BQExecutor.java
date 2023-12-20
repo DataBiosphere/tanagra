@@ -7,6 +7,7 @@ import bio.terra.tanagra.query2.sql.SqlQueryRequest;
 import bio.terra.tanagra.query2.sql.SqlQueryResult;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.utils.GoogleBigQuery;
+import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.JobStatistics;
@@ -26,6 +27,7 @@ public class BQExecutor {
   private final String datasetLocation;
 
   private GoogleBigQuery bigQueryService;
+  private GoogleCloudStorage cloudStorageService;
 
   public BQExecutor(String queryProjectId, String datasetLocation) {
     this.queryProjectId = queryProjectId;
@@ -74,6 +76,41 @@ public class BQExecutor {
     }
   }
 
+  public String export(
+      SqlQueryRequest queryRequest,
+      String fileNamePrefix,
+      String exportProjectId,
+      List<String> exportBucketNames) {
+    // Validate the filename.
+    // GCS file name must be in wildcard format.
+    // https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_option_list:~:text=The%20uri%20option%20must%20be%20a%20single%2Dwildcard%20URI
+    String validatedFilename;
+    if (fileNamePrefix == null || !fileNamePrefix.contains("*")) {
+      validatedFilename = "tanagra_" + System.currentTimeMillis() + "_*.csv";
+      LOGGER.warn(
+          "No (or invalid) filename specified for GCS export ({}), using default: {}",
+          fileNamePrefix,
+          validatedFilename);
+    } else {
+      validatedFilename = fileNamePrefix;
+    }
+
+    // Prefix the SQL query with the export to GCS directive.
+    String bucketName =
+        getCloudStorageService()
+            .findBucketForBigQueryExport(exportProjectId, exportBucketNames, datasetLocation);
+    String sqlWithExportPrefix =
+        String.format(
+            "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS %n%s",
+            bucketName, validatedFilename, queryRequest.getSql());
+    run(queryRequest.cloneAndSetSql(sqlWithExportPrefix));
+
+    // Multiple files will be created only if export is very large (> 1GB). For now, just assume
+    // only "000000000000" was created.
+    // TODO: Detect and handle case where mulitple files are created.
+    return String.format("gs://%s/%s", bucketName, validatedFilename.replace("*", "000000000000"));
+  }
+
   private static QueryParameterValue toQueryParameterValue(Literal literal) {
     switch (literal.getDataType()) {
       case INT64:
@@ -105,5 +142,19 @@ public class BQExecutor {
       bigQueryService = new GoogleBigQuery(credentials, queryProjectId);
     }
     return bigQueryService;
+  }
+
+  private GoogleCloudStorage getCloudStorageService() {
+    // Lazy load the GCS service.
+    if (cloudStorageService == null) {
+      GoogleCredentials credentials;
+      try {
+        credentials = GoogleCredentials.getApplicationDefault();
+      } catch (IOException ioEx) {
+        throw new SystemException("Error loading application default credentials", ioEx);
+      }
+      cloudStorageService = new GoogleCloudStorage(credentials, queryProjectId);
+    }
+    return cloudStorageService;
   }
 }

@@ -13,7 +13,6 @@ import bio.terra.tanagra.api.field.valuedisplay.HierarchyPathField;
 import bio.terra.tanagra.api.field.valuedisplay.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.EntityQueryRunner;
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
@@ -138,8 +137,7 @@ public class UnderlaysApiController implements UnderlaysApi {
         FromApiUtils.fromApiObject(body, underlay.getEntity(entityName), underlay);
 
     // Run the list query and map the results back to API objects.
-    ListQueryResult listQueryResult =
-        EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
+    ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(
         new ApiInstanceListResult()
             .instances(
@@ -172,7 +170,7 @@ public class UnderlaysApiController implements UnderlaysApi {
     } else {
       HintQueryRequest hintQueryRequest =
           new HintQueryRequest(underlay, entity, null, null, null, false);
-      entityLevelHints = EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());
+      entityLevelHints = underlay.getQueryRunner().run(hintQueryRequest);
       underlayService.cacheEntityLevelHints(underlayName, entityName, entityLevelHints);
     }
 
@@ -200,11 +198,10 @@ public class UnderlaysApiController implements UnderlaysApi {
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
-            underlay, entity, attributeFields, filter, null, null, entityLevelHints, isDryRun);
+            underlay, entity, attributeFields, filter, null, null, entityLevelHints, false);
 
     // Run the count query and map the results back to API objects.
-    CountQueryResult countQueryResult =
-        EntityQueryRunner.run(countQueryRequest, underlay.getQueryExecutor());
+    CountQueryResult countQueryResult = underlay.getQueryRunner().run(countQueryRequest);
     return ResponseEntity.ok(
         new ApiInstanceCountList()
             .instanceCounts(
@@ -240,8 +237,7 @@ public class UnderlaysApiController implements UnderlaysApi {
                   .getLeft(),
               false);
     }
-    HintQueryResult hintQueryResult =
-        EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());
+    HintQueryResult hintQueryResult = underlay.getQueryRunner().run(hintQueryRequest);
     return ResponseEntity.ok(
         new ApiDisplayHintList()
             .sql(SqlFormatter.format(hintQueryResult.getSql()))

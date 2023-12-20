@@ -1,5 +1,7 @@
 package bio.terra.tanagra.utils;
 
+import static com.google.cloud.storage.Storage.BucketField.LOCATION;
+
 import bio.terra.tanagra.exception.SystemException;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -17,6 +19,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpStatus;
@@ -119,6 +122,34 @@ public final class GoogleCloudStorage {
       }
     }
     return fileContents.toString();
+  }
+
+  @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
+  public String findBucketForBigQueryExport(
+      String gcsProjectId, List<String> gcsBucketNames, String bigQueryDataLocation) {
+    // Lookup the GCS bucket location. Return the first bucket with a compatible location for the
+    // dataset.
+    // https://cloud.google.com/bigquery/docs/exporting-data#data-locations
+    GoogleCloudStorage storageService =
+        GoogleCloudStorage.forApplicationDefaultCredentials(gcsProjectId);
+    for (String bucketName : gcsBucketNames) {
+      Optional<Bucket> bucket =
+          storageService.getBucket(bucketName, Storage.BucketGetOption.fields(LOCATION));
+      if (bucket.isEmpty()) {
+        LOGGER.warn("Bucket not found: {}", bucketName);
+        continue;
+      }
+      String bucketLocation = bucket.get().getLocation();
+      if (bigQueryDataLocation.equals(bucketLocation)
+          || "US".equalsIgnoreCase(bigQueryDataLocation)
+          || (bigQueryDataLocation.startsWith("us") && "US".equalsIgnoreCase(bucketLocation))
+          || ("EU".equalsIgnoreCase(bigQueryDataLocation) && bucketLocation.startsWith("europe"))) {
+        return bucketName;
+      }
+    }
+    throw new SystemException(
+        "No compatible GCS bucket found for export from BQ dataset in location: "
+            + bigQueryDataLocation);
   }
 
   /**

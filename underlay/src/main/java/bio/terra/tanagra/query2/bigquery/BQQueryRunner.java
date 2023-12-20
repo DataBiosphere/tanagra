@@ -7,6 +7,8 @@ import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.export.ExportQueryRequest;
+import bio.terra.tanagra.api.query.export.ExportQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
@@ -39,6 +41,37 @@ public class BQQueryRunner implements QueryRunner {
 
   @Override
   public ListQueryResult run(ListQueryRequest listQueryRequest) {
+    // Build the SQL query.
+    SqlQueryRequest sqlQueryRequest = buildListQuerySql(listQueryRequest);
+
+    // Execute the SQL query.
+    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
+
+    // Process the rows returned.
+    BQTranslator bqTranslator = new BQTranslator();
+    List<ListInstance> listInstances = new ArrayList<>();
+    sqlQueryResult
+        .getRowResults()
+        .iterator()
+        .forEachRemaining(
+            sqlRowResult -> {
+              Map<ValueDisplayField, ValueDisplay> fieldValues = new HashMap<>();
+              listQueryRequest.getSelectFields().stream()
+                  .forEach(
+                      valueDisplayField ->
+                          fieldValues.put(
+                              valueDisplayField,
+                              bqTranslator
+                                  .translator(valueDisplayField)
+                                  .parseValueDisplayFromResult(sqlRowResult)));
+              listInstances.add(new ListInstance(fieldValues));
+            });
+
+    return new ListQueryResult(
+        sqlQueryRequest.getSql(), listInstances, sqlQueryResult.getNextPageMarker());
+  }
+
+  private SqlQueryRequest buildListQuerySql(ListQueryRequest listQueryRequest) {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
@@ -99,37 +132,12 @@ public class BQQueryRunner implements QueryRunner {
     if (listQueryRequest.getLimit() != null) {
       sql.append(" LIMIT ").append(listQueryRequest.getLimit());
     }
-
-    // Execute the SQL query.
-    SqlQueryRequest sqlQueryRequest =
-        new SqlQueryRequest(
-            sql.toString(),
-            sqlParams,
-            listQueryRequest.getPageMarker(),
-            listQueryRequest.getPageSize(),
-            listQueryRequest.isDryRun());
-    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
-
-    // Process the rows returned.
-    List<ListInstance> listInstances = new ArrayList<>();
-    sqlQueryResult
-        .getRowResults()
-        .iterator()
-        .forEachRemaining(
-            sqlRowResult -> {
-              Map<ValueDisplayField, ValueDisplay> fieldValues = new HashMap<>();
-              listQueryRequest.getSelectFields().stream()
-                  .forEach(
-                      valueDisplayField ->
-                          fieldValues.put(
-                              valueDisplayField,
-                              bqTranslator
-                                  .translator(valueDisplayField)
-                                  .parseValueDisplayFromResult(sqlRowResult)));
-              listInstances.add(new ListInstance(fieldValues));
-            });
-
-    return new ListQueryResult(sql.toString(), listInstances, sqlQueryResult.getNextPageMarker());
+    return new SqlQueryRequest(
+        sql.toString(),
+        sqlParams,
+        listQueryRequest.getPageMarker(),
+        listQueryRequest.getPageSize(),
+        listQueryRequest.isDryRun());
   }
 
   @Override
@@ -351,5 +359,21 @@ public class BQQueryRunner implements QueryRunner {
             });
 
     return new HintQueryResult(sql.toString(), hintInstances);
+  }
+
+  @Override
+  public ExportQueryResult run(ExportQueryRequest exportQueryRequest) {
+    // Build the SQL query.
+    SqlQueryRequest sqlQueryRequest = buildListQuerySql(exportQueryRequest.getListQueryRequest());
+
+    // Execute the SQL query.
+    String exportFileName =
+        bigQueryExecutor.export(
+            sqlQueryRequest,
+            exportQueryRequest.getFileNamePrefix(),
+            exportQueryRequest.getGcsProjectId(),
+            exportQueryRequest.getAvailableGcsBucketNames());
+
+    return new ExportQueryResult(exportFileName);
   }
 }
