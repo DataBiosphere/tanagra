@@ -147,7 +147,7 @@
             "entity": "observation",
             "entityAttribute": "id",
             "defaultSort": {
-              "attribute": "t_rollup_count",
+              "attribute": "t_item_count",
               "direction": "DESC"
             }
           },
@@ -475,7 +475,6 @@
         { "key": "standard_concept", "width": 120, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" },
         { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "occurrences": "observation_occurrence",
