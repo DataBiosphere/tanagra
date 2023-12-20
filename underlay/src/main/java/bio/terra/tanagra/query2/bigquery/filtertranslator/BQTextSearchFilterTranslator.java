@@ -30,7 +30,10 @@ public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
     if (textSearchFilter.isForSpecificAttribute()) {
       // Search only on the specified attribute.
       Attribute attribute = textSearchFilter.getAttribute();
-      textSearchField = attributeSwapFields.containsKey(attribute) ? attributeSwapFields.get(attribute) : indexTable.getAttributeValueField(attribute.getName());
+      textSearchField =
+          attributeSwapFields.containsKey(attribute)
+              ? attributeSwapFields.get(attribute)
+              : indexTable.getAttributeValueField(attribute.getName());
       if (attribute.hasRuntimeSqlFunctionWrapper()) {
         textSearchField =
             textSearchField

@@ -9,7 +9,6 @@ import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;
-import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.QueryRunner;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlQueryRequest;
@@ -60,10 +59,7 @@ public class BQQueryRunner implements QueryRunner {
     // WHERE [filter]
     if (listQueryRequest.getFilter() != null) {
       sql.append(" WHERE ")
-          .append(
-              bqTranslator
-                  .translator(listQueryRequest.getFilter())
-                  .buildSql(sqlParams, null));
+          .append(bqTranslator.translator(listQueryRequest.getFilter()).buildSql(sqlParams, null));
     }
 
     // ORDER BY [order by fields]
@@ -144,10 +140,7 @@ public class BQQueryRunner implements QueryRunner {
     // WHERE [filter]
     if (countQueryRequest.getFilter() != null) {
       sql.append(" WHERE ")
-          .append(
-              bqTranslator
-                  .translator(countQueryRequest.getFilter())
-                  .buildSql(sqlParams, null));
+          .append(bqTranslator.translator(countQueryRequest.getFilter()).buildSql(sqlParams, null));
     }
 
     // GROUP BY [group by fields]

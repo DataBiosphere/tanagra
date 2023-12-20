@@ -217,7 +217,9 @@ public interface SqlTranslator {
       SqlParams sqlParams) {
     sqlParams.addParam("groupByCount", new Literal(groupByCount));
     return "GROUP BY "
-        + groupByFields.stream().map(groupByField -> whereSql(groupByField, tableAlias)).collect(Collectors.joining(","))
+        + groupByFields.stream()
+            .map(groupByField -> whereSql(groupByField, tableAlias))
+            .collect(Collectors.joining(","))
         + " HAVING COUNT(*) "
         + binaryOperatorSql(groupByOperator)
         + " @groupByCount";

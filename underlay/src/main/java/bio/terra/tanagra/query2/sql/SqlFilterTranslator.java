@@ -2,7 +2,6 @@ package bio.terra.tanagra.query2.sql;
 
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
-
 import java.util.HashMap;
 import java.util.Map;
 

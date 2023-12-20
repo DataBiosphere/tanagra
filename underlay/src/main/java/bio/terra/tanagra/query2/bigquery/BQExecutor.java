@@ -16,7 +16,6 @@ import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,26 +44,32 @@ public class BQExecutor {
 
     LOGGER.info("Running SQL against BigQuery: {}", queryRequest.getSql());
     if (queryRequest.isDryRun()) {
-      JobStatistics.QueryStatistics queryStatistics = getBigQueryService().queryStatistics(queryConfig.build());
-      LOGGER.info("SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}", queryStatistics.getStatementType(), queryStatistics.getCacheHit(), queryStatistics.getTotalBytesProcessed(), queryStatistics.getTotalSlotMs());
+      JobStatistics.QueryStatistics queryStatistics =
+          getBigQueryService().queryStatistics(queryConfig.build());
+      LOGGER.info(
+          "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
+          queryStatistics.getStatementType(),
+          queryStatistics.getCacheHit(),
+          queryStatistics.getTotalBytesProcessed(),
+          queryStatistics.getTotalSlotMs());
       return new SqlQueryResult(List.of(), null, 0);
     } else {
       TableResult tableResult =
-              getBigQueryService()
-                      .queryBigQuery(
-                              queryConfig.build(),
-                              queryRequest.getPageMarker() == null
-                                      ? null
-                                      : queryRequest.getPageMarker().getPageToken(),
-                              queryRequest.getPageSize());
+          getBigQueryService()
+              .queryBigQuery(
+                  queryConfig.build(),
+                  queryRequest.getPageMarker() == null
+                      ? null
+                      : queryRequest.getPageMarker().getPageToken(),
+                  queryRequest.getPageSize());
 
       LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
       Iterable<SqlRowResult> rowResults =
-              Iterables.transform(
-                      tableResult.getValues() /* Single page of results. */,
-                      (FieldValueList fieldValueList) -> new BQRowResult(fieldValueList));
+          Iterables.transform(
+              tableResult.getValues() /* Single page of results. */,
+              (FieldValueList fieldValueList) -> new BQRowResult(fieldValueList));
       PageMarker nextPageMarker =
-              tableResult.hasNextPage() ? PageMarker.forToken(tableResult.getNextPageToken()) : null;
+          tableResult.hasNextPage() ? PageMarker.forToken(tableResult.getNextPageToken()) : null;
       return new SqlQueryResult(rowResults, nextPageMarker, tableResult.getTotalRows());
     }
   }

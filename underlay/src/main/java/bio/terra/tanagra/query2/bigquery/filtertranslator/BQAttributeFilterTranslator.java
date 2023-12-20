@@ -25,7 +25,10 @@ public class BQAttributeFilterTranslator extends SqlFilterTranslator {
             .getEntityMain(attributeFilter.getEntity().getName());
 
     Attribute attribute = attributeFilter.getAttribute();
-    FieldPointer valueField = attributeSwapFields.containsKey(attribute) ? attributeSwapFields.get(attribute) : indexTable.getAttributeValueField(attribute.getName());
+    FieldPointer valueField =
+        attributeSwapFields.containsKey(attribute)
+            ? attributeSwapFields.get(attribute)
+            : indexTable.getAttributeValueField(attribute.getName());
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
       valueField =
           valueField

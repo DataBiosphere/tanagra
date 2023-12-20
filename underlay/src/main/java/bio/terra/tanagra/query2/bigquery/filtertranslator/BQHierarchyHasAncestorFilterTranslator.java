@@ -7,7 +7,6 @@ import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
-import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 
 public class BQHierarchyHasAncestorFilterTranslator extends SqlFilterTranslator {
@@ -31,12 +30,14 @@ public class BQHierarchyHasAncestorFilterTranslator extends SqlFilterTranslator 
                 hierarchyHasAncestorFilter.getEntity().getName(),
                 hierarchyHasAncestorFilter.getHierarchy().getName());
     Attribute idAttribute = hierarchyHasAncestorFilter.getEntity().getIdAttribute();
-    FieldPointer idField = attributeSwapFields.containsKey(idAttribute) ? attributeSwapFields.get(idAttribute)
+    FieldPointer idField =
+        attributeSwapFields.containsKey(idAttribute)
+            ? attributeSwapFields.get(idAttribute)
             : hierarchyHasAncestorFilter
-            .getUnderlay()
-            .getIndexSchema()
-            .getEntityMain(hierarchyHasAncestorFilter.getEntity().getName())
-            .getAttributeValueField(idAttribute.getName());
+                .getUnderlay()
+                .getIndexSchema()
+                .getEntityMain(hierarchyHasAncestorFilter.getEntity().getName())
+                .getAttributeValueField(idAttribute.getName());
     return sqlTranslator.inSelectFilterSql(
         idField,
         tableAlias,

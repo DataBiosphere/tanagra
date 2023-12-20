@@ -29,12 +29,14 @@ public class BQHierarchyHasParentFilterTranslator extends SqlFilterTranslator {
                 hierarchyHasParentFilter.getEntity().getName(),
                 hierarchyHasParentFilter.getHierarchy().getName());
     Attribute idAttribute = hierarchyHasParentFilter.getEntity().getIdAttribute();
-    FieldPointer idField = attributeSwapFields.containsKey(idAttribute) ? attributeSwapFields.get(idAttribute)
+    FieldPointer idField =
+        attributeSwapFields.containsKey(idAttribute)
+            ? attributeSwapFields.get(idAttribute)
             : hierarchyHasParentFilter
-            .getUnderlay()
-            .getIndexSchema()
-            .getEntityMain(hierarchyHasParentFilter.getEntity().getName())
-            .getAttributeValueField(idAttribute.getName());
+                .getUnderlay()
+                .getIndexSchema()
+                .getEntityMain(hierarchyHasParentFilter.getEntity().getName())
+                .getAttributeValueField(idAttribute.getName());
     return sqlTranslator.inSelectFilterSql(
         idField,
         tableAlias,

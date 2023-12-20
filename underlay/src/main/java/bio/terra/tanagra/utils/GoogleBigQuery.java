@@ -284,14 +284,12 @@ public final class GoogleBigQuery {
         "Error running BigQuery query: " + queryConfig.getQuery());
   }
 
-  /**
-   * Get the job statistics for a query, without running it. Intended for dry running queries.
-   */
+  /** Get the job statistics for a query, without running it. Intended for dry running queries. */
   public JobStatistics.QueryStatistics queryStatistics(QueryJobConfiguration queryConfig) {
     Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
     return callWithRetries(
-            () -> job.getStatistics(),
-            "Error getting job statistics for query: " + queryConfig.getQuery());
+        () -> job.getStatistics(),
+        "Error getting job statistics for query: " + queryConfig.getQuery());
   }
 
   /**

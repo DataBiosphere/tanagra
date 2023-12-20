@@ -1,7 +1,6 @@
 package bio.terra.tanagra.query2.sql.filtertranslator;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
@@ -22,9 +21,7 @@ public class BooleanAndOrFilterTranslator extends SqlFilterTranslator {
   public String buildSql(SqlParams sqlParams, String tableAlias) {
     List<String> subFilterSqls =
         booleanAndOrFilter.getSubFilters().stream()
-            .map(
-                subFilter ->
-                    sqlTranslator.translator(subFilter).buildSql(sqlParams, tableAlias))
+            .map(subFilter -> sqlTranslator.translator(subFilter).buildSql(sqlParams, tableAlias))
             .collect(Collectors.toList());
     return sqlTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
