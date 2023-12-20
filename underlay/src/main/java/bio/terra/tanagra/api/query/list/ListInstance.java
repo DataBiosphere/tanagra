@@ -11,7 +11,7 @@ import java.util.Map;
 public final class ListInstance {
   private final ImmutableMap<ValueDisplayField, ValueDisplay> entityFieldValues;
 
-  private ListInstance(Map<ValueDisplayField, ValueDisplay> entityFieldValues) {
+  public ListInstance(Map<ValueDisplayField, ValueDisplay> entityFieldValues) {
     this.entityFieldValues = ImmutableMap.copyOf(entityFieldValues);
   }
 

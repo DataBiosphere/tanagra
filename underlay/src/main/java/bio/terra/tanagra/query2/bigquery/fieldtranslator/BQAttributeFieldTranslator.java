@@ -2,6 +2,7 @@ package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 
 import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
@@ -85,6 +86,10 @@ public class BQAttributeFieldTranslator implements SqlFieldTranslator {
 
   @Override
   public ValueDisplay parseValueDisplayFromResult() {
+    return null;
+  }
+
+  public ValueDisplay parseValueDisplayFromResult(HintQueryResult entityLevelHints) {
     return null;
   }
 }

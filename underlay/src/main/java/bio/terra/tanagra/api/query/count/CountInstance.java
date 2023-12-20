@@ -21,7 +21,7 @@ public final class CountInstance {
   private final long count;
   private final ImmutableMap<ValueDisplayField, ValueDisplay> entityFieldValues;
 
-  private CountInstance(long count, Map<ValueDisplayField, ValueDisplay> entityFieldValues) {
+  public CountInstance(long count, Map<ValueDisplayField, ValueDisplay> entityFieldValues) {
     this.count = count;
     this.entityFieldValues = ImmutableMap.copyOf(entityFieldValues);
   }

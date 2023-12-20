@@ -1,15 +1,21 @@
 package bio.terra.tanagra.query2.bigquery;
 
+import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
 import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
 import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
+import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
+import bio.terra.tanagra.api.query.list.ListInstance;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query2.QueryRunner;
+import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlQueryRequest;
 import bio.terra.tanagra.query2.sql.SqlQueryResult;
@@ -17,7 +23,9 @@ import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BQQueryRunner implements QueryRunner {
@@ -100,9 +108,26 @@ public class BQQueryRunner implements QueryRunner {
             listQueryRequest.isDryRun());
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
-    // TODO: Process the rows returned.
+    // Process the rows returned.
+    List<ListInstance> listInstances = new ArrayList<>();
+    sqlQueryResult
+        .getRowResults()
+        .iterator()
+        .forEachRemaining(
+            sqlRowResult -> {
+              Map<ValueDisplayField, ValueDisplay> fieldValues = new HashMap<>();
+              listQueryRequest.getSelectFields().stream()
+                  .forEach(
+                      valueDisplayField ->
+                          fieldValues.put(
+                              valueDisplayField,
+                              bqTranslator
+                                  .translator(valueDisplayField)
+                                  .parseValueDisplayFromResult()));
+              listInstances.add(new ListInstance(fieldValues));
+            });
 
-    return new ListQueryResult(sql.toString(), List.of(), sqlQueryResult.getNextPageMarker());
+    return new ListQueryResult(sql.toString(), listInstances, sqlQueryResult.getNextPageMarker());
   }
 
   @Override
@@ -114,8 +139,9 @@ public class BQQueryRunner implements QueryRunner {
 
     // The select fields are the COUNT(id) field + the GROUP BY fields (values only).
     List<ValueDisplayField> selectValueDisplayFields = new ArrayList<>();
-    selectValueDisplayFields.add(
-        new EntityIdCountField(countQueryRequest.getUnderlay(), countQueryRequest.getEntity()));
+    EntityIdCountField entityIdCountField =
+        new EntityIdCountField(countQueryRequest.getUnderlay(), countQueryRequest.getEntity());
+    selectValueDisplayFields.add(entityIdCountField);
     selectValueDisplayFields.addAll(countQueryRequest.getGroupByFields());
 
     // All the select fields come from the index entity main table.
@@ -166,10 +192,45 @@ public class BQQueryRunner implements QueryRunner {
             countQueryRequest.isDryRun());
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
-    // TODO: Process the rows returned.
-    // TODO: Use the entity-level display hints to fill in any attribute display fields.
+    // Process the rows returned.
+    List<CountInstance> countInstances = new ArrayList<>();
+    sqlQueryResult
+        .getRowResults()
+        .iterator()
+        .forEachRemaining(
+            sqlRowResult -> {
+              Map<ValueDisplayField, ValueDisplay> fieldValues = new HashMap<>();
+              countQueryRequest.getGroupByFields().stream()
+                  .forEach(
+                      valueDisplayField -> {
+                        ValueDisplay valueDisplay;
+                        if (valueDisplayField instanceof AttributeField) {
+                          // Use the entity-level display hints to fill in any attribute display
+                          // fields.
+                          valueDisplay =
+                              ((BQAttributeFieldTranslator)
+                                      bqTranslator.translator((AttributeField) valueDisplayField))
+                                  .parseValueDisplayFromResult(
+                                      countQueryRequest.getEntityLevelHints());
+                        } else {
+                          // Just parse the field result normally.
+                          valueDisplay =
+                              bqTranslator
+                                  .translator(valueDisplayField)
+                                  .parseValueDisplayFromResult();
+                        }
+                        fieldValues.put(valueDisplayField, valueDisplay);
+                      });
+              long count =
+                  bqTranslator
+                      .translator(entityIdCountField)
+                      .parseValueDisplayFromResult()
+                      .getValue()
+                      .getInt64Val();
+              countInstances.add(new CountInstance(count, fieldValues));
+            });
 
-    return new CountQueryResult(sql.toString(), List.of(), sqlQueryResult.getNextPageMarker());
+    return new CountQueryResult(sql.toString(), countInstances, sqlQueryResult.getNextPageMarker());
   }
 
   @Override
@@ -215,7 +276,9 @@ public class BQQueryRunner implements QueryRunner {
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // TODO: Process the rows returned.
+    List<HintInstance> hintInstances = new ArrayList<>();
+    sqlQueryResult.getRowResults().iterator().forEachRemaining(sqlRowResult -> {});
 
-    return new HintQueryResult(sql.toString(), List.of());
+    return new HintQueryResult(sql.toString(), hintInstances);
   }
 }
