@@ -1,10 +1,10 @@
 package bio.terra.tanagra.indexing.job;
 
 import bio.terra.tanagra.api.shared.FunctionTemplate;
-import bio.terra.tanagra.query2.bigquery.BQApiTranslator;
-import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlParams;
-import bio.terra.tanagra.query2.sql.SqlQueryField;
+import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.query.sql.SqlParams;
+import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.cloud.bigquery.Table;

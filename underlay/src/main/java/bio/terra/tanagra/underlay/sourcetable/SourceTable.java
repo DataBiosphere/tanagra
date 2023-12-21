@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query2.sql.SqlTable;
+import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.common.collect.ImmutableList;
 

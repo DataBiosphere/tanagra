@@ -2,10 +2,10 @@ package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query2.bigquery.BQApiTranslator;
-import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlQueryField;
-import bio.terra.tanagra.query2.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.query.sql.SqlQueryField;
+import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;

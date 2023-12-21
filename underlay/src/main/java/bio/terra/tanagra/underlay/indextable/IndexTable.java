@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query2.sql.SqlTable;
+import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;

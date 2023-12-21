@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.tanagra.query2.sql.SqlTable;
+import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
