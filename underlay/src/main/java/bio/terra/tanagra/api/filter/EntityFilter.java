@@ -1,10 +1,13 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.query.FilterVariable;
-import bio.terra.tanagra.query.TableVariable;
-import java.util.List;
-
 public abstract class EntityFilter {
-  public abstract FilterVariable getFilterVariable(
-      TableVariable entityTableVar, List<TableVariable> tableVars);
+  // TODO: Add logic here to merge filters automatically to get a simpler filter overall.
+  public boolean isMergeable(EntityFilter entityFilter) {
+    return false;
+  }
+
+  @SuppressWarnings("PMD.EmptyMethodInAbstractClassShouldBeAbstract")
+  public EntityFilter mergeWith(EntityFilter entityFilter) {
+    return null;
+  }
 }
