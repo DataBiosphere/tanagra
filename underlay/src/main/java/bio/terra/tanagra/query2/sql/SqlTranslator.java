@@ -62,7 +62,10 @@ public interface SqlTranslator {
     }
   }
 
-  default String orderByRandSql() { return "RAND()"; }
+  default String orderByRandSql() {
+    return "RAND()";
+  }
+
   default String groupBySql(
       SqlField sqlField, @Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {

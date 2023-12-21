@@ -12,9 +12,6 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
@@ -150,8 +147,6 @@ public class ActivityLogServiceTest {
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // CREATE_REVIEW
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
     Review review1 =
         reviewService.createReviewHelper(
             study1.getId(),

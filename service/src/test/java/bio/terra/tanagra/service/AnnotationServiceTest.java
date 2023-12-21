@@ -10,9 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -101,8 +98,6 @@ public class AnnotationServiceTest {
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
 
     // Create review1 for cohort1.
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
     review1 =
         reviewService.createReviewHelper(
             study1.getId(),

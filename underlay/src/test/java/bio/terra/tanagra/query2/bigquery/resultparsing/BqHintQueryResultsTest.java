@@ -24,7 +24,7 @@ public class BqHintQueryResultsTest extends BQRunnerTest {
   void entityLevelHint() {
     Entity hintedEntity = underlay.getPrimaryEntity();
     HintQueryResult hintQueryResult =
-        BQQueryRunner.run(new HintQueryRequest(underlay, hintedEntity, null, null, null, false));
+        bqQueryRunner.run(new HintQueryRequest(underlay, hintedEntity, null, null, null, false));
 
     // Make sure we got some results back.
     assertFalse(hintQueryResult.getHintInstances().isEmpty());
@@ -62,7 +62,7 @@ public class BqHintQueryResultsTest extends BQRunnerTest {
     Entity hintedEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
     Entity relatedEntity = criteriaOccurrence.getCriteriaEntity();
     HintQueryResult hintQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new HintQueryRequest(
                 underlay,
                 hintedEntity,

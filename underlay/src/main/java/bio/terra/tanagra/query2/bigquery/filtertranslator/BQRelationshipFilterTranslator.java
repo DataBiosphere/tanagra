@@ -11,13 +11,8 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(BQRelationshipFilterTranslator.class);
-
   private final RelationshipFilter relationshipFilter;
 
   public BQRelationshipFilterTranslator(

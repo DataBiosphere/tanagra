@@ -21,7 +21,7 @@ public class BQListQueryTest extends BQRunnerTest {
     assertThrows(
         InvalidQueryException.class,
         () ->
-            BQQueryRunner.run(
+            bqQueryRunner.run(
                 new ListQueryRequest(
                     underlay, entity, List.of(), null, null, null, null, null, true)));
   }
@@ -32,7 +32,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, List.of(simpleAttribute), null, null, null, null, null, true));
     TablePointer table =
@@ -46,7 +46,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField selectAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -70,7 +70,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField orderByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -94,7 +94,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField orderByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -115,13 +115,21 @@ public class BQListQueryTest extends BQRunnerTest {
   void withOrderByRandom() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField selectAttribute =
-            new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-            BQQueryRunner.run(
-                    new ListQueryRequest(
-                            underlay, entity, List.of(selectAttribute), null, List.of(ListQueryRequest.OrderBy.random()), 45, null, null, true));
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(selectAttribute),
+                null,
+                List.of(ListQueryRequest.OrderBy.random()),
+                45,
+                null,
+                null,
+                true));
     TablePointer table =
-            underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByRandom", listQueryResult.getSql(), table);
   }
 
@@ -131,7 +139,7 @@ public class BQListQueryTest extends BQRunnerTest {
     AttributeField selectAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, List.of(selectAttribute), null, List.of(), 45, null, null, true));
     TablePointer table =

@@ -34,8 +34,6 @@ import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
 
 public final class BQTranslator implements SqlTranslator {
-  public BQTranslator() {}
-
   @Override
   public SqlFieldTranslator translator(AttributeField attributeField) {
     return new BQAttributeFieldTranslator(attributeField);
@@ -106,6 +104,7 @@ public final class BQTranslator implements SqlTranslator {
     return new BQTextSearchFilterTranslator(this, textSearchFilter);
   }
 
+  @SuppressWarnings("PMD.TooFewBranchesForASwitchStatement")
   @Override
   public String functionTemplateSql(FunctionFilterVariable.FunctionTemplate functionTemplate) {
     switch (functionTemplate) {

@@ -51,7 +51,7 @@ public class BQFieldTest extends BQRunnerTest {
             new OrderBy(idAttribute, OrderByDirection.DESCENDING));
     int limit = 35;
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, limit, null, null, true));
 
@@ -68,7 +68,7 @@ public class BQFieldTest extends BQRunnerTest {
     List<ValueDisplayField> selectAttributes = List.of(entityIdCountField);
     List<OrderBy> orderBys = List.of(new OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
 
@@ -98,7 +98,7 @@ public class BQFieldTest extends BQRunnerTest {
     List<OrderBy> orderBys =
         List.of(new OrderBy(hierarchyNumChildrenField, OrderByDirection.DESCENDING));
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
 
@@ -126,7 +126,7 @@ public class BQFieldTest extends BQRunnerTest {
             new OrderBy(relatedEntityIdCountFieldNoHier, OrderByDirection.DESCENDING),
             new OrderBy(relatedEntityIdCountFieldWithHier, OrderByDirection.ASCENDING));
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 countForEntity,

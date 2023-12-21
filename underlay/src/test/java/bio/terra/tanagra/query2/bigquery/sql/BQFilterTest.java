@@ -43,7 +43,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -68,7 +68,7 @@ public class BQFilterTest extends BQRunnerTest {
             FunctionFilterVariable.FunctionTemplate.NOT_IN,
             List.of(new Literal(18), new Literal(19)));
     listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -107,7 +107,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -138,7 +138,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -163,7 +163,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -197,7 +197,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -227,7 +227,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -251,7 +251,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -296,7 +296,7 @@ public class BQFilterTest extends BQRunnerTest {
         new AttributeField(
             underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 occurrenceEntity,
@@ -339,7 +339,7 @@ public class BQFilterTest extends BQRunnerTest {
             null,
             null);
     listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 occurrenceEntity,
@@ -390,7 +390,7 @@ public class BQFilterTest extends BQRunnerTest {
             false,
             false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 underlay.getPrimaryEntity(),
@@ -433,7 +433,7 @@ public class BQFilterTest extends BQRunnerTest {
             null,
             null);
     listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 underlay.getPrimaryEntity(),
@@ -481,7 +481,7 @@ public class BQFilterTest extends BQRunnerTest {
             false,
             false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 groupItems.getItemsEntity(),
@@ -536,7 +536,7 @@ public class BQFilterTest extends BQRunnerTest {
             null,
             null);
     listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 groupItems.getItemsEntity(),
@@ -587,7 +587,7 @@ public class BQFilterTest extends BQRunnerTest {
             false,
             false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 underlay.getPrimaryEntity(),
@@ -630,7 +630,7 @@ public class BQFilterTest extends BQRunnerTest {
             BinaryFilterVariable.BinaryOperator.GREATER_THAN,
             1);
     listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 underlay.getPrimaryEntity(),
@@ -678,7 +678,7 @@ public class BQFilterTest extends BQRunnerTest {
             false,
             false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 groupItems.getItemsEntity(),
@@ -733,7 +733,7 @@ public class BQFilterTest extends BQRunnerTest {
             BinaryFilterVariable.BinaryOperator.EQUALS,
             1);
     listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 groupItems.getItemsEntity(),
@@ -765,7 +765,7 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,
@@ -788,7 +788,7 @@ public class BQFilterTest extends BQRunnerTest {
             "diabetes",
             entity.getAttribute("name"));
     listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 entity,

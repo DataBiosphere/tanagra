@@ -10,9 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -107,8 +104,6 @@ public class ReviewServiceTest {
     String displayName = "review 1";
     String description = "first review";
     String createdByEmail = "abc@123.com";
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
     Review createdReview =
         reviewService.createReviewHelper(
             study1.getId(),
@@ -172,8 +167,6 @@ public class ReviewServiceTest {
   @Test
   void listAllOrSelected() {
     String userEmail = "abc@123.com";
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
     List<Long> randomSampleQueryResult = List.of(123L, 456L, 789L);
 
     // Create one review for cohort1.
@@ -264,8 +257,6 @@ public class ReviewServiceTest {
         () -> reviewService.getReview(study1.getId(), cohort1.getId(), "123"));
 
     // Specify empty query result.
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
     assertThrows(
         IllegalArgumentException.class,
         () ->

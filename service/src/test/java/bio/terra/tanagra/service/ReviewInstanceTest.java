@@ -9,9 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
@@ -100,8 +97,6 @@ public class ReviewInstanceTest {
     // r2: 1858841, 2180409, 1131436, 1838382
     // r3: 1858841, 2180409, 1838382
     // r4: 1858841, 1838382, 799353, 2104705
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
     review1 =
         reviewService.createReviewHelper(
             study1.getId(),

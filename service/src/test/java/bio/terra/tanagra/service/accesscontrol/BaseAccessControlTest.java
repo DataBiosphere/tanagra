@@ -10,9 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.AnnotationService;
@@ -141,8 +138,6 @@ public class BaseAccessControlTest {
     LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
 
     // Create 2 reviews.
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
     List<Long> randomSampleQueryResult = List.of(123L, 456L, 789L);
     review1 =
         reviewService.createReviewHelper(

@@ -23,6 +23,7 @@ public class CountQueryRequest {
   private final @Nullable HintQueryResult entityLevelHints;
   private final boolean isDryRun;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   public CountQueryRequest(
       Underlay underlay,
       Entity entity,

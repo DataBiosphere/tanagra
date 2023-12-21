@@ -49,7 +49,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
         List.of(new ListQueryRequest.OrderBy(idAttribute, OrderByDirection.DESCENDING));
     int limit = 5;
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, limit, null, null, false));
 
@@ -97,7 +97,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
         List.of(new ListQueryRequest.OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
     int limit = 11;
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, limit, null, null, false));
 
@@ -139,7 +139,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
             new ListQueryRequest.OrderBy(hierarchyNumChildrenField, OrderByDirection.DESCENDING));
     int limit = 9;
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, limit, null, null, false));
 
@@ -199,7 +199,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
                 relatedEntityIdCountFieldWithHier, OrderByDirection.ASCENDING));
     int limit = 14;
     ListQueryResult listQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new ListQueryRequest(
                 underlay,
                 countForEntity,

@@ -57,7 +57,7 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
                         new ValueDisplay(new Literal(8532), "FEMALE"),
                         222L))));
     CountQueryResult countQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, groupBys, null, null, null, entityLevelHints, false));
 
@@ -92,8 +92,6 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
               assertEquals(Literal.DataType.INT64, age.getValue().getDataType());
               assertNotNull(age.getValue().getInt64Val());
               assertNull(age.getDisplay());
-
-              countInstance.getCount();
             });
   }
 
@@ -116,7 +114,7 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
             hierarchyNumChildrenField,
             hierarchyPathField);
     CountQueryResult countQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new CountQueryRequest(underlay, entity, groupBys, null, null, null, null, false));
 
     // Make sure we got some results back.
@@ -149,8 +147,6 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
               assertNotNull(path);
               assertEquals(Literal.DataType.STRING, path.getValue().getDataType());
               assertNull(path.getDisplay());
-
-              countInstance.getCount();
             });
   }
 
@@ -169,7 +165,7 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
     List<ValueDisplayField> groupBys =
         List.of(relatedEntityIdCountFieldNoHier, relatedEntityIdCountFieldWithHier);
     CountQueryResult countQueryResult =
-        BQQueryRunner.run(
+        bqQueryRunner.run(
             new CountQueryRequest(
                 underlay, countForEntity, groupBys, null, null, null, null, false));
 
@@ -193,8 +189,6 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
               assertEquals(Literal.DataType.INT64, countWithHier.getValue().getDataType());
               assertNotNull(countWithHier.getValue().getInt64Val());
               assertNull(countWithHier.getDisplay());
-
-              countInstance.getCount();
             });
   }
 }

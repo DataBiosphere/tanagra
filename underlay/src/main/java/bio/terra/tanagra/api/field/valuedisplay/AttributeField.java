@@ -142,8 +142,12 @@ public class AttributeField extends ValueDisplayField {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     AttributeField that = (AttributeField) o;
     return excludeDisplay == that.excludeDisplay
         && isSource == that.isSource

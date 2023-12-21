@@ -248,7 +248,7 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", fileContents);
     String fileContentsFirstLine = fileContents.split(System.lineSeparator())[0];
     assertEquals(
-            "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
         fileContentsFirstLine);
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
@@ -325,7 +325,7 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
     String fileContentsFirstLine = entityInstancesFileContents.split(System.lineSeparator())[0];
     assertEquals(
-            "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
         fileContentsFirstLine);
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
   }
