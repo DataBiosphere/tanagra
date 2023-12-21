@@ -1,14 +1,14 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.Query;
+import bio.terra.tanagra.query2.bigquery.BQTranslator;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STHierarchyChildParent;
 import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.TableId;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +44,23 @@ public class WriteChildParent extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    Query sourceChildParentQuery =
-        sourceTable.getQueryAll(
-            Map.of(
-                sourceTable.getChildColumnSchema(),
-                    ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName(),
-                sourceTable.getParentColumnSchema(),
-                    ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()));
-    LOGGER.info("source child-parent query: {}", sourceChildParentQuery.renderSQL());
+    BQTranslator bqTranslator = new BQTranslator();
+    String sourceChildParentSql =
+        "SELECT "
+            + bqTranslator.selectSql(
+                SqlField.of(
+                    sourceTable.getChildField(),
+                    ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName()),
+                null)
+            + ", "
+            + bqTranslator.selectSql(
+                SqlField.of(
+                    sourceTable.getParentField(),
+                    ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()),
+                null)
+            + " FROM "
+            + sourceTable.getTablePointer().renderSQL();
+    LOGGER.info("source child-parent query: {}", sourceChildParentSql);
 
     // Create a new table directly from the select query.
     TableId outputTable =
@@ -63,9 +72,6 @@ public class WriteChildParent extends BigQueryJob {
         Clustering.newBuilder()
             .setFields(List.of(sourceTable.getParentField().getColumnName()))
             .build();
-    bigQueryExecutor
-        .getBigQueryService()
-        .createTableFromQuery(
-            outputTable, sourceChildParentQuery.renderSQL(), clustering, isDryRun);
+    googleBigQuery.createTableFromQuery(outputTable, sourceChildParentSql, clustering, isDryRun);
   }
 }

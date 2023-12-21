@@ -3,6 +3,7 @@ package bio.terra.tanagra.api.filter;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
@@ -20,7 +21,7 @@ public class AttributeFilter extends EntityFilter {
   private final Entity entity;
   private final Attribute attribute;
   private final BinaryFilterVariable.BinaryOperator operator;
-  private final FunctionFilterVariable.FunctionTemplate functionTemplate;
+  private final FunctionTemplate functionTemplate;
   private final ImmutableList<Literal> values;
 
   public AttributeFilter(
@@ -42,7 +43,7 @@ public class AttributeFilter extends EntityFilter {
       Underlay underlay,
       Entity entity,
       Attribute attribute,
-      FunctionFilterVariable.FunctionTemplate functionTemplate,
+      FunctionTemplate functionTemplate,
       List<Literal> values) {
     this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
     this.underlay = underlay;
@@ -88,7 +89,7 @@ public class AttributeFilter extends EntityFilter {
     return operator;
   }
 
-  public FunctionFilterVariable.FunctionTemplate getFunctionTemplate() {
+  public FunctionTemplate getFunctionTemplate() {
     return functionTemplate;
   }
 

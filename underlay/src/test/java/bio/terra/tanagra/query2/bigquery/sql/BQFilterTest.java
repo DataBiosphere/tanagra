@@ -12,11 +12,11 @@ import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -65,7 +65,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             entity,
             attribute,
-            FunctionFilterVariable.FunctionTemplate.NOT_IN,
+            FunctionTemplate.NOT_IN,
             List.of(new Literal(18), new Literal(19)));
     listQueryResult =
         bqQueryRunner.run(
@@ -94,12 +94,7 @@ public class BQFilterTest extends BQRunnerTest {
             BinaryFilterVariable.BinaryOperator.NOT_EQUALS,
             new Literal("1956"));
     TextSearchFilter textSearchFilter =
-        new TextSearchFilter(
-            underlay,
-            entity,
-            FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH,
-            "44054006",
-            null);
+        new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "44054006", null);
     BooleanAndOrFilter booleanAndOrFilter =
         new BooleanAndOrFilter(
             BooleanAndOrFilterVariable.LogicalOperator.AND,
@@ -420,7 +415,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("stop_reason"),
-            FunctionFilterVariable.FunctionTemplate.IS_NULL,
+            FunctionTemplate.IS_NULL,
             List.of());
     relationshipFilter =
         new RelationshipFilter(
@@ -617,7 +612,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("stop_reason"),
-            FunctionFilterVariable.FunctionTemplate.IS_NULL,
+            FunctionTemplate.IS_NULL,
             List.of());
     relationshipFilter =
         new RelationshipFilter(
@@ -756,12 +751,7 @@ public class BQFilterTest extends BQRunnerTest {
   void textSearchFilter() throws IOException {
     Entity entity = underlay.getEntity("condition");
     TextSearchFilter textSearchFilter =
-        new TextSearchFilter(
-            underlay,
-            entity,
-            FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH,
-            "diabetes",
-            null);
+        new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "diabetes", null);
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -784,7 +774,7 @@ public class BQFilterTest extends BQRunnerTest {
         new TextSearchFilter(
             underlay,
             entity,
-            FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH,
+            FunctionTemplate.TEXT_EXACT_MATCH,
             "diabetes",
             entity.getAttribute("name"));
     listQueryResult =

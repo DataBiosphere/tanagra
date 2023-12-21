@@ -14,7 +14,7 @@ import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQEntityIdCountFieldTranslator;
 import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQHierarchyIsMemberFieldTranslator;
@@ -106,7 +106,7 @@ public final class BQTranslator implements SqlTranslator {
 
   @SuppressWarnings("PMD.TooFewBranchesForASwitchStatement")
   @Override
-  public String functionTemplateSql(FunctionFilterVariable.FunctionTemplate functionTemplate) {
+  public String functionTemplateSql(FunctionTemplate functionTemplate) {
     switch (functionTemplate) {
       case TEXT_FUZZY_MATCH:
         return "bqutil.fn.levenshtein(UPPER("

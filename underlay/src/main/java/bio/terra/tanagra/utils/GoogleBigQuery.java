@@ -68,6 +68,16 @@ public final class GoogleBigQuery {
     this.querySchemasCache = new ConcurrentHashMap<>();
   }
 
+  public static GoogleBigQuery forApplicationDefaultCredentials(String projectId) {
+    GoogleCredentials credentials;
+    try {
+      credentials = GoogleCredentials.getApplicationDefault();
+    } catch (IOException ioEx) {
+      throw new SystemException("Error loading application default credentials", ioEx);
+    }
+    return new GoogleBigQuery(credentials, projectId);
+  }
+
   public Schema getQuerySchemaWithCaching(String query) {
     // Check if the schema is in the cache.
     Schema schema = querySchemasCache.get(query);

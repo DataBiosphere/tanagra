@@ -3,6 +3,7 @@ package bio.terra.tanagra.api.filter;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.TableVariable;
 import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
@@ -17,14 +18,14 @@ public class TextSearchFilter extends EntityFilter {
   private final Underlay underlay;
   private final Entity entity;
   private final ITEntityMain indexTable;
-  private final FunctionFilterVariable.FunctionTemplate functionTemplate;
+  private final FunctionTemplate functionTemplate;
   private final String text;
   private final @Nullable Attribute attribute;
 
   public TextSearchFilter(
       Underlay underlay,
       Entity entity,
-      FunctionFilterVariable.FunctionTemplate functionTemplate,
+      FunctionTemplate functionTemplate,
       String text,
       @Nullable Attribute attribute) {
     this.underlay = underlay;
@@ -67,7 +68,7 @@ public class TextSearchFilter extends EntityFilter {
     return attribute;
   }
 
-  public FunctionFilterVariable.FunctionTemplate getFunctionTemplate() {
+  public FunctionTemplate getFunctionTemplate() {
     return functionTemplate;
   }
 

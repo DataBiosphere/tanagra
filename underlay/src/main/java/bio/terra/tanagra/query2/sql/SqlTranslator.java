@@ -21,12 +21,12 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.query2.sql.filtertranslator.BooleanAndOrFilterTranslator;
 import bio.terra.tanagra.query2.sql.filtertranslator.BooleanNotFilterTranslator;
 import java.util.ArrayList;
@@ -229,7 +229,7 @@ public interface SqlTranslator {
         + " @groupByCount";
   }
 
-  default String functionTemplateSql(FunctionFilterVariable.FunctionTemplate functionTemplate) {
+  default String functionTemplateSql(FunctionTemplate functionTemplate) {
     switch (functionTemplate) {
       case TEXT_EXACT_MATCH:
         return "REGEXP_CONTAINS(UPPER("

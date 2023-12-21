@@ -2,7 +2,7 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
@@ -32,7 +32,7 @@ public class BQHierarchyIsRootFilterTranslator extends SqlFilterTranslator {
         indexTable.getHierarchyPathField(hierarchyIsRootFilter.getHierarchy().getName());
     return sqlTranslator.functionFilterSql(
         pathField,
-        sqlTranslator.functionTemplateSql(FunctionFilterVariable.FunctionTemplate.IS_EMPTY_STRING),
+        sqlTranslator.functionTemplateSql(FunctionTemplate.IS_EMPTY_STRING),
         List.of(),
         tableAlias,
         sqlParams);

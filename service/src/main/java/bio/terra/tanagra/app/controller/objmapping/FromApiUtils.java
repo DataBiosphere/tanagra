@@ -34,12 +34,12 @@ import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.OrderByDirection;
 import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -342,13 +342,12 @@ public final class FromApiUtils {
     return BinaryFilterVariable.BinaryOperator.valueOf(apiOperator.name());
   }
 
-  public static FunctionFilterVariable.FunctionTemplate fromApiObject(
-      ApiTextFilter.MatchTypeEnum apiMatchType) {
+  public static FunctionTemplate fromApiObject(ApiTextFilter.MatchTypeEnum apiMatchType) {
     switch (apiMatchType) {
       case EXACT_MATCH:
-        return FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH;
+        return FunctionTemplate.TEXT_EXACT_MATCH;
       case FUZZY_MATCH:
-        return FunctionFilterVariable.FunctionTemplate.TEXT_FUZZY_MATCH;
+        return FunctionTemplate.TEXT_FUZZY_MATCH;
       default:
         throw new SystemException("Unknown API text match type: " + apiMatchType.name());
     }

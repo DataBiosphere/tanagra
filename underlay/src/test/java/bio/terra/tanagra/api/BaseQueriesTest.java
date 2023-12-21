@@ -19,11 +19,11 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.EntityQueryRunner;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
@@ -97,18 +97,13 @@ public abstract class BaseQueriesTest {
     TextSearchFilter textSearchFilter;
     if (attributeName == null) {
       textSearchFilter =
-          new TextSearchFilter(
-              underlay,
-              entity,
-              FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH,
-              text,
-              null);
+          new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, text, null);
     } else {
       textSearchFilter =
           new TextSearchFilter(
               underlay,
               entity,
-              FunctionFilterVariable.FunctionTemplate.TEXT_EXACT_MATCH,
+              FunctionTemplate.TEXT_EXACT_MATCH,
               text,
               entity.getAttribute(attributeName));
     }

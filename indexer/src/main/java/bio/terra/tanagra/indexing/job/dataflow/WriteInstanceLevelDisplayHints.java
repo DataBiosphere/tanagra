@@ -3,10 +3,10 @@ package bio.terra.tanagra.indexing.job.dataflow;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
-import bio.terra.tanagra.query.FieldVariable;
+import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.query2.bigquery.BQTranslator;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
@@ -16,10 +16,7 @@ import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.api.services.bigquery.model.TableRow;
-import com.google.common.collect.Lists;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -100,19 +97,17 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
     // Build a query to select all occurrence instances (not just id, includes all attributes also)
     // from the index entity main table, and the pipeline steps to read the results and build a (id,
     // tablerow) KV PCollection.
-    Query allOccInstancesQuery = occurrenceEntityIndexTable.getQueryAll(Map.of());
-    LOGGER.info("allOccInstancesQuery: {}", allOccInstancesQuery.renderSQL());
+    String allOccInstancesSql =
+        "SELECT * FROM " + occurrenceEntityIndexTable.getTablePointer().renderSQL();
+    LOGGER.info("allOccInstancesQuery: {}", allOccInstancesSql);
     PCollection<KV<Long, TableRow>> occIdRowKVs =
-        readInOccRows(
-            pipeline,
-            allOccInstancesQuery.renderSQL(),
-            occurrenceEntity.getIdAttribute().getName());
+        readInOccRows(pipeline, allOccInstancesSql, occurrenceEntity.getIdAttribute().getName());
 
     // Build a query to select all occurrence-criteria id pairs, and the pipeline steps to read the
     // results and build a (occurrence id, criteria id) KV PCollection.
     final String entityAIdColumnName = "entityAId";
     final String entityBIdColumnName = "entityBId";
-    Query occCriIdPairsQuery =
+    String occCriIdPairsSql =
         getQueryRelationshipIdPairs(
             entityAIdColumnName,
             entityBIdColumnName,
@@ -120,14 +115,14 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
             occurrenceEntityIndexTable,
             criteriaEntityIndexTable,
             occurrenceCriteriaRelationshipIdPairsTable);
-    LOGGER.info("index occurrence-criteria id pairs query: {}", occCriIdPairsQuery.renderSQL());
+    LOGGER.info("index occurrence-criteria id pairs query: {}", occCriIdPairsSql);
     PCollection<KV<Long, Long>> occCriIdPairKVs =
         readInRelationshipIdPairs(
-            pipeline, occCriIdPairsQuery.renderSQL(), entityAIdColumnName, entityBIdColumnName);
+            pipeline, occCriIdPairsSql, entityAIdColumnName, entityBIdColumnName);
 
     // Build a query to select all occurrence-criteria id pairs, and the pipeline steps to read the
     // results and build a (occurrence id, criteria id) KV PCollection.
-    Query occPriIdPairsQuery =
+    String occPriIdPairsSql =
         getQueryRelationshipIdPairs(
             entityAIdColumnName,
             entityBIdColumnName,
@@ -135,10 +130,10 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
             occurrenceEntityIndexTable,
             primaryEntityIndexTable,
             occurrencePrimaryRelationshipIdPairsTable);
-    LOGGER.info("index occurrence-primary id pairs query: {}", occPriIdPairsQuery.renderSQL());
+    LOGGER.info("index occurrence-primary id pairs query: {}", occPriIdPairsSql);
     PCollection<KV<Long, Long>> occPriIdPairKVs =
         readInRelationshipIdPairs(
-            pipeline, occPriIdPairsQuery.renderSQL(), entityAIdColumnName, entityBIdColumnName);
+            pipeline, occPriIdPairsSql, entityAIdColumnName, entityBIdColumnName);
 
     criteriaOccurrence.getAttributesWithInstanceLevelDisplayHints(occurrenceEntity).stream()
         .forEach(
@@ -197,56 +192,55 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                             Long.parseLong((String) tableRow.get(entityBIdColumnName)))));
   }
 
-  private static Query getQueryRelationshipIdPairs(
+  private static String getQueryRelationshipIdPairs(
       String entityAIdColumnName,
       String entityBIdColumnName,
       Relationship relationship,
       ITEntityMain entityAIndexTable,
       ITEntityMain entityBIndexTable,
       @Nullable ITRelationshipIdPairs relationshipIdPairsTable) {
-    Query idPairs;
+    BQTranslator bqTranslator = new BQTranslator();
+    String idPairsSql;
     if (relationship.isForeignKeyAttributeEntityA()) {
-      TableVariable entityMainTable = TableVariable.forPrimary(entityAIndexTable.getTablePointer());
-      List<TableVariable> entityMainTableVars = Lists.newArrayList(entityMainTable);
-      FieldVariable idAFieldVar =
-          entityAIndexTable
-              .getAttributeValueField(relationship.getEntityA().getIdAttribute().getName())
-              .buildVariable(entityMainTable, entityMainTableVars, entityAIdColumnName);
-      FieldVariable idBFieldVar =
-          entityAIndexTable
-              .getAttributeValueField(relationship.getForeignKeyAttributeEntityA().getName())
-              .buildVariable(entityMainTable, entityMainTableVars, entityBIdColumnName);
-      idPairs =
-          new Query.Builder()
-              .select(List.of(idAFieldVar, idBFieldVar))
-              .tables(entityMainTableVars)
-              .build();
+      FieldPointer entityAIdField =
+          entityAIndexTable.getAttributeValueField(
+              relationship.getEntityA().getIdAttribute().getName());
+      FieldPointer entityBIdField =
+          entityAIndexTable.getAttributeValueField(
+              relationship.getForeignKeyAttributeEntityA().getName());
+      idPairsSql =
+          "SELECT "
+              + bqTranslator.selectSql(SqlField.of(entityAIdField, entityAIdColumnName), null)
+              + ", "
+              + bqTranslator.selectSql(SqlField.of(entityBIdField, entityBIdColumnName), null)
+              + " FROM "
+              + entityAIndexTable.getTablePointer().renderSQL();
     } else if (relationship.isForeignKeyAttributeEntityB()) {
-      TableVariable entityMainTable = TableVariable.forPrimary(entityBIndexTable.getTablePointer());
-      List<TableVariable> entityMainTableVars = Lists.newArrayList(entityMainTable);
-      FieldVariable idAFieldVar =
-          entityBIndexTable
-              .getAttributeValueField(relationship.getForeignKeyAttributeEntityB().getName())
-              .buildVariable(entityMainTable, entityMainTableVars, entityAIdColumnName);
-      FieldVariable idBFieldVar =
-          entityBIndexTable
-              .getAttributeValueField(relationship.getEntityB().getIdAttribute().getName())
-              .buildVariable(entityMainTable, entityMainTableVars, entityBIdColumnName);
-      idPairs =
-          new Query.Builder()
-              .select(List.of(idAFieldVar, idBFieldVar))
-              .tables(entityMainTableVars)
-              .build();
+      FieldPointer entityAIdField =
+          entityBIndexTable.getAttributeValueField(
+              relationship.getForeignKeyAttributeEntityB().getName());
+      FieldPointer entityBIdField =
+          entityBIndexTable.getAttributeValueField(
+              relationship.getEntityB().getIdAttribute().getName());
+      idPairsSql =
+          "SELECT "
+              + bqTranslator.selectSql(SqlField.of(entityAIdField, entityAIdColumnName), null)
+              + ", "
+              + bqTranslator.selectSql(SqlField.of(entityBIdField, entityBIdColumnName), null)
+              + " FROM "
+              + entityBIndexTable.getTablePointer().renderSQL();
     } else { // relationship.isIntermediateTable()
-      idPairs =
-          relationshipIdPairsTable.getQueryAll(
-              Map.of(
-                  ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema(),
-                  entityAIdColumnName,
-                  ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema(),
-                  entityBIdColumnName));
+      FieldPointer entityAIdField = relationshipIdPairsTable.getEntityAIdField();
+      FieldPointer entityBIdField = relationshipIdPairsTable.getEntityBIdField();
+      idPairsSql =
+          "SELECT "
+              + bqTranslator.selectSql(SqlField.of(entityAIdField, entityAIdColumnName), null)
+              + ", "
+              + bqTranslator.selectSql(SqlField.of(entityBIdField, entityBIdColumnName), null)
+              + " FROM "
+              + relationshipIdPairsTable.getTablePointer().renderSQL();
     }
-    return idPairs;
+    return idPairsSql;
   }
 
   /** Compute the numeric range for each criteriaId and write it to BQ. */

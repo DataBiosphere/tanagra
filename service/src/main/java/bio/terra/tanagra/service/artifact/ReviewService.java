@@ -12,10 +12,10 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
-import bio.terra.tanagra.query.filtervariable.FunctionFilterVariable;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -283,7 +283,7 @@ public class ReviewService {
             underlay,
             primaryEntity,
             idAttribute,
-            FunctionFilterVariable.FunctionTemplate.IN,
+            FunctionTemplate.IN,
             primaryEntityIdsToStableIndex.keySet().stream().collect(Collectors.toList()));
     if (reviewQueryRequest.getEntityFilter() != null) {
       entityFilter =
@@ -400,7 +400,7 @@ public class ReviewService {
             underlay,
             entity,
             entity.getIdAttribute(),
-            FunctionFilterVariable.FunctionTemplate.IN,
+            FunctionTemplate.IN,
             reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
                 .collect(Collectors.toList()));
     CountQueryRequest countQueryRequest =

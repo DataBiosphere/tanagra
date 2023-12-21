@@ -2,6 +2,7 @@ package bio.terra.tanagra.query.filtervariable;
 
 import bio.terra.tanagra.query.FieldVariable;
 import bio.terra.tanagra.query.FilterVariable;
+import bio.terra.tanagra.query.FunctionTemplate;
 import bio.terra.tanagra.query.Literal;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
@@ -35,25 +36,5 @@ public class FunctionFilterVariable extends FilterVariable {
   @Override
   public List<FieldVariable> getFieldVariables() {
     return List.of(fieldVariable);
-  }
-
-  public enum FunctionTemplate {
-    TEXT_EXACT_MATCH("REGEXP_CONTAINS(UPPER(${fieldVariable}), UPPER(${value}))"),
-    TEXT_FUZZY_MATCH("bqutil.fn.levenshtein(UPPER(${fieldVariable}), UPPER(${value}))<5"),
-    IN("${fieldVariable} IN (${value})"),
-    NOT_IN("${fieldVariable} NOT IN (${value})"),
-    IS_NULL("${fieldVariable} IS NULL"),
-    IS_NOT_NULL("${fieldVariable} IS NOT NULL"),
-    IS_EMPTY_STRING("${fieldVariable} = ''");
-
-    private String sqlTemplate;
-
-    FunctionTemplate(String sqlTemplate) {
-      this.sqlTemplate = sqlTemplate;
-    }
-
-    String getSqlTemplate() {
-      return sqlTemplate;
-    }
   }
 }

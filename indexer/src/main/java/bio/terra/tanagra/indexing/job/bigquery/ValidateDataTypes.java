@@ -4,7 +4,6 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.Query;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
@@ -14,7 +13,6 @@ import com.google.cloud.StringEnumValue;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -56,17 +54,11 @@ public class ValidateDataTypes extends BigQueryJob {
   @Override
   public void run(boolean isDryRun) {
     // Build the query to select all the attributes from the source table.
-    Query selectAttributesFromSourceTable = sourceTable.getQueryAll(Map.of());
-    Query selectOneRow =
-        new Query.Builder()
-            .select(selectAttributesFromSourceTable.getSelect())
-            .tables(selectAttributesFromSourceTable.getTables())
-            .limit(1)
-            .build();
-    LOGGER.info("Generated select SQL: {}", selectOneRow.renderSQL());
+    String selectOneRowSql =
+        "SELECT * FROM " + sourceTable.getTablePointer().renderSQL() + " LIMIT 1";
+    LOGGER.info("Generated select SQL: {}", selectOneRowSql);
 
-    Schema sourceQueryResultSchema =
-        bigQueryExecutor.getBigQueryService().getQuerySchemaWithCaching(selectOneRow.renderSQL());
+    Schema sourceQueryResultSchema = googleBigQuery.getQuerySchemaWithCaching(selectOneRowSql);
     LOGGER.info("Select SQL results schema: {}", sourceQueryResultSchema);
 
     // Check that the schema data types match those of the index table columns.
