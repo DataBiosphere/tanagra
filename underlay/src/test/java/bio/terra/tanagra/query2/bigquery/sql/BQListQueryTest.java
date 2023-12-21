@@ -112,6 +112,20 @@ public class BQListQueryTest extends BQRunnerTest {
   }
 
   @Test
+  void withOrderByRandom() throws IOException {
+    Entity entity = underlay.getPrimaryEntity();
+    AttributeField selectAttribute =
+            new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+    ListQueryResult listQueryResult =
+            BQQueryRunner.run(
+                    new ListQueryRequest(
+                            underlay, entity, List.of(selectAttribute), null, List.of(ListQueryRequest.OrderBy.random()), 45, null, null, true));
+    TablePointer table =
+            underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly("withOrderByRandom", listQueryResult.getSql(), table);
+  }
+
+  @Test
   void withLimit() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField selectAttribute =

@@ -62,6 +62,7 @@ public interface SqlTranslator {
     }
   }
 
+  default String orderByRandSql() { return "RAND()"; }
   default String groupBySql(
       SqlField sqlField, @Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {
@@ -286,7 +287,7 @@ public interface SqlTranslator {
     } else if (valueDisplayField instanceof RelatedEntityIdCountField) {
       return translator((RelatedEntityIdCountField) valueDisplayField);
     } else {
-      throw new InvalidQueryException("No SQL translator defined for field");
+      throw new InvalidQueryException("No SQL translator defined for field: " + valueDisplayField);
     }
   }
 

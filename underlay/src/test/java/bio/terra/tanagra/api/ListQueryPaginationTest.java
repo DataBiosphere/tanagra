@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
-import bio.terra.tanagra.api.query.EntityQueryRunner;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.query.OrderByDirection;
@@ -51,8 +50,7 @@ public class ListQueryPaginationTest {
             null,
             null,
             false);
-    ListQueryResult listQueryResult =
-        EntityQueryRunner.run(listQueryRequest, underlay.getQueryExecutor());
+    ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
 
     assertNotNull(listQueryResult.getSql());
     assertEquals(10, listQueryResult.getListInstances().size());
@@ -79,8 +77,7 @@ public class ListQueryPaginationTest {
             false);
 
     // First query request gets the first page of results.
-    ListQueryResult listQueryResult1 =
-        EntityQueryRunner.run(listQueryRequest1, underlay.getQueryExecutor());
+    ListQueryResult listQueryResult1 = underlay.getQueryRunner().run(listQueryRequest1);
 
     assertNotNull(listQueryResult1.getSql());
     assertEquals(3, listQueryResult1.getListInstances().size());
@@ -99,8 +96,7 @@ public class ListQueryPaginationTest {
             listQueryResult1.getPageMarker(),
             7,
             false);
-    ListQueryResult listQueryResult2 =
-        EntityQueryRunner.run(listQueryRequest2, underlay.getQueryExecutor());
+    ListQueryResult listQueryResult2 = underlay.getQueryRunner().run(listQueryRequest2);
 
     assertNotNull(listQueryResult2.getSql());
     assertEquals(7, listQueryResult2.getListInstances().size());

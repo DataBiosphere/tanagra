@@ -3,7 +3,6 @@ package bio.terra.tanagra.api;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.EntityQueryRunner;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
@@ -60,8 +59,7 @@ public abstract class BaseHintsTest {
 
   private void assertHintsMatch(
       HintQueryRequest hintQueryRequest, List<HintInstance> expectedHints) {
-    HintQueryResult hintQueryResult =
-        EntityQueryRunner.run(hintQueryRequest, underlay.getQueryExecutor());
+    HintQueryResult hintQueryResult = underlay.getQueryRunner().run(hintQueryRequest);
 
     for (HintInstance expected : expectedHints) {
       Optional<HintInstance> actual = hintQueryResult.getHintInstance(expected.getAttribute());

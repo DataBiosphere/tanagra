@@ -248,8 +248,8 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", fileContents);
     String fileContentsFirstLine = fileContents.split(System.lineSeparator())[0];
     assertEquals(
-        fileContentsFirstLine,
-        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
+            "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        fileContentsFirstLine);
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
     // Validate the annotations file.
@@ -325,8 +325,8 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
     String fileContentsFirstLine = entityInstancesFileContents.split(System.lineSeparator())[0];
     assertEquals(
-        fileContentsFirstLine,
-        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
+            "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        fileContentsFirstLine);
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
   }
 

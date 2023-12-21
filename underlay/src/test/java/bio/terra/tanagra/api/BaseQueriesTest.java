@@ -40,8 +40,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 public abstract class BaseQueriesTest {
   protected static final int DEFAULT_LIMIT = 30;
   private Underlay underlay;

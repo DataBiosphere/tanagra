@@ -111,20 +111,25 @@ public class BQQueryRunner implements QueryRunner {
       List<String> orderByFields = new ArrayList<>();
       listQueryRequest.getOrderBys().stream()
           .forEach(
-              orderBy ->
-                  bqTranslator.translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy()
-                      .stream()
-                      .forEach(
-                          sqlField ->
-                              orderByFields.add(
-                                  bqTranslator.orderBySql(
-                                          sqlField,
-                                          null,
-                                          listQueryRequest
-                                              .getSelectFields()
-                                              .contains(orderBy.getEntityField()))
-                                      + ' '
-                                      + bqTranslator.orderByDirectionSql(orderBy.getDirection()))));
+              orderBy -> {
+                  if (orderBy.isRandom()) {
+                      orderByFields.add(bqTranslator.orderByRandSql());
+                  } else {
+                      bqTranslator.translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy()
+                              .stream()
+                              .forEach(
+                                      sqlField ->
+                                              orderByFields.add(
+                                                      bqTranslator.orderBySql(
+                                                              sqlField,
+                                                              null,
+                                                              listQueryRequest
+                                                                      .getSelectFields()
+                                                                      .contains(orderBy.getEntityField()))
+                                                              + ' '
+                                                              + bqTranslator.orderByDirectionSql(orderBy.getDirection())));
+                  }
+              });
       sql.append(" ORDER BY ").append(orderByFields.stream().collect(Collectors.joining(", ")));
     }
 
