@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
 import bio.terra.tanagra.query2.sql.SqlTable;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -24,5 +24,5 @@ public abstract class IndexTable {
         namer.getReservedTableName(getTableBaseName()));
   }
 
-  public abstract ImmutableList<SqlColumnSchema> getColumnSchemas();
+  public abstract ImmutableList<ColumnSchema> getColumnSchemas();
 }

@@ -1,17 +1,17 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
 import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlTable;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.common.collect.ImmutableList;
 
 public class STRelationshipIdPairs extends SourceTable {
   private final String entityGroup;
   private final String entityA;
   private final String entityB;
-  private final SqlColumnSchema entityAIdColumnSchema;
-  private final SqlColumnSchema entityBIdColumnSchema;
+  private final ColumnSchema entityAIdColumnSchema;
+  private final ColumnSchema entityBIdColumnSchema;
 
   public STRelationshipIdPairs(
       SqlTable sqlTable,
@@ -24,12 +24,12 @@ public class STRelationshipIdPairs extends SourceTable {
     this.entityGroup = entityGroup;
     this.entityA = entityA;
     this.entityB = entityB;
-    this.entityAIdColumnSchema = new SqlColumnSchema(entityAIdFieldName, DataType.INT64);
-    this.entityBIdColumnSchema = new SqlColumnSchema(entityBIdFieldName, DataType.INT64);
+    this.entityAIdColumnSchema = new ColumnSchema(entityAIdFieldName, DataType.INT64);
+    this.entityBIdColumnSchema = new ColumnSchema(entityBIdFieldName, DataType.INT64);
   }
 
   @Override
-  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
+  public ImmutableList<ColumnSchema> getColumnSchemas() {
     return ImmutableList.of(entityAIdColumnSchema, entityBIdColumnSchema);
   }
 
@@ -46,24 +46,10 @@ public class STRelationshipIdPairs extends SourceTable {
   }
 
   public SqlField getEntityAIdField() {
-    return new SqlField.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(entityAIdColumnSchema.getColumnName())
-        .build();
-  }
-
-  public SqlColumnSchema getEntityAIdColumnSchema() {
-    return entityAIdColumnSchema;
+    return SqlField.of(getTablePointer(), entityAIdColumnSchema.getColumnName());
   }
 
   public SqlField getEntityBIdField() {
-    return new SqlField.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(entityBIdColumnSchema.getColumnName())
-        .build();
-  }
-
-  public SqlColumnSchema getEntityBIdColumnSchema() {
-    return entityBIdColumnSchema;
+    return SqlField.of(getTablePointer(), entityBIdColumnSchema.getColumnName());
   }
 }

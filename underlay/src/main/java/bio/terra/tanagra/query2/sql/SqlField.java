@@ -1,64 +1,54 @@
 package bio.terra.tanagra.query2.sql;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class SqlField {
-  private final SqlTable sqlTable;
+public final class SqlField {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SqlField.class);
+  private final SqlTable table;
   private final String columnName;
-  private final String sqlFunctionWrapper;
+  private final @Nullable String functionWrapper;
 
-  private SqlField(Builder builder) {
-    this.sqlTable = builder.sqlTable;
-    this.columnName = builder.columnName;
-    this.sqlFunctionWrapper = builder.sqlFunctionWrapper;
+  private SqlField(SqlTable table, String columnName, @Nullable String functionWrapper) {
+    this.table = table;
+    this.columnName = columnName;
+    this.functionWrapper = functionWrapper;
   }
 
-  public Builder toBuilder() {
-    return new Builder()
-        .tablePointer(sqlTable)
-        .columnName(columnName)
-        .sqlFunctionWrapper(sqlFunctionWrapper);
+  public static SqlField of(SqlTable table, String columnName, @Nullable String functionWrapper) {
+    return new SqlField(table, columnName, functionWrapper);
+  }
+
+  public static SqlField of(SqlTable table, String columnName) {
+    return of(table, columnName, null);
+  }
+
+  public SqlField cloneWithFunctionWrapper(String functionWrapper) {
+    if (hasFunctionWrapper()) {
+      LOGGER.warn(
+          "Field pointer clone is dropping the existing function wrapper ({}) and replacing it with a new one ({})",
+          this.functionWrapper,
+          functionWrapper);
+    }
+    return new SqlField(table, columnName, functionWrapper);
   }
 
   public String getColumnName() {
     return columnName;
   }
 
-  public boolean hasSqlFunctionWrapper() {
-    return sqlFunctionWrapper != null;
+  public boolean hasFunctionWrapper() {
+    return functionWrapper != null;
   }
 
-  public String getSqlFunctionWrapper() {
-    return sqlFunctionWrapper;
+  public String getFunctionWrapper() {
+    return functionWrapper;
   }
 
-  public SqlTable getTablePointer() {
-    return sqlTable;
-  }
-
-  public static class Builder {
-    private SqlTable sqlTable;
-    private String columnName;
-    private String sqlFunctionWrapper;
-
-    public Builder tablePointer(SqlTable sqlTable) {
-      this.sqlTable = sqlTable;
-      return this;
-    }
-
-    public Builder columnName(String columnName) {
-      this.columnName = columnName;
-      return this;
-    }
-
-    public Builder sqlFunctionWrapper(String sqlFunctionWrapper) {
-      this.sqlFunctionWrapper = sqlFunctionWrapper;
-      return this;
-    }
-
-    public SqlField build() {
-      return new SqlField(this);
-    }
+  public SqlTable getTable() {
+    return table;
   }
 
   @Override
@@ -70,13 +60,13 @@ public class SqlField {
       return false;
     }
     SqlField that = (SqlField) o;
-    return sqlTable.equals(that.sqlTable)
+    return table.equals(that.table)
         && columnName.equals(that.columnName)
-        && Objects.equals(sqlFunctionWrapper, that.sqlFunctionWrapper);
+        && Objects.equals(functionWrapper, that.functionWrapper);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(sqlTable, columnName, sqlFunctionWrapper);
+    return Objects.hash(table, columnName, functionWrapper);
   }
 }

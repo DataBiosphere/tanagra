@@ -1,7 +1,7 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
+import bio.terra.tanagra.query2.bigquery.BQApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -44,20 +44,18 @@ public class WriteChildParent extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    BQTranslator bqTranslator = new BQTranslator();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
     String sourceChildParentSql =
         "SELECT "
             + bqTranslator.selectSql(
                 SqlQueryField.of(
                     sourceTable.getChildField(),
-                    ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName()),
-                null)
+                    ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName()))
             + ", "
             + bqTranslator.selectSql(
                 SqlQueryField.of(
                     sourceTable.getParentField(),
-                    ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()),
-                null)
+                    ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()))
             + " FROM "
             + sourceTable.getTablePointer().renderSQL();
     LOGGER.info("source child-parent query: {}", sourceChildParentSql);

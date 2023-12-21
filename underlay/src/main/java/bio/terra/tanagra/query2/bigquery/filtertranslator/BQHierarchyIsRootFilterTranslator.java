@@ -2,20 +2,20 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.query2.sql.ApiFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
-import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQHierarchyIsRootFilterTranslator extends SqlFilterTranslator {
+public class BQHierarchyIsRootFilterTranslator extends ApiFilterTranslator {
   private final HierarchyIsRootFilter hierarchyIsRootFilter;
 
   public BQHierarchyIsRootFilterTranslator(
-      SqlTranslator sqlTranslator, HierarchyIsRootFilter hierarchyIsRootFilter) {
-    super(sqlTranslator);
+      ApiTranslator apiTranslator, HierarchyIsRootFilter hierarchyIsRootFilter) {
+    super(apiTranslator);
     this.hierarchyIsRootFilter = hierarchyIsRootFilter;
   }
 
@@ -30,9 +30,9 @@ public class BQHierarchyIsRootFilterTranslator extends SqlFilterTranslator {
     // IS_ROOT means path=''.
     SqlField pathField =
         indexTable.getHierarchyPathField(hierarchyIsRootFilter.getHierarchy().getName());
-    return sqlTranslator.functionFilterSql(
+    return apiTranslator.functionFilterSql(
         pathField,
-        sqlTranslator.functionTemplateSql(FunctionTemplate.IS_EMPTY_STRING),
+        apiTranslator.functionTemplateSql(FunctionTemplate.IS_EMPTY_STRING),
         List.of(),
         tableAlias,
         sqlParams);

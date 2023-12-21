@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.LogicalOperator;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
+import bio.terra.tanagra.query2.bigquery.BQApiTranslator;
 import com.google.common.collect.ImmutableMap;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -15,47 +15,46 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test the generic SQL generation functions that we expect to apply to all SQL dialects. These are
- * the functions that are implemented as defaults in {@link
- * bio.terra.tanagra.query2.sql.SqlTranslator}.
+ * the functions that are implemented as defaults in {@link ApiTranslator}.
  */
-public class SqlTranslatorTest {
-  private SqlTranslator sqlTranslator;
+public class ApiTranslatorTest {
+  private ApiTranslator apiTranslator;
 
   @BeforeEach
   void createTranslator() {
-    sqlTranslator = new BQTranslator();
+    apiTranslator = new BQApiTranslator();
   }
 
   @Test
   void fieldNoAlias() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
 
     // SELECT
-    String selectSql = sqlTranslator.selectSql(SqlQueryField.of(field, null), tableAlias);
+    String selectSql = apiTranslator.selectSql(SqlQueryField.of(field), tableAlias);
     assertEquals("tableAlias.columnName", selectSql);
 
     // ORDER BY
-    String orderBySql = sqlTranslator.orderBySql(SqlQueryField.of(field, null), tableAlias, false);
+    String orderBySql = apiTranslator.orderBySql(SqlQueryField.of(field), tableAlias, false);
     assertEquals("tableAlias.columnName", orderBySql);
-    orderBySql = sqlTranslator.orderBySql(SqlQueryField.of(field, null), tableAlias, true);
+    orderBySql = apiTranslator.orderBySql(SqlQueryField.of(field), tableAlias, true);
     assertEquals("columnName", orderBySql);
   }
 
   @Test
   void fieldNoTableAlias() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
 
     // SELECT
-    String selectSql = sqlTranslator.selectSql(SqlQueryField.of(field, null), null);
+    String selectSql = apiTranslator.selectSql(SqlQueryField.of(field));
     assertEquals("columnName", selectSql);
 
     // ORDER BY
-    String orderBySql = sqlTranslator.orderBySql(SqlQueryField.of(field, null), null, false);
+    String orderBySql = apiTranslator.orderBySql(SqlQueryField.of(field), null, false);
     assertEquals("columnName", orderBySql);
-    orderBySql = sqlTranslator.orderBySql(SqlQueryField.of(field, null), null, true);
+    orderBySql = apiTranslator.orderBySql(SqlQueryField.of(field), null, true);
     assertEquals("columnName", orderBySql);
   }
 
@@ -63,18 +62,18 @@ public class SqlTranslatorTest {
   void fieldNoFn() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
     String fieldAlias = "fieldAlias";
 
     // SELECT
-    String selectSql = sqlTranslator.selectSql(SqlQueryField.of(field, fieldAlias), tableAlias);
+    String selectSql = apiTranslator.selectSql(SqlQueryField.of(field, fieldAlias), tableAlias);
     assertEquals("tableAlias.columnName AS fieldAlias", selectSql);
 
     // ORDER BY
     String orderBySql =
-        sqlTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, false);
+        apiTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, false);
     assertEquals("tableAlias.columnName", orderBySql);
-    orderBySql = sqlTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, true);
+    orderBySql = apiTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, true);
     assertEquals("fieldAlias", orderBySql);
   }
 
@@ -82,23 +81,18 @@ public class SqlTranslatorTest {
   void fieldSimpleFn() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field =
-        new SqlField.Builder()
-            .tablePointer(table)
-            .columnName("columnName")
-            .sqlFunctionWrapper("MAX")
-            .build();
+    SqlField field = SqlField.of(table, "columnName", "MAX");
     String fieldAlias = "fieldAlias";
 
     // SELECT
-    String selectSql = sqlTranslator.selectSql(SqlQueryField.of(field, fieldAlias), tableAlias);
+    String selectSql = apiTranslator.selectSql(SqlQueryField.of(field, fieldAlias), tableAlias);
     assertEquals("MAX(tableAlias.columnName) AS fieldAlias", selectSql);
 
     // ORDER BY
     String orderBySql =
-        sqlTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, false);
+        apiTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, false);
     assertEquals("MAX(tableAlias.columnName)", orderBySql);
-    orderBySql = sqlTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, true);
+    orderBySql = apiTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, true);
     assertEquals("fieldAlias", orderBySql);
   }
 
@@ -107,27 +101,25 @@ public class SqlTranslatorTest {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
     SqlField field =
-        new SqlField.Builder()
-            .tablePointer(table)
-            .columnName("columnName")
-            .sqlFunctionWrapper(
-                "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)")
-            .build();
+        SqlField.of(
+            table,
+            "columnName",
+            "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)");
     String fieldAlias = "fieldAlias";
 
     // SELECT
-    String selectSql = sqlTranslator.selectSql(SqlQueryField.of(field, fieldAlias), tableAlias);
+    String selectSql = apiTranslator.selectSql(SqlQueryField.of(field, fieldAlias), tableAlias);
     assertEquals(
         "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64) AS fieldAlias",
         selectSql);
 
     // ORDER BY
     String orderBySql =
-        sqlTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, false);
+        apiTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, false);
     assertEquals(
         "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64)",
         orderBySql);
-    orderBySql = sqlTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, true);
+    orderBySql = apiTranslator.orderBySql(SqlQueryField.of(field, fieldAlias), tableAlias, true);
     assertEquals("fieldAlias", orderBySql);
   }
 
@@ -136,26 +128,24 @@ public class SqlTranslatorTest {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
 
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
     SqlParams sqlParams = new SqlParams();
     Literal val = Literal.forTimestamp(Timestamp.from(Instant.now()));
     String sql =
-        sqlTranslator.binaryFilterSql(
+        apiTranslator.binaryFilterSql(
             field, BinaryOperator.LESS_THAN_OR_EQUAL, val, tableAlias, sqlParams);
     assertEquals("tableAlias.columnName <= @val", sql);
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
 
     field =
-        new SqlField.Builder()
-            .tablePointer(table)
-            .columnName("columnName")
-            .sqlFunctionWrapper(
-                "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)")
-            .build();
+        SqlField.of(
+            table,
+            "columnName",
+            "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)");
     sqlParams = new SqlParams();
     val = new Literal(25);
     sql =
-        sqlTranslator.binaryFilterSql(
+        apiTranslator.binaryFilterSql(
             field, BinaryOperator.GREATER_THAN, val, tableAlias, sqlParams);
     assertEquals(
         "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64) > @val",
@@ -168,11 +158,11 @@ public class SqlTranslatorTest {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
 
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
     SqlParams sqlParams = new SqlParams();
     Literal val = new Literal("test");
     String sql =
-        sqlTranslator.functionFilterSql(
+        apiTranslator.functionFilterSql(
             field, "REGEXP_CONTAINS(${fieldSql},${values})", List.of(val), tableAlias, sqlParams);
     assertEquals("REGEXP_CONTAINS(tableAlias.columnName,@val)", sql);
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
@@ -181,7 +171,7 @@ public class SqlTranslatorTest {
     Literal val1 = new Literal(25);
     Literal val2 = new Literal(26);
     sql =
-        sqlTranslator.functionFilterSql(
+        apiTranslator.functionFilterSql(
             field, "${fieldSql} IN (${values})", List.of(val1, val2), tableAlias, sqlParams);
     assertEquals("tableAlias.columnName IN (@val,@val0)", sql);
     assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
@@ -191,18 +181,17 @@ public class SqlTranslatorTest {
   void inSelectFilter() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
     SqlTable joinTable = new SqlTable("projectId", "datasetId", "joinTableName");
-    SqlField joinField =
-        new SqlField.Builder().tablePointer(table).columnName("joinColumnName").build();
+    SqlField joinField = SqlField.of(table, "joinColumnName");
 
     // Without literals.
     SqlParams sqlParams = new SqlParams();
     Literal val = new Literal(14);
     String joinFilterSql =
-        sqlTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val, null, sqlParams);
+        apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val, null, sqlParams);
     String sql =
-        sqlTranslator.inSelectFilterSql(
+        apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val)",
@@ -212,11 +201,11 @@ public class SqlTranslatorTest {
     // With literals.
     sqlParams = new SqlParams();
     joinFilterSql =
-        sqlTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val, null, sqlParams);
+        apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val, null, sqlParams);
     Literal val0 = new Literal(24);
     Literal val1 = new Literal(25);
     sql =
-        sqlTranslator.inSelectFilterSql(
+        apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams, val0, val1);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val UNION ALL SELECT @val0 UNION ALL SELECT @val1)",
@@ -228,25 +217,24 @@ public class SqlTranslatorTest {
   void booleanAndOrFilter() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
     SqlParams sqlParams = new SqlParams();
 
     Literal val1 = Literal.forTimestamp(Timestamp.from(Instant.now()));
     String filterSql1 =
-        sqlTranslator.binaryFilterSql(
+        apiTranslator.binaryFilterSql(
             field, BinaryOperator.LESS_THAN_OR_EQUAL, val1, tableAlias, sqlParams);
 
     SqlTable joinTable = new SqlTable("projectId", "datasetId", "joinTableName");
-    SqlField joinField =
-        new SqlField.Builder().tablePointer(table).columnName("joinColumnName").build();
+    SqlField joinField = SqlField.of(table, "joinColumnName");
     Literal val2 = new Literal(14);
     String joinFilterSql =
-        sqlTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val2, null, sqlParams);
+        apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val2, null, sqlParams);
     String filterSql2 =
-        sqlTranslator.inSelectFilterSql(
+        apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams);
 
-    String sql = sqlTranslator.booleanAndOrFilterSql(LogicalOperator.OR, filterSql1, filterSql2);
+    String sql = apiTranslator.booleanAndOrFilterSql(LogicalOperator.OR, filterSql1, filterSql2);
     assertEquals(
         "tableAlias.columnName <= @val OR tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0)",
         sql);
@@ -257,14 +245,14 @@ public class SqlTranslatorTest {
   void booleanNotFilter() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField field = SqlField.of(table, "columnName");
     SqlParams sqlParams = new SqlParams();
 
     Literal val = Literal.forTimestamp(Timestamp.from(Instant.now()));
     String subFilterSql =
-        sqlTranslator.binaryFilterSql(
+        apiTranslator.binaryFilterSql(
             field, BinaryOperator.LESS_THAN_OR_EQUAL, val, tableAlias, sqlParams);
-    String sql = sqlTranslator.booleanNotFilterSql(subFilterSql);
+    String sql = apiTranslator.booleanNotFilterSql(subFilterSql);
     assertEquals("NOT tableAlias.columnName <= @val", sql);
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
   }
@@ -273,13 +261,12 @@ public class SqlTranslatorTest {
   void having() {
     SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField groupByField =
-        new SqlField.Builder().tablePointer(table).columnName("columnName").build();
+    SqlField groupByField = SqlField.of(table, "columnName");
     SqlParams sqlParams = new SqlParams();
     Literal groupByCount = new Literal(4);
 
     String havingSql =
-        sqlTranslator.havingSql(
+        apiTranslator.havingSql(
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             groupByCount.getInt64Val().intValue(),
             List.of(groupByField),

@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
 import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -35,7 +35,7 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
   }
 
   @Override
-  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
+  public ImmutableList<ColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity or hierarchy.
     return ImmutableList.copyOf(
         Arrays.stream(Column.values())
@@ -44,30 +44,24 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
   }
 
   public SqlField getAncestorField() {
-    return new SqlField.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.ANCESTOR.getSchema().getColumnName())
-        .build();
+    return SqlField.of(getTablePointer(), Column.ANCESTOR.getSchema().getColumnName());
   }
 
   public SqlField getDescendantField() {
-    return new SqlField.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.DESCENDANT.getSchema().getColumnName())
-        .build();
+    return SqlField.of(getTablePointer(), Column.DESCENDANT.getSchema().getColumnName());
   }
 
   public enum Column {
-    ANCESTOR(new SqlColumnSchema("ancestor", DataType.INT64)),
-    DESCENDANT(new SqlColumnSchema("descendant", DataType.INT64));
+    ANCESTOR(new ColumnSchema("ancestor", DataType.INT64)),
+    DESCENDANT(new ColumnSchema("descendant", DataType.INT64));
 
-    private final SqlColumnSchema schema;
+    private final ColumnSchema schema;
 
-    Column(SqlColumnSchema schema) {
+    Column(ColumnSchema schema) {
       this.schema = schema;
     }
 
-    public SqlColumnSchema getSchema() {
+    public ColumnSchema getSchema() {
       return schema;
     }
   }

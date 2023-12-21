@@ -2,19 +2,19 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.query2.sql.ApiFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
-import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 
-public class BQHierarchyHasParentFilterTranslator extends SqlFilterTranslator {
+public class BQHierarchyHasParentFilterTranslator extends ApiFilterTranslator {
   private final HierarchyHasParentFilter hierarchyHasParentFilter;
 
   public BQHierarchyHasParentFilterTranslator(
-      SqlTranslator sqlTranslator, HierarchyHasParentFilter hierarchyHasParentFilter) {
-    super(sqlTranslator);
+      ApiTranslator apiTranslator, HierarchyHasParentFilter hierarchyHasParentFilter) {
+    super(apiTranslator);
     this.hierarchyHasParentFilter = hierarchyHasParentFilter;
   }
 
@@ -37,12 +37,12 @@ public class BQHierarchyHasParentFilterTranslator extends SqlFilterTranslator {
                 .getIndexSchema()
                 .getEntityMain(hierarchyHasParentFilter.getEntity().getName())
                 .getAttributeValueField(idAttribute.getName());
-    return sqlTranslator.inSelectFilterSql(
+    return apiTranslator.inSelectFilterSql(
         idField,
         tableAlias,
         childParentIndexTable.getChildField(),
         childParentIndexTable.getTablePointer(),
-        sqlTranslator.binaryFilterSql(
+        apiTranslator.binaryFilterSql(
             childParentIndexTable.getParentField(),
             BinaryOperator.EQUALS,
             hierarchyHasParentFilter.getParentId(),

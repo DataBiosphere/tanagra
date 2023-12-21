@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
 import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -35,7 +35,7 @@ public final class ITHierarchyChildParent extends IndexTable {
   }
 
   @Override
-  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
+  public ImmutableList<ColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity or hierarchy.
     return ImmutableList.copyOf(
         Arrays.stream(Column.values())
@@ -44,30 +44,24 @@ public final class ITHierarchyChildParent extends IndexTable {
   }
 
   public SqlField getChildField() {
-    return new SqlField.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.CHILD.getSchema().getColumnName())
-        .build();
+    return SqlField.of(getTablePointer(), Column.CHILD.getSchema().getColumnName());
   }
 
   public SqlField getParentField() {
-    return new SqlField.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.PARENT.getSchema().getColumnName())
-        .build();
+    return SqlField.of(getTablePointer(), Column.PARENT.getSchema().getColumnName());
   }
 
   public enum Column {
-    CHILD(new SqlColumnSchema("child", DataType.INT64)),
-    PARENT(new SqlColumnSchema("parent", DataType.INT64));
+    CHILD(new ColumnSchema("child", DataType.INT64)),
+    PARENT(new ColumnSchema("parent", DataType.INT64));
 
-    private final SqlColumnSchema schema;
+    private final ColumnSchema schema;
 
-    Column(SqlColumnSchema schema) {
+    Column(ColumnSchema schema) {
       this.schema = schema;
     }
 
-    public SqlColumnSchema getSchema() {
+    public ColumnSchema getSchema() {
       return schema;
     }
   }

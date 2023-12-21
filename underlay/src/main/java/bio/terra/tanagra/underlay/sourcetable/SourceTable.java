@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
 import bio.terra.tanagra.query2.sql.SqlTable;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.common.collect.ImmutableList;
 
 public abstract class SourceTable {
@@ -15,5 +15,5 @@ public abstract class SourceTable {
     return sqlTable;
   }
 
-  public abstract ImmutableList<SqlColumnSchema> getColumnSchemas();
+  public abstract ImmutableList<ColumnSchema> getColumnSchemas();
 }

@@ -2,7 +2,7 @@ package bio.terra.tanagra.indexing.job.dataflow.beam;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -76,7 +76,7 @@ public final class BigQueryBeamUtils {
     return StringSubstitutor.replace(template, params);
   }
 
-  public static TableSchema getBigQueryTableSchema(List<SqlColumnSchema> columns) {
+  public static TableSchema getBigQueryTableSchema(List<ColumnSchema> columns) {
     List<TableFieldSchema> fieldSchemas =
         sortedStream(columns)
             .map(
@@ -110,7 +110,7 @@ public final class BigQueryBeamUtils {
     }
   }
 
-  private static Stream<SqlColumnSchema> sortedStream(List<SqlColumnSchema> columns) {
+  private static Stream<ColumnSchema> sortedStream(List<ColumnSchema> columns) {
     return columns.stream().sorted(Comparator.comparing(c -> c.getColumnName()));
   }
 }

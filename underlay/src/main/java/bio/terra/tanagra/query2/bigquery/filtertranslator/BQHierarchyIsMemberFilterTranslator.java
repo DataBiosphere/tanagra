@@ -2,20 +2,20 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.query2.sql.ApiFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
-import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQHierarchyIsMemberFilterTranslator extends SqlFilterTranslator {
+public class BQHierarchyIsMemberFilterTranslator extends ApiFilterTranslator {
   private final HierarchyIsMemberFilter hierarchyIsMemberFilter;
 
   public BQHierarchyIsMemberFilterTranslator(
-      SqlTranslator sqlTranslator, HierarchyIsMemberFilter hierarchyIsMemberFilter) {
-    super(sqlTranslator);
+      ApiTranslator apiTranslator, HierarchyIsMemberFilter hierarchyIsMemberFilter) {
+    super(apiTranslator);
     this.hierarchyIsMemberFilter = hierarchyIsMemberFilter;
   }
 
@@ -30,9 +30,9 @@ public class BQHierarchyIsMemberFilterTranslator extends SqlFilterTranslator {
     // IS_MEMBER means path IS NOT NULL.
     SqlField pathField =
         indexTable.getHierarchyPathField(hierarchyIsMemberFilter.getHierarchy().getName());
-    return sqlTranslator.functionFilterSql(
+    return apiTranslator.functionFilterSql(
         pathField,
-        sqlTranslator.functionTemplateSql(FunctionTemplate.IS_NOT_NULL),
+        apiTranslator.functionTemplateSql(FunctionTemplate.IS_NOT_NULL),
         List.of(),
         tableAlias,
         sqlParams);

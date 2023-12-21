@@ -35,19 +35,23 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.text.StringSubstitutor;
 
-public interface SqlTranslator {
+public interface ApiTranslator {
   String FUNCTION_TEMPLATE_FIELD_VAR = "fieldSql";
   String FUNCTION_TEMPLATE_FIELD_VAR_BRACES = "${" + FUNCTION_TEMPLATE_FIELD_VAR + "}";
 
   String FUNCTION_TEMPLATE_VALUES_VAR = "values";
   String FUNCTION_TEMPLATE_VALUES_VAR_BRACES = "${" + FUNCTION_TEMPLATE_VALUES_VAR + "}";
 
+  default String selectSql(SqlQueryField sqlQueryField) {
+    return fieldSql(sqlQueryField, null, false);
+  }
+
   default String selectSql(SqlQueryField sqlQueryField, @Nullable String tableAlias) {
     return fieldSql(sqlQueryField, tableAlias, false);
   }
 
   default String whereSql(SqlField field, @Nullable String tableAlias) {
-    return fieldSql(SqlQueryField.of(field, null), tableAlias, false);
+    return fieldSql(SqlQueryField.of(field), tableAlias, false);
   }
 
   default String orderBySql(
@@ -80,16 +84,16 @@ public interface SqlTranslator {
     String alias = sqlQueryField.getAlias();
     String baseFieldSql =
         tableAlias == null ? field.getColumnName() : (tableAlias + '.' + field.getColumnName());
-    if (!field.hasSqlFunctionWrapper()) {
+    if (!field.hasFunctionWrapper()) {
       if (field.getColumnName().equals(alias)) {
         alias = null;
       }
-    } else if (field.getSqlFunctionWrapper().contains(FUNCTION_TEMPLATE_FIELD_VAR_BRACES)) {
+    } else if (field.getFunctionWrapper().contains(FUNCTION_TEMPLATE_FIELD_VAR_BRACES)) {
       baseFieldSql =
           StringSubstitutor.replace(
-              field.getSqlFunctionWrapper(), Map.of(FUNCTION_TEMPLATE_FIELD_VAR, baseFieldSql));
+              field.getFunctionWrapper(), Map.of(FUNCTION_TEMPLATE_FIELD_VAR, baseFieldSql));
     } else {
-      baseFieldSql = field.getSqlFunctionWrapper() + '(' + baseFieldSql + ')';
+      baseFieldSql = field.getFunctionWrapper() + '(' + baseFieldSql + ')';
     }
     return isForOrderOrGroupBy || alias == null || alias.isEmpty()
         ? baseFieldSql
@@ -177,7 +181,7 @@ public interface SqlTranslator {
     List<String> selectSqls = new ArrayList<>();
     selectSqls.add(
         "SELECT "
-            + selectSql(SqlQueryField.of(selectField, null), null)
+            + selectSql(SqlQueryField.of(selectField))
             + " FROM "
             + table.renderSQL()
             + " WHERE "
@@ -257,21 +261,21 @@ public interface SqlTranslator {
     }
   }
 
-  SqlFieldTranslator translator(AttributeField attributeField);
+  ApiFieldTranslator translator(AttributeField attributeField);
 
-  SqlFieldTranslator translator(EntityIdCountField entityIdCountField);
+  ApiFieldTranslator translator(EntityIdCountField entityIdCountField);
 
-  SqlFieldTranslator translator(HierarchyIsMemberField hierarchyIsMemberField);
+  ApiFieldTranslator translator(HierarchyIsMemberField hierarchyIsMemberField);
 
-  SqlFieldTranslator translator(HierarchyIsRootField hierarchyIsRootField);
+  ApiFieldTranslator translator(HierarchyIsRootField hierarchyIsRootField);
 
-  SqlFieldTranslator translator(HierarchyNumChildrenField hierarchyNumChildrenField);
+  ApiFieldTranslator translator(HierarchyNumChildrenField hierarchyNumChildrenField);
 
-  SqlFieldTranslator translator(HierarchyPathField hierarchyPathField);
+  ApiFieldTranslator translator(HierarchyPathField hierarchyPathField);
 
-  SqlFieldTranslator translator(RelatedEntityIdCountField relatedEntityIdCountField);
+  ApiFieldTranslator translator(RelatedEntityIdCountField relatedEntityIdCountField);
 
-  default SqlFieldTranslator translator(ValueDisplayField valueDisplayField) {
+  default ApiFieldTranslator translator(ValueDisplayField valueDisplayField) {
     if (valueDisplayField instanceof AttributeField) {
       return translator((AttributeField) valueDisplayField);
     } else if (valueDisplayField instanceof EntityIdCountField) {
@@ -291,29 +295,29 @@ public interface SqlTranslator {
     }
   }
 
-  SqlFilterTranslator translator(AttributeFilter attributeFilter);
+  ApiFilterTranslator translator(AttributeFilter attributeFilter);
 
-  default SqlFilterTranslator translator(BooleanAndOrFilter booleanAndOrFilter) {
+  default ApiFilterTranslator translator(BooleanAndOrFilter booleanAndOrFilter) {
     return new BooleanAndOrFilterTranslator(this, booleanAndOrFilter);
   }
 
-  default SqlFilterTranslator translator(BooleanNotFilter booleanNotFilter) {
+  default ApiFilterTranslator translator(BooleanNotFilter booleanNotFilter) {
     return new BooleanNotFilterTranslator(this, booleanNotFilter);
   }
 
-  SqlFilterTranslator translator(HierarchyHasAncestorFilter hierarchyHasAncestorFilter);
+  ApiFilterTranslator translator(HierarchyHasAncestorFilter hierarchyHasAncestorFilter);
 
-  SqlFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter);
+  ApiFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter);
 
-  SqlFilterTranslator translator(HierarchyIsMemberFilter hierarchyIsMemberFilter);
+  ApiFilterTranslator translator(HierarchyIsMemberFilter hierarchyIsMemberFilter);
 
-  SqlFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter);
+  ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter);
 
-  SqlFilterTranslator translator(RelationshipFilter relationshipFilter);
+  ApiFilterTranslator translator(RelationshipFilter relationshipFilter);
 
-  SqlFilterTranslator translator(TextSearchFilter textSearchFilter);
+  ApiFilterTranslator translator(TextSearchFilter textSearchFilter);
 
-  default SqlFilterTranslator translator(EntityFilter entityFilter) {
+  default ApiFilterTranslator translator(EntityFilter entityFilter) {
     if (entityFilter instanceof AttributeFilter) {
       return translator((AttributeFilter) entityFilter);
     } else if (entityFilter instanceof BooleanAndOrFilter) {

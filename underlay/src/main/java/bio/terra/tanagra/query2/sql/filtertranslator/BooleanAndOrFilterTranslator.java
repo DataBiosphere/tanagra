@@ -1,19 +1,19 @@
 package bio.terra.tanagra.query2.sql.filtertranslator;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
-import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BooleanAndOrFilterTranslator extends SqlFilterTranslator {
+public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
   private final BooleanAndOrFilter booleanAndOrFilter;
 
   public BooleanAndOrFilterTranslator(
-      SqlTranslator sqlTranslator, BooleanAndOrFilter booleanAndOrFilter) {
-    super(sqlTranslator);
+      ApiTranslator apiTranslator, BooleanAndOrFilter booleanAndOrFilter) {
+    super(apiTranslator);
     this.booleanAndOrFilter = booleanAndOrFilter;
   }
 
@@ -21,9 +21,9 @@ public class BooleanAndOrFilterTranslator extends SqlFilterTranslator {
   public String buildSql(SqlParams sqlParams, String tableAlias) {
     List<String> subFilterSqls =
         booleanAndOrFilter.getSubFilters().stream()
-            .map(subFilter -> sqlTranslator.translator(subFilter).buildSql(sqlParams, tableAlias))
+            .map(subFilter -> apiTranslator.translator(subFilter).buildSql(sqlParams, tableAlias))
             .collect(Collectors.toList());
-    return sqlTranslator.booleanAndOrFilterSql(
+    return apiTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
   }
 
@@ -32,7 +32,7 @@ public class BooleanAndOrFilterTranslator extends SqlFilterTranslator {
     return booleanAndOrFilter
         .getSubFilters()
         .parallelStream()
-        .filter(subFilter -> !sqlTranslator.translator(subFilter).isFilterOnAttribute(attribute))
+        .filter(subFilter -> !apiTranslator.translator(subFilter).isFilterOnAttribute(attribute))
         .findAny()
         .isEmpty();
   }

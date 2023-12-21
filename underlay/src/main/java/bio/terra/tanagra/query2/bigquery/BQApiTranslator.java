@@ -29,78 +29,78 @@ import bio.terra.tanagra.query2.bigquery.filtertranslator.BQHierarchyIsMemberFil
 import bio.terra.tanagra.query2.bigquery.filtertranslator.BQHierarchyIsRootFilterTranslator;
 import bio.terra.tanagra.query2.bigquery.filtertranslator.BQRelationshipFilterTranslator;
 import bio.terra.tanagra.query2.bigquery.filtertranslator.BQTextSearchFilterTranslator;
-import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
-import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
-import bio.terra.tanagra.query2.sql.SqlTranslator;
+import bio.terra.tanagra.query2.sql.ApiFieldTranslator;
+import bio.terra.tanagra.query2.sql.ApiFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiTranslator;
 
-public final class BQTranslator implements SqlTranslator {
+public final class BQApiTranslator implements ApiTranslator {
   @Override
-  public SqlFieldTranslator translator(AttributeField attributeField) {
+  public ApiFieldTranslator translator(AttributeField attributeField) {
     return new BQAttributeFieldTranslator(attributeField);
   }
 
   @Override
-  public SqlFieldTranslator translator(EntityIdCountField entityIdCountField) {
+  public ApiFieldTranslator translator(EntityIdCountField entityIdCountField) {
     return new BQEntityIdCountFieldTranslator(entityIdCountField);
   }
 
   @Override
-  public SqlFieldTranslator translator(HierarchyIsMemberField hierarchyIsMemberField) {
+  public ApiFieldTranslator translator(HierarchyIsMemberField hierarchyIsMemberField) {
     return new BQHierarchyIsMemberFieldTranslator(hierarchyIsMemberField);
   }
 
   @Override
-  public SqlFieldTranslator translator(HierarchyIsRootField hierarchyIsRootField) {
+  public ApiFieldTranslator translator(HierarchyIsRootField hierarchyIsRootField) {
     return new BQHierarchyIsRootFieldTranslator(hierarchyIsRootField);
   }
 
   @Override
-  public SqlFieldTranslator translator(HierarchyNumChildrenField hierarchyNumChildrenField) {
+  public ApiFieldTranslator translator(HierarchyNumChildrenField hierarchyNumChildrenField) {
     return new BQHierarchyNumChildrenFieldTranslator(hierarchyNumChildrenField);
   }
 
   @Override
-  public SqlFieldTranslator translator(HierarchyPathField hierarchyPathField) {
+  public ApiFieldTranslator translator(HierarchyPathField hierarchyPathField) {
     return new BQHierarchyPathFieldTranslator(hierarchyPathField);
   }
 
   @Override
-  public SqlFieldTranslator translator(RelatedEntityIdCountField relatedEntityIdCountField) {
+  public ApiFieldTranslator translator(RelatedEntityIdCountField relatedEntityIdCountField) {
     return new BQRelatedEntityIdCountFieldTranslator(relatedEntityIdCountField);
   }
 
   @Override
-  public SqlFilterTranslator translator(AttributeFilter attributeFilter) {
+  public ApiFilterTranslator translator(AttributeFilter attributeFilter) {
     return new BQAttributeFilterTranslator(this, attributeFilter);
   }
 
   @Override
-  public SqlFilterTranslator translator(HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
+  public ApiFilterTranslator translator(HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
     return new BQHierarchyHasAncestorFilterTranslator(this, hierarchyHasAncestorFilter);
   }
 
   @Override
-  public SqlFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter) {
+  public ApiFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter) {
     return new BQHierarchyHasParentFilterTranslator(this, hierarchyHasParentFilter);
   }
 
   @Override
-  public SqlFilterTranslator translator(HierarchyIsMemberFilter hierarchyIsMemberFilter) {
+  public ApiFilterTranslator translator(HierarchyIsMemberFilter hierarchyIsMemberFilter) {
     return new BQHierarchyIsMemberFilterTranslator(this, hierarchyIsMemberFilter);
   }
 
   @Override
-  public SqlFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter) {
+  public ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter) {
     return new BQHierarchyIsRootFilterTranslator(this, hierarchyIsRootFilter);
   }
 
   @Override
-  public SqlFilterTranslator translator(RelationshipFilter relationshipFilter) {
+  public ApiFilterTranslator translator(RelationshipFilter relationshipFilter) {
     return new BQRelationshipFilterTranslator(this, relationshipFilter);
   }
 
   @Override
-  public SqlFilterTranslator translator(TextSearchFilter textSearchFilter) {
+  public ApiFilterTranslator translator(TextSearchFilter textSearchFilter) {
     return new BQTextSearchFilterTranslator(this, textSearchFilter);
   }
 
@@ -115,7 +115,7 @@ public final class BQTranslator implements SqlTranslator {
             + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
             + "))<5";
       default:
-        return SqlTranslator.super.functionTemplateSql(functionTemplate);
+        return ApiTranslator.super.functionTemplateSql(functionTemplate);
     }
   }
 }

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
+import bio.terra.tanagra.query2.bigquery.BQApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -42,20 +42,18 @@ public class WriteRelationshipIntermediateTable extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    BQTranslator bqTranslator = new BQTranslator();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
     String sourceIdPairsSql =
         "SELECT "
             + bqTranslator.selectSql(
                 SqlQueryField.of(
                     sourceTable.getEntityAIdField(),
-                    ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema().getColumnName()),
-                null)
+                    ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema().getColumnName()))
             + ", "
             + bqTranslator.selectSql(
                 SqlQueryField.of(
                     sourceTable.getEntityBIdField(),
-                    ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName()),
-                null)
+                    ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName()))
             + " FROM "
             + sourceTable.getTablePointer().renderSQL();
     LOGGER.info("source relationship id-pairs query: {}", sourceIdPairsSql);

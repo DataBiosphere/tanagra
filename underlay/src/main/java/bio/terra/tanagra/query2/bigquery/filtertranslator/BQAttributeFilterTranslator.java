@@ -1,18 +1,18 @@
 package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.query2.sql.ApiFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
-import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 
-public class BQAttributeFilterTranslator extends SqlFilterTranslator {
+public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   private final AttributeFilter attributeFilter;
 
-  public BQAttributeFilterTranslator(SqlTranslator sqlTranslator, AttributeFilter attributeFilter) {
-    super(sqlTranslator);
+  public BQAttributeFilterTranslator(ApiTranslator apiTranslator, AttributeFilter attributeFilter) {
+    super(apiTranslator);
     this.attributeFilter = attributeFilter;
   }
 
@@ -30,20 +30,16 @@ public class BQAttributeFilterTranslator extends SqlFilterTranslator {
             ? attributeSwapFields.get(attribute)
             : indexTable.getAttributeValueField(attribute.getName());
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
-      valueField =
-          valueField
-              .toBuilder()
-              .sqlFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper())
-              .build();
+      valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
     }
     return attributeFilter.hasFunctionTemplate()
-        ? sqlTranslator.functionFilterSql(
+        ? apiTranslator.functionFilterSql(
             valueField,
-            sqlTranslator.functionTemplateSql(attributeFilter.getFunctionTemplate()),
+            apiTranslator.functionTemplateSql(attributeFilter.getFunctionTemplate()),
             attributeFilter.getValues(),
             tableAlias,
             sqlParams)
-        : sqlTranslator.binaryFilterSql(
+        : apiTranslator.binaryFilterSql(
             valueField,
             attributeFilter.getOperator(),
             attributeFilter.getValues().get(0),

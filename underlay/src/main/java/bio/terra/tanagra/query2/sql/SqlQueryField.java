@@ -13,6 +13,10 @@ public final class SqlQueryField {
     return new SqlQueryField(field, alias);
   }
 
+  public static SqlQueryField of(SqlField field) {
+    return of(field, null);
+  }
+
   public SqlField getField() {
     return field;
   }

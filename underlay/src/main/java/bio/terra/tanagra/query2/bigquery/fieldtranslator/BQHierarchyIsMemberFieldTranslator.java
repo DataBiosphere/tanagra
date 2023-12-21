@@ -3,15 +3,15 @@ package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 import bio.terra.tanagra.api.field.HierarchyIsMemberField;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.ValueDisplay;
+import bio.terra.tanagra.query2.sql.ApiFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQHierarchyIsMemberFieldTranslator implements SqlFieldTranslator {
+public class BQHierarchyIsMemberFieldTranslator implements ApiFieldTranslator {
   private static final String FIELD_ALIAS = "ISMEM";
   private final HierarchyIsMemberField hierarchyIsMemberField;
 
@@ -49,9 +49,7 @@ public class BQHierarchyIsMemberFieldTranslator implements SqlFieldTranslator {
     SqlField field =
         indexTable
             .getHierarchyPathField(hierarchyIsMemberField.getHierarchy().getName())
-            .toBuilder()
-            .sqlFunctionWrapper(isMemberFnStr)
-            .build();
+            .cloneWithFunctionWrapper(isMemberFnStr);
     return List.of(SqlQueryField.of(field, getFieldAlias()));
   }
 

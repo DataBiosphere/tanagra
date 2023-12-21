@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
-import bio.terra.tanagra.query2.bigquery.BQTranslator;
+import bio.terra.tanagra.query2.bigquery.BQApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -199,7 +199,7 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
       ITEntityMain entityAIndexTable,
       ITEntityMain entityBIndexTable,
       @Nullable ITRelationshipIdPairs relationshipIdPairsTable) {
-    BQTranslator bqTranslator = new BQTranslator();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
     String idPairsSql;
     if (relationship.isForeignKeyAttributeEntityA()) {
       SqlField entityAIdField =
@@ -210,9 +210,9 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
               relationship.getForeignKeyAttributeEntityA().getName());
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName))
               + ", "
-              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName))
               + " FROM "
               + entityAIndexTable.getTablePointer().renderSQL();
     } else if (relationship.isForeignKeyAttributeEntityB()) {
@@ -224,9 +224,9 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
               relationship.getEntityB().getIdAttribute().getName());
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName))
               + ", "
-              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName))
               + " FROM "
               + entityBIndexTable.getTablePointer().renderSQL();
     } else { // relationship.isIntermediateTable()
@@ -234,9 +234,9 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
       SqlField entityBIdField = relationshipIdPairsTable.getEntityBIdField();
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName))
               + ", "
-              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName))
               + " FROM "
               + relationshipIdPairsTable.getTablePointer().renderSQL();
     }

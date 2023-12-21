@@ -6,8 +6,8 @@ import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
+import bio.terra.tanagra.query2.sql.ApiFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BQAttributeFieldTranslator implements SqlFieldTranslator {
+public class BQAttributeFieldTranslator implements ApiFieldTranslator {
   private static final Logger LOGGER = LoggerFactory.getLogger(BQAttributeFieldTranslator.class);
   private final AttributeField attributeField;
   private final ITEntityMain indexTable;
@@ -57,11 +57,7 @@ public class BQAttributeFieldTranslator implements SqlFieldTranslator {
     Attribute attribute = attributeField.getAttribute();
     SqlField valueField = indexTable.getAttributeValueField(attribute.getName());
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
-      valueField =
-          valueField
-              .toBuilder()
-              .sqlFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper())
-              .build();
+      valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
     }
 
     SqlQueryField valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias());

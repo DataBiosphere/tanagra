@@ -2,20 +2,20 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.query2.sql.ApiFilterTranslator;
+import bio.terra.tanagra.query2.sql.ApiTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
-import bio.terra.tanagra.query2.sql.SqlTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
+public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
   private final TextSearchFilter textSearchFilter;
 
   public BQTextSearchFilterTranslator(
-      SqlTranslator sqlTranslator, TextSearchFilter textSearchFilter) {
-    super(sqlTranslator);
+      ApiTranslator apiTranslator, TextSearchFilter textSearchFilter) {
+    super(apiTranslator);
     this.textSearchFilter = textSearchFilter;
   }
 
@@ -36,18 +36,15 @@ public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
               : indexTable.getAttributeValueField(attribute.getName());
       if (attribute.hasRuntimeSqlFunctionWrapper()) {
         textSearchField =
-            textSearchField
-                .toBuilder()
-                .sqlFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper())
-                .build();
+            textSearchField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
       }
     } else {
       // Search the text index specified in the underlay config.
       textSearchField = indexTable.getTextSearchField();
     }
-    return sqlTranslator.functionFilterSql(
+    return apiTranslator.functionFilterSql(
         textSearchField,
-        sqlTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
+        apiTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
         List.of(new Literal(textSearchFilter.getText())),
         tableAlias,
         sqlParams);

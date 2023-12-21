@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -29,7 +29,7 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
   }
 
   @Override
-  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
+  public ImmutableList<ColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity.
     return ImmutableList.copyOf(
         Arrays.stream(Column.values())
@@ -38,20 +38,20 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
   }
 
   public enum Column {
-    ATTRIBUTE_NAME(new SqlColumnSchema("attribute_name", DataType.STRING, true)),
-    MIN(new SqlColumnSchema("min", DataType.DOUBLE)),
-    MAX(new SqlColumnSchema("max", DataType.DOUBLE)),
-    ENUM_VALUE(new SqlColumnSchema("enum_value", DataType.INT64)),
-    ENUM_DISPLAY(new SqlColumnSchema("enum_display", DataType.STRING)),
-    ENUM_COUNT(new SqlColumnSchema("enum_count", DataType.INT64));
+    ATTRIBUTE_NAME(new ColumnSchema("attribute_name", DataType.STRING, true)),
+    MIN(new ColumnSchema("min", DataType.DOUBLE)),
+    MAX(new ColumnSchema("max", DataType.DOUBLE)),
+    ENUM_VALUE(new ColumnSchema("enum_value", DataType.INT64)),
+    ENUM_DISPLAY(new ColumnSchema("enum_display", DataType.STRING)),
+    ENUM_COUNT(new ColumnSchema("enum_count", DataType.INT64));
 
-    private final SqlColumnSchema columnSchema;
+    private final ColumnSchema columnSchema;
 
-    Column(SqlColumnSchema columnSchema) {
+    Column(ColumnSchema columnSchema) {
       this.columnSchema = columnSchema;
     }
 
-    public SqlColumnSchema getSchema() {
+    public ColumnSchema getSchema() {
       return columnSchema;
     }
   }

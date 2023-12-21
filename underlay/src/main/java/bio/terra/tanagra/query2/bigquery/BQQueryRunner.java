@@ -49,7 +49,7 @@ public class BQQueryRunner implements QueryRunner {
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // Process the rows returned.
-    BQTranslator bqTranslator = new BQTranslator();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
     List<ListInstance> listInstances = new ArrayList<>();
     sqlQueryResult
         .getRowResults()
@@ -76,7 +76,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
-    BQTranslator bqTranslator = new BQTranslator();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
 
     // All the select fields come from the index entity main table.
     if (listQueryRequest.getSelectFields().isEmpty()) {
@@ -92,7 +92,7 @@ public class BQQueryRunner implements QueryRunner {
         .forEach(
             valueDisplayField ->
                 bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
-                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField, null))));
+                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField))));
 
     // SELECT [select fields] FROM [entity main]
     sql.append("SELECT ")
@@ -151,7 +151,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
-    BQTranslator bqTranslator = new BQTranslator();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
 
     // The select fields are the COUNT(id) field + the GROUP BY fields (values only).
     List<ValueDisplayField> selectValueDisplayFields = new ArrayList<>();
@@ -171,7 +171,7 @@ public class BQQueryRunner implements QueryRunner {
         .forEach(
             valueDisplayField ->
                 bqTranslator.translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
-                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField, null))));
+                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField))));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
     sql.append("SELECT ")

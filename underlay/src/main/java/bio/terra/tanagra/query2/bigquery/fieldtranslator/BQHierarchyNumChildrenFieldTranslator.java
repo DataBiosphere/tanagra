@@ -3,14 +3,14 @@ package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.ValueDisplay;
+import bio.terra.tanagra.query2.sql.ApiFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQHierarchyNumChildrenFieldTranslator implements SqlFieldTranslator {
+public class BQHierarchyNumChildrenFieldTranslator implements ApiFieldTranslator {
   private final HierarchyNumChildrenField hierarchyNumChildrenField;
 
   public BQHierarchyNumChildrenFieldTranslator(
@@ -39,7 +39,7 @@ public class BQHierarchyNumChildrenFieldTranslator implements SqlFieldTranslator
   }
 
   private List<SqlQueryField> buildSqlFields() {
-    return List.of(SqlQueryField.of(getField(), null));
+    return List.of(SqlQueryField.of(getField()));
   }
 
   private SqlField getField() {

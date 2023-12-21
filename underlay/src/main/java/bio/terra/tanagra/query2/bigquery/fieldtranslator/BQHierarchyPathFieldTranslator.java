@@ -3,14 +3,14 @@ package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.ValueDisplay;
+import bio.terra.tanagra.query2.sql.ApiFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
-import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
 import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQHierarchyPathFieldTranslator implements SqlFieldTranslator {
+public class BQHierarchyPathFieldTranslator implements ApiFieldTranslator {
   private final HierarchyPathField hierarchyPathField;
 
   public BQHierarchyPathFieldTranslator(HierarchyPathField hierarchyPathField) {
@@ -38,7 +38,7 @@ public class BQHierarchyPathFieldTranslator implements SqlFieldTranslator {
   }
 
   private List<SqlQueryField> buildSqlFields() {
-    return List.of(SqlQueryField.of(getField(), null));
+    return List.of(SqlQueryField.of(getField()));
   }
 
   private SqlField getField() {

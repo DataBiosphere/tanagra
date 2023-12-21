@@ -1,7 +1,7 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
@@ -47,7 +47,7 @@ public class WriteEntityAttributes extends BigQueryJob {
         .forEach(
             entry -> {
               String attributeName = entry.getKey();
-              SqlColumnSchema attributeValueColumnSchema = entry.getValue();
+              ColumnSchema attributeValueColumnSchema = entry.getValue();
               String indexColumn = indexTable.getAttributeValueField(attributeName).getColumnName();
               LOGGER.info(
                   "attribute value {}, column name {}",
@@ -60,7 +60,7 @@ public class WriteEntityAttributes extends BigQueryJob {
         .forEach(
             entry -> {
               String attributeName = entry.getKey();
-              SqlColumnSchema attributeDisplayColumnSchema = entry.getValue();
+              ColumnSchema attributeDisplayColumnSchema = entry.getValue();
               String indexColumn =
                   indexTable.getAttributeDisplayField(attributeName).getColumnName();
               LOGGER.info(

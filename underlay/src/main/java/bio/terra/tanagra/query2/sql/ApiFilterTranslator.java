@@ -4,19 +4,19 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class SqlFilterTranslator {
-  protected final SqlTranslator sqlTranslator;
+public abstract class ApiFilterTranslator {
+  protected final ApiTranslator apiTranslator;
   protected final Map<Attribute, SqlField> attributeSwapFields = new HashMap<>();
 
-  protected SqlFilterTranslator(SqlTranslator sqlTranslator) {
-    this.sqlTranslator = sqlTranslator;
+  protected ApiFilterTranslator(ApiTranslator apiTranslator) {
+    this.apiTranslator = apiTranslator;
   }
 
   public abstract String buildSql(SqlParams sqlParams, String tableAlias);
 
   public abstract boolean isFilterOnAttribute(Attribute attribute);
 
-  public SqlFilterTranslator swapAttributeField(Attribute attribute, SqlField swappedField) {
+  public ApiFilterTranslator swapAttributeField(Attribute attribute, SqlField swappedField) {
     attributeSwapFields.put(attribute, swappedField);
     return this;
   }

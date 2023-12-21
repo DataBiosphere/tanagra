@@ -1,19 +1,19 @@
-package bio.terra.tanagra.query2.sql;
+package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.api.shared.DataType;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class SqlColumnSchema implements Serializable {
+public class ColumnSchema implements Serializable {
   private final String columnName;
   private final DataType dataType;
   private final boolean isRequired;
 
-  public SqlColumnSchema(String columnName, DataType dataType) {
+  public ColumnSchema(String columnName, DataType dataType) {
     this(columnName, dataType, false);
   }
 
-  public SqlColumnSchema(String columnName, DataType dataType, boolean isRequired) {
+  public ColumnSchema(String columnName, DataType dataType, boolean isRequired) {
     this.columnName = columnName;
     this.dataType = dataType;
     this.isRequired = isRequired;
@@ -39,7 +39,7 @@ public class SqlColumnSchema implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SqlColumnSchema that = (SqlColumnSchema) o;
+    ColumnSchema that = (ColumnSchema) o;
     return isRequired == that.isRequired
         && columnName.equals(that.columnName)
         && dataType == that.dataType;
