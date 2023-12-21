@@ -32,7 +32,7 @@ public abstract class BQRunnerTest {
     String sqlWrittenToFile = sql;
     for (BQTable table : tables) {
       sqlWrittenToFile =
-          sqlWrittenToFile.replace(table.renderForQuery(), "${" + table.getTableName() + "}");
+          sqlWrittenToFile.replace(table.render(), "${" + table.getTableName() + "}");
     }
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         SqlFormatter.format(sqlWrittenToFile),

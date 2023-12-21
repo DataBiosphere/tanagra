@@ -4,7 +4,6 @@ import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.GraphUtils;
-import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
@@ -73,16 +72,13 @@ public class WriteAncestorDescendant extends BigQueryJob {
     Pipeline pipeline = Pipeline.create(DataflowUtils.getPipelineOptions(indexerConfig, getName()));
 
     // Build the source child-parent query and the pipeline steps to read the results.
-    BQApiTranslator bqTranslator = new BQApiTranslator();
     String sourceChildParentSql =
         "SELECT "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(sourceTable.getChildField(), CHILD_COLUMN_NAME))
+            + SqlQueryField.of(sourceTable.getChildField(), CHILD_COLUMN_NAME).renderForSelect()
             + ", "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(sourceTable.getParentField(), PARENT_COLUMN_NAME))
+            + SqlQueryField.of(sourceTable.getParentField(), PARENT_COLUMN_NAME).renderForSelect()
             + " FROM "
-            + sourceTable.getTablePointer().renderForQuery();
+            + sourceTable.getTablePointer().render();
     LOGGER.info("source child-parent query: {}", sourceChildParentSql);
     PCollection<KV<Long, Long>> relationships =
         pipeline

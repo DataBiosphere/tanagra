@@ -65,9 +65,9 @@ public abstract class BigQueryJob implements IndexingJob {
     BQApiTranslator bqTranslator = new BQApiTranslator();
     String selectOneRowSql =
         "SELECT "
-            + bqTranslator.selectSql(SqlQueryField.of(field))
+            + SqlQueryField.of(field).renderForSelect()
             + " FROM "
-            + sqlTable.renderForQuery()
+            + sqlTable.render()
             + " WHERE "
             + bqTranslator.functionFilterSql(
                 field,

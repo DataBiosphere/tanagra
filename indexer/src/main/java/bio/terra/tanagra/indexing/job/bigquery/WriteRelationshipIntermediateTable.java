@@ -1,7 +1,6 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -42,20 +41,19 @@ public class WriteRelationshipIntermediateTable extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    BQApiTranslator bqTranslator = new BQApiTranslator();
     String sourceIdPairsSql =
         "SELECT "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(
+            + SqlQueryField.of(
                     sourceTable.getEntityAIdField(),
-                    ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema().getColumnName()))
+                    ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema().getColumnName())
+                .renderForSelect()
             + ", "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(
+            + SqlQueryField.of(
                     sourceTable.getEntityBIdField(),
-                    ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName()))
+                    ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName())
+                .renderForSelect()
             + " FROM "
-            + sourceTable.getTablePointer().renderForQuery();
+            + sourceTable.getTablePointer().render();
     LOGGER.info("source relationship id-pairs query: {}", sourceIdPairsSql);
 
     // Create a new table directly from the select query.

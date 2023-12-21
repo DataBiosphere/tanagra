@@ -8,7 +8,6 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.query.bigquery.BQTable;
-import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -178,7 +177,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             .collect(Collectors.joining(", "));
     String insertLiteralsSql =
         "INSERT INTO "
-            + indexHintsTable.getTablePointer().renderForQuery()
+            + indexHintsTable.getTablePointer().render()
             + " ("
             + ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName()
             + ", "
@@ -232,10 +231,9 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
   private Pair<Literal, Literal> computeRangeHint(Attribute attribute, boolean isDryRun) {
     // Build the query.
     // SELECT MIN(attr) AS minVal, MAX(attr) AS maxVal FROM (SELECT * FROM indextable)
-    BQApiTranslator bqTranslator = new BQApiTranslator();
 
     BQTable innerQueryTable =
-        new BQTable("SELECT * FROM " + indexAttributesTable.getTablePointer().renderForQuery());
+        new BQTable("SELECT * FROM " + indexAttributesTable.getTablePointer().render());
     SqlField attrField =
         SqlField.of(
             indexAttributesTable.getAttributeValueField(attribute.getName()).getColumnName());
@@ -243,13 +241,13 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     final String maxValAlias = "maxVal";
     String selectMinMaxSql =
         "SELECT "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(attrField.cloneWithFunctionWrapper("MIN"), minValAlias))
+            + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MIN"), minValAlias)
+                .renderForSelect()
             + ", "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(attrField.cloneWithFunctionWrapper("MAX"), maxValAlias))
+            + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MAX"), maxValAlias)
+                .renderForSelect()
             + " FROM "
-            + innerQueryTable.renderForQuery();
+            + innerQueryTable.render();
 
     // Execute the query.
     QueryJobConfiguration queryConfig =
@@ -300,20 +298,19 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     final String enumDispAlias = "enumDisp";
     final String enumCountAlias = "enumCount";
 
-    BQApiTranslator bqTranslator = new BQApiTranslator();
     String selectEnumCountSql =
         "SELECT "
-            + bqTranslator.selectSql(SqlQueryField.of(attrValField, enumValAlias))
+            + SqlQueryField.of(attrValField, enumValAlias).renderForSelect()
             + ", "
-            + bqTranslator.selectSql(SqlQueryField.of(attrDispField, enumDispAlias))
+            + SqlQueryField.of(attrDispField, enumDispAlias).renderForSelect()
             + ", COUNT(*) AS "
             + enumCountAlias
             + " FROM "
-            + indexAttributesTable.getTablePointer().renderForQuery()
+            + indexAttributesTable.getTablePointer().render()
             + " GROUP BY "
-            + bqTranslator.groupBySql(SqlQueryField.of(attrValField, enumValAlias), null, true)
+            + SqlQueryField.of(attrValField, enumValAlias).renderForGroupBy(null, true)
             + ", "
-            + bqTranslator.groupBySql(SqlQueryField.of(attrDispField, enumDispAlias), null, true);
+            + SqlQueryField.of(attrDispField, enumDispAlias).renderForGroupBy(null, true);
 
     // Execute the query.
     QueryJobConfiguration queryConfig =

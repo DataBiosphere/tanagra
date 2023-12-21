@@ -21,5 +21,5 @@ public abstract class SqlTable {
     return sql;
   }
 
-  public abstract String renderForQuery();
+  public abstract String render();
 }

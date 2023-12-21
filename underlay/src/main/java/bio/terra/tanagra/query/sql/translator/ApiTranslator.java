@@ -25,10 +25,10 @@ import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
+import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanAndOrFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanNotFilterTranslator;
 import java.util.ArrayList;
@@ -46,62 +46,8 @@ public interface ApiTranslator {
   String FUNCTION_TEMPLATE_VALUES_VAR = "values";
   String FUNCTION_TEMPLATE_VALUES_VAR_BRACES = "${" + FUNCTION_TEMPLATE_VALUES_VAR + "}";
 
-  default String selectSql(SqlQueryField sqlQueryField) {
-    return fieldSql(sqlQueryField, null, false);
-  }
-
-  default String selectSql(SqlQueryField sqlQueryField, @Nullable String tableAlias) {
-    return fieldSql(sqlQueryField, tableAlias, false);
-  }
-
-  default String whereSql(SqlField field, @Nullable String tableAlias) {
-    return fieldSql(SqlQueryField.of(field), tableAlias, false);
-  }
-
-  default String orderBySql(
-      SqlQueryField sqlQueryField, @Nullable String tableAlias, boolean fieldIsSelected) {
-    if (fieldIsSelected) {
-      String alias = sqlQueryField.getAlias();
-      return alias == null || alias.isEmpty() ? sqlQueryField.getField().getColumnName() : alias;
-    } else {
-      return fieldSql(sqlQueryField, tableAlias, true);
-    }
-  }
-
   default String orderByRandSql() {
     return "RAND()";
-  }
-
-  default String groupBySql(
-      SqlQueryField sqlQueryField, @Nullable String tableAlias, boolean fieldIsSelected) {
-    if (fieldIsSelected) {
-      String alias = sqlQueryField.getAlias();
-      return alias == null || alias.isEmpty() ? sqlQueryField.getField().getColumnName() : alias;
-    } else {
-      return fieldSql(sqlQueryField, tableAlias, true);
-    }
-  }
-
-  default String fieldSql(
-      SqlQueryField sqlQueryField, @Nullable String tableAlias, boolean isForOrderOrGroupBy) {
-    SqlField field = sqlQueryField.getField();
-    String alias = sqlQueryField.getAlias();
-    String baseFieldSql =
-        tableAlias == null ? field.getColumnName() : (tableAlias + '.' + field.getColumnName());
-    if (!field.hasFunctionWrapper()) {
-      if (field.getColumnName().equals(alias)) {
-        alias = null;
-      }
-    } else if (field.getFunctionWrapper().contains(FUNCTION_TEMPLATE_FIELD_VAR_BRACES)) {
-      baseFieldSql =
-          StringSubstitutor.replace(
-              field.getFunctionWrapper(), Map.of(FUNCTION_TEMPLATE_FIELD_VAR, baseFieldSql));
-    } else {
-      baseFieldSql = field.getFunctionWrapper() + '(' + baseFieldSql + ')';
-    }
-    return isForOrderOrGroupBy || alias == null || alias.isEmpty()
-        ? baseFieldSql
-        : (baseFieldSql + " AS " + alias);
   }
 
   default String orderByDirectionSql(OrderByDirection orderByDirection) {
@@ -143,7 +89,7 @@ public interface ApiTranslator {
     values.stream().forEach(value -> valueParamNames.add(sqlParams.addParam("val", value)));
     Map<String, String> substitutorParams =
         Map.of(
-            FUNCTION_TEMPLATE_FIELD_VAR, whereSql(field, tableAlias),
+            FUNCTION_TEMPLATE_FIELD_VAR, SqlQueryField.of(field).renderForWhere(tableAlias),
             FUNCTION_TEMPLATE_VALUES_VAR,
                 valueParamNames.stream()
                     .map(valueParamName -> '@' + valueParamName)
@@ -178,21 +124,21 @@ public interface ApiTranslator {
       SqlField whereField,
       @Nullable String tableAlias,
       SqlField selectField,
-      BQTable table,
+      SqlTable table,
       String filterSql,
       SqlParams sqlParams,
       Literal... unionAllLiterals) {
     List<String> selectSqls = new ArrayList<>();
     selectSqls.add(
         "SELECT "
-            + selectSql(SqlQueryField.of(selectField))
+            + SqlQueryField.of(selectField).renderForSelect()
             + " FROM "
-            + table.renderForQuery()
+            + table.render()
             + " WHERE "
             + filterSql);
     Arrays.stream(unionAllLiterals)
         .forEach(literal -> selectSqls.add("SELECT @" + sqlParams.addParam("val", literal)));
-    return whereSql(whereField, tableAlias)
+    return SqlQueryField.of(whereField).renderForWhere(tableAlias)
         + " IN ("
         + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
         + ')';
@@ -227,7 +173,7 @@ public interface ApiTranslator {
     sqlParams.addParam("groupByCount", new Literal(groupByCount));
     return "GROUP BY "
         + groupByFields.stream()
-            .map(groupByField -> whereSql(groupByField, tableAlias))
+            .map(groupByField -> SqlQueryField.of(groupByField).renderForWhere(tableAlias))
             .collect(Collectors.joining(","))
         + " HAVING COUNT(*) "
         + binaryOperatorSql(groupByOperator)

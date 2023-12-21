@@ -5,7 +5,6 @@ import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.CountUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
 import bio.terra.tanagra.query.bigquery.BQTable;
-import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.ColumnSchema;
@@ -194,14 +193,12 @@ public class WriteRollupCounts extends BigQueryJob {
 
     // Build a query to select all ids from the index entity main table, and the pipeline step to
     // read the results.
-    BQApiTranslator bqTranslator = new BQApiTranslator();
     String allIdsSql =
         "SELECT "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(
-                    indexTable.getAttributeValueField(entity.getIdAttribute().getName())))
+            + SqlQueryField.of(indexTable.getAttributeValueField(entity.getIdAttribute().getName()))
+                .renderForSelect()
             + " FROM "
-            + indexTable.getTablePointer().renderForQuery();
+            + indexTable.getTablePointer().render();
     LOGGER.info("index all ids query: {}", allIdsSql);
     PCollection<Long> allNodesPC =
         BigQueryBeamUtils.readNodesFromBQ(
@@ -218,11 +215,11 @@ public class WriteRollupCounts extends BigQueryJob {
           indexTable.getAttributeValueField(relationship.getForeignKeyAttribute(entity).getName());
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlQueryField.of(entityIdField))
+              + SqlQueryField.of(entityIdField).renderForSelect()
               + ", "
-              + bqTranslator.selectSql(SqlQueryField.of(countedEntityIdField))
+              + SqlQueryField.of(countedEntityIdField).renderForSelect()
               + " FROM "
-              + indexTable.getTablePointer().renderForQuery();
+              + indexTable.getTablePointer().render();
     } else if (relationship.isForeignKeyAttribute(countedEntity)) {
       SqlField entityIdField =
           countedEntityIndexTable.getAttributeValueField(
@@ -231,22 +228,22 @@ public class WriteRollupCounts extends BigQueryJob {
           countedEntityIndexTable.getAttributeValueField(countedEntity.getIdAttribute().getName());
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlQueryField.of(entityIdField))
+              + SqlQueryField.of(entityIdField).renderForSelect()
               + ", "
-              + bqTranslator.selectSql(SqlQueryField.of(countedEntityIdField))
+              + SqlQueryField.of(countedEntityIdField).renderForSelect()
               + " FROM "
-              + countedEntityIndexTable.getTablePointer().renderForQuery();
+              + countedEntityIndexTable.getTablePointer().render();
     } else { // relationship.isIntermediateTable()
       SqlField entityIdField = relationshipIdPairsIndexTable.getEntityIdField(entity.getName());
       SqlField countedEntityIdField =
           relationshipIdPairsIndexTable.getEntityIdField(countedEntity.getName());
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlQueryField.of(entityIdField))
+              + SqlQueryField.of(entityIdField).renderForSelect()
               + ", "
-              + bqTranslator.selectSql(SqlQueryField.of(countedEntityIdField))
+              + SqlQueryField.of(countedEntityIdField).renderForSelect()
               + " FROM "
-              + relationshipIdPairsIndexTable.getTablePointer().renderForQuery();
+              + relationshipIdPairsIndexTable.getTablePointer().render();
     }
     LOGGER.info("index entity-countedEntity id pairs query: {}", idPairsSql);
     PCollection<KV<Long, Long>> idPairsPC =
@@ -258,7 +255,7 @@ public class WriteRollupCounts extends BigQueryJob {
       // Build a query to select all ancestor-descendant pairs from the ancestor-descendant table,
       // and the pipeline step to read the results.
       String ancestorDescendantSql =
-          "SELECT * FROM " + ancestorDescendantTable.getTablePointer().renderForQuery();
+          "SELECT * FROM " + ancestorDescendantTable.getTablePointer().render();
       LOGGER.info("ancestor-descendant query: {}", ancestorDescendantSql);
       PCollection<KV<Long, Long>> ancestorDescendantRelationshipsPC =
           BigQueryBeamUtils.readTwoFieldRowsFromBQ(
@@ -361,14 +358,13 @@ public class WriteRollupCounts extends BigQueryJob {
             getTempTableName());
     SqlField tempTableIdField = SqlField.of(entityTableIdField.getColumnName());
     SqlField tempTableCountField = SqlField.of(entityTableCountField.getColumnName());
-    BQApiTranslator bqTranslator = new BQApiTranslator();
     String tempTableSql =
         "SELECT "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField))
+            + SqlQueryField.of(tempTableIdField).renderForSelect()
             + ", "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableCountField))
+            + SqlQueryField.of(tempTableCountField).renderForSelect()
             + " FROM "
-            + tempBQTable.renderForQuery();
+            + tempBQTable.render();
     LOGGER.info("temp table query: {}", tempTableSql);
 
     // Build an update-from-select query for the index entity main table and the
@@ -377,25 +373,25 @@ public class WriteRollupCounts extends BigQueryJob {
     String tempTableAlias = "temptable";
     String updateFromSelectSql =
         "UPDATE "
-            + indexTable.getTablePointer().renderForQuery()
+            + indexTable.getTablePointer().render()
             + " AS "
             + updateTableAlias
             + " SET "
-            + bqTranslator.selectSql(SqlQueryField.of(entityTableCountField), updateTableAlias)
+            + SqlQueryField.of(entityTableCountField).renderForSelect(updateTableAlias)
             + " = "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableCountField), tempTableAlias)
+            + SqlQueryField.of(tempTableCountField).renderForSelect(tempTableAlias)
             + " FROM (SELECT "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableCountField))
+            + SqlQueryField.of(tempTableCountField).renderForSelect()
             + ", "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField))
+            + SqlQueryField.of(tempTableIdField).renderForSelect()
             + " FROM "
-            + tempBQTable.renderForQuery()
+            + tempBQTable.render()
             + ") AS "
             + tempTableAlias
             + " WHERE "
-            + bqTranslator.selectSql(SqlQueryField.of(entityTableIdField), updateTableAlias)
+            + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
             + " = "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField), tempTableAlias);
+            + SqlQueryField.of(tempTableIdField).renderForSelect(tempTableAlias);
     LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the count field in the index entity main table.

@@ -3,7 +3,6 @@ package bio.terra.tanagra.indexing.job.bigquery;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.query.bigquery.BQTable;
-import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -59,7 +58,6 @@ public class WriteTextSearchField extends BigQueryJob {
     List<String> idTextSqls = new ArrayList<>();
     final String idAlias = "idVal";
     final String textAlias = "textVal";
-    BQApiTranslator bqTranslator = new BQApiTranslator();
 
     // Build a query for each id-attribute pair.
     // SELECT id AS idVal, attrDisp AS textVal FROM entityMain
@@ -82,11 +80,11 @@ public class WriteTextSearchField extends BigQueryJob {
 
               String idTextSql =
                   "SELECT "
-                      + bqTranslator.selectSql(SqlQueryField.of(entityTableIdField, idAlias))
+                      + SqlQueryField.of(entityTableIdField, idAlias).renderForSelect()
                       + ", "
-                      + bqTranslator.selectSql(SqlQueryField.of(attributeTextField, textAlias))
+                      + SqlQueryField.of(attributeTextField, textAlias).renderForSelect()
                       + " FROM "
-                      + indexTable.getTablePointer().renderForQuery();
+                      + indexTable.getTablePointer().render();
               idTextSqls.add(idTextSql);
             });
 
@@ -95,11 +93,11 @@ public class WriteTextSearchField extends BigQueryJob {
     if (sourceTable != null) {
       String idTextSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlQueryField.of(sourceTable.getIdField(), idAlias))
+              + SqlQueryField.of(sourceTable.getIdField(), idAlias).renderForSelect()
               + ", "
-              + bqTranslator.selectSql(SqlQueryField.of(sourceTable.getTextField(), textAlias))
+              + SqlQueryField.of(sourceTable.getTextField(), textAlias).renderForSelect()
               + " FROM "
-              + sourceTable.getTablePointer().renderForQuery();
+              + sourceTable.getTablePointer().render();
       idTextSqls.add(idTextSql);
     }
 
@@ -115,13 +113,13 @@ public class WriteTextSearchField extends BigQueryJob {
     SqlField tempTableTextField = SqlField.of(textAlias, "STRING_AGG");
     String selectTextConcatSql =
         "SELECT "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField))
+            + SqlQueryField.of(tempTableIdField).renderForSelect()
             + ", "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableTextField, textAlias))
+            + SqlQueryField.of(tempTableTextField, textAlias).renderForSelect()
             + " FROM "
-            + unionAllTable.renderForQuery()
+            + unionAllTable.render()
             + " GROUP BY "
-            + bqTranslator.groupBySql(SqlQueryField.of(tempTableIdField), null, true);
+            + SqlQueryField.of(tempTableIdField).renderForGroupBy(null, true);
     LOGGER.info("idTextPairs union query: {}", selectTextConcatSql);
 
     // Build an update-from-select query for the index entity main table and the id text pairs
@@ -130,20 +128,19 @@ public class WriteTextSearchField extends BigQueryJob {
     String tempTableAlias = "temptable";
     String updateFromSelectSql =
         "UPDATE "
-            + indexTable.getTablePointer().renderForQuery()
+            + indexTable.getTablePointer().render()
             + " AS "
             + updateTableAlias
             + " SET "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(indexTable.getTextSearchField()), updateTableAlias)
+            + SqlQueryField.of(indexTable.getTextSearchField()).renderForSelect(updateTableAlias)
             + " = "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableTextField), tempTableAlias)
+            + SqlQueryField.of(tempTableTextField).renderForSelect(tempTableAlias)
             + " FROM ("
             + selectTextConcatSql
             + ") WHERE "
-            + bqTranslator.selectSql(SqlQueryField.of(entityTableIdField), updateTableAlias)
+            + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
             + " = "
-            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField), tempTableAlias);
+            + SqlQueryField.of(tempTableIdField).renderForSelect(tempTableAlias);
     LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the text search field in the index entity main table.

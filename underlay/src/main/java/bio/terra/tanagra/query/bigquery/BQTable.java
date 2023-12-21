@@ -23,7 +23,7 @@ public class BQTable extends SqlTable {
   }
 
   @Override
-  public String renderForQuery() {
+  public String render() {
     if (isRawSql()) {
       return "(" + sql + ")";
     } else {

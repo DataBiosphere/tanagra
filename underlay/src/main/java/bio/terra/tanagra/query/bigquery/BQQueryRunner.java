@@ -93,13 +93,13 @@ public class BQQueryRunner implements QueryRunner {
         .forEach(
             valueDisplayField ->
                 bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
-                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField))));
+                    .forEach(sqlField -> selectFields.add(sqlField.renderForSelect())));
 
     // SELECT [select fields] FROM [entity main]
     sql.append("SELECT ")
         .append(selectFields.stream().collect(Collectors.joining(", ")))
         .append(" FROM ")
-        .append(entityMain.getTablePointer().renderForQuery());
+        .append(entityMain.getTablePointer().render());
 
     // WHERE [filter]
     if (listQueryRequest.getFilter() != null) {
@@ -122,8 +122,7 @@ public class BQQueryRunner implements QueryRunner {
                       .forEach(
                           sqlField ->
                               orderByFields.add(
-                                  bqTranslator.orderBySql(
-                                          sqlField,
+                                  sqlField.renderForOrderBy(
                                           null,
                                           listQueryRequest
                                               .getSelectFields()
@@ -172,13 +171,13 @@ public class BQQueryRunner implements QueryRunner {
         .forEach(
             valueDisplayField ->
                 bqTranslator.translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
-                    .forEach(sqlField -> selectFields.add(bqTranslator.selectSql(sqlField))));
+                    .forEach(sqlField -> selectFields.add(sqlField.renderForSelect())));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
     sql.append("SELECT ")
         .append(selectFields.stream().collect(Collectors.joining(", ")))
         .append(" FROM ")
-        .append(entityMain.getTablePointer().renderForQuery());
+        .append(entityMain.getTablePointer().render());
 
     // WHERE [filter]
     if (countQueryRequest.getFilter() != null) {
@@ -194,8 +193,7 @@ public class BQQueryRunner implements QueryRunner {
               groupBy ->
                   bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy().stream()
                       .forEach(
-                          sqlField ->
-                              groupByFields.add(bqTranslator.groupBySql(sqlField, null, true))));
+                          sqlField -> groupByFields.add(sqlField.renderForGroupBy(null, true))));
       sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
     }
 
@@ -264,7 +262,7 @@ public class BQQueryRunner implements QueryRunner {
               .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
 
       // SELECT * FROM [entity-level hint]
-      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().renderForQuery());
+      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().render());
     } else {
       ITInstanceLevelDisplayHints ildhTable =
           hintQueryRequest
@@ -276,7 +274,7 @@ public class BQQueryRunner implements QueryRunner {
                   hintQueryRequest.getRelatedEntity().getName());
 
       // SELECT * FROM [instance-level hint]
-      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().renderForQuery());
+      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().render());
 
       // WHERE [filter on related entity id]
       String relatedEntityIdParam =

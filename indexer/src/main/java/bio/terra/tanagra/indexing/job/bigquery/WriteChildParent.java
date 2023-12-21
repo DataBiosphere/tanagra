@@ -1,7 +1,6 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -44,20 +43,19 @@ public class WriteChildParent extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    BQApiTranslator bqTranslator = new BQApiTranslator();
     String sourceChildParentSql =
         "SELECT "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(
+            + SqlQueryField.of(
                     sourceTable.getChildField(),
-                    ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName()))
+                    ITHierarchyChildParent.Column.CHILD.getSchema().getColumnName())
+                .renderForSelect()
             + ", "
-            + bqTranslator.selectSql(
-                SqlQueryField.of(
+            + SqlQueryField.of(
                     sourceTable.getParentField(),
-                    ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()))
+                    ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName())
+                .renderForSelect()
             + " FROM "
-            + sourceTable.getTablePointer().renderForQuery();
+            + sourceTable.getTablePointer().render();
     LOGGER.info("source child-parent query: {}", sourceChildParentSql);
 
     // Create a new table directly from the select query.
