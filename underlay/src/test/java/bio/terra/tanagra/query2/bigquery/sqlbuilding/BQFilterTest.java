@@ -12,12 +12,12 @@ import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
-import bio.terra.tanagra.query.FunctionTemplate;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -35,11 +35,7 @@ public class BQFilterTest extends BQRunnerTest {
     Attribute attribute = entity.getAttribute("year_of_birth");
     AttributeFilter attributeFilter =
         new AttributeFilter(
-            underlay,
-            entity,
-            attribute,
-            BinaryFilterVariable.BinaryOperator.NOT_EQUALS,
-            new Literal(1956));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, new Literal(1956));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
@@ -54,8 +50,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
 
     // Filter with function template.
@@ -88,17 +83,11 @@ public class BQFilterTest extends BQRunnerTest {
     Attribute attribute = entity.getAttribute("concept_code");
     AttributeFilter attributeFilter =
         new AttributeFilter(
-            underlay,
-            entity,
-            attribute,
-            BinaryFilterVariable.BinaryOperator.NOT_EQUALS,
-            new Literal("1956"));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, new Literal("1956"));
     TextSearchFilter textSearchFilter =
         new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "44054006", null);
     BooleanAndOrFilter booleanAndOrFilter =
-        new BooleanAndOrFilter(
-            BooleanAndOrFilterVariable.LogicalOperator.AND,
-            List.of(attributeFilter, textSearchFilter));
+        new BooleanAndOrFilter(LogicalOperator.AND, List.of(attributeFilter, textSearchFilter));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -113,8 +102,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanAndOrFilter", listQueryResult.getSql(), table);
   }
 
@@ -124,11 +112,7 @@ public class BQFilterTest extends BQRunnerTest {
     Attribute attribute = entity.getAttribute("year_of_birth");
     AttributeFilter attributeFilter =
         new AttributeFilter(
-            underlay,
-            entity,
-            attribute,
-            BinaryFilterVariable.BinaryOperator.NOT_EQUALS,
-            new Literal(1956));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, new Literal(1956));
     BooleanNotFilter booleanNotFilter = new BooleanNotFilter(attributeFilter);
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
@@ -144,8 +128,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanNotFilter", listQueryResult.getSql(), table);
   }
 
@@ -169,9 +152,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer entityMainTable =
+    SqlTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    TablePointer ancestorDescendantTable =
+    SqlTable ancestorDescendantTable =
         underlay
             .getIndexSchema()
             .getHierarchyAncestorDescendant(entity.getName(), Hierarchy.DEFAULT_NAME)
@@ -203,9 +186,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer entityMainTable =
+    SqlTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    TablePointer childParentTable =
+    SqlTable childParentTable =
         underlay
             .getIndexSchema()
             .getHierarchyChildParent(entity.getName(), Hierarchy.DEFAULT_NAME)
@@ -233,8 +216,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsMemberFilter", listQueryResult.getSql(), table);
   }
 
@@ -257,8 +239,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsRootFilter", listQueryResult.getSql(), table);
   }
 
@@ -275,7 +256,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getIdAttribute(),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal(456L));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
@@ -302,9 +283,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer occurrenceTable =
+    SqlTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    TablePointer primaryTable =
+    SqlTable primaryTable =
         underlay
             .getIndexSchema()
             .getEntityMain(underlay.getPrimaryEntity().getName())
@@ -321,7 +302,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttribute("gender"),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal(8_207L));
     relationshipFilter =
         new RelationshipFilter(
@@ -365,7 +346,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("person_id"),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal(15));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
@@ -396,9 +377,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer occurrenceTable =
+    SqlTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    TablePointer primaryTable =
+    SqlTable primaryTable =
         underlay
             .getIndexSchema()
             .getEntityMain(underlay.getPrimaryEntity().getName())
@@ -456,7 +437,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getIdAttribute(),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal(15));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
@@ -487,17 +468,17 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer groupTable =
+    SqlTable groupTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getGroupEntity().getName())
             .getTablePointer();
-    TablePointer itemsTable =
+    SqlTable itemsTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getItemsEntity().getName())
             .getTablePointer();
-    TablePointer idPairsTable =
+    SqlTable idPairsTable =
         underlay
             .getIndexSchema()
             .getRelationshipIdPairs(
@@ -518,7 +499,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getAttribute("concept_code"),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal("161"));
     relationshipFilter =
         new RelationshipFilter(
@@ -562,7 +543,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("person_id"),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal(15));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
@@ -572,7 +553,7 @@ public class BQFilterTest extends BQRunnerTest {
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             attributeFilter,
             occurrenceEntity.getAttribute("start_date"),
-            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+            BinaryOperator.GREATER_THAN,
             1);
     AttributeField simpleAttribute =
         new AttributeField(
@@ -593,9 +574,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer occurrenceTable =
+    SqlTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    TablePointer primaryTable =
+    SqlTable primaryTable =
         underlay
             .getIndexSchema()
             .getEntityMain(underlay.getPrimaryEntity().getName())
@@ -622,7 +603,7 @@ public class BQFilterTest extends BQRunnerTest {
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             attributeFilter,
             occurrenceEntity.getAttribute("start_date"),
-            BinaryFilterVariable.BinaryOperator.GREATER_THAN,
+            BinaryOperator.GREATER_THAN,
             1);
     listQueryResult =
         bqQueryRunner.run(
@@ -653,7 +634,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getIdAttribute(),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal(15));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
@@ -663,7 +644,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getGroupItemsRelationship(),
             attributeFilter,
             null,
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             1);
     AttributeField simpleAttribute =
         new AttributeField(
@@ -684,17 +665,17 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer groupTable =
+    SqlTable groupTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getGroupEntity().getName())
             .getTablePointer();
-    TablePointer itemsTable =
+    SqlTable itemsTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getItemsEntity().getName())
             .getTablePointer();
-    TablePointer idPairsTable =
+    SqlTable idPairsTable =
         underlay
             .getIndexSchema()
             .getRelationshipIdPairs(
@@ -715,7 +696,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getAttribute("concept_code"),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             new Literal("161"));
     relationshipFilter =
         new RelationshipFilter(
@@ -725,7 +706,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getGroupItemsRelationship(),
             attributeFilter,
             null,
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             1);
     listQueryResult =
         bqQueryRunner.run(
@@ -766,8 +747,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("textSearchFilterIndex", listQueryResult.getSql(), table);
 
     textSearchFilter =

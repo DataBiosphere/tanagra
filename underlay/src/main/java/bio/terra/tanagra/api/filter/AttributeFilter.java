@@ -1,8 +1,8 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.query.FunctionTemplate;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -13,7 +13,7 @@ public class AttributeFilter extends EntityFilter {
   private final Underlay underlay;
   private final Entity entity;
   private final Attribute attribute;
-  private final BinaryFilterVariable.BinaryOperator operator;
+  private final BinaryOperator operator;
   private final FunctionTemplate functionTemplate;
   private final ImmutableList<Literal> values;
 
@@ -21,7 +21,7 @@ public class AttributeFilter extends EntityFilter {
       Underlay underlay,
       Entity entity,
       Attribute attribute,
-      BinaryFilterVariable.BinaryOperator operator,
+      BinaryOperator operator,
       Literal value) {
     this.underlay = underlay;
     this.entity = entity;
@@ -57,7 +57,7 @@ public class AttributeFilter extends EntityFilter {
     return entity;
   }
 
-  public BinaryFilterVariable.BinaryOperator getOperator() {
+  public BinaryOperator getOperator() {
     return operator;
   }
 

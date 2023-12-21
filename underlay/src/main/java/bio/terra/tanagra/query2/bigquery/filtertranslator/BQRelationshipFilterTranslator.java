@@ -2,7 +2,7 @@ package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.exception.InvalidQueryException;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
@@ -37,7 +37,7 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
         relationshipFilter
             .getRelationship()
             .getForeignKeyAttribute(relationshipFilter.getSelectEntity());
-    FieldPointer foreignKeyField =
+    SqlField foreignKeyField =
         relationshipFilter
             .getUnderlay()
             .getIndexSchema()
@@ -61,7 +61,7 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
               .getUnderlay()
               .getIndexSchema()
               .getEntityMain(relationshipFilter.getFilterEntity().getName());
-      FieldPointer filterEntityIdField =
+      SqlField filterEntityIdField =
           filterEntityTable.getAttributeValueField(
               relationshipFilter.getFilterEntity().getIdAttribute().getName());
       String inSelectFilterSql =
@@ -90,14 +90,14 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(relationshipFilter.getFilterEntity().getName());
-    FieldPointer foreignKeyField =
+    SqlField foreignKeyField =
         filterEntityTable.getAttributeValueField(foreignKeyAttribute.getName());
     ITEntityMain selectEntityTable =
         relationshipFilter
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(relationshipFilter.getSelectEntity().getName());
-    FieldPointer selectIdField =
+    SqlField selectIdField =
         selectEntityTable.getAttributeValueField(
             relationshipFilter.getSelectEntity().getIdAttribute().getName());
     if (sqlTranslator
@@ -115,7 +115,7 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
       String inSelectFilterSql =
           sqlTranslator.translator(relationshipFilter.getSubFilter()).buildSql(sqlParams, null);
       if (relationshipFilter.hasGroupByFilter()) {
-        List<FieldPointer> groupByFields = new ArrayList<>();
+        List<SqlField> groupByFields = new ArrayList<>();
         groupByFields.add(foreignKeyField);
         if (relationshipFilter.hasGroupByCountAttribute()) {
           groupByFields.add(
@@ -147,7 +147,7 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(relationshipFilter.getSelectEntity().getName());
-    FieldPointer selectIdField =
+    SqlField selectIdField =
         selectEntityTable.getAttributeValueField(
             relationshipFilter.getSelectEntity().getIdAttribute().getName());
     ITRelationshipIdPairs idPairsTable =
@@ -158,9 +158,9 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
                 relationshipFilter.getEntityGroup().getName(),
                 relationshipFilter.getRelationship().getEntityA().getName(),
                 relationshipFilter.getRelationship().getEntityB().getName());
-    FieldPointer selectIdIntTable =
+    SqlField selectIdIntTable =
         idPairsTable.getEntityIdField(relationshipFilter.getSelectEntity().getName());
-    FieldPointer filterIdIntTable =
+    SqlField filterIdIntTable =
         idPairsTable.getEntityIdField(relationshipFilter.getFilterEntity().getName());
     if (sqlTranslator
             .translator(relationshipFilter.getSubFilter())
@@ -205,7 +205,7 @@ public class BQRelationshipFilterTranslator extends SqlFilterTranslator {
               .getUnderlay()
               .getIndexSchema()
               .getEntityMain(relationshipFilter.getFilterEntity().getName());
-      FieldPointer filterEntityIdField =
+      SqlField filterEntityIdField =
           filterEntityTable.getAttributeValueField(
               relationshipFilter.getFilterEntity().getIdAttribute().getName());
       String subFilterSql =

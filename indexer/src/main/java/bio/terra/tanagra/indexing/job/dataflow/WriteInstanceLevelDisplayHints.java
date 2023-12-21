@@ -1,12 +1,12 @@
 package bio.terra.tanagra.indexing.job.dataflow;
 
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
@@ -141,8 +141,8 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
               if (attribute.isValueDisplay()) {
                 LOGGER.info("enum val hint: {}", attribute.getName());
                 enumValHint(occCriIdPairKVs, occPriIdPairKVs, occIdRowKVs, attribute);
-              } else if (Literal.DataType.INT64.equals(attribute.getDataType())
-                  || Literal.DataType.DOUBLE.equals(attribute.getDataType())) {
+              } else if (DataType.INT64.equals(attribute.getDataType())
+                  || DataType.DOUBLE.equals(attribute.getDataType())) {
                 LOGGER.info("numeric range hint: {}", attribute.getName());
                 numericRangeHint(occCriIdPairKVs, occIdRowKVs, attribute);
               } // TODO: Calculate display hints for other data types.
@@ -202,41 +202,41 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
     BQTranslator bqTranslator = new BQTranslator();
     String idPairsSql;
     if (relationship.isForeignKeyAttributeEntityA()) {
-      FieldPointer entityAIdField =
+      SqlField entityAIdField =
           entityAIndexTable.getAttributeValueField(
               relationship.getEntityA().getIdAttribute().getName());
-      FieldPointer entityBIdField =
+      SqlField entityBIdField =
           entityAIndexTable.getAttributeValueField(
               relationship.getForeignKeyAttributeEntityA().getName());
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlField.of(entityAIdField, entityAIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName), null)
               + ", "
-              + bqTranslator.selectSql(SqlField.of(entityBIdField, entityBIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName), null)
               + " FROM "
               + entityAIndexTable.getTablePointer().renderSQL();
     } else if (relationship.isForeignKeyAttributeEntityB()) {
-      FieldPointer entityAIdField =
+      SqlField entityAIdField =
           entityBIndexTable.getAttributeValueField(
               relationship.getForeignKeyAttributeEntityB().getName());
-      FieldPointer entityBIdField =
+      SqlField entityBIdField =
           entityBIndexTable.getAttributeValueField(
               relationship.getEntityB().getIdAttribute().getName());
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlField.of(entityAIdField, entityAIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName), null)
               + ", "
-              + bqTranslator.selectSql(SqlField.of(entityBIdField, entityBIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName), null)
               + " FROM "
               + entityBIndexTable.getTablePointer().renderSQL();
     } else { // relationship.isIntermediateTable()
-      FieldPointer entityAIdField = relationshipIdPairsTable.getEntityAIdField();
-      FieldPointer entityBIdField = relationshipIdPairsTable.getEntityBIdField();
+      SqlField entityAIdField = relationshipIdPairsTable.getEntityAIdField();
+      SqlField entityBIdField = relationshipIdPairsTable.getEntityBIdField();
       idPairsSql =
           "SELECT "
-              + bqTranslator.selectSql(SqlField.of(entityAIdField, entityAIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityAIdField, entityAIdColumnName), null)
               + ", "
-              + bqTranslator.selectSql(SqlField.of(entityBIdField, entityBIdColumnName), null)
+              + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName), null)
               + " FROM "
               + relationshipIdPairsTable.getTablePointer().renderSQL();
     }

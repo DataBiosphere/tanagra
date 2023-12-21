@@ -1,4 +1,4 @@
-package bio.terra.tanagra.query;
+package bio.terra.tanagra.api.query;
 
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;

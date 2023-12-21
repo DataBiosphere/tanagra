@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -46,7 +46,7 @@ public final class ITRelationshipIdPairs extends IndexTable {
   }
 
   @Override
-  public ImmutableList<ColumnSchema> getColumnSchemas() {
+  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity.
     return ImmutableList.copyOf(
         Arrays.stream(Column.values())
@@ -54,35 +54,35 @@ public final class ITRelationshipIdPairs extends IndexTable {
             .collect(Collectors.toList()));
   }
 
-  public FieldPointer getEntityAIdField() {
-    return new FieldPointer.Builder()
+  public SqlField getEntityAIdField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(Column.ENTITY_A_ID.getSchema().getColumnName())
         .build();
   }
 
-  public FieldPointer getEntityBIdField() {
-    return new FieldPointer.Builder()
+  public SqlField getEntityBIdField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(Column.ENTITY_B_ID.getSchema().getColumnName())
         .build();
   }
 
-  public FieldPointer getEntityIdField(String entity) {
+  public SqlField getEntityIdField(String entity) {
     return entity.equals(entityA) ? getEntityAIdField() : getEntityBIdField();
   }
 
   public enum Column {
-    ENTITY_A_ID(new ColumnSchema("entity_A_id", CellValue.SQLDataType.INT64)),
-    ENTITY_B_ID(new ColumnSchema("entity_B_id", CellValue.SQLDataType.INT64));
+    ENTITY_A_ID(new SqlColumnSchema("entity_A_id", DataType.INT64)),
+    ENTITY_B_ID(new SqlColumnSchema("entity_B_id", DataType.INT64));
 
-    private final ColumnSchema schema;
+    private final SqlColumnSchema schema;
 
-    Column(ColumnSchema schema) {
+    Column(SqlColumnSchema schema) {
       this.schema = schema;
     }
 
-    public ColumnSchema getSchema() {
+    public SqlColumnSchema getSchema() {
       return schema;
     }
   }

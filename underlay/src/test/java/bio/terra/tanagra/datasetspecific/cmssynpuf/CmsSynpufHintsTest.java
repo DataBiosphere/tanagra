@@ -1,9 +1,9 @@
 package bio.terra.tanagra.datasetspecific.cmssynpuf;
 
-import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.hint.HintInstance;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.datasetspecific.BaseHintsTest;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
 import java.util.Map;

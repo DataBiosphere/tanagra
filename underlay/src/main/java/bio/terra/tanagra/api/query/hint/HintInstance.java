@@ -1,7 +1,7 @@
 package bio.terra.tanagra.api.query.hint;
 
-import bio.terra.tanagra.api.query.ValueDisplay;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;

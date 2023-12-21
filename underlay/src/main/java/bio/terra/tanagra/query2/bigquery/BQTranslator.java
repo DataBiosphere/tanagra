@@ -14,7 +14,7 @@ import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
-import bio.terra.tanagra.query.FunctionTemplate;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQEntityIdCountFieldTranslator;
 import bio.terra.tanagra.query2.bigquery.fieldtranslator.BQHierarchyIsMemberFieldTranslator;

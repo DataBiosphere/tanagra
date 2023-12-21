@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -168,7 +168,7 @@ public class BaseAccessControlTest {
             AnnotationKey.builder()
                 .displayName("annotation key 1")
                 .description("first annotation key")
-                .dataType(Literal.DataType.BOOLEAN));
+                .dataType(DataType.BOOLEAN));
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotation key {}", annotationKey1.getId());
     annotationKey2 =
@@ -178,7 +178,7 @@ public class BaseAccessControlTest {
             AnnotationKey.builder()
                 .displayName("annotation key 2")
                 .description("second annotation key")
-                .dataType(Literal.DataType.INT64));
+                .dataType(DataType.INT64));
     assertNotNull(annotationKey2);
     LOGGER.info("Created annotation key {}", annotationKey2.getId());
   }

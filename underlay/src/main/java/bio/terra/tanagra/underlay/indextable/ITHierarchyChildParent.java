@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -35,7 +35,7 @@ public final class ITHierarchyChildParent extends IndexTable {
   }
 
   @Override
-  public ImmutableList<ColumnSchema> getColumnSchemas() {
+  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity or hierarchy.
     return ImmutableList.copyOf(
         Arrays.stream(Column.values())
@@ -43,31 +43,31 @@ public final class ITHierarchyChildParent extends IndexTable {
             .collect(Collectors.toList()));
   }
 
-  public FieldPointer getChildField() {
-    return new FieldPointer.Builder()
+  public SqlField getChildField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(Column.CHILD.getSchema().getColumnName())
         .build();
   }
 
-  public FieldPointer getParentField() {
-    return new FieldPointer.Builder()
+  public SqlField getParentField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(Column.PARENT.getSchema().getColumnName())
         .build();
   }
 
   public enum Column {
-    CHILD(new ColumnSchema("child", CellValue.SQLDataType.INT64)),
-    PARENT(new ColumnSchema("parent", CellValue.SQLDataType.INT64));
+    CHILD(new SqlColumnSchema("child", DataType.INT64)),
+    PARENT(new SqlColumnSchema("parent", DataType.INT64));
 
-    private final ColumnSchema schema;
+    private final SqlColumnSchema schema;
 
-    Column(ColumnSchema schema) {
+    Column(SqlColumnSchema schema) {
       this.schema = schema;
     }
 
-    public ColumnSchema getSchema() {
+    public SqlColumnSchema getSchema() {
       return schema;
     }
   }

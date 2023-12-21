@@ -4,8 +4,9 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class AnnotationDao {
               .id(rs.getString("id"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
-              .dataType(Literal.DataType.valueOf(rs.getString("data_type")));
+              .dataType(DataType.valueOf(rs.getString("data_type")));
 
   // SQL query and row mapper for reading an annotation key enum value.
   private static final String ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL =
@@ -65,7 +66,7 @@ public class AnnotationDao {
                       .int64Val(rs.getLong("int64_val"))
                       .stringVal(rs.getString("string_val"))
                       .dateVal(rs.getDate("date_val"))
-                      .dataType(Literal.DataType.valueOf(rs.getString("data_type")))
+                      .dataType(DataType.valueOf(rs.getString("data_type")))
                       .build());
 
   private final NamedParameterJdbcTemplate jdbcTemplate;

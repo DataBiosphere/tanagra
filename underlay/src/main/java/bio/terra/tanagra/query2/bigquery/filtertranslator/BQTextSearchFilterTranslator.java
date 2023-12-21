@@ -1,8 +1,8 @@
 package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.TextSearchFilter;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
@@ -26,7 +26,7 @@ public class BQTextSearchFilterTranslator extends SqlFilterTranslator {
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(textSearchFilter.getEntity().getName());
-    FieldPointer textSearchField;
+    SqlField textSearchField;
     if (textSearchFilter.isForSpecificAttribute()) {
       // Search only on the specified attribute.
       Attribute attribute = textSearchFilter.getAttribute();

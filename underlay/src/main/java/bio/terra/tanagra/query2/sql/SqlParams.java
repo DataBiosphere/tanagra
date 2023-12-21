@@ -1,7 +1,7 @@
 package bio.terra.tanagra.query2.sql;
 
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;

@@ -1,8 +1,9 @@
 package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.common.exception.BadRequestException;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -12,15 +13,11 @@ public class AnnotationKey {
   private final String id;
   private final String displayName;
   private final String description;
-  private final Literal.DataType dataType;
+  private final DataType dataType;
   private final List<String> enumVals;
 
   private AnnotationKey(
-      String id,
-      String displayName,
-      String description,
-      Literal.DataType dataType,
-      List<String> enumVals) {
+      String id, String displayName, String description, DataType dataType, List<String> enumVals) {
     this.id = id;
     this.displayName = displayName;
     this.description = description;
@@ -45,7 +42,7 @@ public class AnnotationKey {
     return description;
   }
 
-  public Literal.DataType getDataType() {
+  public DataType getDataType() {
     return dataType;
   }
 
@@ -104,7 +101,7 @@ public class AnnotationKey {
     private String id;
     private String displayName;
     private String description;
-    private Literal.DataType dataType;
+    private DataType dataType;
     private List<String> enumVals = new ArrayList<>();
 
     public Builder id(String id) {
@@ -122,7 +119,7 @@ public class AnnotationKey {
       return this;
     }
 
-    public Builder dataType(Literal.DataType dataType) {
+    public Builder dataType(DataType dataType) {
       this.dataType = dataType;
       return this;
     }

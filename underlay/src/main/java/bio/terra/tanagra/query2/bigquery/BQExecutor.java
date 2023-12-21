@@ -1,8 +1,8 @@
 package bio.terra.tanagra.query2.bigquery;
 
+import bio.terra.tanagra.api.query.PageMarker;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.query2.sql.SqlQueryRequest;
 import bio.terra.tanagra.query2.sql.SqlQueryResult;
 import bio.terra.tanagra.query2.sql.SqlRowResult;

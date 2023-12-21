@@ -12,12 +12,13 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -70,26 +71,26 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
             countInstance -> {
               ValueDisplay yearOfBirth = countInstance.getEntityFieldValue(simpleAttribute);
               assertNotNull(yearOfBirth);
-              assertEquals(Literal.DataType.INT64, yearOfBirth.getValue().getDataType());
+              assertEquals(DataType.INT64, yearOfBirth.getValue().getDataType());
               assertNotNull(yearOfBirth.getValue().getInt64Val());
               assertNull(yearOfBirth.getDisplay());
 
               ValueDisplay gender = countInstance.getEntityFieldValue(valueDisplayAttribute);
               assertNotNull(gender);
-              assertEquals(Literal.DataType.INT64, gender.getValue().getDataType());
+              assertEquals(DataType.INT64, gender.getValue().getDataType());
               assertNotNull(gender.getValue().getInt64Val());
               assertNotNull(gender.getDisplay());
 
               ValueDisplay race =
                   countInstance.getEntityFieldValue(valueDisplayAttributeWithoutDisplay);
               assertNotNull(race);
-              assertEquals(Literal.DataType.INT64, race.getValue().getDataType());
+              assertEquals(DataType.INT64, race.getValue().getDataType());
               assertNotNull(race.getValue().getInt64Val());
               assertNull(race.getDisplay());
 
               ValueDisplay age = countInstance.getEntityFieldValue(runtimeCalculatedAttribute);
               assertNotNull(age);
-              assertEquals(Literal.DataType.INT64, age.getValue().getDataType());
+              assertEquals(DataType.INT64, age.getValue().getDataType());
               assertNotNull(age.getValue().getInt64Val());
               assertNull(age.getDisplay());
             });
@@ -126,26 +127,26 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
             countInstance -> {
               ValueDisplay isMember = countInstance.getEntityFieldValue(hierarchyIsMemberField);
               assertNotNull(isMember);
-              assertEquals(Literal.DataType.BOOLEAN, isMember.getValue().getDataType());
+              assertEquals(DataType.BOOLEAN, isMember.getValue().getDataType());
               assertNotNull(isMember.getValue().getBooleanVal());
               assertNull(isMember.getDisplay());
 
               ValueDisplay isRoot = countInstance.getEntityFieldValue(hierarchyIsRootField);
               assertNotNull(isRoot);
-              assertEquals(Literal.DataType.BOOLEAN, isRoot.getValue().getDataType());
+              assertEquals(DataType.BOOLEAN, isRoot.getValue().getDataType());
               assertNotNull(isRoot.getValue().getBooleanVal());
               assertNull(isRoot.getDisplay());
 
               ValueDisplay numChildren =
                   countInstance.getEntityFieldValue(hierarchyNumChildrenField);
               assertNotNull(numChildren);
-              assertEquals(Literal.DataType.INT64, numChildren.getValue().getDataType());
+              assertEquals(DataType.INT64, numChildren.getValue().getDataType());
               assertNotNull(numChildren.getValue().getInt64Val());
               assertNull(numChildren.getDisplay());
 
               ValueDisplay path = countInstance.getEntityFieldValue(hierarchyPathField);
               assertNotNull(path);
-              assertEquals(Literal.DataType.STRING, path.getValue().getDataType());
+              assertEquals(DataType.STRING, path.getValue().getDataType());
               assertNull(path.getDisplay());
             });
   }
@@ -179,14 +180,14 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
               ValueDisplay countNoHier =
                   countInstance.getEntityFieldValue(relatedEntityIdCountFieldNoHier);
               assertNotNull(countNoHier);
-              assertEquals(Literal.DataType.INT64, countNoHier.getValue().getDataType());
+              assertEquals(DataType.INT64, countNoHier.getValue().getDataType());
               assertNotNull(countNoHier.getValue().getInt64Val());
               assertNull(countNoHier.getDisplay());
 
               ValueDisplay countWithHier =
                   countInstance.getEntityFieldValue(relatedEntityIdCountFieldWithHier);
               assertNotNull(countWithHier);
-              assertEquals(Literal.DataType.INT64, countWithHier.getValue().getDataType());
+              assertEquals(DataType.INT64, countWithHier.getValue().getDataType());
               assertNotNull(countWithHier.getValue().getInt64Val());
               assertNull(countWithHier.getDisplay());
             });

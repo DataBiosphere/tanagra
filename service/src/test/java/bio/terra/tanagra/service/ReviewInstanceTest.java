@@ -7,11 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -146,7 +147,7 @@ public class ReviewInstanceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.INT64).displayName("key1"));
+            AnnotationKey.builder().dataType(DataType.INT64).displayName("key1"));
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotationKey1 {}", annotationKey1.getId());
 
@@ -155,7 +156,7 @@ public class ReviewInstanceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.STRING).displayName("key2"));
+            AnnotationKey.builder().dataType(DataType.STRING).displayName("key2"));
     assertNotNull(annotationKey2);
     LOGGER.info("Created annotationKey2 {}", annotationKey2.getId());
 
@@ -858,7 +859,7 @@ public class ReviewInstanceTest {
                             underlay,
                             primaryEntity,
                             primaryEntity.getAttribute("gender"),
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
+                            BinaryOperator.EQUALS,
                             new Literal(8_532L)))
                     .build())
             .getReviewInstances();
@@ -883,9 +884,7 @@ public class ReviewInstanceTest {
                 ReviewQueryRequest.builder()
                     .annotationFilter(
                         new AnnotationFilter(
-                            annotationKey2,
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
-                            new Literal("str128")))
+                            annotationKey2, BinaryOperator.EQUALS, new Literal("str128")))
                     .build())
             .getReviewInstances();
     assertEquals(
@@ -912,13 +911,11 @@ public class ReviewInstanceTest {
                             underlay,
                             primaryEntity,
                             primaryEntity.getAttribute("gender"),
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
+                            BinaryOperator.EQUALS,
                             new Literal(8_507L)))
                     .annotationFilter(
                         new AnnotationFilter(
-                            annotationKey1,
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
-                            new Literal(115L)))
+                            annotationKey1, BinaryOperator.EQUALS, new Literal(115L)))
                     .build())
             .getReviewInstances();
     assertEquals(

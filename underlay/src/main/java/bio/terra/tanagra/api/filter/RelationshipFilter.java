@@ -1,6 +1,6 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -16,7 +16,7 @@ public class RelationshipFilter extends EntityFilter {
   private final Relationship relationship;
   private final EntityFilter subFilter;
   private final @Nullable Attribute groupByCountAttribute;
-  private final @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator;
+  private final @Nullable BinaryOperator groupByCountOperator;
   private final @Nullable Integer groupByCountValue;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -27,7 +27,7 @@ public class RelationshipFilter extends EntityFilter {
       Relationship relationship,
       EntityFilter subFilter,
       @Nullable Attribute groupByCountAttribute,
-      @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator,
+      @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
     this.underlay = underlay;
     this.entityGroup = entityGroup;
@@ -80,7 +80,7 @@ public class RelationshipFilter extends EntityFilter {
   }
 
   @Nullable
-  public BinaryFilterVariable.BinaryOperator getGroupByCountOperator() {
+  public BinaryOperator getGroupByCountOperator() {
     return groupByCountOperator;
   }
 

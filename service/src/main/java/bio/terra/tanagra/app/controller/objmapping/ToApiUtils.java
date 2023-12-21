@@ -2,8 +2,9 @@ package bio.terra.tanagra.app.controller.objmapping;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.count.CountInstance;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAnnotationValue;
 import bio.terra.tanagra.generated.model.ApiAttribute;
@@ -21,7 +22,6 @@ import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
 import bio.terra.tanagra.generated.model.ApiStudy;
 import bio.terra.tanagra.generated.model.ApiUnderlaySummary;
 import bio.terra.tanagra.generated.model.ApiValueDisplay;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;

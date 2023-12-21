@@ -2,8 +2,8 @@ package bio.terra.tanagra.api.query.list;
 
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.PageMarker;
+import bio.terra.tanagra.api.query.PageMarker;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;

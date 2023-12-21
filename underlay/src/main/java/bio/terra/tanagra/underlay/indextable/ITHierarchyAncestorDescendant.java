@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -35,7 +35,7 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
   }
 
   @Override
-  public ImmutableList<ColumnSchema> getColumnSchemas() {
+  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity or hierarchy.
     return ImmutableList.copyOf(
         Arrays.stream(Column.values())
@@ -43,31 +43,31 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
             .collect(Collectors.toList()));
   }
 
-  public FieldPointer getAncestorField() {
-    return new FieldPointer.Builder()
+  public SqlField getAncestorField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(Column.ANCESTOR.getSchema().getColumnName())
         .build();
   }
 
-  public FieldPointer getDescendantField() {
-    return new FieldPointer.Builder()
+  public SqlField getDescendantField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(Column.DESCENDANT.getSchema().getColumnName())
         .build();
   }
 
   public enum Column {
-    ANCESTOR(new ColumnSchema("ancestor", CellValue.SQLDataType.INT64)),
-    DESCENDANT(new ColumnSchema("descendant", CellValue.SQLDataType.INT64));
+    ANCESTOR(new SqlColumnSchema("ancestor", DataType.INT64)),
+    DESCENDANT(new SqlColumnSchema("descendant", DataType.INT64));
 
-    private final ColumnSchema schema;
+    private final SqlColumnSchema schema;
 
-    Column(ColumnSchema schema) {
+    Column(SqlColumnSchema schema) {
       this.schema = schema;
     }
 
-    public ColumnSchema getSchema() {
+    public SqlColumnSchema getSchema() {
       return schema;
     }
   }

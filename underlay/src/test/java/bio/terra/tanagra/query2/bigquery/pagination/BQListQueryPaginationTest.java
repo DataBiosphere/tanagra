@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
-import bio.terra.tanagra.query.OrderByDirection;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;

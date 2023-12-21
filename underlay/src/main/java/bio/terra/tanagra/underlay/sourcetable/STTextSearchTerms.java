@@ -1,28 +1,26 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 
 public class STTextSearchTerms extends SourceTable {
   private final String entity;
-  private final ColumnSchema idColumnSchema;
-  private final ColumnSchema textColumnSchema;
+  private final SqlColumnSchema idColumnSchema;
+  private final SqlColumnSchema textColumnSchema;
 
-  public STTextSearchTerms(
-      TablePointer tablePointer, String entity, SZEntity.TextSearch szTextSearch) {
-    super(tablePointer);
+  public STTextSearchTerms(SqlTable sqlTable, String entity, SZEntity.TextSearch szTextSearch) {
+    super(sqlTable);
     this.entity = entity;
-    this.idColumnSchema = new ColumnSchema(szTextSearch.idFieldName, CellValue.SQLDataType.INT64);
-    this.textColumnSchema =
-        new ColumnSchema(szTextSearch.textFieldName, CellValue.SQLDataType.STRING);
+    this.idColumnSchema = new SqlColumnSchema(szTextSearch.idFieldName, DataType.INT64);
+    this.textColumnSchema = new SqlColumnSchema(szTextSearch.textFieldName, DataType.STRING);
   }
 
   @Override
-  public ImmutableList<ColumnSchema> getColumnSchemas() {
+  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
     return ImmutableList.of(idColumnSchema, textColumnSchema);
   }
 
@@ -30,15 +28,15 @@ public class STTextSearchTerms extends SourceTable {
     return entity;
   }
 
-  public FieldPointer getIdField() {
-    return new FieldPointer.Builder()
+  public SqlField getIdField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(idColumnSchema.getColumnName())
         .build();
   }
 
-  public FieldPointer getTextField() {
-    return new FieldPointer.Builder()
+  public SqlField getTextField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(textColumnSchema.getColumnName())
         .build();

@@ -1,11 +1,11 @@
 package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 
 import bio.terra.tanagra.api.field.EntityIdCountField;
-import bio.terra.tanagra.api.query.ValueDisplay;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
@@ -20,39 +20,39 @@ public class BQEntityIdCountFieldTranslator implements SqlFieldTranslator {
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForListSelect() {
+  public List<SqlQueryField> buildSqlFieldsForListSelect() {
     return buildSqlFields();
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForCountSelect() {
+  public List<SqlQueryField> buildSqlFieldsForCountSelect() {
     return buildSqlFields();
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForOrderBy() {
+  public List<SqlQueryField> buildSqlFieldsForOrderBy() {
     return buildSqlFields();
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForGroupBy() {
+  public List<SqlQueryField> buildSqlFieldsForGroupBy() {
     return buildSqlFields();
   }
 
-  private List<SqlField> buildSqlFields() {
+  private List<SqlQueryField> buildSqlFields() {
     ITEntityMain indexTable =
         entityIdCountField
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(entityIdCountField.getEntity().getName());
     final String countFnStr = "COUNT";
-    FieldPointer field =
+    SqlField field =
         indexTable
             .getAttributeValueField(entityIdCountField.getEntity().getIdAttribute().getName())
             .toBuilder()
             .sqlFunctionWrapper(countFnStr)
             .build();
-    return List.of(SqlField.of(field, getFieldAlias()));
+    return List.of(SqlQueryField.of(field, getFieldAlias()));
   }
 
   private String getFieldAlias() {
@@ -61,6 +61,6 @@ public class BQEntityIdCountFieldTranslator implements SqlFieldTranslator {
 
   @Override
   public ValueDisplay parseValueDisplayFromResult(SqlRowResult sqlRowResult) {
-    return new ValueDisplay(sqlRowResult.get(getFieldAlias(), Literal.DataType.INT64));
+    return new ValueDisplay(sqlRowResult.get(getFieldAlias(), DataType.INT64));
   }
 }

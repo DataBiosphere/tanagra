@@ -1,16 +1,16 @@
 package bio.terra.tanagra.query2.sql;
 
-import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import java.util.List;
 
 public interface SqlFieldTranslator {
-  List<SqlField> buildSqlFieldsForListSelect();
+  List<SqlQueryField> buildSqlFieldsForListSelect();
 
-  List<SqlField> buildSqlFieldsForCountSelect();
+  List<SqlQueryField> buildSqlFieldsForCountSelect();
 
-  List<SqlField> buildSqlFieldsForOrderBy();
+  List<SqlQueryField> buildSqlFieldsForOrderBy();
 
-  List<SqlField> buildSqlFieldsForGroupBy();
+  List<SqlQueryField> buildSqlFieldsForGroupBy();
 
   ValueDisplay parseValueDisplayFromResult(SqlRowResult sqlRowResult);
 }

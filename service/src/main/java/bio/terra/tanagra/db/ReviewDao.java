@@ -4,8 +4,9 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Review;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class ReviewDao {
               new Literal.Builder()
                   // TODO: Support id data types other than long.
                   .int64Val(rs.getLong("id"))
-                  .dataType(Literal.DataType.INT64)
+                  .dataType(DataType.INT64)
                   .build(),
               rs.getInt("stable_index"));
 

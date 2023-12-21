@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.artifact.reviewquery;
 
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable.BinaryOperator;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import java.util.List;

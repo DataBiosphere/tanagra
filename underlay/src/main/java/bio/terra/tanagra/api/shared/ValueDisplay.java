@@ -1,6 +1,5 @@
-package bio.terra.tanagra.api.query;
+package bio.terra.tanagra.api.shared;
 
-import bio.terra.tanagra.query.Literal;
 import java.util.Objects;
 
 public class ValueDisplay {

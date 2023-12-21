@@ -2,9 +2,9 @@ package bio.terra.tanagra.query2.bigquery.sqlbuilding;
 
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class BQHintQueryTest extends BQRunnerTest {
     HintQueryResult hintQueryResult =
         bqQueryRunner.run(new HintQueryRequest(underlay, hintedEntity, null, null, null, true));
 
-    TablePointer eldhTable =
+    SqlTable eldhTable =
         underlay
             .getIndexSchema()
             .getEntityLevelDisplayHints(hintedEntity.getName())
@@ -46,7 +46,7 @@ public class BQHintQueryTest extends BQRunnerTest {
                 criteriaOccurrence,
                 true));
 
-    TablePointer eldhTable =
+    SqlTable eldhTable =
         underlay
             .getIndexSchema()
             .getInstanceLevelDisplayHints(

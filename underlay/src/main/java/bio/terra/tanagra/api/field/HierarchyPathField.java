@@ -1,6 +1,6 @@
 package bio.terra.tanagra.api.field;
 
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -29,7 +29,7 @@ public class HierarchyPathField extends ValueDisplayField {
   }
 
   @Override
-  public Literal.DataType getDataType() {
-    return Literal.DataType.STRING;
+  public DataType getDataType() {
+    return DataType.STRING;
   }
 }

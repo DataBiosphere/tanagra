@@ -1,13 +1,14 @@
 package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
@@ -32,28 +33,29 @@ public class BQAttributeFieldTranslator implements SqlFieldTranslator {
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForListSelect() {
+  public List<SqlQueryField> buildSqlFieldsForListSelect() {
     return buildSqlFields(true, true);
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForCountSelect() {
+  public List<SqlQueryField> buildSqlFieldsForCountSelect() {
     return buildSqlFields(true, false);
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForOrderBy() {
+  public List<SqlQueryField> buildSqlFieldsForOrderBy() {
     return buildSqlFields(false, true);
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForGroupBy() {
+  public List<SqlQueryField> buildSqlFieldsForGroupBy() {
     return buildSqlFields(true, false);
   }
 
-  private List<SqlField> buildSqlFields(boolean includeValueField, boolean includeDisplayField) {
+  private List<SqlQueryField> buildSqlFields(
+      boolean includeValueField, boolean includeDisplayField) {
     Attribute attribute = attributeField.getAttribute();
-    FieldPointer valueField = indexTable.getAttributeValueField(attribute.getName());
+    SqlField valueField = indexTable.getAttributeValueField(attribute.getName());
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
       valueField =
           valueField
@@ -62,21 +64,21 @@ public class BQAttributeFieldTranslator implements SqlFieldTranslator {
               .build();
     }
 
-    SqlField valueSqlField = SqlField.of(valueField, getValueFieldAlias());
+    SqlQueryField valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias());
     if (attribute.isSimple() || attributeField.isExcludeDisplay()) {
-      return List.of(valueSqlField);
+      return List.of(valueSqlQueryField);
     }
 
-    FieldPointer displayField = indexTable.getAttributeDisplayField(attribute.getName());
-    SqlField displaySqlField = SqlField.of(displayField, getDisplayFieldAlias());
-    List<SqlField> sqlFields = new ArrayList<>();
+    SqlField displayField = indexTable.getAttributeDisplayField(attribute.getName());
+    SqlQueryField displaySqlQueryField = SqlQueryField.of(displayField, getDisplayFieldAlias());
+    List<SqlQueryField> sqlQueryFields = new ArrayList<>();
     if (includeValueField) {
-      sqlFields.add(valueSqlField);
+      sqlQueryFields.add(valueSqlQueryField);
     }
     if (includeDisplayField) {
-      sqlFields.add(displaySqlField);
+      sqlQueryFields.add(displaySqlQueryField);
     }
-    return sqlFields;
+    return sqlQueryFields;
   }
 
   private String getValueFieldAlias() {
@@ -99,7 +101,7 @@ public class BQAttributeFieldTranslator implements SqlFieldTranslator {
     if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
       return new ValueDisplay(valueField);
     } else {
-      Literal displayField = sqlRowResult.get(getDisplayFieldAlias(), Literal.DataType.STRING);
+      Literal displayField = sqlRowResult.get(getDisplayFieldAlias(), DataType.STRING);
       return new ValueDisplay(valueField, displayField.getStringVal());
     }
   }

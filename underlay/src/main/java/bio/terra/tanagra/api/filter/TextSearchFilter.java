@@ -1,6 +1,6 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.query.FunctionTemplate;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;

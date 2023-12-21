@@ -1,9 +1,9 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
@@ -16,31 +16,30 @@ import java.util.Map;
 
 public class STEntityAttributes extends SourceTable {
   private final String entity;
-  private final ImmutableMap<String, ColumnSchema> attributeValueColumnSchemas;
-  private final ImmutableMap<String, ColumnSchema> attributeDisplayColumnSchemas;
+  private final ImmutableMap<String, SqlColumnSchema> attributeValueColumnSchemas;
+  private final ImmutableMap<String, SqlColumnSchema> attributeDisplayColumnSchemas;
 
   public STEntityAttributes(
-      TablePointer tablePointer, String entity, List<SZEntity.Attribute> szAttributes) {
-    super(tablePointer);
+      SqlTable sqlTable, String entity, List<SZEntity.Attribute> szAttributes) {
+    super(sqlTable);
     this.entity = entity;
 
-    Map<String, ColumnSchema> attributeValueColumnSchemasBuilder = new HashMap<>();
-    Map<String, ColumnSchema> attributeDisplayColumnSchemasBuilder = new HashMap<>();
+    Map<String, SqlColumnSchema> attributeValueColumnSchemasBuilder = new HashMap<>();
+    Map<String, SqlColumnSchema> attributeDisplayColumnSchemasBuilder = new HashMap<>();
     szAttributes.stream()
         .forEach(
             szAttribute -> {
               attributeValueColumnSchemasBuilder.put(
                   szAttribute.name,
-                  new ColumnSchema(
+                  new SqlColumnSchema(
                       szAttribute.valueFieldName == null
                           ? szAttribute.name
                           : szAttribute.valueFieldName,
-                      CellValue.SQLDataType.fromUnderlayDataType(
-                          ConfigReader.deserializeDataType(szAttribute.dataType))));
+                      ConfigReader.deserializeDataType(szAttribute.dataType)));
               if (szAttribute.displayFieldName != null) {
                 attributeDisplayColumnSchemasBuilder.put(
                     szAttribute.name,
-                    new ColumnSchema(szAttribute.displayFieldName, CellValue.SQLDataType.STRING));
+                    new SqlColumnSchema(szAttribute.displayFieldName, DataType.STRING));
               }
             });
     this.attributeValueColumnSchemas = ImmutableMap.copyOf(attributeValueColumnSchemasBuilder);
@@ -48,8 +47,8 @@ public class STEntityAttributes extends SourceTable {
   }
 
   @Override
-  public ImmutableList<ColumnSchema> getColumnSchemas() {
-    List<ColumnSchema> columnSchemasBuilder = new ArrayList<>();
+  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
+    List<SqlColumnSchema> columnSchemasBuilder = new ArrayList<>();
     columnSchemasBuilder.addAll(attributeValueColumnSchemas.values());
     columnSchemasBuilder.addAll(attributeDisplayColumnSchemas.values());
     return ImmutableList.copyOf(columnSchemasBuilder);
@@ -59,33 +58,33 @@ public class STEntityAttributes extends SourceTable {
     return entity;
   }
 
-  public FieldPointer getValueField(String attribute) {
-    return new FieldPointer.Builder()
+  public SqlField getValueField(String attribute) {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(attributeValueColumnSchemas.get(attribute).getColumnName())
         .build();
   }
 
-  public FieldPointer getDisplayField(String attribute) {
-    return new FieldPointer.Builder()
+  public SqlField getDisplayField(String attribute) {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(attributeDisplayColumnSchemas.get(attribute).getColumnName())
         .build();
   }
 
-  public ImmutableMap<String, ColumnSchema> getAttributeValueColumnSchemas() {
+  public ImmutableMap<String, SqlColumnSchema> getAttributeValueColumnSchemas() {
     return attributeValueColumnSchemas;
   }
 
-  public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
+  public SqlColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
     return attributeValueColumnSchemas.get(attribute.getName());
   }
 
-  public ImmutableMap<String, ColumnSchema> getAttributeDisplayColumnSchemas() {
+  public ImmutableMap<String, SqlColumnSchema> getAttributeDisplayColumnSchemas() {
     return attributeDisplayColumnSchemas;
   }
 
-  public ColumnSchema getAttributeDisplayColumnSchema(Attribute attribute) {
+  public SqlColumnSchema getAttributeDisplayColumnSchema(Attribute attribute) {
     return attributeDisplayColumnSchemas.get(attribute.getName());
   }
 }

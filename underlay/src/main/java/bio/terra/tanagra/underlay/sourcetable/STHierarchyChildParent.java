@@ -1,31 +1,28 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
+import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 
 public class STHierarchyChildParent extends SourceTable {
   private final String entity;
   private final String hierarchy;
-  private final ColumnSchema childColumnSchema;
-  private final ColumnSchema parentColumnSchema;
+  private final SqlColumnSchema childColumnSchema;
+  private final SqlColumnSchema parentColumnSchema;
 
-  public STHierarchyChildParent(
-      TablePointer tablePointer, String entity, SZEntity.Hierarchy szHierarchy) {
-    super(tablePointer);
+  public STHierarchyChildParent(SqlTable sqlTable, String entity, SZEntity.Hierarchy szHierarchy) {
+    super(sqlTable);
     this.entity = entity;
     this.hierarchy = szHierarchy.name;
-    this.childColumnSchema =
-        new ColumnSchema(szHierarchy.childIdFieldName, CellValue.SQLDataType.INT64);
-    this.parentColumnSchema =
-        new ColumnSchema(szHierarchy.parentIdFieldName, CellValue.SQLDataType.INT64);
+    this.childColumnSchema = new SqlColumnSchema(szHierarchy.childIdFieldName, DataType.INT64);
+    this.parentColumnSchema = new SqlColumnSchema(szHierarchy.parentIdFieldName, DataType.INT64);
   }
 
   @Override
-  public ImmutableList<ColumnSchema> getColumnSchemas() {
+  public ImmutableList<SqlColumnSchema> getColumnSchemas() {
     return ImmutableList.of(childColumnSchema, parentColumnSchema);
   }
 
@@ -37,25 +34,25 @@ public class STHierarchyChildParent extends SourceTable {
     return hierarchy;
   }
 
-  public FieldPointer getChildField() {
-    return new FieldPointer.Builder()
+  public SqlField getChildField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(childColumnSchema.getColumnName())
         .build();
   }
 
-  public FieldPointer getParentField() {
-    return new FieldPointer.Builder()
+  public SqlField getParentField() {
+    return new SqlField.Builder()
         .tablePointer(getTablePointer())
         .columnName(parentColumnSchema.getColumnName())
         .build();
   }
 
-  public ColumnSchema getChildColumnSchema() {
+  public SqlColumnSchema getChildColumnSchema() {
     return childColumnSchema;
   }
 
-  public ColumnSchema getParentColumnSchema() {
+  public SqlColumnSchema getParentColumnSchema() {
     return parentColumnSchema;
   }
 }

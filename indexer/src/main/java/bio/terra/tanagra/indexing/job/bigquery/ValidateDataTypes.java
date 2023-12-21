@@ -3,7 +3,7 @@ package bio.terra.tanagra.indexing.job.bigquery;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
@@ -64,10 +64,10 @@ public class ValidateDataTypes extends BigQueryJob {
     // Check that the schema data types match those of the index table columns.
     boolean foundError = false;
     for (Attribute attribute : entity.getAttributes()) {
-      ColumnSchema sourceTableSchema = sourceTable.getAttributeValueColumnSchema(attribute);
+      SqlColumnSchema sourceTableSchema = sourceTable.getAttributeValueColumnSchema(attribute);
       Set<LegacySQLTypeName>
           sourceTableBQDataTypes; // BigQueryBeamUtils.fromSqlDataType(sourceTableSchema.getSqlDataType());
-      switch (sourceTableSchema.getSqlDataType()) {
+      switch (sourceTableSchema.getDataType()) {
         case STRING:
           sourceTableBQDataTypes = Set.of(LegacySQLTypeName.STRING);
           break;
@@ -80,7 +80,7 @@ public class ValidateDataTypes extends BigQueryJob {
         case DATE:
           sourceTableBQDataTypes = Set.of(LegacySQLTypeName.DATE);
           break;
-        case FLOAT:
+        case DOUBLE:
           sourceTableBQDataTypes = Set.of(LegacySQLTypeName.NUMERIC, LegacySQLTypeName.FLOAT);
           break;
         case TIMESTAMP:
@@ -88,7 +88,7 @@ public class ValidateDataTypes extends BigQueryJob {
           break;
         default:
           throw new SystemException(
-              "SQL data type not supported for BigQuery: " + sourceTableSchema.getSqlDataType());
+              "SQL data type not supported for BigQuery: " + sourceTableSchema.getDataType());
       }
       Field sourceQueryField =
           sourceQueryResultSchema.getFields().get(sourceTableSchema.getColumnName());

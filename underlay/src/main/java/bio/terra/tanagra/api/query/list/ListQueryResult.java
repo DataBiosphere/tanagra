@@ -1,6 +1,6 @@
 package bio.terra.tanagra.api.query.list;
 
-import bio.terra.tanagra.query.PageMarker;
+import bio.terra.tanagra.api.query.PageMarker;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 

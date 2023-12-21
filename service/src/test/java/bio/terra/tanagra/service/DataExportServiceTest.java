@@ -14,10 +14,11 @@ import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -105,7 +106,7 @@ public class DataExportServiceTest {
             AnnotationKey.builder()
                 .displayName("annotation key 1")
                 .description("first annotation key")
-                .dataType(Literal.DataType.INT64));
+                .dataType(DataType.INT64));
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotation key {}", annotationKey1.getId());
 
@@ -121,7 +122,7 @@ public class DataExportServiceTest {
                 underlay,
                 primaryEntity,
                 primaryEntity.getAttribute("gender"),
-                BinaryFilterVariable.BinaryOperator.EQUALS,
+                BinaryOperator.EQUALS,
                 new Literal(8532)));
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
@@ -379,7 +380,7 @@ public class DataExportServiceTest {
         underlay,
         primaryEntity,
         primaryEntity.getAttribute("year_of_birth"),
-        BinaryFilterVariable.BinaryOperator.EQUALS,
+        BinaryOperator.EQUALS,
         new Literal(11L));
   }
 }

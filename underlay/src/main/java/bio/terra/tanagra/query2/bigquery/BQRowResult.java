@@ -1,7 +1,8 @@
 package bio.terra.tanagra.query2.bigquery;
 
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.InvalidQueryException;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValueList;
@@ -15,7 +16,7 @@ public class BQRowResult implements SqlRowResult {
   }
 
   @Override
-  public Literal get(String columnName, Literal.DataType expectedDataType) {
+  public Literal get(String columnName, DataType expectedDataType) {
     FieldValue fieldValue = fieldValues.get(columnName);
     if (fieldValue.isNull()) {
       return new Literal(null);

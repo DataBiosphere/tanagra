@@ -1,6 +1,6 @@
 package bio.terra.tanagra.query2.bigquery;
 
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
@@ -28,10 +28,10 @@ public abstract class BQRunnerTest {
     return "cmssynpuf_broad";
   }
 
-  protected void assertSqlMatchesWithTableNameOnly(
-      String testName, String sql, TablePointer... tables) throws IOException {
+  protected void assertSqlMatchesWithTableNameOnly(String testName, String sql, SqlTable... tables)
+      throws IOException {
     String sqlWrittenToFile = sql;
-    for (TablePointer table : tables) {
+    for (SqlTable table : tables) {
       sqlWrittenToFile =
           sqlWrittenToFile.replace(table.renderSQL(), "${" + table.getTableName() + "}");
     }

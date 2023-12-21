@@ -5,17 +5,17 @@ import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
-import bio.terra.tanagra.query.FunctionTemplate;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.PageMarker;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -288,8 +288,7 @@ public class ReviewService {
     if (reviewQueryRequest.getEntityFilter() != null) {
       entityFilter =
           new BooleanAndOrFilter(
-              BooleanAndOrFilterVariable.LogicalOperator.AND,
-              List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
+              LogicalOperator.AND, List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
     }
 
     // Get all the primary entity instances.

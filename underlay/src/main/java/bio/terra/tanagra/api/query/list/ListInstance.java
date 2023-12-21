@@ -1,7 +1,7 @@
 package bio.terra.tanagra.api.query.list;
 
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 

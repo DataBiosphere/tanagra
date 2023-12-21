@@ -1,8 +1,8 @@
 package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.FunctionTemplate;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
@@ -28,7 +28,7 @@ public class BQHierarchyIsMemberFilterTranslator extends SqlFilterTranslator {
             .getEntityMain(hierarchyIsMemberFilter.getEntity().getName());
 
     // IS_MEMBER means path IS NOT NULL.
-    FieldPointer pathField =
+    SqlField pathField =
         indexTable.getHierarchyPathField(hierarchyIsMemberFilter.getHierarchy().getName());
     return sqlTranslator.functionFilterSql(
         pathField,

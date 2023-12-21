@@ -1,6 +1,6 @@
 package bio.terra.tanagra.api.field;
 
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 
@@ -22,7 +22,7 @@ public class EntityIdCountField extends ValueDisplayField {
   }
 
   @Override
-  public Literal.DataType getDataType() {
-    return Literal.DataType.INT64;
+  public DataType getDataType() {
+    return DataType.INT64;
   }
 }

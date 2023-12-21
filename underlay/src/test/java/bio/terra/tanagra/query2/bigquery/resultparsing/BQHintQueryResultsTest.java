@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -37,13 +38,13 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
               assertTrue(attribute.isComputeDisplayHint());
               if (hintInstance.isRangeHint()) {
                 assertTrue(
-                    List.of(Literal.DataType.INT64, Literal.DataType.DOUBLE)
+                    List.of(DataType.INT64, DataType.DOUBLE)
                         .contains(attribute.getRuntimeDataType()));
                 assertTrue(hintInstance.getMin() <= hintInstance.getMax());
               } else { // isEnumHint
                 assertTrue(
                     attribute.isValueDisplay()
-                        || attribute.getRuntimeDataType().equals(Literal.DataType.STRING));
+                        || attribute.getRuntimeDataType().equals(DataType.STRING));
                 assertFalse(hintInstance.getEnumValueCounts().isEmpty());
                 hintInstance.getEnumValueCounts().keySet().stream()
                     .forEach(
@@ -85,13 +86,13 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                       .contains(attribute));
               if (hintInstance.isRangeHint()) {
                 assertTrue(
-                    List.of(Literal.DataType.INT64, Literal.DataType.DOUBLE)
+                    List.of(DataType.INT64, DataType.DOUBLE)
                         .contains(attribute.getRuntimeDataType()));
                 assertTrue(hintInstance.getMin() <= hintInstance.getMax());
               } else { // isEnumHint
                 assertTrue(
                     attribute.isValueDisplay()
-                        || attribute.getRuntimeDataType().equals(Literal.DataType.STRING));
+                        || attribute.getRuntimeDataType().equals(DataType.STRING));
                 assertFalse(hintInstance.getEnumValueCounts().isEmpty());
                 hintInstance.getEnumValueCounts().keySet().stream()
                     .forEach(

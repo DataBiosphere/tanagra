@@ -1,6 +1,6 @@
 package bio.terra.tanagra.api.field;
 
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -34,7 +34,7 @@ public class AttributeField extends ValueDisplayField {
   }
 
   @Override
-  public Literal.DataType getDataType() {
+  public DataType getDataType() {
     return attribute.getRuntimeDataType();
   }
 

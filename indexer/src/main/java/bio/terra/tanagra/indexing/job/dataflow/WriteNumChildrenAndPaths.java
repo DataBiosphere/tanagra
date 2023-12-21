@@ -4,11 +4,11 @@ import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.PathUtils;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query2.bigquery.BQTranslator;
+import bio.terra.tanagra.query2.sql.SqlColumnSchema;
 import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -148,7 +148,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
     String allIdsSql =
         "SELECT "
             + bqTranslator.selectSql(
-                SqlField.of(
+                SqlQueryField.of(
                     indexTable.getAttributeValueField(entity.getIdAttribute().getName()), null),
                 null)
             + " FROM "
@@ -215,12 +215,13 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
     }
 
     // Build the pipeline steps to write the node-{path, numChildren} pairs to the temp table.
-    ColumnSchema idColumnSchema = indexTable.getAttributeValueColumnSchema(entity.getIdAttribute());
-    ColumnSchema pathColumnSchema = indexTable.getHierarchyPathColumnSchema(hierarchy.getName());
-    ColumnSchema numChildrenColumnSchema =
+    SqlColumnSchema idColumnSchema =
+        indexTable.getAttributeValueColumnSchema(entity.getIdAttribute());
+    SqlColumnSchema pathColumnSchema = indexTable.getHierarchyPathColumnSchema(hierarchy.getName());
+    SqlColumnSchema numChildrenColumnSchema =
         indexTable.getHierarchyNumChildrenColumnSchema(hierarchy.getName());
-    TablePointer tempTablePointer =
-        new TablePointer(
+    SqlTable tempSqlTable =
+        new SqlTable(
             indexerConfig.bigQuery.indexData.projectId,
             indexerConfig.bigQuery.indexData.datasetId,
             getTempTableName());
@@ -230,7 +231,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
         numChildrenColumnSchema,
         indexerConfig.bigQuery.indexData.projectId,
         indexerConfig.bigQuery.indexData.datasetId,
-        tempTablePointer,
+        tempSqlTable,
         outputNodePathKVsPC,
         nodeNumChildrenKVsPC);
 
@@ -243,12 +244,12 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
   /** Write the {@link KV} pairs (id, path, num_children) to BQ. */
   @SuppressWarnings("checkstyle:ParameterNumber")
   private static void writePathAndNumChildrenToBQ(
-      ColumnSchema idColumnSchema,
-      ColumnSchema pathColumnSchema,
-      ColumnSchema numChildrenColumnSchema,
+      SqlColumnSchema idColumnSchema,
+      SqlColumnSchema pathColumnSchema,
+      SqlColumnSchema numChildrenColumnSchema,
       String indexProjectId,
       String indexDatasetId,
-      TablePointer tempTablePointer,
+      SqlTable tempSqlTable,
       PCollection<KV<Long, String>> nodePathKVs,
       PCollection<KV<Long, Long>> nodeNumChildrenKVs) {
     // Define the CoGroupByKey tags.
@@ -271,8 +272,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
                 columnSchema ->
                     new TableFieldSchema()
                         .setName(columnSchema.getColumnName())
-                        .setType(
-                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()).name())
+                        .setType(BigQueryBeamUtils.fromDataType(columnSchema.getDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
             .collect(Collectors.toList());
     TableSchema outputTableSchema = new TableSchema().setFields(tempTableFieldSchemas);
@@ -307,7 +307,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
         BigQueryIO.writeTableRows()
             .to(
                 BigQueryBeamUtils.getTableSqlPath(
-                    indexProjectId, indexDatasetId, tempTablePointer.getTableName()))
+                    indexProjectId, indexDatasetId, tempSqlTable.getTableName()))
             .withSchema(outputTableSchema)
             .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
             .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
@@ -316,42 +316,42 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
 
   private void copyFieldsToEntityTable(boolean isDryRun) {
     // Build a query for the id-path-num_children tuples in the temp table.
-    FieldPointer entityTableIdField =
+    SqlField entityTableIdField =
         indexTable.getAttributeValueField(entity.getIdAttribute().getName());
-    FieldPointer entityTablePathField = indexTable.getHierarchyPathField(hierarchy.getName());
-    FieldPointer entityTableNumChildrenField =
+    SqlField entityTablePathField = indexTable.getHierarchyPathField(hierarchy.getName());
+    SqlField entityTableNumChildrenField =
         indexTable.getHierarchyNumChildrenField(hierarchy.getName());
 
-    TablePointer tempTablePointer =
-        new TablePointer(
+    SqlTable tempSqlTable =
+        new SqlTable(
             indexerConfig.bigQuery.indexData.projectId,
             indexerConfig.bigQuery.indexData.datasetId,
             getTempTableName());
-    FieldPointer tempTableIdField =
-        new FieldPointer.Builder()
-            .tablePointer(tempTablePointer)
+    SqlField tempTableIdField =
+        new SqlField.Builder()
+            .tablePointer(tempSqlTable)
             .columnName(entityTableIdField.getColumnName())
             .build();
-    FieldPointer tempTablePathField =
-        new FieldPointer.Builder()
-            .tablePointer(tempTablePointer)
+    SqlField tempTablePathField =
+        new SqlField.Builder()
+            .tablePointer(tempSqlTable)
             .columnName(entityTablePathField.getColumnName())
             .build();
-    FieldPointer tempTableNumChildrenField =
-        new FieldPointer.Builder()
-            .tablePointer(tempTablePointer)
+    SqlField tempTableNumChildrenField =
+        new SqlField.Builder()
+            .tablePointer(tempSqlTable)
             .columnName(entityTableNumChildrenField.getColumnName())
             .build();
     BQTranslator bqTranslator = new BQTranslator();
     String tempTableSql =
         "SELECT "
-            + bqTranslator.selectSql(SqlField.of(tempTableIdField, null), null)
+            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField, null), null)
             + ", "
-            + bqTranslator.selectSql(SqlField.of(tempTablePathField, null), null)
+            + bqTranslator.selectSql(SqlQueryField.of(tempTablePathField, null), null)
             + ", "
-            + bqTranslator.selectSql(SqlField.of(tempTableNumChildrenField, null), null)
+            + bqTranslator.selectSql(SqlQueryField.of(tempTableNumChildrenField, null), null)
             + " FROM "
-            + tempTablePointer.renderSQL();
+            + tempSqlTable.renderSQL();
     LOGGER.info("temp table query: {}", tempTableSql);
 
     // Build an update-from-select query for the index entity main table and the
@@ -364,28 +364,29 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
             + " AS "
             + updateTableAlias
             + " SET "
-            + bqTranslator.selectSql(SqlField.of(entityTablePathField, null), updateTableAlias)
+            + bqTranslator.selectSql(SqlQueryField.of(entityTablePathField, null), updateTableAlias)
             + " = "
-            + bqTranslator.selectSql(SqlField.of(tempTablePathField, null), tempTableAlias)
+            + bqTranslator.selectSql(SqlQueryField.of(tempTablePathField, null), tempTableAlias)
             + ", "
             + bqTranslator.selectSql(
-                SqlField.of(entityTableNumChildrenField, null), updateTableAlias)
+                SqlQueryField.of(entityTableNumChildrenField, null), updateTableAlias)
             + " = "
-            + bqTranslator.selectSql(SqlField.of(tempTableNumChildrenField, null), tempTableAlias)
+            + bqTranslator.selectSql(
+                SqlQueryField.of(tempTableNumChildrenField, null), tempTableAlias)
             + " FROM (SELECT "
-            + bqTranslator.selectSql(SqlField.of(tempTablePathField, null), null)
+            + bqTranslator.selectSql(SqlQueryField.of(tempTablePathField, null), null)
             + ", "
-            + bqTranslator.selectSql(SqlField.of(tempTableNumChildrenField, null), null)
+            + bqTranslator.selectSql(SqlQueryField.of(tempTableNumChildrenField, null), null)
             + ", "
-            + bqTranslator.selectSql(SqlField.of(tempTableIdField, null), null)
+            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField, null), null)
             + " FROM "
-            + tempTablePointer.renderSQL()
+            + tempSqlTable.renderSQL()
             + ") AS "
             + tempTableAlias
             + " WHERE "
-            + bqTranslator.selectSql(SqlField.of(entityTableIdField, null), updateTableAlias)
+            + bqTranslator.selectSql(SqlQueryField.of(entityTableIdField, null), updateTableAlias)
             + " = "
-            + bqTranslator.selectSql(SqlField.of(tempTableIdField, null), tempTableAlias);
+            + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField, null), tempTableAlias);
     LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the path and num_children fields in the index entity main

@@ -46,7 +46,7 @@ public class CreateEntityMain extends BigQueryJob {
                 columnSchema ->
                     Field.newBuilder(
                             columnSchema.getColumnName(),
-                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()))
+                            BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
                         .build())
             .collect(Collectors.toList());
 

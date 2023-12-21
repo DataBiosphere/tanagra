@@ -1,11 +1,11 @@
 package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
-import bio.terra.tanagra.api.query.ValueDisplay;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFieldTranslator;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.query2.sql.SqlRowResult;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
@@ -19,30 +19,30 @@ public class BQHierarchyNumChildrenFieldTranslator implements SqlFieldTranslator
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForListSelect() {
+  public List<SqlQueryField> buildSqlFieldsForListSelect() {
     return buildSqlFields();
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForCountSelect() {
+  public List<SqlQueryField> buildSqlFieldsForCountSelect() {
     return buildSqlFields();
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForOrderBy() {
+  public List<SqlQueryField> buildSqlFieldsForOrderBy() {
     return buildSqlFields();
   }
 
   @Override
-  public List<SqlField> buildSqlFieldsForGroupBy() {
+  public List<SqlQueryField> buildSqlFieldsForGroupBy() {
     return buildSqlFields();
   }
 
-  private List<SqlField> buildSqlFields() {
-    return List.of(SqlField.of(getField(), null));
+  private List<SqlQueryField> buildSqlFields() {
+    return List.of(SqlQueryField.of(getField(), null));
   }
 
-  private FieldPointer getField() {
+  private SqlField getField() {
     ITEntityMain indexTable =
         hierarchyNumChildrenField
             .getUnderlay()
@@ -54,6 +54,6 @@ public class BQHierarchyNumChildrenFieldTranslator implements SqlFieldTranslator
 
   @Override
   public ValueDisplay parseValueDisplayFromResult(SqlRowResult sqlRowResult) {
-    return new ValueDisplay(sqlRowResult.get(getField().getColumnName(), Literal.DataType.INT64));
+    return new ValueDisplay(sqlRowResult.get(getField().getColumnName(), DataType.INT64));
   }
 }

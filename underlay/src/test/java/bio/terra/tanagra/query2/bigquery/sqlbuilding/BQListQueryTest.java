@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidQueryException;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query2.bigquery.BQRunnerTest;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.io.IOException;
 import java.util.List;
@@ -35,8 +35,7 @@ public class BQListQueryTest extends BQRunnerTest {
         bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, List.of(simpleAttribute), null, null, null, null, null, true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("noFilter", listQueryResult.getSql(), table);
   }
 
@@ -57,8 +56,7 @@ public class BQListQueryTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByInSelect", listQueryResult.getSql(), table);
   }
 
@@ -81,8 +79,7 @@ public class BQListQueryTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByNotInSelect", listQueryResult.getSql(), table);
   }
 
@@ -105,8 +102,7 @@ public class BQListQueryTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "withOrderByValueDisplayAttribute", listQueryResult.getSql(), table);
   }
@@ -128,8 +124,7 @@ public class BQListQueryTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByRandom", listQueryResult.getSql(), table);
   }
 
@@ -142,8 +137,7 @@ public class BQListQueryTest extends BQRunnerTest {
         bqQueryRunner.run(
             new ListQueryRequest(
                 underlay, entity, List.of(selectAttribute), null, List.of(), 45, null, null, true));
-    TablePointer table =
-        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withLimit", listQueryResult.getSql(), table);
   }
 }

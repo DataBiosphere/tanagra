@@ -1,25 +1,25 @@
 package bio.terra.tanagra.underlay.entitymodel;
 
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.DataType;
 import java.util.Objects;
 
 public final class Attribute {
   private final String name;
-  private final Literal.DataType dataType;
+  private final DataType dataType;
   private final boolean isValueDisplay;
   private final boolean isId;
   private final String runtimeSqlFunctionWrapper;
-  private final Literal.DataType runtimeDataType;
+  private final DataType runtimeDataType;
   private final boolean isComputeDisplayHint;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   public Attribute(
       String name,
-      Literal.DataType dataType,
+      DataType dataType,
       boolean isValueDisplay,
       boolean isId,
       String runtimeSqlFunctionWrapper,
-      Literal.DataType runtimeDataType,
+      DataType runtimeDataType,
       boolean isComputeDisplayHint) {
     this.name = name;
     this.dataType = dataType;
@@ -34,7 +34,7 @@ public final class Attribute {
     return name;
   }
 
-  public Literal.DataType getDataType() {
+  public DataType getDataType() {
     return dataType;
   }
 
@@ -58,7 +58,7 @@ public final class Attribute {
     return runtimeSqlFunctionWrapper != null;
   }
 
-  public Literal.DataType getRuntimeDataType() {
+  public DataType getRuntimeDataType() {
     return runtimeDataType == null ? dataType : runtimeDataType;
   }
 

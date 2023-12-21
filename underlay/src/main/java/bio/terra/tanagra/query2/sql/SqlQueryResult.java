@@ -1,6 +1,6 @@
 package bio.terra.tanagra.query2.sql;
 
-import bio.terra.tanagra.query.PageMarker;
+import bio.terra.tanagra.api.query.PageMarker;
 
 public class SqlQueryResult {
   private final Iterable<SqlRowResult> rowResults;

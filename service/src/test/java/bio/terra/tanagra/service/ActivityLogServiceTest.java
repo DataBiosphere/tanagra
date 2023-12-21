@@ -10,10 +10,10 @@ import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -205,7 +205,7 @@ public class ActivityLogServiceTest {
             underlay,
             primaryEntity,
             primaryEntity.getAttribute("year_of_birth"),
-            BinaryFilterVariable.BinaryOperator.GREATER_THAN_OR_EQUAL,
+            BinaryOperator.GREATER_THAN_OR_EQUAL,
             new Literal(1980L));
     String exportModel = "IPYNB_FILE_DOWNLOAD";
     ExportRequest.Builder exportRequest = ExportRequest.builder().model(exportModel);

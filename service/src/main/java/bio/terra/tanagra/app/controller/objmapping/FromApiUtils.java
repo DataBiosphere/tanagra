@@ -18,7 +18,13 @@ import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
+import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
@@ -34,12 +40,6 @@ import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
-import bio.terra.tanagra.query.FunctionTemplate;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.PageMarker;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -114,7 +114,7 @@ public final class FromApiUtils {
                 : fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlay);
 
         Attribute groupByCountAttribute = null;
-        BinaryFilterVariable.BinaryOperator groupByCountOperator = null;
+        BinaryOperator groupByCountOperator = null;
         Integer groupByCountValue = null;
         if (apiRelationshipFilter.getGroupByCountOperator() != null
             && apiRelationshipFilter.getGroupByCountValue() != null) {
@@ -155,9 +155,7 @@ public final class FromApiUtils {
                   "Boolean logic operators OR, AND must have more than one sub-filter specified");
             }
             return new BooleanAndOrFilter(
-                BooleanAndOrFilterVariable.LogicalOperator.valueOf(
-                    apiBooleanLogicFilter.getOperator().name()),
-                subFilters);
+                LogicalOperator.valueOf(apiBooleanLogicFilter.getOperator().name()), subFilters);
           default:
             throw new SystemException(
                 "Unknown boolean logic operator: " + apiBooleanLogicFilter.getOperator());
@@ -338,8 +336,8 @@ public final class FromApiUtils {
     }
   }
 
-  public static BinaryFilterVariable.BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {
-    return BinaryFilterVariable.BinaryOperator.valueOf(apiOperator.name());
+  public static BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {
+    return BinaryOperator.valueOf(apiOperator.name());
   }
 
   public static FunctionTemplate fromApiObject(ApiTextFilter.MatchTypeEnum apiMatchType) {

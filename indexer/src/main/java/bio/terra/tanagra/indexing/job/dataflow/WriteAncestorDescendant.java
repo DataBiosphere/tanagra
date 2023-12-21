@@ -5,7 +5,7 @@ import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.GraphUtils;
 import bio.terra.tanagra.query2.bigquery.BQTranslator;
-import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -77,10 +77,10 @@ public class WriteAncestorDescendant extends BigQueryJob {
     String sourceChildParentSql =
         "SELECT "
             + bqTranslator.selectSql(
-                SqlField.of(sourceTable.getChildField(), CHILD_COLUMN_NAME), null)
+                SqlQueryField.of(sourceTable.getChildField(), CHILD_COLUMN_NAME), null)
             + ", "
             + bqTranslator.selectSql(
-                SqlField.of(sourceTable.getParentField(), PARENT_COLUMN_NAME), null)
+                SqlQueryField.of(sourceTable.getParentField(), PARENT_COLUMN_NAME), null)
             + " FROM "
             + sourceTable.getTablePointer().renderSQL();
     LOGGER.info("source child-parent query: {}", sourceChildParentSql);
@@ -109,8 +109,7 @@ public class WriteAncestorDescendant extends BigQueryJob {
                 columnSchema ->
                     new TableFieldSchema()
                         .setName(columnSchema.getColumnName())
-                        .setType(
-                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()).name())
+                        .setType(BigQueryBeamUtils.fromDataType(columnSchema.getDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
             .collect(Collectors.toList());
     TableSchema outputTableSchema = new TableSchema().setFields(outputFieldSchemas);

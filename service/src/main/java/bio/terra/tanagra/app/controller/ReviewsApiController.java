@@ -10,8 +10,11 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
 
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -28,9 +31,6 @@ import bio.terra.tanagra.generated.model.ApiReviewList;
 import bio.terra.tanagra.generated.model.ApiReviewQuery;
 import bio.terra.tanagra.generated.model.ApiReviewUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiValueDisplay;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.PageMarker;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -236,9 +236,8 @@ public class ReviewsApiController implements ReviewsApi {
       AnnotationKey annotation =
           annotationService.getAnnotationKey(
               studyId, cohortId, apiObj.getAnnotationFilter().getAnnotation());
-      BinaryFilterVariable.BinaryOperator operator =
-          BinaryFilterVariable.BinaryOperator.valueOf(
-              apiObj.getAnnotationFilter().getOperator().name());
+      BinaryOperator operator =
+          BinaryOperator.valueOf(apiObj.getAnnotationFilter().getOperator().name());
       annotationFilter =
           new AnnotationFilter(
               annotation,

@@ -2,7 +2,7 @@ package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.query2.bigquery.BQTranslator;
-import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STRelationshipIdPairs;
@@ -46,13 +46,13 @@ public class WriteRelationshipIntermediateTable extends BigQueryJob {
     String sourceIdPairsSql =
         "SELECT "
             + bqTranslator.selectSql(
-                SqlField.of(
+                SqlQueryField.of(
                     sourceTable.getEntityAIdField(),
                     ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema().getColumnName()),
                 null)
             + ", "
             + bqTranslator.selectSql(
-                SqlField.of(
+                SqlQueryField.of(
                     sourceTable.getEntityBIdField(),
                     ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName()),
                 null)

@@ -18,15 +18,13 @@ import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.FunctionTemplate;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.query2.sql.filtertranslator.BooleanAndOrFilterTranslator;
 import bio.terra.tanagra.query2.sql.filtertranslator.BooleanNotFilterTranslator;
 import java.util.ArrayList;
@@ -44,21 +42,21 @@ public interface SqlTranslator {
   String FUNCTION_TEMPLATE_VALUES_VAR = "values";
   String FUNCTION_TEMPLATE_VALUES_VAR_BRACES = "${" + FUNCTION_TEMPLATE_VALUES_VAR + "}";
 
-  default String selectSql(SqlField sqlField, @Nullable String tableAlias) {
-    return fieldSql(sqlField, tableAlias, false);
+  default String selectSql(SqlQueryField sqlQueryField, @Nullable String tableAlias) {
+    return fieldSql(sqlQueryField, tableAlias, false);
   }
 
-  default String whereSql(FieldPointer field, @Nullable String tableAlias) {
-    return fieldSql(SqlField.of(field, null), tableAlias, false);
+  default String whereSql(SqlField field, @Nullable String tableAlias) {
+    return fieldSql(SqlQueryField.of(field, null), tableAlias, false);
   }
 
   default String orderBySql(
-      SqlField sqlField, @Nullable String tableAlias, boolean fieldIsSelected) {
+      SqlQueryField sqlQueryField, @Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {
-      String alias = sqlField.getAlias();
-      return alias == null || alias.isEmpty() ? sqlField.getField().getColumnName() : alias;
+      String alias = sqlQueryField.getAlias();
+      return alias == null || alias.isEmpty() ? sqlQueryField.getField().getColumnName() : alias;
     } else {
-      return fieldSql(sqlField, tableAlias, true);
+      return fieldSql(sqlQueryField, tableAlias, true);
     }
   }
 
@@ -67,19 +65,19 @@ public interface SqlTranslator {
   }
 
   default String groupBySql(
-      SqlField sqlField, @Nullable String tableAlias, boolean fieldIsSelected) {
+      SqlQueryField sqlQueryField, @Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {
-      String alias = sqlField.getAlias();
-      return alias == null || alias.isEmpty() ? sqlField.getField().getColumnName() : alias;
+      String alias = sqlQueryField.getAlias();
+      return alias == null || alias.isEmpty() ? sqlQueryField.getField().getColumnName() : alias;
     } else {
-      return fieldSql(sqlField, tableAlias, true);
+      return fieldSql(sqlQueryField, tableAlias, true);
     }
   }
 
   default String fieldSql(
-      SqlField sqlField, @Nullable String tableAlias, boolean isForOrderOrGroupBy) {
-    FieldPointer field = sqlField.getField();
-    String alias = sqlField.getAlias();
+      SqlQueryField sqlQueryField, @Nullable String tableAlias, boolean isForOrderOrGroupBy) {
+    SqlField field = sqlQueryField.getField();
+    String alias = sqlQueryField.getAlias();
     String baseFieldSql =
         tableAlias == null ? field.getColumnName() : (tableAlias + '.' + field.getColumnName());
     if (!field.hasSqlFunctionWrapper()) {
@@ -110,8 +108,8 @@ public interface SqlTranslator {
   }
 
   default String binaryFilterSql(
-      FieldPointer field,
-      BinaryFilterVariable.BinaryOperator operator,
+      SqlField field,
+      BinaryOperator operator,
       Literal value,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
@@ -128,7 +126,7 @@ public interface SqlTranslator {
   }
 
   default String functionFilterSql(
-      FieldPointer field,
+      SqlField field,
       String functionTemplate,
       List<Literal> values,
       @Nullable String tableAlias,
@@ -145,7 +143,7 @@ public interface SqlTranslator {
     return StringSubstitutor.replace(functionTemplate, substitutorParams);
   }
 
-  default String binaryOperatorSql(BinaryFilterVariable.BinaryOperator operator) {
+  default String binaryOperatorSql(BinaryOperator operator) {
     switch (operator) {
       case EQUALS:
         return "=";
@@ -169,17 +167,17 @@ public interface SqlTranslator {
   }
 
   default String inSelectFilterSql(
-      FieldPointer whereField,
+      SqlField whereField,
       @Nullable String tableAlias,
-      FieldPointer selectField,
-      TablePointer table,
+      SqlField selectField,
+      SqlTable table,
       String filterSql,
       SqlParams sqlParams,
       Literal... unionAllLiterals) {
     List<String> selectSqls = new ArrayList<>();
     selectSqls.add(
         "SELECT "
-            + selectSql(SqlField.of(selectField, null), null)
+            + selectSql(SqlQueryField.of(selectField, null), null)
             + " FROM "
             + table.renderSQL()
             + " WHERE "
@@ -192,8 +190,7 @@ public interface SqlTranslator {
         + ')';
   }
 
-  default String booleanAndOrFilterSql(
-      BooleanAndOrFilterVariable.LogicalOperator operator, String... subFilterSqls) {
+  default String booleanAndOrFilterSql(LogicalOperator operator, String... subFilterSqls) {
     return Arrays.stream(subFilterSqls)
         .collect(Collectors.joining(' ' + logicalOperatorSql(operator) + ' '));
   }
@@ -202,7 +199,7 @@ public interface SqlTranslator {
     return "NOT " + subFilterSql;
   }
 
-  default String logicalOperatorSql(BooleanAndOrFilterVariable.LogicalOperator operator) {
+  default String logicalOperatorSql(LogicalOperator operator) {
     switch (operator) {
       case AND:
         return "AND";
@@ -214,9 +211,9 @@ public interface SqlTranslator {
   }
 
   default String havingSql(
-      BinaryFilterVariable.BinaryOperator groupByOperator,
+      BinaryOperator groupByOperator,
       Integer groupByCount,
-      List<FieldPointer> groupByFields,
+      List<SqlField> groupByFields,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
     sqlParams.addParam("groupByCount", new Literal(groupByCount));

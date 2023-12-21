@@ -1,15 +1,16 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
-import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.TablePointer;
 import bio.terra.tanagra.query2.bigquery.BQTranslator;
 import bio.terra.tanagra.query2.sql.SqlField;
+import bio.terra.tanagra.query2.sql.SqlQueryField;
+import bio.terra.tanagra.query2.sql.SqlTable;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
@@ -78,7 +79,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                 columnSchema ->
                     Field.newBuilder(
                             columnSchema.getColumnName(),
-                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()))
+                            BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
                         .build())
             .collect(Collectors.toList());
 
@@ -212,8 +213,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
   }
 
   private static boolean isEnumHint(Attribute attribute) {
-    return attribute.isValueDisplay()
-        && Literal.DataType.INT64.equals(attribute.getRuntimeDataType());
+    return attribute.isValueDisplay() && DataType.INT64.equals(attribute.getRuntimeDataType());
   }
 
   private static boolean isRangeHint(Attribute attribute) {
@@ -234,10 +234,10 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     // SELECT MIN(attr) AS minVal, MAX(attr) AS maxVal FROM (SELECT * FROM indextable)
     BQTranslator bqTranslator = new BQTranslator();
 
-    TablePointer innerQueryTable =
-        new TablePointer("SELECT * FROM " + indexAttributesTable.getTablePointer().renderSQL());
-    FieldPointer attrField =
-        new FieldPointer.Builder()
+    SqlTable innerQueryTable =
+        new SqlTable("SELECT * FROM " + indexAttributesTable.getTablePointer().renderSQL());
+    SqlField attrField =
+        new SqlField.Builder()
             .tablePointer(innerQueryTable)
             .columnName(
                 indexAttributesTable.getAttributeValueField(attribute.getName()).getColumnName())
@@ -247,11 +247,13 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     String selectMinMaxSql =
         "SELECT "
             + bqTranslator.selectSql(
-                SqlField.of(attrField.toBuilder().sqlFunctionWrapper("MIN").build(), minValAlias),
+                SqlQueryField.of(
+                    attrField.toBuilder().sqlFunctionWrapper("MIN").build(), minValAlias),
                 null)
             + ", "
             + bqTranslator.selectSql(
-                SqlField.of(attrField.toBuilder().sqlFunctionWrapper("MAX").build(), maxValAlias),
+                SqlQueryField.of(
+                    attrField.toBuilder().sqlFunctionWrapper("MAX").build(), maxValAlias),
                 null)
             + " FROM "
             + innerQueryTable.renderSQL();
@@ -299,8 +301,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     // Build the query.
     // SELECT attrVal AS enumVal, attrDisp AS enumDisp, COUNT(*) AS enumCount FROM indextable GROUP
     // BY enumVal, enumDisp
-    FieldPointer attrValField = indexAttributesTable.getAttributeValueField(attribute.getName());
-    FieldPointer attrDispField = indexAttributesTable.getAttributeDisplayField(attribute.getName());
+    SqlField attrValField = indexAttributesTable.getAttributeValueField(attribute.getName());
+    SqlField attrDispField = indexAttributesTable.getAttributeDisplayField(attribute.getName());
     final String enumValAlias = "enumVal";
     final String enumDispAlias = "enumDisp";
     final String enumCountAlias = "enumCount";
@@ -308,17 +310,17 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     BQTranslator bqTranslator = new BQTranslator();
     String selectEnumCountSql =
         "SELECT "
-            + bqTranslator.selectSql(SqlField.of(attrValField, enumValAlias), null)
+            + bqTranslator.selectSql(SqlQueryField.of(attrValField, enumValAlias), null)
             + ", "
-            + bqTranslator.selectSql(SqlField.of(attrDispField, enumDispAlias), null)
+            + bqTranslator.selectSql(SqlQueryField.of(attrDispField, enumDispAlias), null)
             + ", COUNT(*) AS "
             + enumCountAlias
             + " FROM "
             + indexAttributesTable.getTablePointer().renderSQL()
             + " GROUP BY "
-            + bqTranslator.groupBySql(SqlField.of(attrValField, enumValAlias), null, true)
+            + bqTranslator.groupBySql(SqlQueryField.of(attrValField, enumValAlias), null, true)
             + ", "
-            + bqTranslator.groupBySql(SqlField.of(attrDispField, enumDispAlias), null, true);
+            + bqTranslator.groupBySql(SqlQueryField.of(attrDispField, enumDispAlias), null, true);
 
     // Execute the query.
     QueryJobConfiguration queryConfig =

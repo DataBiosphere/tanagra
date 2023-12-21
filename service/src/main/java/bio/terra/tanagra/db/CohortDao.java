@@ -4,9 +4,9 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Criteria;
@@ -78,9 +78,7 @@ public class CohortDao {
                   CohortRevision.CriteriaGroupSection.builder()
                       .id(rs.getString("id"))
                       .displayName(rs.getString("display_name"))
-                      .operator(
-                          BooleanAndOrFilterVariable.LogicalOperator.valueOf(
-                              rs.getString("operator")))
+                      .operator(LogicalOperator.valueOf(rs.getString("operator")))
                       .setIsExcluded(rs.getBoolean("is_excluded")));
 
   // SQL query and row mapper for reading a criteria group.
@@ -100,8 +98,7 @@ public class CohortDao {
                       .groupByCountOperator(
                           rs.getString("group_by_count_operator") == null
                               ? null
-                              : BinaryFilterVariable.BinaryOperator.valueOf(
-                                  rs.getString("group_by_count_operator")))
+                              : BinaryOperator.valueOf(rs.getString("group_by_count_operator")))
                       .groupByCountValue(rs.getInt("group_by_count_value")));
 
   // SQL query and row mapper for reading a criteria.

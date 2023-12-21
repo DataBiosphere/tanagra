@@ -1,7 +1,7 @@
 package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
@@ -25,7 +25,7 @@ public class BQAttributeFilterTranslator extends SqlFilterTranslator {
             .getEntityMain(attributeFilter.getEntity().getName());
 
     Attribute attribute = attributeFilter.getAttribute();
-    FieldPointer valueField =
+    SqlField valueField =
         attributeSwapFields.containsKey(attribute)
             ? attributeSwapFields.get(attribute)
             : indexTable.getAttributeValueField(attribute.getName());

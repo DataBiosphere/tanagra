@@ -1,22 +1,12 @@
-package bio.terra.tanagra.query;
+package bio.terra.tanagra.api.shared;
 
 import bio.terra.tanagra.exception.SystemException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Objects;
 
-public class Literal implements SQLExpression {
-  /** Enum for the data types supported by Tanagra. */
-  public enum DataType {
-    INT64,
-    STRING,
-    BOOLEAN,
-    DATE,
-    DOUBLE,
-    TIMESTAMP
-  }
-
-  private final Literal.DataType dataType;
+public class Literal {
+  private final DataType dataType;
   private String stringVal;
   private long int64Val;
   private boolean booleanVal;
@@ -72,7 +62,6 @@ public class Literal implements SQLExpression {
     this.timestampVal = builder.timestampVal;
   }
 
-  @Override
   public String renderSQL() {
     // TODO: use named parameters for literals to protect against SQL injection
     switch (dataType) {
@@ -195,7 +184,7 @@ public class Literal implements SQLExpression {
   }
 
   public static class Builder {
-    private Literal.DataType dataType;
+    private DataType dataType;
     private String stringVal;
     private long int64Val;
     private boolean booleanVal;
@@ -203,7 +192,7 @@ public class Literal implements SQLExpression {
     private double doubleVal;
     private Timestamp timestampVal;
 
-    public Builder dataType(Literal.DataType dataType) {
+    public Builder dataType(DataType dataType) {
       this.dataType = dataType;
       return this;
     }

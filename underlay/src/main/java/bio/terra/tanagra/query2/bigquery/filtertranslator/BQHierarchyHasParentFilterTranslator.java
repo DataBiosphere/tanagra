@@ -1,8 +1,8 @@
 package bio.terra.tanagra.query2.bigquery.filtertranslator;
 
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.query2.sql.SqlField;
 import bio.terra.tanagra.query2.sql.SqlFilterTranslator;
 import bio.terra.tanagra.query2.sql.SqlParams;
 import bio.terra.tanagra.query2.sql.SqlTranslator;
@@ -29,7 +29,7 @@ public class BQHierarchyHasParentFilterTranslator extends SqlFilterTranslator {
                 hierarchyHasParentFilter.getEntity().getName(),
                 hierarchyHasParentFilter.getHierarchy().getName());
     Attribute idAttribute = hierarchyHasParentFilter.getEntity().getIdAttribute();
-    FieldPointer idField =
+    SqlField idField =
         attributeSwapFields.containsKey(idAttribute)
             ? attributeSwapFields.get(idAttribute)
             : hierarchyHasParentFilter
@@ -44,7 +44,7 @@ public class BQHierarchyHasParentFilterTranslator extends SqlFilterTranslator {
         childParentIndexTable.getTablePointer(),
         sqlTranslator.binaryFilterSql(
             childParentIndexTable.getParentField(),
-            BinaryFilterVariable.BinaryOperator.EQUALS,
+            BinaryOperator.EQUALS,
             hierarchyHasParentFilter.getParentId(),
             null,
             sqlParams),

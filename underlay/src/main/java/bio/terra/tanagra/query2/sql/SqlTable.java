@@ -1,25 +1,25 @@
-package bio.terra.tanagra.query;
+package bio.terra.tanagra.query2.sql;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.text.StringSubstitutor;
 
-public final class TablePointer implements SQLExpression {
+public final class SqlTable {
   // TODO: Move these BQ-specific properties and related logic into a sub-class.
   private final String projectId;
   private final String datasetId;
   private final String tableName;
   private final String sql;
 
-  public TablePointer(String projectId, String datasetId, String tableName) {
+  public SqlTable(String projectId, String datasetId, String tableName) {
     this.projectId = projectId;
     this.datasetId = datasetId;
     this.tableName = tableName;
     this.sql = null;
   }
 
-  public TablePointer(String sql) {
+  public SqlTable(String sql) {
     this.projectId = null;
     this.datasetId = null;
     this.tableName = null;
@@ -38,7 +38,6 @@ public final class TablePointer implements SQLExpression {
     return sql;
   }
 
-  @Override
   public String renderSQL() {
     if (isRawSql()) {
       return "(" + sql + ")";
@@ -62,7 +61,7 @@ public final class TablePointer implements SQLExpression {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TablePointer that = (TablePointer) o;
+    SqlTable that = (SqlTable) o;
     return Objects.equals(projectId, that.projectId)
         && Objects.equals(datasetId, that.datasetId)
         && Objects.equals(tableName, that.tableName)
