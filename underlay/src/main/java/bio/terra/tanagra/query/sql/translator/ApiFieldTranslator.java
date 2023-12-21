@@ -3,7 +3,6 @@ package bio.terra.tanagra.query.sql.translator;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.query.sql.SqlRowResult;
-
 import java.util.List;
 
 public interface ApiFieldTranslator {

@@ -19,7 +19,6 @@ import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTransla
 import bio.terra.tanagra.query.bigquery.translator.field.BQEntityIdCountFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyIsMemberFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyIsRootFieldTranslator;
-import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyNumChildrenFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyPathFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQRelatedEntityIdCountFieldTranslator;
@@ -30,6 +29,7 @@ import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsMemberFil
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsRootFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQRelationshipFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQTextSearchFilterTranslator;
+import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 

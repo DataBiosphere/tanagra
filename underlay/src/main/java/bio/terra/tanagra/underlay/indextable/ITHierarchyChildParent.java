@@ -44,11 +44,11 @@ public final class ITHierarchyChildParent extends IndexTable {
   }
 
   public SqlField getChildField() {
-    return SqlField.of(getTablePointer(), Column.CHILD.getSchema().getColumnName());
+    return SqlField.of(Column.CHILD.getSchema().getColumnName());
   }
 
   public SqlField getParentField() {
-    return SqlField.of(getTablePointer(), Column.PARENT.getSchema().getColumnName());
+    return SqlField.of(Column.PARENT.getSchema().getColumnName());
   }
 
   public enum Column {

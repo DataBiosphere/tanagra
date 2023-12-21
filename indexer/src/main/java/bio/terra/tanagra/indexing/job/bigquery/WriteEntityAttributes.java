@@ -74,13 +74,13 @@ public class WriteEntityAttributes extends BigQueryJob {
     // Build the query to insert to the index table using a select from the source table.
     String insertFromSelectSql =
         "INSERT INTO "
-            + indexTable.getTablePointer().renderSQL()
+            + indexTable.getTablePointer().renderForQuery()
             + " ("
             + insertColumns.stream().collect(Collectors.joining(", "))
             + ") SELECT "
             + selectColumns.stream().collect(Collectors.joining(", "))
             + " FROM "
-            + sourceTable.getTablePointer().renderSQL();
+            + sourceTable.getTablePointer().renderForQuery();
     LOGGER.info("Generated insert SQL: {}", insertFromSelectSql);
 
     if (getOutputTable().isPresent()) {

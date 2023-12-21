@@ -57,7 +57,7 @@ public class WriteChildParent extends BigQueryJob {
                     sourceTable.getParentField(),
                     ITHierarchyChildParent.Column.PARENT.getSchema().getColumnName()))
             + " FROM "
-            + sourceTable.getTablePointer().renderSQL();
+            + sourceTable.getTablePointer().renderForQuery();
     LOGGER.info("source child-parent query: {}", sourceChildParentSql);
 
     // Create a new table directly from the select query.

@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
 import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.sql.SqlField;
-import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.common.collect.ImmutableList;
 
@@ -14,13 +14,13 @@ public class STRelationshipIdPairs extends SourceTable {
   private final ColumnSchema entityBIdColumnSchema;
 
   public STRelationshipIdPairs(
-      SqlTable sqlTable,
+      BQTable bqTable,
       String entityGroup,
       String entityA,
       String entityB,
       String entityAIdFieldName,
       String entityBIdFieldName) {
-    super(sqlTable);
+    super(bqTable);
     this.entityGroup = entityGroup;
     this.entityA = entityA;
     this.entityB = entityB;
@@ -46,10 +46,10 @@ public class STRelationshipIdPairs extends SourceTable {
   }
 
   public SqlField getEntityAIdField() {
-    return SqlField.of(getTablePointer(), entityAIdColumnSchema.getColumnName());
+    return SqlField.of(entityAIdColumnSchema.getColumnName());
   }
 
   public SqlField getEntityBIdField() {
-    return SqlField.of(getTablePointer(), entityBIdColumnSchema.getColumnName());
+    return SqlField.of(entityBIdColumnSchema.getColumnName());
   }
 }

@@ -13,7 +13,7 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest.OrderBy;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
@@ -55,7 +55,7 @@ public class BQFieldTest extends BQRunnerTest {
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, limit, null, null, true));
 
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeField", listQueryResult.getSql(), table);
   }
 
@@ -71,7 +71,7 @@ public class BQFieldTest extends BQRunnerTest {
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
 
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("entityIdCountField", listQueryResult.getSql(), table);
   }
 
@@ -100,7 +100,7 @@ public class BQFieldTest extends BQRunnerTest {
             new ListQueryRequest(
                 underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
 
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyFields", listQueryResult.getSql(), table);
   }
 
@@ -135,7 +135,7 @@ public class BQFieldTest extends BQRunnerTest {
                 null,
                 true));
 
-    SqlTable table =
+    BQTable table =
         underlay.getIndexSchema().getEntityMain(countForEntity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("relatedEntityIdCountField", listQueryResult.getSql(), table);
   }

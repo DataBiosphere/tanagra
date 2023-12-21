@@ -19,8 +19,8 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.QueryRunner;
-import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
+import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryRequest;
 import bio.terra.tanagra.query.sql.SqlQueryResult;
@@ -99,7 +99,7 @@ public class BQQueryRunner implements QueryRunner {
     sql.append("SELECT ")
         .append(selectFields.stream().collect(Collectors.joining(", ")))
         .append(" FROM ")
-        .append(entityMain.getTablePointer().renderSQL());
+        .append(entityMain.getTablePointer().renderForQuery());
 
     // WHERE [filter]
     if (listQueryRequest.getFilter() != null) {
@@ -178,7 +178,7 @@ public class BQQueryRunner implements QueryRunner {
     sql.append("SELECT ")
         .append(selectFields.stream().collect(Collectors.joining(", ")))
         .append(" FROM ")
-        .append(entityMain.getTablePointer().renderSQL());
+        .append(entityMain.getTablePointer().renderForQuery());
 
     // WHERE [filter]
     if (countQueryRequest.getFilter() != null) {
@@ -264,7 +264,7 @@ public class BQQueryRunner implements QueryRunner {
               .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
 
       // SELECT * FROM [entity-level hint]
-      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().renderSQL());
+      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().renderForQuery());
     } else {
       ITInstanceLevelDisplayHints ildhTable =
           hintQueryRequest
@@ -276,7 +276,7 @@ public class BQQueryRunner implements QueryRunner {
                   hintQueryRequest.getRelatedEntity().getName());
 
       // SELECT * FROM [instance-level hint]
-      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().renderSQL());
+      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().renderForQuery());
 
       // WHERE [filter on related entity id]
       String relatedEntityIdParam =

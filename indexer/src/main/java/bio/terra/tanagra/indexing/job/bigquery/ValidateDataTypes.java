@@ -55,7 +55,7 @@ public class ValidateDataTypes extends BigQueryJob {
   public void run(boolean isDryRun) {
     // Build the query to select all the attributes from the source table.
     String selectOneRowSql =
-        "SELECT * FROM " + sourceTable.getTablePointer().renderSQL() + " LIMIT 1";
+        "SELECT * FROM " + sourceTable.getTablePointer().renderForQuery() + " LIMIT 1";
     LOGGER.info("Generated select SQL: {}", selectOneRowSql);
 
     Schema sourceQueryResultSchema = googleBigQuery.getQuerySchemaWithCaching(selectOneRowSql);

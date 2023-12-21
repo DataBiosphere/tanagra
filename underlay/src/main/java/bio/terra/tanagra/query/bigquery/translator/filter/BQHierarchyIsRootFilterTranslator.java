@@ -14,7 +14,7 @@ public class BQHierarchyIsRootFilterTranslator extends ApiFilterTranslator {
   private final HierarchyIsRootFilter hierarchyIsRootFilter;
 
   public BQHierarchyIsRootFilterTranslator(
-          ApiTranslator apiTranslator, HierarchyIsRootFilter hierarchyIsRootFilter) {
+      ApiTranslator apiTranslator, HierarchyIsRootFilter hierarchyIsRootFilter) {
     super(apiTranslator);
     this.hierarchyIsRootFilter = hierarchyIsRootFilter;
   }

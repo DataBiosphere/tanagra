@@ -98,7 +98,7 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
     // from the index entity main table, and the pipeline steps to read the results and build a (id,
     // tablerow) KV PCollection.
     String allOccInstancesSql =
-        "SELECT * FROM " + occurrenceEntityIndexTable.getTablePointer().renderSQL();
+        "SELECT * FROM " + occurrenceEntityIndexTable.getTablePointer().renderForQuery();
     LOGGER.info("allOccInstancesQuery: {}", allOccInstancesSql);
     PCollection<KV<Long, TableRow>> occIdRowKVs =
         readInOccRows(pipeline, allOccInstancesSql, occurrenceEntity.getIdAttribute().getName());
@@ -214,7 +214,7 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
               + ", "
               + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName))
               + " FROM "
-              + entityAIndexTable.getTablePointer().renderSQL();
+              + entityAIndexTable.getTablePointer().renderForQuery();
     } else if (relationship.isForeignKeyAttributeEntityB()) {
       SqlField entityAIdField =
           entityBIndexTable.getAttributeValueField(
@@ -228,7 +228,7 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
               + ", "
               + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName))
               + " FROM "
-              + entityBIndexTable.getTablePointer().renderSQL();
+              + entityBIndexTable.getTablePointer().renderForQuery();
     } else { // relationship.isIntermediateTable()
       SqlField entityAIdField = relationshipIdPairsTable.getEntityAIdField();
       SqlField entityBIdField = relationshipIdPairsTable.getEntityBIdField();
@@ -238,7 +238,7 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
               + ", "
               + bqTranslator.selectSql(SqlQueryField.of(entityBIdField, entityBIdColumnName))
               + " FROM "
-              + relationshipIdPairsTable.getTablePointer().renderSQL();
+              + relationshipIdPairsTable.getTablePointer().renderForQuery();
     }
     return idPairsSql;
   }

@@ -14,7 +14,7 @@ public class BQHierarchyIsMemberFilterTranslator extends ApiFilterTranslator {
   private final HierarchyIsMemberFilter hierarchyIsMemberFilter;
 
   public BQHierarchyIsMemberFilterTranslator(
-          ApiTranslator apiTranslator, HierarchyIsMemberFilter hierarchyIsMemberFilter) {
+      ApiTranslator apiTranslator, HierarchyIsMemberFilter hierarchyIsMemberFilter) {
     super(apiTranslator);
     this.hierarchyIsMemberFilter = hierarchyIsMemberFilter;
   }

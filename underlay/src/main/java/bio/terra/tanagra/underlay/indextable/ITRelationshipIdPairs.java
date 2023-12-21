@@ -55,11 +55,11 @@ public final class ITRelationshipIdPairs extends IndexTable {
   }
 
   public SqlField getEntityAIdField() {
-    return SqlField.of(getTablePointer(), Column.ENTITY_A_ID.getSchema().getColumnName());
+    return SqlField.of(Column.ENTITY_A_ID.getSchema().getColumnName());
   }
 
   public SqlField getEntityBIdField() {
-    return SqlField.of(getTablePointer(), Column.ENTITY_B_ID.getSchema().getColumnName());
+    return SqlField.of(Column.ENTITY_B_ID.getSchema().getColumnName());
   }
 
   public SqlField getEntityIdField(String entity) {

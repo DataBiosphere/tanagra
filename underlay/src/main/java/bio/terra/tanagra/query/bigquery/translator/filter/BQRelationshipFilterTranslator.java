@@ -16,7 +16,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
   private final RelationshipFilter relationshipFilter;
 
   public BQRelationshipFilterTranslator(
-          ApiTranslator apiTranslator, RelationshipFilter relationshipFilter) {
+      ApiTranslator apiTranslator, RelationshipFilter relationshipFilter) {
     super(apiTranslator);
     this.relationshipFilter = relationshipFilter;
   }

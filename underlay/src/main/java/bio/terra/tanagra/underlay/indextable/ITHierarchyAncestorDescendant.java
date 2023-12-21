@@ -44,11 +44,11 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
   }
 
   public SqlField getAncestorField() {
-    return SqlField.of(getTablePointer(), Column.ANCESTOR.getSchema().getColumnName());
+    return SqlField.of(Column.ANCESTOR.getSchema().getColumnName());
   }
 
   public SqlField getDescendantField() {
-    return SqlField.of(getTablePointer(), Column.DESCENDANT.getSchema().getColumnName());
+    return SqlField.of(Column.DESCENDANT.getSchema().getColumnName());
   }
 
   public enum Column {

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
 import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -18,9 +18,8 @@ public class STEntityAttributes extends SourceTable {
   private final ImmutableMap<String, ColumnSchema> attributeValueColumnSchemas;
   private final ImmutableMap<String, ColumnSchema> attributeDisplayColumnSchemas;
 
-  public STEntityAttributes(
-      SqlTable sqlTable, String entity, List<SZEntity.Attribute> szAttributes) {
-    super(sqlTable);
+  public STEntityAttributes(BQTable bqTable, String entity, List<SZEntity.Attribute> szAttributes) {
+    super(bqTable);
     this.entity = entity;
 
     Map<String, ColumnSchema> attributeValueColumnSchemasBuilder = new HashMap<>();

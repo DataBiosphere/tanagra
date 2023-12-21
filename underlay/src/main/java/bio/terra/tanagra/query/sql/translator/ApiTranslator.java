@@ -25,10 +25,10 @@ import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
-import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanAndOrFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanNotFilterTranslator;
 import java.util.ArrayList;
@@ -178,7 +178,7 @@ public interface ApiTranslator {
       SqlField whereField,
       @Nullable String tableAlias,
       SqlField selectField,
-      SqlTable table,
+      BQTable table,
       String filterSql,
       SqlParams sqlParams,
       Literal... unionAllLiterals) {
@@ -187,7 +187,7 @@ public interface ApiTranslator {
         "SELECT "
             + selectSql(SqlQueryField.of(selectField))
             + " FROM "
-            + table.renderSQL()
+            + table.renderForQuery()
             + " WHERE "
             + filterSql);
     Arrays.stream(unionAllLiterals)

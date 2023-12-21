@@ -13,7 +13,7 @@ public class BQHierarchyHasParentFilterTranslator extends ApiFilterTranslator {
   private final HierarchyHasParentFilter hierarchyHasParentFilter;
 
   public BQHierarchyHasParentFilterTranslator(
-          ApiTranslator apiTranslator, HierarchyHasParentFilter hierarchyHasParentFilter) {
+      ApiTranslator apiTranslator, HierarchyHasParentFilter hierarchyHasParentFilter) {
     super(apiTranslator);
     this.hierarchyHasParentFilter = hierarchyHasParentFilter;
   }

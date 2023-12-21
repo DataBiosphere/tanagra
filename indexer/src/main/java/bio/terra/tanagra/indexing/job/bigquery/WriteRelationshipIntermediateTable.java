@@ -55,7 +55,7 @@ public class WriteRelationshipIntermediateTable extends BigQueryJob {
                     sourceTable.getEntityBIdField(),
                     ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema().getColumnName()))
             + " FROM "
-            + sourceTable.getTablePointer().renderSQL();
+            + sourceTable.getTablePointer().renderForQuery();
     LOGGER.info("source relationship id-pairs query: {}", sourceIdPairsSql);
 
     // Create a new table directly from the select query.

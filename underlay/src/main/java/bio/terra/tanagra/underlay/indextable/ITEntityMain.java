@@ -106,7 +106,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public SqlField getAttributeValueField(String attribute) {
-    return SqlField.of(getTablePointer(), attribute);
+    return SqlField.of(attribute);
   }
 
   public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
@@ -114,7 +114,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public SqlField getAttributeDisplayField(String attribute) {
-    return SqlField.of(getTablePointer(), getAttributeDisplayFieldName(attribute));
+    return SqlField.of(getAttributeDisplayFieldName(attribute));
   }
 
   private String getAttributeDisplayFieldName(String attribute) {
@@ -123,7 +123,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public SqlField getHierarchyPathField(String hierarchy) {
-    return SqlField.of(getTablePointer(), getHierarchyPathFieldName(hierarchy));
+    return SqlField.of(getHierarchyPathFieldName(hierarchy));
   }
 
   public ColumnSchema getHierarchyPathColumnSchema(String hierarchy) {
@@ -137,7 +137,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public SqlField getHierarchyNumChildrenField(String hierarchy) {
-    return SqlField.of(getTablePointer(), getHierarchyNumChildrenFieldName(hierarchy));
+    return SqlField.of(getHierarchyNumChildrenFieldName(hierarchy));
   }
 
   public ColumnSchema getHierarchyNumChildrenColumnSchema(String hierarchy) {
@@ -152,7 +152,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public SqlField getEntityGroupCountField(String entityGroup, @Nullable String hierarchy) {
-    return SqlField.of(getTablePointer(), getEntityGroupCountFieldName(entityGroup, hierarchy));
+    return SqlField.of(getEntityGroupCountFieldName(entityGroup, hierarchy));
   }
 
   public ColumnSchema getEntityGroupCountColumnSchema(
@@ -169,7 +169,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public SqlField getTextSearchField() {
-    return SqlField.of(getTablePointer(), getTextSearchFieldName());
+    return SqlField.of(getTextSearchFieldName());
   }
 
   private String getTextSearchFieldName() {

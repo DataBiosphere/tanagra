@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
@@ -17,8 +17,8 @@ public abstract class IndexTable {
 
   public abstract String getTableBaseName();
 
-  public SqlTable getTablePointer() {
-    return new SqlTable(
+  public BQTable getTablePointer() {
+    return new BQTable(
         bigQueryConfig.projectId,
         bigQueryConfig.datasetId,
         namer.getReservedTableName(getTableBaseName()));

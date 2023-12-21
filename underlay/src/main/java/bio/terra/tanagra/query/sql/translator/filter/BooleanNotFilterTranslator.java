@@ -10,7 +10,7 @@ public class BooleanNotFilterTranslator extends ApiFilterTranslator {
   private final BooleanNotFilter booleanNotFilter;
 
   public BooleanNotFilterTranslator(
-          ApiTranslator apiTranslator, BooleanNotFilter booleanNotFilter) {
+      ApiTranslator apiTranslator, BooleanNotFilter booleanNotFilter) {
     super(apiTranslator);
     this.booleanNotFilter = booleanNotFilter;
   }

@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.job;
 
 import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
@@ -59,14 +60,14 @@ public abstract class BigQueryJob implements IndexingJob {
         && outputTable.get().getNumRows().compareTo(BigInteger.ZERO) == 1;
   }
 
-  protected boolean outputTableHasAtLeastOneRowWithNotNullField(SqlField field) {
+  protected boolean outputTableHasAtLeastOneRowWithNotNullField(BQTable sqlTable, SqlField field) {
     // Check if the table has at least 1 row with a non-null field value.
     BQApiTranslator bqTranslator = new BQApiTranslator();
     String selectOneRowSql =
         "SELECT "
             + bqTranslator.selectSql(SqlQueryField.of(field))
             + " FROM "
-            + field.getTable().renderSQL()
+            + sqlTable.renderForQuery()
             + " WHERE "
             + bqTranslator.functionFilterSql(
                 field,

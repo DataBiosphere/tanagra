@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
 import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.sql.SqlField;
-import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
@@ -13,8 +13,8 @@ public class STHierarchyChildParent extends SourceTable {
   private final ColumnSchema childColumnSchema;
   private final ColumnSchema parentColumnSchema;
 
-  public STHierarchyChildParent(SqlTable sqlTable, String entity, SZEntity.Hierarchy szHierarchy) {
-    super(sqlTable);
+  public STHierarchyChildParent(BQTable bqTable, String entity, SZEntity.Hierarchy szHierarchy) {
+    super(bqTable);
     this.entity = entity;
     this.hierarchy = szHierarchy.name;
     this.childColumnSchema = new ColumnSchema(szHierarchy.childIdFieldName, DataType.INT64);
@@ -35,11 +35,11 @@ public class STHierarchyChildParent extends SourceTable {
   }
 
   public SqlField getChildField() {
-    return SqlField.of(getTablePointer(), childColumnSchema.getColumnName());
+    return SqlField.of(childColumnSchema.getColumnName());
   }
 
   public SqlField getParentField() {
-    return SqlField.of(getTablePointer(), parentColumnSchema.getColumnName());
+    return SqlField.of(parentColumnSchema.getColumnName());
   }
 
   public ColumnSchema getChildColumnSchema() {

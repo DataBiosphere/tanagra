@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class BQHintQueryTest extends BQRunnerTest {
     HintQueryResult hintQueryResult =
         bqQueryRunner.run(new HintQueryRequest(underlay, hintedEntity, null, null, null, true));
 
-    SqlTable eldhTable =
+    BQTable eldhTable =
         underlay
             .getIndexSchema()
             .getEntityLevelDisplayHints(hintedEntity.getName())
@@ -46,7 +46,7 @@ public class BQHintQueryTest extends BQRunnerTest {
                 criteriaOccurrence,
                 true));
 
-    SqlTable eldhTable =
+    BQTable eldhTable =
         underlay
             .getIndexSchema()
             .getInstanceLevelDisplayHints(

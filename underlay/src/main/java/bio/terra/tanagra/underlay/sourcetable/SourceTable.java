@@ -1,18 +1,18 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.common.collect.ImmutableList;
 
 public abstract class SourceTable {
-  protected SqlTable sqlTable;
+  protected BQTable bqTable;
 
-  protected SourceTable(SqlTable sqlTable) {
-    this.sqlTable = sqlTable;
+  protected SourceTable(BQTable bqTable) {
+    this.bqTable = bqTable;
   }
 
-  public SqlTable getTablePointer() {
-    return sqlTable;
+  public BQTable getTablePointer() {
+    return bqTable;
   }
 
   public abstract ImmutableList<ColumnSchema> getColumnSchemas();

@@ -2,10 +2,10 @@ package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlQueryField;
-import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -48,7 +48,8 @@ public class WriteTextSearchField extends BigQueryJob {
   @Override
   public JobStatus checkStatus() {
     return outputTableHasAtLeastOneRow()
-            && outputTableHasAtLeastOneRowWithNotNullField(indexTable.getTextSearchField())
+            && outputTableHasAtLeastOneRowWithNotNullField(
+                indexTable.getTablePointer(), indexTable.getTextSearchField())
         ? JobStatus.COMPLETE
         : JobStatus.NOT_STARTED;
   }
@@ -85,7 +86,7 @@ public class WriteTextSearchField extends BigQueryJob {
                       + ", "
                       + bqTranslator.selectSql(SqlQueryField.of(attributeTextField, textAlias))
                       + " FROM "
-                      + indexTable.getTablePointer().renderSQL();
+                      + indexTable.getTablePointer().renderForQuery();
               idTextSqls.add(idTextSql);
             });
 
@@ -98,7 +99,7 @@ public class WriteTextSearchField extends BigQueryJob {
               + ", "
               + bqTranslator.selectSql(SqlQueryField.of(sourceTable.getTextField(), textAlias))
               + " FROM "
-              + sourceTable.getTablePointer().renderSQL();
+              + sourceTable.getTablePointer().renderForQuery();
       idTextSqls.add(idTextSql);
     }
 
@@ -109,16 +110,16 @@ public class WriteTextSearchField extends BigQueryJob {
     //   SELECT id AS idVal, text AS textVal FROM textSearchTerms
     // ) GROUP BY idVal
     String unionAllSql = idTextSqls.stream().collect(Collectors.joining(" UNION ALL "));
-    SqlTable unionAllTable = new SqlTable(unionAllSql);
-    SqlField tempTableIdField = SqlField.of(unionAllTable, idAlias);
-    SqlField tempTableTextField = SqlField.of(unionAllTable, textAlias, "STRING_AGG");
+    BQTable unionAllTable = new BQTable(unionAllSql);
+    SqlField tempTableIdField = SqlField.of(idAlias);
+    SqlField tempTableTextField = SqlField.of(textAlias, "STRING_AGG");
     String selectTextConcatSql =
         "SELECT "
             + bqTranslator.selectSql(SqlQueryField.of(tempTableIdField))
             + ", "
             + bqTranslator.selectSql(SqlQueryField.of(tempTableTextField, textAlias))
             + " FROM "
-            + unionAllTable.renderSQL()
+            + unionAllTable.renderForQuery()
             + " GROUP BY "
             + bqTranslator.groupBySql(SqlQueryField.of(tempTableIdField), null, true);
     LOGGER.info("idTextPairs union query: {}", selectTextConcatSql);
@@ -129,7 +130,7 @@ public class WriteTextSearchField extends BigQueryJob {
     String tempTableAlias = "temptable";
     String updateFromSelectSql =
         "UPDATE "
-            + indexTable.getTablePointer().renderSQL()
+            + indexTable.getTablePointer().renderForQuery()
             + " AS "
             + updateTableAlias
             + " SET "

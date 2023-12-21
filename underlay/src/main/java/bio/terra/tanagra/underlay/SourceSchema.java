@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
@@ -155,7 +155,7 @@ public final class SourceSchema {
 
     // EntityAttributes table.
     String allInstancesSql = configReader.readEntitySql(entityPath, szEntity.allInstancesSqlFile);
-    SqlTable allInstancesTable = new SqlTable(allInstancesSql);
+    BQTable allInstancesTable = new BQTable(allInstancesSql);
     entityAttributesTables.add(
         new STEntityAttributes(allInstancesTable, szEntity.name, szEntity.attributes));
 
@@ -163,7 +163,7 @@ public final class SourceSchema {
       // TextSearchTerms table.
       String idTextPairsSql =
           configReader.readEntitySql(entityPath, szEntity.textSearch.idTextPairsSqlFile);
-      SqlTable idTextPairsTable = new SqlTable(idTextPairsSql);
+      BQTable idTextPairsTable = new BQTable(idTextPairsSql);
       textSearchTermsTables.add(
           new STTextSearchTerms(idTextPairsTable, szEntity.name, szEntity.textSearch));
     }
@@ -174,7 +174,7 @@ public final class SourceSchema {
               // HierarchyChildParent table.
               String childParentSql =
                   configReader.readEntitySql(entityPath, szHierarchy.childParentIdPairsSqlFile);
-              SqlTable childParentTable = new SqlTable(childParentSql);
+              BQTable childParentTable = new BQTable(childParentSql);
               hierarchyChildParentTables.add(
                   new STHierarchyChildParent(childParentTable, szEntity.name, szHierarchy));
 
@@ -182,7 +182,7 @@ public final class SourceSchema {
                 // HierarchyRootFilter table.
                 String rootNodeSql =
                     configReader.readEntitySql(entityPath, szHierarchy.rootNodeIdsSqlFile);
-                SqlTable rootNodeTable = new SqlTable(rootNodeSql);
+                BQTable rootNodeTable = new BQTable(rootNodeSql);
                 hierarchyRootFilterTables.add(
                     new STHierarchyRootFilter(rootNodeTable, szEntity.name, szHierarchy));
               }
@@ -198,7 +198,7 @@ public final class SourceSchema {
       // RelationshipIdPairs table.
       String idPairsSql =
           configReader.readEntityGroupSql(groupItemsPath, szGroupItems.idPairsSqlFile);
-      SqlTable idPairsTable = new SqlTable(idPairsSql);
+      BQTable idPairsTable = new BQTable(idPairsSql);
       relationshipIdPairTables.add(
           new STRelationshipIdPairs(
               idPairsTable,
@@ -223,7 +223,7 @@ public final class SourceSchema {
           configReader.readEntityGroupSql(
               criteriaOccurrencePath,
               szCriteriaOccurrence.primaryCriteriaRelationship.idPairsSqlFile);
-      SqlTable idPairsTable = new SqlTable(idPairsSql);
+      BQTable idPairsTable = new BQTable(idPairsSql);
       relationshipIdPairTables.add(
           new STRelationshipIdPairs(
               idPairsTable,
@@ -242,7 +242,7 @@ public final class SourceSchema {
                     configReader.readEntityGroupSql(
                         criteriaOccurrencePath,
                         szOccurrenceEntity.criteriaRelationship.idPairsSqlFile);
-                SqlTable idPairsTable = new SqlTable(idPairsSql);
+                BQTable idPairsTable = new BQTable(idPairsSql);
                 relationshipIdPairTables.add(
                     new STRelationshipIdPairs(
                         idPairsTable,
@@ -258,7 +258,7 @@ public final class SourceSchema {
                     configReader.readEntityGroupSql(
                         criteriaOccurrencePath,
                         szOccurrenceEntity.primaryRelationship.idPairsSqlFile);
-                SqlTable idPairsTable = new SqlTable(idPairsSql);
+                BQTable idPairsTable = new BQTable(idPairsSql);
                 relationshipIdPairTables.add(
                     new STRelationshipIdPairs(
                         idPairsTable,

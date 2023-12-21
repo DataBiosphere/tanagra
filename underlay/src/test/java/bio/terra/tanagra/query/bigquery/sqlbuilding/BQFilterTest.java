@@ -17,7 +17,7 @@ import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -50,7 +50,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
 
     // Filter with function template.
@@ -102,7 +102,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanAndOrFilter", listQueryResult.getSql(), table);
   }
 
@@ -128,7 +128,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanNotFilter", listQueryResult.getSql(), table);
   }
 
@@ -152,9 +152,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable entityMainTable =
+    BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    SqlTable ancestorDescendantTable =
+    BQTable ancestorDescendantTable =
         underlay
             .getIndexSchema()
             .getHierarchyAncestorDescendant(entity.getName(), Hierarchy.DEFAULT_NAME)
@@ -186,9 +186,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable entityMainTable =
+    BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    SqlTable childParentTable =
+    BQTable childParentTable =
         underlay
             .getIndexSchema()
             .getHierarchyChildParent(entity.getName(), Hierarchy.DEFAULT_NAME)
@@ -216,7 +216,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsMemberFilter", listQueryResult.getSql(), table);
   }
 
@@ -239,7 +239,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsRootFilter", listQueryResult.getSql(), table);
   }
 
@@ -283,9 +283,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable occurrenceTable =
+    BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    SqlTable primaryTable =
+    BQTable primaryTable =
         underlay
             .getIndexSchema()
             .getEntityMain(underlay.getPrimaryEntity().getName())
@@ -377,9 +377,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable occurrenceTable =
+    BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    SqlTable primaryTable =
+    BQTable primaryTable =
         underlay
             .getIndexSchema()
             .getEntityMain(underlay.getPrimaryEntity().getName())
@@ -468,17 +468,17 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable groupTable =
+    BQTable groupTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getGroupEntity().getName())
             .getTablePointer();
-    SqlTable itemsTable =
+    BQTable itemsTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getItemsEntity().getName())
             .getTablePointer();
-    SqlTable idPairsTable =
+    BQTable idPairsTable =
         underlay
             .getIndexSchema()
             .getRelationshipIdPairs(
@@ -574,9 +574,9 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable occurrenceTable =
+    BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
-    SqlTable primaryTable =
+    BQTable primaryTable =
         underlay
             .getIndexSchema()
             .getEntityMain(underlay.getPrimaryEntity().getName())
@@ -665,17 +665,17 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable groupTable =
+    BQTable groupTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getGroupEntity().getName())
             .getTablePointer();
-    SqlTable itemsTable =
+    BQTable itemsTable =
         underlay
             .getIndexSchema()
             .getEntityMain(groupItems.getItemsEntity().getName())
             .getTablePointer();
-    SqlTable idPairsTable =
+    BQTable idPairsTable =
         underlay
             .getIndexSchema()
             .getRelationshipIdPairs(
@@ -747,7 +747,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("textSearchFilterIndex", listQueryResult.getSql(), table);
 
     textSearchFilter =

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import com.google.common.collect.ImmutableMap;
@@ -16,7 +17,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test the generic SQL generation functions that we expect to apply to all SQL dialects. These are
- * the functions that are implemented as defaults in {@link bio.terra.tanagra.query.sql.translator.ApiTranslator}.
+ * the functions that are implemented as defaults in {@link
+ * bio.terra.tanagra.query.sql.translator.ApiTranslator}.
  */
 public class ApiTranslatorTest {
   private ApiTranslator apiTranslator;
@@ -28,9 +30,8 @@ public class ApiTranslatorTest {
 
   @Test
   void fieldNoAlias() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = SqlField.of(table, "columnName");
+    SqlField field = SqlField.of("columnName");
 
     // SELECT
     String selectSql = apiTranslator.selectSql(SqlQueryField.of(field), tableAlias);
@@ -45,8 +46,7 @@ public class ApiTranslatorTest {
 
   @Test
   void fieldNoTableAlias() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
-    SqlField field = SqlField.of(table, "columnName");
+    SqlField field = SqlField.of("columnName");
 
     // SELECT
     String selectSql = apiTranslator.selectSql(SqlQueryField.of(field));
@@ -61,9 +61,8 @@ public class ApiTranslatorTest {
 
   @Test
   void fieldNoFn() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = SqlField.of(table, "columnName");
+    SqlField field = SqlField.of("columnName");
     String fieldAlias = "fieldAlias";
 
     // SELECT
@@ -80,9 +79,8 @@ public class ApiTranslatorTest {
 
   @Test
   void fieldSimpleFn() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = SqlField.of(table, "columnName", "MAX");
+    SqlField field = SqlField.of("columnName", "MAX");
     String fieldAlias = "fieldAlias";
 
     // SELECT
@@ -99,11 +97,9 @@ public class ApiTranslatorTest {
 
   @Test
   void fieldSubstFn() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
     SqlField field =
         SqlField.of(
-            table,
             "columnName",
             "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)");
     String fieldAlias = "fieldAlias";
@@ -126,10 +122,8 @@ public class ApiTranslatorTest {
 
   @Test
   void binaryFilter() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-
-    SqlField field = SqlField.of(table, "columnName");
+    SqlField field = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
     Literal val = Literal.forTimestamp(Timestamp.from(Instant.now()));
     String sql =
@@ -140,7 +134,6 @@ public class ApiTranslatorTest {
 
     field =
         SqlField.of(
-            table,
             "columnName",
             "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)");
     sqlParams = new SqlParams();
@@ -156,10 +149,8 @@ public class ApiTranslatorTest {
 
   @Test
   void functionFilter() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-
-    SqlField field = SqlField.of(table, "columnName");
+    SqlField field = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
     Literal val = new Literal("test");
     String sql =
@@ -180,11 +171,10 @@ public class ApiTranslatorTest {
 
   @Test
   void inSelectFilter() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = SqlField.of(table, "columnName");
-    SqlTable joinTable = new SqlTable("projectId", "datasetId", "joinTableName");
-    SqlField joinField = SqlField.of(table, "joinColumnName");
+    SqlField field = SqlField.of("columnName");
+    BQTable joinTable = new BQTable("projectId", "datasetId", "joinTableName");
+    SqlField joinField = SqlField.of("joinColumnName");
 
     // Without literals.
     SqlParams sqlParams = new SqlParams();
@@ -216,9 +206,8 @@ public class ApiTranslatorTest {
 
   @Test
   void booleanAndOrFilter() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = SqlField.of(table, "columnName");
+    SqlField field = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
 
     Literal val1 = Literal.forTimestamp(Timestamp.from(Instant.now()));
@@ -226,8 +215,8 @@ public class ApiTranslatorTest {
         apiTranslator.binaryFilterSql(
             field, BinaryOperator.LESS_THAN_OR_EQUAL, val1, tableAlias, sqlParams);
 
-    SqlTable joinTable = new SqlTable("projectId", "datasetId", "joinTableName");
-    SqlField joinField = SqlField.of(table, "joinColumnName");
+    BQTable joinTable = new BQTable("projectId", "datasetId", "joinTableName");
+    SqlField joinField = SqlField.of("joinColumnName");
     Literal val2 = new Literal(14);
     String joinFilterSql =
         apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val2, null, sqlParams);
@@ -244,9 +233,8 @@ public class ApiTranslatorTest {
 
   @Test
   void booleanNotFilter() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField field = SqlField.of(table, "columnName");
+    SqlField field = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
 
     Literal val = Literal.forTimestamp(Timestamp.from(Instant.now()));
@@ -260,9 +248,8 @@ public class ApiTranslatorTest {
 
   @Test
   void having() {
-    SqlTable table = new SqlTable("projectId", "datasetId", "tableName");
     String tableAlias = "tableAlias";
-    SqlField groupByField = SqlField.of(table, "columnName");
+    SqlField groupByField = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
     Literal groupByCount = new Literal(4);
 

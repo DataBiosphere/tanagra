@@ -7,7 +7,7 @@ import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
-import bio.terra.tanagra.query.sql.SqlTable;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +37,7 @@ public class BQCountQueryTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    SqlTable entityMainTable =
+    BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withFilter", countQueryResult.getSql(), entityMainTable);
   }
@@ -51,7 +51,7 @@ public class BQCountQueryTest extends BQRunnerTest {
         bqQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, List.of(groupByAttribute), null, null, null, null, true));
-    SqlTable entityMainTable =
+    BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("noFilter", countQueryResult.getSql(), entityMainTable);
   }
@@ -62,7 +62,7 @@ public class BQCountQueryTest extends BQRunnerTest {
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(underlay, entity, List.of(), null, null, null, null, true));
-    SqlTable entityMainTable =
+    BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "noGroupByFields", countQueryResult.getSql(), entityMainTable);
@@ -77,7 +77,7 @@ public class BQCountQueryTest extends BQRunnerTest {
         bqQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, List.of(groupByAttribute), null, null, null, null, true));
-    SqlTable entityMainTable =
+    BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "groupByRuntimeCalculatedField", countQueryResult.getSql(), entityMainTable);
@@ -92,7 +92,7 @@ public class BQCountQueryTest extends BQRunnerTest {
         bqQueryRunner.run(
             new CountQueryRequest(
                 underlay, entity, List.of(groupByAttribute), null, null, null, null, true));
-    SqlTable entityMainTable =
+    BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "groupByValueDisplayField", countQueryResult.getSql(), entityMainTable);

@@ -82,7 +82,7 @@ public class WriteAncestorDescendant extends BigQueryJob {
             + bqTranslator.selectSql(
                 SqlQueryField.of(sourceTable.getParentField(), PARENT_COLUMN_NAME))
             + " FROM "
-            + sourceTable.getTablePointer().renderSQL();
+            + sourceTable.getTablePointer().renderForQuery();
     LOGGER.info("source child-parent query: {}", sourceChildParentSql);
     PCollection<KV<Long, Long>> relationships =
         pipeline

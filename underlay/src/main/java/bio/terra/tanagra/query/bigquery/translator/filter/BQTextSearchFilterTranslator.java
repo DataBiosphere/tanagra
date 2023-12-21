@@ -14,7 +14,7 @@ public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
   private final TextSearchFilter textSearchFilter;
 
   public BQTextSearchFilterTranslator(
-          ApiTranslator apiTranslator, TextSearchFilter textSearchFilter) {
+      ApiTranslator apiTranslator, TextSearchFilter textSearchFilter) {
     super(apiTranslator);
     this.textSearchFilter = textSearchFilter;
   }
