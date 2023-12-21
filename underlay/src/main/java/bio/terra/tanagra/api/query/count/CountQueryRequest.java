@@ -1,6 +1,6 @@
 package bio.terra.tanagra.api.query.count;
 
-import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.query.PageMarker;

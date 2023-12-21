@@ -32,10 +32,6 @@ public final class HintInstance {
     this.enumValueCounts = new HashMap<>(enumValueCounts);
   }
 
-  public void addEnumValueCount(ValueDisplay enumValue, Long count) {
-    enumValueCounts.put(enumValue, count);
-  }
-
   public Attribute getAttribute() {
     return attribute;
   }

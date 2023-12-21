@@ -1,16 +1,13 @@
-package bio.terra.tanagra.api.field.valuedisplay;
+package bio.terra.tanagra.api.field;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
-import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import javax.annotation.Nullable;
 
-public class RelatedEntityIdCountField extends SingleColumnField {
-  private final ITEntityMain indexTable;
+public class RelatedEntityIdCountField extends ValueDisplayField {
   private final Underlay underlay;
   private final Entity countForEntity;
   private final Entity countedEntity;
@@ -23,7 +20,6 @@ public class RelatedEntityIdCountField extends SingleColumnField {
       Entity countedEntity,
       EntityGroup entityGroup,
       @Nullable Hierarchy hierarchy) {
-    this.indexTable = underlay.getIndexSchema().getEntityMain(countForEntity.getName());
     this.underlay = underlay;
     this.countForEntity = countForEntity;
     this.countedEntity = countedEntity;
@@ -33,17 +29,6 @@ public class RelatedEntityIdCountField extends SingleColumnField {
 
   public EntityGroup getEntityGroup() {
     return entityGroup;
-  }
-
-  @Override
-  protected FieldPointer getField() {
-    return indexTable.getEntityGroupCountField(
-        entityGroup.getName(), hierarchy == null ? null : hierarchy.getName());
-  }
-
-  @Override
-  protected CellValue.SQLDataType getFieldDataType() {
-    return CellValue.SQLDataType.INT64;
   }
 
   public Underlay getUnderlay() {
@@ -64,5 +49,10 @@ public class RelatedEntityIdCountField extends SingleColumnField {
 
   public boolean hasHierarchy() {
     return hierarchy != null;
+  }
+
+  @Override
+  public Literal.DataType getDataType() {
+    return Literal.DataType.INT64;
   }
 }

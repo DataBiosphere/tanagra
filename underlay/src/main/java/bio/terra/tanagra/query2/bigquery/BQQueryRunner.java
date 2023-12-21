@@ -1,8 +1,8 @@
 package bio.terra.tanagra.query2.bigquery;
 
-import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
-import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
-import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;

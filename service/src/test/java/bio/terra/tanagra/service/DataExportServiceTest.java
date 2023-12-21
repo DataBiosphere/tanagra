@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
-import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;

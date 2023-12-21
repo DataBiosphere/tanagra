@@ -2,7 +2,7 @@ package bio.terra.tanagra.query2.bigquery.sqlbuilding;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
+import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.exception.InvalidQueryException;

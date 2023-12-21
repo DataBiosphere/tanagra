@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
+import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.query.OrderByDirection;

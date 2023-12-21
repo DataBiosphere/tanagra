@@ -1,6 +1,6 @@
 package bio.terra.tanagra.query2.bigquery.fieldtranslator;
 
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyPathField;
+import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.query.FieldPointer;
 import bio.terra.tanagra.query.Literal;

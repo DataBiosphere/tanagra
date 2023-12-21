@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.artifact;
 
-import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
+import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;

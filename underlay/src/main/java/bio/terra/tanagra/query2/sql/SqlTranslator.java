@@ -1,13 +1,13 @@
 package bio.terra.tanagra.query2.sql;
 
-import bio.terra.tanagra.api.field.valuedisplay.AttributeField;
-import bio.terra.tanagra.api.field.valuedisplay.EntityIdCountField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyIsMemberField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyIsRootField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyNumChildrenField;
-import bio.terra.tanagra.api.field.valuedisplay.HierarchyPathField;
-import bio.terra.tanagra.api.field.valuedisplay.RelatedEntityIdCountField;
-import bio.terra.tanagra.api.field.valuedisplay.ValueDisplayField;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.HierarchyIsMemberField;
+import bio.terra.tanagra.api.field.HierarchyIsRootField;
+import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
+import bio.terra.tanagra.api.field.HierarchyPathField;
+import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
