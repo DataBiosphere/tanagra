@@ -473,7 +473,13 @@
       ],
       "occurrences": "observation_occurrence",
       "classifications": ["observation"],
-      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
+      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
+      "valueConfigs": [
+        {
+          "title": "Categorical value",
+          "attribute": "value"
+        }
+      ]
     },
     {
       "type": "classification",
