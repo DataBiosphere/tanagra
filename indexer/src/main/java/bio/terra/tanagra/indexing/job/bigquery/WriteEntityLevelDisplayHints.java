@@ -9,6 +9,7 @@ import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -167,16 +168,17 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     }
 
     // Do a single insert to BQ for all the hint rows.
-    String rowsOfLiteralsSql =
-        insertRows.stream()
-            .map(
-                row ->
-                    "("
-                        + row.stream()
-                            .map(WriteEntityLevelDisplayHints::render)
-                            .collect(Collectors.joining(","))
-                        + ")")
-            .collect(Collectors.joining(", "));
+    SqlParams sqlParams = new SqlParams();
+    List<String> insertRowSqls = new ArrayList<>();
+    for (int i = 0; i < insertRows.size(); i++) {
+      List<Literal> insertRow = insertRows.get(i);
+      List<String> paramNames = new ArrayList<>();
+      for (int j = 0; j < insertRow.size(); j++) {
+        paramNames.add(sqlParams.addParam("valr" + i + "c" + j, insertRow.get(j)));
+      }
+      insertRowSqls.add("(" + paramNames.stream().collect(Collectors.joining(",")) + ")");
+    }
+    String rowsOfLiteralsSql = insertRowSqls.stream().collect(Collectors.joining(", "));
     String insertLiteralsSql =
         "INSERT INTO "
             + indexHintsTable.getTablePointer().render()
@@ -210,28 +212,6 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     } else {
       TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
       LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
-    }
-  }
-
-  private static String render(Literal literal) {
-    if (literal.isNull()) {
-      return "NULL";
-    }
-    switch (literal.getDataType()) {
-      case STRING:
-        return "'" + literal.getStringVal().replace("'", "\'") + "'";
-      case INT64:
-        return String.valueOf(literal.getInt64Val());
-      case BOOLEAN:
-        return String.valueOf(literal.getBooleanVal());
-      case DATE:
-        return "DATE('" + literal.getDateVal().toString() + "')";
-      case DOUBLE:
-        return String.valueOf(literal.getDoubleVal());
-      case TIMESTAMP:
-        return "TIMESTAMP('" + literal.getTimestampVal().toString() + "')";
-      default:
-        throw new SystemException("Unknown data type");
     }
   }
 
