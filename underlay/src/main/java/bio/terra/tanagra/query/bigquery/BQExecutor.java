@@ -112,6 +112,9 @@ public class BQExecutor {
   }
 
   private static QueryParameterValue toQueryParameterValue(Literal literal) {
+    if (literal.isNull()) {
+      return QueryParameterValue.string(null);
+    }
     switch (literal.getDataType()) {
       case INT64:
         return QueryParameterValue.int64(literal.getInt64Val());

@@ -55,6 +55,10 @@ public final class ToApiUtils {
   }
 
   public static ApiLiteral toApiObject(Literal literal) {
+    if (literal.isNull()) {
+      return new ApiLiteral().dataType(ApiDataType.STRING).valueUnion(new ApiLiteralValueUnion());
+    }
+
     ApiLiteral apiLiteral =
         new ApiLiteral().dataType(ApiDataType.fromValue(literal.getDataType().name()));
     switch (literal.getDataType()) {
@@ -78,7 +82,7 @@ public final class ToApiUtils {
       case DOUBLE:
         return apiLiteral.valueUnion(new ApiLiteralValueUnion().doubleVal(literal.getDoubleVal()));
       default:
-        throw new SystemException("Unknown literal data type: " + literal.getDataType());
+        throw new SystemException("Unknown data type: " + literal.getDataType());
     }
   }
 

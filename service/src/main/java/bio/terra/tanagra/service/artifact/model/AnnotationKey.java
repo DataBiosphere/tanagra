@@ -51,42 +51,44 @@ public class AnnotationKey {
   }
 
   public void validateValue(Literal annotationValue) {
-    if (!annotationValue.getDataType().equals(getDataType())) {
-      throw new BadRequestException(
-          String.format(
-              "Annotation value data type (%s) does not match the annotation key data type (%s)",
-              annotationValue.getDataType(), getDataType()));
-    }
+    if (!annotationValue.isNull()) {
+      if (!annotationValue.getDataType().equals(getDataType())) {
+        throw new BadRequestException(
+            String.format(
+                "Annotation value data type (%s) does not match the annotation key data type (%s)",
+                annotationValue.getDataType(), getDataType()));
+      }
 
-    switch (annotationValue.getDataType()) {
-      case STRING:
-        if (annotationValue.getStringVal() == null) {
-          throw new BadRequestException("String value cannot be null");
-        }
-        break;
-      case INT64:
-        if (annotationValue.getInt64Val() == null) {
-          throw new BadRequestException("Integer value cannot be null");
-        }
-        break;
-      case BOOLEAN:
-        if (annotationValue.getBooleanVal() == null) {
-          throw new BadRequestException("Boolean value cannot be null");
-        }
-        break;
-      case DATE:
-        if (annotationValue.getDateVal() == null) {
-          throw new BadRequestException("Date value cannot be null");
-        }
-        break;
-      case DOUBLE:
-        if (annotationValue.getDoubleVal() == null) {
-          throw new BadRequestException("Double value cannot be null");
-        }
-        break;
-      default:
-        throw new SystemException(
-            "Unknown annotation value data type: " + annotationValue.getDataType());
+      switch (annotationValue.getDataType()) {
+        case STRING:
+          if (annotationValue.getStringVal() == null) {
+            throw new BadRequestException("String value cannot be null");
+          }
+          break;
+        case INT64:
+          if (annotationValue.getInt64Val() == null) {
+            throw new BadRequestException("Integer value cannot be null");
+          }
+          break;
+        case BOOLEAN:
+          if (annotationValue.getBooleanVal() == null) {
+            throw new BadRequestException("Boolean value cannot be null");
+          }
+          break;
+        case DATE:
+          if (annotationValue.getDateVal() == null) {
+            throw new BadRequestException("Date value cannot be null");
+          }
+          break;
+        case DOUBLE:
+          if (annotationValue.getDoubleVal() == null) {
+            throw new BadRequestException("Double value cannot be null");
+          }
+          break;
+        default:
+          throw new SystemException(
+              "Unknown annotation value data type: " + annotationValue.getDataType());
+      }
     }
 
     if (!getEnumVals().isEmpty() && !getEnumVals().contains(annotationValue.getStringVal())) {

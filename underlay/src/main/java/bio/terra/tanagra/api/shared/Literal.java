@@ -102,11 +102,11 @@ public final class Literal {
   }
 
   public String getStringVal() {
-    return dataType.equals(STRING) ? stringVal : null;
+    return !isNull && dataType.equals(STRING) ? stringVal : null;
   }
 
   public Long getInt64Val() {
-    return dataType.equals(INT64) ? int64Val : null;
+    return !isNull && dataType.equals(INT64) ? int64Val : null;
   }
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
@@ -114,22 +114,25 @@ public final class Literal {
       justification =
           "This value will be used in constructing a SQL string, not used directly in a Java conditional")
   public Boolean getBooleanVal() {
-    return dataType.equals(BOOLEAN) ? booleanVal : null;
+    return !isNull && dataType.equals(BOOLEAN) ? booleanVal : null;
   }
 
   public Double getDoubleVal() {
-    return dataType.equals(DOUBLE) ? doubleVal : null;
+    return !isNull && dataType.equals(DOUBLE) ? doubleVal : null;
   }
 
   public Date getDateVal() {
-    return dataType.equals(DATE) ? dateVal : null;
+    return !isNull && dataType.equals(DATE) ? dateVal : null;
   }
 
   public Timestamp getTimestampVal() {
-    return dataType.equals(TIMESTAMP) ? timestampVal : null;
+    return !isNull && dataType.equals(TIMESTAMP) ? timestampVal : null;
   }
 
   public DataType getDataType() {
+    if (isNull) {
+      throw new SystemException("Null literals do not have a data type.");
+    }
     return dataType;
   }
 

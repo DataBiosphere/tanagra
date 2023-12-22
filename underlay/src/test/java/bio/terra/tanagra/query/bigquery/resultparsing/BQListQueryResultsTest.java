@@ -3,6 +3,7 @@ package bio.terra.tanagra.query.bigquery.resultparsing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.EntityIdCountField;
@@ -62,26 +63,32 @@ public class BQListQueryResultsTest extends BQRunnerTest {
             listInstance -> {
               ValueDisplay yearOfBirth = listInstance.getEntityFieldValue(simpleAttribute);
               assertNotNull(yearOfBirth);
-              assertEquals(DataType.INT64, yearOfBirth.getValue().getDataType());
+              assertTrue(
+                  yearOfBirth.getValue().isNull()
+                      || DataType.INT64.equals(yearOfBirth.getValue().getDataType()));
               assertNotNull(yearOfBirth.getValue().getInt64Val());
               assertNull(yearOfBirth.getDisplay());
 
               ValueDisplay gender = listInstance.getEntityFieldValue(valueDisplayAttribute);
               assertNotNull(gender);
-              assertEquals(DataType.INT64, gender.getValue().getDataType());
+              assertTrue(
+                  gender.getValue().isNull()
+                      || DataType.INT64.equals(gender.getValue().getDataType()));
               assertNotNull(gender.getValue().getInt64Val());
               assertNotNull(gender.getDisplay());
 
               ValueDisplay race =
                   listInstance.getEntityFieldValue(valueDisplayAttributeWithoutDisplay);
               assertNotNull(race);
-              assertEquals(DataType.INT64, race.getValue().getDataType());
+              assertTrue(
+                  race.getValue().isNull() || DataType.INT64.equals(race.getValue().getDataType()));
               assertNotNull(race.getValue().getInt64Val());
               assertNull(race.getDisplay());
 
               ValueDisplay age = listInstance.getEntityFieldValue(runtimeCalculatedAttribute);
               assertNotNull(age);
-              assertEquals(DataType.INT64, age.getValue().getDataType());
+              assertTrue(
+                  age.getValue().isNull() || DataType.INT64.equals(age.getValue().getDataType()));
               assertNotNull(age.getValue().getInt64Val());
               assertNull(age.getDisplay());
             });
@@ -171,7 +178,9 @@ public class BQListQueryResultsTest extends BQRunnerTest {
 
               ValueDisplay path = listInstance.getEntityFieldValue(hierarchyPathField);
               assertNotNull(path);
-              assertEquals(DataType.STRING, path.getValue().getDataType());
+              assertTrue(
+                  path.getValue().isNull()
+                      || DataType.STRING.equals(path.getValue().getDataType()));
               assertNotNull(path.getValue().getStringVal());
               assertNull(path.getDisplay());
             });

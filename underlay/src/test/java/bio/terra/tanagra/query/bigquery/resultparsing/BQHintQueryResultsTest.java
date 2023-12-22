@@ -1,6 +1,5 @@
 package bio.terra.tanagra.query.bigquery.resultparsing;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,9 +48,11 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                 hintInstance.getEnumValueCounts().keySet().stream()
                     .forEach(
                         enumValue ->
-                            assertEquals(
-                                attribute.getRuntimeDataType(),
-                                enumValue.getValue().getDataType()));
+                            assertTrue(
+                                enumValue.getValue().isNull()
+                                    || attribute
+                                        .getRuntimeDataType()
+                                        .equals(enumValue.getValue().getDataType())));
               }
             });
   }
@@ -97,9 +98,11 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                 hintInstance.getEnumValueCounts().keySet().stream()
                     .forEach(
                         enumValue ->
-                            assertEquals(
-                                attribute.getRuntimeDataType(),
-                                enumValue.getValue().getDataType()));
+                            assertTrue(
+                                enumValue.getValue().isNull()
+                                    || attribute
+                                        .getRuntimeDataType()
+                                        .equals(enumValue.getValue().getDataType())));
               }
             });
   }
