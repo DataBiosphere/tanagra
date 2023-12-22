@@ -170,7 +170,7 @@ public interface ApiTranslator {
       List<SqlField> groupByFields,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
-    sqlParams.addParam("groupByCount", new Literal(groupByCount));
+    sqlParams.addParam("groupByCount", Literal.forInt64(Long.valueOf(groupByCount)));
     return "GROUP BY "
         + groupByFields.stream()
             .map(groupByField -> SqlQueryField.of(groupByField).renderForWhere(tableAlias))

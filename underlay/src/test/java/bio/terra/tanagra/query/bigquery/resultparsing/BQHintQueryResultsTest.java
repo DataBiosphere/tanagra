@@ -68,7 +68,7 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                 underlay,
                 hintedEntity,
                 relatedEntity,
-                new Literal(46_272_910L),
+                Literal.forInt64(46_272_910L),
                 criteriaOccurrence,
                 false));
 

@@ -324,11 +324,11 @@ public final class FromApiUtils {
   public static Literal fromApiObject(ApiLiteral apiLiteral) {
     switch (apiLiteral.getDataType()) {
       case INT64:
-        return new Literal(apiLiteral.getValueUnion().getInt64Val());
+        return Literal.forInt64(apiLiteral.getValueUnion().getInt64Val());
       case STRING:
-        return new Literal(apiLiteral.getValueUnion().getStringVal());
+        return Literal.forString(apiLiteral.getValueUnion().getStringVal());
       case BOOLEAN:
-        return new Literal(apiLiteral.getValueUnion().isBoolVal());
+        return Literal.forBoolean(apiLiteral.getValueUnion().isBoolVal());
       case DATE:
         return Literal.forDate(apiLiteral.getValueUnion().getDateVal());
       default:

@@ -100,12 +100,12 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
               } else if (isRangeHint(attribute)) {
                 Pair<Literal, Literal> minMax = computeRangeHint(attribute, isDryRun);
                 List<Literal> insertRow = new ArrayList<>();
-                insertRow.add(new Literal(attribute.getName()));
+                insertRow.add(Literal.forString(attribute.getName()));
                 insertRow.add(minMax.getKey());
                 insertRow.add(minMax.getValue());
-                insertRow.add(new Literal(null));
-                insertRow.add(new Literal(null));
-                insertRow.add(new Literal(null));
+                insertRow.add(Literal.NULL);
+                insertRow.add(Literal.NULL);
+                insertRow.add(Literal.NULL);
                 insertRows.add(insertRow);
                 LOGGER.info(
                     "Numeric range hint: {}, {}, {}",
@@ -118,12 +118,12 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                     .forEach(
                         enumCount -> {
                           List<Literal> rowOfLiterals = new ArrayList<>();
-                          rowOfLiterals.add(new Literal(attribute.getName()));
-                          rowOfLiterals.add(new Literal(null));
-                          rowOfLiterals.add(new Literal(null));
+                          rowOfLiterals.add(Literal.forString(attribute.getName()));
+                          rowOfLiterals.add(Literal.NULL);
+                          rowOfLiterals.add(Literal.NULL);
                           rowOfLiterals.add(enumCount.getKey().getValue());
-                          rowOfLiterals.add(new Literal(enumCount.getKey().getDisplay()));
-                          rowOfLiterals.add(new Literal(enumCount.getValue()));
+                          rowOfLiterals.add(Literal.forString(enumCount.getKey().getDisplay()));
+                          rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
                           insertRows.add(rowOfLiterals);
                           LOGGER.info(
                               "Enum hint: {}, {}, {}, {}",
@@ -172,7 +172,9 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             .map(
                 row ->
                     "("
-                        + row.stream().map(Literal::renderSQL).collect(Collectors.joining(","))
+                        + row.stream()
+                            .map(WriteEntityLevelDisplayHints::render)
+                            .collect(Collectors.joining(","))
                         + ")")
             .collect(Collectors.joining(", "));
     String insertLiteralsSql =
@@ -208,6 +210,28 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     } else {
       TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
       LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
+    }
+  }
+
+  private static String render(Literal literal) {
+    if (literal.isNull()) {
+      return "NULL";
+    }
+    switch (literal.getDataType()) {
+      case STRING:
+        return "'" + literal.getStringVal().replace("'", "\'") + "'";
+      case INT64:
+        return String.valueOf(literal.getInt64Val());
+      case BOOLEAN:
+        return String.valueOf(literal.getBooleanVal());
+      case DATE:
+        return "DATE('" + literal.getDateVal().toString() + "')";
+      case DOUBLE:
+        return String.valueOf(literal.getDoubleVal());
+      case TIMESTAMP:
+        return "TIMESTAMP('" + literal.getTimestampVal().toString() + "')";
+      default:
+        throw new SystemException("Unknown data type");
     }
   }
 
@@ -263,7 +287,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
           queryStatistics.getCacheHit(),
           queryStatistics.getTotalBytesProcessed(),
           queryStatistics.getTotalSlotMs());
-      return Pair.of(new Literal(0.0), new Literal(0.0));
+      return Pair.of(Literal.forDouble(0.0), Literal.forDouble(0.0));
     } else {
       // Parse the result row.
       TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
@@ -274,16 +298,16 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
         FieldValue minFieldValue = rowResult.get(minValAlias);
         Literal minVal =
             minFieldValue.isNull()
-                ? new Literal(null)
-                : new Literal(minFieldValue.getDoubleValue());
+                ? Literal.NULL
+                : Literal.forDouble(minFieldValue.getDoubleValue());
         FieldValue maxFieldValue = rowResult.get(maxValAlias);
         Literal maxVal =
             maxFieldValue.isNull()
-                ? new Literal(null)
-                : new Literal(maxFieldValue.getDoubleValue());
+                ? Literal.NULL
+                : Literal.forDouble(maxFieldValue.getDoubleValue());
         return Pair.of(minVal, maxVal);
       } else {
-        return Pair.of(new Literal(null), new Literal(null));
+        return Pair.of(Literal.NULL, Literal.NULL);
       }
     }
   }
@@ -329,7 +353,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
           queryStatistics.getCacheHit(),
           queryStatistics.getTotalBytesProcessed(),
           queryStatistics.getTotalSlotMs());
-      enumCounts.add(Pair.of(new ValueDisplay(new Literal(0L), "ZERO"), 0L));
+      enumCounts.add(Pair.of(new ValueDisplay(Literal.forInt64(0L), "ZERO"), 0L));
     } else {
       TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
       LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
@@ -339,8 +363,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
         FieldValue enumValFieldValue = rowResult.get(enumValAlias);
         Literal enumVal =
             enumValFieldValue.isNull()
-                ? new Literal(null)
-                : new Literal(enumValFieldValue.getLongValue());
+                ? Literal.NULL
+                : Literal.forInt64(enumValFieldValue.getLongValue());
         FieldValue enumDispFieldValue = rowResult.get(enumDispAlias);
         String enumDisp = enumDispFieldValue.isNull() ? null : enumDispFieldValue.getStringValue();
         FieldValue enumCountFieldValue = rowResult.get(enumCountAlias);

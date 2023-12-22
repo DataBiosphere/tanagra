@@ -45,7 +45,7 @@ public class ApiTranslatorTest {
             "columnName",
             "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)");
     sqlParams = new SqlParams();
-    val = new Literal(25);
+    val = Literal.forInt64(25L);
     sql =
         apiTranslator.binaryFilterSql(
             field, BinaryOperator.GREATER_THAN, val, tableAlias, sqlParams);
@@ -60,7 +60,7 @@ public class ApiTranslatorTest {
     String tableAlias = "tableAlias";
     SqlField field = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
-    Literal val = new Literal("test");
+    Literal val = Literal.forString("test");
     String sql =
         apiTranslator.functionFilterSql(
             field, "REGEXP_CONTAINS(${fieldSql},${values})", List.of(val), tableAlias, sqlParams);
@@ -68,8 +68,8 @@ public class ApiTranslatorTest {
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
 
     sqlParams = new SqlParams();
-    Literal val1 = new Literal(25);
-    Literal val2 = new Literal(26);
+    Literal val1 = Literal.forInt64(25L);
+    Literal val2 = Literal.forInt64(26L);
     sql =
         apiTranslator.functionFilterSql(
             field, "${fieldSql} IN (${values})", List.of(val1, val2), tableAlias, sqlParams);
@@ -86,7 +86,7 @@ public class ApiTranslatorTest {
 
     // Without literals.
     SqlParams sqlParams = new SqlParams();
-    Literal val = new Literal(14);
+    Literal val = Literal.forInt64(14L);
     String joinFilterSql =
         apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val, null, sqlParams);
     String sql =
@@ -101,8 +101,8 @@ public class ApiTranslatorTest {
     sqlParams = new SqlParams();
     joinFilterSql =
         apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val, null, sqlParams);
-    Literal val0 = new Literal(24);
-    Literal val1 = new Literal(25);
+    Literal val0 = Literal.forInt64(24L);
+    Literal val1 = Literal.forInt64(25L);
     sql =
         apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, sqlParams, val0, val1);
@@ -125,7 +125,7 @@ public class ApiTranslatorTest {
 
     BQTable joinTable = new BQTable("projectId", "datasetId", "joinTableName");
     SqlField joinField = SqlField.of("joinColumnName");
-    Literal val2 = new Literal(14);
+    Literal val2 = Literal.forInt64(14L);
     String joinFilterSql =
         apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val2, null, sqlParams);
     String filterSql2 =
@@ -159,7 +159,7 @@ public class ApiTranslatorTest {
     String tableAlias = "tableAlias";
     SqlField groupByField = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
-    Literal groupByCount = new Literal(4);
+    Literal groupByCount = Literal.forInt64(4L);
 
     String havingSql =
         apiTranslator.havingSql(

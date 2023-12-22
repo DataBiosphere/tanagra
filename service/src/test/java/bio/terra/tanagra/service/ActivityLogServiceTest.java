@@ -206,7 +206,7 @@ public class ActivityLogServiceTest {
             primaryEntity,
             primaryEntity.getAttribute("year_of_birth"),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
-            new Literal(1980L));
+            Literal.forInt64(1980L));
     String exportModel = "IPYNB_FILE_DOWNLOAD";
     ExportRequest.Builder exportRequest = ExportRequest.builder().model(exportModel);
     ExportResult exportResult =

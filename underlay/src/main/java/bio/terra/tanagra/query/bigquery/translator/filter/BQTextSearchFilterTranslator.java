@@ -45,7 +45,7 @@ public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
     return apiTranslator.functionFilterSql(
         textSearchField,
         apiTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
-        List.of(new Literal(textSearchFilter.getText())),
+        List.of(Literal.forString(textSearchFilter.getText())),
         tableAlias,
         sqlParams);
   }

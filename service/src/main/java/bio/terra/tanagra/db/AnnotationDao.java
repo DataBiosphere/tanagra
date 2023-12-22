@@ -61,13 +61,13 @@ public class AnnotationDao {
               .annotationKeyId(rs.getString("annotation_key_id"))
               .instanceId(rs.getString("primary_entity_instance_id"))
               .literal(
-                  new Literal.Builder()
-                      .booleanVal(rs.getBoolean("bool_val"))
-                      .int64Val(rs.getLong("int64_val"))
-                      .stringVal(rs.getString("string_val"))
-                      .dateVal(rs.getDate("date_val"))
-                      .dataType(DataType.valueOf(rs.getString("data_type")))
-                      .build());
+                  Literal.forGeneric(
+                      DataType.valueOf(rs.getString("data_type")),
+                      rs.getString("string_val"),
+                      rs.getLong("int64_val"),
+                      rs.getBoolean("bool_val"),
+                      rs.getDate("date_val"),
+                      null));
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 

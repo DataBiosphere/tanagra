@@ -357,7 +357,7 @@ public class AnnotationServiceTest {
     assertNotNull(annotationKeyInt);
     LOGGER.info("Created annotation key {}", annotationKeyInt.getId());
 
-    Literal intVal = new Literal(16L);
+    Literal intVal = Literal.forInt64(16L);
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -385,7 +385,7 @@ public class AnnotationServiceTest {
     assertNotNull(annotationKeyBool);
     LOGGER.info("Created annotation key {}", annotationKeyBool.getId());
 
-    Literal boolVal = new Literal(true);
+    Literal boolVal = Literal.forBoolean(true);
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -415,7 +415,7 @@ public class AnnotationServiceTest {
     assertNotNull(annotationKeyStrEnum);
     LOGGER.info("Created annotation key {}", annotationKeyStrEnum.getId());
 
-    Literal enumVal = new Literal("STATUS");
+    Literal enumVal = Literal.forString("STATUS");
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -461,7 +461,7 @@ public class AnnotationServiceTest {
     assertEquals(dateVal, dateAnnotationVal.getLiteral());
 
     // Update all 4 annotation values.
-    Literal updatedIntVal = new Literal(15L);
+    Literal updatedIntVal = Literal.forInt64(15L);
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -470,7 +470,7 @@ public class AnnotationServiceTest {
         instanceId,
         List.of(updatedIntVal));
 
-    Literal updatedBoolVal = new Literal(false);
+    Literal updatedBoolVal = Literal.forBoolean(false);
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -479,7 +479,7 @@ public class AnnotationServiceTest {
         instanceId,
         List.of(updatedBoolVal));
 
-    Literal updatedEnumVal = new Literal("NOTES");
+    Literal updatedEnumVal = Literal.forString("NOTES");
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -559,7 +559,7 @@ public class AnnotationServiceTest {
         annotationKeyInt1.getId(),
         review1.getId(),
         "12",
-        List.of(new Literal(16L), new Literal(26L)));
+        List.of(Literal.forInt64(16L), Literal.forInt64(26L)));
     LOGGER.info("Created two annotation values");
 
     // Create one annotation key and value for cohort2, review2.
@@ -576,7 +576,7 @@ public class AnnotationServiceTest {
         annotationKeyStr1.getId(),
         review2.getId(),
         "24",
-        List.of(new Literal("val 1")));
+        List.of(Literal.forString("val 1")));
     LOGGER.info("Created two annotation values");
 
     List<AnnotationValue> allVals2 =
@@ -597,7 +597,7 @@ public class AnnotationServiceTest {
         annotationKeyStr2.getId(),
         review3.getId(),
         "25",
-        List.of(new Literal("val 2")));
+        List.of(Literal.forString("val 2")));
     LOGGER.info("Created annotation value");
 
     // List all annotation values for cohort1 (review1 only).
@@ -617,7 +617,7 @@ public class AnnotationServiceTest {
         annotationKeyStr1.getId(),
         review3.getId(),
         "24",
-        List.of(new Literal("val 3")));
+        List.of(Literal.forString("val 3")));
     LOGGER.info("Created annotation value");
 
     // Create a new value for cohort2, review4 that has the same instance id as a value in cohort2,
@@ -628,7 +628,7 @@ public class AnnotationServiceTest {
         annotationKeyStr2.getId(),
         review4.getId(),
         "24",
-        List.of(new Literal("val 4")));
+        List.of(Literal.forString("val 4")));
     LOGGER.info("Created annotation value");
 
     // List all annotation values for cohort2, with review2 selected.
@@ -675,7 +675,7 @@ public class AnnotationServiceTest {
                 annotationKeyStr.getId(),
                 review1.getId(),
                 "25",
-                List.of(new Literal("val 1"), new Literal("val 2"))));
+                List.of(Literal.forString("val 1"), Literal.forString("val 2"))));
 
     // Use an invalid cohort + annotation key combination.
     assertThrows(
@@ -687,7 +687,7 @@ public class AnnotationServiceTest {
                 annotationKeyStr.getId(),
                 review1.getId(),
                 "10",
-                List.of(new Literal("val 3"))));
+                List.of(Literal.forString("val 3"))));
 
     // Use an invalid cohort + review combination.
     // TODO: Wrap this with a more user-friendly exception.
@@ -700,7 +700,7 @@ public class AnnotationServiceTest {
                 annotationKeyStr.getId(),
                 review1.getId(),
                 "10",
-                List.of(new Literal("val 4"))));
+                List.of(Literal.forString("val 4"))));
   }
 
   @Test
@@ -719,7 +719,7 @@ public class AnnotationServiceTest {
         annotationKeyStr1.getId(),
         review2.getId(),
         "24",
-        List.of(new Literal("val 1")));
+        List.of(Literal.forString("val 1")));
     LOGGER.info("Created annotation value");
 
     // Create one annotation key and several values for cohort2, review3.
@@ -737,7 +737,7 @@ public class AnnotationServiceTest {
         annotationKeyStr1.getId(),
         review3.getId(),
         "25",
-        List.of(new Literal("val 2")));
+        List.of(Literal.forString("val 2")));
     LOGGER.info("Created annotation value");
     annotationService.updateAnnotationValues(
         study1.getId(),
@@ -745,7 +745,7 @@ public class AnnotationServiceTest {
         annotationKeyStr2.getId(),
         review3.getId(),
         "25",
-        List.of(new Literal("val,2")));
+        List.of(Literal.forString("val,2")));
     LOGGER.info("Created annotation value with comma");
     annotationService.updateAnnotationValues(
         study1.getId(),
@@ -753,7 +753,7 @@ public class AnnotationServiceTest {
         annotationKeyStr1.getId(),
         review3.getId(),
         "26",
-        List.of(new Literal("val\"2")));
+        List.of(Literal.forString("val\"2")));
     LOGGER.info("Created annotation value with double quote");
     annotationService.updateAnnotationValues(
         study1.getId(),
@@ -761,7 +761,7 @@ public class AnnotationServiceTest {
         annotationKeyStr2.getId(),
         review3.getId(),
         "26",
-        List.of(new Literal("val\n2")));
+        List.of(Literal.forString("val\n2")));
     LOGGER.info("Created annotation value with newline");
 
     // Generate a CSV string with the annotation values data.

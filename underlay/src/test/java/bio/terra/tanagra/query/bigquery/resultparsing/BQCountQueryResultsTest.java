@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.HierarchyIsMemberField;
@@ -53,9 +54,9 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
                 new HintInstance(
                     entity.getAttribute("gender"),
                     Map.of(
-                        new ValueDisplay(new Literal(8507), "MALE"),
+                        new ValueDisplay(Literal.forInt64(8_507L), "MALE"),
                         111L,
-                        new ValueDisplay(new Literal(8532), "FEMALE"),
+                        new ValueDisplay(Literal.forInt64(8_532L), "FEMALE"),
                         222L))));
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
@@ -146,7 +147,9 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
 
               ValueDisplay path = countInstance.getEntityFieldValue(hierarchyPathField);
               assertNotNull(path);
-              assertEquals(DataType.STRING, path.getValue().getDataType());
+              assertTrue(
+                  path.getValue().isNull()
+                      || path.getValue().getDataType().equals(DataType.STRING));
               assertNull(path.getDisplay());
             });
   }

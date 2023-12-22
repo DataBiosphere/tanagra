@@ -19,17 +19,17 @@ public class BQRowResult implements SqlRowResult {
   public Literal get(String columnName, DataType expectedDataType) {
     FieldValue fieldValue = fieldValues.get(columnName);
     if (fieldValue.isNull()) {
-      return new Literal(null);
+      return Literal.NULL;
     }
     switch (expectedDataType) {
       case STRING:
-        return new Literal(fieldValue.getStringValue());
+        return Literal.forString(fieldValue.getStringValue());
       case INT64:
-        return new Literal(fieldValue.getLongValue());
+        return Literal.forInt64(fieldValue.getLongValue());
       case BOOLEAN:
-        return new Literal(fieldValue.getBooleanValue());
+        return Literal.forBoolean(fieldValue.getBooleanValue());
       case DOUBLE:
-        return new Literal(fieldValue.getDoubleValue());
+        return Literal.forDouble(fieldValue.getDoubleValue());
       case DATE:
         return Literal.forDate(fieldValue.getStringValue());
       case TIMESTAMP:

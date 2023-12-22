@@ -23,7 +23,7 @@ public class BQCountQueryTest extends BQRunnerTest {
             entity,
             entity.getAttribute("gender"),
             BinaryOperator.NOT_EQUALS,
-            new Literal(8207));
+            Literal.forInt64(8_207L));
     AttributeField groupByAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     CountQueryResult countQueryResult =

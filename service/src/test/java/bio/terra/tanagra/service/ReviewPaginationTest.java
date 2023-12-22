@@ -83,7 +83,7 @@ public class ReviewPaginationTest {
                 primaryEntity,
                 primaryEntity.getAttribute("gender"),
                 BinaryOperator.EQUALS,
-                new Literal(8532)));
+                Literal.forInt64(8_532L)));
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
   }

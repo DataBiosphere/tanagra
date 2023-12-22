@@ -120,11 +120,13 @@ public class BQExecutor {
       case BOOLEAN:
         return QueryParameterValue.bool(literal.getBooleanVal());
       case DATE:
-        return QueryParameterValue.date(literal.getDateValAsString());
+        return QueryParameterValue.date(
+            literal.getDateVal() == null ? null : literal.getDateVal().toString());
       case DOUBLE:
         return QueryParameterValue.float64(literal.getDoubleVal());
       case TIMESTAMP:
-        return QueryParameterValue.timestamp(literal.getTimestampValAsString());
+        return QueryParameterValue.timestamp(
+            literal.getTimestampVal() == null ? null : literal.getTimestampVal().toString());
       default:
         throw new SystemException("Unsupported data type for BigQuery: " + literal.getDataType());
     }

@@ -26,25 +26,25 @@ public class CmsSynpufHintsTest extends BaseHintsTest {
             new HintInstance(
                 entity.getAttribute("gender"),
                 Map.of(
-                    new ValueDisplay(new Literal(8_532L), "FEMALE"),
+                    new ValueDisplay(Literal.forInt64(8_532L), "FEMALE"),
                     1_292_861L,
-                    new ValueDisplay(new Literal(8_507L), "MALE"),
+                    new ValueDisplay(Literal.forInt64(8_507L), "MALE"),
                     1_033_995L)),
             new HintInstance(
                 entity.getAttribute("race"),
                 Map.of(
-                    new ValueDisplay(new Literal(8_516L), "Black or African American"),
+                    new ValueDisplay(Literal.forInt64(8_516L), "Black or African American"),
                     247_723L,
-                    new ValueDisplay(new Literal(0L), "No matching concept"),
+                    new ValueDisplay(Literal.forInt64(0L), "No matching concept"),
                     152_425L,
-                    new ValueDisplay(new Literal(8_527L), "White"),
+                    new ValueDisplay(Literal.forInt64(8_527L), "White"),
                     1_926_708L)),
             new HintInstance(
                 entity.getAttribute("ethnicity"),
                 Map.of(
-                    new ValueDisplay(new Literal(38_003_563L), "Hispanic or Latino"),
+                    new ValueDisplay(Literal.forInt64(38_003_563L), "Hispanic or Latino"),
                     54_453L,
-                    new ValueDisplay(new Literal(38_003_564L), "Not Hispanic or Latino"),
+                    new ValueDisplay(Literal.forInt64(38_003_564L), "Not Hispanic or Latino"),
                     2_272_403L)),
             new HintInstance(entity.getAttribute("age"), 39.0, 114.0),
             new HintInstance(entity.getAttribute("year_of_birth"), 1909.0, 1983.0));

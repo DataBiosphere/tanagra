@@ -35,7 +35,7 @@ public class BQFilterTest extends BQRunnerTest {
     Attribute attribute = entity.getAttribute("year_of_birth");
     AttributeFilter attributeFilter =
         new AttributeFilter(
-            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, new Literal(1956));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
@@ -61,7 +61,7 @@ public class BQFilterTest extends BQRunnerTest {
             entity,
             attribute,
             FunctionTemplate.NOT_IN,
-            List.of(new Literal(18), new Literal(19)));
+            List.of(Literal.forInt64(18L), Literal.forInt64(19L)));
     listQueryResult =
         bqQueryRunner.run(
             new ListQueryRequest(
@@ -83,7 +83,7 @@ public class BQFilterTest extends BQRunnerTest {
     Attribute attribute = entity.getAttribute("concept_code");
     AttributeFilter attributeFilter =
         new AttributeFilter(
-            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, new Literal("1956"));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forString("1956"));
     TextSearchFilter textSearchFilter =
         new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "44054006", null);
     BooleanAndOrFilter booleanAndOrFilter =
@@ -112,7 +112,7 @@ public class BQFilterTest extends BQRunnerTest {
     Attribute attribute = entity.getAttribute("year_of_birth");
     AttributeFilter attributeFilter =
         new AttributeFilter(
-            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, new Literal(1956));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
     BooleanNotFilter booleanNotFilter = new BooleanNotFilter(attributeFilter);
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
@@ -137,7 +137,10 @@ public class BQFilterTest extends BQRunnerTest {
     Entity entity = underlay.getEntity("condition");
     HierarchyHasAncestorFilter hierarchyHasAncestorFilter =
         new HierarchyHasAncestorFilter(
-            underlay, entity, entity.getHierarchy(Hierarchy.DEFAULT_NAME), new Literal(201_826L));
+            underlay,
+            entity,
+            entity.getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -171,7 +174,10 @@ public class BQFilterTest extends BQRunnerTest {
     Entity entity = underlay.getEntity("condition");
     HierarchyHasParentFilter hierarchyHasParentFilter =
         new HierarchyHasParentFilter(
-            underlay, entity, entity.getHierarchy(Hierarchy.DEFAULT_NAME), new Literal(201_826L));
+            underlay,
+            entity,
+            entity.getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -257,7 +263,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getIdAttribute(),
             BinaryOperator.EQUALS,
-            new Literal(456L));
+            Literal.forInt64(456L));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -303,7 +309,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttribute("gender"),
             BinaryOperator.EQUALS,
-            new Literal(8_207L));
+            Literal.forInt64(8_207L));
     relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -347,7 +353,7 @@ public class BQFilterTest extends BQRunnerTest {
             occurrenceEntity,
             occurrenceEntity.getAttribute("person_id"),
             BinaryOperator.EQUALS,
-            new Literal(15));
+            Literal.forInt64(15L));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -438,7 +444,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getIdAttribute(),
             BinaryOperator.EQUALS,
-            new Literal(15));
+            Literal.forInt64(15L));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -500,7 +506,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getAttribute("concept_code"),
             BinaryOperator.EQUALS,
-            new Literal("161"));
+            Literal.forString("161"));
     relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -544,7 +550,7 @@ public class BQFilterTest extends BQRunnerTest {
             occurrenceEntity,
             occurrenceEntity.getAttribute("person_id"),
             BinaryOperator.EQUALS,
-            new Literal(15));
+            Literal.forInt64(15L));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -635,7 +641,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getIdAttribute(),
             BinaryOperator.EQUALS,
-            new Literal(15));
+            Literal.forInt64(15L));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -697,7 +703,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getAttribute("concept_code"),
             BinaryOperator.EQUALS,
-            new Literal("161"));
+            Literal.forString("161"));
     relationshipFilter =
         new RelationshipFilter(
             underlay,

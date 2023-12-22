@@ -123,7 +123,7 @@ public class DataExportServiceTest {
                 primaryEntity,
                 primaryEntity.getAttribute("gender"),
                 BinaryOperator.EQUALS,
-                new Literal(8532)));
+                Literal.forInt64(8_532L)));
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
 
@@ -146,7 +146,7 @@ public class DataExportServiceTest {
             .get(primaryEntity.getIdAttribute())
             .getValue()
             .getInt64Val();
-    Literal intVal = new Literal(16L);
+    Literal intVal = Literal.forInt64(16L);
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -381,6 +381,6 @@ public class DataExportServiceTest {
         primaryEntity,
         primaryEntity.getAttribute("year_of_birth"),
         BinaryOperator.EQUALS,
-        new Literal(11L));
+        Literal.forInt64(11L));
   }
 }

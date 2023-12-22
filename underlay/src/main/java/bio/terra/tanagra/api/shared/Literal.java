@@ -1,113 +1,112 @@
 package bio.terra.tanagra.api.shared;
 
+import static bio.terra.tanagra.api.shared.DataType.BOOLEAN;
+import static bio.terra.tanagra.api.shared.DataType.DATE;
+import static bio.terra.tanagra.api.shared.DataType.DOUBLE;
+import static bio.terra.tanagra.api.shared.DataType.INT64;
+import static bio.terra.tanagra.api.shared.DataType.STRING;
+import static bio.terra.tanagra.api.shared.DataType.TIMESTAMP;
+
 import bio.terra.tanagra.exception.SystemException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Objects;
 
-public class Literal {
+public final class Literal {
+  public static final Literal NULL = new Literal();
+  private final boolean isNull;
   private final DataType dataType;
   private String stringVal;
-  private long int64Val;
-  private boolean booleanVal;
+  private Long int64Val;
+  private Double doubleVal;
+  private Boolean booleanVal;
   private Date dateVal;
-  private double doubleVal;
   private Timestamp timestampVal;
 
-  public Literal(String stringVal) {
-    this.dataType = DataType.STRING;
+  private Literal() {
+    this.isNull = true;
+    this.dataType = null;
+  }
+
+  private Literal(
+      DataType dataType,
+      String stringVal,
+      Long int64Val,
+      Double doubleVal,
+      Boolean booleanVal,
+      Date dateVal,
+      Timestamp timestampVal) {
+    this.isNull = false;
+    this.dataType = dataType;
     this.stringVal = stringVal;
-  }
-
-  public Literal(long int64Val) {
-    this.dataType = DataType.INT64;
     this.int64Val = int64Val;
-  }
-
-  public Literal(boolean booleanVal) {
-    this.dataType = DataType.BOOLEAN;
-    this.booleanVal = booleanVal;
-  }
-
-  private Literal(Date dateVal) {
-    this.dataType = DataType.DATE;
-    this.dateVal = dateVal;
-  }
-
-  public Literal(double doubleVal) {
-    this.dataType = DataType.DOUBLE;
     this.doubleVal = doubleVal;
-  }
-
-  private Literal(Timestamp timestampVal) {
-    this.dataType = DataType.TIMESTAMP;
+    this.booleanVal = booleanVal;
+    this.dateVal = dateVal;
     this.timestampVal = timestampVal;
   }
 
+  public static Literal forString(String stringVal) {
+    return stringVal == null ? NULL : new Literal(STRING, stringVal, null, null, null, null, null);
+  }
+
+  public static Literal forInt64(Long int64Val) {
+    return int64Val == null ? NULL : new Literal(INT64, null, int64Val, null, null, null, null);
+  }
+
+  public static Literal forDouble(Double doubleVal) {
+    return doubleVal == null ? NULL : new Literal(DOUBLE, null, null, doubleVal, null, null, null);
+  }
+
+  public static Literal forBoolean(Boolean booleanVal) {
+    return booleanVal == null
+        ? NULL
+        : new Literal(BOOLEAN, null, null, null, booleanVal, null, null);
+  }
+
+  public static Literal forDate(Date dateVal) {
+    return dateVal == null ? NULL : new Literal(DATE, null, null, null, null, dateVal, null);
+  }
+
   public static Literal forDate(String dateVal) {
-    return new Literal(Date.valueOf(dateVal));
+    return dateVal == null ? NULL : forDate(Date.valueOf(dateVal));
   }
 
   public static Literal forTimestamp(Timestamp timestampVal) {
-    return new Literal(timestampVal);
+    return timestampVal == null
+        ? NULL
+        : new Literal(TIMESTAMP, null, null, null, null, null, timestampVal);
   }
 
-  private Literal(Builder builder) {
-    this.dataType = builder.dataType;
-    this.stringVal = builder.stringVal;
-    this.int64Val = builder.int64Val;
-    this.booleanVal = builder.booleanVal;
-    this.dateVal = builder.dateVal;
-    this.doubleVal = builder.doubleVal;
-    this.timestampVal = builder.timestampVal;
-  }
-
-  public String renderSQL() {
-    // TODO: use named parameters for literals to protect against SQL injection
+  public static Literal forGeneric(
+      DataType dataType,
+      String stringVal,
+      Long int64Val,
+      Boolean booleanVal,
+      Date dateVal,
+      Timestamp timestampVal) {
     switch (dataType) {
       case STRING:
-        return stringVal == null ? "NULL" : "'" + stringVal.replace("'", "\'") + "'";
+        return forString(stringVal);
       case INT64:
-        return String.valueOf(int64Val);
+        return forInt64(int64Val);
       case BOOLEAN:
-        return String.valueOf(booleanVal);
+        return forBoolean(booleanVal);
       case DATE:
-        return "DATE('" + dateVal.toString() + "')";
-      case DOUBLE:
-        return String.valueOf(doubleVal);
+        return forDate(dateVal);
       case TIMESTAMP:
-        return "TIMESTAMP('" + timestampVal.toString() + "')";
+        return forTimestamp(timestampVal);
       default:
-        throw new SystemException("Unknown Literal data type");
-    }
-  }
-
-  @Override
-  public String toString() {
-    switch (dataType) {
-      case STRING:
-        return stringVal;
-      case INT64:
-        return String.valueOf(int64Val);
-      case BOOLEAN:
-        return String.valueOf(booleanVal);
-      case DATE:
-        return dateVal.toString();
-      case DOUBLE:
-        return String.valueOf(doubleVal);
-      case TIMESTAMP:
-        return timestampVal.toString();
-      default:
-        throw new SystemException("Unknown Literal data type");
+        throw new SystemException("Unsupported data type: " + dataType);
     }
   }
 
   public String getStringVal() {
-    return dataType.equals(DataType.STRING) ? stringVal : null;
+    return dataType.equals(STRING) ? stringVal : null;
   }
 
   public Long getInt64Val() {
-    return dataType.equals(DataType.INT64) ? int64Val : null;
+    return dataType.equals(INT64) ? int64Val : null;
   }
 
   @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
@@ -115,35 +114,37 @@ public class Literal {
       justification =
           "This value will be used in constructing a SQL string, not used directly in a Java conditional")
   public Boolean getBooleanVal() {
-    return dataType.equals(DataType.BOOLEAN) ? booleanVal : null;
-  }
-
-  public Date getDateVal() {
-    return dataType.equals(DataType.DATE) ? dateVal : null;
-  }
-
-  public String getDateValAsString() {
-    return dataType.equals(DataType.DATE) ? dateVal.toString() : null;
+    return dataType.equals(BOOLEAN) ? booleanVal : null;
   }
 
   public Double getDoubleVal() {
-    return dataType.equals(DataType.DOUBLE) ? doubleVal : null;
+    return dataType.equals(DOUBLE) ? doubleVal : null;
+  }
+
+  public Date getDateVal() {
+    return dataType.equals(DATE) ? dateVal : null;
   }
 
   public Timestamp getTimestampVal() {
-    return dataType.equals(DataType.TIMESTAMP) ? timestampVal : null;
-  }
-
-  public String getTimestampValAsString() {
-    return dataType.equals(DataType.TIMESTAMP) ? timestampVal.toString() : null;
+    return dataType.equals(TIMESTAMP) ? timestampVal : null;
   }
 
   public DataType getDataType() {
     return dataType;
   }
 
+  public boolean isNull() {
+    return isNull;
+  }
+
   public int compareTo(Literal value) {
-    if (!dataType.equals(value.getDataType())) {
+    if (isNull && value.isNull()) {
+      return 0;
+    } else if (isNull && !value.isNull()) {
+      return -1;
+    } else if (!isNull && value.isNull()) {
+      return 1;
+    } else if (!dataType.equals(value.getDataType())) {
       return -1;
     }
     switch (dataType) {
@@ -170,6 +171,26 @@ public class Literal {
   }
 
   @Override
+  public String toString() {
+    switch (dataType) {
+      case STRING:
+        return stringVal;
+      case INT64:
+        return int64Val.toString();
+      case BOOLEAN:
+        return booleanVal.toString();
+      case DATE:
+        return dateVal.toString();
+      case DOUBLE:
+        return doubleVal.toString();
+      case TIMESTAMP:
+        return timestampVal.toString();
+      default:
+        throw new SystemException("Unknown data type");
+    }
+  }
+
+  @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof Literal)) {
       return false;
@@ -180,55 +201,6 @@ public class Literal {
   @Override
   public int hashCode() {
     return Objects.hash(
-        dataType, stringVal, int64Val, booleanVal, dateVal, doubleVal, timestampVal);
-  }
-
-  public static class Builder {
-    private DataType dataType;
-    private String stringVal;
-    private long int64Val;
-    private boolean booleanVal;
-    private Date dateVal;
-    private double doubleVal;
-    private Timestamp timestampVal;
-
-    public Builder dataType(DataType dataType) {
-      this.dataType = dataType;
-      return this;
-    }
-
-    public Builder stringVal(String stringVal) {
-      this.stringVal = stringVal;
-      return this;
-    }
-
-    public Builder int64Val(long int64Val) {
-      this.int64Val = int64Val;
-      return this;
-    }
-
-    public Builder booleanVal(boolean booleanVal) {
-      this.booleanVal = booleanVal;
-      return this;
-    }
-
-    public Builder dateVal(Date dateVal) {
-      this.dateVal = dateVal == null ? null : (Date) dateVal.clone();
-      return this;
-    }
-
-    public Builder doubleVal(double doubleVal) {
-      this.doubleVal = doubleVal;
-      return this;
-    }
-
-    public Builder timestampVal(Timestamp timestampVal) {
-      this.timestampVal = timestampVal == null ? null : new Timestamp(timestampVal.getTime());
-      return this;
-    }
-
-    public Literal build() {
-      return new Literal(this);
-    }
+        isNull, dataType, stringVal, int64Val, doubleVal, booleanVal, dateVal, timestampVal);
   }
 }

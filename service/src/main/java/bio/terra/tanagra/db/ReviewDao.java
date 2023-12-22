@@ -4,7 +4,6 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
-import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -69,14 +68,7 @@ public class ReviewDao {
   private static final String PRIMARY_ENTITY_INSTANCE_SELECT_SQL =
       "SELECT id, stable_index FROM primary_entity_instance";
   private static final RowMapper<Pair<Literal, Integer>> PRIMARY_ENTITY_INSTANCE_ROW_MAPPER =
-      (rs, rowNum) ->
-          Pair.of(
-              new Literal.Builder()
-                  // TODO: Support id data types other than long.
-                  .int64Val(rs.getLong("id"))
-                  .dataType(DataType.INT64)
-                  .build(),
-              rs.getInt("stable_index"));
+      (rs, rowNum) -> Pair.of(Literal.forInt64(rs.getLong("id")), rs.getInt("stable_index"));
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
   private final CohortDao cohortDao;

@@ -66,10 +66,15 @@ public final class ToApiUtils {
         return apiLiteral.valueUnion(new ApiLiteralValueUnion().boolVal(literal.getBooleanVal()));
       case DATE:
         return apiLiteral.valueUnion(
-            new ApiLiteralValueUnion().dateVal(literal.getDateValAsString()));
+            new ApiLiteralValueUnion()
+                .dateVal(literal.getDateVal() == null ? null : literal.getDateVal().toString()));
       case TIMESTAMP:
         return apiLiteral.valueUnion(
-            new ApiLiteralValueUnion().timestampVal(literal.getTimestampValAsString()));
+            new ApiLiteralValueUnion()
+                .timestampVal(
+                    literal.getTimestampVal() == null
+                        ? null
+                        : literal.getTimestampVal().toString()));
       case DOUBLE:
         return apiLiteral.valueUnion(new ApiLiteralValueUnion().doubleVal(literal.getDoubleVal()));
       default:
