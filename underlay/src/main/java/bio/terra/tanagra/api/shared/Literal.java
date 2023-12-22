@@ -8,6 +8,7 @@ import static bio.terra.tanagra.api.shared.DataType.STRING;
 import static bio.terra.tanagra.api.shared.DataType.TIMESTAMP;
 
 import bio.terra.tanagra.exception.SystemException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -173,8 +174,12 @@ public final class Literal {
     }
   }
 
+  @SuppressFBWarnings(value = "NP_TOSTRING_COULD_RETURN_NULL")
   @Override
   public String toString() {
+    if (isNull) {
+      return null;
+    }
     switch (dataType) {
       case STRING:
         return stringVal;

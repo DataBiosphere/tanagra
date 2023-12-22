@@ -202,13 +202,17 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             .setUseLegacySql(false)
             .build();
     if (isDryRun) {
-      JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
-      LOGGER.info(
-          "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-          queryStatistics.getStatementType(),
-          queryStatistics.getCacheHit(),
-          queryStatistics.getTotalBytesProcessed(),
-          queryStatistics.getTotalSlotMs());
+      if (getOutputTable().isEmpty()) {
+        LOGGER.info("Skipping query dry run because output table does not exist yet.");
+      } else {
+        JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
+        LOGGER.info(
+            "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
+            queryStatistics.getStatementType(),
+            queryStatistics.getCacheHit(),
+            queryStatistics.getTotalBytesProcessed(),
+            queryStatistics.getTotalSlotMs());
+      }
     } else {
       TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
       LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
@@ -260,13 +264,17 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             .setUseLegacySql(false)
             .build();
     if (isDryRun) {
-      JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
-      LOGGER.info(
-          "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-          queryStatistics.getStatementType(),
-          queryStatistics.getCacheHit(),
-          queryStatistics.getTotalBytesProcessed(),
-          queryStatistics.getTotalSlotMs());
+      if (getOutputTable().isEmpty()) {
+        LOGGER.info("Skipping query dry run because output table does not exist yet.");
+      } else {
+        JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
+        LOGGER.info(
+            "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
+            queryStatistics.getStatementType(),
+            queryStatistics.getCacheHit(),
+            queryStatistics.getTotalBytesProcessed(),
+            queryStatistics.getTotalSlotMs());
+      }
       return Pair.of(Literal.forDouble(0.0), Literal.forDouble(0.0));
     } else {
       // Parse the result row.
@@ -326,13 +334,17 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     // Parse the result rows.
     List<Pair<ValueDisplay, Long>> enumCounts = new ArrayList<>();
     if (isDryRun) {
-      JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
-      LOGGER.info(
-          "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-          queryStatistics.getStatementType(),
-          queryStatistics.getCacheHit(),
-          queryStatistics.getTotalBytesProcessed(),
-          queryStatistics.getTotalSlotMs());
+      if (getOutputTable().isEmpty()) {
+        LOGGER.info("Skipping query dry run because output table does not exist yet.");
+      } else {
+        JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
+        LOGGER.info(
+            "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
+            queryStatistics.getStatementType(),
+            queryStatistics.getCacheHit(),
+            queryStatistics.getTotalBytesProcessed(),
+            queryStatistics.getTotalSlotMs());
+      }
       enumCounts.add(Pair.of(new ValueDisplay(Literal.forInt64(0L), "ZERO"), 0L));
     } else {
       TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);

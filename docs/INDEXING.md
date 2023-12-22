@@ -112,7 +112,7 @@ Exit codes:
 Do a dry run first for validation. This provides a sanity check that the indexing jobs inputs, especially the SQL
 query inputs, are valid. This step is not required, but highly recommended to help catch errors/bugs sooner and without
 running a bunch of computation first. Dry run includes validating that the attribute data types specified match those
-returned by running the SQL query. The second argument is the name of an indexer config file.
+returned by running the SQL query.
 ```
 tanagra index underlay --indexer-config=cmssynpuf_verily --dry-run
 ```
