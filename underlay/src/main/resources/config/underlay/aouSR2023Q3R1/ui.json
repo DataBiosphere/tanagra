@@ -207,8 +207,8 @@
                 "id": "brand",
                 "entity": "brand",
                 "defaultSort": {
-                  "attribute": "t_item_count",
-                  "direction": "DESC"
+                  "attribute": "name",
+                  "direction": "ASC"
                 },
                 "attributes": ["name", "id", "standard_concept", "concept_code"]
               }
