@@ -21,8 +21,8 @@
             "entityAttribute": "id",
             "hierarchy": "default",
             "defaultSort": {
-              "attribute": "name",
-              "direction": "ASC"
+              "attribute": "t_rollup_count",
+              "direction": "DESC"
             }
           },
           {
@@ -199,16 +199,16 @@
             "entityAttribute": "id",
             "hierarchy": "default",
             "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
+              "attribute": "concept_code",
+              "direction": "ASC"
             },
             "groupings": [
               {
                 "id": "brand",
                 "entity": "brand",
                 "defaultSort": {
-                  "attribute": "name",
-                  "direction": "ASC"
+                  "attribute": "t_item_count",
+                  "direction": "DESC"
                 },
                 "attributes": ["name", "id", "standard_concept", "concept_code"]
               }
@@ -498,9 +498,9 @@
         { "key": "t_item_count", "width": 120, "title": "Item count" }
       ],
       "hierarchyColumns": [
-        { "key": "name", "width": "100%", "title": "Drug" },
-        { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "concept_code", "width": "15%", "title": "Code" },
+        { "key": "name", "width": "60%", "title": "Concept Name" },
+        { "key": "t_rollup_count", "width": "10%", "title": "Roll-up count" }
       ],
       "occurrences": "ingredient_occurrence",
       "classifications": ["ingredient", "ingredient_non_hierarchy"],
