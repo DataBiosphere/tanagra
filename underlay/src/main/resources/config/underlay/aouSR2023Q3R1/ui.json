@@ -21,8 +21,8 @@
             "entityAttribute": "id",
             "hierarchy": "default",
             "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
+              "attribute": "name",
+              "direction": "ASC"
             }
           },
           {
