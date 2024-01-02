@@ -319,6 +319,26 @@ class FakeExportAPI {}
 
 class FakeUsersAPI {}
 
+const getAccessToken = () => {
+  let accessToken = "";
+  if (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN) {
+    // For local dev only, get the bearer token from the iframe url param
+    accessToken =
+      new URLSearchParams(window.location.href.split("?")[1]).get("token") ??
+      "";
+  } else {
+    // Check parent window's localStorage for auth token
+    // Use try/catch block to prevent UI from breaking in case of CORS error
+    try {
+      accessToken =
+        window.parent.localStorage.getItem("tanagraAccessToken") ?? "";
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return accessToken;
+};
+
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
@@ -330,28 +350,8 @@ function apiForEnvironment<Real, Fake>(
 
     const config: tanagra.ConfigurationParameters = {
       basePath: process.env.REACT_APP_BACKEND_HOST || "",
+      accessToken: getAccessToken(),
     };
-    // For local dev only, get the bearer token from the iframe url param
-    if (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN) {
-      const accessToken = new URLSearchParams(
-        window.location.href.split("?")[1]
-      ).get("token");
-      if (accessToken) {
-        config.accessToken = accessToken;
-      }
-    } else {
-      // Check parent window's localStorage for auth token
-      // Use try/catch block to prevent UI from breaking in case of CORS error
-      try {
-        const accessToken =
-          window.parent.localStorage.getItem("tanagraAccessToken");
-        if (accessToken) {
-          config.accessToken = accessToken;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
     return new real(new tanagra.Configuration(config));
   };
   return React.createContext(fn());
