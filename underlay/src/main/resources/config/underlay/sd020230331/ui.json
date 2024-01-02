@@ -461,18 +461,6 @@
       "attribute": "age"
     },
     {
-      "type": "classification",
-      "id": "tanagra-snp",
-      "title": "SNP variant",
-      "category": "Demographics",
-      "columns": [
-        { "key": "name", "width": "100%", "title": "SNP variant" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
-      ],
-      "occurrences": "",
-      "classifications": ["snp"]
-    },
-    {
       "type": "biovu",
       "id": "biovu",
       "title": "BioVU Samples",
