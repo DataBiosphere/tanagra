@@ -18,22 +18,20 @@ public class BQRowResult implements SqlRowResult {
   @Override
   public Literal get(String columnName, DataType expectedDataType) {
     FieldValue fieldValue = fieldValues.get(columnName);
-    if (fieldValue.isNull()) {
-      return Literal.NULL;
-    }
     switch (expectedDataType) {
       case STRING:
-        return Literal.forString(fieldValue.getStringValue());
+        return Literal.forString(fieldValue.isNull() ? null : fieldValue.getStringValue());
       case INT64:
-        return Literal.forInt64(fieldValue.getLongValue());
+        return Literal.forInt64(fieldValue.isNull() ? null : fieldValue.getLongValue());
       case BOOLEAN:
-        return Literal.forBoolean(fieldValue.getBooleanValue());
+        return Literal.forBoolean(fieldValue.isNull() ? null : fieldValue.getBooleanValue());
       case DOUBLE:
-        return Literal.forDouble(fieldValue.getDoubleValue());
+        return Literal.forDouble(fieldValue.isNull() ? null : fieldValue.getDoubleValue());
       case DATE:
-        return Literal.forDate(fieldValue.getStringValue());
+        return Literal.forDate(fieldValue.isNull() ? null : fieldValue.getStringValue());
       case TIMESTAMP:
-        return Literal.forTimestamp(Timestamp.from(fieldValue.getTimestampInstant()));
+        return Literal.forTimestamp(
+            fieldValue.isNull() ? null : Timestamp.from(fieldValue.getTimestampInstant()));
       default:
         throw new InvalidQueryException(
             "Unsupported data type for BigQuery row result: " + expectedDataType);

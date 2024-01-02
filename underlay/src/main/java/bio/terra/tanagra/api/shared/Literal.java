@@ -14,7 +14,6 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 public final class Literal {
-  public static final Literal NULL = new Literal();
   private final boolean isNull;
   private final DataType dataType;
   private String stringVal;
@@ -24,59 +23,54 @@ public final class Literal {
   private Date dateVal;
   private Timestamp timestampVal;
 
-  private Literal() {
-    this.isNull = true;
-    this.dataType = null;
-  }
-
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private Literal(
       DataType dataType,
+      boolean isNull,
       String stringVal,
       Long int64Val,
       Double doubleVal,
       Boolean booleanVal,
       Date dateVal,
       Timestamp timestampVal) {
-    this.isNull = false;
     this.dataType = dataType;
-    this.stringVal = stringVal;
-    this.int64Val = int64Val;
-    this.doubleVal = doubleVal;
-    this.booleanVal = booleanVal;
-    this.dateVal = dateVal;
-    this.timestampVal = timestampVal;
+    this.isNull = isNull;
+    if (!isNull) {
+      this.stringVal = stringVal;
+      this.int64Val = int64Val;
+      this.doubleVal = doubleVal;
+      this.booleanVal = booleanVal;
+      this.dateVal = dateVal;
+      this.timestampVal = timestampVal;
+    }
   }
 
   public static Literal forString(String stringVal) {
-    return stringVal == null ? NULL : new Literal(STRING, stringVal, null, null, null, null, null);
+    return new Literal(STRING, stringVal == null, stringVal, null, null, null, null, null);
   }
 
   public static Literal forInt64(Long int64Val) {
-    return int64Val == null ? NULL : new Literal(INT64, null, int64Val, null, null, null, null);
+    return new Literal(INT64, int64Val == null, null, int64Val, null, null, null, null);
   }
 
   public static Literal forDouble(Double doubleVal) {
-    return doubleVal == null ? NULL : new Literal(DOUBLE, null, null, doubleVal, null, null, null);
+    return new Literal(DOUBLE, doubleVal == null, null, null, doubleVal, null, null, null);
   }
 
   public static Literal forBoolean(Boolean booleanVal) {
-    return booleanVal == null
-        ? NULL
-        : new Literal(BOOLEAN, null, null, null, booleanVal, null, null);
+    return new Literal(BOOLEAN, booleanVal == null, null, null, null, booleanVal, null, null);
   }
 
   public static Literal forDate(Date dateVal) {
-    return dateVal == null ? NULL : new Literal(DATE, null, null, null, null, dateVal, null);
+    return new Literal(DATE, dateVal == null, null, null, null, null, dateVal, null);
   }
 
   public static Literal forDate(String dateVal) {
-    return dateVal == null ? NULL : forDate(Date.valueOf(dateVal));
+    return forDate(dateVal == null ? null : Date.valueOf(dateVal));
   }
 
   public static Literal forTimestamp(Timestamp timestampVal) {
-    return timestampVal == null
-        ? NULL
-        : new Literal(TIMESTAMP, null, null, null, null, null, timestampVal);
+    return new Literal(TIMESTAMP, timestampVal == null, null, null, null, null, null, timestampVal);
   }
 
   public static Literal forGeneric(
@@ -110,7 +104,7 @@ public final class Literal {
     return !isNull && dataType.equals(INT64) ? int64Val : null;
   }
 
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+  @SuppressFBWarnings(
       value = "NP_BOOLEAN_RETURN_NULL",
       justification =
           "This value will be used in constructing a SQL string, not used directly in a Java conditional")
@@ -131,9 +125,6 @@ public final class Literal {
   }
 
   public DataType getDataType() {
-    if (isNull) {
-      throw new SystemException("Null literals do not have a data type.");
-    }
     return dataType;
   }
 
@@ -174,11 +165,11 @@ public final class Literal {
     }
   }
 
-  @SuppressFBWarnings(value = "NP_TOSTRING_COULD_RETURN_NULL")
+  @SuppressFBWarnings("NP_TOSTRING_COULD_RETURN_NULL")
   @Override
   public String toString() {
     if (isNull) {
-      return null;
+      return "null";
     }
     switch (dataType) {
       case STRING:

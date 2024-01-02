@@ -7,10 +7,13 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
+import bio.terra.tanagra.query.bigquery.BQExecutor;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
+import bio.terra.tanagra.query.sql.SqlQueryRequest;
+import bio.terra.tanagra.query.sql.SqlQueryResult;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
@@ -104,9 +107,9 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                 insertRow.add(Literal.forString(attribute.getName()));
                 insertRow.add(minMax.getKey());
                 insertRow.add(minMax.getValue());
-                insertRow.add(Literal.NULL);
-                insertRow.add(Literal.NULL);
-                insertRow.add(Literal.NULL);
+                insertRow.add(Literal.forInt64(null));
+                insertRow.add(Literal.forString(null));
+                insertRow.add(Literal.forInt64(null));
                 insertRows.add(insertRow);
                 LOGGER.info(
                     "Numeric range hint: {}, {}, {}",
@@ -120,8 +123,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                         enumCount -> {
                           List<Literal> rowOfLiterals = new ArrayList<>();
                           rowOfLiterals.add(Literal.forString(attribute.getName()));
-                          rowOfLiterals.add(Literal.NULL);
-                          rowOfLiterals.add(Literal.NULL);
+                          rowOfLiterals.add(Literal.forDouble(null));
+                          rowOfLiterals.add(Literal.forDouble(null));
                           rowOfLiterals.add(enumCount.getKey().getValue());
                           rowOfLiterals.add(Literal.forString(enumCount.getKey().getDisplay()));
                           rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
@@ -174,7 +177,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       List<Literal> insertRow = insertRows.get(i);
       List<String> paramNames = new ArrayList<>();
       for (int j = 0; j < insertRow.size(); j++) {
-        paramNames.add(sqlParams.addParam("valr" + i + "c" + j, insertRow.get(j)));
+        paramNames.add("@" + sqlParams.addParam("valr" + i + "c" + j, insertRow.get(j)));
       }
       insertRowSqls.add("(" + paramNames.stream().collect(Collectors.joining(",")) + ")");
     }
@@ -214,8 +217,13 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             queryStatistics.getTotalSlotMs());
       }
     } else {
-      TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
-      LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
+      BQExecutor bqExecutor =
+          new BQExecutor(
+              indexerConfig.bigQuery.queryProjectId, indexerConfig.bigQuery.dataLocation);
+      SqlQueryRequest sqlQueryRequest =
+          new SqlQueryRequest(insertLiteralsSql, sqlParams, null, null, isDryRun);
+      SqlQueryResult sqlQueryResult = bqExecutor.run(sqlQueryRequest);
+      LOGGER.info("SQL query returns {} rows across all pages", sqlQueryResult.getTotalNumRows());
     }
   }
 
@@ -285,17 +293,13 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
         FieldValueList rowResult = rowResults.next();
         FieldValue minFieldValue = rowResult.get(minValAlias);
         Literal minVal =
-            minFieldValue.isNull()
-                ? Literal.NULL
-                : Literal.forDouble(minFieldValue.getDoubleValue());
+            Literal.forDouble(minFieldValue.isNull() ? null : minFieldValue.getDoubleValue());
         FieldValue maxFieldValue = rowResult.get(maxValAlias);
         Literal maxVal =
-            maxFieldValue.isNull()
-                ? Literal.NULL
-                : Literal.forDouble(maxFieldValue.getDoubleValue());
+            Literal.forDouble(maxFieldValue.isNull() ? null : maxFieldValue.getDoubleValue());
         return Pair.of(minVal, maxVal);
       } else {
-        return Pair.of(Literal.NULL, Literal.NULL);
+        return Pair.of(Literal.forDouble(null), Literal.forDouble(null));
       }
     }
   }
@@ -354,9 +358,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
         FieldValueList rowResult = rowResults.next();
         FieldValue enumValFieldValue = rowResult.get(enumValAlias);
         Literal enumVal =
-            enumValFieldValue.isNull()
-                ? Literal.NULL
-                : Literal.forInt64(enumValFieldValue.getLongValue());
+            Literal.forInt64(enumValFieldValue.isNull() ? null : enumValFieldValue.getLongValue());
         FieldValue enumDispFieldValue = rowResult.get(enumDispAlias);
         String enumDisp = enumDispFieldValue.isNull() ? null : enumDispFieldValue.getStringValue();
         FieldValue enumCountFieldValue = rowResult.get(enumCountAlias);

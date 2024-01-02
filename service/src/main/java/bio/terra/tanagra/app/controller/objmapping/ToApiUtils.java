@@ -55,6 +55,7 @@ public final class ToApiUtils {
   }
 
   public static ApiLiteral toApiObject(Literal literal) {
+    // TODO: Return a null value of the appropriate type once literals store type for nulls.
     if (literal.isNull()) {
       return new ApiLiteral().dataType(ApiDataType.STRING).valueUnion(new ApiLiteralValueUnion());
     }
