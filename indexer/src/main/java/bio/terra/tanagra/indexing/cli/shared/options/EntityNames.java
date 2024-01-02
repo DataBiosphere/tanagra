@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.cli.shared.options;
 
 import bio.terra.tanagra.cli.exception.UserActionableException;
+import java.util.List;
 import picocli.CommandLine;
 
 /**
@@ -8,9 +9,11 @@ import picocli.CommandLine;
  *
  * <p>This class is meant to be used as a @CommandLine.Mixin.
  */
-public class OneOrAllEntities {
-  @CommandLine.Option(names = "--name", description = "Entity name.")
-  public String entity;
+public class EntityNames {
+  @CommandLine.Option(
+      names = "--names",
+      description = "Entity name(s). Comma-separated list if more than one.")
+  public List<String> names;
 
   @CommandLine.Option(
       names = "--all",
@@ -19,7 +22,7 @@ public class OneOrAllEntities {
   public boolean allEntities;
 
   public void validate() {
-    if (!allEntities && (entity == null || entity.isEmpty())) {
+    if (!allEntities && (names == null || names.isEmpty())) {
       throw new UserActionableException(
           "Either the entity name or the all entities flag must be defined.");
     }

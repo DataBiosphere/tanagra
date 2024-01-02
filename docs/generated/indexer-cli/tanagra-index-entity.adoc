@@ -21,7 +21,7 @@ tanagra-index-entity - Run all jobs for a single entity, or all entities.
 
 *tanagra index entity* [*--all*] [*--dry-run*] [*--github-dir*=_<githubDir>_]
                      *--indexer-config*=_<name>_ [*--job-executor*=_<jobExecutor>_]
-                     [*--name*=_<entity>_] [*--output-dir*=_<outputDir>_]
+                     [*--output-dir*=_<outputDir>_] [*--names*=_<names>_]...
 
 // end::picocli-generated-man-section-synopsis[]
 
@@ -56,8 +56,8 @@ Run all jobs for a single entity, or all entities.
 +
   Default: PARALLEL
 
-*--name*=_<entity>_::
-  Entity name.
+*--names*=_<names>_::
+  Entity name(s). Comma-separated list if more than one.
 
 *--output-dir*=_<outputDir>_::
   Absolute path to the directory where the html report will be written. Defaults to the current directory.
