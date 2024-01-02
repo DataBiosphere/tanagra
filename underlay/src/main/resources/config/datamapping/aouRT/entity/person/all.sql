@@ -25,7 +25,10 @@ SELECT p.person_id,
            WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
             AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit,
        CASE
-           WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data
+           WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data,
+       CASE
+           WHEN d.death_date is null THEN 0 ELSE 1 is_deceased
+
 FROM `${omopDataset}.person` p
 
 LEFT JOIN `${omopDataset}.concept` gc
@@ -94,3 +97,6 @@ LEFT JOIN `${omopDataset}.concept` sc
           LEFT JOIN`${omopDataset}.visit_occurrence_ext` as b on a.visit_occurrence_id = b.visit_occurrence_id
       WHERE lower(b.src_id) like 'ehr site%'
      ) ehr ON (p.person_id = ehr.person_id)
+         LEFT JOIN
+     (SELECT DISTINCT person_id
+      FROM `${omopDataset}.death`) d ON (p.person_id = d.person_id)

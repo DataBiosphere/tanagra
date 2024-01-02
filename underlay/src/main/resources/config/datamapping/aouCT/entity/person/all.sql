@@ -33,7 +33,10 @@ SELECT p.person_id,
        CASE
            WHEN svd.sample_name IS NULL THEN 0 ELSE 1 END has_structural_variant_data,
        CASE
-           WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data
+           WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data,
+       CASE
+           WHEN d.death_date is null THEN 0 ELSE 1 is_deceased
+
 FROM `${omopDataset}.person` p
 
 LEFT JOIN `${omopDataset}.concept` gc
@@ -113,4 +116,8 @@ LEFT JOIN `${omopDataset}.concept` sc
         FROM`${omopDataset}.visit_occurrence` as a
         LEFT JOIN`${omopDataset}.visit_occurrence_ext` as b on a.visit_occurrence_id = b.visit_occurrence_id
         WHERE lower(b.src_id) like 'ehr site%'
-      ) ehr ON (p.person_id = ehr.person_id)
+      ) ehr ON (p.person_id = ehr.person_id),
+         LEFT JOIN
+      (SELECT DISTINCT person_id
+      FROM `${omopDataset}.death`) d ON (p.person_id = d.person_id)
+
