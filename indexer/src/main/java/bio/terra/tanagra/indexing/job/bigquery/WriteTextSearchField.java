@@ -134,10 +134,12 @@ public class WriteTextSearchField extends BigQueryJob {
             + " SET "
             + SqlQueryField.of(indexTable.getTextSearchField()).renderForSelect(updateTableAlias)
             + " = "
-            + SqlQueryField.of(tempTableTextField).renderForSelect(tempTableAlias)
+            + SqlQueryField.of(SqlField.of(textAlias)).renderForSelect(tempTableAlias)
             + " FROM ("
             + selectTextConcatSql
-            + ") WHERE "
+            + ") AS "
+            + tempTableAlias
+            + " WHERE "
             + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
             + " = "
             + SqlQueryField.of(tempTableIdField).renderForSelect(tempTableAlias);

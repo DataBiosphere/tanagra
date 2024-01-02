@@ -215,9 +215,9 @@ public class WriteRollupCounts extends BigQueryJob {
           indexTable.getAttributeValueField(relationship.getForeignKeyAttribute(entity).getName());
       idPairsSql =
           "SELECT "
-              + SqlQueryField.of(entityIdField).renderForSelect()
+              + SqlQueryField.of(entityIdField, entityIdColumnName).renderForSelect()
               + ", "
-              + SqlQueryField.of(countedEntityIdField).renderForSelect()
+              + SqlQueryField.of(countedEntityIdField, countedEntityIdColumnName).renderForSelect()
               + " FROM "
               + indexTable.getTablePointer().render();
     } else if (relationship.isForeignKeyAttribute(countedEntity)) {
@@ -228,9 +228,9 @@ public class WriteRollupCounts extends BigQueryJob {
           countedEntityIndexTable.getAttributeValueField(countedEntity.getIdAttribute().getName());
       idPairsSql =
           "SELECT "
-              + SqlQueryField.of(entityIdField).renderForSelect()
+              + SqlQueryField.of(entityIdField, entityIdColumnName).renderForSelect()
               + ", "
-              + SqlQueryField.of(countedEntityIdField).renderForSelect()
+              + SqlQueryField.of(countedEntityIdField, countedEntityIdColumnName).renderForSelect()
               + " FROM "
               + countedEntityIndexTable.getTablePointer().render();
     } else { // relationship.isIntermediateTable()
@@ -239,9 +239,9 @@ public class WriteRollupCounts extends BigQueryJob {
           relationshipIdPairsIndexTable.getEntityIdField(countedEntity.getName());
       idPairsSql =
           "SELECT "
-              + SqlQueryField.of(entityIdField).renderForSelect()
+              + SqlQueryField.of(entityIdField, entityIdColumnName).renderForSelect()
               + ", "
-              + SqlQueryField.of(countedEntityIdField).renderForSelect()
+              + SqlQueryField.of(countedEntityIdField, countedEntityIdColumnName).renderForSelect()
               + " FROM "
               + relationshipIdPairsIndexTable.getTablePointer().render();
     }
