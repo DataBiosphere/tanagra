@@ -795,7 +795,7 @@
       "type": "attribute",
       "id": "tanagra-is-deceased",
       "title": "Deceased",
-      "category": "Program Data",
+      "category": "Demographics",
       "attribute": "is_deceased"
     },
     {
