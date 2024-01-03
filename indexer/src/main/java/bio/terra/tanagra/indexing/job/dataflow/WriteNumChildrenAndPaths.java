@@ -12,8 +12,9 @@ import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
+import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
-import bio.terra.tanagra.underlay.sourcetable.STHierarchyChildParent;
 import bio.terra.tanagra.underlay.sourcetable.STHierarchyRootFilter;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
@@ -49,7 +50,8 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
 
   private final Entity entity;
   private final Hierarchy hierarchy;
-  private final STHierarchyChildParent sourceChildParentTable;
+  private final ITHierarchyChildParent indexChildParentTable;
+  private final ITHierarchyAncestorDescendant indexAncestorDescendantTable;
   private final @Nullable STHierarchyRootFilter sourceRootFilterTable;
   private final ITEntityMain indexTable;
 
@@ -57,13 +59,15 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
       SZIndexer indexerConfig,
       Entity entity,
       Hierarchy hierarchy,
-      STHierarchyChildParent sourceChildParentTable,
+      ITHierarchyChildParent indexChildParentTable,
+      ITHierarchyAncestorDescendant indexAncestorDescendantTable,
       @Nullable STHierarchyRootFilter sourceRootFilterTable,
       ITEntityMain indexTable) {
     super(indexerConfig);
     this.entity = entity;
     this.hierarchy = hierarchy;
-    this.sourceChildParentTable = sourceChildParentTable;
+    this.indexChildParentTable = indexChildParentTable;
+    this.indexAncestorDescendantTable = indexAncestorDescendantTable;
     this.sourceRootFilterTable = sourceRootFilterTable;
     this.indexTable = indexTable;
   }
@@ -156,15 +160,75 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
 
     // Build a query to select all child-parent pairs from the source child-parent table, and the
     // pipeline step to read the results.
-    String sourceChildParentSql =
-        "SELECT * FROM " + sourceChildParentTable.getTablePointer().render();
-    LOGGER.info("source child-parent query: {}", sourceChildParentSql);
+    StringBuilder childParentSql = new StringBuilder();
+    childParentSql
+        .append("SELECT * FROM ")
+        .append(indexChildParentTable.getTablePointer().render());
+    if (sourceRootFilterTable != null || !hierarchy.getRootNodeIds().isEmpty()) {
+      // If there's a root node filter, then remove any parent-child relationships where the parent
+      // isn't a descendant of a valid root node. This avoids us generating a path that points to an
+      // invalid root node.
+      childParentSql
+          .append(" WHERE ")
+          .append(SqlQueryField.of(indexChildParentTable.getParentField()).renderForSelect())
+          .append(" IN ");
+
+      if (sourceRootFilterTable != null) {
+        // SELECT * FROM indexChildParent WHERE parent IN (SELECT root nodes UNION ALL SELECT
+        // descendant FROM indexAncestorDescendant WHERE ancestor IN (SELECT root nodes))
+        String selectRootNodeIds =
+            "SELECT "
+                + sourceRootFilterTable.getIdColumnSchema().getColumnName()
+                + " FROM "
+                + sourceRootFilterTable.getTablePointer().render();
+        childParentSql
+            .append('(')
+            .append(selectRootNodeIds)
+            .append(" UNION ALL SELECT ")
+            .append(
+                SqlQueryField.of(indexAncestorDescendantTable.getDescendantField())
+                    .renderForSelect())
+            .append(" FROM ")
+            .append(indexAncestorDescendantTable.getTablePointer().render())
+            .append(" WHERE ")
+            .append(
+                SqlQueryField.of(indexAncestorDescendantTable.getAncestorField()).renderForSelect())
+            .append(" IN (")
+            .append(selectRootNodeIds)
+            .append("))");
+      } else {
+        // SELECT * FROM indexChildParent WHERE parent IN (root nodes) OR parent IN (SELECT
+        // descendant FROM indexAncestorDescendant WHERE ancestor IN (root nodes))
+        String rootNodeIds =
+            hierarchy.getRootNodeIds().stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(","));
+        childParentSql
+            .append('(')
+            .append(rootNodeIds)
+            .append(") OR ")
+            .append(SqlQueryField.of(indexChildParentTable.getParentField()).renderForSelect())
+            .append(" IN (SELECT ")
+            .append(
+                SqlQueryField.of(indexAncestorDescendantTable.getDescendantField())
+                    .renderForSelect())
+            .append(" FROM ")
+            .append(indexAncestorDescendantTable.getTablePointer().render())
+            .append(" WHERE ")
+            .append(
+                SqlQueryField.of(indexAncestorDescendantTable.getAncestorField()).renderForSelect())
+            .append(" IN (")
+            .append(rootNodeIds)
+            .append("))");
+      }
+    }
+    LOGGER.info("child-parent query: {}", childParentSql.toString());
     PCollection<KV<Long, Long>> childParentRelationshipsPC =
         BigQueryBeamUtils.readTwoFieldRowsFromBQ(
             pipeline,
-            sourceChildParentSql,
-            sourceChildParentTable.getChildColumnSchema().getColumnName(),
-            sourceChildParentTable.getParentColumnSchema().getColumnName());
+            childParentSql.toString(),
+            indexChildParentTable.getChildField().getColumnName(),
+            indexChildParentTable.getParentField().getColumnName());
 
     // Build the pipeline steps to compute a path to a root node for each node in the hierarchy.
     PCollection<KV<Long, String>> nodePathKVsPC =
