@@ -248,11 +248,18 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     // Build the query.
     // SELECT MIN(attr) AS minVal, MAX(attr) AS maxVal FROM (SELECT * FROM indextable)
 
-    BQTable innerQueryTable =
-        new BQTable("SELECT * FROM " + indexAttributesTable.getTablePointer().render());
     SqlField attrField =
         SqlField.of(
-            indexAttributesTable.getAttributeValueField(attribute.getName()).getColumnName());
+            indexAttributesTable.getAttributeValueField(attribute.getName()).getColumnName(),
+            attribute.hasRuntimeSqlFunctionWrapper()
+                ? attribute.getRuntimeSqlFunctionWrapper()
+                : null);
+    BQTable innerQueryTable =
+        new BQTable(
+            "SELECT "
+                + SqlQueryField.of(attrField, attribute.getName()).renderForSelect()
+                + " FROM "
+                + indexAttributesTable.getTablePointer().render());
     final String minValAlias = "minVal";
     final String maxValAlias = "maxVal";
     String selectMinMaxSql =
@@ -271,6 +278,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             .setDryRun(isDryRun)
             .setUseLegacySql(false)
             .build();
+    LOGGER.info("SQL numeric range: {}", selectMinMaxSql);
     if (isDryRun) {
       if (getOutputTable().isEmpty()) {
         LOGGER.info("Skipping query dry run because output table does not exist yet.");
@@ -334,6 +342,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             .setDryRun(isDryRun)
             .setUseLegacySql(false)
             .build();
+    LOGGER.info("SQL enum count: {}", selectEnumCountSql);
 
     // Parse the result rows.
     List<Pair<ValueDisplay, Long>> enumCounts = new ArrayList<>();
