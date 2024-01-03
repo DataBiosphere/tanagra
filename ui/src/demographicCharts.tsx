@@ -178,7 +178,7 @@ export function DemographicCharts({
       underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
 
     const demographicData = await underlaySource.filterCount(
-      generateCohortFilter(cohort),
+      generateCohortFilter(underlaySource, cohort),
       groupByAttributes
     );
 

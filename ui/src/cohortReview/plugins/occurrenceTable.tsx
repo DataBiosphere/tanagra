@@ -23,14 +23,14 @@ import { CohortReviewPageConfig } from "underlaysSlice";
 import { safeRegExp } from "util/safeRegExp";
 
 interface Config {
-  occurrence: string;
+  entity: string;
   columns: TreeGridColumn[];
 }
 
-@registerCohortReviewPlugin("occurrenceTable")
+@registerCohortReviewPlugin("entityTable")
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CohortReviewPlugin {
-  public occurrences: string[];
+  public entities: string[];
   private config: Config;
 
   constructor(
@@ -39,7 +39,7 @@ class _ implements CohortReviewPlugin {
     config: CohortReviewPageConfig
   ) {
     this.config = config.plugin as Config;
-    this.occurrences = [this.config.occurrence];
+    this.entities = [this.config.entity];
   }
 
   render() {
@@ -66,7 +66,7 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
       root: { data: {}, children },
     };
 
-    context.occurrences[config.occurrence].forEach((o) => {
+    context.rows[config.entity].forEach((o) => {
       data[o.key] = { data: o };
       children.push(o.key);
     });

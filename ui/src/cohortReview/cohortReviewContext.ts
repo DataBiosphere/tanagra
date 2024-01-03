@@ -1,12 +1,12 @@
 import { DataEntry } from "data/types";
 import { createContext, useContext } from "react";
 
-export type OccurrenceData = {
+export type EntityData = {
   [x: string]: DataEntry[];
 };
 
 export type CohortReviewContextData = {
-  occurrences: OccurrenceData;
+  rows: EntityData;
 
   searchState: <T extends object>(plugin: string) => T;
   updateSearchState: <T extends object>(

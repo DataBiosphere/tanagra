@@ -1,27 +1,26 @@
 import { TreeGridColumn } from "components/treegrid";
-import { Configuration } from "data/configuration";
 import { Filter } from "data/filter";
-import * as tanagra from "tanagra-api";
+import * as underlayConfig from "tanagra-underlay/underlayConfig";
 
 export type PrepackagedConceptSet = {
   id: string;
   name: string;
   category?: string;
   tags?: string[];
-  occurrence: string;
+  entity: string;
   filter?: Filter;
 };
 
 export type Underlay = {
   name: string;
-  displayName: string;
-  primaryEntity: string;
-  entities: tanagra.Entity[];
   uiConfiguration: UIConfiguration;
+  underlayConfig: underlayConfig.SZUnderlay;
+  criteriaOccurrences: underlayConfig.SZCriteriaOccurrence[];
+  groupItems: underlayConfig.SZGroupItems[];
+  entities: underlayConfig.SZEntity[];
 };
 
 export type UIConfiguration = {
-  dataConfig: Configuration;
   criteriaConfigs: CriteriaConfig[];
   modifierConfigs: CriteriaConfig[];
   demographicChartConfigs: DemographicChartConfig;

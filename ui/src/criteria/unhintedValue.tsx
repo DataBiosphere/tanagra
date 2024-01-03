@@ -109,7 +109,7 @@ class _ implements CriteriaPlugin<Data> {
     };
   }
 
-  filterOccurrenceIds() {
+  filterEntityIds() {
     return [this.config.attribute ?? ""];
   }
 }

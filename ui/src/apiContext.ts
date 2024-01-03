@@ -19,41 +19,6 @@ class FakeUnderlaysApi {
     const columns = [{ key: "name", width: "100%", title: "Concept name" }];
 
     const uiConfiguration = {
-      dataConfig: {
-        primaryEntity: {
-          entity: "person",
-          key: "id",
-        },
-        occurrences: [
-          {
-            id: "condition_occurrence",
-            entity: "condition_occurrence",
-            key: "id",
-            classifications: [
-              {
-                id: "condition",
-                attribute: "condition_concept_id",
-                entity: "condition",
-                entityAttribute: "id",
-                hierarchy: "standard",
-              },
-            ],
-          },
-          {
-            id: "observation_occurrence",
-            entity: "observation_occurrence",
-            key: "id",
-            classifications: [
-              {
-                id: "observation",
-                attribute: "observation_concept_id",
-                entity: "observation",
-                entityAttribute: "id",
-              },
-            ],
-          },
-        ],
-      },
       criteriaConfigs: [
         {
           type: "classification",
@@ -102,7 +67,7 @@ class FakeUnderlaysApi {
         primaryEntity: "person",
       },
       serializedConfiguration: {
-        underlay: "",
+        underlay: "{}",
         entities: [],
         groupItemsEntityGroups: [],
         criteriaOccurrenceEntityGroups: [],

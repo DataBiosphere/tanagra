@@ -21,10 +21,11 @@ export type ReviewParams = {
 };
 
 export function useReviewParams(): ReviewParams {
+  const underlaySource = useUnderlaySource();
   const underlay = useUnderlay();
   const params = useBaseParams();
 
-  const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
+  const primaryKey = underlaySource.primaryEntity().idAttribute;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
   const participantIdAttribute = uiConfig.participantIdAttribute ?? primaryKey;
 

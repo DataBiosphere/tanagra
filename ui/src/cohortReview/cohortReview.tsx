@@ -42,7 +42,7 @@ export function CohortReview() {
   const baseParams = useBaseParams();
   const params = useReviewParams();
 
-  const primaryKey = underlay.uiConfiguration.dataConfig.primaryEntity.key;
+  const primaryKey = underlaySource.primaryEntity().idAttribute;
   const uiConfig = underlay.uiConfiguration.cohortReviewConfig;
   const participantIdAttribute = uiConfig.participantIdAttribute ?? primaryKey;
 
@@ -130,11 +130,11 @@ export function CohortReview() {
         throw new Error("Instances not loaded yet.");
       }
 
-      const occurrenceIds: string[] = [];
-      pagePlugins.forEach((p) => occurrenceIds.push(...p.occurrences));
+      const entityIds: string[] = [];
+      pagePlugins.forEach((p) => entityIds.push(...p.entities));
 
       const res = await Promise.all(
-        occurrenceIds.map((id) => {
+        entityIds.map((id) => {
           return underlaySource.listData(
             underlaySource.listAttributes(id),
             id,
@@ -149,16 +149,16 @@ export function CohortReview() {
         })
       );
 
-      const occurrences: { [x: string]: DataEntry[] } = {};
+      const rows: { [x: string]: DataEntry[] } = {};
       res.forEach(
         (r, i) =>
-          (occurrences[occurrenceIds[i]] = r.data.map((o) => ({
+          (rows[entityIds[i]] = r.data.map((o) => ({
             ...o,
             timestamp: o["start_date"] as Date,
           })))
       );
       return {
-        occurrences,
+        rows,
       };
     }
   );
@@ -272,7 +272,7 @@ export function CohortReview() {
             <Loading status={instanceDataState}>
               <CohortReviewContext.Provider
                 value={{
-                  occurrences: instanceDataState?.data?.occurrences ?? {},
+                  rows: instanceDataState?.data?.rows ?? {},
                   searchState: <T extends object>(plugin: string) =>
                     (searchState?.plugins?.[plugin] ?? {}) as T,
                   updateSearchState: <T extends object>(

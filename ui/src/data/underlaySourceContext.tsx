@@ -55,19 +55,25 @@ export function UnderlaySourceContextRoot() {
 
       const underlay = {
         name: underlayName,
-        displayName: apiUnderlay.summary.displayName ?? underlayName,
-        primaryEntity: apiUnderlay.summary.primaryEntity,
-        entities: entitiesRes.entities,
         uiConfiguration: JSON.parse(apiUnderlay.uiConfiguration),
+        underlayConfig: JSON.parse(
+          apiUnderlay.serializedConfiguration.underlay
+        ),
+        criteriaOccurrences:
+          apiUnderlay.serializedConfiguration.criteriaOccurrenceEntityGroups.map(
+            (co) => JSON.parse(co)
+          ),
+        groupItems:
+          apiUnderlay.serializedConfiguration.groupItemsEntityGroups.map((gi) =>
+            JSON.parse(gi)
+          ),
+        entities: apiUnderlay.serializedConfiguration.entities.map((e) =>
+          JSON.parse(e)
+        ),
       };
 
       return {
-        source: new BackendUnderlaySource(
-          underlaysApi,
-          exportApi,
-          underlay,
-          underlay.uiConfiguration.dataConfig
-        ),
+        source: new BackendUnderlaySource(underlaysApi, exportApi, underlay),
       };
     }, [underlayName])
   );

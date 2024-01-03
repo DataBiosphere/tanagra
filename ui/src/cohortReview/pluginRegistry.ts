@@ -4,7 +4,7 @@ import { CohortReviewPageConfig } from "underlaysSlice";
 export interface CohortReviewPlugin {
   id: string;
   title: string;
-  occurrences: string[];
+  entities: string[];
 
   render: () => ReactNode;
 }

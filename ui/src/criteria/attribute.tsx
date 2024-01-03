@@ -123,7 +123,7 @@ class _ implements CriteriaPlugin<Data> {
     };
   }
 
-  filterOccurrenceIds() {
+  filterEntityIds() {
     return [""];
   }
 }

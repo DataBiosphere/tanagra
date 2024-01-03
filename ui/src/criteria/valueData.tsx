@@ -49,8 +49,8 @@ export const ANY_VALUE_DATA = {
 };
 
 export type ValueDataEditProps = {
-  occurrence: string;
-  entity?: string;
+  hintEntity: string;
+  relatedEntity?: string;
   hintKey?: DataKey;
 
   singleValue?: boolean;
@@ -65,15 +65,15 @@ export function ValueDataEdit(props: ValueDataEditProps) {
   const hintDataState = useSWRImmutable(
     {
       type: "hintData",
-      occurrence: props.occurrence,
-      entity: props.entity,
+      hintEntity: props.hintEntity,
+      relatedEntity: props.relatedEntity,
       key: props.hintKey,
     },
     async (key) => {
       const hintData = props.valueConfigs
         ? await underlaySource.getAllHintData(
-            key.occurrence,
-            key.entity,
+            key.hintEntity,
+            key.relatedEntity,
             key.key
           )
         : undefined;
