@@ -40,7 +40,3 @@ FROM `${omopDataset}.procedure_occurrence` AS po
 WHERE pc.type = 'CPT4'
   AND po.procedure_source_concept_id IS NOT null
   AND po.procedure_source_concept_id != 0
-
-
-
-
