@@ -2,16 +2,11 @@ import { defaultSection, generateCohortFilter } from "cohort";
 import { getReasonPhrase } from "http-status-codes";
 import * as tanagra from "tanagra-api";
 import * as tanagraUI from "tanagra-ui";
+import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
 import {
-  Classification,
-  Configuration,
-  findByID,
-  findEntity,
-  Grouping,
   ITEM_COUNT_ATTRIBUTE,
-  Occurrence,
   ROLLUP_COUNT_ATTRIBUTE,
   SortDirection,
   SortOrder,
@@ -22,30 +17,29 @@ import {
   Filter,
   isArrayFilter,
   isAttributeFilter,
-  isClassificationFilter,
+  isEntityGroupFilter,
   isRelationshipFilter,
   isTextFilter,
   isUnaryFilter,
 } from "./filter";
 import { CohortReview, DataEntry, DataKey, DataValue } from "./types";
 
-export type ClassificationNode = {
+export type EntityNode = {
   data: DataEntry;
-  grouping?: string;
+  entity: string;
   ancestors?: DataKey[];
   childCount?: number;
 };
 
-export type SearchClassificationOptions = {
+export type SearchEntityGroupOptions = {
   query?: string;
   parent?: DataKey;
-  includeGroupings?: boolean;
-  sortOrder?: SortOrder;
   limit?: number;
+  hierarchy?: boolean;
 };
 
-export type SearchClassificationResult = {
-  nodes: ClassificationNode[];
+export type SearchEntityGroupResult = {
+  nodes: EntityNode[];
 };
 
 export type SearchGroupingOptions = {
@@ -131,7 +125,7 @@ export type ExportModel = {
 
 export type ExportRequestEntity = {
   requestedAttributes: string[];
-  occurrenceID: string;
+  entityId: string;
   cohort: Filter;
   conceptSet: Filter | null;
 };
@@ -161,30 +155,28 @@ export type FeatureSet = {
   output: FeatureSetOutput[];
 };
 
+export type EntityGroupData = {
+  id: string;
+  entityId: string;
+  relatedEntityId?: string;
+  relatedEntityGroupId?: string;
+  occurrenceEntityIds: string[];
+  selectionEntity: tanagraUnderlay.SZEntity;
+};
+
 export interface UnderlaySource {
-  config: Configuration;
   underlay: Underlay;
 
-  lookupOccurrence(occurrenceID: string): Occurrence;
-  lookupClassification(
-    occurrenceID: string,
-    classificationID: string
-  ): Classification;
+  lookupEntityGroup(entityGroupId: string): EntityGroupData;
+  lookupEntity(entityId: string): tanagraUnderlay.SZEntity;
+  primaryEntity(): tanagraUnderlay.SZEntity;
 
-  searchClassification(
+  searchEntityGroup(
     requestedAttributes: string[],
-    occurrenceID: string,
-    classificationID: string,
-    options?: SearchClassificationOptions
-  ): Promise<SearchClassificationResult>;
-
-  searchGrouping(
-    requestedAttributes: string[],
-    occurrenceID: string,
-    classificationID: string,
-    root: ClassificationNode,
-    options?: SearchGroupingOptions
-  ): Promise<SearchClassificationResult>;
+    entityGroupId: string,
+    sortOrder: SortOrder,
+    options?: SearchEntityGroupOptions
+  ): Promise<SearchEntityGroupResult>;
 
   listAttributes(occurrenceID: string): string[];
 
@@ -349,171 +341,125 @@ export class BackendUnderlaySource implements UnderlaySource {
   constructor(
     private underlaysApi: tanagra.UnderlaysApi,
     private exportApi: tanagra.ExportApi,
-    public underlay: Underlay,
-    public config: Configuration
+    public underlay: Underlay
   ) {}
 
-  lookupOccurrence(occurrenceID: string): Occurrence {
-    if (!occurrenceID) {
-      return { ...this.config.primaryEntity, id: "" };
+  lookupEntityGroup(entityGroupId: string): EntityGroupData {
+    const criteriaOccurrence = this.underlay.criteriaOccurrences.find(
+      (co) => co.name === entityGroupId
+    );
+    if (criteriaOccurrence) {
+      return {
+        id: entityGroupId,
+        entityId: criteriaOccurrence.criteriaEntity,
+        occurrenceEntityIds: criteriaOccurrence.occurrenceEntities.map(
+          (e) => e.occurrenceEntity
+        ),
+        selectionEntity: this.lookupEntity(criteriaOccurrence.criteriaEntity),
+      };
     }
 
-    return findByID(occurrenceID, this.config.occurrences);
-  }
-
-  lookupClassification(
-    occurrenceID: string,
-    classificationID: string
-  ): Classification {
-    return findByID(
-      classificationID,
-      this.lookupOccurrence(occurrenceID).classifications
+    const groupItems = this.underlay.groupItems.find(
+      (gi) => gi.name === entityGroupId
     );
-  }
+    if (groupItems) {
+      const primaryEntityRelated =
+        groupItems.itemsEntity === this.underlay.underlayConfig.primaryEntity;
 
-  searchClassification(
-    requestedAttributes: string[],
-    occurrenceID: string,
-    classificationID: string,
-    options?: SearchClassificationOptions
-  ): Promise<SearchClassificationResult> {
-    const classification = this.lookupClassification(
-      occurrenceID,
-      classificationID
-    );
+      let relatedEntityId: string | undefined;
+      let relatedEntityGroupId: string | undefined;
 
-    const promises = [
-      this.underlaysApi.listInstances(
-        searchRequest(
-          requestedAttributes,
-          this.underlay,
-          occurrenceID,
-          classification,
-          undefined,
-          options?.query,
-          options?.parent,
-          options?.sortOrder,
-          options?.limit
-        )
-      ),
-    ];
+      if (!primaryEntityRelated) {
+        relatedEntityId = !primaryEntityRelated
+          ? groupItems.itemsEntity
+          : undefined;
 
-    if (options?.includeGroupings) {
-      promises.push(
-        ...(classification.groupings?.map((grouping) =>
-          this.underlaysApi.listInstances(
-            searchRequest(
-              requestedAttributes,
-              this.underlay,
-              occurrenceID,
-              classification,
-              grouping,
-              options?.query,
-              options?.parent,
-              undefined,
-              options?.limit
-            )
-          )
-        ) || [])
-      );
-    }
-
-    return parseAPIError(
-      Promise.all(promises).then((res) => {
-        const result: SearchClassificationResult = { nodes: [] };
-        res?.forEach((r, i) => {
-          result.nodes.push(
-            ...processEntitiesResponse(
-              classification.entityAttribute,
-              r,
-              i === 0 ? classification.hierarchy : undefined,
-              i > 0 ? classification.groupings?.[i - 1].id : undefined
-            )
+        const criteriaOccurrence = this.underlay.criteriaOccurrences.find(
+          (co) => co.criteriaEntity === relatedEntityId
+        );
+        if (!criteriaOccurrence) {
+          throw new Error(
+            `Unable to find transitive entity group for ${entityGroupId}.`
           );
-        });
-        return result;
-      })
-    );
+        }
+        relatedEntityGroupId = criteriaOccurrence.name;
+      }
+
+      return {
+        id: entityGroupId,
+        entityId: groupItems.groupEntity,
+        relatedEntityId,
+        relatedEntityGroupId,
+        occurrenceEntityIds: primaryEntityRelated ? [""] : [],
+        selectionEntity: this.lookupEntity(
+          relatedEntityId ?? groupItems.groupEntity
+        ),
+      };
+    }
+
+    throw new Error(`Unknown entity group ${entityGroupId}.`);
   }
 
-  searchGrouping(
-    requestedAttributes: string[],
-    occurrenceID: string,
-    classificationID: string,
-    root: ClassificationNode,
-    options?: SearchGroupingOptions
-  ): Promise<SearchClassificationResult> {
-    const occurrence = findByID(occurrenceID, this.config.occurrences);
-    const classification = findByID(
-      classificationID,
-      occurrence.classifications
-    );
-
-    if (!root.grouping) {
-      throw new Error(`Grouping undefined while searching from "${root}"`);
+  lookupEntity(entityId: string) {
+    const findId =
+      entityId.length > 0
+        ? entityId
+        : this.underlay.underlayConfig.primaryEntity;
+    const entity = this.underlay.entities.find((e) => e.name === findId);
+    if (!entity) {
+      throw new Error(`Unknown entity ${entityId}.`);
     }
-    const grouping = findByID(root.grouping, classification.groupings);
+    return entity;
+  }
+
+  primaryEntity(): tanagraUnderlay.SZEntity {
+    return this.lookupEntity("");
+  }
+
+  searchEntityGroup(
+    requestedAttributes: string[],
+    entityGroupId: string,
+    sortOrder: SortOrder,
+    options?: SearchEntityGroupOptions
+  ): Promise<SearchEntityGroupResult> {
+    let entityGroup = this.lookupEntityGroup(entityGroupId);
+    if (entityGroup.relatedEntityGroupId && options?.hierarchy) {
+      entityGroup = this.lookupEntityGroup(entityGroup.relatedEntityGroupId);
+    }
+
+    const entity =
+      entityGroup.relatedEntityId && options?.parent
+        ? this.lookupEntity(entityGroup.relatedEntityId)
+        : this.lookupEntity(entityGroup.entityId);
 
     return parseAPIError(
       this.underlaysApi
-        .listInstances({
-          entityName: classification.entity,
-          underlayName: this.underlay.name,
-          query: {
-            includeAttributes: normalizeRequestedAttributes(
-              requestedAttributes,
-              classification.entityAttribute
-            ),
-            includeHierarchyFields: !!classification.hierarchy
-              ? {
-                  hierarchies: [classification.hierarchy],
-                  fields: [
-                    tanagra.QueryIncludeHierarchyFieldsFieldsEnum.Path,
-                    tanagra.QueryIncludeHierarchyFieldsFieldsEnum.NumChildren,
-                  ],
-                }
-              : undefined,
-            filter: {
-              filterType: tanagra.FilterFilterTypeEnum.Relationship,
-              filterUnion: {
-                relationshipFilter: {
-                  entity: grouping.entity,
-                  subfilter: {
-                    filterType: tanagra.FilterFilterTypeEnum.Attribute,
-                    filterUnion: {
-                      attributeFilter: {
-                        attribute: classification.entityAttribute,
-                        operator: tanagra.BinaryOperator.Equals,
-                        value: literalFromDataValue(root.data.key),
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            orderBys: [makeOrderBy(this.underlay, classification, grouping)],
-            limit: options?.limit,
-          },
-        })
+        .listInstances(
+          this.searchRequest(
+            requestedAttributes,
+            entityGroup,
+            entity,
+            sortOrder,
+            options?.query,
+            options?.parent,
+            options?.limit
+          )
+        )
         .then((res) => ({
-          nodes: processEntitiesResponse(
-            classification.entityAttribute,
-            res,
-            classification.hierarchy
-          ),
+          nodes: processEntitiesResponse(entity, res),
         }))
     );
   }
 
-  listAttributes(occurrenceID: string): string[] {
-    let entity = this.config.primaryEntity.entity;
-    if (occurrenceID) {
-      entity = findByID(occurrenceID, this.config.occurrences).entity;
-    }
+  listAttributes(entityId: string): string[] {
+    const findId =
+      entityId.length > 0
+        ? entityId
+        : this.underlay.underlayConfig.primaryEntity;
 
     return (
       this.underlay.entities
-        .find((e) => e.name === entity)
+        .find((e) => e.name === findId)
         ?.attributes?.map((a) => a.name)
         .filter(isValid)
         .filter((n) => !isInternalAttribute(n)) || []
@@ -522,24 +468,27 @@ export class BackendUnderlaySource implements UnderlaySource {
 
   async listData(
     requestedAttributes: string[],
-    occurrenceID: string,
+    entityId: string,
     cohort: Filter,
     conceptSet: Filter | null,
     limit?: number
   ): Promise<ListDataResponse> {
-    const entity = findEntity(occurrenceID, this.config);
-    const ra = normalizeRequestedAttributes(requestedAttributes, entity.key);
+    const entity = this.lookupEntity(entityId);
+    const ra = normalizeRequestedAttributes(
+      requestedAttributes,
+      entity.idAttribute
+    );
 
     const res = await parseAPIError(
       this.underlaysApi.listInstances({
-        entityName: entity.entity,
+        entityName: entity.name,
         underlayName: this.underlay.name,
-        query: this.makeQuery(ra, occurrenceID, cohort, conceptSet, limit),
+        query: this.makeQuery(ra, entityId, cohort, conceptSet, limit),
       })
     );
 
     const data = res.instances?.map((instance) =>
-      makeDataEntry(entity.key, instance.attributes)
+      makeDataEntry(entity.idAttribute, instance.attributes)
     );
     return {
       data: data ?? [],
@@ -548,21 +497,24 @@ export class BackendUnderlaySource implements UnderlaySource {
   }
 
   async getHintData(
-    occurrenceID: string,
-    attributeID: string,
+    entityId: string,
+    attributeId: string,
     relatedEntity?: string,
-    relatedID?: DataKey
+    relatedId?: DataKey
   ): Promise<HintData | undefined> {
     const res = await parseAPIError(
       this.underlaysApi.queryHints({
-        entityName: findEntity(occurrenceID, this.config).entity,
+        entityName:
+          entityId === ""
+            ? this.underlay.underlayConfig.primaryEntity
+            : entityId,
         underlayName: this.underlay.name,
         hintQuery:
-          !!relatedEntity && !!relatedID
+          !!relatedEntity && !!relatedId
             ? {
                 relatedEntity: {
                   name: relatedEntity,
-                  id: literalFromDataValue(relatedID),
+                  id: literalFromDataValue(relatedId),
                 },
               }
             : {},
@@ -570,27 +522,30 @@ export class BackendUnderlaySource implements UnderlaySource {
     );
 
     const hint = res.displayHints?.find(
-      (hint) => hint?.attribute?.name === attributeID
+      (hint) => hint?.attribute?.name === attributeId
     );
 
     return fromAPIDisplayHint(hint);
   }
 
   async getAllHintData(
-    occurrenceID: string,
+    entityId: string,
     relatedEntity?: string,
-    relatedID?: DataKey
+    relatedId?: DataKey
   ): Promise<HintData[]> {
     const res = await parseAPIError(
       this.underlaysApi.queryHints({
-        entityName: findEntity(occurrenceID, this.config).entity,
+        entityName:
+          entityId === ""
+            ? this.underlay.underlayConfig.primaryEntity
+            : entityId,
         underlayName: this.underlay.name,
         hintQuery:
-          !!relatedEntity && !!relatedID
+          !!relatedEntity && !!relatedId
             ? {
                 relatedEntity: {
                   name: relatedEntity,
-                  id: literalFromDataValue(relatedID),
+                  id: literalFromDataValue(relatedId),
                 },
               }
             : {},
@@ -607,7 +562,7 @@ export class BackendUnderlaySource implements UnderlaySource {
     const data = await parseAPIError(
       this.underlaysApi.countInstances({
         underlayName: this.underlay.name,
-        entityName: this.config.primaryEntity.entity,
+        entityName: this.underlay.underlayConfig.primaryEntity,
         countQuery: {
           attributes: groupByAttributes,
           filter: generateFilter(this, filter) ?? undefined,
@@ -665,10 +620,10 @@ export class BackendUnderlaySource implements UnderlaySource {
             includeAnnotations: true,
             cohorts: cohortIds,
             instanceQuerys: entities.map((e) => ({
-              entity: findEntity(e.occurrenceID, this.config).entity,
+              entity: this.lookupEntity(e.entityId).name,
               query: this.makeQuery(
                 e.requestedAttributes,
-                e.occurrenceID,
+                e.entityId,
                 e.cohort,
                 e.conceptSet
               ),
@@ -684,7 +639,7 @@ export class BackendUnderlaySource implements UnderlaySource {
 
   private makeQuery(
     requestedAttributes: string[],
-    occurrenceID: string,
+    entityId: string,
     cohort: Filter,
     conceptSet: Filter | null,
     limit?: number
@@ -694,8 +649,8 @@ export class BackendUnderlaySource implements UnderlaySource {
       throw new Error("Cohort filter is empty.");
     }
 
-    if (occurrenceID) {
-      const primaryEntity = this.config.primaryEntity.entity;
+    if (entityId) {
+      const primaryEntity = this.underlay.underlayConfig.primaryEntity;
       cohortFilter = {
         filterType: tanagra.FilterFilterTypeEnum.Relationship,
         filterUnion: {
@@ -724,6 +679,129 @@ export class BackendUnderlaySource implements UnderlaySource {
       filter,
       limit: limit ?? 50,
     };
+  }
+
+  private searchRequest(
+    requestedAttributes: string[],
+    entityGroup: EntityGroupData,
+    entity: tanagraUnderlay.SZEntity,
+    sortOrder: SortOrder,
+    query?: string,
+    parent?: DataValue,
+    limit?: number
+  ): tanagra.ListInstancesRequest {
+    const hierarchy = entity.hierarchies?.[0]?.name;
+    const operands: tanagra.Filter[] = [];
+
+    if (entityGroup.relatedEntityId && parent) {
+      const groupingEntity = this.lookupEntity(entityGroup.entityId);
+      operands.push({
+        filterType: tanagra.FilterFilterTypeEnum.Relationship,
+        filterUnion: {
+          relationshipFilter: {
+            entity: entityGroup.entityId,
+            subfilter: {
+              filterType: tanagra.FilterFilterTypeEnum.Attribute,
+              filterUnion: {
+                attributeFilter: {
+                  attribute: groupingEntity.idAttribute,
+                  operator: tanagra.BinaryOperator.Equals,
+                  value: literalFromDataValue(parent),
+                },
+              },
+            },
+          },
+        },
+      });
+    } else {
+      if (hierarchy && parent) {
+        operands.push({
+          filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
+          filterUnion: {
+            hierarchyFilter: {
+              hierarchy,
+              operator: tanagra.HierarchyFilterOperatorEnum.ChildOf,
+              value: literalFromDataValue(parent),
+            },
+          },
+        });
+      } else if (isValid(query)) {
+        if (query !== "") {
+          operands.push({
+            filterType: tanagra.FilterFilterTypeEnum.Text,
+            filterUnion: {
+              textFilter: {
+                matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
+                text: query,
+              },
+            },
+          });
+        }
+      } else if (hierarchy) {
+        operands.push({
+          filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
+          filterUnion: {
+            hierarchyFilter: {
+              hierarchy,
+              operator: tanagra.HierarchyFilterOperatorEnum.IsRoot,
+              value: literalFromDataValue(true),
+            },
+          },
+        });
+      }
+
+      if (hierarchy) {
+        operands.push({
+          filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
+          filterUnion: {
+            hierarchyFilter: {
+              hierarchy: hierarchy,
+              operator: tanagra.HierarchyFilterOperatorEnum.IsMember,
+              value: literalFromDataValue(true),
+            },
+          },
+        });
+      }
+    }
+
+    const req = {
+      entityName: entity.name,
+      underlayName: this.underlay.name,
+      query: {
+        includeAttributes: normalizeRequestedAttributes(
+          requestedAttributes,
+          entity.idAttribute
+        ),
+        includeHierarchyFields: hierarchy
+          ? {
+              hierarchies: [hierarchy],
+              fields: [
+                tanagra.QueryIncludeHierarchyFieldsFieldsEnum.Path,
+                tanagra.QueryIncludeHierarchyFieldsFieldsEnum.NumChildren,
+              ],
+            }
+          : undefined,
+        includeRelationshipFields:
+          !entityGroup.relatedEntityId ||
+          entity.name === entityGroup.relatedEntityId
+            ? [
+                {
+                  relatedEntity: this.underlay.underlayConfig.primaryEntity,
+                  hierarchies: hierarchy ? [hierarchy] : undefined,
+                },
+              ]
+            : undefined,
+        filter:
+          makeBooleanLogicFilter(
+            tanagra.BooleanLogicFilterOperatorEnum.And,
+            operands
+          ) ?? undefined,
+        orderBys: [makeOrderBy(this.underlay, entity, sortOrder)],
+        limit,
+        pageSize: limit,
+      },
+    };
+    return req;
   }
 }
 
@@ -764,8 +842,10 @@ export class BackendStudySource implements StudySource {
             displayName,
             size,
             filter:
-              generateFilter(underlaySource, generateCohortFilter(cohort)) ??
-              {},
+              generateFilter(
+                underlaySource,
+                generateCohortFilter(underlaySource, cohort)
+              ) ?? {},
           },
         })
         .then((r) => fromAPICohortReview(r))
@@ -821,6 +901,7 @@ export class BackendStudySource implements StudySource {
     reviewId: string,
     includeAttributes: string[]
   ): Promise<ReviewInstance[]> {
+    const primaryEntity = underlaySource.primaryEntity();
     return parseAPIError(
       this.reviewsApi
         .listReviewInstancesAndAnnotations({
@@ -835,11 +916,7 @@ export class BackendStudySource implements StudySource {
           return res.instances == null
             ? []
             : res.instances.map((i) =>
-                fromAPIReviewInstance(
-                  reviewId,
-                  underlaySource.config.primaryEntity.key,
-                  i
-                )
+                fromAPIReviewInstance(reviewId, primaryEntity.idAttribute, i)
               );
         })
     );
@@ -1180,110 +1257,6 @@ function dataValueFromLiteral(value?: tanagra.Literal | null): DataValue {
   throw new Error(`Unknown data type "${value?.dataType}".`);
 }
 
-function searchRequest(
-  requestedAttributes: string[],
-  underlay: Underlay,
-  occurrenceID: string,
-  classification: Classification,
-  grouping?: Grouping,
-  query?: string,
-  parent?: DataValue,
-  sortOrder?: SortOrder,
-  limit?: number
-) {
-  const entity = grouping?.entity || classification.entity;
-
-  const operands: tanagra.Filter[] = [];
-  if (classification.hierarchy && parent) {
-    operands.push({
-      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
-      filterUnion: {
-        hierarchyFilter: {
-          hierarchy: classification.hierarchy,
-          operator: tanagra.HierarchyFilterOperatorEnum.ChildOf,
-          value: literalFromDataValue(parent),
-        },
-      },
-    });
-  } else if (isValid(query)) {
-    if (query !== "") {
-      operands.push({
-        filterType: tanagra.FilterFilterTypeEnum.Text,
-        filterUnion: {
-          textFilter: {
-            matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
-            text: query,
-          },
-        },
-      });
-    }
-  } else if (classification.hierarchy && !grouping) {
-    operands.push({
-      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
-      filterUnion: {
-        hierarchyFilter: {
-          hierarchy: classification.hierarchy,
-          operator: tanagra.HierarchyFilterOperatorEnum.IsRoot,
-          value: literalFromDataValue(true),
-        },
-      },
-    });
-  }
-
-  if (classification.hierarchy && !grouping) {
-    operands.push({
-      filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
-      filterUnion: {
-        hierarchyFilter: {
-          hierarchy: classification.hierarchy,
-          operator: tanagra.HierarchyFilterOperatorEnum.IsMember,
-          value: literalFromDataValue(true),
-        },
-      },
-    });
-  }
-
-  const req = {
-    entityName: entity,
-    underlayName: underlay.name,
-    query: {
-      includeAttributes: normalizeRequestedAttributes(
-        grouping?.attributes ?? requestedAttributes,
-        !grouping?.attributes ? classification.entityAttribute : undefined
-      ),
-      includeHierarchyFields:
-        !!classification.hierarchy && !grouping
-          ? {
-              hierarchies: [classification.hierarchy],
-              fields: [
-                tanagra.QueryIncludeHierarchyFieldsFieldsEnum.Path,
-                tanagra.QueryIncludeHierarchyFieldsFieldsEnum.NumChildren,
-              ],
-            }
-          : undefined,
-      includeRelationshipFields: !grouping
-        ? [
-            {
-              relatedEntity: underlay.primaryEntity,
-              hierarchies: !!classification.hierarchy
-                ? [classification.hierarchy]
-                : undefined,
-            },
-          ]
-        : undefined,
-      filter:
-        makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterOperatorEnum.And,
-          operands
-        ) ?? undefined,
-      orderBys: [makeOrderBy(underlay, classification, grouping, sortOrder)],
-      limit,
-      pageSize: limit,
-    },
-  };
-  return req;
-}
-
 function convertSortDirection(dir: SortDirection) {
   return dir === SortDirection.Desc
     ? tanagra.OrderByDirection.Descending
@@ -1291,15 +1264,13 @@ function convertSortDirection(dir: SortDirection) {
 }
 
 function processEntitiesResponse(
-  primaryKey: string,
-  response: tanagra.InstanceListResult,
-  hierarchy?: string,
-  grouping?: string
-): ClassificationNode[] {
-  const nodes: ClassificationNode[] = [];
+  entity: tanagraUnderlay.SZEntity,
+  response: tanagra.InstanceListResult
+): EntityNode[] {
+  const nodes: EntityNode[] = [];
   if (response.instances) {
     response.instances.forEach((instance) => {
-      const data = makeDataEntry(primaryKey, instance.attributes);
+      const data = makeDataEntry(entity.idAttribute, instance.attributes);
 
       let ancestors: DataKey[] | undefined;
       const path = instance.hierarchyFields?.[0]?.path;
@@ -1315,7 +1286,10 @@ function processEntitiesResponse(
 
       instance.relationshipFields?.forEach((fields) => {
         if (isValid(fields.count)) {
-          if (hierarchy && fields.hierarchy === hierarchy) {
+          if (
+            entity.hierarchies?.length &&
+            fields.hierarchy === entity.hierarchies?.[0]?.name
+          ) {
             data[ROLLUP_COUNT_ATTRIBUTE] = fields.count;
           } else if (!fields.hierarchy) {
             data[ITEM_COUNT_ATTRIBUTE] = fields.count;
@@ -1325,7 +1299,7 @@ function processEntitiesResponse(
 
       nodes.push({
         data: data,
-        grouping: grouping,
+        entity: entity.name,
         ancestors: ancestors,
         childCount: instance.hierarchyFields?.[0]?.numChildren,
       });
@@ -1390,14 +1364,13 @@ function generateFilter(
   }
 
   if (isRelationshipFilter(filter)) {
-    const entity = findEntity(filter.entityId, underlaySource.config);
     const subfilter = generateFilter(underlaySource, filter.subfilter);
 
     return {
       filterType: tanagra.FilterFilterTypeEnum.Relationship,
       filterUnion: {
         relationshipFilter: {
-          entity: entity.entity,
+          entity: filter.entityId,
           subfilter: subfilter,
           groupByCountAttribute: filter.groupByCount?.attribute,
           groupByCountOperator: filter.groupByCount
@@ -1409,20 +1382,16 @@ function generateFilter(
     };
   }
 
-  if (isClassificationFilter(filter)) {
-    const entity = findEntity(filter.occurrenceId, underlaySource.config);
-    const classification = findByID(
-      filter.classificationId,
-      entity.classifications
-    );
+  if (isEntityGroupFilter(filter)) {
+    const entity = underlaySource.lookupEntity(filter.entityId);
 
     const classificationFilter = (key: DataKey): tanagra.Filter => {
-      if (classification.hierarchy) {
+      if (entity.hierarchies?.length) {
         return {
           filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
           filterUnion: {
             hierarchyFilter: {
-              hierarchy: classification.hierarchy,
+              hierarchy: entity.hierarchies[0].name,
               operator:
                 tanagra.HierarchyFilterOperatorEnum.DescendantOfInclusive,
               value: literalFromDataValue(key),
@@ -1435,7 +1404,7 @@ function generateFilter(
         filterType: tanagra.FilterFilterTypeEnum.Attribute,
         filterUnion: {
           attributeFilter: {
-            attribute: classification.entityAttribute,
+            attribute: entity.idAttribute,
             operator: tanagra.BinaryOperator.Equals,
             value: literalFromDataValue(key),
           },
@@ -1458,7 +1427,7 @@ function generateFilter(
       filterType: tanagra.FilterFilterTypeEnum.Relationship,
       filterUnion: {
         relationshipFilter: {
-          entity: classification.entity,
+          entity: entity.name,
           subfilter,
         },
       },
@@ -1585,33 +1554,24 @@ function makeBooleanLogicFilter(
 
 function makeOrderBy(
   underlay: Underlay,
-  classification: Classification,
-  grouping?: Grouping,
-  sortData?: SortOrder
+  entity: tanagraUnderlay.SZEntity,
+  sortData: SortOrder
 ) {
   const orderBy: tanagra.QueryOrderBys = {
-    direction: convertSortDirection(
-      sortData?.direction ??
-        grouping?.defaultSort?.direction ??
-        classification.defaultSort?.direction
-    ),
+    direction: convertSortDirection(sortData?.direction),
   };
 
-  const sortAttribute =
-    sortData?.attribute ??
-    grouping?.defaultSort?.attribute ??
-    classification.defaultSort?.attribute;
-  if (sortAttribute === ROLLUP_COUNT_ATTRIBUTE) {
+  if (sortData.attribute === ROLLUP_COUNT_ATTRIBUTE) {
     orderBy.relationshipField = {
-      relatedEntity: underlay.primaryEntity,
-      hierarchy: classification.hierarchy,
+      relatedEntity: underlay.underlayConfig.primaryEntity,
+      hierarchy: entity.hierarchies?.[0]?.name,
     };
-  } else if (sortAttribute === ITEM_COUNT_ATTRIBUTE) {
+  } else if (sortData.attribute === ITEM_COUNT_ATTRIBUTE) {
     orderBy.relationshipField = {
-      relatedEntity: underlay.primaryEntity,
+      relatedEntity: underlay.underlayConfig.primaryEntity,
     };
   } else {
-    orderBy.attribute = sortAttribute;
+    orderBy.attribute = sortData.attribute;
   }
 
   return orderBy;

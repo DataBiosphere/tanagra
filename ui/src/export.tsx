@@ -352,7 +352,9 @@ function Preview(props: PreviewProps) {
     () =>
       makeArrayFilter(
         { min: 1 },
-        filteredCohorts.map((cohort) => generateCohortFilter(cohort))
+        filteredCohorts.map((cohort) =>
+          generateCohortFilter(underlaySource, cohort)
+        )
       ),
     [filteredCohorts]
   );
@@ -744,7 +746,7 @@ function ExportDialog(
       props.cohorts.map((c) => c.id),
       props.occurrenceFilters.map((filters) => ({
         requestedAttributes: filters.attributes,
-        occurrenceID: filters.id,
+        entityId: filters.id,
         cohort: cohortsFilter,
         conceptSet: makeArrayFilter({ min: 1 }, filters.filters),
       }))
@@ -764,14 +766,14 @@ function ExportDialog(
         }[][] = [];
 
         for (const key in result.outputs) {
-          const parts = key.split(":");
-          if (parts.length > 2) {
+          const parts = key.split(/:(.*)/s);
+          if (parts.length != 3) {
             throw new Error(`Invalid output key ${key}.`);
           }
 
           const artifact = {
-            section: parts.length > 1 ? parts[0] : "",
-            name: parts.length > 1 ? parts[1] : parts[0],
+            section: parts[0],
+            name: parts[1],
             url: result.outputs[key],
           };
           const list = artifactLists.find(

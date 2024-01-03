@@ -1,102 +1,7 @@
 {
-  "dataConfig": {
-    "primaryEntity": {
-      "displayName": "Person",
-      "entity": "person",
-      "key": "id"
-    },
-    "occurrences": [
-      {
-        "id": "condition_occurrence",
-        "displayName": "Condition Occurrences",
-        "entity": "conditionOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "condition",
-            "attribute": "condition",
-            "entity": "condition",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "procedure_occurrence",
-        "displayName": "Procedure Occurrences",
-        "entity": "procedureOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "procedure",
-            "attribute": "procedure",
-            "entity": "procedure",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "observation_occurrence",
-        "displayName": "Observation Occurrence",
-        "entity": "observationOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "observation",
-            "attribute": "observation",
-            "entity": "observation",
-            "entityAttribute": "id",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "ingredient_occurrence",
-        "displayName": "Drug Occurrence",
-        "entity": "ingredientOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "ingredient",
-            "attribute": "id",
-            "entity": "ingredient",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            },
-            "groupings": [
-              {
-                "id": "brand",
-                "entity": "brand",
-                "defaultSort": {
-                  "attribute": "name",
-                  "direction": "ASC"
-                },
-                "attributes": ["name", "id", "standard_concept", "concept_code"]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
   "criteriaConfigs": [
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-conditions",
       "title": "Condition",
       "conceptSet": true,
@@ -114,11 +19,14 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "condition_occurrence",
-      "classifications": ["condition"]
+      "classificationEntityGroups": [
+        {
+          "id": "conditionPerson"
+        }
+      ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-procedures",
       "title": "Procedure",
       "conceptSet": true,
@@ -136,11 +44,14 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "procedure_occurrence",
-      "classifications": ["procedure"]
+      "classificationEntityGroups": [
+        {
+          "id": "procedurePerson"
+        }
+      ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-observations",
       "title": "Observation",
       "conceptSet": true,
@@ -153,11 +64,14 @@
         { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "observation_occurrence",
-      "classifications": ["observation"]
+      "classificationEntityGroups": [
+        {
+          "id": "observationPerson"
+        }
+      ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-drugs",
       "title": "Drug",
       "conceptSet": true,
@@ -175,8 +89,20 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "ingredient_occurrence",
-      "classifications": ["ingredient"]
+      "classificationEntityGroups": [
+        {
+          "id": "ingredientPerson"
+        }
+      ],
+      "groupingEntityGroups": [
+        {
+          "id": "brandIngredient",
+          "sortOrder": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
+        }
+      ]
     },
     {
       "type": "attribute",
@@ -253,7 +179,7 @@
     {
       "id": "_demographics",
       "name": "Demographics",
-      "occurrences": ""
+      "entity": ""
     }
   ],
   "criteriaSearchConfig": {
@@ -293,11 +219,11 @@
     ],
     "pages": [
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "condition",
         "title": "Conditions",
         "plugin": {
-          "occurrence": "condition_occurrence",
+          "entity": "conditionOccurrence",
           "columns": [
             { "key": "condition", "width": "100%", "title": "Condition name", "sortable": true },
             { "key": "start_date", "width": 200, "title": "Start date", "sortable": true },
@@ -306,11 +232,11 @@
         }
       },
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "procedure",
         "title": "Procedures",
         "plugin": {
-          "occurrence": "procedure_occurrence",
+          "entity": "procedureOccurrence",
           "columns": [
             { "key": "procedure", "width": "100%", "title": "Procedure name", "sortable": true },
             { "key": "date", "width": 200, "title": "Date", "sortable": true }
@@ -318,11 +244,11 @@
         }
       },
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "observation",
         "title": "Observations",
         "plugin": {
-          "occurrence": "observation_occurrence",
+          "entity": "observationOccurrence",
           "columns": [
             {
               "key": "observation",
@@ -335,11 +261,11 @@
         }
       },
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "ingredient",
         "title": "Drugs",
         "plugin": {
-          "occurrence": "ingredient_occurrence",
+          "entity": "ingredientOccurrence",
           "columns": [
             { "key": "ingredient", "width": "100%", "title": "Drug name", "sortable": true },
             { "key": "start_date", "width": 200, "title": "Start date", "sortable": true },

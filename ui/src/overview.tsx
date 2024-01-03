@@ -209,7 +209,7 @@ function ParticipantsGroupSection(props: {
       groupSections: [props.groupSection],
     };
 
-    const filter = generateCohortFilter(cohortForFilter);
+    const filter = generateCohortFilter(underlaySource, cohortForFilter);
     return (await underlaySource.filterCount(filter))[0].count;
   }, [cohort.underlayName, props.sectionIndex, props.groupSection]);
 
@@ -421,7 +421,7 @@ function ParticipantsGroup(props: {
       ],
     };
 
-    const filter = generateCohortFilter(cohortForFilter);
+    const filter = generateCohortFilter(underlaySource, cohortForFilter);
     return (await underlaySource.filterCount(filter))[0].count;
   }, [cohort.underlayName, props.group]);
 
@@ -447,9 +447,13 @@ function ParticipantsGroup(props: {
   const modifierPlugins = useMemo(
     () =>
       modifierCriteria.map((c) => {
-        // TODO: Multiple occurrence: Store entities in an array instead of a
-        // string.
-        const p = getCriteriaPlugin(c, props.group.entity.split(",")[0]);
+        // TODO: Multiple occurrence: This assumes modifiers can apply to all
+        // occurrence entities. There's no way around this without rethinking
+        // how modifiers work.
+        const p = getCriteriaPlugin(
+          c,
+          plugin.filterEntityIds(underlaySource)[0]
+        );
         return { title: getCriteriaTitle(c, p), plugin: p };
       }),
     [modifierCriteria, props.group.entity]

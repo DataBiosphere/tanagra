@@ -293,7 +293,7 @@ function Preview() {
   // TODO(tjennison): Look at supporting a "true" filter instead.
   const cohortFilter: Filter = {
     type: FilterType.Attribute,
-    attribute: underlaySource.lookupOccurrence("").key,
+    attribute: underlaySource.primaryEntity().idAttribute,
     ranges: [{ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }],
   };
 

@@ -1,8 +1,4 @@
-import {
-  findEntity,
-  ROLLUP_COUNT_ATTRIBUTE,
-  SortDirection,
-} from "data/configuration";
+import { ROLLUP_COUNT_ATTRIBUTE, SortDirection } from "data/configuration";
 import {
   Filter,
   FilterType,
@@ -23,17 +19,19 @@ export function generateId(): string {
 }
 
 export function generateCohortFilter(
+  underlaySource: UnderlaySource,
   cohort: tanagraUI.UICohort
 ): Filter | null {
   return makeArrayFilter(
     {},
     cohort.groupSections
-      .map((section) => generateSectionFilter(section))
+      .map((section) => generateSectionFilter(underlaySource, section))
       .filter(isValid)
   );
 }
 
 function generateSectionFilter(
+  underlaySource: UnderlaySource,
   section: tanagraUI.UIGroupSection
 ): Filter | null {
   const filter = makeArrayFilter(
@@ -41,7 +39,7 @@ function generateSectionFilter(
       ? { min: 1 }
       : {},
     section.groups
-      .map((group) => generateGroupSectionFilter(group))
+      .map((group) => generateGroupSectionFilter(underlaySource, group))
       .filter(isValid)
   );
 
@@ -55,44 +53,51 @@ function generateSectionFilter(
   };
 }
 
-function generateGroupSectionFilter(group: tanagraUI.UIGroup): Filter | null {
+function generateGroupSectionFilter(
+  underlaySource: UnderlaySource,
+  group: tanagraUI.UIGroup
+): Filter | null {
   const plugins = group.criteria.map((c) => getCriteriaPlugin(c));
-  // TODO(tjennison): Multiple occurrence: Store entities in an array instead of
-  // a string.
-  const entityFilters = group.entity.split(",").map((entity) => {
-    // TODO(tjennison): Multiple occurrence: This should be using the occurrence
-    // that matches the entity of this iteration so we need to store occurrences
-    // instead of entities in groups.
-    const filter = makeArrayFilter(
-      {},
-      plugins
-        .map((p) => p.generateFilter(p.filterOccurrenceIds()[0]))
-        .filter(isValid)
-    );
 
-    if (!filter || !entity) {
-      return filter;
-    }
+  // There should always be a primary criteria.
+  if (!plugins.length) {
+    return null;
+  }
 
-    const groupByCountFilters = plugins
-      .map((p) => p.groupByCountFilter?.())
-      .filter(isValid);
-    if (groupByCountFilters.length > 1) {
-      throw new Error(
-        `Criteria groups may not have multiple group by count filters: ${JSON.stringify(
-          groupByCountFilters
-        )}`
+  // For a person to be selected, the criteria can match any related occurrence.
+  const entityFilters = plugins[0]
+    .filterEntityIds(underlaySource)
+    .map((entity) => {
+      const filter = makeArrayFilter(
+        {},
+        plugins
+          .map((p) => p.generateFilter(entity, underlaySource))
+          .filter(isValid)
       );
-    }
 
-    return {
-      type: FilterType.Relationship,
-      entityId: entity,
-      subfilter: filter,
-      groupByCount:
-        groupByCountFilters.length > 0 ? groupByCountFilters[0] : undefined,
-    };
-  });
+      if (!filter || !entity) {
+        return filter;
+      }
+
+      const groupByCountFilters = plugins
+        .map((p) => p.groupByCountFilter?.())
+        .filter(isValid);
+      if (groupByCountFilters.length > 1) {
+        throw new Error(
+          `Criteria groups may not have multiple group by count filters: ${JSON.stringify(
+            groupByCountFilters
+          )}`
+        );
+      }
+
+      return {
+        type: FilterType.Relationship,
+        entityId: entity,
+        subfilter: filter,
+        groupByCount:
+          groupByCountFilters.length > 0 ? groupByCountFilters[0] : undefined,
+      };
+    });
   return makeArrayFilter({ min: 1 }, entityFilters);
 }
 
@@ -116,13 +121,10 @@ export function defaultSection(
 export function defaultGroup(
   criteria: tanagraUI.UICriteria
 ): tanagraUI.UIGroup {
-  // TODO(tjennison): Multiple occurrence: This should be using the occurrence
-  // that matches the entity of this iteration so we need to store occurrences
-  // instead of entities in groups. It should also be storing them as an array
-  // instead of a string.
   return {
     id: criteria.id,
-    entity: getCriteriaPlugin(criteria).filterOccurrenceIds().join(","),
+    // TODO: **************** Is this necessary?
+    entity: "",
     criteria: [criteria],
   };
 }
@@ -143,10 +145,13 @@ export interface CriteriaPlugin<DataType> {
   ) => JSX.Element;
   renderInline: (groupId: string) => ReactNode;
   displayDetails: () => DisplayDetails;
-  generateFilter: (occurrenceId: string) => Filter | null;
+  generateFilter: (
+    occurrenceId: string,
+    underlaySource: UnderlaySource
+  ) => Filter | null;
   groupByCountFilter?: () => tanagraUI.UIGroupByCount | null;
-  filterOccurrenceIds: () => string[];
-  outputOccurrenceIds?: () => string[];
+  filterEntityIds: (underlaySource: UnderlaySource) => string[];
+  outputEntityIds?: () => string[];
 }
 
 export type DisplayDetails = {
@@ -221,7 +226,7 @@ export function upgradeCriteria(
 export interface PredefinedCriteria {
   id: string;
   name: string;
-  occurrence: string;
+  entity: string;
   filter?: Filter;
 }
 
@@ -254,7 +259,7 @@ export function getOccurrenceList(
     ?.filter((c) => selectedCriteria.has(c.id))
     ?.forEach((c) => {
       sourceCriteria.push(c.name);
-      addFilter(c.occurrence, c.filter);
+      addFilter(c.entity, c.filter);
     });
 
   userCriteria
@@ -264,9 +269,9 @@ export function getOccurrenceList(
       sourceCriteria.push(getCriteriaTitle(criteria, plugin));
 
       const occurrenceIds =
-        plugin.outputOccurrenceIds?.() ?? plugin.filterOccurrenceIds();
+        plugin.outputEntityIds?.() ?? plugin.filterEntityIds(underlaySource);
       occurrenceIds.forEach((o) => {
-        addFilter(o, plugin.generateFilter(o));
+        addFilter(o, plugin.generateFilter(o, underlaySource));
       });
     });
 
@@ -275,7 +280,7 @@ export function getOccurrenceList(
     .map(([id, filters]) => {
       return {
         id,
-        name: findEntity(id, underlaySource.config).entity,
+        name: id,
         attributes: underlaySource.listAttributes(id),
         filters,
         sourceCriteria,

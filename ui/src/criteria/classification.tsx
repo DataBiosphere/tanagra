@@ -27,7 +27,7 @@ import {
 } from "data/configuration";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
-import { ClassificationNode, UnderlaySource } from "data/source";
+import { EntityGroupData, EntityNode, UnderlaySource } from "data/source";
 import { DataEntry, DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
@@ -43,28 +43,28 @@ import emptyImage from "../images/empty.svg";
 type Selection = {
   key: DataKey;
   name: string;
-  classification?: string;
-
-  // Deprecated
-  entity?: string;
+  entityGroup: string;
 };
 
-// A custom TreeGridItem allows us to store the ClassificationNode along with
+// A custom TreeGridItem allows us to store the EntityNode along with
 // the rest of the data.
-type ClassificationNodeItem = TreeGridItem & {
-  node: ClassificationNode;
-  classification: string;
+type EntityNodeItem = TreeGridItem & {
+  node: EntityNode;
+  entityGroup: string;
+  groupingNode: boolean;
+};
+
+export type EntityGroupConfig = {
+  id: string;
+  sortOrder?: SortOrder;
 };
 
 export interface Config extends CriteriaConfig {
   columns: TreeGridColumn[];
   nameColumnIndex?: number;
   hierarchyColumns?: TreeGridColumn[];
-  // TODO(tjennison): Multiple occurrence: Consider converting these to always
-  // take an array and updating all of the underlays. For now, firstOf is a nice
-  // funnel for tracking the inconsistent handling of multiple occurrences.
-  occurrences: string | string[];
-  classifications: string[];
+  classificationEntityGroups?: EntityGroupConfig[];
+  groupingEntityGroups?: EntityGroupConfig[];
   multiSelect?: boolean;
   valueConfigs?: ValueConfig[];
   defaultSort?: SortOrder;
@@ -77,10 +77,10 @@ export interface Data {
   valueData: ValueData;
 }
 
-// "classification" plugins select occurrences based on an occurrence field that
-// references another entity, often using hierarchies and/or groupings.
+// "entityGroup" plugins selects occurrences based on the configuration of one
+// or more entity groups and their associated entities.
 @registerCriteriaPlugin(
-  "classification",
+  "entityGroup",
   (
     underlaySource: UnderlaySource,
     c: CriteriaConfig,
@@ -95,11 +95,19 @@ export interface Data {
 
     if (dataEntry) {
       const column = config.columns[config.nameColumnIndex ?? 0];
+
+      const name = String(dataEntry[column.key]);
+      const entityGroup = String(dataEntry.entityGroup);
+      if (!name || !entityGroup) {
+        throw new Error(
+          `Invalid parameters from search [${name}, ${entityGroup}].`
+        );
+      }
+
       data.selected.push({
         key: dataEntry.key,
-        name: String(dataEntry[column.key]) ?? "",
-        classification:
-          String(dataEntry.classification) ?? config.classifications[0],
+        name,
+        entityGroup,
       });
     }
 
@@ -160,17 +168,21 @@ class _ implements CriteriaPlugin<Data> {
     };
   }
 
-  generateFilter(occurrenceId: string) {
-    const filters: Filter[] = [
-      {
-        type: FilterType.Classification,
-        occurrenceId: occurrenceId,
-        classificationId:
-          this.data.selected[0].classification ??
-          this.config.classifications[0],
-        keys: this.data.selected.map(({ key }) => key),
-      },
-    ];
+  generateFilter(entityId: string, underlaySource: UnderlaySource) {
+    const filters: Filter[] = [];
+
+    configEntityGroups(this.config).forEach((c) => {
+      const keys = this.data.selected.filter((s) => s.entityGroup === c.id);
+      if (keys.length > 0) {
+        const entityGroup = underlaySource.lookupEntityGroup(c.id);
+        filters.push({
+          type: FilterType.EntityGroup,
+          entityGroupId: c.id,
+          entityId: entityGroup.entityId,
+          keys: this.data.selected.map(({ key }) => key),
+        });
+      }
+    });
 
     const valueDataFilter = generateValueDataFilter([this.data.valueData]);
     if (valueDataFilter) {
@@ -180,29 +192,34 @@ class _ implements CriteriaPlugin<Data> {
     return makeArrayFilter({}, filters);
   }
 
-  filterOccurrenceIds() {
-    if (typeof this.config.occurrences === "string") {
-      return [this.config.occurrences];
-    }
-    return this.config.occurrences;
+  filterEntityIds(underlaySource: UnderlaySource) {
+    return configEntityGroups(this.config)
+      .map((eg) => {
+        return underlaySource.lookupEntityGroup(eg.id).occurrenceEntityIds;
+      })
+      .flat();
   }
 }
 
-function keyForNode(node: ClassificationNode): DataKey {
-  let key = node.data.key;
-  if (node.grouping) {
-    key = `${node.grouping}~${key}`;
-  }
-  return key;
+function dataKey(key: DataKey, entityGroup: string): string {
+  return JSON.stringify({
+    entityGroup,
+    key,
+  });
+}
+
+function keyFromDataKey(key: string): DataKey {
+  const parsed = JSON.parse(key);
+  return parsed.key;
 }
 
 type SearchState = {
   // The query entered in the search box.
   query?: string;
-  // The classification to show the hierarchy for.
-  hierarchyClassification?: string;
+  // The entity group to show the hierarchy for.
+  hierarchyEntityGroup?: string;
   // The ancestor list of the item to view the hierarchy for.
-  hierarchy?: DataKey[];
+  hierarchy?: string[];
   // The item to highlight and scroll to in the hierarchy.
   highlightId?: DataKey;
 };
@@ -214,14 +231,10 @@ type ClassificationEditProps = {
   setBackAction: (action?: () => void) => void;
 };
 
+const DEFAULT_LIMIT = 100;
+
 function ClassificationEdit(props: ClassificationEditProps) {
   const underlaySource = useUnderlaySource();
-  const occurrence = underlaySource.lookupOccurrence(
-    firstOf(props.config.occurrences)
-  );
-  const classifications = props.config.classifications.map((c) =>
-    underlaySource.lookupClassification(firstOf(props.config.occurrences), c)
-  );
   const updateCriteria = useUpdateCriteria();
   const isNewCriteria = useIsNewCriteria();
 
@@ -235,7 +248,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         ? () => {
             updateSearchState((data) => {
               data.hierarchy = undefined;
-              data.hierarchyClassification = undefined;
+              data.hierarchyEntityGroup = undefined;
               data.highlightId = undefined;
             });
           }
@@ -243,9 +256,15 @@ function ClassificationEdit(props: ClassificationEditProps) {
     );
   }, [searchState]);
 
+  const [
+    hasHierarchies,
+    classificationEntityGroupData,
+    groupingEntityGroupData,
+  ] = useEntityData(props.config);
+
   const processEntities = useCallback(
     (
-      nodes: MergedItem<ClassificationNode>[],
+      nodes: MergedItem<EntityNode>[],
       hierarchy?: DataKey[],
       parent?: DataKey,
       prevData?: TreeGridData
@@ -253,29 +272,42 @@ function ClassificationEdit(props: ClassificationEditProps) {
       const data = prevData ?? {};
 
       const children: DataKey[] = [];
-      nodes.forEach(({ source: classification, data: node }) => {
+      nodes.forEach(({ source: entityGroup, data: node }) => {
         const rowData: TreeGridRowData = { ...node.data };
         if (node.ancestors) {
-          rowData.view_hierarchy = node.ancestors;
+          rowData.view_hierarchy = node.ancestors.map((a) =>
+            dataKey(a, entityGroup)
+          );
         }
 
-        const key = keyForNode(node);
+        const key = dataKey(node.data.key, entityGroup);
         children.push(key);
 
+        const group = lookupEntityGroupData(
+          groupingEntityGroupData,
+          entityGroup
+        );
+
         // Copy over existing children in case they're being loaded in
-        // parallel.
+        // parallel. Grouping children and non-grouping, non-hierarchy nodes
+        // always have no children.
         let childChildren = data[key]?.children;
         if (!childChildren) {
-          if ((!node.grouping && !hierarchy) || node.childCount === 0) {
+          if (
+            (!hierarchy && group && parent) ||
+            (!hierarchy && !group) ||
+            node.childCount === 0
+          ) {
             childChildren = [];
           }
         }
 
-        const cItem: ClassificationNodeItem = {
+        const cItem: EntityNodeItem = {
           data: rowData,
           children: childChildren,
           node: node,
-          classification: classification,
+          entityGroup,
+          groupingNode: !!group && !parent,
         };
         data[key] = cItem;
       });
@@ -307,78 +339,113 @@ function ClassificationEdit(props: ClassificationEditProps) {
     [props.config.columns]
   );
 
-  const fetchClassification = useCallback(async () => {
-    const searchClassifications = classifications
-      .map((c) => c.id)
-      .filter(
-        (c) =>
-          !searchState?.hierarchyClassification ||
-          searchState?.hierarchyClassification === c
-      );
+  const allEntityGroupConfigs = useMemo(() => {
+    const configs: {
+      eg: EntityGroupConfig;
+      grouping: boolean;
+    }[] = [];
+    (props.config.classificationEntityGroups ?? []).forEach((eg) =>
+      configs.push({
+        eg,
+        grouping: false,
+      })
+    );
+    (props.config.groupingEntityGroups ?? []).forEach((eg) =>
+      configs.push({
+        eg,
+        grouping: true,
+      })
+    );
+    return configs;
+  }, [
+    props.config.classificationEntityGroups,
+    props.config.groupingEntityGroups,
+  ]);
 
-    let sortOrder = {
-      attribute: ROLLUP_COUNT_ATTRIBUTE,
-      direction: SortDirection.Desc,
-    };
+  const calcSortOrder = useCallback(
+    (primaryEntityGroupId?: string, loadChildren?: boolean) => {
+      let entityGroupId = primaryEntityGroupId;
 
-    if (searchState.hierarchyClassification) {
-      const classification = underlaySource.lookupClassification(
-        firstOf(props.config.occurrences),
-        searchState.hierarchyClassification
-      );
-      if (classification.defaultSort) {
-        sortOrder = classification.defaultSort;
+      if (searchState.hierarchyEntityGroup || loadChildren) {
+        const entityGroup = underlaySource.lookupEntityGroup(
+          searchState.hierarchyEntityGroup ?? entityGroupId ?? ""
+        );
+        if (entityGroup.relatedEntityGroupId) {
+          entityGroupId = entityGroup.relatedEntityGroupId;
+        }
       }
-    } else if (props.config.defaultSort) {
-      sortOrder = props.config.defaultSort;
-    }
 
-    const raw: [string, ClassificationNode[]][] = await Promise.all(
-      searchClassifications.map(async (c) => [
-        c,
+      return (
+        allEntityGroupConfigs.find((c) => c.eg.id === entityGroupId)?.eg
+          ?.sortOrder ??
+        props.config.defaultSort ??
+        DEFAULT_SORT_ORDER
+      );
+    },
+    [searchState.hierarchyEntityGroup, underlaySource]
+  );
+
+  const fetchInstances = useCallback(async () => {
+    const entityGroupConfigs = allEntityGroupConfigs.filter(
+      (c) =>
+        !searchState?.hierarchyEntityGroup ||
+        searchState?.hierarchyEntityGroup === c.eg.id
+    );
+
+    const raw: [string, EntityNode[]][] = await Promise.all(
+      entityGroupConfigs.map(async (c) => [
+        c.eg.id,
         (
-          await underlaySource.searchClassification(
+          await underlaySource.searchEntityGroup(
             attributes,
-            occurrence.id,
-            c,
+            c.eg.id,
+            calcSortOrder(c.eg.id),
             {
               query: !searchState?.hierarchy
                 ? searchState?.query ?? ""
                 : undefined,
-              includeGroupings: !searchState?.hierarchy,
-              sortOrder: sortOrder,
-              limit: props.config.limit,
+              limit: !searchState.hierarchy
+                ? props.config.limit ?? DEFAULT_LIMIT
+                : undefined,
+              hierarchy: !!searchState.hierarchyEntityGroup,
             }
           )
         ).nodes,
       ])
     );
 
-    const merged = mergeLists(
-      raw,
-      props.config.limit ?? 100,
-      sortOrder.direction,
-      (n) => n.data[sortOrder.attribute]
+    const classifications = mergeLists(
+      raw.filter((r, i) => !entityGroupConfigs[i].grouping),
+      props.config.limit ?? DEFAULT_LIMIT,
+      calcSortOrder().direction,
+      (n) => n.data[calcSortOrder().attribute]
     );
+    const groups = raw
+      .filter((r, i) => entityGroupConfigs[i].grouping)
+      .map(([eg, nodes]) => nodes.map((n) => ({ source: eg, data: n })));
+
+    const merged = [classifications, ...groups].flat();
     return processEntities(merged, searchState?.hierarchy);
   }, [underlaySource, attributes, processEntities, searchState]);
-  const classificationState = useSWRImmutable(
+  const instancesState = useSWRImmutable(
     {
-      component: "Classification",
-      occurrenceId: occurrence.id,
-      classificationIds: classifications.map((c) => c.id),
+      type: "entityGroupInstances",
+      entityGroupIds: [
+        ...classificationEntityGroupData,
+        ...groupingEntityGroupData,
+      ].map((eg) => eg.id),
       searchState,
       attributes,
     },
-    fetchClassification
+    fetchInstances
   );
 
   // Partially update the state when expanding rows in the hierarchy view.
   const updateData = useCallback(
     (data: TreeGridData) => {
-      classificationState.mutate(data, { revalidate: false });
+      instancesState.mutate(data, { revalidate: false });
     },
-    [classificationState]
+    [instancesState]
   );
 
   const hierarchyColumns: TreeGridColumn[] = useMemo(
@@ -394,9 +461,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       ...props.config.columns,
       {
         key: "view_hierarchy",
-        width: classifications.reduce((r, c) => r || !!c.hierarchy, false)
-          ? 180
-          : 60,
+        width: hasHierarchies ? 200 : 60,
       },
     ],
     [props.config.columns]
@@ -430,8 +495,8 @@ function ClassificationEdit(props: ClassificationEditProps) {
             />
           </GridBox>
         )}
-        <Loading status={classificationState}>
-          {!classificationState.data?.root?.children?.length ? (
+        <Loading status={instancesState}>
+          {!instancesState.data?.root?.children?.length ? (
             <Empty
               minHeight="300px"
               image={emptyImage}
@@ -440,35 +505,33 @@ function ClassificationEdit(props: ClassificationEditProps) {
           ) : (
             <TreeGrid
               columns={!!searchState?.hierarchy ? hierarchyColumns : allColumns}
-              data={classificationState?.data ?? {}}
+              data={instancesState?.data ?? {}}
               defaultExpanded={searchState?.hierarchy}
               highlightId={searchState?.highlightId}
               rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
-                if (!classificationState.data) {
+                if (!instancesState.data) {
                   return undefined;
                 }
 
-                // TODO(tjennison): Make TreeGridData's type generic so we can avoid
-                // this type assertion. Also consider passing the TreeGridItem to
-                // the callback instead of the TreeGridRowData.
-                const item = classificationState.data[
-                  id
-                ] as ClassificationNodeItem;
-                if (!item || item.node.grouping) {
+                // TODO(tjennison): Make TreeGridData's type generic so we can
+                // avoid this type assertion. Also consider passing the
+                // TreeGridItem to the callback instead of the TreeGridRowData.
+                const item = instancesState.data[id] as EntityNodeItem;
+                if (!item || item.groupingNode) {
                   return undefined;
                 }
 
-                const classification = underlaySource.lookupClassification(
-                  firstOf(props.config.occurrences),
-                  item.classification
-                );
                 const column = props.config.columns[nameColumnIndex];
                 const name = rowData[column.key];
                 const newItem = {
                   key: item.node.data.key,
                   name: !!name ? String(name) : "",
-                  classification: classification.id,
+                  entityGroup: item.entityGroup,
                 };
+
+                const entityGroup = underlaySource.lookupEntityGroup(
+                  item.entityGroup
+                );
 
                 const hierarchyButton = (
                   <Button
@@ -476,8 +539,8 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     onClick={() => {
                       updateSearchState((data: SearchState) => {
                         if (rowData.view_hierarchy) {
-                          data.hierarchyClassification = classification?.id;
-                          data.hierarchy = rowData.view_hierarchy as DataKey[];
+                          data.hierarchyEntityGroup = item.entityGroup;
+                          data.hierarchy = rowData.view_hierarchy as string[];
                           data.highlightId = id;
                         }
                       });
@@ -511,8 +574,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       {
                         column: props.config.columns.length,
                         content: (
-                          <GridLayout cols colAlign="center">
-                            {classification.hierarchy ? hierarchyButton : null}
+                          <GridLayout cols spacing={1} colAlign="center">
+                            {entityGroup.selectionEntity.hierarchies?.length
+                              ? hierarchyButton
+                              : null}
                             {addButton}
                           </GridLayout>
                         ),
@@ -570,68 +635,62 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 return [...listContent, ...hierarchyContent];
               }}
               loadChildren={(id: TreeGridId) => {
-                const data = classificationState.data;
+                const data = instancesState.data;
                 if (!data) {
                   return Promise.resolve();
                 }
 
-                const item = data[id] as ClassificationNodeItem;
-                const key = item?.node ? keyForNode(item.node) : id;
-                const classificationId =
-                  item?.classification ?? searchState.hierarchyClassification;
-                if (!classificationId) {
-                  throw new Error("No hierarchy selected.");
-                }
+                const findEntityGroupConfig = () => {
+                  const item = data[id] as EntityNodeItem;
+                  if (item) {
+                    const config = configEntityGroups(props.config).find(
+                      (eg) => eg.id === item.entityGroup
+                    );
+                    if (!config) {
+                      throw new Error(
+                        `Unexpected entity group ${item.entityGroup}.`
+                      );
+                    }
+                    return config;
+                  }
 
-                if (item?.node.grouping) {
-                  return underlaySource
-                    .searchGrouping(
-                      attributes,
-                      occurrence.id,
-                      classificationId,
-                      item.node,
-                      {
-                        limit: props.config.limit,
-                      }
-                    )
-                    .then((res) => {
-                      updateData(
-                        processEntities(
-                          res.nodes.map((r) => ({
-                            source: classificationId,
-                            data: r,
-                          })),
-                          searchState?.hierarchy,
-                          key,
-                          data
-                        )
-                      );
-                    });
-                } else {
-                  return underlaySource
-                    .searchClassification(
-                      attributes,
-                      occurrence.id,
-                      classificationId,
-                      {
-                        parent: key,
-                        limit: props.config.limit,
-                      }
-                    )
-                    .then((res) => {
-                      updateData(
-                        processEntities(
-                          res.nodes.map((r) => ({
-                            source: classificationId,
-                            data: r,
-                          })),
-                          searchState?.hierarchy,
-                          key,
-                          data
-                        )
-                      );
-                    });
-                }
+                  const config = configEntityGroups(props.config).find(
+                    (eg) => eg.id === searchState?.hierarchyEntityGroup
+                  );
+                  if (!config) {
+                    throw new Error(
+                      `Unexpected hierarchy entity group ${searchState?.hierarchyEntityGroup}.`
+                    );
+                  }
+                  return config;
+                };
+
+                const entityGroupConfig = findEntityGroupConfig();
+
+                return underlaySource
+                  .searchEntityGroup(
+                    attributes,
+                    entityGroupConfig.id,
+                    calcSortOrder(entityGroupConfig.id, true),
+                    {
+                      parent: keyFromDataKey(id as string),
+                      limit: props.config.limit,
+                      hierarchy: !!searchState.hierarchyEntityGroup,
+                    }
+                  )
+                  .then((res) => {
+                    updateData(
+                      processEntities(
+                        res.nodes.map((r) => ({
+                          source: entityGroupConfig.id,
+                          data: r,
+                        })),
+                        searchState?.hierarchy,
+                        id,
+                        data
+                      )
+                    );
+                  });
               }}
             />
           )}
@@ -650,20 +709,20 @@ type ClassificationInlineProps = {
 
 function ClassificationInline(props: ClassificationInlineProps) {
   const underlaySource = useUnderlaySource();
-  const classification = underlaySource.lookupClassification(
-    firstOf(props.config.occurrences),
-    props.data.selected[0].classification ?? props.config.classifications[0]
-  );
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
 
   if (!props.config.valueConfigs) {
     return null;
   }
 
+  const entityGroup = underlaySource.lookupEntityGroup(
+    props.data.selected[0].entityGroup
+  );
+
   return (
     <ValueDataEdit
-      occurrence={firstOf(props.config.occurrences)}
-      entity={props.data.selected[0].entity ?? classification.entity}
+      hintEntity={entityGroup.occurrenceEntityIds[0]}
+      relatedEntity={entityGroup.selectionEntity.name}
       hintKey={props.data.selected[0].key}
       singleValue
       valueConfigs={props.config.valueConfigs}
@@ -686,21 +745,20 @@ async function search(
 ): Promise<DataEntry[]> {
   const config = c as Config;
   const results = await Promise.all(
-    config.classifications.map((classification) =>
+    (config.classificationEntityGroups ?? []).map((eg) =>
       underlaySource
-        .searchClassification(
+        .searchEntityGroup(
           config.columns.map(({ key }) => key),
-          firstOf(config.occurrences),
-          classification,
+          eg.id,
+          config.defaultSort ?? DEFAULT_SORT_ORDER,
           {
             query,
-            sortOrder: config.defaultSort,
           }
         )
         .then((res) =>
           res.nodes.map((node) => ({
             ...node.data,
-            classification: classification,
+            entityGroup: eg.id,
           }))
         )
     )
@@ -709,12 +767,49 @@ async function search(
   return results.flat();
 }
 
-function firstOf(value: string | string[]) {
-  // TODO(tjennison): Multiple occurrence: This uses the first occurrence
-  // instead of somehow taking them all account, assuming that they're
-  // interchangeable.
-  if (typeof value === "string") {
-    return value;
-  }
-  return value[0];
+function useEntityData(
+  config: Config
+): [boolean, EntityGroupData[], EntityGroupData[]] {
+  const underlaySource = useUnderlaySource();
+
+  return useMemo(() => {
+    const classificationEntityGroupData = (
+      config.classificationEntityGroups ?? []
+    ).map((eg) => underlaySource.lookupEntityGroup(eg.id));
+
+    const groupingEntityGroupData = (config.groupingEntityGroups ?? []).map(
+      (eg) => underlaySource.lookupEntityGroup(eg.id)
+    );
+
+    const hasHierarchies = [
+      ...classificationEntityGroupData,
+      ...groupingEntityGroupData,
+    ].reduce((h, eg) => h || !!eg.selectionEntity.hierarchies?.length, false);
+
+    return [
+      hasHierarchies,
+      classificationEntityGroupData,
+      groupingEntityGroupData,
+    ];
+  }, [config.classificationEntityGroups, config.groupingEntityGroups]);
 }
+
+function lookupEntityGroupData(list: EntityGroupData[], id: string) {
+  return list.find((eg) => eg.id === id);
+}
+
+function configEntityGroups(config: Config) {
+  const entityGroups = [
+    ...(config.classificationEntityGroups ?? []),
+    ...(config.groupingEntityGroups ?? []),
+  ];
+  if (!entityGroups) {
+    throw new Error("At least one entity group must be configured.");
+  }
+  return entityGroups;
+}
+
+const DEFAULT_SORT_ORDER = {
+  attribute: ROLLUP_COUNT_ATTRIBUTE,
+  direction: SortDirection.Desc,
+};

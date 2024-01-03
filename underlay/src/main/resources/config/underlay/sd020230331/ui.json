@@ -1,417 +1,7 @@
 {
-  "dataConfig": {
-    "primaryEntity": {
-      "displayName": "Person",
-      "entity": "person",
-      "key": "id",
-      "classifications": [
-        {
-          "id": "snp",
-          "attribute": "id",
-          "entity": "snp",
-          "entityAttribute": "id",
-          "defaultSort": {
-            "attribute": "id",
-            "direction": "ASC"
-          }
-        },
-        {
-          "id": "genotyping",
-          "attribute": "id",
-          "entity": "genotyping",
-          "entityAttribute": "id",
-          "hierarchy": "default",
-          "defaultSort": {
-            "attribute": "name",
-            "direction": "ASC"
-          }
-        }
-      ]
-    },
-    "occurrences": [
-      {
-        "id": "condition_occurrence",
-        "displayName": "Condition Occurrences",
-        "entity": "conditionOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "condition",
-            "attribute": "condition",
-            "entity": "condition",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            }
-          },
-          {
-            "id": "phewas",
-            "attribute": "source_criteria_id",
-            "entity": "phewas",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "numeric_code",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd9cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd9cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd10cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd10cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "procedure_occurrence",
-        "displayName": "Procedure Occurrences",
-        "entity": "procedureOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "procedure",
-            "attribute": "procedure",
-            "entity": "procedure",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            }
-          },
-          {
-            "id": "cpt4",
-            "attribute": "source_criteria_id",
-            "entity": "cpt4",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "phewas",
-            "attribute": "source_criteria_id",
-            "entity": "phewas",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "numeric_code",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd9cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd9cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd9proc",
-            "attribute": "source_criteria_id",
-            "entity": "icd9proc",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd10cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd10cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd10pcs",
-            "attribute": "source_criteria_id",
-            "entity": "icd10pcs",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "observation_occurrence",
-        "displayName": "Observation Occurrence",
-        "entity": "observationOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "observation",
-            "attribute": "observation",
-            "entity": "observation",
-            "entityAttribute": "id",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            }
-          },
-          {
-            "id": "cpt4",
-            "attribute": "source_criteria_id",
-            "entity": "cpt4",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "phewas",
-            "attribute": "source_criteria_id",
-            "entity": "phewas",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "numeric_code",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd9cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd9cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd10cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd10cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "ingredient_occurrence",
-        "displayName": "Drug Occurrence",
-        "entity": "ingredientOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "ingredient",
-            "attribute": "id",
-            "entity": "ingredient",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_rollup_count",
-              "direction": "DESC"
-            },
-            "groupings": [
-              {
-                "id": "brand",
-                "entity": "brand",
-                "defaultSort": {
-                  "attribute": "name",
-                  "direction": "ASC"
-                },
-                "attributes": ["name", "id", "standard_concept", "concept_code"]
-              }
-            ]
-          },
-          {
-            "id": "cpt4",
-            "attribute": "source_criteria_id",
-            "entity": "cpt4",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "note_occurrence",
-        "displayName": "Documents",
-        "entity": "noteOccurrence",
-        "key": "id"
-      },
-      {
-        "id": "measurement_occurrence",
-        "displayName": "Measurement Occurrence",
-        "entity": "measurementOccurrence",
-        "key": "id",
-        "classifications": [
-          {
-            "id": "loinc",
-            "attribute": "measurement",
-            "entity": "measurementLoinc",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_item_count",
-              "direction": "DESC"
-            }
-          },
-          {
-            "id": "snomed",
-            "attribute": "measurement",
-            "entity": "measurementSnomed",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "t_item_count",
-              "direction": "DESC"
-            }
-          },
-          {
-            "id": "cpt4",
-            "attribute": "source_criteria_id",
-            "entity": "cpt4",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "phewas",
-            "attribute": "source_criteria_id",
-            "entity": "phewas",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "numeric_code",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd9cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd9cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd9proc",
-            "attribute": "source_criteria_id",
-            "entity": "icd9proc",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd10cm",
-            "attribute": "source_criteria_id",
-            "entity": "icd10cm",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          },
-          {
-            "id": "icd10pcs",
-            "attribute": "source_criteria_id",
-            "entity": "icd10pcs",
-            "entityAttribute": "id",
-            "hierarchy": "default",
-            "defaultSort": {
-              "attribute": "label",
-              "direction": "ASC"
-            }
-          }
-        ]
-      },
-      {
-        "id": "blood_pressure_occurrence",
-        "displayName": "Blood pressure",
-        "entity": "bloodPressure",
-        "key": "id"
-      },
-      {
-        "id": "bmi_occurrence",
-        "displayName": "BMI",
-        "entity": "bmi",
-        "key": "id"
-      },
-      {
-        "id": "weight_occurrence",
-        "displayName": "Weight",
-        "entity": "weight",
-        "key": "id"
-      },
-      {
-        "id": "height_occurrence",
-        "displayName": "Height",
-        "entity": "height",
-        "key": "id"
-      },
-      {
-        "id": "pulse_occurrence",
-        "displayName": "Pulse",
-        "entity": "pulse",
-        "key": "id"
-      },
-      {
-        "id": "resp_rate_occurrence",
-        "displayName": "Resp rate",
-        "entity": "respiratoryRate",
-        "key": "id"
-      }
-    ]
-  },
   "criteriaConfigs": [
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-genotyping",
       "title": "Genotyping platform",
       "category": "Demographics",
@@ -425,8 +15,11 @@
         { "key": "id", "width": 100, "title": "Id" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "",
-      "classifications": ["genotyping"],
+      "classificationEntityGroups": [
+        {
+          "id": "genotypingPerson"
+        }
+      ],
       "defaultSort": {
         "attribute": "t_rollup_count",
         "direction": "DESC"
@@ -461,7 +54,7 @@
       "attribute": "age"
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-snp",
       "title": "SNP variant",
       "category": "Demographics",
@@ -469,8 +62,15 @@
         { "key": "name", "width": "100%", "title": "SNP variant" },
         { "key": "t_item_count", "width": 120, "title": "Count" }
       ],
-      "occurrences": "",
-      "classifications": ["snp"]
+      "classificationEntityGroups": [
+        {
+          "id": "snpPerson"
+        }
+      ],
+      "defaultSort": {
+        "attribute": "id",
+        "direction": "ASC"
+      }
     },
     {
       "type": "biovu",
@@ -479,7 +79,7 @@
       "category": "BioVU"
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-measurement",
       "title": "Labs and measurements",
       "conceptSet": true,
@@ -497,8 +97,14 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "measurement_occurrence",
-      "classifications": ["loinc", "snomed"],
+      "classificationEntityGroups": [
+        {
+          "id": "measurementLoincPerson"
+        },
+        {
+          "id": "measurementSnomedPerson"
+        }
+      ],
       "defaultSort": {
         "attribute": "t_item_count",
         "direction": "DESC"
@@ -521,7 +127,7 @@
       "title": "Documents",
       "conceptSet": true,
       "category": "Domains",
-      "occurrenceId": "note_occurrence",
+      "entity": "noteOccurrence",
       "categoryAttribute": "note",
       "modifiers": [
         "age_at_occurrence",
@@ -530,7 +136,7 @@
       ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-conditions",
       "title": "Condition",
       "conceptSet": true,
@@ -549,8 +155,11 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "condition_occurrence",
-      "classifications": ["condition"],
+      "classificationEntityGroups": [
+        {
+          "id": "conditionPerson"
+        }
+      ],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -558,7 +167,7 @@
       ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-phewas",
       "title": "PheWAS",
       "conceptSet": true,
@@ -575,17 +184,15 @@
         { "key": "id", "width": 120, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": [
-        "condition_occurrence",
-        "measurement_occurrence",
-        "observation_occurrence",
-        "procedure_occurrence"
+      "classificationEntityGroups": [
+        {
+          "id": "phewasPerson",
+          "defaultSort": {
+            "attribute": "numeric_code",
+            "direction": "ASC"
+          }
+        }
       ],
-      "classifications": ["phewas"],
-      "defaultSort": {
-        "attribute": "t_rollup_count",
-        "direction": "DESC"
-      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -594,7 +201,7 @@
       "limit": 1000
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-cpt4",
       "title": "CPT-4",
       "conceptSet": true,
@@ -613,17 +220,15 @@
         { "key": "id", "width": 120, "title": "ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": [
-        "measurement_occurrence",
-        "observation_occurrence",
-        "procedure_occurrence",
-        "ingredient_occurrence"
+      "classificationEntityGroups": [
+        {
+          "id": "cpt4Person",
+          "defaultSort": {
+            "attribute": "numeric_code",
+            "direction": "ASC"
+          }
+        }
       ],
-      "classifications": ["cpt4"],
-      "defaultSort": {
-        "attribute": "t_rollup_count",
-        "direction": "DESC"
-      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -631,7 +236,7 @@
       ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-icd9cm",
       "title": "ICD-9-CM",
       "conceptSet": true,
@@ -650,17 +255,15 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": [
-        "condition_occurrence",
-        "measurement_occurrence",
-        "observation_occurrence",
-        "procedure_occurrence"
+      "classificationEntityGroups": [
+        {
+          "id": "icd9cmPerson",
+          "defaultSort": {
+            "attribute": "numeric_code",
+            "direction": "ASC"
+          }
+        }
       ],
-      "classifications": ["icd9cm"],
-      "defaultSort": {
-        "attribute": "t_rollup_count",
-        "direction": "DESC"
-      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -668,7 +271,7 @@
       ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-icd9proc",
       "title": "ICD-9-Proc",
       "conceptSet": true,
@@ -687,12 +290,15 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": ["procedure_occurrence"],
-      "classifications": ["icd9proc"],
-      "defaultSort": {
-        "attribute": "t_rollup_count",
-        "direction": "DESC"
-      },
+      "classificationEntityGroups": [
+        {
+          "id": "icd9procPerson",
+          "defaultSort": {
+            "attribute": "numeric_code",
+            "direction": "ASC"
+          }
+        }
+      ],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -700,7 +306,7 @@
       ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-icd10cm",
       "title": "ICD-10-CM",
       "conceptSet": true,
@@ -719,17 +325,15 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": [
-        "condition_occurrence",
-        "measurement_occurrence",
-        "observation_occurrence",
-        "procedure_occurrence"
+      "classificationEntityGroups": [
+        {
+          "id": "icd10cmPerson",
+          "defaultSort": {
+            "attribute": "numeric_code",
+            "direction": "ASC"
+          }
+        }
       ],
-      "classifications": ["icd10cm"],
-      "defaultSort": {
-        "attribute": "t_rollup_count",
-        "direction": "DESC"
-      },
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -737,7 +341,7 @@
       ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-icd10pcs",
       "title": "ICD-10-PCS",
       "conceptSet": true,
@@ -756,12 +360,15 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": ["procedure_occurrence", "ingredient_occurrence"],
-      "classifications": ["icd10pcs"],
-      "defaultSort": {
-        "attribute": "t_rollup_count",
-        "direction": "DESC"
-      },
+      "classificationEntityGroups": [
+        {
+          "id": "icd10pcsPerson",
+          "defaultSort": {
+            "attribute": "numeric_code",
+            "direction": "ASC"
+          }
+        }
+      ],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -769,7 +376,7 @@
       ]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-procedures",
       "title": "Procedure",
       "conceptSet": true,
@@ -788,12 +395,15 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "procedure_occurrence",
-      "classifications": ["procedure"],
+      "classificationEntityGroups": [
+        {
+          "id": "procedurePerson"
+        }
+      ],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-observations",
       "title": "Observation",
       "conceptSet": true,
@@ -807,12 +417,15 @@
         { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "observation_occurrence",
-      "classifications": ["observation"],
+      "classificationEntityGroups": [
+        {
+          "id": "observationPerson"
+        }
+      ],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
     },
     {
-      "type": "classification",
+      "type": "entityGroup",
       "id": "tanagra-drugs",
       "title": "Drug",
       "conceptSet": true,
@@ -831,8 +444,20 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
       ],
-      "occurrences": "ingredient_occurrence",
-      "classifications": ["ingredient"],
+      "classificationEntityGroups": [
+        {
+          "id": "ingredientPerson"
+        }
+      ],
+      "groupingEntityGroups": [
+        {
+          "id": "brandIngredient",
+          "sortOrder": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
+        }
+      ],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
@@ -844,7 +469,7 @@
       "id": "tanagra-bmi",
       "title": "BMI",
       "category": "Vitals",
-      "occurrence": "bmi_occurrence",
+      "entity": "bmi",
       "valueConfigs": [
         {
           "title": "Cleanliness",
@@ -862,7 +487,7 @@
       "id": "tanagra-blood-pressure",
       "title": "Blood pressure",
       "category": "Vitals",
-      "occurrence": "blood_pressure_occurrence",
+      "entity": "bloodPressure",
       "valueConfigs": [
         {
           "title": "Category",
@@ -883,7 +508,7 @@
       "id": "tanagra-height",
       "title": "Height",
       "category": "Vitals",
-      "occurrence": "height_occurrence",
+      "entity": "height",
       "valueConfigs": [
         {
           "title": "Cleanliness",
@@ -901,7 +526,7 @@
       "id": "tanagra-weight",
       "title": "Weight",
       "category": "Vitals",
-      "occurrence": "weight_occurrence",
+      "entity": "weight",
       "valueConfigs": [
         {
           "title": "Cleanliness",
@@ -919,7 +544,7 @@
       "id": "tanagra-pulse",
       "title": "Pulse",
       "category": "Vitals",
-      "occurrence": "pulse_occurrence",
+      "entity": "pulse",
       "valueConfigs": [
         {
           "title": "",
@@ -933,7 +558,7 @@
       "id": "tanagra-resp-rate",
       "title": "Resp Rate",
       "category": "Vitals",
-      "occurrence": "resp_rate_occurrence",
+      "entity": "respiratoryRate",
       "valueConfigs": [
         {
           "title": "Resp rate in br/min",
@@ -1010,7 +635,7 @@
     {
       "id": "_demographics",
       "name": "Demographics",
-      "occurrences": ""
+      "entity": ""
     }
   ],
   "criteriaSearchConfig": {
@@ -1051,11 +676,11 @@
     ],
     "pages": [
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "condition",
         "title": "Conditions",
         "plugin": {
-          "occurrence": "condition_occurrence",
+          "entity": "conditionOccurrence",
           "columns": [
             {
               "key": "condition",
@@ -1082,11 +707,11 @@
         }
       },
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "procedure",
         "title": "Procedures",
         "plugin": {
-          "occurrence": "procedure_occurrence",
+          "entity": "procedureOccurrence",
           "columns": [
             {
               "key": "procedure",
@@ -1100,11 +725,11 @@
         }
       },
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "observation",
         "title": "Observations",
         "plugin": {
-          "occurrence": "observation_occurrence",
+          "entity": "observationOccurrence",
           "columns": [
             {
               "key": "observation",
@@ -1118,11 +743,11 @@
         }
       },
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "ingredient",
         "title": "Drugs",
         "plugin": {
-          "occurrence": "ingredient_occurrence",
+          "entity": "ingredientOccurrence",
           "columns": [
             {
               "key": "ingredient",
@@ -1147,11 +772,11 @@
         }
       },
       {
-        "type": "occurrenceTable",
+        "type": "entityTable",
         "id": "measurements",
         "title": "Labs and measurements",
         "plugin": {
-          "occurrence": "measurement_occurrence",
+          "entity": "measurementOccurrence",
           "columns": [
             {
               "key": "measurement",
@@ -1184,7 +809,7 @@
         "id": "notes",
         "title": "Documents",
         "plugin": {
-          "occurrence": "note_occurrence",
+          "entity": "noteOccurrence",
           "title": "title",
           "subtitles": ["note", "date"],
           "text": "note_text",

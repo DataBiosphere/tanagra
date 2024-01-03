@@ -16,7 +16,7 @@ import { safeRegExp } from "util/safeRegExp";
 import { isValid } from "util/valid";
 
 export interface Config extends CriteriaConfig {
-  occurrence: string;
+  entity: string;
   singleValue?: boolean;
   valueConfigs: ValueConfig[];
 }
@@ -144,8 +144,8 @@ class _ implements CriteriaPlugin<Data> {
     return generateValueDataFilter(this.data.valueData);
   }
 
-  filterOccurrenceIds() {
-    return [this.config.occurrence];
+  filterEntityIds() {
+    return [this.config.entity];
   }
 }
 
@@ -165,7 +165,7 @@ function MultiAttributeInline(props: MultiAttributeInlineProps) {
 
   return (
     <ValueDataEdit
-      occurrence={props.config.occurrence}
+      hintEntity={props.config.entity}
       valueConfigs={props.config.valueConfigs}
       valueData={props.data.valueData}
       update={(valueData) =>
@@ -186,7 +186,7 @@ async function search(
 ): Promise<DataEntry[]> {
   const config = c as Config;
 
-  const allHintData = await underlaySource.getAllHintData(config.occurrence);
+  const allHintData = await underlaySource.getAllHintData(config.entity);
 
   const [re] = safeRegExp(query);
   const results: DataEntry[] = [];

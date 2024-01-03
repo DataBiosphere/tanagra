@@ -5,7 +5,7 @@ import { DataKey, DataValue } from "./types";
 export enum FilterType {
   Unary = "UNARY",
   Array = "ARRAY",
-  Classification = "CLASSIFICATION",
+  EntityGroup = "ENTITY_GROUP",
   Attribute = "ATTRIBUTE",
   Text = "TEXT",
   Relationship = "RELATIONSHIP",
@@ -92,22 +92,22 @@ export function isRelationshipFilter(
   return filter.type == FilterType.Relationship;
 }
 
-export type ClassificationFilter = BaseFilter & {
-  occurrenceId: string;
-  classificationId: string;
+export type EntityGroupFilter = BaseFilter & {
+  entityGroupId: string;
+  entityId: string;
   keys: DataKey[];
 };
 
-export function isClassificationFilter(
+export function isEntityGroupFilter(
   filter: Filter
-): filter is ClassificationFilter {
-  return filter.type == FilterType.Classification;
+): filter is EntityGroupFilter {
+  return filter.type == FilterType.EntityGroup;
 }
 
 export type Filter =
   | UnaryFilter
   | ArrayFilter
   | AttributeFilter
-  | ClassificationFilter
+  | EntityGroupFilter
   | TextFilter
   | RelationshipFilter;

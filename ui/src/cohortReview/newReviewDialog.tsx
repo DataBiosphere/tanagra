@@ -56,7 +56,7 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
     },
     async () => {
       return await underlaySource.filterCount(
-        generateCohortFilter(props.cohort)
+        generateCohortFilter(underlaySource, props.cohort)
       );
     }
   );

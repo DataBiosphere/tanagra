@@ -20,7 +20,7 @@ import { CriteriaConfig } from "underlaysSlice";
 import { isValid } from "util/valid";
 
 interface Config extends CriteriaConfig {
-  occurrenceId: string;
+  entity: string;
   searchAttribute: string;
   categoryAttribute?: string;
 }
@@ -35,8 +35,8 @@ interface Data {
   categories: Selection[];
 }
 
-// "search" plugins select occurrences using a text based search of the fields
-// in the occurrence.
+// "search" plugins select entities using a text based search of the fields in
+// the entity.
 @registerCriteriaPlugin("search", () => {
   return {
     query: "",
@@ -105,8 +105,8 @@ class _ implements CriteriaPlugin<Data> {
     ]);
   }
 
-  filterOccurrenceIds() {
-    return [this.config.occurrenceId];
+  filterEntityIds() {
+    return [this.config.entity];
   }
 }
 
@@ -148,7 +148,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
     async () => {
       const hintData = props.config.categoryAttribute
         ? await underlaySource.getHintData(
-            props.config.occurrenceId,
+            props.config.entity,
             props.config.categoryAttribute
           )
         : undefined;

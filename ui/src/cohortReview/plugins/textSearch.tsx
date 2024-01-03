@@ -22,7 +22,7 @@ import { CohortReviewPageConfig } from "underlaysSlice";
 import { safeRegExp } from "util/safeRegExp";
 
 type Config = {
-  occurrence: string;
+  entity: string;
   title: string;
   text: string;
   subtitles?: string[];
@@ -33,7 +33,7 @@ type Config = {
 @registerCohortReviewPlugin("textSearch")
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CohortReviewPlugin {
-  public occurrences: string[];
+  public entities: string[];
   private config: Config;
 
   constructor(
@@ -42,7 +42,7 @@ class _ implements CohortReviewPlugin {
     config: CohortReviewPageConfig
   ) {
     this.config = config.plugin as Config;
-    this.occurrences = [this.config.occurrence];
+    this.entities = [this.config.entity];
   }
 
   render() {
@@ -64,23 +64,13 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
     return null;
   }
 
-  // TODO(tjennison): Remove random text once notes actually have content.
-  const filledOccurrences = useMemo(
-    () =>
-      context.occurrences[config.occurrence].map((o) => ({
-        ...o,
-        [config.text]: formatValue(o[config.text]),
-      })),
-    [context.occurrences]
-  );
-
   const searchState = context.searchState<SearchState>(id);
   const query = searchState?.query ?? "";
   const [regExp] = safeRegExp(query);
 
-  const occurrences = useMemo(
+  const entities = useMemo(
     () =>
-      filledOccurrences
+      context.rows[config.entity]
         .filter((o) => regExp.test(o[config.text] as string))
         .filter((o) => {
           const ca = config.categoryAttribute;
@@ -111,20 +101,20 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
           }
           return config.sortOrder?.direction != SortDirection.Desc ? ret : -ret;
         }),
-    [filledOccurrences, searchState]
+    [context.rows, searchState]
   );
 
   const hintDataState = useSWRImmutable(
     {
       type: "hintData",
-      occurrence: config.occurrence,
+      entity: config.entity,
       attribute: config.categoryAttribute,
     },
     async () => {
       return {
         hintData: config.categoryAttribute
           ? await underlaySource.getHintData(
-              config.occurrence,
+              config.entity,
               config?.categoryAttribute
             )
           : undefined,
@@ -193,7 +183,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
         }}
       >
         <Stack spacing={1} alignItems="stretch">
-          {occurrences.map((o) => (
+          {entities.map((o) => (
             <Paper key={o.key} sx={{ overflow: "hidden" }}>
               <Stack
                 alignItems="flex-start"
