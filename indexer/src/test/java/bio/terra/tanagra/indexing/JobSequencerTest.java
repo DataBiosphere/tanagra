@@ -57,7 +57,7 @@ public class JobSequencerTest {
     SequencedJobSet jobs =
         JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("condition"));
 
-    assertEquals(5, jobs.getNumStages());
+    assertEquals(6, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
     IndexingJob job = jobStageItr.next().get(0);
     assertEquals(ValidateDataTypes.class, job.getClass());
@@ -94,6 +94,7 @@ public class JobSequencerTest {
             .findFirst();
     assertTrue(writeAncestorDescendantIdPairs.isPresent());
 
+    jobStage = jobStageItr.next();
     Optional<IndexingJob> buildNumChildrenAndPaths =
         jobStage.stream()
             .filter(jobInStage -> jobInStage.getClass().equals(WriteNumChildrenAndPaths.class))
