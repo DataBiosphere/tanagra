@@ -602,6 +602,13 @@
       ]
     },
     {
+      "type": "attribute",
+      "id": "tanagra-has-ehr-data",
+      "title": "Has EHR Data",
+      "category": "Domains",
+      "attribute": "has_ehr_data"
+    },
+    {
       "type": "classification",
       "id": "tanagra-cpt4",
       "title": "CPT-4",
@@ -785,45 +792,46 @@
     },
     {
       "type": "attribute",
-      "id": "tanagra-has-ehr-data",
-      "title": "Has EHR Data",
-      "category": "Program data",
-      "attribute": "has_ehr_data"
+      "id": "tanagra-age",
+      "title": "Age",
+      "category": "Demographics",
+      "attribute": "age"
     },
     {
       "type": "attribute",
+      "id": "tanagra-is-deceased",
+      "title": "Deceased",
+      "category": "Demographics",
+      "attribute": "is_deceased"
+    },
+    {
+
+      "type": "attribute",
       "id": "tanagra-ethnicity",
       "title": "Ethnicity",
-      "category": "Program data",
+      "category": "Demographics",
       "attribute": "ethnicity"
     },
     {
       "type": "attribute",
       "id": "tanagra-gender",
       "title": "Gender identity",
-      "category": "Program data",
+      "category": "Demographics",
       "attribute": "gender"
-    },
-    {
-      "type": "attribute",
-      "id": "tanagra-sex-at-birth",
-      "title": "Sex At Birth",
-      "category": "Program data",
-      "attribute": "sex_at_birth"
     },
     {
       "type": "attribute",
       "id": "tanagra-race",
       "title": "Race",
-      "category": "Program data",
+      "category": "Demographics",
       "attribute": "race"
     },
     {
       "type": "attribute",
-      "id": "tanagra-age",
-      "title": "Age",
-      "category": "Program data",
-      "attribute": "age"
+      "id": "tanagra-sex-at-birth",
+      "title": "Sex At Birth",
+      "category": "Demographics",
+      "attribute": "sex_at_birth"
     },
     {
       "type": "attribute",

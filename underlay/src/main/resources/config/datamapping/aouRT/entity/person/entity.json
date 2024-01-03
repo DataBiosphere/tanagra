@@ -16,8 +16,9 @@
     { "name": "has_fitbit_sleep_daily_summary", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "has_fitbit_sleep_level", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "has_fitbit", "dataType": "INT64", "isComputeDisplayHint": true },
-    { "name": "has_ehr_data", "dataType": "INT64", "isComputeDisplayHint": true }
+    { "name": "has_ehr_data", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "is_deceased", "dataType": "INT64", "isComputeDisplayHint": true }
   ],
   "idAttribute": "id",
-  "optimizeGroupByAttributes": [ "gender", "race", "age" ]
+  "optimizeGroupByAttributes": [ "gender", "race", "age", "ethnicity" ]
 }
