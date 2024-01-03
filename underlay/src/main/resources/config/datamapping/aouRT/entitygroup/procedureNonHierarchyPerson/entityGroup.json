@@ -1,21 +1,20 @@
 {
-  "name": "observationPerson",
-  "criteriaEntity": "observation",
+  "name": "procedureNonHierarchyPerson",
+  "criteriaEntity": "procedureNonHierarchy",
   "occurrenceEntities": [
     {
-      "occurrenceEntity": "observationOccurrence",
+      "occurrenceEntity": "procedureOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "observation"
+        "foreignKeyAttributeOccurrenceEntity": "procedure"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
-      },
-      "attributesWithInstanceLevelHints": [ "value" ]
+      }
     }
   ],
   "primaryCriteriaRelationship": {
     "idPairsSqlFile": "primaryCriteria.sql",
     "primaryEntityIdFieldName": "person_id",
-    "criteriaEntityIdFieldName": "observation_concept_id"
+    "criteriaEntityIdFieldName": "procedure_concept_id"
   }
 }
