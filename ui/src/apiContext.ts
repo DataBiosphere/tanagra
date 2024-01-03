@@ -319,25 +319,14 @@ class FakeExportAPI {}
 
 class FakeUsersAPI {}
 
-const getAccessToken = () => {
-  let accessToken = "";
-  if (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN) {
-    // For local dev only, get the bearer token from the iframe url param
-    accessToken =
-      new URLSearchParams(window.location.href.split("?")[1]).get("token") ??
-      "";
-  } else {
-    // Check parent window's localStorage for auth token
-    // Use try/catch block to prevent UI from breaking in case of CORS error
-    try {
-      accessToken =
-        window.parent.localStorage.getItem("tanagraAccessToken") ?? "";
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return accessToken;
-};
+function getAccessToken() {
+  // For local dev, get the bearer token from the iframe url param. For all other envs, check parent window's localStorage for auth token
+  return (
+    (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN
+      ? new URLSearchParams(window.location.href.split("?")[1]).get("token")
+      : window.parent.localStorage.getItem("tanagraAccessToken")) ?? ""
+  );
+}
 
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
