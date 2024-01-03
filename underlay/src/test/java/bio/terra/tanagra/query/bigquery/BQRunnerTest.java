@@ -12,11 +12,12 @@ import org.junit.jupiter.api.BeforeEach;
 public abstract class BQRunnerTest {
   protected Underlay underlay;
   protected BQQueryRunner bqQueryRunner;
+  private SZService szService;
 
   @BeforeEach
   void setup() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService(getServiceConfigName());
+    szService = configReader.readService(getServiceConfigName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
     bqQueryRunner =
@@ -31,8 +32,14 @@ public abstract class BQRunnerTest {
       throws IOException {
     String sqlWrittenToFile = sql;
     for (BQTable table : tables) {
+      String tableNameWithoutPrefix = table.getTableName();
+      if (szService.bigQuery.indexData.tablePrefix != null) {
+        tableNameWithoutPrefix =
+            tableNameWithoutPrefix.replaceFirst(
+                '^' + szService.bigQuery.indexData.tablePrefix + '_', "");
+      }
       sqlWrittenToFile =
-          sqlWrittenToFile.replace(table.render(), "${" + table.getTableName() + "}");
+          sqlWrittenToFile.replace(table.render(), "${" + tableNameWithoutPrefix + "}");
     }
     GeneratedSqlUtils.checkMatchesOrOverwriteGoldenFile(
         SqlFormatter.format(sqlWrittenToFile),

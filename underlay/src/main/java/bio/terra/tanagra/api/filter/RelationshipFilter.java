@@ -14,7 +14,7 @@ public class RelationshipFilter extends EntityFilter {
   private final Entity selectEntity;
   private final Entity filterEntity;
   private final Relationship relationship;
-  private final EntityFilter subFilter;
+  private final @Nullable EntityFilter subFilter;
   private final @Nullable Attribute groupByCountAttribute;
   private final @Nullable BinaryOperator groupByCountOperator;
   private final @Nullable Integer groupByCountValue;
@@ -25,7 +25,7 @@ public class RelationshipFilter extends EntityFilter {
       EntityGroup entityGroup,
       Entity selectEntity,
       Relationship relationship,
-      EntityFilter subFilter,
+      @Nullable EntityFilter subFilter,
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
@@ -61,6 +61,10 @@ public class RelationshipFilter extends EntityFilter {
 
   public Relationship getRelationship() {
     return relationship;
+  }
+
+  public boolean hasSubFilter() {
+    return subFilter != null;
   }
 
   public EntityFilter getSubFilter() {

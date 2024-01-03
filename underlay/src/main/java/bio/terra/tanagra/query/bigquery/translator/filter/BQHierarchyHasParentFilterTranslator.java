@@ -48,6 +48,7 @@ public class BQHierarchyHasParentFilterTranslator extends ApiFilterTranslator {
             hierarchyHasParentFilter.getParentId(),
             null,
             sqlParams),
+        null,
         sqlParams);
   }
 

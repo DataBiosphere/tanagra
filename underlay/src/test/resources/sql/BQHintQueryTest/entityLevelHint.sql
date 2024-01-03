@@ -2,4 +2,4 @@
     SELECT
         *      
     FROM
-        ${T_ELDH_person}
+        ${ELDH_person}

@@ -24,4 +24,6 @@ public abstract class EntityGroup {
   public abstract boolean includesEntity(String name);
 
   public abstract ImmutableSet<Relationship> getRelationships();
+
+  public abstract boolean hasRollupCountField(String entity, String countedEntity);
 }

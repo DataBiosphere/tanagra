@@ -49,6 +49,7 @@ public class BQHierarchyHasAncestorFilterTranslator extends ApiFilterTranslator 
             hierarchyHasAncestorFilter.getAncestorId(),
             null,
             sqlParams),
+        null,
         sqlParams,
         hierarchyHasAncestorFilter.getAncestorId());
   }

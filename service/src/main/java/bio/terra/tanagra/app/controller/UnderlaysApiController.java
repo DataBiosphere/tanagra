@@ -181,13 +181,7 @@ public class UnderlaysApiController implements UnderlaysApi {
           .forEach(
               attributeName ->
                   attributeFields.add(
-                      FromApiUtils.buildAttributeField(
-                          underlay,
-                          entity,
-                          attributeName,
-                          entityLevelHints
-                              .getHintInstance(entity.getAttribute(attributeName))
-                              .isPresent())));
+                      FromApiUtils.buildAttributeField(underlay, entity, attributeName, false)));
     }
 
     // Build the entity filter.

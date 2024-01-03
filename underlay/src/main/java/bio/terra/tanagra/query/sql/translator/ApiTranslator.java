@@ -120,12 +120,14 @@ public interface ApiTranslator {
     }
   }
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   default String inSelectFilterSql(
       SqlField whereField,
       @Nullable String tableAlias,
       SqlField selectField,
       SqlTable table,
-      String filterSql,
+      @Nullable String filterSql,
+      @Nullable String havingSql,
       SqlParams sqlParams,
       Literal... unionAllLiterals) {
     List<String> selectSqls = new ArrayList<>();
@@ -134,8 +136,8 @@ public interface ApiTranslator {
             + SqlQueryField.of(selectField).renderForSelect()
             + " FROM "
             + table.render()
-            + " WHERE "
-            + filterSql);
+            + (filterSql != null ? " WHERE " + filterSql : "")
+            + (havingSql != null ? ' ' + havingSql : ""));
     Arrays.stream(unionAllLiterals)
         .forEach(literal -> selectSqls.add("SELECT @" + sqlParams.addParam("val", literal)));
     return SqlQueryField.of(whereField).renderForWhere(tableAlias)

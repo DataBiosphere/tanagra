@@ -28,6 +28,7 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,8 @@ public class BQQueryRunner implements QueryRunner {
         sqlQueryRequest.getSql(), listInstances, sqlQueryResult.getNextPageMarker());
   }
 
-  private SqlQueryRequest buildListQuerySql(ListQueryRequest listQueryRequest) {
+  @VisibleForTesting
+  public SqlQueryRequest buildListQuerySql(ListQueryRequest listQueryRequest) {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();

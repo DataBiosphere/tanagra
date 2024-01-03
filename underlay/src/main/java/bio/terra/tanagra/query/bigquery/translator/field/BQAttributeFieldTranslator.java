@@ -108,6 +108,12 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
         sqlRowResult.get(getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
 
     if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
+      if (attributeField.isExcludeDisplay()) {
+        LOGGER.debug(
+            "Skipping the entity-level hint. isSimple={}, isExcludeDisplay={}",
+            attributeField.getAttribute().isSimple(),
+            attributeField.isExcludeDisplay());
+      }
       return new ValueDisplay(valueField);
     } else {
       Optional<HintInstance> entityLevelHint =

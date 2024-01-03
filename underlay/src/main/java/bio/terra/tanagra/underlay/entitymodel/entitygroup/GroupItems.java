@@ -32,6 +32,12 @@ public class GroupItems extends EntityGroup {
     return ImmutableSet.of(groupItemsRelationship);
   }
 
+  @Override
+  public boolean hasRollupCountField(String entity, String countedEntity) {
+    // There are rollup counts on the group entity, counting the number of related items entities.
+    return groupEntity.getName().equals(entity) && itemsEntity.getName().equals(countedEntity);
+  }
+
   public Entity getGroupEntity() {
     return groupEntity;
   }

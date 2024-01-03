@@ -16,13 +16,19 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.query.bigquery.BQQueryRunner;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.query.sql.SqlQueryRequest;
+import bio.terra.tanagra.underlay.ConfigReader;
+import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
+import bio.terra.tanagra.underlay.serialization.SZService;
+import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -337,6 +343,35 @@ public class BQFilterTest extends BQRunnerTest {
         listQueryResult.getSql(),
         occurrenceTable,
         primaryTable);
+
+    // Null sub-filter.
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            null,
+            null,
+            null,
+            null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                occurrenceEntity,
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKSelectNullFilter",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
   }
 
   @Test
@@ -430,6 +465,88 @@ public class BQFilterTest extends BQRunnerTest {
         "relationshipFilterFKFilterNotIdFilter",
         listQueryResult.getSql(),
         occurrenceTable,
+        primaryTable);
+
+    // Null sub-filter, without rollup count field.
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            underlay.getPrimaryEntity(),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            null,
+            null,
+            null,
+            null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterNullFilterWithoutRollupCount",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
+
+    // Null sub-filter, with rollup count field.
+    // The cmssynpuf underlay does not have an example of this type of relationship
+    // (i.e. foreign key relationship on the filter entity, and a rollup count field).
+    // This is typical for things like vitals (e.g. list of pulse readings for a person,
+    // query is to get all persons with at least one pulse reading). So for this part
+    // of the test, we use the SD underlay. But since we the GHA does not have
+    // credentials to query against an SD dataset, here we just check the generated SQL.
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZService szService = configReader.readService("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+    Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
+    BQQueryRunner bqQueryRunner =
+        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+    GroupItems pulsePerson = (GroupItems) underlay.getEntityGroup("pulsePerson");
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            pulsePerson,
+            pulsePerson.getGroupEntity(),
+            pulsePerson.getGroupItemsRelationship(),
+            null,
+            null,
+            null,
+            null);
+    simpleAttribute =
+        new AttributeField(
+            underlay,
+            pulsePerson.getGroupEntity(),
+            pulsePerson.getGroupEntity().getIdAttribute(),
+            false,
+            false);
+    SqlQueryRequest sqlQueryRequest =
+        bqQueryRunner.buildListQuerySql(
+            new ListQueryRequest(
+                underlay,
+                pulsePerson.getGroupEntity(),
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    primaryTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterNullFilterWithRollupCount",
+        sqlQueryRequest.getSql(),
         primaryTable);
   }
 
@@ -535,6 +652,73 @@ public class BQFilterTest extends BQRunnerTest {
         groupTable,
         itemsTable,
         idPairsTable);
+
+    // Null sub-filter, without rollup count field.
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            null,
+            null,
+            null,
+            null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableNullFilterWithoutRollupCount",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
+
+    // Null sub-filter, with rollup count field.
+    simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getItemsEntity().getAttribute("name"),
+            false,
+            false);
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupItemsRelationship(),
+            null,
+            null,
+            null,
+            null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getGroupEntity(),
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableNullFilterWithRollupCount",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
   }
 
   @Test
@@ -625,6 +809,35 @@ public class BQFilterTest extends BQRunnerTest {
                 true));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKFilterNotIdFilterWithGroupBy",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        primaryTable);
+
+    // Null sub-filter.
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            underlay.getPrimaryEntity(),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            null,
+            occurrenceEntity.getAttribute("start_date"),
+            BinaryOperator.GREATER_THAN,
+            14);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterNullFilterWithGroupBy",
         listQueryResult.getSql(),
         occurrenceTable,
         primaryTable);
@@ -728,6 +941,36 @@ public class BQFilterTest extends BQRunnerTest {
                 true));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNotIdFilterWithGroupBy",
+        listQueryResult.getSql(),
+        groupTable,
+        itemsTable,
+        idPairsTable);
+
+    // Null sub-filter.
+    relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            null,
+            null,
+            BinaryOperator.EQUALS,
+            1);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableNullFilterWithGroupBy",
         listQueryResult.getSql(),
         groupTable,
         itemsTable,
