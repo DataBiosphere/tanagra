@@ -93,7 +93,20 @@ public final class JobSequencer {
                 jobSet.addJob(
                     new WriteAncestorDescendant(
                         indexerConfig, hierarchy, sourceChildParent, indexAncestorDescendant));
+              });
 
+      jobSet.startNewStage();
+      entity.getHierarchies().stream()
+          .forEach(
+              hierarchy -> {
+                ITHierarchyChildParent indexChildParent =
+                    underlay
+                        .getIndexSchema()
+                        .getHierarchyChildParent(entity.getName(), hierarchy.getName());
+                ITHierarchyAncestorDescendant indexAncestorDescendant =
+                    underlay
+                        .getIndexSchema()
+                        .getHierarchyAncestorDescendant(entity.getName(), hierarchy.getName());
                 STHierarchyRootFilter sourceRootFilter =
                     underlay
                             .getSourceSchema()
@@ -107,7 +120,8 @@ public final class JobSequencer {
                         indexerConfig,
                         entity,
                         hierarchy,
-                        sourceChildParent,
+                        indexChildParent,
+                        indexAncestorDescendant,
                         sourceRootFilter,
                         indexEntityMain));
               });

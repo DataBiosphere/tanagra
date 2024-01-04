@@ -46,7 +46,7 @@ public class CmsSynpufHintsTest extends BaseHintsTest {
                     54_453L,
                     new ValueDisplay(Literal.forInt64(38_003_564L), "Not Hispanic or Latino"),
                     2_272_403L)),
-            new HintInstance(entity.getAttribute("age"), 39.0, 114.0),
+            new HintInstance(entity.getAttribute("age"), 40.0, 115.0),
             new HintInstance(entity.getAttribute("year_of_birth"), 1909.0, 1983.0));
     assertEntityLevelHintsMatch("person", expectedHints);
   }
