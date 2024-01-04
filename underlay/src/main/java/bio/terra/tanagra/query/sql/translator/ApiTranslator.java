@@ -148,6 +148,7 @@ public interface ApiTranslator {
 
   default String booleanAndOrFilterSql(LogicalOperator operator, String... subFilterSqls) {
     return Arrays.stream(subFilterSqls)
+        .map(subFilterSql -> '(' + subFilterSql + ')')
         .collect(Collectors.joining(' ' + logicalOperatorSql(operator) + ' '));
   }
 
