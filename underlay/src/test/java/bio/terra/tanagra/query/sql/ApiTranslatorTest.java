@@ -160,7 +160,7 @@ public class ApiTranslatorTest {
 
     String sql = apiTranslator.booleanAndOrFilterSql(LogicalOperator.OR, filterSql1, filterSql2);
     assertEquals(
-        "tableAlias.columnName <= @val OR tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0)",
+        "(tableAlias.columnName <= @val) OR (tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0))",
         sql);
     assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
   }

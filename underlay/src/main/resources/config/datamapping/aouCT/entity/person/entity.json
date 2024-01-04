@@ -20,8 +20,9 @@
     { "name": "has_whole_genome_variant", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "has_lr_whole_genome_variant", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "has_structural_variant_data", "dataType": "INT64", "isComputeDisplayHint": true },
-    { "name": "has_ehr_data", "dataType": "INT64", "isComputeDisplayHint": true }
+    { "name": "has_ehr_data", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "is_deceased", "dataType": "INT64", "isComputeDisplayHint": true }
   ],
   "idAttribute": "id",
-  "optimizeGroupByAttributes": [ "gender", "race", "age" ]
+  "optimizeGroupByAttributes": [ "gender", "race", "age", "ethnicity" ]
 }

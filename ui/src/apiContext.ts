@@ -319,6 +319,15 @@ class FakeExportAPI {}
 
 class FakeUsersAPI {}
 
+function getAccessToken() {
+  // For local dev, get the bearer token from the iframe url param. For all other envs, check parent window's localStorage for auth token
+  return (
+    (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN
+      ? new URLSearchParams(window.location.href.split("?")[1]).get("token")
+      : window.parent.localStorage.getItem("tanagraAccessToken")) ?? ""
+  );
+}
+
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
@@ -330,16 +339,8 @@ function apiForEnvironment<Real, Fake>(
 
     const config: tanagra.ConfigurationParameters = {
       basePath: process.env.REACT_APP_BACKEND_HOST || "",
+      accessToken: getAccessToken(),
     };
-    // For local dev only, get the bearer token from the iframe url param
-    if (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN) {
-      const accessToken = new URLSearchParams(
-        window.location.href.split("?")[1]
-      ).get("token");
-      if (accessToken) {
-        config.accessToken = accessToken;
-      }
-    }
     return new real(new tanagra.Configuration(config));
   };
   return React.createContext(fn());
