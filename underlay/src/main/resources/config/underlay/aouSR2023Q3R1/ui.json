@@ -23,11 +23,7 @@
       ],
       "classificationEntityGroups": [
         {
-          "id": "conditionPerson",
-          "defaultSort": {
-            "attribute": "name",
-            "direction": "ASC"
-          }
+          "id": "conditionPerson"
         },
         {
           "id": "conditionNonHierarchyPerson"
@@ -62,11 +58,7 @@
       ],
       "classificationEntityGroups": [
         {
-          "id": "procedurePerson",
-          "defaultSort": {
-            "attribute": "name",
-            "direction": "ASC"
-          }
+          "id": "procedurePerson"
         },
         {
           "id": "procedureNonHierarchyPerson"
@@ -92,15 +84,8 @@
       "classificationEntityGroups": [
         {
           "id": "observationPerson"
-        },
-        {
-          "id": "observationNonHierarchyPerson"
         }
-     ],
-      "defaultSort": {
-        "attribute": "t_item_count",
-        "direction": "DESC"
-      },
+      ],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {
