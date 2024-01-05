@@ -249,20 +249,15 @@
         { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_item_count", "width": 120, "title": "Item Count" }
       ],
-<<<<<<< HEAD
       "classificationEntityGroups": [
         {
           "id": "devicePerson"
         }
       ],
-=======
-      "occurrences": "device_occurrence",
-      "classifications": ["device"],
       "defaultSort": {
         "attribute": "t_item_count",
         "direction": "DESC"
       },
->>>>>>> 235a6fce (Changed all ui colum widths, titles for all domains: search results and hierarchy views)
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
