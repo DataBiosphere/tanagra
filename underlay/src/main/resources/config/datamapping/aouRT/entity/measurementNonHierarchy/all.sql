@@ -1,4 +1,8 @@
-SELECT DISTINCT c.*
+SELECT DISTINCT concept_id,
+    concept_name,
+    vocabulary_id,
+    concept_code,
+    'Standard' AS standard_concept
 FROM `${omopDataset}.measurement` m
 JOIN `${omopDataset}.concept` c ON m.measurement_concept_id = c.concept_id
 WHERE c.domain_id = 'Measurement'
@@ -7,7 +11,11 @@ WHERE c.domain_id = 'Measurement'
   AND m.measurement_concept_id IS NOT null
   AND m.measurement_concept_id != 0
 UNION DISTINCT
-SELECT DISTINCT c.*
+SELECT DISTINCT concept_id,
+    concept_name,
+    vocabulary_id,
+    concept_code,
+    'Standard' AS standard_concept
 FROM `${omopDataset}.measurement` m
 JOIN `${omopDataset}.concept` c ON m.measurement_concept_id = c.concept_id
 WHERE c.domain_id = 'Measurement'
