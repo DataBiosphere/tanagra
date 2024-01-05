@@ -43,6 +43,7 @@ public class BQExecutor {
                 queryConfig.addNamedParameter(
                     sqlParam.getKey(), toQueryParameterValue(sqlParam.getValue())));
     queryConfig.setDryRun(queryRequest.isDryRun());
+    queryConfig.setUseQueryCache(true);
 
     LOGGER.info("Running SQL against BigQuery: {}", queryRequest.getSql());
     if (queryRequest.isDryRun()) {
