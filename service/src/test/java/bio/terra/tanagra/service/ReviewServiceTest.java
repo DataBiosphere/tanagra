@@ -10,11 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -25,7 +20,6 @@ import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -110,21 +104,13 @@ public class ReviewServiceTest {
     String displayName = "review 1";
     String description = "first review";
     String createdByEmail = "abc@123.com";
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult queryResult =
-        new QueryResult(
-            List.of(123L, 456L, 789L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     Review createdReview =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().displayName(displayName).description(description).size(11),
             createdByEmail,
-            queryResult,
+            List.of(123L, 456L, 789L),
             27);
     assertNotNull(createdReview);
     LOGGER.info("Created review {} at {}", createdReview.getId(), createdReview.getCreated());
@@ -181,14 +167,7 @@ public class ReviewServiceTest {
   @Test
   void listAllOrSelected() {
     String userEmail = "abc@123.com";
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult queryResult =
-        new QueryResult(
-            List.of(123L, 456L, 789L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
+    List<Long> randomSampleQueryResult = List.of(123L, 456L, 789L);
 
     // Create one review for cohort1.
     Review review1 =
@@ -197,7 +176,7 @@ public class ReviewServiceTest {
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
             userEmail,
-            queryResult,
+            randomSampleQueryResult,
             22);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
@@ -209,7 +188,7 @@ public class ReviewServiceTest {
             cohort2.getId(),
             Review.builder().displayName("review 2").description("second review").size(3),
             userEmail,
-            queryResult,
+            randomSampleQueryResult,
             25);
     assertNotNull(review2);
     LOGGER.info("Created review {} at {}", review2.getId(), review2.getCreated());
@@ -219,7 +198,7 @@ public class ReviewServiceTest {
             cohort2.getId(),
             Review.builder().displayName("review 3").description("third review").size(5),
             userEmail,
-            queryResult,
+            randomSampleQueryResult,
             25);
     assertNotNull(review3);
     LOGGER.info("Created review {} at {}", review3.getId(), review3.getCreated());
@@ -278,9 +257,6 @@ public class ReviewServiceTest {
         () -> reviewService.getReview(study1.getId(), cohort1.getId(), "123"));
 
     // Specify empty query result.
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult emptyQueryResult = new QueryResult(Collections.emptyList(), columnHeaderSchema);
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -289,7 +265,7 @@ public class ReviewServiceTest {
                 cohort1.getId(),
                 Review.builder().size(11),
                 "abc@123.com",
-                emptyQueryResult,
+                List.of(),
                 0));
   }
 }

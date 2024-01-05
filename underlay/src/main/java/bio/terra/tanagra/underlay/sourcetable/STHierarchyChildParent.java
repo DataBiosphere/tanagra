@@ -1,9 +1,9 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 
@@ -13,15 +13,12 @@ public class STHierarchyChildParent extends SourceTable {
   private final ColumnSchema childColumnSchema;
   private final ColumnSchema parentColumnSchema;
 
-  public STHierarchyChildParent(
-      TablePointer tablePointer, String entity, SZEntity.Hierarchy szHierarchy) {
-    super(tablePointer);
+  public STHierarchyChildParent(BQTable bqTable, String entity, SZEntity.Hierarchy szHierarchy) {
+    super(bqTable);
     this.entity = entity;
     this.hierarchy = szHierarchy.name;
-    this.childColumnSchema =
-        new ColumnSchema(szHierarchy.childIdFieldName, CellValue.SQLDataType.INT64);
-    this.parentColumnSchema =
-        new ColumnSchema(szHierarchy.parentIdFieldName, CellValue.SQLDataType.INT64);
+    this.childColumnSchema = new ColumnSchema(szHierarchy.childIdFieldName, DataType.INT64);
+    this.parentColumnSchema = new ColumnSchema(szHierarchy.parentIdFieldName, DataType.INT64);
   }
 
   @Override
@@ -37,18 +34,12 @@ public class STHierarchyChildParent extends SourceTable {
     return hierarchy;
   }
 
-  public FieldPointer getChildField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(childColumnSchema.getColumnName())
-        .build();
+  public SqlField getChildField() {
+    return SqlField.of(childColumnSchema.getColumnName());
   }
 
-  public FieldPointer getParentField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(parentColumnSchema.getColumnName())
-        .build();
+  public SqlField getParentField() {
+    return SqlField.of(parentColumnSchema.getColumnName());
   }
 
   public ColumnSchema getChildColumnSchema() {

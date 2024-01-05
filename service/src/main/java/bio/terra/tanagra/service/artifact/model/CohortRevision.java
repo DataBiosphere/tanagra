@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.LogicalOperator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,14 +215,14 @@ public class CohortRevision {
     private final String id;
     private final @Nullable String displayName;
     private final List<CriteriaGroup> criteriaGroups;
-    private final BooleanAndOrFilterVariable.LogicalOperator operator;
+    private final LogicalOperator operator;
     private final boolean isExcluded;
 
     private CriteriaGroupSection(
         String id,
         String displayName,
         List<CriteriaGroup> criteriaGroups,
-        BooleanAndOrFilterVariable.LogicalOperator operator,
+        LogicalOperator operator,
         boolean isExcluded) {
       this.id = id;
       this.displayName = displayName;
@@ -247,7 +247,7 @@ public class CohortRevision {
       return Collections.unmodifiableList(criteriaGroups);
     }
 
-    public BooleanAndOrFilterVariable.LogicalOperator getOperator() {
+    public LogicalOperator getOperator() {
       return operator;
     }
 
@@ -259,8 +259,7 @@ public class CohortRevision {
       private String id;
       private String displayName;
       private List<CriteriaGroup> criteriaGroups = new ArrayList<>();
-      private BooleanAndOrFilterVariable.LogicalOperator operator =
-          BooleanAndOrFilterVariable.LogicalOperator.OR;
+      private LogicalOperator operator = LogicalOperator.OR;
       private boolean isExcluded;
 
       public Builder id(String id) {
@@ -278,7 +277,7 @@ public class CohortRevision {
         return this;
       }
 
-      public Builder operator(BooleanAndOrFilterVariable.LogicalOperator operator) {
+      public Builder operator(LogicalOperator operator) {
         this.operator = operator;
         return this;
       }
@@ -331,7 +330,7 @@ public class CohortRevision {
     private final String displayName;
     private final List<Criteria> criteria;
     private final String entity;
-    private final @Nullable BinaryFilterVariable.BinaryOperator groupByCountOperator;
+    private final @Nullable BinaryOperator groupByCountOperator;
     private final int groupByCountValue;
 
     private CriteriaGroup(
@@ -339,7 +338,7 @@ public class CohortRevision {
         String displayName,
         List<Criteria> criteria,
         String entity,
-        BinaryFilterVariable.BinaryOperator groupByCountOperator,
+        BinaryOperator groupByCountOperator,
         int groupByCountValue) {
       this.id = id;
       this.displayName = displayName;
@@ -369,7 +368,7 @@ public class CohortRevision {
       return entity;
     }
 
-    public BinaryFilterVariable.BinaryOperator getGroupByCountOperator() {
+    public BinaryOperator getGroupByCountOperator() {
       return groupByCountOperator;
     }
 
@@ -382,7 +381,7 @@ public class CohortRevision {
       private String displayName;
       private List<Criteria> criteria = new ArrayList<>();
       private String entity;
-      private BinaryFilterVariable.BinaryOperator groupByCountOperator;
+      private BinaryOperator groupByCountOperator;
       private int groupByCountValue;
 
       public Builder id(String id) {
@@ -405,8 +404,7 @@ public class CohortRevision {
         return this;
       }
 
-      public Builder groupByCountOperator(
-          BinaryFilterVariable.BinaryOperator groupByCountOperator) {
+      public Builder groupByCountOperator(BinaryOperator groupByCountOperator) {
         this.groupByCountOperator = groupByCountOperator;
         return this;
       }

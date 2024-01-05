@@ -1,44 +1,35 @@
 package bio.terra.tanagra.api.field;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.underlay.NameHelper;
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
-import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 
-public class HierarchyIsMemberField extends SingleColumnField {
-  private static final String FIELD_ALIAS = "ISMEM";
-  private final ITEntityMain indexTable;
+public class HierarchyIsMemberField extends ValueDisplayField {
+  private final Underlay underlay;
+  private final Entity entity;
   private final Hierarchy hierarchy;
 
   public HierarchyIsMemberField(Underlay underlay, Entity entity, Hierarchy hierarchy) {
-    this.indexTable = underlay.getIndexSchema().getEntityMain(entity.getName());
+    this.underlay = underlay;
+    this.entity = entity;
     this.hierarchy = hierarchy;
   }
 
-  @Override
-  protected FieldPointer getField() {
-    // This is a calculated field. IS_MEMBER means path IS NOT NULL.
-    return indexTable
-        .getHierarchyPathField(hierarchy.getName())
-        .toBuilder()
-        .sqlFunctionWrapper("(${fieldSql} IS NOT NULL)")
-        .build();
+  public Underlay getUnderlay() {
+    return underlay;
   }
 
-  @Override
-  protected String getFieldAlias() {
-    return NameHelper.getReservedFieldName(FIELD_ALIAS + "_" + hierarchy.getName());
-  }
-
-  @Override
-  protected CellValue.SQLDataType getFieldDataType() {
-    return CellValue.SQLDataType.BOOLEAN;
+  public Entity getEntity() {
+    return entity;
   }
 
   public Hierarchy getHierarchy() {
     return hierarchy;
+  }
+
+  @Override
+  public DataType getDataType() {
+    return DataType.BOOLEAN;
   }
 }

@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -43,23 +43,17 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
             .collect(Collectors.toList()));
   }
 
-  public FieldPointer getAncestorField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.ANCESTOR.getSchema().getColumnName())
-        .build();
+  public SqlField getAncestorField() {
+    return SqlField.of(Column.ANCESTOR.getSchema().getColumnName());
   }
 
-  public FieldPointer getDescendantField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.DESCENDANT.getSchema().getColumnName())
-        .build();
+  public SqlField getDescendantField() {
+    return SqlField.of(Column.DESCENDANT.getSchema().getColumnName());
   }
 
   public enum Column {
-    ANCESTOR(new ColumnSchema("ancestor", CellValue.SQLDataType.INT64)),
-    DESCENDANT(new ColumnSchema("descendant", CellValue.SQLDataType.INT64));
+    ANCESTOR(new ColumnSchema("ancestor", DataType.INT64)),
+    DESCENDANT(new ColumnSchema("descendant", DataType.INT64));
 
     private final ColumnSchema schema;
 

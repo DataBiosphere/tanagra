@@ -4,15 +4,12 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.RowResult;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Review;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,14 +68,7 @@ public class ReviewDao {
   private static final String PRIMARY_ENTITY_INSTANCE_SELECT_SQL =
       "SELECT id, stable_index FROM primary_entity_instance";
   private static final RowMapper<Pair<Literal, Integer>> PRIMARY_ENTITY_INSTANCE_ROW_MAPPER =
-      (rs, rowNum) ->
-          Pair.of(
-              new Literal.Builder()
-                  // TODO: Support id data types other than long.
-                  .int64Val(rs.getLong("id"))
-                  .dataType(Literal.DataType.INT64)
-                  .build(),
-              rs.getInt("stable_index"));
+      (rs, rowNum) -> Pair.of(Literal.forInt64(rs.getLong("id")), rs.getInt("stable_index"));
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
   private final CohortDao cohortDao;
@@ -150,7 +140,7 @@ public class ReviewDao {
 
   @WriteTransaction
   public void createReview(
-      String cohortId, Review review, QueryResult queryResult, long recordsCount) {
+      String cohortId, Review review, List<Long> primaryEntityIds, long recordsCount) {
     // Write the review. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
@@ -177,14 +167,12 @@ public class ReviewDao {
         "INSERT INTO primary_entity_instance (review_id, id, stable_index) VALUES (:review_id, :id, :stable_index)";
     LOGGER.debug("CREATE primary_entity_instance: {}", sql);
     List<MapSqlParameterSource> paramSets = new ArrayList<>();
-    Iterator<RowResult> rowResultsItr = queryResult.getRowResults().iterator();
     int stableIndex = 0;
-    while (rowResultsItr.hasNext()) {
+    for (Long primaryEntityId : primaryEntityIds) {
       paramSets.add(
           new MapSqlParameterSource()
               .addValue("review_id", review.getId())
-              // TODO: Support id data types other than long.
-              .addValue("id", rowResultsItr.next().get("id").getLong().getAsLong())
+              .addValue("id", primaryEntityId)
               .addValue("stable_index", stableIndex));
       stableIndex++;
     }

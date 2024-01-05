@@ -46,7 +46,7 @@ public class CreateEntityMain extends BigQueryJob {
                 columnSchema ->
                     Field.newBuilder(
                             columnSchema.getColumnName(),
-                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()))
+                            BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
                         .build())
             .collect(Collectors.toList());
 
@@ -76,8 +76,6 @@ public class CreateEntityMain extends BigQueryJob {
             indexerConfig.bigQuery.indexData.projectId,
             indexerConfig.bigQuery.indexData.datasetId,
             getOutputTableName());
-    bigQueryExecutor
-        .getBigQueryService()
-        .createTableFromSchema(destinationTable, Schema.of(fields), clustering, isDryRun);
+    googleBigQuery.createTableFromSchema(destinationTable, Schema.of(fields), clustering, isDryRun);
   }
 }

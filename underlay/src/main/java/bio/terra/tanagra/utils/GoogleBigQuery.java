@@ -68,6 +68,16 @@ public final class GoogleBigQuery {
     this.querySchemasCache = new ConcurrentHashMap<>();
   }
 
+  public static GoogleBigQuery forApplicationDefaultCredentials(String projectId) {
+    GoogleCredentials credentials;
+    try {
+      credentials = GoogleCredentials.getApplicationDefault();
+    } catch (IOException ioEx) {
+      throw new SystemException("Error loading application default credentials", ioEx);
+    }
+    return new GoogleBigQuery(credentials, projectId);
+  }
+
   public Schema getQuerySchemaWithCaching(String query) {
     // Check if the schema is in the cache.
     Schema schema = querySchemasCache.get(query);
@@ -255,6 +265,18 @@ public final class GoogleBigQuery {
       String query, @Nullable String pageToken, @Nullable Integer pageSize) {
     QueryJobConfiguration queryConfig =
         QueryJobConfiguration.newBuilder(query).setUseLegacySql(false).build();
+    return queryBigQuery(queryConfig, pageToken, pageSize);
+  }
+
+  /**
+   * Execute a query.
+   *
+   * @param queryConfig the query job configuration to run
+   * @return the result of the BQ query
+   * @throws InterruptedException from the bigQuery.query() method
+   */
+  public TableResult queryBigQuery(
+      QueryJobConfiguration queryConfig, @Nullable String pageToken, @Nullable Integer pageSize) {
     Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
 
     List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
@@ -269,7 +291,15 @@ public final class GoogleBigQuery {
 
     return callWithRetries(
         () -> job.getQueryResults(queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0])),
-        "Error running BigQuery query: " + query);
+        "Error running BigQuery query: " + queryConfig.getQuery());
+  }
+
+  /** Get the job statistics for a query, without running it. Intended for dry running queries. */
+  public JobStatistics.QueryStatistics queryStatistics(QueryJobConfiguration queryConfig) {
+    Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
+    return callWithRetries(
+        () -> job.getStatistics(),
+        "Error getting job statistics for query: " + queryConfig.getQuery());
   }
 
   /**

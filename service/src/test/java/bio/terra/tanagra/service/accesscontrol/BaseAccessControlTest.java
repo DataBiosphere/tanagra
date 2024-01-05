@@ -9,13 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -143,21 +138,14 @@ public class BaseAccessControlTest {
     LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
 
     // Create 2 reviews.
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult queryResult =
-        new QueryResult(
-            List.of(123L, 456L, 789L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
+    List<Long> randomSampleQueryResult = List.of(123L, 456L, 789L);
     review1 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
             "abc@123.com",
-            queryResult,
+            randomSampleQueryResult,
             14);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
@@ -167,7 +155,7 @@ public class BaseAccessControlTest {
             cohort2.getId(),
             Review.builder().displayName("review 2").description("second review").size(3),
             "def@123.com",
-            queryResult,
+            randomSampleQueryResult,
             15);
     assertNotNull(review2);
     LOGGER.info("Created review {} at {}", review2.getId(), review2.getCreated());
@@ -180,7 +168,7 @@ public class BaseAccessControlTest {
             AnnotationKey.builder()
                 .displayName("annotation key 1")
                 .description("first annotation key")
-                .dataType(Literal.DataType.BOOLEAN));
+                .dataType(DataType.BOOLEAN));
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotation key {}", annotationKey1.getId());
     annotationKey2 =
@@ -190,7 +178,7 @@ public class BaseAccessControlTest {
             AnnotationKey.builder()
                 .displayName("annotation key 2")
                 .description("second annotation key")
-                .dataType(Literal.DataType.INT64));
+                .dataType(DataType.INT64));
     assertNotNull(annotationKey2);
     LOGGER.info("Created annotation key {}", annotationKey2.getId());
   }

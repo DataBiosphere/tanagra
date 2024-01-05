@@ -7,6 +7,8 @@ import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -17,8 +19,6 @@ import bio.terra.tanagra.generated.model.ApiCohortList;
 import bio.terra.tanagra.generated.model.ApiCohortUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -124,7 +124,7 @@ public class CohortsApiController implements CohortsApi {
     return CohortRevision.CriteriaGroupSection.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
-        .operator(BooleanAndOrFilterVariable.LogicalOperator.valueOf(apiObj.getOperator().name()))
+        .operator(LogicalOperator.valueOf(apiObj.getOperator().name()))
         .setIsExcluded(apiObj.isExcluded())
         .criteriaGroups(
             apiObj.getCriteriaGroups().stream()
@@ -141,8 +141,7 @@ public class CohortsApiController implements CohortsApi {
         .groupByCountOperator(
             apiObj.getGroupByCountOperator() == null
                 ? null
-                : BinaryFilterVariable.BinaryOperator.valueOf(
-                    apiObj.getGroupByCountOperator().name()))
+                : BinaryOperator.valueOf(apiObj.getGroupByCountOperator().name()))
         .groupByCountValue(apiObj.getGroupByCountValue())
         .criteria(
             apiObj.getCriteria().stream()

@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
@@ -82,8 +82,8 @@ public class ReviewPaginationTest {
                 underlay,
                 primaryEntity,
                 primaryEntity.getAttribute("gender"),
-                BinaryFilterVariable.BinaryOperator.EQUALS,
-                new Literal(8532)));
+                BinaryOperator.EQUALS,
+                Literal.forInt64(8_532L)));
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
   }

@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -38,14 +38,12 @@ public final class ITEntityMain extends IndexTable {
             szAttribute -> {
               columnSchemasBuilder.add(
                   new ColumnSchema(
-                      szAttribute.name,
-                      CellValue.SQLDataType.fromUnderlayDataType(
-                          ConfigReader.deserializeDataType(szAttribute.dataType))));
+                      szAttribute.name, ConfigReader.deserializeDataType(szAttribute.dataType)));
               if (szAttribute.displayFieldName != null) {
                 columnSchemasBuilder.add(
                     new ColumnSchema(
                         getAttributeDisplayFieldName(szAttribute.name),
-                        ColumnTemplate.ATTRIBUTE_DISPLAY.getSqlDataType()));
+                        ColumnTemplate.ATTRIBUTE_DISPLAY.getDataType()));
               }
             });
 
@@ -56,11 +54,11 @@ public final class ITEntityMain extends IndexTable {
               columnSchemasBuilder.add(
                   new ColumnSchema(
                       getHierarchyPathFieldName(szHierarchy.name),
-                      ColumnTemplate.HIERARCHY_PATH.getSqlDataType()));
+                      ColumnTemplate.HIERARCHY_PATH.getDataType()));
               columnSchemasBuilder.add(
                   new ColumnSchema(
                       getHierarchyNumChildrenFieldName(szHierarchy.name),
-                      ColumnTemplate.HIERARCHY_NUMCHILDREN.getSqlDataType()));
+                      ColumnTemplate.HIERARCHY_NUMCHILDREN.getDataType()));
             });
 
     // Build the text search column.
@@ -68,7 +66,7 @@ public final class ITEntityMain extends IndexTable {
       columnSchemasBuilder.add(
           new ColumnSchema(
               namer.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix()),
-              ColumnTemplate.TEXT_SEARCH.getSqlDataType()));
+              ColumnTemplate.TEXT_SEARCH.getDataType()));
     }
 
     // Build the relationship columns.
@@ -79,7 +77,7 @@ public final class ITEntityMain extends IndexTable {
               columnSchemasBuilder.add(
                   new ColumnSchema(
                       getEntityGroupCountFieldName(entityGroup, null),
-                      ColumnTemplate.RELATIONSHIP_COUNT.getSqlDataType()));
+                      ColumnTemplate.RELATIONSHIP_COUNT.getDataType()));
 
               // Build the hierarchy columns.
               szHierarchies.stream()
@@ -88,7 +86,7 @@ public final class ITEntityMain extends IndexTable {
                           columnSchemasBuilder.add(
                               new ColumnSchema(
                                   getEntityGroupCountFieldName(entityGroup, szHierarchy.name),
-                                  ColumnTemplate.RELATIONSHIP_COUNT.getSqlDataType())));
+                                  ColumnTemplate.RELATIONSHIP_COUNT.getDataType())));
             });
     this.columnSchemas = ImmutableList.copyOf(columnSchemasBuilder);
   }
@@ -107,20 +105,16 @@ public final class ITEntityMain extends IndexTable {
     return columnSchemas;
   }
 
-  public FieldPointer getAttributeValueField(String attribute) {
-    return new FieldPointer.Builder().tablePointer(getTablePointer()).columnName(attribute).build();
+  public SqlField getAttributeValueField(String attribute) {
+    return SqlField.of(attribute);
   }
 
   public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
-    return new ColumnSchema(
-        attribute.getName(), CellValue.SQLDataType.fromUnderlayDataType(attribute.getDataType()));
+    return new ColumnSchema(attribute.getName(), attribute.getDataType());
   }
 
-  public FieldPointer getAttributeDisplayField(String attribute) {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(getAttributeDisplayFieldName(attribute))
-        .build();
+  public SqlField getAttributeDisplayField(String attribute) {
+    return SqlField.of(getAttributeDisplayFieldName(attribute));
   }
 
   private String getAttributeDisplayFieldName(String attribute) {
@@ -128,16 +122,13 @@ public final class ITEntityMain extends IndexTable {
         ColumnTemplate.ATTRIBUTE_DISPLAY.getColumnNamePrefixed(attribute));
   }
 
-  public FieldPointer getHierarchyPathField(String hierarchy) {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(getHierarchyPathFieldName(hierarchy))
-        .build();
+  public SqlField getHierarchyPathField(String hierarchy) {
+    return SqlField.of(getHierarchyPathFieldName(hierarchy));
   }
 
   public ColumnSchema getHierarchyPathColumnSchema(String hierarchy) {
     return new ColumnSchema(
-        getHierarchyPathFieldName(hierarchy), ColumnTemplate.HIERARCHY_PATH.getSqlDataType());
+        getHierarchyPathFieldName(hierarchy), ColumnTemplate.HIERARCHY_PATH.getDataType());
   }
 
   private String getHierarchyPathFieldName(String hierarchy) {
@@ -145,17 +136,14 @@ public final class ITEntityMain extends IndexTable {
         ColumnTemplate.HIERARCHY_PATH.getColumnNamePrefixed(hierarchy));
   }
 
-  public FieldPointer getHierarchyNumChildrenField(String hierarchy) {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(getHierarchyNumChildrenFieldName(hierarchy))
-        .build();
+  public SqlField getHierarchyNumChildrenField(String hierarchy) {
+    return SqlField.of(getHierarchyNumChildrenFieldName(hierarchy));
   }
 
   public ColumnSchema getHierarchyNumChildrenColumnSchema(String hierarchy) {
     return new ColumnSchema(
         getHierarchyNumChildrenFieldName(hierarchy),
-        ColumnTemplate.HIERARCHY_NUMCHILDREN.getSqlDataType());
+        ColumnTemplate.HIERARCHY_NUMCHILDREN.getDataType());
   }
 
   private String getHierarchyNumChildrenFieldName(String hierarchy) {
@@ -163,18 +151,15 @@ public final class ITEntityMain extends IndexTable {
         ColumnTemplate.HIERARCHY_NUMCHILDREN.getColumnNamePrefixed(hierarchy));
   }
 
-  public FieldPointer getEntityGroupCountField(String entityGroup, @Nullable String hierarchy) {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(getEntityGroupCountFieldName(entityGroup, hierarchy))
-        .build();
+  public SqlField getEntityGroupCountField(String entityGroup, @Nullable String hierarchy) {
+    return SqlField.of(getEntityGroupCountFieldName(entityGroup, hierarchy));
   }
 
   public ColumnSchema getEntityGroupCountColumnSchema(
       String entityGroup, @Nullable String hierarchy) {
     return new ColumnSchema(
         getEntityGroupCountFieldName(entityGroup, hierarchy),
-        ColumnTemplate.RELATIONSHIP_COUNT.getSqlDataType());
+        ColumnTemplate.RELATIONSHIP_COUNT.getDataType());
   }
 
   private String getEntityGroupCountFieldName(String entityGroup, @Nullable String hierarchy) {
@@ -183,11 +168,8 @@ public final class ITEntityMain extends IndexTable {
             entityGroup + "_" + (hierarchy == null ? NO_HIERARCHY_NAME : hierarchy)));
   }
 
-  public FieldPointer getTextSearchField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(getTextSearchFieldName())
-        .build();
+  public SqlField getTextSearchField() {
+    return SqlField.of(getTextSearchFieldName());
   }
 
   private String getTextSearchFieldName() {
@@ -197,30 +179,30 @@ public final class ITEntityMain extends IndexTable {
   public ColumnSchema getTextSearchColumnSchema() {
     return new ColumnSchema(
         namer.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix()),
-        ColumnTemplate.TEXT_SEARCH.getSqlDataType());
+        ColumnTemplate.TEXT_SEARCH.getDataType());
   }
 
   public enum ColumnTemplate {
-    ATTRIBUTE_DISPLAY("DISP", CellValue.SQLDataType.STRING),
-    HIERARCHY_PATH("PATH", CellValue.SQLDataType.STRING),
-    HIERARCHY_NUMCHILDREN("NUMCH", CellValue.SQLDataType.INT64),
-    TEXT_SEARCH("TXT", CellValue.SQLDataType.STRING),
-    RELATIONSHIP_COUNT("RCNT", CellValue.SQLDataType.INT64);
+    ATTRIBUTE_DISPLAY("DISP", DataType.STRING),
+    HIERARCHY_PATH("PATH", DataType.STRING),
+    HIERARCHY_NUMCHILDREN("NUMCH", DataType.INT64),
+    TEXT_SEARCH("TXT", DataType.STRING),
+    RELATIONSHIP_COUNT("RCNT", DataType.INT64);
 
     private final String columnPrefix;
-    private final CellValue.SQLDataType sqlDataType;
+    private final DataType dataType;
 
-    ColumnTemplate(String columnPrefix, CellValue.SQLDataType sqlDataType) {
+    ColumnTemplate(String columnPrefix, DataType dataType) {
       this.columnPrefix = columnPrefix;
-      this.sqlDataType = sqlDataType;
+      this.dataType = dataType;
     }
 
     public String getColumnPrefix() {
       return columnPrefix;
     }
 
-    public CellValue.SQLDataType getSqlDataType() {
-      return sqlDataType;
+    public DataType getDataType() {
+      return dataType;
     }
 
     public String getColumnNamePrefixed(String baseColumnName) {

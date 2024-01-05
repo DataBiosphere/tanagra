@@ -71,6 +71,13 @@ public class CriteriaOccurrence extends EntityGroup {
     return ImmutableSet.copyOf(relationships);
   }
 
+  @Override
+  public boolean hasRollupCountField(String entity, String countedEntity) {
+    // There are rollup counts on the criteria entity, counting the number of related primary
+    // entities.
+    return criteriaEntity.getName().equals(entity) && primaryEntity.getName().equals(countedEntity);
+  }
+
   public Entity getCriteriaEntity() {
     return criteriaEntity;
   }

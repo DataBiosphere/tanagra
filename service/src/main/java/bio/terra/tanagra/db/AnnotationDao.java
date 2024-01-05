@@ -4,8 +4,9 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class AnnotationDao {
               .id(rs.getString("id"))
               .displayName(rs.getString("display_name"))
               .description(rs.getString("description"))
-              .dataType(Literal.DataType.valueOf(rs.getString("data_type")));
+              .dataType(DataType.valueOf(rs.getString("data_type")));
 
   // SQL query and row mapper for reading an annotation key enum value.
   private static final String ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL =
@@ -60,13 +61,13 @@ public class AnnotationDao {
               .annotationKeyId(rs.getString("annotation_key_id"))
               .instanceId(rs.getString("primary_entity_instance_id"))
               .literal(
-                  new Literal.Builder()
-                      .booleanVal(rs.getBoolean("bool_val"))
-                      .int64Val(rs.getLong("int64_val"))
-                      .stringVal(rs.getString("string_val"))
-                      .dateVal(rs.getDate("date_val"))
-                      .dataType(Literal.DataType.valueOf(rs.getString("data_type")))
-                      .build());
+                  Literal.forGeneric(
+                      DataType.valueOf(rs.getString("data_type")),
+                      rs.getString("string_val"),
+                      rs.getLong("int64_val"),
+                      rs.getBoolean("bool_val"),
+                      rs.getDate("date_val"),
+                      null));
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 

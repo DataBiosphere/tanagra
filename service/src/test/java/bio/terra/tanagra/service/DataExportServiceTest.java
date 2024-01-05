@@ -14,10 +14,11 @@ import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -105,7 +106,7 @@ public class DataExportServiceTest {
             AnnotationKey.builder()
                 .displayName("annotation key 1")
                 .description("first annotation key")
-                .dataType(Literal.DataType.INT64));
+                .dataType(DataType.INT64));
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotation key {}", annotationKey1.getId());
 
@@ -121,8 +122,8 @@ public class DataExportServiceTest {
                 underlay,
                 primaryEntity,
                 primaryEntity.getAttribute("gender"),
-                BinaryFilterVariable.BinaryOperator.EQUALS,
-                new Literal(8532)));
+                BinaryOperator.EQUALS,
+                Literal.forInt64(8_532L)));
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
 
@@ -145,7 +146,7 @@ public class DataExportServiceTest {
             .get(primaryEntity.getIdAttribute())
             .getValue()
             .getInt64Val();
-    Literal intVal = new Literal(16L);
+    Literal intVal = Literal.forInt64(16L);
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
@@ -248,8 +249,8 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", fileContents);
     String fileContentsFirstLine = fileContents.split(System.lineSeparator())[0];
     assertEquals(
-        fileContentsFirstLine,
-        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
+        "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        fileContentsFirstLine);
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
     // Validate the annotations file.
@@ -325,8 +326,8 @@ public class DataExportServiceTest {
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
     String fileContentsFirstLine = entityInstancesFileContents.split(System.lineSeparator())[0];
     assertEquals(
-        fileContentsFirstLine,
-        "T_DISP_ethnicity,T_DISP_gender,T_DISP_race,age,ethnicity,gender,id,person_source_value,race,year_of_birth");
+        "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        fileContentsFirstLine);
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
   }
 
@@ -368,7 +369,8 @@ public class DataExportServiceTest {
         primaryEntity.getAttributes().stream()
             .map(attribute -> new AttributeField(underlay, primaryEntity, attribute, false, false))
             .collect(Collectors.toList());
-    return new ListQueryRequest(underlay, primaryEntity, selectFields, null, null, 5, null, null);
+    return new ListQueryRequest(
+        underlay, primaryEntity, selectFields, null, null, 5, null, null, false);
   }
 
   private EntityFilter buildPrimaryEntityFilter() {
@@ -378,7 +380,7 @@ public class DataExportServiceTest {
         underlay,
         primaryEntity,
         primaryEntity.getAttribute("year_of_birth"),
-        BinaryFilterVariable.BinaryOperator.EQUALS,
-        new Literal(11L));
+        BinaryOperator.EQUALS,
+        Literal.forInt64(11L));
   }
 }

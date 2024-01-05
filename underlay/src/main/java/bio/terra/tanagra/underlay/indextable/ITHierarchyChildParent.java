@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -43,23 +43,17 @@ public final class ITHierarchyChildParent extends IndexTable {
             .collect(Collectors.toList()));
   }
 
-  public FieldPointer getChildField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.CHILD.getSchema().getColumnName())
-        .build();
+  public SqlField getChildField() {
+    return SqlField.of(Column.CHILD.getSchema().getColumnName());
   }
 
-  public FieldPointer getParentField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.PARENT.getSchema().getColumnName())
-        .build();
+  public SqlField getParentField() {
+    return SqlField.of(Column.PARENT.getSchema().getColumnName());
   }
 
   public enum Column {
-    CHILD(new ColumnSchema("child", CellValue.SQLDataType.INT64)),
-    PARENT(new ColumnSchema("parent", CellValue.SQLDataType.INT64));
+    CHILD(new ColumnSchema("child", DataType.INT64)),
+    PARENT(new ColumnSchema("parent", DataType.INT64));
 
     private final ColumnSchema schema;
 

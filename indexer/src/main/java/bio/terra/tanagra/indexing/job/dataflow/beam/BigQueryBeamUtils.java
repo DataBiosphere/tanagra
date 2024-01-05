@@ -1,15 +1,13 @@
 package bio.terra.tanagra.indexing.job.dataflow.beam;
 
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
-import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.common.collect.ImmutableMap;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -78,24 +76,12 @@ public final class BigQueryBeamUtils {
     return StringSubstitutor.replace(template, params);
   }
 
-  public static List<Field> getBigQueryFieldList(List<ColumnSchema> columns) {
-    return sortedStream(columns)
-        .map(
-            c -> {
-              LegacySQLTypeName columnDataType = fromSqlDataType(c.getSqlDataType());
-              return Field.newBuilder(c.getColumnName(), columnDataType)
-                  .setMode(c.isRequired() ? Field.Mode.REQUIRED : Field.Mode.NULLABLE)
-                  .build();
-            })
-        .collect(Collectors.toList());
-  }
-
   public static TableSchema getBigQueryTableSchema(List<ColumnSchema> columns) {
     List<TableFieldSchema> fieldSchemas =
         sortedStream(columns)
             .map(
                 c -> {
-                  LegacySQLTypeName columnDataType = fromSqlDataType(c.getSqlDataType());
+                  LegacySQLTypeName columnDataType = fromDataType(c.getDataType());
                   return new TableFieldSchema()
                       .setName(c.getColumnName())
                       .setType(columnDataType.name())
@@ -105,7 +91,7 @@ public final class BigQueryBeamUtils {
     return new TableSchema().setFields(fieldSchemas);
   }
 
-  public static LegacySQLTypeName fromSqlDataType(CellValue.SQLDataType sqlDataType) {
+  public static LegacySQLTypeName fromDataType(DataType sqlDataType) {
     switch (sqlDataType) {
       case STRING:
         return LegacySQLTypeName.STRING;
@@ -115,23 +101,16 @@ public final class BigQueryBeamUtils {
         return LegacySQLTypeName.BOOLEAN;
       case DATE:
         return LegacySQLTypeName.DATE;
-      case FLOAT:
+      case DOUBLE:
         return LegacySQLTypeName.FLOAT;
       case TIMESTAMP:
         return LegacySQLTypeName.TIMESTAMP;
       default:
-        throw new SystemException("SQL data type not supported for BigQuery: " + sqlDataType);
+        throw new SystemException("Data type not supported for BigQuery: " + sqlDataType);
     }
   }
 
   private static Stream<ColumnSchema> sortedStream(List<ColumnSchema> columns) {
     return columns.stream().sorted(Comparator.comparing(c -> c.getColumnName()));
-  }
-  /** Apache Beam returns DATE/TIMESTAMP columns as string. Convert to LocalDate. */
-  public static LocalDate toLocalDate(String date) {
-    // For DATE column, date looks like "2017-09-13".
-    // For TIMESTAMP column, date looks like "1947-02-06 00:00:00 UTC".
-    // Convert latter to former, since LocalDate doesn't know how to parse latter.
-    return LocalDate.parse(date.substring(0, 10));
   }
 }

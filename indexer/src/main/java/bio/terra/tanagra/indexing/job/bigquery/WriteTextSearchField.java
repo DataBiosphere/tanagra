@@ -1,22 +1,17 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.UnionQuery;
-import bio.terra.tanagra.query.UpdateFromSelect;
+import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STTextSearchTerms;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,117 +48,105 @@ public class WriteTextSearchField extends BigQueryJob {
   public JobStatus checkStatus() {
     return outputTableHasAtLeastOneRow()
             && outputTableHasAtLeastOneRowWithNotNullField(
-                indexTable.getTextSearchField(), indexTable.getTextSearchColumnSchema())
+                indexTable.getTablePointer(), indexTable.getTextSearchField())
         ? JobStatus.COMPLETE
         : JobStatus.NOT_STARTED;
   }
 
   @Override
   public void run(boolean isDryRun) {
-    List<Query> idTextQueries = new ArrayList<>();
+    List<String> idTextSqls = new ArrayList<>();
     final String idAlias = "idVal";
     final String textAlias = "textVal";
 
     // Build a query for each id-attribute pair.
-    TableVariable entityMainTableVar = TableVariable.forPrimary(indexTable.getTablePointer());
-    List<TableVariable> attributeTableVars = Lists.newArrayList(entityMainTableVar);
-    FieldVariable entityMainIdFieldVar =
-        indexTable
-            .getAttributeValueField(entity.getIdAttribute().getName())
-            .buildVariable(entityMainTableVar, attributeTableVars, idAlias);
+    // SELECT id AS idVal, attrDisp AS textVal FROM entityMain
+    SqlField entityTableIdField =
+        indexTable.getAttributeValueField(entity.getIdAttribute().getName());
     entity.getOptimizeTextSearchAttributes().stream()
         .forEach(
             attribute -> {
-              FieldPointer attributeTextField;
+              SqlField attributeTextField;
               if (attribute.isValueDisplay()) {
                 attributeTextField = indexTable.getAttributeDisplayField(attribute.getName());
-              } else if (!attribute.getDataType().equals(Literal.DataType.STRING)) {
+              } else if (!attribute.getDataType().equals(DataType.STRING)) {
                 attributeTextField =
                     indexTable
                         .getAttributeValueField(attribute.getName())
-                        .toBuilder()
-                        .sqlFunctionWrapper("CAST(${fieldSql} AS STRING)")
-                        .build();
+                        .cloneWithFunctionWrapper("CAST(${fieldSql} AS STRING)");
               } else {
                 attributeTextField = indexTable.getAttributeValueField(attribute.getName());
               }
 
-              FieldVariable attributeTextFieldVar =
-                  attributeTextField.buildVariable(
-                      entityMainTableVar, attributeTableVars, textAlias);
-              idTextQueries.add(
-                  new Query.Builder()
-                      .select(List.of(entityMainIdFieldVar, attributeTextFieldVar))
-                      .tables(attributeTableVars)
-                      .build());
+              String idTextSql =
+                  "SELECT "
+                      + SqlQueryField.of(entityTableIdField, idAlias).renderForSelect()
+                      + ", "
+                      + SqlQueryField.of(attributeTextField, textAlias).renderForSelect()
+                      + " FROM "
+                      + indexTable.getTablePointer().render();
+              idTextSqls.add(idTextSql);
             });
 
     // Build a query for the id-text pairs.
+    // SELECT id AS idVal, text AS textVal FROM textSearchTerms
     if (sourceTable != null) {
-      TableVariable searchTermsTableVar = TableVariable.forPrimary(sourceTable.getTablePointer());
-      List<TableVariable> searchTermsTableVars = Lists.newArrayList(searchTermsTableVar);
-      FieldVariable idFieldVar =
-          sourceTable
-              .getIdField()
-              .buildVariable(searchTermsTableVar, searchTermsTableVars, idAlias);
-      FieldVariable textFieldVar =
-          sourceTable
-              .getTextField()
-              .buildVariable(searchTermsTableVar, searchTermsTableVars, textAlias);
-      idTextQueries.add(
-          new Query.Builder()
-              .select(List.of(idFieldVar, textFieldVar))
-              .tables(searchTermsTableVars)
-              .build());
+      String idTextSql =
+          "SELECT "
+              + SqlQueryField.of(sourceTable.getIdField(), idAlias).renderForSelect()
+              + ", "
+              + SqlQueryField.of(sourceTable.getTextField(), textAlias).renderForSelect()
+              + " FROM "
+              + sourceTable.getTablePointer().render();
+      idTextSqls.add(idTextSql);
     }
 
     // Build a string concatenation query for all the id-attribute and id-text queries.
-    TablePointer unionQueryTable = new TablePointer(new UnionQuery(idTextQueries).renderSQL());
-    FieldPointer unionTableIdField =
-        new FieldPointer.Builder().tablePointer(unionQueryTable).columnName(idAlias).build();
-    FieldPointer aggregateTextField =
-        new FieldPointer.Builder()
-            .tablePointer(unionQueryTable)
-            .columnName(textAlias)
-            .sqlFunctionWrapper("STRING_AGG")
-            .build();
-
-    TableVariable unionQueryTableVar = TableVariable.forPrimary(unionQueryTable);
-    FieldVariable unionTableIdFieldVar =
-        new FieldVariable(unionTableIdField, unionQueryTableVar, idAlias);
-    FieldVariable aggregateTextFieldFieldVar =
-        new FieldVariable(aggregateTextField, unionQueryTableVar, textAlias);
-    Query idTextPairsQuery =
-        new Query.Builder()
-            .select(List.of(unionTableIdFieldVar, aggregateTextFieldFieldVar))
-            .tables(List.of(unionQueryTableVar))
-            .groupBy(List.of(unionTableIdFieldVar))
-            .build();
-    LOGGER.info("idTextPairs union query: {}", idTextPairsQuery.renderSQL());
+    // SELECT idVal, STRING_AGG(textVal) FROM (
+    //   SELECT id AS idVal, attrDisp AS textVal FROM entityMain
+    //   UNION ALL
+    //   SELECT id AS idVal, text AS textVal FROM textSearchTerms
+    // ) GROUP BY idVal
+    String unionAllSql = idTextSqls.stream().collect(Collectors.joining(" UNION ALL "));
+    BQTable unionAllTable = new BQTable(unionAllSql);
+    SqlField tempTableIdField = SqlField.of(idAlias);
+    SqlField tempTableTextField = SqlField.of(textAlias, "STRING_AGG");
+    String selectTextConcatSql =
+        "SELECT "
+            + SqlQueryField.of(tempTableIdField).renderForSelect()
+            + ", "
+            + SqlQueryField.of(tempTableTextField, textAlias).renderForSelect()
+            + " FROM "
+            + unionAllTable.render()
+            + " GROUP BY "
+            + SqlQueryField.of(tempTableIdField).renderForGroupBy(null, true);
+    LOGGER.info("idTextPairs union query: {}", selectTextConcatSql);
 
     // Build an update-from-select query for the index entity main table and the id text pairs
     // query.
-    TableVariable updateTable = TableVariable.forPrimary(indexTable.getTablePointer());
-    List<TableVariable> updateTableVars = Lists.newArrayList(updateTable);
-    FieldVariable updateTableTextFieldVar =
-        indexTable.getTextSearchField().buildVariable(updateTable, updateTableVars);
-    Map<FieldVariable, FieldVariable> updateFields =
-        Map.of(updateTableTextFieldVar, aggregateTextFieldFieldVar);
-    FieldVariable updateTableIdFieldVar =
-        indexTable
-            .getAttributeValueField(entity.getIdAttribute().getName())
-            .buildVariable(updateTable, updateTableVars);
-    UpdateFromSelect updateQuery =
-        new UpdateFromSelect(
-            updateTable,
-            updateFields,
-            idTextPairsQuery,
-            updateTableIdFieldVar,
-            unionTableIdFieldVar);
-    LOGGER.info("update-from-select query: {}", updateQuery.renderSQL());
+    String updateTableAlias = "updatetable";
+    String tempTableAlias = "temptable";
+    String updateFromSelectSql =
+        "UPDATE "
+            + indexTable.getTablePointer().render()
+            + " AS "
+            + updateTableAlias
+            + " SET "
+            + SqlQueryField.of(indexTable.getTextSearchField()).renderForSelect(updateTableAlias)
+            + " = "
+            + SqlQueryField.of(SqlField.of(textAlias)).renderForSelect(tempTableAlias)
+            + " FROM ("
+            + selectTextConcatSql
+            + ") AS "
+            + tempTableAlias
+            + " WHERE "
+            + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
+            + " = "
+            + SqlQueryField.of(tempTableIdField).renderForSelect(tempTableAlias);
+    LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the text search field in the index entity main table.
-    bigQueryExecutor.getBigQueryService().runInsertUpdateQuery(updateQuery.renderSQL(), isDryRun);
+    googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
   }
 
   @Override

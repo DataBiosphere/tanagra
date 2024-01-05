@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -54,27 +54,21 @@ public final class ITRelationshipIdPairs extends IndexTable {
             .collect(Collectors.toList()));
   }
 
-  public FieldPointer getEntityAIdField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.ENTITY_A_ID.getSchema().getColumnName())
-        .build();
+  public SqlField getEntityAIdField() {
+    return SqlField.of(Column.ENTITY_A_ID.getSchema().getColumnName());
   }
 
-  public FieldPointer getEntityBIdField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(Column.ENTITY_B_ID.getSchema().getColumnName())
-        .build();
+  public SqlField getEntityBIdField() {
+    return SqlField.of(Column.ENTITY_B_ID.getSchema().getColumnName());
   }
 
-  public FieldPointer getEntityIdField(String entity) {
+  public SqlField getEntityIdField(String entity) {
     return entity.equals(entityA) ? getEntityAIdField() : getEntityBIdField();
   }
 
   public enum Column {
-    ENTITY_A_ID(new ColumnSchema("entity_A_id", CellValue.SQLDataType.INT64)),
-    ENTITY_B_ID(new ColumnSchema("entity_B_id", CellValue.SQLDataType.INT64));
+    ENTITY_A_ID(new ColumnSchema("entity_A_id", DataType.INT64)),
+    ENTITY_B_ID(new ColumnSchema("entity_B_id", DataType.INT64));
 
     private final ColumnSchema schema;
 

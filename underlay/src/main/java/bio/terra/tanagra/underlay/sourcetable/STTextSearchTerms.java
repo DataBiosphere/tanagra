@@ -1,9 +1,9 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 
@@ -12,13 +12,11 @@ public class STTextSearchTerms extends SourceTable {
   private final ColumnSchema idColumnSchema;
   private final ColumnSchema textColumnSchema;
 
-  public STTextSearchTerms(
-      TablePointer tablePointer, String entity, SZEntity.TextSearch szTextSearch) {
-    super(tablePointer);
+  public STTextSearchTerms(BQTable bqTable, String entity, SZEntity.TextSearch szTextSearch) {
+    super(bqTable);
     this.entity = entity;
-    this.idColumnSchema = new ColumnSchema(szTextSearch.idFieldName, CellValue.SQLDataType.INT64);
-    this.textColumnSchema =
-        new ColumnSchema(szTextSearch.textFieldName, CellValue.SQLDataType.STRING);
+    this.idColumnSchema = new ColumnSchema(szTextSearch.idFieldName, DataType.INT64);
+    this.textColumnSchema = new ColumnSchema(szTextSearch.textFieldName, DataType.STRING);
   }
 
   @Override
@@ -30,17 +28,11 @@ public class STTextSearchTerms extends SourceTable {
     return entity;
   }
 
-  public FieldPointer getIdField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(idColumnSchema.getColumnName())
-        .build();
+  public SqlField getIdField() {
+    return SqlField.of(idColumnSchema.getColumnName());
   }
 
-  public FieldPointer getTextField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(textColumnSchema.getColumnName())
-        .build();
+  public SqlField getTextField() {
+    return SqlField.of(textColumnSchema.getColumnName());
   }
 }

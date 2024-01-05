@@ -1,9 +1,8 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
@@ -19,9 +18,8 @@ public class STEntityAttributes extends SourceTable {
   private final ImmutableMap<String, ColumnSchema> attributeValueColumnSchemas;
   private final ImmutableMap<String, ColumnSchema> attributeDisplayColumnSchemas;
 
-  public STEntityAttributes(
-      TablePointer tablePointer, String entity, List<SZEntity.Attribute> szAttributes) {
-    super(tablePointer);
+  public STEntityAttributes(BQTable bqTable, String entity, List<SZEntity.Attribute> szAttributes) {
+    super(bqTable);
     this.entity = entity;
 
     Map<String, ColumnSchema> attributeValueColumnSchemasBuilder = new HashMap<>();
@@ -35,12 +33,11 @@ public class STEntityAttributes extends SourceTable {
                       szAttribute.valueFieldName == null
                           ? szAttribute.name
                           : szAttribute.valueFieldName,
-                      CellValue.SQLDataType.fromUnderlayDataType(
-                          ConfigReader.deserializeDataType(szAttribute.dataType))));
+                      ConfigReader.deserializeDataType(szAttribute.dataType)));
               if (szAttribute.displayFieldName != null) {
                 attributeDisplayColumnSchemasBuilder.put(
                     szAttribute.name,
-                    new ColumnSchema(szAttribute.displayFieldName, CellValue.SQLDataType.STRING));
+                    new ColumnSchema(szAttribute.displayFieldName, DataType.STRING));
               }
             });
     this.attributeValueColumnSchemas = ImmutableMap.copyOf(attributeValueColumnSchemasBuilder);
@@ -57,20 +54,6 @@ public class STEntityAttributes extends SourceTable {
 
   public String getEntity() {
     return entity;
-  }
-
-  public FieldPointer getValueField(String attribute) {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(attributeValueColumnSchemas.get(attribute).getColumnName())
-        .build();
-  }
-
-  public FieldPointer getDisplayField(String attribute) {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(attributeDisplayColumnSchemas.get(attribute).getColumnName())
-        .build();
   }
 
   public ImmutableMap<String, ColumnSchema> getAttributeValueColumnSchemas() {

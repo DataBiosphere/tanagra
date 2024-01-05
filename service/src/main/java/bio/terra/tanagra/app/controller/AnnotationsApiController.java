@@ -8,6 +8,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.ANNOTATION_KE
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
 
+import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.generated.controller.AnnotationsApi;
@@ -17,7 +18,6 @@ import bio.terra.tanagra.generated.model.ApiAnnotationList;
 import bio.terra.tanagra.generated.model.ApiAnnotationUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiDataType;
 import bio.terra.tanagra.generated.model.ApiLiteral;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -57,7 +57,7 @@ public class AnnotationsApiController implements AnnotationsApi {
             AnnotationKey.builder()
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .dataType(Literal.DataType.valueOf(body.getDataType().name()))
+                .dataType(DataType.valueOf(body.getDataType().name()))
                 .enumVals(body.getEnumVals()));
     return ResponseEntity.ok(toApiObject(createdAnnotationKey));
   }

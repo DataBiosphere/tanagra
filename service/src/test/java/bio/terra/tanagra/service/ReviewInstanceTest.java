@@ -7,16 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.query.ValueDisplay;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -102,72 +98,46 @@ public class ReviewInstanceTest {
     // r2: 1858841, 2180409, 1131436, 1838382
     // r3: 1858841, 2180409, 1838382
     // r4: 1858841, 1838382, 799353, 2104705
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult queryResult =
-        new QueryResult(
-            List.of(2_014_950L, 1_858_841L, 2_180_409L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review1 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(11),
             userEmail,
-            queryResult,
+            List.of(2_014_950L, 1_858_841L, 2_180_409L),
             1_500_000L);
     assertNotNull(review1);
     LOGGER.info("Created review1 {} at {}", review1.getId(), review1.getCreated());
 
-    queryResult =
-        new QueryResult(
-            List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review2 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(14),
             userEmail,
-            queryResult,
+            List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L),
             1_500_000L);
     assertNotNull(review2);
     LOGGER.info("Created review2 {} at {}", review2.getId(), review2.getCreated());
 
-    queryResult =
-        new QueryResult(
-            List.of(1_858_841L, 2_180_409L, 1_838_382L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review3 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(3),
             userEmail,
-            queryResult,
+            List.of(1_858_841L, 2_180_409L, 1_838_382L),
             1_500_000L);
     assertNotNull(review3);
     LOGGER.info("Created review3 {} at {}", review3.getId(), review3.getCreated());
 
-    queryResult =
-        new QueryResult(
-            List.of(1_858_841L, 1_838_382L, 799_353L, 2_104_705L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     review4 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(4),
             userEmail,
-            queryResult,
+            List.of(1_858_841L, 1_838_382L, 799_353L, 2_104_705L),
             1_500_000L);
     assertNotNull(review4);
     LOGGER.info("Created review4 {} at {}", review4.getId(), review4.getCreated());
@@ -177,7 +147,7 @@ public class ReviewInstanceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.INT64).displayName("key1"));
+            AnnotationKey.builder().dataType(DataType.INT64).displayName("key1"));
     assertNotNull(annotationKey1);
     LOGGER.info("Created annotationKey1 {}", annotationKey1.getId());
 
@@ -186,7 +156,7 @@ public class ReviewInstanceTest {
         annotationService.createAnnotationKey(
             study1.getId(),
             cohort1.getId(),
-            AnnotationKey.builder().dataType(Literal.DataType.STRING).displayName("key2"));
+            AnnotationKey.builder().dataType(DataType.STRING).displayName("key2"));
     assertNotNull(annotationKey2);
     LOGGER.info("Created annotationKey2 {}", annotationKey2.getId());
 
@@ -204,126 +174,126 @@ public class ReviewInstanceTest {
         annotationKey1.getId(),
         review1.getId(),
         "2014950",
-        List.of(new Literal(111L)));
+        List.of(Literal.forInt64(111L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review1.getId(),
         "1858841",
-        List.of(new Literal(112L)));
+        List.of(Literal.forInt64(112L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review2.getId(),
         "1858841",
-        List.of(new Literal(113L)));
+        List.of(Literal.forInt64(113L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review3.getId(),
         "1858841",
-        List.of(new Literal(114L)));
+        List.of(Literal.forInt64(114L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review4.getId(),
         "1858841",
-        List.of(new Literal(115L)));
+        List.of(Literal.forInt64(115L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review1.getId(),
         "1858841",
-        List.of(new Literal("str116")));
+        List.of(Literal.forString("str116")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review2.getId(),
         "1858841",
-        List.of(new Literal("str117")));
+        List.of(Literal.forString("str117")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review3.getId(),
         "1858841",
-        List.of(new Literal("str118")));
+        List.of(Literal.forString("str118")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review2.getId(),
         "2180409",
-        List.of(new Literal(119L)));
+        List.of(Literal.forInt64(119L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review3.getId(),
         "2180409",
-        List.of(new Literal(120L)));
+        List.of(Literal.forInt64(120L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review1.getId(),
         "2180409",
-        List.of(new Literal("str121")));
+        List.of(Literal.forString("str121")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review3.getId(),
         "2180409",
-        List.of(new Literal("str122")));
+        List.of(Literal.forString("str122")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review2.getId(),
         "1131436",
-        List.of(new Literal(123L)));
+        List.of(Literal.forInt64(123L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review2.getId(),
         "1838382",
-        List.of(new Literal("str124")));
+        List.of(Literal.forString("str124")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review3.getId(),
         "1838382",
-        List.of(new Literal("str125")));
+        List.of(Literal.forString("str125")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review4.getId(),
         "1838382",
-        List.of(new Literal("str126")));
+        List.of(Literal.forString("str126")));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey1.getId(),
         review4.getId(),
         "2104705",
-        List.of(new Literal(115L)));
+        List.of(Literal.forInt64(115L)));
     annotationService.updateAnnotationValues(
         study1.getId(),
         cohort1.getId(),
         annotationKey2.getId(),
         review4.getId(),
         "2104705",
-        List.of(new Literal("str128")));
+        List.of(Literal.forString("str128")));
   }
 
   @AfterEach
@@ -389,7 +359,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(111L))
+                .literal(Literal.forInt64(111L))
                 .cohortRevisionVersion(0)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("2014950")
@@ -402,7 +372,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(112L))
+                .literal(Literal.forInt64(112L))
                 .cohortRevisionVersion(0)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1858841")
@@ -410,7 +380,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal(115L))
+                .literal(Literal.forInt64(115L))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1858841")
@@ -418,7 +388,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(false)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str116"))
+                .literal(Literal.forString("str116"))
                 .cohortRevisionVersion(0)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1858841")
@@ -426,7 +396,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str118"))
+                .literal(Literal.forString("str118"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1858841")
@@ -439,7 +409,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(120L))
+                .literal(Literal.forInt64(120L))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("2180409")
@@ -447,7 +417,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(false)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str121"))
+                .literal(Literal.forString("str121"))
                 .cohortRevisionVersion(0)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("2180409")
@@ -455,7 +425,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str122"))
+                .literal(Literal.forString("str122"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("2180409")
@@ -482,7 +452,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(113L))
+                .literal(Literal.forInt64(113L))
                 .cohortRevisionVersion(1)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1858841")
@@ -490,7 +460,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal(115L))
+                .literal(Literal.forInt64(115L))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1858841")
@@ -498,7 +468,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(false)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str117"))
+                .literal(Literal.forString("str117"))
                 .cohortRevisionVersion(1)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1858841")
@@ -506,7 +476,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str118"))
+                .literal(Literal.forString("str118"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1858841")
@@ -519,7 +489,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(119L))
+                .literal(Literal.forInt64(119L))
                 .cohortRevisionVersion(1)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("2180409")
@@ -527,7 +497,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal(120L))
+                .literal(Literal.forInt64(120L))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("2180409")
@@ -535,7 +505,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(false)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str122"))
+                .literal(Literal.forString("str122"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("2180409")
@@ -548,7 +518,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(123L))
+                .literal(Literal.forInt64(123L))
                 .cohortRevisionVersion(1)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1131436")
@@ -561,7 +531,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal("str124"))
+                .literal(Literal.forString("str124"))
                 .cohortRevisionVersion(1)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1838382")
@@ -569,7 +539,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str126"))
+                .literal(Literal.forString("str126"))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1838382")
@@ -594,7 +564,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(114L))
+                .literal(Literal.forInt64(114L))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1858841")
@@ -602,7 +572,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal(115L))
+                .literal(Literal.forInt64(115L))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1858841")
@@ -610,7 +580,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(false)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str118"))
+                .literal(Literal.forString("str118"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1858841")
@@ -623,7 +593,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(120L))
+                .literal(Literal.forInt64(120L))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("2180409")
@@ -631,7 +601,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str122"))
+                .literal(Literal.forString("str122"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("2180409")
@@ -644,7 +614,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal("str125"))
+                .literal(Literal.forString("str125"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1838382")
@@ -652,7 +622,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str126"))
+                .literal(Literal.forString("str126"))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1838382")
@@ -679,7 +649,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(115L))
+                .literal(Literal.forInt64(115L))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("1858841")
@@ -687,7 +657,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str118"))
+                .literal(Literal.forString("str118"))
                 .cohortRevisionVersion(2)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1858841")
@@ -700,7 +670,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal("str126"))
+                .literal(Literal.forString("str126"))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("1838382")
@@ -715,7 +685,7 @@ public class ReviewInstanceTest {
     checkAnnotationValues(
         List.of(
             AnnotationValue.builder()
-                .literal(new Literal(115L))
+                .literal(Literal.forInt64(115L))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey1.getId())
                 .instanceId("2104705")
@@ -723,7 +693,7 @@ public class ReviewInstanceTest {
                 .isPartOfSelectedReview(true)
                 .build(),
             AnnotationValue.builder()
-                .literal(new Literal("str128"))
+                .literal(Literal.forString("str128"))
                 .cohortRevisionVersion(3)
                 .annotationKeyId(annotationKey2.getId())
                 .instanceId("2104705")
@@ -889,8 +859,8 @@ public class ReviewInstanceTest {
                             underlay,
                             primaryEntity,
                             primaryEntity.getAttribute("gender"),
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
-                            new Literal(8_532L)))
+                            BinaryOperator.EQUALS,
+                            Literal.forInt64(8_532L)))
                     .build())
             .getReviewInstances();
     assertEquals(
@@ -914,9 +884,7 @@ public class ReviewInstanceTest {
                 ReviewQueryRequest.builder()
                     .annotationFilter(
                         new AnnotationFilter(
-                            annotationKey2,
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
-                            new Literal("str128")))
+                            annotationKey2, BinaryOperator.EQUALS, Literal.forString("str128")))
                     .build())
             .getReviewInstances();
     assertEquals(
@@ -943,13 +911,11 @@ public class ReviewInstanceTest {
                             underlay,
                             primaryEntity,
                             primaryEntity.getAttribute("gender"),
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
-                            new Literal(8_507L)))
+                            BinaryOperator.EQUALS,
+                            Literal.forInt64(8_507L)))
                     .annotationFilter(
                         new AnnotationFilter(
-                            annotationKey1,
-                            BinaryFilterVariable.BinaryOperator.EQUALS,
-                            new Literal(115L)))
+                            annotationKey1, BinaryOperator.EQUALS, Literal.forInt64(115L)))
                     .build())
             .getReviewInstances();
     assertEquals(
@@ -974,7 +940,7 @@ public class ReviewInstanceTest {
                       ri.getAttributeValues()
                           .get(idAttribute)
                           .getValue()
-                          .equals(new Literal(instanceId)))
+                          .equals(Literal.forInt64(instanceId)))
               .findFirst()
               .isPresent());
     }

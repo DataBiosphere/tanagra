@@ -4,13 +4,10 @@ import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.CountUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.FieldVariable;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.TablePointer;
-import bio.terra.tanagra.query.TableVariable;
-import bio.terra.tanagra.query.UpdateFromSelect;
+import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.query.sql.SqlQueryField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -24,9 +21,7 @@ import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import com.google.cloud.bigquery.Table;
-import com.google.common.collect.Lists;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -130,9 +125,8 @@ public class WriteRollupCounts extends BigQueryJob {
   public JobStatus checkStatus() {
     return getOutputTable().isPresent()
             && outputTableHasAtLeastOneRowWithNotNullField(
+                indexTable.getTablePointer(),
                 indexTable.getEntityGroupCountField(
-                    entityGroup.getName(), hierarchy == null ? null : hierarchy.getName()),
-                indexTable.getEntityGroupCountColumnSchema(
                     entityGroup.getName(), hierarchy == null ? null : hierarchy.getName()))
         ? JobStatus.COMPLETE
         : JobStatus.NOT_STARTED;
@@ -142,12 +136,10 @@ public class WriteRollupCounts extends BigQueryJob {
   public void run(boolean isDryRun) {
     // Only run the Dataflow job if the temp table hasn't been written yet.
     Optional<Table> tempTable =
-        bigQueryExecutor
-            .getBigQueryService()
-            .getTable(
-                indexerConfig.bigQuery.indexData.projectId,
-                indexerConfig.bigQuery.indexData.datasetId,
-                getTempTableName());
+        googleBigQuery.getTable(
+            indexerConfig.bigQuery.indexData.projectId,
+            indexerConfig.bigQuery.indexData.datasetId,
+            getTempTableName());
     if (tempTable.isEmpty()) {
       writeFieldsToTempTable(isDryRun);
     } else {
@@ -162,21 +154,17 @@ public class WriteRollupCounts extends BigQueryJob {
   @Override
   public void clean(boolean isDryRun) {
     Optional<Table> tempTable =
-        bigQueryExecutor
-            .getBigQueryService()
-            .getTable(
-                indexerConfig.bigQuery.indexData.projectId,
-                indexerConfig.bigQuery.indexData.datasetId,
-                getTempTableName());
+        googleBigQuery.getTable(
+            indexerConfig.bigQuery.indexData.projectId,
+            indexerConfig.bigQuery.indexData.datasetId,
+            getTempTableName());
     if (tempTable.isPresent()) {
       LOGGER.info("Deleting temp table: {}", tempTable.get().getFriendlyName());
       if (!isDryRun) {
-        bigQueryExecutor
-            .getBigQueryService()
-            .deleteTable(
-                indexerConfig.bigQuery.indexData.projectId,
-                indexerConfig.bigQuery.indexData.datasetId,
-                getTempTableName());
+        googleBigQuery.deleteTable(
+            indexerConfig.bigQuery.indexData.projectId,
+            indexerConfig.bigQuery.indexData.datasetId,
+            getTempTableName());
       }
       LOGGER.info(
           "Temp table deleted. CreateEntityTable will delete the output table, which includes all the rows updated by this job.");
@@ -205,88 +193,74 @@ public class WriteRollupCounts extends BigQueryJob {
 
     // Build a query to select all ids from the index entity main table, and the pipeline step to
     // read the results.
-    TableVariable indexEntityMainTable = TableVariable.forPrimary(indexTable.getTablePointer());
-    List<TableVariable> indexEntityMainTableVars = Lists.newArrayList(indexEntityMainTable);
-    FieldVariable indexEntityMainIdFieldVar =
-        indexTable
-            .getAttributeValueField(entity.getIdAttribute().getName())
-            .buildVariable(indexEntityMainTable, indexEntityMainTableVars);
-    Query allIdsQuery =
-        new Query.Builder()
-            .select(List.of(indexEntityMainIdFieldVar))
-            .tables(indexEntityMainTableVars)
-            .build();
-    LOGGER.info("index all ids query: {}", allIdsQuery.renderSQL());
+    String allIdsSql =
+        "SELECT "
+            + SqlQueryField.of(indexTable.getAttributeValueField(entity.getIdAttribute().getName()))
+                .renderForSelect()
+            + " FROM "
+            + indexTable.getTablePointer().render();
+    LOGGER.info("index all ids query: {}", allIdsSql);
     PCollection<Long> allNodesPC =
         BigQueryBeamUtils.readNodesFromBQ(
-            pipeline, allIdsQuery.renderSQL(), entity.getIdAttribute().getName(), "allNodes");
+            pipeline, allIdsSql, entity.getIdAttribute().getName(), "allNodes");
 
     // Build a query to select all entity-countedEntity id pairs from the index table, and the
     // pipeline step to read the results.
     final String entityIdColumnName = "entityId";
     final String countedEntityIdColumnName = "countedEntityId";
-    Query idPairsQuery;
+    String idPairsSql;
     if (relationship.isForeignKeyAttribute(entity)) {
-      FieldVariable entityIdFieldVar =
-          indexTable
-              .getAttributeValueField(entity.getIdAttribute().getName())
-              .buildVariable(indexEntityMainTable, indexEntityMainTableVars, entityIdColumnName);
-      FieldVariable countedEntityIdFieldVar =
-          indexTable
-              .getAttributeValueField(relationship.getForeignKeyAttribute(entity).getName())
-              .buildVariable(
-                  indexEntityMainTable, indexEntityMainTableVars, countedEntityIdColumnName);
-      idPairsQuery =
-          new Query.Builder()
-              .select(List.of(entityIdFieldVar, countedEntityIdFieldVar))
-              .tables(indexEntityMainTableVars)
-              .build();
+      SqlField entityIdField = indexTable.getAttributeValueField(entity.getIdAttribute().getName());
+      SqlField countedEntityIdField =
+          indexTable.getAttributeValueField(relationship.getForeignKeyAttribute(entity).getName());
+      idPairsSql =
+          "SELECT "
+              + SqlQueryField.of(entityIdField, entityIdColumnName).renderForSelect()
+              + ", "
+              + SqlQueryField.of(countedEntityIdField, countedEntityIdColumnName).renderForSelect()
+              + " FROM "
+              + indexTable.getTablePointer().render();
     } else if (relationship.isForeignKeyAttribute(countedEntity)) {
-      TableVariable countedEntityMainTable =
-          TableVariable.forPrimary(countedEntityIndexTable.getTablePointer());
-      List<TableVariable> countedEntityMainTableVars = Lists.newArrayList(countedEntityMainTable);
-      FieldVariable entityIdFieldVar =
-          countedEntityIndexTable
-              .getAttributeValueField(relationship.getForeignKeyAttribute(countedEntity).getName())
-              .buildVariable(indexEntityMainTable, indexEntityMainTableVars, entityIdColumnName);
-      FieldVariable countedEntityIdFieldVar =
-          countedEntityIndexTable
-              .getAttributeValueField(countedEntity.getIdAttribute().getName())
-              .buildVariable(
-                  countedEntityMainTable, countedEntityMainTableVars, countedEntityIdColumnName);
-      idPairsQuery =
-          new Query.Builder()
-              .select(List.of(entityIdFieldVar, countedEntityIdFieldVar))
-              .tables(countedEntityMainTableVars)
-              .build();
+      SqlField entityIdField =
+          countedEntityIndexTable.getAttributeValueField(
+              relationship.getForeignKeyAttribute(countedEntity).getName());
+      SqlField countedEntityIdField =
+          countedEntityIndexTable.getAttributeValueField(countedEntity.getIdAttribute().getName());
+      idPairsSql =
+          "SELECT "
+              + SqlQueryField.of(entityIdField, entityIdColumnName).renderForSelect()
+              + ", "
+              + SqlQueryField.of(countedEntityIdField, countedEntityIdColumnName).renderForSelect()
+              + " FROM "
+              + countedEntityIndexTable.getTablePointer().render();
     } else { // relationship.isIntermediateTable()
-      idPairsQuery =
-          relationshipIdPairsIndexTable.getQueryAll(
-              Map.of(
-                  ITRelationshipIdPairs.Column.ENTITY_A_ID.getSchema(),
-                      relationship.getEntityA().equals(entity)
-                          ? entityIdColumnName
-                          : countedEntityIdColumnName,
-                  ITRelationshipIdPairs.Column.ENTITY_B_ID.getSchema(),
-                      relationship.getEntityB().equals(entity)
-                          ? entityIdColumnName
-                          : countedEntityIdColumnName));
+      SqlField entityIdField = relationshipIdPairsIndexTable.getEntityIdField(entity.getName());
+      SqlField countedEntityIdField =
+          relationshipIdPairsIndexTable.getEntityIdField(countedEntity.getName());
+      idPairsSql =
+          "SELECT "
+              + SqlQueryField.of(entityIdField, entityIdColumnName).renderForSelect()
+              + ", "
+              + SqlQueryField.of(countedEntityIdField, countedEntityIdColumnName).renderForSelect()
+              + " FROM "
+              + relationshipIdPairsIndexTable.getTablePointer().render();
     }
-    LOGGER.info("index entity-countedEntity id pairs query: {}", idPairsQuery.renderSQL());
+    LOGGER.info("index entity-countedEntity id pairs query: {}", idPairsSql);
     PCollection<KV<Long, Long>> idPairsPC =
         BigQueryBeamUtils.readTwoFieldRowsFromBQ(
-            pipeline, idPairsQuery.renderSQL(), entityIdColumnName, countedEntityIdColumnName);
+            pipeline, idPairsSql, entityIdColumnName, countedEntityIdColumnName);
 
     // Optionally handle a hierarchy for the rollup entity.
     if (hierarchy != null) {
       // Build a query to select all ancestor-descendant pairs from the ancestor-descendant table,
       // and the pipeline step to read the results.
-      Query ancestorDescendantQuery = ancestorDescendantTable.getQueryAll(Map.of());
-      LOGGER.info("ancestor-descendant query: {}", ancestorDescendantQuery.renderSQL());
+      String ancestorDescendantSql =
+          "SELECT * FROM " + ancestorDescendantTable.getTablePointer().render();
+      LOGGER.info("ancestor-descendant query: {}", ancestorDescendantSql);
       PCollection<KV<Long, Long>> ancestorDescendantRelationshipsPC =
           BigQueryBeamUtils.readTwoFieldRowsFromBQ(
               pipeline,
-              ancestorDescendantQuery.renderSQL(),
+              ancestorDescendantSql,
               ITHierarchyAncestorDescendant.Column.DESCENDANT.getSchema().getColumnName(),
               ITHierarchyAncestorDescendant.Column.ANCESTOR.getSchema().getColumnName());
 
@@ -303,8 +277,8 @@ public class WriteRollupCounts extends BigQueryJob {
     ColumnSchema countColumnSchema =
         indexTable.getEntityGroupCountColumnSchema(
             entityGroup.getName(), hierarchy == null ? null : hierarchy.getName());
-    TablePointer tempTablePointer =
-        new TablePointer(
+    BQTable tempBQTable =
+        new BQTable(
             indexerConfig.bigQuery.indexData.projectId,
             indexerConfig.bigQuery.indexData.datasetId,
             getTempTableName());
@@ -313,7 +287,7 @@ public class WriteRollupCounts extends BigQueryJob {
         countColumnSchema,
         indexerConfig.bigQuery.indexData.projectId,
         indexerConfig.bigQuery.indexData.datasetId,
-        tempTablePointer,
+        tempBQTable,
         nodeCountKVsPC);
 
     // Kick off the pipeline.
@@ -328,7 +302,7 @@ public class WriteRollupCounts extends BigQueryJob {
       ColumnSchema countColumnSchema,
       String indexProjectId,
       String indexDatasetId,
-      TablePointer tempTablePointer,
+      BQTable tempBQTable,
       PCollection<KV<Long, Long>> nodeCountKVs) {
     // Build the schema for the temp table.
     List<TableFieldSchema> tempTableFieldSchemas =
@@ -337,8 +311,7 @@ public class WriteRollupCounts extends BigQueryJob {
                 columnSchema ->
                     new TableFieldSchema()
                         .setName(columnSchema.getColumnName())
-                        .setType(
-                            BigQueryBeamUtils.fromSqlDataType(columnSchema.getSqlDataType()).name())
+                        .setType(BigQueryBeamUtils.fromDataType(columnSchema.getDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
             .collect(Collectors.toList());
     TableSchema outputTableSchema = new TableSchema().setFields(tempTableFieldSchemas);
@@ -363,7 +336,7 @@ public class WriteRollupCounts extends BigQueryJob {
         BigQueryIO.writeTableRows()
             .to(
                 BigQueryBeamUtils.getTableSqlPath(
-                    indexProjectId, indexDatasetId, tempTablePointer.getTableName()))
+                    indexProjectId, indexDatasetId, tempBQTable.getTableName()))
             .withSchema(outputTableSchema)
             .withCreateDisposition(BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED)
             .withWriteDisposition(BigQueryIO.Write.WriteDisposition.WRITE_EMPTY)
@@ -372,118 +345,56 @@ public class WriteRollupCounts extends BigQueryJob {
 
   private void copyFieldsToEntityTable(boolean isDryRun) {
     // Build a query for the id-count pairs in the temp table.
-    TablePointer tempTablePointer =
-        new TablePointer(
+    SqlField entityTableIdField =
+        indexTable.getAttributeValueField(entity.getIdAttribute().getName());
+    SqlField entityTableCountField =
+        indexTable.getEntityGroupCountField(
+            entityGroup.getName(), hierarchy == null ? null : hierarchy.getName());
+
+    BQTable tempBQTable =
+        new BQTable(
             indexerConfig.bigQuery.indexData.projectId,
             indexerConfig.bigQuery.indexData.datasetId,
             getTempTableName());
-    TableVariable tempTableVar = TableVariable.forPrimary(tempTablePointer);
-    List<TableVariable> tempTableVars = Lists.newArrayList(tempTableVar);
-    ColumnSchema idColumnSchema = indexTable.getAttributeValueColumnSchema(entity.getIdAttribute());
-    ColumnSchema columnColumnSchema =
-        indexTable.getEntityGroupCountColumnSchema(
-            entityGroup.getName(), hierarchy == null ? null : hierarchy.getName());
-    FieldVariable tempTableIdFieldVar =
-        new FieldPointer.Builder()
-            .tablePointer(tempTablePointer)
-            .columnName(idColumnSchema.getColumnName())
-            .build()
-            .buildVariable(tempTableVar, tempTableVars);
-    FieldVariable tempTableCountFieldVar =
-        new FieldPointer.Builder()
-            .tablePointer(tempTablePointer)
-            .columnName(columnColumnSchema.getColumnName())
-            .build()
-            .buildVariable(tempTableVar, tempTableVars);
-    Query tempTableQuery =
-        new Query.Builder()
-            .select(List.of(tempTableIdFieldVar, tempTableCountFieldVar))
-            .tables(tempTableVars)
-            .build();
-    LOGGER.info("temp table query: {}", tempTableQuery.renderSQL());
+    SqlField tempTableIdField = SqlField.of(entityTableIdField.getColumnName());
+    SqlField tempTableCountField = SqlField.of(entityTableCountField.getColumnName());
+    String tempTableSql =
+        "SELECT "
+            + SqlQueryField.of(tempTableIdField).renderForSelect()
+            + ", "
+            + SqlQueryField.of(tempTableCountField).renderForSelect()
+            + " FROM "
+            + tempBQTable.render();
+    LOGGER.info("temp table query: {}", tempTableSql);
 
     // Build an update-from-select query for the index entity main table and the
     // id-count query.
-    TableVariable updateTable = TableVariable.forPrimary(indexTable.getTablePointer());
-    List<TableVariable> updateTableVars = Lists.newArrayList(updateTable);
-    FieldVariable updateTableCountFieldVar =
-        indexTable
-            .getEntityGroupCountField(
-                entityGroup.getName(), hierarchy == null ? null : hierarchy.getName())
-            .buildVariable(updateTable, updateTableVars);
-    Map<FieldVariable, FieldVariable> updateFields =
-        Map.of(updateTableCountFieldVar, tempTableCountFieldVar);
-    FieldVariable updateTableIdFieldVar =
-        indexTable
-            .getAttributeValueField(entity.getIdAttribute().getName())
-            .buildVariable(updateTable, updateTableVars);
-    UpdateFromSelect updateQuery =
-        new UpdateFromSelect(
-            updateTable, updateFields, tempTableQuery, updateTableIdFieldVar, tempTableIdFieldVar);
-    LOGGER.info("update-from-select query: {}", updateQuery.renderSQL());
+    String updateTableAlias = "updatetable";
+    String tempTableAlias = "temptable";
+    String updateFromSelectSql =
+        "UPDATE "
+            + indexTable.getTablePointer().render()
+            + " AS "
+            + updateTableAlias
+            + " SET "
+            + SqlQueryField.of(entityTableCountField).renderForSelect(updateTableAlias)
+            + " = "
+            + SqlQueryField.of(tempTableCountField).renderForSelect(tempTableAlias)
+            + " FROM (SELECT "
+            + SqlQueryField.of(tempTableCountField).renderForSelect()
+            + ", "
+            + SqlQueryField.of(tempTableIdField).renderForSelect()
+            + " FROM "
+            + tempBQTable.render()
+            + ") AS "
+            + tempTableAlias
+            + " WHERE "
+            + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
+            + " = "
+            + SqlQueryField.of(tempTableIdField).renderForSelect(tempTableAlias);
+    LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the count field in the index entity main table.
-    bigQueryExecutor.getBigQueryService().runInsertUpdateQuery(updateQuery.renderSQL(), isDryRun);
-    //    // Build a query for the id-rollup_count-rollup_displayHints tuples that we want to
-    // select.
-    //    Query idCountDisplayHintsTuples = queryIdRollupTuples(getTempTable());
-    //    LOGGER.info(
-    //        "select all id-count-displayHints tuples SQL: {}",
-    // idCountDisplayHintsTuples.renderSQL());
-    //
-    //    // Build a map of (output) update field name -> (input) selected FieldVariable.
-    //    // This map only contains two items, because we're only updating the count and
-    // display_hints
-    //    // fields.
-    //    RelationshipMapping indexMapping = relationship.getMapping(Underlay.MappingType.INDEX);
-    //    Map<String, FieldVariable> updateFields = new HashMap<>();
-    //
-    //    String updateCountFieldName =
-    //        indexMapping.getRollupInfo(getRollupEntity(), hierarchy).getCount().getColumnName();
-    //    FieldVariable selectCountField =
-    //        idCountDisplayHintsTuples.getSelect().stream()
-    //            .filter(fv -> fv.getAliasOrColumnName().equals(ROLLUP_COUNT_COLUMN_NAME))
-    //            .findFirst()
-    //            .get();
-    //    updateFields.put(updateCountFieldName, selectCountField);
-    //
-    //    String updateDisplayHintsFieldName =
-    //        indexMapping.getRollupInfo(getRollupEntity(),
-    // hierarchy).getDisplayHints().getColumnName();
-    //    FieldVariable selectDisplayHintsField =
-    //        idCountDisplayHintsTuples.getSelect().stream()
-    //            .filter(fv -> fv.getAliasOrColumnName().equals(ROLLUP_DISPLAY_HINTS_COLUMN_NAME))
-    //            .findFirst()
-    //            .get();
-    //    updateFields.put(updateDisplayHintsFieldName, selectDisplayHintsField);
-    //
-    //    // Check that the count and display_hints fields are not in a different table from the
-    // entity
-    //    // table.
-    //    if (indexMapping.getRollupInfo(getRollupEntity(), hierarchy).getCount().isForeignKey()
-    //        || !indexMapping
-    //            .getRollupInfo(getRollupEntity(), hierarchy)
-    //            .getCount()
-    //            .getTablePointer()
-    //            .equals(getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
-    //      throw new SystemException(
-    //          "Indexing rollup count information only supports an index mapping to a column in the
-    // entity table");
-    //    }
-    //    if (indexMapping.getRollupInfo(getRollupEntity(),
-    // hierarchy).getDisplayHints().isForeignKey()
-    //        || !indexMapping
-    //            .getRollupInfo(getRollupEntity(), hierarchy)
-    //            .getDisplayHints()
-    //            .getTablePointer()
-    //            .equals(getEntity().getMapping(Underlay.MappingType.INDEX).getTablePointer())) {
-    //      throw new SystemException(
-    //          "Indexing rollup display hints information only supports an index mapping to a
-    // column in
-    // the entity table");
-    //    }
-    //
-    //    updateEntityTableFromSelect(idCountDisplayHintsTuples, updateFields, ID_COLUMN_NAME,
-    // isDryRun);
+    googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
   }
 }

@@ -1,17 +1,13 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.InsertFromSelect;
-import bio.terra.tanagra.query.Query;
-import bio.terra.tanagra.query.TableVariable;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +41,7 @@ public class WriteEntityAttributes extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    Map<ColumnSchema, String> selectColumnAliases = new HashMap<>();
+    List<String> selectColumns = new ArrayList<>();
     List<String> insertColumns = new ArrayList<>();
     sourceTable.getAttributeValueColumnSchemas().entrySet().stream()
         .forEach(
@@ -57,7 +53,7 @@ public class WriteEntityAttributes extends BigQueryJob {
                   "attribute value {}, column name {}",
                   attributeName,
                   attributeValueColumnSchema.getColumnName());
-              selectColumnAliases.put(attributeValueColumnSchema, null);
+              selectColumns.add(attributeValueColumnSchema.getColumnName());
               insertColumns.add(indexColumn);
             });
     sourceTable.getAttributeDisplayColumnSchemas().entrySet().stream()
@@ -71,20 +67,24 @@ public class WriteEntityAttributes extends BigQueryJob {
                   "attribute display {}, column name {}",
                   attributeName,
                   attributeDisplayColumnSchema.getColumnName());
-              selectColumnAliases.put(attributeDisplayColumnSchema, null);
+              selectColumns.add(attributeDisplayColumnSchema.getColumnName());
               insertColumns.add(indexColumn);
             });
-    Query selectAttributesFromSourceTable = sourceTable.getQueryAll(selectColumnAliases);
-    LOGGER.info("Generated select SQL: {}", selectAttributesFromSourceTable.renderSQL());
 
-    // Build the outer insert query into the index table.
-    TableVariable outputTableVar = TableVariable.forPrimary(indexTable.getTablePointer());
-    InsertFromSelect insertQuery =
-        new InsertFromSelect(outputTableVar, insertColumns, selectAttributesFromSourceTable);
-    LOGGER.info("Generated insert SQL: {}", insertQuery.renderSQL());
+    // Build the query to insert to the index table using a select from the source table.
+    String insertFromSelectSql =
+        "INSERT INTO "
+            + indexTable.getTablePointer().render()
+            + " ("
+            + insertColumns.stream().collect(Collectors.joining(", "))
+            + ") SELECT "
+            + selectColumns.stream().collect(Collectors.joining(", "))
+            + " FROM "
+            + sourceTable.getTablePointer().render();
+    LOGGER.info("Generated insert SQL: {}", insertFromSelectSql);
 
     if (getOutputTable().isPresent()) {
-      bigQueryExecutor.getBigQueryService().runInsertUpdateQuery(insertQuery.renderSQL(), isDryRun);
+      googleBigQuery.runInsertUpdateQuery(insertFromSelectSql, isDryRun);
     }
   }
 

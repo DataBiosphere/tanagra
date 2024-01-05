@@ -2,8 +2,8 @@ package bio.terra.tanagra.api.query.list;
 
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.query.OrderByDirection;
-import bio.terra.tanagra.query.PageMarker;
+import bio.terra.tanagra.api.query.PageMarker;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +21,7 @@ public class ListQueryRequest {
   private final @Nullable Integer limit;
   private final @Nullable PageMarker pageMarker;
   private final Integer pageSize;
+  private final boolean isDryRun;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   public ListQueryRequest(
@@ -31,7 +32,8 @@ public class ListQueryRequest {
       @Nullable List<OrderBy> orderBys,
       @Nullable Integer limit,
       @Nullable PageMarker pageMarker,
-      @Nullable Integer pageSize) {
+      @Nullable Integer pageSize,
+      boolean isDryRun) {
     this.underlay = underlay;
     this.entity = entity;
     this.selectFields =
@@ -41,6 +43,7 @@ public class ListQueryRequest {
     this.limit = limit;
     this.pageMarker = pageMarker;
     this.pageSize = (pageMarker == null && pageSize == null) ? DEFAULT_PAGE_SIZE : pageSize;
+    this.isDryRun = isDryRun;
   }
 
   public Underlay getUnderlay() {
@@ -75,13 +78,35 @@ public class ListQueryRequest {
     return pageSize;
   }
 
+  public boolean isDryRun() {
+    return isDryRun;
+  }
+
+  public ListQueryRequest cloneAndSetDryRun() {
+    return new ListQueryRequest(
+        underlay, entity, selectFields, filter, orderBys, limit, pageMarker, pageSize, true);
+  }
+
   public static class OrderBy {
-    private final ValueDisplayField valueDisplayField;
-    private final OrderByDirection direction;
+    private final @Nullable ValueDisplayField valueDisplayField;
+    private final @Nullable OrderByDirection direction;
+    private final boolean isRandom;
 
     public OrderBy(ValueDisplayField valueDisplayField, OrderByDirection direction) {
+      this(valueDisplayField, direction, false);
+    }
+
+    public static OrderBy random() {
+      return new OrderBy(null, null, true);
+    }
+
+    private OrderBy(
+        @Nullable ValueDisplayField valueDisplayField,
+        @Nullable OrderByDirection direction,
+        boolean isRandom) {
       this.valueDisplayField = valueDisplayField;
       this.direction = direction;
+      this.isRandom = isRandom;
     }
 
     public ValueDisplayField getEntityField() {
@@ -90,6 +115,10 @@ public class ListQueryRequest {
 
     public OrderByDirection getDirection() {
       return direction;
+    }
+
+    public boolean isRandom() {
+      return isRandom;
     }
   }
 }

@@ -2,8 +2,9 @@ package bio.terra.tanagra.app.controller.objmapping;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.query.ValueDisplay;
 import bio.terra.tanagra.api.query.count.CountInstance;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAnnotationValue;
 import bio.terra.tanagra.generated.model.ApiAttribute;
@@ -21,7 +22,6 @@ import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
 import bio.terra.tanagra.generated.model.ApiStudy;
 import bio.terra.tanagra.generated.model.ApiUnderlaySummary;
 import bio.terra.tanagra.generated.model.ApiValueDisplay;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -55,6 +55,11 @@ public final class ToApiUtils {
   }
 
   public static ApiLiteral toApiObject(Literal literal) {
+    // TODO: Return a null value of the appropriate type once literals store type for nulls.
+    if (literal.isNull()) {
+      return new ApiLiteral().dataType(ApiDataType.STRING).valueUnion(new ApiLiteralValueUnion());
+    }
+
     ApiLiteral apiLiteral =
         new ApiLiteral().dataType(ApiDataType.fromValue(literal.getDataType().name()));
     switch (literal.getDataType()) {
@@ -66,14 +71,19 @@ public final class ToApiUtils {
         return apiLiteral.valueUnion(new ApiLiteralValueUnion().boolVal(literal.getBooleanVal()));
       case DATE:
         return apiLiteral.valueUnion(
-            new ApiLiteralValueUnion().dateVal(literal.getDateValAsString()));
+            new ApiLiteralValueUnion()
+                .dateVal(literal.getDateVal() == null ? null : literal.getDateVal().toString()));
       case TIMESTAMP:
         return apiLiteral.valueUnion(
-            new ApiLiteralValueUnion().timestampVal(literal.getTimestampValAsString()));
+            new ApiLiteralValueUnion()
+                .timestampVal(
+                    literal.getTimestampVal() == null
+                        ? null
+                        : literal.getTimestampVal().toString()));
       case DOUBLE:
         return apiLiteral.valueUnion(new ApiLiteralValueUnion().doubleVal(literal.getDoubleVal()));
       default:
-        throw new SystemException("Unknown literal data type: " + literal.getDataType());
+        throw new SystemException("Unknown data type: " + literal.getDataType());
     }
   }
 

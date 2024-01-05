@@ -1,9 +1,8 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
 
@@ -12,13 +11,11 @@ public class STHierarchyRootFilter extends SourceTable {
   private final String hierarchy;
   private final ColumnSchema idColumnSchema;
 
-  public STHierarchyRootFilter(
-      TablePointer tablePointer, String entity, SZEntity.Hierarchy szHierarchy) {
-    super(tablePointer);
+  public STHierarchyRootFilter(BQTable bqTable, String entity, SZEntity.Hierarchy szHierarchy) {
+    super(bqTable);
     this.entity = entity;
     this.hierarchy = szHierarchy.name;
-    this.idColumnSchema =
-        new ColumnSchema(szHierarchy.rootIdFieldName, CellValue.SQLDataType.INT64);
+    this.idColumnSchema = new ColumnSchema(szHierarchy.rootIdFieldName, DataType.INT64);
   }
 
   @Override
@@ -32,13 +29,6 @@ public class STHierarchyRootFilter extends SourceTable {
 
   public String getHierarchy() {
     return hierarchy;
-  }
-
-  public FieldPointer getIdField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(idColumnSchema.getColumnName())
-        .build();
   }
 
   public ColumnSchema getIdColumnSchema() {

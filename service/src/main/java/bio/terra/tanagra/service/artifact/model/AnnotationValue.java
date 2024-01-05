@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.artifact.model;
 
-import bio.terra.tanagra.query.Literal;
+import bio.terra.tanagra.api.shared.Literal;
 import java.util.Objects;
 
 public class AnnotationValue {

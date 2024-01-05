@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.artifact;
 
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.AnnotationDao;
-import bio.terra.tanagra.query.Literal;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;

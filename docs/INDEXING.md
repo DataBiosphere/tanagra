@@ -112,7 +112,7 @@ Exit codes:
 Do a dry run first for validation. This provides a sanity check that the indexing jobs inputs, especially the SQL
 query inputs, are valid. This step is not required, but highly recommended to help catch errors/bugs sooner and without
 running a bunch of computation first. Dry run includes validating that the attribute data types specified match those
-returned by running the SQL query. The second argument is the name of an indexer config file.
+returned by running the SQL query.
 ```
 tanagra index underlay --indexer-config=cmssynpuf_verily --dry-run
 ```
@@ -131,8 +131,8 @@ are any in-progress Dataflow jobs) to tell if they need to run.
 You can also kick off the jobs for a single entity or entity group. This is helpful for testing and debugging.
 To kick off all the jobs for a single entity:
 ```
-tanagra index entity --name=person --indexer-config=cmssynpuf_verily --dry-run
-tanagra index entity --name=person --indexer-config=cmssynpuf_verily
+tanagra index entity --names=person --indexer-config=cmssynpuf_verily --dry-run
+tanagra index entity --names=person --indexer-config=cmssynpuf_verily
 ```
 all entities:
 ```
@@ -141,8 +141,8 @@ tanagra index entity --all --indexer-config=cmssynpuf_verily
 ```
 a single entity group:
 ```
-tanagra index group --name=conditionPerson --indexer-config=cmssynpuf_verily --dry-run
-tanagra index group --name=conditionPerson --indexer-config=cmssynpuf_verily
+tanagra index group --names=conditionPerson --indexer-config=cmssynpuf_verily --dry-run
+tanagra index group --names=conditionPerson --indexer-config=cmssynpuf_verily
 ```
 all entity groups:
 ```
@@ -174,13 +174,13 @@ tanagra clean underlay --indexer-config=cmssynpuf_verily
 ```
 a single entity:
 ```
-tanagra clean entity --name=person --indexer-config=cmssynpuf_verily --dry-run
-tanagra clean entity --name=person --indexer-config=cmssynpuf_verily
+tanagra clean entity --names=person --indexer-config=cmssynpuf_verily --dry-run
+tanagra clean entity --names=person --indexer-config=cmssynpuf_verily
 ```
 a single entity group:
 ```
-tanagra clean group --name=conditionPerson --indexer-config=cmssynpuf_verily --dry-run
-tanagra clean group --name=conditionPerson --indexer-config=cmssynpuf_verily
+tanagra clean group --names=conditionPerson --indexer-config=cmssynpuf_verily --dry-run
+tanagra clean group --names=conditionPerson --indexer-config=cmssynpuf_verily
 ```
 
 ### Run Dataflow Locally

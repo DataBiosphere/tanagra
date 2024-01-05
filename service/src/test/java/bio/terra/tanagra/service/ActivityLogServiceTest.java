@@ -10,15 +10,10 @@ import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnHeaderSchema;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.Literal;
-import bio.terra.tanagra.query.QueryResult;
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.inmemory.InMemoryRowResult;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -37,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -153,21 +147,13 @@ public class ActivityLogServiceTest {
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // CREATE_REVIEW
-    ColumnHeaderSchema columnHeaderSchema =
-        new ColumnHeaderSchema(List.of(new ColumnSchema("id", CellValue.SQLDataType.INT64)));
-    QueryResult queryResult =
-        new QueryResult(
-            List.of(123L, 456L, 789L).stream()
-                .map(id -> new InMemoryRowResult(List.of(id), columnHeaderSchema))
-                .collect(Collectors.toList()),
-            columnHeaderSchema);
     Review review1 =
         reviewService.createReviewHelper(
             study1.getId(),
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
             USER_EMAIL_2,
-            queryResult,
+            List.of(123L, 456L, 789L),
             4_500_000L);
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
@@ -212,14 +198,15 @@ public class ActivityLogServiceTest {
                 selectFields.add(
                     new AttributeField(underlay, primaryEntity, attribute, false, false)));
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(underlay, primaryEntity, selectFields, null, null, 5, null, null);
+        new ListQueryRequest(
+            underlay, primaryEntity, selectFields, null, null, 5, null, null, false);
     EntityFilter primaryEntityFilter =
         new AttributeFilter(
             underlay,
             primaryEntity,
             primaryEntity.getAttribute("year_of_birth"),
-            BinaryFilterVariable.BinaryOperator.GREATER_THAN_OR_EQUAL,
-            new Literal(1980L));
+            BinaryOperator.GREATER_THAN_OR_EQUAL,
+            Literal.forInt64(1980L));
     String exportModel = "IPYNB_FILE_DOWNLOAD";
     ExportRequest.Builder exportRequest = ExportRequest.builder().model(exportModel);
     ExportResult exportResult =

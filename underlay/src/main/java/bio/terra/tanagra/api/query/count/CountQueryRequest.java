@@ -2,8 +2,8 @@ package bio.terra.tanagra.api.query.count;
 
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.query.PageMarker;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
@@ -21,7 +21,9 @@ public class CountQueryRequest {
   private final PageMarker pageMarker;
   private final Integer pageSize;
   private final @Nullable HintQueryResult entityLevelHints;
+  private final boolean isDryRun;
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   public CountQueryRequest(
       Underlay underlay,
       Entity entity,
@@ -29,7 +31,8 @@ public class CountQueryRequest {
       EntityFilter filter,
       PageMarker pageMarker,
       Integer pageSize,
-      @Nullable HintQueryResult entityLevelHints) {
+      @Nullable HintQueryResult entityLevelHints,
+      boolean isDryRun) {
     this.underlay = underlay;
     this.entity = entity;
     this.groupByFields = ImmutableList.copyOf(groupByFields);
@@ -37,6 +40,7 @@ public class CountQueryRequest {
     this.pageMarker = pageMarker;
     this.pageSize = (pageMarker == null && pageSize == null) ? DEFAULT_PAGE_SIZE : pageSize;
     this.entityLevelHints = entityLevelHints;
+    this.isDryRun = isDryRun;
   }
 
   public Underlay getUnderlay() {
@@ -65,5 +69,9 @@ public class CountQueryRequest {
 
   public @Nullable HintQueryResult getEntityLevelHints() {
     return entityLevelHints;
+  }
+
+  public boolean isDryRun() {
+    return isDryRun;
   }
 }

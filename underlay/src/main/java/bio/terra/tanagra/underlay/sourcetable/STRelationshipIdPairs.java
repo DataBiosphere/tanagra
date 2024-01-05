@@ -1,9 +1,9 @@
 package bio.terra.tanagra.underlay.sourcetable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
-import bio.terra.tanagra.query.FieldPointer;
-import bio.terra.tanagra.query.TablePointer;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.query.sql.SqlField;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.common.collect.ImmutableList;
 
 public class STRelationshipIdPairs extends SourceTable {
@@ -14,18 +14,18 @@ public class STRelationshipIdPairs extends SourceTable {
   private final ColumnSchema entityBIdColumnSchema;
 
   public STRelationshipIdPairs(
-      TablePointer tablePointer,
+      BQTable bqTable,
       String entityGroup,
       String entityA,
       String entityB,
       String entityAIdFieldName,
       String entityBIdFieldName) {
-    super(tablePointer);
+    super(bqTable);
     this.entityGroup = entityGroup;
     this.entityA = entityA;
     this.entityB = entityB;
-    this.entityAIdColumnSchema = new ColumnSchema(entityAIdFieldName, CellValue.SQLDataType.INT64);
-    this.entityBIdColumnSchema = new ColumnSchema(entityBIdFieldName, CellValue.SQLDataType.INT64);
+    this.entityAIdColumnSchema = new ColumnSchema(entityAIdFieldName, DataType.INT64);
+    this.entityBIdColumnSchema = new ColumnSchema(entityBIdFieldName, DataType.INT64);
   }
 
   @Override
@@ -45,25 +45,11 @@ public class STRelationshipIdPairs extends SourceTable {
     return entityB;
   }
 
-  public FieldPointer getEntityAIdField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(entityAIdColumnSchema.getColumnName())
-        .build();
+  public SqlField getEntityAIdField() {
+    return SqlField.of(entityAIdColumnSchema.getColumnName());
   }
 
-  public ColumnSchema getEntityAIdColumnSchema() {
-    return entityAIdColumnSchema;
-  }
-
-  public FieldPointer getEntityBIdField() {
-    return new FieldPointer.Builder()
-        .tablePointer(getTablePointer())
-        .columnName(entityBIdColumnSchema.getColumnName())
-        .build();
-  }
-
-  public ColumnSchema getEntityBIdColumnSchema() {
-    return entityBIdColumnSchema;
+  public SqlField getEntityBIdField() {
+    return SqlField.of(entityBIdColumnSchema.getColumnName());
   }
 }

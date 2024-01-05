@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.indextable;
 
-import bio.terra.tanagra.query.CellValue;
-import bio.terra.tanagra.query.ColumnSchema;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
@@ -38,12 +38,12 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
   }
 
   public enum Column {
-    ATTRIBUTE_NAME(new ColumnSchema("attribute_name", CellValue.SQLDataType.STRING, true)),
-    MIN(new ColumnSchema("min", CellValue.SQLDataType.FLOAT)),
-    MAX(new ColumnSchema("max", CellValue.SQLDataType.FLOAT)),
-    ENUM_VALUE(new ColumnSchema("enum_value", CellValue.SQLDataType.INT64)),
-    ENUM_DISPLAY(new ColumnSchema("enum_display", CellValue.SQLDataType.STRING)),
-    ENUM_COUNT(new ColumnSchema("enum_count", CellValue.SQLDataType.INT64));
+    ATTRIBUTE_NAME(new ColumnSchema("attribute_name", DataType.STRING, true)),
+    MIN(new ColumnSchema("min", DataType.DOUBLE)),
+    MAX(new ColumnSchema("max", DataType.DOUBLE)),
+    ENUM_VALUE(new ColumnSchema("enum_value", DataType.INT64)),
+    ENUM_DISPLAY(new ColumnSchema("enum_display", DataType.STRING)),
+    ENUM_COUNT(new ColumnSchema("enum_count", DataType.INT64));
 
     private final ColumnSchema columnSchema;
 

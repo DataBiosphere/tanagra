@@ -1,12 +1,12 @@
 package bio.terra.tanagra.service.export;
 
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.EntityQueryRunner;
+import bio.terra.tanagra.api.query.export.ExportQueryRequest;
+import bio.terra.tanagra.api.query.export.ExportQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
-import bio.terra.tanagra.query.QueryExecutor;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -166,7 +166,10 @@ public class DataExportService {
         .collect(
             Collectors.toMap(
                 qr -> qr.getEntity().getName(),
-                qr -> EntityQueryRunner.buildQueryRequest(qr).getSql()));
+                qr -> {
+                  ListQueryRequest dryRunQueryRequest = qr.cloneAndSetDryRun();
+                  return qr.getUnderlay().getQueryRunner().run(dryRunQueryRequest).getSql();
+                }));
   }
 
   /**
@@ -183,16 +186,17 @@ public class DataExportService {
             Collectors.toMap(
                 qr -> qr.getEntity().getName(),
                 qr -> {
-                  // TODO: Make an export to GCS query part of the underlay/api, so we're not
-                  // building Query objects outside the underlay sub-project.
-                  QueryExecutor queryExecutor = qr.getUnderlay().getQueryExecutor();
                   String wildcardFilename =
                       getFileName(fileNameTemplate, "entity", qr.getEntity().getName());
-                  return queryExecutor.executeAndExportResultsToGcs(
-                      EntityQueryRunner.buildQueryRequest(qr),
-                      wildcardFilename,
-                      shared.getGcsProjectId(),
-                      shared.getGcsBucketNames());
+                  ExportQueryRequest exportQueryRequest =
+                      new ExportQueryRequest(
+                          qr,
+                          wildcardFilename,
+                          shared.getGcsProjectId(),
+                          shared.getGcsBucketNames());
+                  ExportQueryResult exportQueryResult =
+                      qr.getUnderlay().getQueryRunner().run(exportQueryRequest);
+                  return exportQueryResult.getFileName();
                 }));
   }
 

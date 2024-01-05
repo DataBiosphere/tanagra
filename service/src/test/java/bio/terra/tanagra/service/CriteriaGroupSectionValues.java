@@ -5,8 +5,8 @@ import static bio.terra.tanagra.service.CriteriaValues.ETHNICITY_EQ_JAPANESE;
 import static bio.terra.tanagra.service.CriteriaValues.GENDER_EQ_WOMAN;
 import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
 
-import bio.terra.tanagra.query.filtervariable.BinaryFilterVariable;
-import bio.terra.tanagra.query.filtervariable.BooleanAndOrFilterVariable;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public final class CriteriaGroupSectionValues {
           .displayName("group 2")
           .criteria(List.of(CONDITION_EQ_DIABETES.getValue()))
           .entity(CONDITION_EQ_DIABETES.getKey())
-          .groupByCountOperator(BinaryFilterVariable.BinaryOperator.EQUALS)
+          .groupByCountOperator(BinaryOperator.EQUALS)
           .groupByCountValue(11)
           .build();
   public static final CohortRevision.CriteriaGroup CRITERIA_GROUP_3 =
@@ -38,13 +38,13 @@ public final class CriteriaGroupSectionValues {
       CohortRevision.CriteriaGroupSection.builder()
           .displayName("section 1")
           .criteriaGroups(List.of(CRITERIA_GROUP_1, CRITERIA_GROUP_2))
-          .operator(BooleanAndOrFilterVariable.LogicalOperator.OR)
+          .operator(LogicalOperator.OR)
           .build();
   public static final CohortRevision.CriteriaGroupSection CRITERIA_GROUP_SECTION_2 =
       CohortRevision.CriteriaGroupSection.builder()
           .displayName("section 2")
           .criteriaGroups(List.of(CRITERIA_GROUP_3))
-          .operator(BooleanAndOrFilterVariable.LogicalOperator.AND)
+          .operator(LogicalOperator.AND)
           .setIsExcluded(true)
           .build();
   public static final CohortRevision.CriteriaGroupSection CRITERIA_GROUP_SECTION_3 =

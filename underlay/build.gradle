@@ -57,6 +57,7 @@ tasks.withType(Test) {
     if (project.findProperty("generateSqlFiles")) {
         systemProperty("GENERATE_SQL_FILES", "true")
     }
+    systemProperty("IS_TEST", true)
 }
 
 task noCloudAccessRequiredTests(type: Test) {
