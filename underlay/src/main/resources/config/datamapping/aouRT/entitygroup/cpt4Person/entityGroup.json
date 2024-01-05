@@ -3,10 +3,10 @@
   "criteriaEntity": "cpt4",
   "occurrenceEntities": [
     {
-      "occurrenceEntity": "observationOccurrence",
+      "occurrenceEntity": "deviceOccurrence",
       "criteriaRelationship": {
-        "idPairsSqlFile": "occurrenceCriteria_observation.sql",
-        "occurrenceEntityIdFieldName": "observation_id",
+        "idPairsSqlFile": "occurrenceCriteria_device.sql",
+        "occurrenceEntityIdFieldName": "device_exposure_id",
         "criteriaEntityIdFieldName": "cpt4_id"
       },
       "primaryRelationship": {
@@ -14,10 +14,10 @@
       }
     },
     {
-      "occurrenceEntity": "procedureOccurrence",
+      "occurrenceEntity": "ingredientOccurrence",
       "criteriaRelationship": {
-        "idPairsSqlFile": "occurrenceCriteria_procedure.sql",
-        "occurrenceEntityIdFieldName": "procedure_occurrence_id",
+        "idPairsSqlFile": "occurrenceCriteria_ingredient.sql",
+        "occurrenceEntityIdFieldName": "drug_exposure_id",
         "criteriaEntityIdFieldName": "cpt4_id"
       },
       "primaryRelationship": {
@@ -36,10 +36,21 @@
       }
     },
     {
-      "occurrenceEntity": "ingredientOccurrence",
+      "occurrenceEntity": "observationOccurrence",
       "criteriaRelationship": {
-        "idPairsSqlFile": "occurrenceCriteria_ingredient.sql",
-        "occurrenceEntityIdFieldName": "drug_exposure_id",
+        "idPairsSqlFile": "occurrenceCriteria_observation.sql",
+        "occurrenceEntityIdFieldName": "observation_id",
+        "criteriaEntityIdFieldName": "cpt4_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "procedureOccurrence",
+      "criteriaRelationship": {
+        "idPairsSqlFile": "occurrenceCriteria_procedure.sql",
+        "occurrenceEntityIdFieldName": "procedure_occurrence_id",
         "criteriaEntityIdFieldName": "cpt4_id"
       },
       "primaryRelationship": {
