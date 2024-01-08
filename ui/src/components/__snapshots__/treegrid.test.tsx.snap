@@ -22,7 +22,7 @@ exports[`Table renders correctly 1`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-ochz84"
+                  class="MuiBox-root css-1pmmyr1"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
@@ -83,7 +83,7 @@ exports[`Table renders correctly 1`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-ochz84"
+                  class="MuiBox-root css-1pmmyr1"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
@@ -144,7 +144,7 @@ exports[`Table renders correctly 1`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-22ybcc"
+                  class="MuiBox-root css-nuvgx9"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
@@ -398,7 +398,7 @@ exports[`Table renders correctly 2`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-ochz84"
+                  class="MuiBox-root css-1pmmyr1"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
@@ -468,7 +468,7 @@ exports[`Table renders correctly 2`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-ochz84"
+                  class="MuiBox-root css-1pmmyr1"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"
@@ -529,7 +529,7 @@ exports[`Table renders correctly 2`] = `
                 class="MuiBox-root css-j6zvzo"
               >
                 <div
-                  class="MuiBox-root css-22ybcc"
+                  class="MuiBox-root css-nuvgx9"
                 >
                   <div
                     class="MuiBox-root css-j6zvzo"

@@ -120,7 +120,7 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
       <TreeGrid
         columns={config.columns}
         data={sortedData}
-        sortOrders={searchState.sortOrders}
+        sortOrders={searchState.sortOrders ?? []}
         onSort={(sortOrders) => {
           context.updateSearchState(id, (state: SearchState) => {
             state.sortOrders = sortOrders;

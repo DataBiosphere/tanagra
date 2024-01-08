@@ -284,7 +284,7 @@ export function TreeGrid(props: TreeGridProps) {
                     py: 1,
                   }}
                 >
-                  <GridLayout cols spacing={0} rowAlign="middle" sx={{ px: 2 }}>
+                  <GridLayout cols spacing={1} rowAlign="middle" sx={{ px: 2 }}>
                     <GridBox
                       sx={{
                         textOverflow: "ellipsis",
