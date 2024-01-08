@@ -23,10 +23,18 @@
       ],
       "classificationEntityGroups": [
         {
-          "id": "conditionPerson"
+          "id": "conditionPerson",
+          "sortOrder": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
         },
         {
-          "id": "conditionNonHierarchyPerson"
+          "id": "conditionNonHierarchyPerson",
+          "sortOrder": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
         }
       ],
       "modifiers": [
@@ -58,10 +66,18 @@
       ],
       "classificationEntityGroups": [
         {
-          "id": "procedurePerson"
+          "id": "procedurePerson",
+          "sortOrder": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
         },
         {
-          "id": "procedureNonHierarchyPerson"
+          "id": "procedureNonHierarchyPerson",
+          "sortOrder": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
         }
      ],
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
@@ -86,6 +102,10 @@
           "id": "observationPerson"
         }
       ],
+      "defaultSort": {
+        "attribute": "t_item_count",
+        "direction": "DESC"
+      },
       "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
       "valueConfigs": [
         {
