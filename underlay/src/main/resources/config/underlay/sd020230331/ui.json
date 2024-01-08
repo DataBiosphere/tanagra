@@ -3,7 +3,7 @@
     {
       "type": "entityGroup",
       "id": "tanagra-genotyping",
-      "title": "Genotyping platform",
+      "title": "BioVU Genetic Data",
       "category": "Demographics",
       "columns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" },

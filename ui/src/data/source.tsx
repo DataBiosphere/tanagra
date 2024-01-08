@@ -625,7 +625,8 @@ export class BackendUnderlaySource implements UnderlaySource {
                 e.requestedAttributes,
                 e.entityId,
                 e.cohort,
-                e.conceptSet
+                e.conceptSet,
+                0
               ),
             })),
           },
@@ -677,7 +678,7 @@ export class BackendUnderlaySource implements UnderlaySource {
     return {
       includeAttributes: requestedAttributes,
       filter,
-      limit: limit ?? 50,
+      limit: limit === 0 ? undefined : limit ?? 50,
     };
   }
 
