@@ -363,7 +363,11 @@ function ClassificationEdit(props: ClassificationEditProps) {
   ]);
 
   const calcSortOrder = useCallback(
-    (primaryEntityGroupId?: string, loadChildren?: boolean) => {
+    (
+      primaryEntityGroupId?: string,
+      loadChildren?: boolean,
+      grouping?: boolean
+    ) => {
       let entityGroupId = primaryEntityGroupId;
 
       if (searchState.hierarchyEntityGroup || loadChildren) {
@@ -375,12 +379,16 @@ function ClassificationEdit(props: ClassificationEditProps) {
         }
       }
 
-      return (
-        allEntityGroupConfigs.find((c) => c.eg.id === entityGroupId)?.eg
-          ?.sortOrder ??
-        props.config.defaultSort ??
-        DEFAULT_SORT_ORDER
-      );
+      if (grouping || loadChildren) {
+        const egSortOrder = allEntityGroupConfigs.find(
+          (c) => c.eg.id === entityGroupId
+        )?.eg?.sortOrder;
+        if (egSortOrder) {
+          return egSortOrder;
+        }
+      }
+
+      return props.config.defaultSort ?? DEFAULT_SORT_ORDER;
     },
     [searchState.hierarchyEntityGroup, underlaySource]
   );
@@ -399,7 +407,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           await underlaySource.searchEntityGroup(
             attributes,
             c.eg.id,
-            calcSortOrder(c.eg.id),
+            calcSortOrder(c.eg.id, false, c.grouping),
             {
               query: !searchState?.hierarchy
                 ? searchState?.query ?? ""
