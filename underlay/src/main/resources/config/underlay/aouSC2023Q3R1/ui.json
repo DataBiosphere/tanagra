@@ -118,7 +118,7 @@
       "classificationEntityGroups": [
         {
           "id": "ingredientPerson",
-          "defaultSort": {
+          "sortOrder": {
             "attribute": "concept_code",
             "direction": "ASC"
           }
@@ -280,7 +280,7 @@
       "classificationEntityGroups": [
         {
           "id": "cpt4Person",
-          "defaultSort": {
+          "sortOrder": {
             "attribute": "label",
             "direction": "ASC"
           }
@@ -316,7 +316,7 @@
       "classificationEntityGroups": [
         {
           "id": "icd9cmPerson",
-          "defaultSort": {
+          "sortOrder": {
             "attribute": "label",
             "direction": "ASC"
           }
@@ -352,7 +352,7 @@
       "classificationEntityGroups": [
         {
           "id": "icd9procPerson",
-          "defaultSort": {
+          "sortOrder": {
             "attribute": "label",
             "direction": "ASC"
           }
@@ -388,7 +388,7 @@
       "classificationEntityGroups": [
         {
           "id": "icd10cmPerson",
-          "defaultSort": {
+          "sortOrder": {
             "attribute": "label",
             "direction": "ASC"
           }
@@ -424,7 +424,7 @@
       "classificationEntityGroups": [
         {
           "id": "icd10pcsPerson",
-          "defaultSort": {
+          "sortOrder": {
             "attribute": "label",
             "direction": "ASC"
           }

@@ -19,11 +19,7 @@
         {
           "id": "genotypingPerson"
         }
-      ],
-      "defaultSort": {
-        "attribute": "t_rollup_count",
-        "direction": "DESC"
-      }
+      ]
     },
     {
       "type": "attribute",
@@ -187,7 +183,7 @@
       "classificationEntityGroups": [
         {
           "id": "phewasPerson",
-          "defaultSort": {
+          "sortOrder": {
             "attribute": "numeric_code",
             "direction": "ASC"
           }
@@ -223,8 +219,8 @@
       "classificationEntityGroups": [
         {
           "id": "cpt4Person",
-          "defaultSort": {
-            "attribute": "numeric_code",
+          "sortOrder": {
+            "attribute": "code",
             "direction": "ASC"
           }
         }
@@ -258,8 +254,8 @@
       "classificationEntityGroups": [
         {
           "id": "icd9cmPerson",
-          "defaultSort": {
-            "attribute": "numeric_code",
+          "sortOrder": {
+            "attribute": "concept_code",
             "direction": "ASC"
           }
         }
@@ -293,8 +289,8 @@
       "classificationEntityGroups": [
         {
           "id": "icd9procPerson",
-          "defaultSort": {
-            "attribute": "numeric_code",
+          "sortOrder": {
+            "attribute": "concept_code",
             "direction": "ASC"
           }
         }
@@ -328,8 +324,8 @@
       "classificationEntityGroups": [
         {
           "id": "icd10cmPerson",
-          "defaultSort": {
-            "attribute": "numeric_code",
+          "sortOrder": {
+            "attribute": "concept_code",
             "direction": "ASC"
           }
         }
@@ -363,8 +359,8 @@
       "classificationEntityGroups": [
         {
           "id": "icd10pcsPerson",
-          "defaultSort": {
-            "attribute": "numeric_code",
+          "sortOrder": {
+            "attribute": "concept_code",
             "direction": "ASC"
           }
         }
