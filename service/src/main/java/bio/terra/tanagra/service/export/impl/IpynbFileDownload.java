@@ -20,7 +20,7 @@ import org.apache.commons.text.StringSubstitutor;
 
 public class IpynbFileDownload implements DataExport {
   private static final String IPYNB_TEMPLATE_RESOURCE_FILE = "export/notebook_template.ipynb";
-  public static final String IPYNB_FILE_KEY = "ipynbFile";
+  public static final String IPYNB_FILE_KEY = "Notebook File:tanagra_export.ipynb";
   private List<String> gcsBucketNames;
 
   @Override
