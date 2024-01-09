@@ -247,7 +247,7 @@ same. We typically add new features to the internal query API first, and expose 
 **`underlay` Gradle sub-project `exception` package**
 
 Shared exception classes live here. Extend a `bio.terra.common.exception` class if possible, so that if they are
-thrown during service operation, they map to a sensible HTML error code.
+thrown during service operation, they map to a sensible HTTP error code.
 
 ### API query translator
 **`underlay` Gradle sub-project `query` package**
