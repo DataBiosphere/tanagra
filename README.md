@@ -11,6 +11,7 @@ More information about this codebase can be found in the links below.
 * [Access Control](./docs/ACCESS_CONTROL.md)
 * [Data Export](./docs/DATA_EXPORT.md)
 * [VUMC Admin Service](./docs/VUMC_ADMIN_SERVICE.md)
+* [Codebase Overview](./docs/CODEBASE_OVERVIEW.md)
 * [Contribute Code](./docs/CONTRIBUTING.md)
 * [Deployment Config Properties](./docs/generated/DEPLOYMENT_CONFIG.md)
 * [Underlay Config Properties](./docs/generated/UNDERLAY_CONFIG.md)
