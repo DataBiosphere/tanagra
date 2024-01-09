@@ -196,7 +196,7 @@ share live in this package. More information in [this readme](./DATA_EXPORT.md).
 ## UI
 **`ui` top-level directory**
 
-Web UI code. More information in [this readme](../ui/README.md).
+Web UI code. More information in [this readme](./UI.md).
 
 ## Underlay config and query engine
 **`underlay` Gradle sub-project**

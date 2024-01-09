@@ -26,3 +26,12 @@ You will also see any lint errors in the console.
 
 By default, the app assumes the Tanagra service is running at
 [http://localhost:8080](http://localhost:8080).
+
+#### Integration tests
+To run the UI integration tests, first start the service and UI, then open Cypress.
+```
+[terminal 1] ./service/local-dev/run_server -a
+[terminal 2] npm start
+[terminal 3] npx cypress open
+```
+In the Cypress window, click on "Electron Testing" and then you can run the tests one at a time.
