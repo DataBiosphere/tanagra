@@ -978,6 +978,128 @@ public class BQFilterTest extends BQRunnerTest {
   }
 
   @Test
+  void relationshipFilterFKFilterWithSwapFields() throws IOException {
+    // e.g. SELECT occurrence FILTER ON (person FILTER ON occurrence).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
+
+    AttributeFilter innerOccurrenceFilter =
+        new AttributeFilter(
+            underlay,
+            occurrenceEntity,
+            occurrenceEntity.getAttribute("condition"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(223_276L));
+    RelationshipFilter personFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            underlay.getPrimaryEntity(),
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            innerOccurrenceFilter,
+            null,
+            null,
+            null);
+    RelationshipFilter occurrenceFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            personFilter,
+            null,
+            null,
+            null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                occurrenceEntity,
+                List.of(simpleAttribute),
+                occurrenceFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    BQTable occurrenceTable =
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterFKFilterWithSwapFields", listQueryResult.getSql(), occurrenceTable);
+  }
+
+  @Test
+  void relationshipFilterIntermediateTableWithSwapFields() throws IOException {
+    // e.g. SELECT occurrence FILTER ON (ingredient FILTER ON brand).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("ingredientPerson");
+    Entity occurrenceEntity = underlay.getEntity("ingredientOccurrence");
+    GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
+
+    AttributeFilter brandFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(19_042_336L));
+    RelationshipFilter ingredientFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            groupItems.getItemsEntity(),
+            groupItems.getGroupItemsRelationship(),
+            brandFilter,
+            null,
+            null,
+            null);
+    RelationshipFilter occurrenceFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity.getName()),
+            ingredientFilter,
+            null,
+            null,
+            null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                occurrenceEntity,
+                List.of(simpleAttribute),
+                occurrenceFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    BQTable occurrenceTable =
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    BQTable intermediateTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterIntTableWithSwapFields",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        intermediateTable);
+  }
+
+  @Test
   void textSearchFilter() throws IOException {
     Entity entity = underlay.getEntity("condition");
     TextSearchFilter textSearchFilter =
