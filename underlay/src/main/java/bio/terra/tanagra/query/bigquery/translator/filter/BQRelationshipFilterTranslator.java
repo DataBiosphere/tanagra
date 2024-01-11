@@ -130,11 +130,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           selectEntityTable.getEntityGroupCountField(
               relationshipFilter.getEntityGroup().getName(), null);
       return apiTranslator.binaryFilterSql(
-          selectRollupField,
-          BinaryOperator.GREATER_THAN,
-          Literal.forInt64(0L),
-          null,
-          new SqlParams());
+          selectRollupField, BinaryOperator.GREATER_THAN, Literal.forInt64(0L), null, sqlParams);
     } else if (relationshipFilter.hasSubFilter()
         && apiTranslator
             .translator(relationshipFilter.getSubFilter())
@@ -215,11 +211,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           selectEntityTable.getEntityGroupCountField(
               relationshipFilter.getEntityGroup().getName(), null);
       return apiTranslator.binaryFilterSql(
-          selectRollupField,
-          BinaryOperator.GREATER_THAN,
-          Literal.forInt64(0L),
-          null,
-          new SqlParams());
+          selectRollupField, BinaryOperator.GREATER_THAN, Literal.forInt64(0L), null, sqlParams);
     } else if (relationshipFilter.hasSubFilter()
         && apiTranslator
             .translator(relationshipFilter.getSubFilter())
