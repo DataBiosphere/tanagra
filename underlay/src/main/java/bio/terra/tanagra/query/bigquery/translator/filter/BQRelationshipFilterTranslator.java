@@ -114,9 +114,11 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(relationshipFilter.getSelectEntity().getName());
+    Attribute selectIdAttribute = relationshipFilter.getSelectEntity().getIdAttribute();
     SqlField selectIdField =
-        selectEntityTable.getAttributeValueField(
-            relationshipFilter.getSelectEntity().getIdAttribute().getName());
+        attributeSwapFields.containsKey(selectIdAttribute)
+            ? attributeSwapFields.get(selectIdAttribute)
+            : selectEntityTable.getAttributeValueField(selectIdAttribute.getName());
 
     if (!relationshipFilter.hasSubFilter()
         && !relationshipFilter.hasGroupByFilter()
@@ -183,9 +185,11 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(relationshipFilter.getSelectEntity().getName());
+    Attribute selectIdAttribute = relationshipFilter.getSelectEntity().getIdAttribute();
     SqlField selectIdField =
-        selectEntityTable.getAttributeValueField(
-            relationshipFilter.getSelectEntity().getIdAttribute().getName());
+        attributeSwapFields.containsKey(selectIdAttribute)
+            ? attributeSwapFields.get(selectIdAttribute)
+            : selectEntityTable.getAttributeValueField(selectIdAttribute.getName());
     ITRelationshipIdPairs idPairsTable =
         relationshipFilter
             .getUnderlay()
