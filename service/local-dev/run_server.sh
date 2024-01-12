@@ -49,7 +49,7 @@ if [[ ${useVerilyUnderlays} ]]; then
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-dev-export-bucket
 elif [[ ${useAouUnderlays} ]]; then
   echo "Using AoU test underlays."
-  export TANAGRA_UNDERLAY_FILES=aou/SR2023Q3R1_local,aou/SC2023Q3R1_local
+  export TANAGRA_UNDERLAY_FILES=aou/SR2023Q3R2_local,aou/SC2023Q3R2_local
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
   # uncomment both lines below for test AoU Workbench access-control model

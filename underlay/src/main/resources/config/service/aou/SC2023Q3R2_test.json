@@ -1,17 +1,17 @@
 {
-  "underlay": "aouSC2023Q3R1",
+  "underlay": "aouSC2023Q3R2",
   "bigQuery": {
     "sourceData": {
       "projectId": "fc-aou-cdr-synth-test-2",
-      "datasetId": "SC2023Q3R1",
+      "datasetId": "SC2023Q3R2",
       "sqlSubstitutions": {
-        "omopDataset": "fc-aou-cdr-synth-test-2.SC2023Q3R1",
-        "staticTablesDataset": "fc-aou-cdr-synth-test-2.SC2023Q3R1"
+        "omopDataset": "fc-aou-cdr-synth-test-2.SC2023Q3R2",
+        "staticTablesDataset": "fc-aou-cdr-synth-test-2.SC2023Q3R2"
       }
     },
     "indexData": {
       "projectId": "fc-aou-cdr-synth-test-2",
-      "datasetId": "SC2023Q3R1",
+      "datasetId": "SC2023Q3R2",
       "tablePrefix": "T"
     },
     "queryProjectId": "fc-aou-cdr-synth-test-2",
