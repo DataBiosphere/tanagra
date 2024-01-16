@@ -1,6 +1,7 @@
 package bio.terra.tanagra.query.sql.translator.filter;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
@@ -10,18 +11,23 @@ import java.util.stream.Collectors;
 
 public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
   private final BooleanAndOrFilter booleanAndOrFilter;
+  private final List<ApiFilterTranslator> subFilterTranslators;
 
   public BooleanAndOrFilterTranslator(
       ApiTranslator apiTranslator, BooleanAndOrFilter booleanAndOrFilter) {
     super(apiTranslator);
     this.booleanAndOrFilter = booleanAndOrFilter;
+    this.subFilterTranslators =
+        booleanAndOrFilter.getSubFilters().stream()
+            .map(subFilter -> apiTranslator.translator(subFilter))
+            .collect(Collectors.toList());
   }
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
     List<String> subFilterSqls =
-        booleanAndOrFilter.getSubFilters().stream()
-            .map(subFilter -> apiTranslator.translator(subFilter).buildSql(sqlParams, tableAlias))
+        subFilterTranslators.stream()
+            .map(subFilterTranslator -> subFilterTranslator.buildSql(sqlParams, tableAlias))
             .collect(Collectors.toList());
     return apiTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
@@ -29,11 +35,18 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return booleanAndOrFilter
-        .getSubFilters()
+    return subFilterTranslators
         .parallelStream()
-        .filter(subFilter -> !apiTranslator.translator(subFilter).isFilterOnAttribute(attribute))
+        .filter(subFilterTranslator -> !subFilterTranslator.isFilterOnAttribute(attribute))
         .findAny()
         .isEmpty();
+  }
+
+  @Override
+  public ApiFilterTranslator swapAttributeField(Attribute attribute, SqlField swappedField) {
+    subFilterTranslators.stream()
+        .forEach(
+            subFilterTranslator -> subFilterTranslator.swapAttributeField(attribute, swappedField));
+    return this;
   }
 }

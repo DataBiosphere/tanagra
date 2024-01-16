@@ -1100,6 +1100,143 @@ public class BQFilterTest extends BQRunnerTest {
   }
 
   @Test
+  void booleanAndOrFilterWithSwapFields() throws IOException {
+    // e.g. SELECT occurrence BOOLEAN LOGIC FILTER ON condition (foreign key is on the occurrence
+    // table).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
+
+    HierarchyHasAncestorFilter hasAncestorFilter1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(123L));
+    HierarchyHasAncestorFilter hasAncestorFilter2 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(456L));
+    BooleanAndOrFilter hasAncestorFilter1or2 =
+        new BooleanAndOrFilter(LogicalOperator.OR, List.of(hasAncestorFilter1, hasAncestorFilter2));
+    RelationshipFilter relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity.getName()),
+            hasAncestorFilter1or2,
+            null,
+            null,
+            null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("person_id"), false, false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                occurrenceEntity,
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    BQTable occurrenceTable =
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    BQTable criteriaTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(),
+                criteriaOccurrence
+                    .getCriteriaEntity()
+                    .getHierarchy(Hierarchy.DEFAULT_NAME)
+                    .getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "booleanAndOrFilterWithSwapFields",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        criteriaTable,
+        criteriaAncestorDescendantTable);
+  }
+
+  @Test
+  void booleanNotFilterWithSwapFields() throws IOException {
+    // e.g. SELECT occurrence BOOLEAN LOGIC FILTER ON condition (foreign key is on the occurrence
+    // table).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
+
+    HierarchyHasAncestorFilter hasAncestorFilter1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(123L));
+    BooleanNotFilter notHasAncestorFilter1 = new BooleanNotFilter(hasAncestorFilter1);
+    RelationshipFilter relationshipFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity.getName()),
+            notHasAncestorFilter1,
+            null,
+            null,
+            null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("person_id"), false, false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                occurrenceEntity,
+                List.of(simpleAttribute),
+                relationshipFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    BQTable occurrenceTable =
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    BQTable criteriaTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(),
+                criteriaOccurrence
+                    .getCriteriaEntity()
+                    .getHierarchy(Hierarchy.DEFAULT_NAME)
+                    .getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "booleanNotFilterWithSwapFields",
+        listQueryResult.getSql(),
+        occurrenceTable,
+        criteriaTable,
+        criteriaAncestorDescendantTable);
+  }
+
+  @Test
   void textSearchFilter() throws IOException {
     Entity entity = underlay.getEntity("condition");
     TextSearchFilter textSearchFilter =
