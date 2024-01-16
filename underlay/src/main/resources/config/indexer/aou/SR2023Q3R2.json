@@ -1,0 +1,27 @@
+{
+  "underlay": "aouSR2023Q3R2",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "all-of-us-ehr-dev",
+      "datasetId": "SR2023Q3R2",
+      "sqlSubstitutions": {
+        "omopDataset": "all-of-us-ehr-dev.SR2023Q3R2",
+        "staticTablesDataset": "all-of-us-ehr-dev.SR2023Q3R2"
+      }
+    },
+    "indexData": {
+      "projectId": "all-of-us-ehr-dev",
+      "datasetId": "SR2023Q3R2",
+      "tablePrefix": "T"
+    },
+    "queryProjectId": "all-of-us-ehr-dev",
+    "dataLocation": "us-central1"
+  },
+  "dataflow": {
+    "serviceAccountEmail": "tanagra-indexing-runner@all-of-us-ehr-dev.iam.gserviceaccount.com",
+    "gcsTempDirectory": "gs://all-of-us-ehr-dev-tanagra-indexing/SR2023Q3R2/",
+    "workerMachineType": "n1-standard-4",
+    "usePublicIps": false,
+    "vpcSubnetworkName": "default"
+  }
+}
