@@ -143,6 +143,7 @@
       "id": "tanagra-conditions",
       "title": "Condition",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Domains",
       "tags": ["Standard Codes"],
       "columns": [
@@ -174,6 +175,7 @@
       "id": "tanagra-phewas",
       "title": "PheWAS",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
@@ -208,6 +210,7 @@
       "id": "tanagra-cpt4",
       "title": "CPT-4",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
@@ -243,6 +246,7 @@
       "id": "tanagra-icd9cm",
       "title": "ICD-9-CM",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
@@ -278,6 +282,7 @@
       "id": "tanagra-icd9proc",
       "title": "ICD-9-Proc",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
@@ -313,6 +318,7 @@
       "id": "tanagra-icd10cm",
       "title": "ICD-10-CM",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
@@ -348,6 +354,7 @@
       "id": "tanagra-icd10pcs",
       "title": "ICD-10-PCS",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
@@ -383,6 +390,7 @@
       "id": "tanagra-procedures",
       "title": "Procedure",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Domains",
       "tags": ["Standard Codes"],
       "columns": [
@@ -432,6 +440,7 @@
       "id": "tanagra-drugs",
       "title": "Drug",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Domains",
       "tags": ["Standard Codes"],
       "columns": [
