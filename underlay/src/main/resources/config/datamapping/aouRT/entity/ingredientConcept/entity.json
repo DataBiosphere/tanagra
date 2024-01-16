@@ -1,5 +1,5 @@
 {
-  "name": "brand",
+  "name": "ingredientConcept",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
@@ -14,5 +14,16 @@
     "idTextPairsSqlFile": "textSearch.sql",
     "idFieldName": "concept_id",
     "textFieldName": "concept_synonym_name"
-  }
+  },
+  "hierarchies": [
+    {
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "rootNodeIdsSqlFile": "rootNode.sql",
+      "rootIdFieldName": "concept_id",
+      "maxDepth": 15,
+      "keepOrphanNodes": false
+    }
+  ]
 }
