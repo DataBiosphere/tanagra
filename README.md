@@ -14,6 +14,7 @@ More information about this codebase can be found in the links below.
 * [VUMC Admin Service](./docs/VUMC_ADMIN_SERVICE.md)
 * [Codebase Overview](./docs/CODEBASE_OVERVIEW.md)
 * [Contribute Code](./docs/CONTRIBUTING.md)
+* [Deployment Overview](./docs/DEPLOYMENT_OVERVIEW.md)
 * [Deployment Config Properties](./docs/generated/DEPLOYMENT_CONFIG.md)
 * [Underlay Config Properties](./docs/generated/UNDERLAY_CONFIG.md)
 * [Indexer CLI Manpage](./docs/generated/indexer-cli/tanagra.adoc)
