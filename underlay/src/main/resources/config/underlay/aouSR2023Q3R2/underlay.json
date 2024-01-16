@@ -11,10 +11,10 @@
     "aouRT/procedureOccurrence",
     "aouRT/procedureNonHierarchy",
 
-    "aouRT/brand",
-    "aouRT/ingredient",
+    "aouRT/brandConcept",
+    "aouRT/ingredientConcept",
     "aouRT/ingredientOccurrence",
-    "aouRT/ingredientNonHierarchy",
+    "aouRT/ingredientNonHierarchyConcept",
 
     "aouRT/measurementSnomed",
     "aouRT/measurementLoinc",
@@ -42,7 +42,7 @@
     "aouRT/stepsIntraday"
   ],
   "groupItemsEntityGroups": [
-    "aouRT/brandIngredient",
+    "aouRT/brandIngredientConcept",
 
     "aouRT/activitySummaryPerson",
     "aouRT/heartRateLevelPerson",
