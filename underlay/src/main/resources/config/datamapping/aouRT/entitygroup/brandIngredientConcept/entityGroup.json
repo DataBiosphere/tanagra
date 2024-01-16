@@ -1,7 +1,7 @@
 {
-  "name": "brandIngredient",
-  "groupEntity": "brand",
-  "itemsEntity": "ingredient",
+  "name": "brandIngredientConcept",
+  "groupEntity": "brandConcept",
+  "itemsEntity": "ingredientConcept",
   "idPairsSqlFile":  "idPairs.sql",
   "groupEntityIdFieldName": "brand_concept_id",
   "itemsEntityIdFieldName": "ingredient_concept_id"
