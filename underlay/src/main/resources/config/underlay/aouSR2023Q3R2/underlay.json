@@ -23,7 +23,7 @@
 
     "aouRT/observationConcept",
     "aouRT/observationOccurrence",
-    "aouRT/device",
+    "aouRT/deviceConcept",
     "aouRT/deviceOccurrence",
     "aouRT/visitConcept",
     "aouRT/visitOccurrence",
