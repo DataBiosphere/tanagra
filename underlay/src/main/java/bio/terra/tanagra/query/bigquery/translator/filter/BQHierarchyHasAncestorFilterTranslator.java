@@ -2,6 +2,8 @@ package bio.terra.tanagra.query.bigquery.translator.filter;
 
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
@@ -21,7 +23,7 @@ public class BQHierarchyHasAncestorFilterTranslator extends ApiFilterTranslator 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
     //  entity.id IN (SELECT ancestorId UNION ALL SELECT descendant FROM ancestorDescendantTable
-    // WHERE ancestor=ancestorId)
+    // FILTER ON ancestorId)
     ITHierarchyAncestorDescendant ancestorDescendantTable =
         hierarchyHasAncestorFilter
             .getUnderlay()
@@ -38,20 +40,32 @@ public class BQHierarchyHasAncestorFilterTranslator extends ApiFilterTranslator 
                 .getIndexSchema()
                 .getEntityMain(hierarchyHasAncestorFilter.getEntity().getName())
                 .getAttributeValueField(idAttribute.getName());
+
+    // FILTER ON ancestorId = [WHERE ancestor IN (ancestorIds)] or [WHERE ancestor = ancestorId]
+    String ancestorIdFilterSql =
+        hierarchyHasAncestorFilter.getAncestorIds().size() > 1
+            ? apiTranslator.naryFilterSql(
+                ancestorDescendantTable.getAncestorField(),
+                NaryOperator.IN,
+                hierarchyHasAncestorFilter.getAncestorIds(),
+                null,
+                sqlParams)
+            : apiTranslator.binaryFilterSql(
+                ancestorDescendantTable.getAncestorField(),
+                BinaryOperator.EQUALS,
+                hierarchyHasAncestorFilter.getAncestorIds().get(0),
+                null,
+                sqlParams);
+
     return apiTranslator.inSelectFilterSql(
         idField,
         tableAlias,
         ancestorDescendantTable.getDescendantField(),
         ancestorDescendantTable.getTablePointer(),
-        apiTranslator.binaryFilterSql(
-            ancestorDescendantTable.getAncestorField(),
-            BinaryOperator.EQUALS,
-            hierarchyHasAncestorFilter.getAncestorId(),
-            null,
-            sqlParams),
+        ancestorIdFilterSql,
         null,
         sqlParams,
-        hierarchyHasAncestorFilter.getAncestorId());
+        hierarchyHasAncestorFilter.getAncestorIds().toArray(new Literal[0]));
   }
 
   @Override
