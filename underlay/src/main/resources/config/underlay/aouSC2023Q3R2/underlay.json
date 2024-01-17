@@ -21,7 +21,7 @@
     "aouRT/measurementNonHierarchy",
     "aouRT/measurementOccurrence",
 
-    "aouRT/observation",
+    "aouRT/observationConcept",
     "aouRT/observationOccurrence",
     "aouRT/device",
     "aouRT/deviceOccurrence",
