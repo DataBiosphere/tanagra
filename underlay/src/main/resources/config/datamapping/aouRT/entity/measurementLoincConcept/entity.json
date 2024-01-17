@@ -1,5 +1,5 @@
 {
-  "name": "measurementNonHierarchy",
+  "name": "measurementLoincConcept",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
@@ -14,5 +14,15 @@
     "idTextPairsSqlFile": "textSearch.sql",
     "idFieldName": "concept_id",
     "textFieldName": "concept_synonym_name"
-  }
+  },
+  "hierarchies": [
+    {
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "rootNodeIds": [ 36206173 ],
+      "maxDepth": 11,
+      "keepOrphanNodes": false
+    }
+  ]
 }
