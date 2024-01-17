@@ -1,5 +1,5 @@
 {
-  "name": "condition",
+  "name": "conditionConcept",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },

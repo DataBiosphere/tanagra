@@ -1,5 +1,5 @@
 {
-  "name": "conditionNonHierarchy",
+  "name": "conditionNonHierarchyConcept",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
