@@ -73,8 +73,14 @@ public interface ApiTranslator {
       Literal value,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
+    String operatorTemplateSql =
+        FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+            + ' '
+            + binaryOperatorSql(operator)
+            + ' '
+            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES;
     return functionWithCommaSeparatedArgsFilterSql(
-        field, binaryOperatorTemplateSql(operator), List.of(value), tableAlias, sqlParams);
+        field, operatorTemplateSql, List.of(value), tableAlias, sqlParams);
   }
 
   default String textSearchFilterSql(
@@ -87,6 +93,7 @@ public interface ApiTranslator {
         field, textSearchOperatorTemplateSql(operator), List.of(value), tableAlias, sqlParams);
   }
 
+  @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
   default String naryFilterSql(
       SqlField field,
       NaryOperator naryOperator,
@@ -111,6 +118,17 @@ public interface ApiTranslator {
                 + ")";
         return functionWithCommaSeparatedArgsFilterSql(
             field, operatorSql, values, tableAlias, sqlParams);
+      case BETWEEN:
+        if (values.size() != 2) {
+          throw new InvalidQueryException("BETWEEN operator expects exactly two values");
+        }
+        String paramName1 = sqlParams.addParam("val", values.get(0));
+        String paramName2 = sqlParams.addParam("val", values.get(1));
+        return SqlQueryField.of(field).renderForWhere(tableAlias)
+            + " BETWEEN @"
+            + paramName1
+            + " AND @"
+            + paramName2;
       default:
         throw new SystemException("Unknown function template: " + naryOperator);
     }
@@ -132,14 +150,6 @@ public interface ApiTranslator {
                     .map(valueParamName -> '@' + valueParamName)
                     .collect(Collectors.joining(",")));
     return StringSubstitutor.replace(functionTemplate, substitutorParams);
-  }
-
-  default String binaryOperatorTemplateSql(BinaryOperator operator) {
-    return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-        + ' '
-        + binaryOperatorSql(operator)
-        + ' '
-        + FUNCTION_TEMPLATE_VALUES_VAR_BRACES;
   }
 
   default String binaryOperatorSql(BinaryOperator operator) {
@@ -171,23 +181,6 @@ public interface ApiTranslator {
         return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " = ''";
       default:
         throw new SystemException("Unknown unary operator: " + operator);
-    }
-  }
-
-  default String functionTemplateSql(NaryOperator naryOperator) {
-    switch (naryOperator) {
-      case IN:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-            + " IN ("
-            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
-            + ")";
-      case NOT_IN:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-            + " NOT IN ("
-            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
-            + ")";
-      default:
-        throw new SystemException("Unknown function template: " + naryOperator);
     }
   }
 

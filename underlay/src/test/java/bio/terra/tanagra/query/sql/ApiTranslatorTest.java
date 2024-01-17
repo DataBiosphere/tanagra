@@ -1,10 +1,15 @@
 package bio.terra.tanagra.query.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.UnaryOperator;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
@@ -26,6 +31,17 @@ public class ApiTranslatorTest {
   @BeforeEach
   void createTranslator() {
     apiTranslator = new BQApiTranslator();
+  }
+
+  @Test
+  void unaryFilter() {
+    String tableAlias = "tableAlias";
+    SqlField field = SqlField.of("columnName");
+    SqlParams sqlParams = new SqlParams();
+    String sql =
+        apiTranslator.unaryFilterSql(field, UnaryOperator.IS_EMPTY_STRING, tableAlias, sqlParams);
+    assertEquals("tableAlias.columnName = ''", sql);
+    assertEquals(ImmutableMap.of(), sqlParams.getParams());
   }
 
   @Test
@@ -53,6 +69,58 @@ public class ApiTranslatorTest {
         "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64) > @val",
         sql);
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+  }
+
+  @Test
+  void textSearchFilter() {
+    String tableAlias = "tableAlias";
+    SqlField field = SqlField.of("columnName");
+    SqlParams sqlParams = new SqlParams();
+    Literal val = Literal.forString("textToSearch");
+    String sql =
+        apiTranslator.textSearchFilterSql(
+            field, TextSearchFilter.TextSearchOperator.EXACT_MATCH, val, tableAlias, sqlParams);
+    assertEquals("REGEXP_CONTAINS(UPPER(tableAlias.columnName), UPPER(@val))", sql);
+    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+  }
+
+  @Test
+  void naryFilter() {
+    String tableAlias = "tableAlias";
+    SqlField field = SqlField.of("columnName");
+    SqlParams sqlParams = new SqlParams();
+    Literal val1 = Literal.forInt64(25L);
+    Literal val2 = Literal.forInt64(26L);
+    Literal val3 = Literal.forInt64(27L);
+    String sql =
+        apiTranslator.naryFilterSql(
+            field, NaryOperator.IN, List.of(val1, val2, val3), tableAlias, sqlParams);
+    assertEquals("tableAlias.columnName IN (@val,@val0,@val1)", sql);
+    assertEquals(ImmutableMap.of("val", val1, "val0", val2, "val1", val3), sqlParams.getParams());
+
+    sqlParams = new SqlParams();
+    sql =
+        apiTranslator.naryFilterSql(
+            field, NaryOperator.NOT_IN, List.of(val1, val2, val3), tableAlias, sqlParams);
+    assertEquals("tableAlias.columnName NOT IN (@val,@val0,@val1)", sql);
+    assertEquals(ImmutableMap.of("val", val1, "val0", val2, "val1", val3), sqlParams.getParams());
+
+    sqlParams = new SqlParams();
+    sql =
+        apiTranslator.naryFilterSql(
+            field, NaryOperator.BETWEEN, List.of(val1, val2), tableAlias, sqlParams);
+    assertEquals("tableAlias.columnName BETWEEN @val AND @val0", sql);
+    assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
+
+    assertThrows(
+        InvalidQueryException.class,
+        () ->
+            apiTranslator.naryFilterSql(
+                field,
+                NaryOperator.BETWEEN,
+                List.of(val1, val2, val3),
+                tableAlias,
+                new SqlParams()));
   }
 
   @Test

@@ -36,12 +36,11 @@ import org.junit.jupiter.api.Test;
 public class BQFilterTest extends BQRunnerTest {
   @Test
   void attributeFilter() throws IOException {
-    // Filter with binary operator.
+    // Filter with unary operator.
     Entity entity = underlay.getPrimaryEntity();
-    Attribute attribute = entity.getAttribute("year_of_birth");
+    Attribute attribute = entity.getAttribute("ethnicity");
     AttributeFilter attributeFilter =
-        new AttributeFilter(
-            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
+        new AttributeFilter(underlay, entity, attribute, UnaryOperator.IS_NOT_NULL);
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
@@ -57,17 +56,13 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 true));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
+    assertSqlMatchesWithTableNameOnly("attributeFilterUnary", listQueryResult.getSql(), table);
 
-    // Filter with function template.
-    attribute = entity.getAttribute("age");
+    // Filter with binary operator.
+    attribute = entity.getAttribute("year_of_birth");
     attributeFilter =
         new AttributeFilter(
-            underlay,
-            entity,
-            attribute,
-            NaryOperator.NOT_IN,
-            List.of(Literal.forInt64(18L), Literal.forInt64(19L)));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
     listQueryResult =
         bqQueryRunner.run(
             new ListQueryRequest(
@@ -80,7 +75,54 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    assertSqlMatchesWithTableNameOnly("attributeFilterFunction", listQueryResult.getSql(), table);
+    assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
+
+    // Filter with n-ary operator IN.
+    attribute = entity.getAttribute("age");
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            attribute,
+            NaryOperator.IN,
+            List.of(Literal.forInt64(18L), Literal.forInt64(19L), Literal.forInt64(20L)));
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(simpleAttribute),
+                attributeFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly("attributeFilterNaryIn", listQueryResult.getSql(), table);
+
+    // Filter with n-ary operator BETWEEN.
+    attribute = entity.getAttribute("age");
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            attribute,
+            NaryOperator.BETWEEN,
+            List.of(Literal.forInt64(45L), Literal.forInt64(65L)));
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(simpleAttribute),
+                attributeFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "attributeFilterNaryBetween", listQueryResult.getSql(), table);
   }
 
   @Test
