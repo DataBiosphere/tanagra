@@ -1,6 +1,6 @@
 {
   "name": "icd9procPerson",
-  "criteriaEntity": "icd9proc",
+  "criteriaEntity": "icd9procConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "ingredientOccurrence",
