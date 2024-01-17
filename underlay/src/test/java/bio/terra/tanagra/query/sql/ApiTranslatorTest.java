@@ -2,9 +2,9 @@ package bio.terra.tanagra.query.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
@@ -56,13 +56,13 @@ public class ApiTranslatorTest {
   }
 
   @Test
-  void functionFilter() {
+  void functionWithCommaSeparatedArgsFilter() {
     String tableAlias = "tableAlias";
     SqlField field = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
     Literal val = Literal.forString("test");
     String sql =
-        apiTranslator.functionFilterSql(
+        apiTranslator.functionWithCommaSeparatedArgsFilterSql(
             field, "REGEXP_CONTAINS(${fieldSql},${values})", List.of(val), tableAlias, sqlParams);
     assertEquals("REGEXP_CONTAINS(tableAlias.columnName,@val)", sql);
     assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
@@ -71,7 +71,7 @@ public class ApiTranslatorTest {
     Literal val1 = Literal.forInt64(25L);
     Literal val2 = Literal.forInt64(26L);
     sql =
-        apiTranslator.functionFilterSql(
+        apiTranslator.functionWithCommaSeparatedArgsFilterSql(
             field, "${fieldSql} IN (${values})", List.of(val1, val2), tableAlias, sqlParams);
     assertEquals("tableAlias.columnName IN (@val,@val0)", sql);
     assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
@@ -158,7 +158,9 @@ public class ApiTranslatorTest {
         apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, null, sqlParams);
 
-    String sql = apiTranslator.booleanAndOrFilterSql(LogicalOperator.OR, filterSql1, filterSql2);
+    String sql =
+        apiTranslator.booleanAndOrFilterSql(
+            BooleanAndOrFilter.LogicalOperator.OR, filterSql1, filterSql2);
     assertEquals(
         "(tableAlias.columnName <= @val) OR (tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0))",
         sql);

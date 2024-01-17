@@ -1,27 +1,31 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import javax.annotation.Nullable;
 
 public class TextSearchFilter extends EntityFilter {
+  public enum TextSearchOperator {
+    EXACT_MATCH,
+    FUZZY_MATCH
+  }
+
   private final Underlay underlay;
   private final Entity entity;
-  private final FunctionTemplate functionTemplate;
+  private final TextSearchOperator operator;
   private final String text;
   private final @Nullable Attribute attribute;
 
   public TextSearchFilter(
       Underlay underlay,
       Entity entity,
-      FunctionTemplate functionTemplate,
+      TextSearchOperator operator,
       String text,
       @Nullable Attribute attribute) {
     this.underlay = underlay;
     this.entity = entity;
-    this.functionTemplate = functionTemplate;
+    this.operator = operator;
     this.text = text;
     this.attribute = attribute;
   }
@@ -43,8 +47,8 @@ public class TextSearchFilter extends EntityFilter {
     return attribute;
   }
 
-  public FunctionTemplate getFunctionTemplate() {
-    return functionTemplate;
+  public TextSearchOperator getOperator() {
+    return operator;
   }
 
   public String getText() {

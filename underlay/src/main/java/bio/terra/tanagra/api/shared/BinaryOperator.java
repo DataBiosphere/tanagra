@@ -6,7 +6,5 @@ public enum BinaryOperator {
   LESS_THAN,
   GREATER_THAN,
   LESS_THAN_OR_EQUAL,
-  GREATER_THAN_OR_EQUAL,
-  IS,
-  IS_NOT
+  GREATER_THAN_OR_EQUAL
 }

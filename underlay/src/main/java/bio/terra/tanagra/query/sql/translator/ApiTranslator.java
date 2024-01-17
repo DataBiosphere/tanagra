@@ -19,10 +19,10 @@ import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.sql.SqlField;
@@ -61,25 +61,62 @@ public interface ApiTranslator {
     }
   }
 
+  default String unaryFilterSql(
+      SqlField field, UnaryOperator operator, @Nullable String tableAlias, SqlParams sqlParams) {
+    return functionWithCommaSeparatedArgsFilterSql(
+        field, unaryOperatorTemplateSql(operator), List.of(), tableAlias, sqlParams);
+  }
+
   default String binaryFilterSql(
       SqlField field,
       BinaryOperator operator,
       Literal value,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
-    return functionFilterSql(
-        field,
-        FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-            + ' '
-            + binaryOperatorSql(operator)
-            + ' '
-            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES,
-        List.of(value),
-        tableAlias,
-        sqlParams);
+    return functionWithCommaSeparatedArgsFilterSql(
+        field, binaryOperatorTemplateSql(operator), List.of(value), tableAlias, sqlParams);
   }
 
-  default String functionFilterSql(
+  default String textSearchFilterSql(
+      SqlField field,
+      TextSearchFilter.TextSearchOperator operator,
+      Literal value,
+      @Nullable String tableAlias,
+      SqlParams sqlParams) {
+    return functionWithCommaSeparatedArgsFilterSql(
+        field, textSearchOperatorTemplateSql(operator), List.of(value), tableAlias, sqlParams);
+  }
+
+  default String naryFilterSql(
+      SqlField field,
+      NaryOperator naryOperator,
+      List<Literal> values,
+      @Nullable String tableAlias,
+      SqlParams sqlParams) {
+    String operatorSql;
+    switch (naryOperator) {
+      case IN:
+        operatorSql =
+            FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+                + " IN ("
+                + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+                + ")";
+        return functionWithCommaSeparatedArgsFilterSql(
+            field, operatorSql, values, tableAlias, sqlParams);
+      case NOT_IN:
+        operatorSql =
+            FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+                + " NOT IN ("
+                + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+                + ")";
+        return functionWithCommaSeparatedArgsFilterSql(
+            field, operatorSql, values, tableAlias, sqlParams);
+      default:
+        throw new SystemException("Unknown function template: " + naryOperator);
+    }
+  }
+
+  default String functionWithCommaSeparatedArgsFilterSql(
       SqlField field,
       String functionTemplate,
       List<Literal> values,
@@ -97,6 +134,14 @@ public interface ApiTranslator {
     return StringSubstitutor.replace(functionTemplate, substitutorParams);
   }
 
+  default String binaryOperatorTemplateSql(BinaryOperator operator) {
+    return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+        + ' '
+        + binaryOperatorSql(operator)
+        + ' '
+        + FUNCTION_TEMPLATE_VALUES_VAR_BRACES;
+  }
+
   default String binaryOperatorSql(BinaryOperator operator) {
     switch (operator) {
       case EQUALS:
@@ -111,12 +156,53 @@ public interface ApiTranslator {
         return ">=";
       case LESS_THAN_OR_EQUAL:
         return "<=";
-      case IS:
-        return "IS";
-      case IS_NOT:
-        return "IS NOT";
       default:
         throw new SystemException("Unknown binary operator: " + operator);
+    }
+  }
+
+  default String unaryOperatorTemplateSql(UnaryOperator operator) {
+    switch (operator) {
+      case IS_NULL:
+        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NULL";
+      case IS_NOT_NULL:
+        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NOT NULL";
+      case IS_EMPTY_STRING:
+        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " = ''";
+      default:
+        throw new SystemException("Unknown unary operator: " + operator);
+    }
+  }
+
+  default String functionTemplateSql(NaryOperator naryOperator) {
+    switch (naryOperator) {
+      case IN:
+        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+            + " IN ("
+            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+            + ")";
+      case NOT_IN:
+        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+            + " NOT IN ("
+            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+            + ")";
+      default:
+        throw new SystemException("Unknown function template: " + naryOperator);
+    }
+  }
+
+  default String textSearchOperatorTemplateSql(TextSearchFilter.TextSearchOperator operator) {
+    switch (operator) {
+      case EXACT_MATCH:
+        return "REGEXP_CONTAINS(UPPER("
+            + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+            + "), UPPER("
+            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+            + "))";
+      case FUZZY_MATCH:
+        throw new InvalidQueryException("Fuzzy text match not supported");
+      default:
+        throw new SystemException("Unknown text search operator: " + operator);
     }
   }
 
@@ -146,7 +232,8 @@ public interface ApiTranslator {
         + ')';
   }
 
-  default String booleanAndOrFilterSql(LogicalOperator operator, String... subFilterSqls) {
+  default String booleanAndOrFilterSql(
+      BooleanAndOrFilter.LogicalOperator operator, String... subFilterSqls) {
     return Arrays.stream(subFilterSqls)
         .map(subFilterSql -> '(' + subFilterSql + ')')
         .collect(Collectors.joining(' ' + logicalOperatorSql(operator) + ' '));
@@ -156,7 +243,7 @@ public interface ApiTranslator {
     return "NOT " + subFilterSql;
   }
 
-  default String logicalOperatorSql(LogicalOperator operator) {
+  default String logicalOperatorSql(BooleanAndOrFilter.LogicalOperator operator) {
     switch (operator) {
       case AND:
         return "AND";
@@ -181,37 +268,6 @@ public interface ApiTranslator {
         + " HAVING COUNT(*) "
         + binaryOperatorSql(groupByOperator)
         + " @groupByCount";
-  }
-
-  default String functionTemplateSql(FunctionTemplate functionTemplate) {
-    switch (functionTemplate) {
-      case TEXT_EXACT_MATCH:
-        return "REGEXP_CONTAINS(UPPER("
-            + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-            + "), UPPER("
-            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
-            + "))";
-      case TEXT_FUZZY_MATCH:
-        throw new InvalidQueryException("Fuzzy text match not supported");
-      case IN:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-            + " IN ("
-            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
-            + ")";
-      case NOT_IN:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-            + " NOT IN ("
-            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
-            + ")";
-      case IS_NULL:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NULL";
-      case IS_NOT_NULL:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NOT NULL";
-      case IS_EMPTY_STRING:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " = ''";
-      default:
-        throw new SystemException("Unknown function template: " + functionTemplate);
-    }
   }
 
   ApiFieldTranslator translator(AttributeField attributeField);

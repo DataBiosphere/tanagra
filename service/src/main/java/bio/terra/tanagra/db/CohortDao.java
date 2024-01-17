@@ -4,8 +4,8 @@ import bio.terra.common.db.ReadTransaction;
 import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -78,7 +78,8 @@ public class CohortDao {
                   CohortRevision.CriteriaGroupSection.builder()
                       .id(rs.getString("id"))
                       .displayName(rs.getString("display_name"))
-                      .operator(LogicalOperator.valueOf(rs.getString("operator")))
+                      .operator(
+                          BooleanAndOrFilter.LogicalOperator.valueOf(rs.getString("operator")))
                       .setIsExcluded(rs.getBoolean("is_excluded")));
 
   // SQL query and row mapper for reading a criteria group.

@@ -13,9 +13,9 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.query.bigquery.BQQueryRunner;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
@@ -66,7 +66,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             entity,
             attribute,
-            FunctionTemplate.NOT_IN,
+            NaryOperator.NOT_IN,
             List.of(Literal.forInt64(18L), Literal.forInt64(19L)));
     listQueryResult =
         bqQueryRunner.run(
@@ -91,9 +91,11 @@ public class BQFilterTest extends BQRunnerTest {
         new AttributeFilter(
             underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forString("1956"));
     TextSearchFilter textSearchFilter =
-        new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "44054006", null);
+        new TextSearchFilter(
+            underlay, entity, TextSearchFilter.TextSearchOperator.EXACT_MATCH, "44054006", null);
     BooleanAndOrFilter booleanAndOrFilter =
-        new BooleanAndOrFilter(LogicalOperator.AND, List.of(attributeFilter, textSearchFilter));
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.AND, List.of(attributeFilter, textSearchFilter));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -437,8 +439,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("stop_reason"),
-            FunctionTemplate.IS_NULL,
-            List.of());
+            UnaryOperator.IS_NULL);
     relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -783,8 +784,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("stop_reason"),
-            FunctionTemplate.IS_NULL,
-            List.of());
+            UnaryOperator.IS_NULL);
     relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -1120,7 +1120,8 @@ public class BQFilterTest extends BQRunnerTest {
             criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
             Literal.forInt64(456L));
     BooleanAndOrFilter hasAncestorFilter1or2 =
-        new BooleanAndOrFilter(LogicalOperator.OR, List.of(hasAncestorFilter1, hasAncestorFilter2));
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR, List.of(hasAncestorFilter1, hasAncestorFilter2));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -1240,7 +1241,8 @@ public class BQFilterTest extends BQRunnerTest {
   void textSearchFilter() throws IOException {
     Entity entity = underlay.getEntity("condition");
     TextSearchFilter textSearchFilter =
-        new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "diabetes", null);
+        new TextSearchFilter(
+            underlay, entity, TextSearchFilter.TextSearchOperator.EXACT_MATCH, "diabetes", null);
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -1262,7 +1264,7 @@ public class BQFilterTest extends BQRunnerTest {
         new TextSearchFilter(
             underlay,
             entity,
-            FunctionTemplate.TEXT_EXACT_MATCH,
+            TextSearchFilter.TextSearchOperator.EXACT_MATCH,
             "diabetes",
             entity.getAttribute("name"));
     listQueryResult =

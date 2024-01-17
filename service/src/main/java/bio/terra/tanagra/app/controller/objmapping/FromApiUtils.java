@@ -21,9 +21,7 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
@@ -155,7 +153,9 @@ public final class FromApiUtils {
                   "Boolean logic operators OR, AND must have more than one sub-filter specified");
             }
             return new BooleanAndOrFilter(
-                LogicalOperator.valueOf(apiBooleanLogicFilter.getOperator().name()), subFilters);
+                BooleanAndOrFilter.LogicalOperator.valueOf(
+                    apiBooleanLogicFilter.getOperator().name()),
+                subFilters);
           default:
             throw new SystemException(
                 "Unknown boolean logic operator: " + apiBooleanLogicFilter.getOperator());
@@ -340,15 +340,9 @@ public final class FromApiUtils {
     return BinaryOperator.valueOf(apiOperator.name());
   }
 
-  public static FunctionTemplate fromApiObject(ApiTextFilter.MatchTypeEnum apiMatchType) {
-    switch (apiMatchType) {
-      case EXACT_MATCH:
-        return FunctionTemplate.TEXT_EXACT_MATCH;
-      case FUZZY_MATCH:
-        return FunctionTemplate.TEXT_FUZZY_MATCH;
-      default:
-        throw new SystemException("Unknown API text match type: " + apiMatchType.name());
-    }
+  public static TextSearchFilter.TextSearchOperator fromApiObject(
+      ApiTextFilter.MatchTypeEnum apiMatchType) {
+    return TextSearchFilter.TextSearchOperator.valueOf(apiMatchType.name());
   }
 
   public static Criteria fromApiObject(ApiCriteria apiObj) {

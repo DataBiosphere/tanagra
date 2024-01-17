@@ -1,14 +1,13 @@
 package bio.terra.tanagra.query.bigquery.translator.filter;
 
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import java.util.List;
 
 public class BQHierarchyIsRootFilterTranslator extends ApiFilterTranslator {
   private final HierarchyIsRootFilter hierarchyIsRootFilter;
@@ -30,12 +29,8 @@ public class BQHierarchyIsRootFilterTranslator extends ApiFilterTranslator {
     // IS_ROOT means path=''.
     SqlField pathField =
         indexTable.getHierarchyPathField(hierarchyIsRootFilter.getHierarchy().getName());
-    return apiTranslator.functionFilterSql(
-        pathField,
-        apiTranslator.functionTemplateSql(FunctionTemplate.IS_EMPTY_STRING),
-        List.of(),
-        tableAlias,
-        sqlParams);
+    return apiTranslator.unaryFilterSql(
+        pathField, UnaryOperator.IS_EMPTY_STRING, tableAlias, sqlParams);
   }
 
   @Override
