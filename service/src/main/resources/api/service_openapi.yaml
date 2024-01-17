@@ -1450,10 +1450,16 @@ components:
       properties:
         attribute:
           type: string
-        operator:
+        unaryOperator:
+          $ref: "#/components/schemas/UnaryOperator"
+        binaryOperator:
           $ref: "#/components/schemas/BinaryOperator"
-        value:
-          $ref: "#/components/schemas/Literal"
+        naryOperator:
+          $ref: "#/components/schemas/NaryOperator"
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/Literal"
 
     TextFilter:
       type: object
@@ -2474,6 +2480,15 @@ components:
     PageMarker:
       type: string
 
+    UnaryOperator:
+      type: string
+      enum:
+        [
+          "IS_NULL",
+          "IS_NOT_NULL",
+          "IS_EMPTY_STRING",
+        ]
+
     BinaryOperator:
       type: string
       enum:
@@ -2484,6 +2499,15 @@ components:
           "GREATER_THAN",
           "LESS_THAN_OR_EQUAL",
           "GREATER_THAN_OR_EQUAL",
+        ]
+
+    NaryOperator:
+      type: string
+      enum:
+        [
+          "IN",
+          "NOT_IN",
+          "BETWEEN",
         ]
 
   securitySchemes:

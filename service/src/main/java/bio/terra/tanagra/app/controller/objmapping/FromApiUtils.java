@@ -22,7 +22,9 @@ import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
@@ -33,11 +35,13 @@ import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
 import bio.terra.tanagra.generated.model.ApiLiteral;
+import bio.terra.tanagra.generated.model.ApiNaryOperator;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
+import bio.terra.tanagra.generated.model.ApiUnaryOperator;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -66,12 +70,32 @@ public final class FromApiUtils {
     switch (apiFilter.getFilterType()) {
       case ATTRIBUTE:
         ApiAttributeFilter apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
-        return new AttributeFilter(
-            underlay,
-            entity,
-            entity.getAttribute(apiAttributeFilter.getAttribute()),
-            fromApiObject(apiAttributeFilter.getOperator()),
-            fromApiObject(apiAttributeFilter.getValue()));
+        if (apiAttributeFilter.getUnaryOperator() != null) {
+          return new AttributeFilter(
+              underlay,
+              entity,
+              entity.getAttribute(apiAttributeFilter.getAttribute()),
+              fromApiObject(apiAttributeFilter.getUnaryOperator()));
+        } else if (apiAttributeFilter.getBinaryOperator() != null) {
+          return new AttributeFilter(
+              underlay,
+              entity,
+              entity.getAttribute(apiAttributeFilter.getAttribute()),
+              fromApiObject(apiAttributeFilter.getBinaryOperator()),
+              fromApiObject(apiAttributeFilter.getValues().get(0)));
+        } else if (apiAttributeFilter.getNaryOperator() != null) {
+          return new AttributeFilter(
+              underlay,
+              entity,
+              entity.getAttribute(apiAttributeFilter.getAttribute()),
+              fromApiObject(apiAttributeFilter.getNaryOperator()),
+              apiAttributeFilter.getValues().stream()
+                  .map(FromApiUtils::fromApiObject)
+                  .collect(Collectors.toList()));
+        } else {
+          throw new InvalidQueryException(
+              "At least one operator must be specified for an AttributeFilter");
+        }
       case TEXT:
         ApiTextFilter apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
         return new TextSearchFilter(
@@ -336,8 +360,16 @@ public final class FromApiUtils {
     }
   }
 
+  public static UnaryOperator fromApiObject(ApiUnaryOperator apiOperator) {
+    return UnaryOperator.valueOf(apiOperator.name());
+  }
+
   public static BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {
     return BinaryOperator.valueOf(apiOperator.name());
+  }
+
+  public static NaryOperator fromApiObject(ApiNaryOperator apiOperator) {
+    return NaryOperator.valueOf(apiOperator.name());
   }
 
   public static TextSearchFilter.TextSearchOperator fromApiObject(

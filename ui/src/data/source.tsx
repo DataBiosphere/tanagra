@@ -706,8 +706,8 @@ export class BackendUnderlaySource implements UnderlaySource {
               filterUnion: {
                 attributeFilter: {
                   attribute: groupingEntity.idAttribute,
-                  operator: tanagra.BinaryOperator.Equals,
-                  value: literalFromDataValue(parent),
+                  binaryOperator: tanagra.BinaryOperator.Equals,
+                  values: [literalFromDataValue(parent)],
                 },
               },
             },
@@ -1406,8 +1406,8 @@ function generateFilter(
         filterUnion: {
           attributeFilter: {
             attribute: entity.idAttribute,
-            operator: tanagra.BinaryOperator.Equals,
-            value: literalFromDataValue(key),
+            binaryOperator: tanagra.BinaryOperator.Equals,
+            values: [literalFromDataValue(key)],
           },
         },
       };
@@ -1448,8 +1448,8 @@ function generateFilter(
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  operator: tanagra.BinaryOperator.LessThanOrEqual,
-                  value: literalFromDataValue(max),
+                  binaryOperator: tanagra.BinaryOperator.LessThanOrEqual,
+                  values: [literalFromDataValue(max)],
                 },
               },
             },
@@ -1458,8 +1458,8 @@ function generateFilter(
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  operator: tanagra.BinaryOperator.GreaterThanOrEqual,
-                  value: literalFromDataValue(min),
+                  binaryOperator: tanagra.BinaryOperator.GreaterThanOrEqual,
+                  values: [literalFromDataValue(min)],
                 },
               },
             },
@@ -1475,8 +1475,8 @@ function generateFilter(
           filterUnion: {
             attributeFilter: {
               attribute: filter.attribute,
-              operator: tanagra.BinaryOperator.Equals,
-              value: literalFromDataValue(value),
+              binaryOperator: tanagra.BinaryOperator.Equals,
+              values: [literalFromDataValue(value)],
             },
           },
         }))
