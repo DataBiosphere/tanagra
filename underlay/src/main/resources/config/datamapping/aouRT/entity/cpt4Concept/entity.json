@@ -1,5 +1,5 @@
 {
-  "name": "cpt4",
+  "name": "cpt4Concept",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64" },
