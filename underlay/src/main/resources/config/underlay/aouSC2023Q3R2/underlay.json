@@ -7,9 +7,9 @@
     "aouRT/conditionConcept",
     "aouRT/conditionOccurrence",
     "aouRT/conditionNonHierarchyConcept",
-    "aouRT/procedure",
+    "aouRT/procedureConcept",
     "aouRT/procedureOccurrence",
-    "aouRT/procedureNonHierarchy",
+    "aouRT/procedureNonHierarchyConcept",
 
     "aouRT/brandConcept",
     "aouRT/ingredientConcept",
