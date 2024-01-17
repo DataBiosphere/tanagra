@@ -1,6 +1,6 @@
 {
   "name": "conditionNonHierarchyPerson",
-  "criteriaEntity": "conditionNonHierarchy",
+  "criteriaEntity": "conditionNonHierarchyConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "conditionOccurrence",

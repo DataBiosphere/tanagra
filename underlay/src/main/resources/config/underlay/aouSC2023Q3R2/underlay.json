@@ -4,9 +4,9 @@
   "entities": [
     "aouCT/person",
 
-    "aouRT/condition",
+    "aouRT/conditionConcept",
     "aouRT/conditionOccurrence",
-    "aouRT/conditionNonHierarchy",
+    "aouRT/conditionNonHierarchyConcept",
     "aouRT/procedure",
     "aouRT/procedureOccurrence",
     "aouRT/procedureNonHierarchy",
