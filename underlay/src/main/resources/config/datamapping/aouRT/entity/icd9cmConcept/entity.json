@@ -1,5 +1,5 @@
 {
-  "name": "icd9proc",
+  "name": "icd9cmConcept",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
@@ -21,7 +21,7 @@
       "childParentIdPairsSqlFile": "childParent.sql",
       "childIdFieldName": "child",
       "parentIdFieldName": "parent",
-      "rootNodeIds": [ 2500000080 ],
+      "rootNodeIds": [ 2500000023, 2500000024, 2500000025 ],
       "maxDepth": 10,
       "keepOrphanNodes": false
     }

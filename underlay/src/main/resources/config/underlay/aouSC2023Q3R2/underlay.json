@@ -29,10 +29,10 @@
     "aouRT/visitOccurrence",
 
     "aouRT/cpt4Concept",
-    "aouRT/icd9cm",
-    "aouRT/icd9proc",
-    "aouRT/icd10cm",
-    "aouRT/icd10pcs",
+    "aouRT/icd9cmConcept",
+    "aouRT/icd9procConcept",
+    "aouRT/icd10cmConcept",
+    "aouRT/icd10pcsConcept",
 
     "aouRT/activitySummary",
     "aouRT/heartRateLevel",
