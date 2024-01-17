@@ -16,9 +16,9 @@
     "aouRT/ingredientOccurrence",
     "aouRT/ingredientNonHierarchyConcept",
 
-    "aouRT/measurementSnomed",
-    "aouRT/measurementLoinc",
-    "aouRT/measurementNonHierarchy",
+    "aouRT/measurementSnomedConcept",
+    "aouRT/measurementLoincConcept",
+    "aouRT/measurementNonHierarchyConcept",
     "aouRT/measurementOccurrence",
 
     "aouRT/observationConcept",

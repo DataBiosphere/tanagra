@@ -1,6 +1,6 @@
 {
   "name": "measurementSnomedPerson",
-  "criteriaEntity": "measurementSnomed",
+  "criteriaEntity": "measurementSnomedConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "measurementOccurrence",
