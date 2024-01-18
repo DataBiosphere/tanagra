@@ -35,13 +35,11 @@ import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
 import bio.terra.tanagra.generated.model.ApiLiteral;
-import bio.terra.tanagra.generated.model.ApiNaryOperator;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
-import bio.terra.tanagra.generated.model.ApiUnaryOperator;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -70,32 +68,44 @@ public final class FromApiUtils {
     switch (apiFilter.getFilterType()) {
       case ATTRIBUTE:
         ApiAttributeFilter apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
-        if (apiAttributeFilter.getUnaryOperator() != null) {
+
+        Optional<UnaryOperator> unaryOperator =
+            getEnumValueFromName(UnaryOperator.values(), apiAttributeFilter.getOperator().name());
+        if (unaryOperator.isPresent()) {
           return new AttributeFilter(
               underlay,
               entity,
               entity.getAttribute(apiAttributeFilter.getAttribute()),
-              fromApiObject(apiAttributeFilter.getUnaryOperator()));
-        } else if (apiAttributeFilter.getBinaryOperator() != null) {
+              unaryOperator.get());
+        }
+
+        Optional<BinaryOperator> binaryOperator =
+            getEnumValueFromName(BinaryOperator.values(), apiAttributeFilter.getOperator().name());
+        if (binaryOperator.isPresent()) {
           return new AttributeFilter(
               underlay,
               entity,
               entity.getAttribute(apiAttributeFilter.getAttribute()),
-              fromApiObject(apiAttributeFilter.getBinaryOperator()),
+              binaryOperator.get(),
               fromApiObject(apiAttributeFilter.getValues().get(0)));
-        } else if (apiAttributeFilter.getNaryOperator() != null) {
+        }
+
+        Optional<NaryOperator> naryOperator =
+            getEnumValueFromName(NaryOperator.values(), apiAttributeFilter.getOperator().name());
+        if (naryOperator.isPresent()) {
           return new AttributeFilter(
               underlay,
               entity,
               entity.getAttribute(apiAttributeFilter.getAttribute()),
-              fromApiObject(apiAttributeFilter.getNaryOperator()),
+              naryOperator.get(),
               apiAttributeFilter.getValues().stream()
                   .map(FromApiUtils::fromApiObject)
                   .collect(Collectors.toList()));
-        } else {
-          throw new InvalidQueryException(
-              "At least one operator must be specified for an AttributeFilter");
         }
+
+        throw new InvalidQueryException(
+            "Invalid operator specified for an AttributeFilter: "
+                + apiAttributeFilter.getOperator());
       case TEXT:
         ApiTextFilter apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
         return new TextSearchFilter(
@@ -360,21 +370,22 @@ public final class FromApiUtils {
     }
   }
 
-  public static UnaryOperator fromApiObject(ApiUnaryOperator apiOperator) {
-    return UnaryOperator.valueOf(apiOperator.name());
-  }
-
   public static BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {
     return BinaryOperator.valueOf(apiOperator.name());
-  }
-
-  public static NaryOperator fromApiObject(ApiNaryOperator apiOperator) {
-    return NaryOperator.valueOf(apiOperator.name());
   }
 
   public static TextSearchFilter.TextSearchOperator fromApiObject(
       ApiTextFilter.MatchTypeEnum apiMatchType) {
     return TextSearchFilter.TextSearchOperator.valueOf(apiMatchType.name());
+  }
+
+  private static <ET extends Enum> Optional<ET> getEnumValueFromName(ET[] values, String name) {
+    for (ET enumVal : values) {
+      if (enumVal.name().equals(name)) {
+        return Optional.of(enumVal);
+      }
+    }
+    return Optional.empty();
   }
 
   public static Criteria fromApiObject(ApiCriteria apiObj) {

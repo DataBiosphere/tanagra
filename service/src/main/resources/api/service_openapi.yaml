@@ -1450,12 +1450,23 @@ components:
       properties:
         attribute:
           type: string
-        unaryOperator:
-          $ref: "#/components/schemas/UnaryOperator"
-        binaryOperator:
-          $ref: "#/components/schemas/BinaryOperator"
-        naryOperator:
-          $ref: "#/components/schemas/NaryOperator"
+        operator:
+          type: string
+          enum:
+            [
+              "IS_NULL",
+              "IS_NOT_NULL",
+              "IS_EMPTY_STRING",
+              "EQUALS",
+              "NOT_EQUALS",
+              "LESS_THAN",
+              "GREATER_THAN",
+              "LESS_THAN_OR_EQUAL",
+              "GREATER_THAN_OR_EQUAL",
+              "IN",
+              "NOT_IN",
+              "BETWEEN",
+            ]
         values:
           type: array
           items:
@@ -2480,15 +2491,6 @@ components:
     PageMarker:
       type: string
 
-    UnaryOperator:
-      type: string
-      enum:
-        [
-          "IS_NULL",
-          "IS_NOT_NULL",
-          "IS_EMPTY_STRING",
-        ]
-
     BinaryOperator:
       type: string
       enum:
@@ -2499,15 +2501,6 @@ components:
           "GREATER_THAN",
           "LESS_THAN_OR_EQUAL",
           "GREATER_THAN_OR_EQUAL",
-        ]
-
-    NaryOperator:
-      type: string
-      enum:
-        [
-          "IN",
-          "NOT_IN",
-          "BETWEEN",
         ]
 
   securitySchemes:

@@ -706,7 +706,7 @@ export class BackendUnderlaySource implements UnderlaySource {
               filterUnion: {
                 attributeFilter: {
                   attribute: groupingEntity.idAttribute,
-                  binaryOperator: tanagra.BinaryOperator.Equals,
+                  operator: tanagra.AttributeFilterOperatorEnum.Equals,
                   values: [literalFromDataValue(parent)],
                 },
               },
@@ -1406,7 +1406,7 @@ function generateFilter(
         filterUnion: {
           attributeFilter: {
             attribute: entity.idAttribute,
-            binaryOperator: tanagra.BinaryOperator.Equals,
+            operator: tanagra.AttributeFilterOperatorEnum.Equals,
             values: [literalFromDataValue(key)],
           },
         },
@@ -1448,7 +1448,7 @@ function generateFilter(
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  binaryOperator: tanagra.BinaryOperator.LessThanOrEqual,
+                  operator: tanagra.AttributeFilterOperatorEnum.LessThanOrEqual,
                   values: [literalFromDataValue(max)],
                 },
               },
@@ -1458,7 +1458,7 @@ function generateFilter(
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  binaryOperator: tanagra.BinaryOperator.GreaterThanOrEqual,
+                  operator: tanagra.AttributeFilterOperatorEnum.GreaterThanOrEqual,
                   values: [literalFromDataValue(min)],
                 },
               },
@@ -1475,7 +1475,7 @@ function generateFilter(
           filterUnion: {
             attributeFilter: {
               attribute: filter.attribute,
-              binaryOperator: tanagra.BinaryOperator.Equals,
+              operator: tanagra.AttributeFilterOperatorEnum.Equals,
               values: [literalFromDataValue(value)],
             },
           },
