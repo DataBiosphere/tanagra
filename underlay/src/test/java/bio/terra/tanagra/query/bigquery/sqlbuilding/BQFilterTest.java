@@ -213,7 +213,31 @@ public class BQFilterTest extends BQRunnerTest {
             .getHierarchyAncestorDescendant(entity.getName(), Hierarchy.DEFAULT_NAME)
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
-        "hierarchyHasAncestorFilter",
+        "hierarchyHasAncestorFilterEquals",
+        listQueryResult.getSql(),
+        entityMainTable,
+        ancestorDescendantTable);
+
+    hierarchyHasAncestorFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            entity,
+            entity.getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(simpleAttribute),
+                hierarchyHasAncestorFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "hierarchyHasAncestorFilterIn",
         listQueryResult.getSql(),
         entityMainTable,
         ancestorDescendantTable);
@@ -250,7 +274,31 @@ public class BQFilterTest extends BQRunnerTest {
             .getHierarchyChildParent(entity.getName(), Hierarchy.DEFAULT_NAME)
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
-        "hierarchyHasParentFilter", listQueryResult.getSql(), entityMainTable, childParentTable);
+        "hierarchyHasParentFilterEquals",
+        listQueryResult.getSql(),
+        entityMainTable,
+        childParentTable);
+
+    hierarchyHasParentFilter =
+        new HierarchyHasParentFilter(
+            underlay,
+            entity,
+            entity.getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(simpleAttribute),
+                hierarchyHasParentFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "hierarchyHasParentFilterIn", listQueryResult.getSql(), entityMainTable, childParentTable);
   }
 
   @Test
