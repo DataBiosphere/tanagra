@@ -126,10 +126,20 @@ public final class FromApiUtils {
             return new HierarchyIsMemberFilter(underlay, entity, hierarchy);
           case CHILD_OF:
             return new HierarchyHasParentFilter(
-                underlay, entity, hierarchy, fromApiObject(apiHierarchyFilter.getValue()));
+                underlay,
+                entity,
+                hierarchy,
+                apiHierarchyFilter.getValues().stream()
+                    .map(FromApiUtils::fromApiObject)
+                    .collect(Collectors.toList()));
           case DESCENDANT_OF_INCLUSIVE:
             return new HierarchyHasAncestorFilter(
-                underlay, entity, hierarchy, fromApiObject(apiHierarchyFilter.getValue()));
+                underlay,
+                entity,
+                hierarchy,
+                apiHierarchyFilter.getValues().stream()
+                    .map(FromApiUtils::fromApiObject)
+                    .collect(Collectors.toList()));
           default:
             throw new SystemException(
                 "Unknown API hierarchy filter operator: " + apiHierarchyFilter.getOperator());
