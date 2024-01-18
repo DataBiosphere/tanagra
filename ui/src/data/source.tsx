@@ -1458,7 +1458,8 @@ function generateFilter(
               filterUnion: {
                 attributeFilter: {
                   attribute: filter.attribute,
-                  operator: tanagra.AttributeFilterOperatorEnum.GreaterThanOrEqual,
+                  operator:
+                    tanagra.AttributeFilterOperatorEnum.GreaterThanOrEqual,
                   values: [literalFromDataValue(min)],
                 },
               },
