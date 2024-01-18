@@ -1451,9 +1451,26 @@ components:
         attribute:
           type: string
         operator:
-          $ref: "#/components/schemas/BinaryOperator"
-        value:
-          $ref: "#/components/schemas/Literal"
+          type: string
+          enum:
+            [
+              "IS_NULL",
+              "IS_NOT_NULL",
+              "IS_EMPTY_STRING",
+              "EQUALS",
+              "NOT_EQUALS",
+              "LESS_THAN",
+              "GREATER_THAN",
+              "LESS_THAN_OR_EQUAL",
+              "GREATER_THAN_OR_EQUAL",
+              "IN",
+              "NOT_IN",
+              "BETWEEN",
+            ]
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/Literal"
 
     TextFilter:
       type: object
