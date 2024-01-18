@@ -13,9 +13,9 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.query.bigquery.BQQueryRunner;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
@@ -36,12 +36,11 @@ import org.junit.jupiter.api.Test;
 public class BQFilterTest extends BQRunnerTest {
   @Test
   void attributeFilter() throws IOException {
-    // Filter with binary operator.
+    // Filter with unary operator.
     Entity entity = underlay.getPrimaryEntity();
-    Attribute attribute = entity.getAttribute("year_of_birth");
+    Attribute attribute = entity.getAttribute("ethnicity");
     AttributeFilter attributeFilter =
-        new AttributeFilter(
-            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
+        new AttributeFilter(underlay, entity, attribute, UnaryOperator.IS_NOT_NULL);
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
     ListQueryResult listQueryResult =
@@ -57,17 +56,13 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 true));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
-    assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
+    assertSqlMatchesWithTableNameOnly("attributeFilterUnary", listQueryResult.getSql(), table);
 
-    // Filter with function template.
-    attribute = entity.getAttribute("age");
+    // Filter with binary operator.
+    attribute = entity.getAttribute("year_of_birth");
     attributeFilter =
         new AttributeFilter(
-            underlay,
-            entity,
-            attribute,
-            FunctionTemplate.NOT_IN,
-            List.of(Literal.forInt64(18L), Literal.forInt64(19L)));
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
     listQueryResult =
         bqQueryRunner.run(
             new ListQueryRequest(
@@ -80,7 +75,54 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 null,
                 true));
-    assertSqlMatchesWithTableNameOnly("attributeFilterFunction", listQueryResult.getSql(), table);
+    assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
+
+    // Filter with n-ary operator IN.
+    attribute = entity.getAttribute("age");
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            attribute,
+            NaryOperator.IN,
+            List.of(Literal.forInt64(18L), Literal.forInt64(19L), Literal.forInt64(20L)));
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(simpleAttribute),
+                attributeFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly("attributeFilterNaryIn", listQueryResult.getSql(), table);
+
+    // Filter with n-ary operator BETWEEN.
+    attribute = entity.getAttribute("age");
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            attribute,
+            NaryOperator.BETWEEN,
+            List.of(Literal.forInt64(45L), Literal.forInt64(65L)));
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                entity,
+                List.of(simpleAttribute),
+                attributeFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "attributeFilterNaryBetween", listQueryResult.getSql(), table);
   }
 
   @Test
@@ -91,9 +133,11 @@ public class BQFilterTest extends BQRunnerTest {
         new AttributeFilter(
             underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forString("1956"));
     TextSearchFilter textSearchFilter =
-        new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "44054006", null);
+        new TextSearchFilter(
+            underlay, entity, TextSearchFilter.TextSearchOperator.EXACT_MATCH, "44054006", null);
     BooleanAndOrFilter booleanAndOrFilter =
-        new BooleanAndOrFilter(LogicalOperator.AND, List.of(attributeFilter, textSearchFilter));
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.AND, List.of(attributeFilter, textSearchFilter));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -437,8 +481,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("stop_reason"),
-            FunctionTemplate.IS_NULL,
-            List.of());
+            UnaryOperator.IS_NULL);
     relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -783,8 +826,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             occurrenceEntity,
             occurrenceEntity.getAttribute("stop_reason"),
-            FunctionTemplate.IS_NULL,
-            List.of());
+            UnaryOperator.IS_NULL);
     relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -1120,7 +1162,8 @@ public class BQFilterTest extends BQRunnerTest {
             criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
             Literal.forInt64(456L));
     BooleanAndOrFilter hasAncestorFilter1or2 =
-        new BooleanAndOrFilter(LogicalOperator.OR, List.of(hasAncestorFilter1, hasAncestorFilter2));
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR, List.of(hasAncestorFilter1, hasAncestorFilter2));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             underlay,
@@ -1240,7 +1283,8 @@ public class BQFilterTest extends BQRunnerTest {
   void textSearchFilter() throws IOException {
     Entity entity = underlay.getEntity("condition");
     TextSearchFilter textSearchFilter =
-        new TextSearchFilter(underlay, entity, FunctionTemplate.TEXT_EXACT_MATCH, "diabetes", null);
+        new TextSearchFilter(
+            underlay, entity, TextSearchFilter.TextSearchOperator.EXACT_MATCH, "diabetes", null);
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
     ListQueryResult listQueryResult =
@@ -1262,7 +1306,7 @@ public class BQFilterTest extends BQRunnerTest {
         new TextSearchFilter(
             underlay,
             entity,
-            FunctionTemplate.TEXT_EXACT_MATCH,
+            TextSearchFilter.TextSearchOperator.EXACT_MATCH,
             "diabetes",
             entity.getAttribute("name"));
     listQueryResult =

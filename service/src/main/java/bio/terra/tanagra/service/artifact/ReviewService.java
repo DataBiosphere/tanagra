@@ -10,9 +10,8 @@ import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
@@ -283,12 +282,13 @@ public class ReviewService {
             underlay,
             primaryEntity,
             idAttribute,
-            FunctionTemplate.IN,
+            NaryOperator.IN,
             primaryEntityIdsToStableIndex.keySet().stream().collect(Collectors.toList()));
     if (reviewQueryRequest.getEntityFilter() != null) {
       entityFilter =
           new BooleanAndOrFilter(
-              LogicalOperator.AND, List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
+              BooleanAndOrFilter.LogicalOperator.AND,
+              List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
     }
 
     // Get all the primary entity instances.
@@ -399,7 +399,7 @@ public class ReviewService {
             underlay,
             entity,
             entity.getIdAttribute(),
-            FunctionTemplate.IN,
+            NaryOperator.IN,
             reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
                 .collect(Collectors.toList()));
     CountQueryRequest countQueryRequest =

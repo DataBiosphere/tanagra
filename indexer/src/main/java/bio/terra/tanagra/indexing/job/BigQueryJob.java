@@ -1,6 +1,6 @@
 package bio.terra.tanagra.indexing.job;
 
-import bio.terra.tanagra.api.shared.FunctionTemplate;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
@@ -11,7 +11,6 @@ import bio.terra.tanagra.utils.GoogleBigQuery;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableResult;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Optional;
 
 public abstract class BigQueryJob implements IndexingJob {
@@ -69,12 +68,7 @@ public abstract class BigQueryJob implements IndexingJob {
             + " FROM "
             + sqlTable.render()
             + " WHERE "
-            + bqTranslator.functionFilterSql(
-                field,
-                bqTranslator.functionTemplateSql(FunctionTemplate.IS_NOT_NULL),
-                List.of(),
-                null,
-                new SqlParams())
+            + bqTranslator.unaryFilterSql(field, UnaryOperator.IS_NOT_NULL, null, new SqlParams())
             + " LIMIT 1";
     TableResult tableResult = googleBigQuery.queryBigQuery(selectOneRowSql);
     return tableResult.getTotalRows() > 0;

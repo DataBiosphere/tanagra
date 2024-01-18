@@ -32,19 +32,25 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
     if (attribute.hasRuntimeSqlFunctionWrapper()) {
       valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
     }
-    return attributeFilter.hasFunctionTemplate()
-        ? apiTranslator.functionFilterSql(
-            valueField,
-            apiTranslator.functionTemplateSql(attributeFilter.getFunctionTemplate()),
-            attributeFilter.getValues(),
-            tableAlias,
-            sqlParams)
-        : apiTranslator.binaryFilterSql(
-            valueField,
-            attributeFilter.getOperator(),
-            attributeFilter.getValues().get(0),
-            tableAlias,
-            sqlParams);
+
+    if (attributeFilter.hasUnaryOperator()) {
+      return apiTranslator.unaryFilterSql(
+          valueField, attributeFilter.getUnaryOperator(), tableAlias, sqlParams);
+    } else if (attributeFilter.hasBinaryOperator()) {
+      return apiTranslator.binaryFilterSql(
+          valueField,
+          attributeFilter.getBinaryOperator(),
+          attributeFilter.getValues().get(0),
+          tableAlias,
+          sqlParams);
+    } else {
+      return apiTranslator.naryFilterSql(
+          valueField,
+          attributeFilter.getNaryOperator(),
+          attributeFilter.getValues(),
+          tableAlias,
+          sqlParams);
+    }
   }
 
   @Override

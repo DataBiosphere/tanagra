@@ -1,10 +1,14 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.api.shared.LogicalOperator;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public class BooleanAndOrFilter extends EntityFilter {
+  public enum LogicalOperator {
+    AND,
+    OR
+  }
+
   private final LogicalOperator operator;
   private final List<EntityFilter> subFilters;
 

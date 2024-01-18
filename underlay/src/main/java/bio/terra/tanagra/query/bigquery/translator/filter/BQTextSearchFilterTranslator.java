@@ -8,7 +8,6 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import java.util.List;
 
 public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
   private final TextSearchFilter textSearchFilter;
@@ -42,10 +41,10 @@ public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
       // Search the text index specified in the underlay config.
       textSearchField = indexTable.getTextSearchField();
     }
-    return apiTranslator.functionFilterSql(
+    return apiTranslator.textSearchFilterSql(
         textSearchField,
-        apiTranslator.functionTemplateSql(textSearchFilter.getFunctionTemplate()),
-        List.of(Literal.forString(textSearchFilter.getText())),
+        textSearchFilter.getOperator(),
+        Literal.forString(textSearchFilter.getText()),
         tableAlias,
         sqlParams);
   }
