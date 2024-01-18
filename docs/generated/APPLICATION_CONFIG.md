@@ -1,6 +1,6 @@
-# Deployment Configuration
+# Application Configuration
 
-This file lists all the configuration properties available for a deployment of the service.
+This file lists all the configuration properties available for a deployment of the service application.
 You can set the properties either with an `application.yaml` file or with environment variables.
 This documentation is generated from annotations in the configuration classes.
 
