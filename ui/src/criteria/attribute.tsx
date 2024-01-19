@@ -196,11 +196,18 @@ function AttributeInline(props: AttributeInlineProps) {
   const underlaySource = useUnderlaySource();
   const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
 
-  const fetchHintData = useCallback(() => {
-    return underlaySource.getHintData(
-      props.entity ?? "",
-      props.config.attribute
+  const entity = underlaySource.lookupEntity(props.entity ?? "");
+  const attribute = entity.attributes.find(
+    (a) => a.name === props.config.attribute
+  );
+  if (!attribute) {
+    throw new Error(
+      `Attribute ${props.config.attribute} not found in "${entity.name}`
     );
+  }
+
+  const fetchHintData = useCallback(() => {
+    return underlaySource.getHintData(entity.name, props.config.attribute);
   }, [props.config.attribute]);
   const hintDataState = useSWRImmutable(
     { component: "Attribute", attribute: props.config.attribute },
@@ -240,8 +247,12 @@ function AttributeInline(props: AttributeInlineProps) {
         <AttributeSlider
           key={emptyRange.id}
           index={0}
-          minBound={hintDataState.data.integerHint.min}
-          maxBound={hintDataState.data.integerHint.max}
+          minBound={
+            attribute.displayHintRangeMin ?? hintDataState.data.integerHint.min
+          }
+          maxBound={
+            attribute.displayHintRangeMax ?? hintDataState.data.integerHint.max
+          }
           range={emptyRange}
           unit={props.config.unit}
           data={props.data}
@@ -257,8 +268,14 @@ function AttributeInline(props: AttributeInlineProps) {
           <AttributeSlider
             key={range.id}
             index={index}
-            minBound={hintDataState.data.integerHint.min}
-            maxBound={hintDataState.data.integerHint.max}
+            minBound={
+              attribute.displayHintRangeMin ??
+              hintDataState.data.integerHint.min
+            }
+            maxBound={
+              attribute.displayHintRangeMax ??
+              hintDataState.data.integerHint.max
+            }
             range={range}
             unit={props.config.unit}
             data={props.data}
