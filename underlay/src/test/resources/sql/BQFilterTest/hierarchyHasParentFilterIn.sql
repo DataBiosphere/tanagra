@@ -11,6 +11,6 @@
                 ${HCP_condition_default}              
             WHERE
                 parent IN (
-                    @val0,@val1
+                    @val0,@val1                 
                 )         
         )

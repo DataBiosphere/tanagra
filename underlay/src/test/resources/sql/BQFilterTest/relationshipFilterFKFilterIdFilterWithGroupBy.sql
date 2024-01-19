@@ -10,10 +10,10 @@
             FROM
                 ${ENT_conditionOccurrence}              
             WHERE
-                person_id = @val0
+                person_id = @val0              
             GROUP BY
                 person_id,
                 start_date              
             HAVING
-                COUNT(*) > @groupByCount         
+                COUNT(*) > @groupByCount0         
         )

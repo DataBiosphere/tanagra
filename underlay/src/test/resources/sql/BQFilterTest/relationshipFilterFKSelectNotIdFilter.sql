@@ -10,5 +10,5 @@
             FROM
                 ${ENT_person}              
             WHERE
-                gender = @val0
+                gender = @val0         
         )

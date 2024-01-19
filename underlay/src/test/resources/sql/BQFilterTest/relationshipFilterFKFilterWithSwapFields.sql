@@ -10,5 +10,5 @@
             FROM
                 ${ENT_conditionOccurrence}              
             WHERE
-                condition = @val0
+                condition = @val0         
         )
