@@ -56,7 +56,7 @@ const sampleFilterFilters: { [key: string]: Filter } = {
 const EXCLUDE_COMPROMISED = "Exclude Compromised DNA";
 const EXCLUDE_INTERNAL =
   "Include only samples available for external processing";
-const PLASMA = "Any existing banked BioVU Plasma";
+const PLASMA = "Any banked BioVU Plasma";
 
 const EXCLUDE_COMPROMISED_TOOLTIP = `"Compromised" DNA may not represent
   anticipated germline genetic profiles of the subject due to select medical
