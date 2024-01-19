@@ -16,10 +16,10 @@
                     FROM
                         ${ENT_brand}                      
                     WHERE
-                        concept_code = @val0
+                        concept_code = @val0                 
                 )              
             GROUP BY
                 entity_B_id              
             HAVING
-                COUNT(*) = @groupByCount             
+                COUNT(*) = @groupByCount1             
             )

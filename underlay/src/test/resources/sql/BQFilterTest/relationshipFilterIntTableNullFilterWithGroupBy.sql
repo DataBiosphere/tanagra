@@ -12,5 +12,5 @@
             GROUP BY
                 entity_B_id              
             HAVING
-                COUNT(*) = @groupByCount         
+                COUNT(*) = @groupByCount0         
         )

@@ -15,5 +15,5 @@
                 person_id,
                 start_date              
             HAVING
-                COUNT(*) > @groupByCount0         
+                COUNT(*) > @groupByCount1         
         )
