@@ -15,7 +15,7 @@ More information about this codebase can be found in the links below.
 * [Codebase Overview](./docs/CODEBASE_OVERVIEW.md)
 * [Contribute Code](./docs/CONTRIBUTING.md)
 * [Deployment Overview](./docs/DEPLOYMENT_OVERVIEW.md)
-* [Deployment Config Properties](./docs/generated/DEPLOYMENT_CONFIG.md)
+* [Deployment Config Properties](./docs/generated/APPLICATION_CONFIG.md)
 * [Underlay Config Properties](./docs/generated/UNDERLAY_CONFIG.md)
 * [Indexer CLI Manpage](./docs/generated/indexer-cli/tanagra.adoc)
 

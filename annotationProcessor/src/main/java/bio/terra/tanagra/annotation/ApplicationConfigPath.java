@@ -8,10 +8,10 @@ import bio.terra.tanagra.app.configuration.TanagraDatabaseProperties;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import java.util.List;
 
-public class DeploymentConfigPath extends AnnotationPath {
-  private static final String FILE_TITLE = "Deployment Configuration";
+public class ApplicationConfigPath extends AnnotationPath {
+  private static final String FILE_TITLE = "Application Configuration";
   private static final String FILE_INTRODUCTION =
-      "This file lists all the configuration properties available for a deployment of the service.\n"
+      "This file lists all the configuration properties available for a deployment of the service application.\n"
           + "You can set the properties either with an `application.yaml` file or with environment variables.\n"
           + "This documentation is generated from annotations in the configuration classes.";
 
