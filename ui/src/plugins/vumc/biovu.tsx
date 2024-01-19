@@ -24,21 +24,18 @@ import { CriteriaConfig } from "underlaysSlice";
 import { safeRegExp } from "util/safeRegExp";
 
 enum SampleFilter {
-  NONE = "None",
   ANY = "Any",
   ONE_HUNDRED = "100",
   FIVE_HUNDRED = "500",
 }
 
 const sampleFilterDescriptions = {
-  [SampleFilter.NONE]: "Any SD Records (not requiring BioVU resources)",
   [SampleFilter.ANY]: "Any BioVU DNA (no minimum amount or concentration)",
   [SampleFilter.ONE_HUNDRED]: "At least 100ng with at least ng/µL BioVU DNA",
   [SampleFilter.FIVE_HUNDRED]: "At least 500ng with at least ng/µL BioVU DNA",
 };
 
-const sampleFilterFilters: { [key: string]: Filter | null } = {
-  [SampleFilter.NONE]: null,
+const sampleFilterFilters: { [key: string]: Filter } = {
   [SampleFilter.ANY]: {
     type: FilterType.Attribute,
     attribute: "has_biovu_sample",
@@ -68,6 +65,10 @@ const EXCLUDE_COMPROMISED_TOOLTIP = `"Compromised" DNA may not represent
 const EXCLUDE_INTERNAL_TOOLTIP =
   "Some BioVU sample cannot be tested outsize of Vanderbilt";
 
+interface Config extends CriteriaConfig {
+  plasmaFilter?: string;
+}
+
 interface Data {
   sampleFilter: SampleFilter;
   excludeCompromised?: boolean;
@@ -77,13 +78,9 @@ interface Data {
 
 @registerCriteriaPlugin(
   "biovu",
-  (
-    underlaySource: UnderlaySource,
-    c: CriteriaConfig,
-    dataEntry?: DataEntry
-  ) => {
+  (underlaySource: UnderlaySource, c: Config, dataEntry?: DataEntry) => {
     return {
-      sampleFilter: (dataEntry?.key as SampleFilter) ?? SampleFilter.NONE,
+      sampleFilter: (dataEntry?.key as SampleFilter) ?? SampleFilter.ANY,
     };
   },
   search
@@ -91,11 +88,11 @@ interface Data {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<Data> {
   public data: Data;
-  private config: CriteriaConfig;
+  private config: Config;
 
   constructor(
     public id: string,
-    config: CriteriaConfig,
+    config: Config,
     data: unknown,
     private entity?: string
   ) {
@@ -116,20 +113,17 @@ class _ implements CriteriaPlugin<Data> {
 
   displayDetails() {
     const additionalText: string[] = [];
-    if (this.data.sampleFilter !== SampleFilter.NONE) {
-      if (this.data.excludeCompromised) {
-        additionalText.push(EXCLUDE_COMPROMISED);
-      }
-      if (this.data.excludeInternal) {
-        additionalText.push(EXCLUDE_INTERNAL);
-      }
+    if (this.data.excludeCompromised) {
+      additionalText.push(EXCLUDE_COMPROMISED);
     }
-    if (this.data.plasma) {
-      additionalText.push(PLASMA);
+    if (this.data.excludeInternal) {
+      additionalText.push(EXCLUDE_INTERNAL);
     }
 
     return {
-      title: sampleFilterDescriptions[this.data.sampleFilter],
+      title: this.config.plasmaFilter
+        ? PLASMA
+        : sampleFilterDescriptions[this.data.sampleFilter],
       additionalText: additionalText,
     };
   }
@@ -138,31 +132,29 @@ class _ implements CriteriaPlugin<Data> {
     const filters: (Filter | null)[] = [
       sampleFilterFilters[this.data.sampleFilter] ?? null,
     ];
-    if (this.data.sampleFilter !== SampleFilter.NONE) {
-      if (this.data.excludeCompromised) {
-        filters.push({
-          type: FilterType.Unary,
-          operator: UnaryFilterOperator.Not,
-          operand: {
-            type: FilterType.Attribute,
-            attribute: "biovu_sample_is_compromised",
-            values: [true],
-          },
-        });
-      }
-      if (this.data.excludeInternal) {
-        filters.push({
-          type: FilterType.Unary,
-          operator: UnaryFilterOperator.Not,
-          operand: {
-            type: FilterType.Attribute,
-            attribute: "biovu_sample_is_nonshippable",
-            values: [true],
-          },
-        });
-      }
+    if (this.data.excludeCompromised) {
+      filters.push({
+        type: FilterType.Unary,
+        operator: UnaryFilterOperator.Not,
+        operand: {
+          type: FilterType.Attribute,
+          attribute: "biovu_sample_is_compromised",
+          values: [true],
+        },
+      });
     }
-    if (this.data.plasma) {
+    if (this.data.excludeInternal) {
+      filters.push({
+        type: FilterType.Unary,
+        operator: UnaryFilterOperator.Not,
+        operand: {
+          type: FilterType.Attribute,
+          attribute: "biovu_sample_is_nonshippable",
+          values: [true],
+        },
+      });
+    }
+    if (this.config.plasmaFilter) {
       filters.push({
         type: FilterType.Attribute,
         attribute: "biovu_sample_has_plasma",
@@ -181,7 +173,7 @@ class _ implements CriteriaPlugin<Data> {
 type BioVUInlineProps = {
   groupId: string;
   criteriaId: string;
-  config: CriteriaConfig;
+  config: Config;
   data: Data;
 };
 
@@ -199,7 +191,7 @@ function BioVUInline(props: BioVUInlineProps) {
     );
   };
 
-  return (
+  return !props.config.plasmaFilter ? (
     <GridLayout rows spacing={1} height="auto">
       <FormControl
         onClick={(e) => {
@@ -219,56 +211,6 @@ function BioVUInline(props: BioVUInlineProps) {
           ))}
         </Select>
       </FormControl>
-      {props.data.sampleFilter !== SampleFilter.NONE ? (
-        <GridLayout cols rowAlign="middle">
-          <GridBox
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <Checkbox
-              checked={props.data.excludeCompromised}
-              onChange={() =>
-                updateCriteria(
-                  produce(props.data, (data) => {
-                    data.excludeCompromised = !data.excludeCompromised;
-                  })
-                )
-              }
-            />
-          </GridBox>
-          <Typography variant="body1">{EXCLUDE_COMPROMISED}</Typography>
-          <Tooltip title={EXCLUDE_COMPROMISED_TOOLTIP}>
-            <InfoIcon sx={{ display: "flex", ml: 1 }} />
-          </Tooltip>
-        </GridLayout>
-      ) : null}
-      {props.data.sampleFilter !== SampleFilter.NONE ? (
-        <GridLayout cols rowAlign="middle">
-          <GridBox
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <Checkbox
-              checked={props.data.excludeInternal}
-              onChange={() =>
-                updateCriteria(
-                  produce(props.data, (data) => {
-                    data.excludeInternal = !data.excludeInternal;
-                  })
-                )
-              }
-            />
-          </GridBox>
-          <Typography variant="body1">{EXCLUDE_INTERNAL}</Typography>
-          <Tooltip title={EXCLUDE_INTERNAL_TOOLTIP}>
-            <InfoIcon sx={{ display: "flex", ml: 1 }} />
-          </Tooltip>
-        </GridLayout>
-      ) : null}
       <GridLayout cols rowAlign="middle">
         <GridBox
           onClick={(e) => {
@@ -277,25 +219,51 @@ function BioVUInline(props: BioVUInlineProps) {
           }}
         >
           <Checkbox
-            checked={props.data.plasma}
+            checked={props.data.excludeCompromised}
             onChange={() =>
               updateCriteria(
                 produce(props.data, (data) => {
-                  data.plasma = !data.plasma;
+                  data.excludeCompromised = !data.excludeCompromised;
                 })
               )
             }
           />
         </GridBox>
-        <Typography variant="body1">{PLASMA}</Typography>
+        <Typography variant="body1">{EXCLUDE_COMPROMISED}</Typography>
+        <Tooltip title={EXCLUDE_COMPROMISED_TOOLTIP}>
+          <InfoIcon sx={{ display: "flex", ml: 1 }} />
+        </Tooltip>
+      </GridLayout>
+      <GridLayout cols rowAlign="middle">
+        <GridBox
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <Checkbox
+            checked={props.data.excludeInternal}
+            onChange={() =>
+              updateCriteria(
+                produce(props.data, (data) => {
+                  data.excludeInternal = !data.excludeInternal;
+                })
+              )
+            }
+          />
+        </GridBox>
+        <Typography variant="body1">{EXCLUDE_INTERNAL}</Typography>
+        <Tooltip title={EXCLUDE_INTERNAL_TOOLTIP}>
+          <InfoIcon sx={{ display: "flex", ml: 1 }} />
+        </Tooltip>
       </GridLayout>
     </GridLayout>
-  );
+  ) : null;
 }
 
 async function search(
   underlaySource: UnderlaySource,
-  c: CriteriaConfig,
+  c: Config,
   query: string
 ): Promise<DataEntry[]> {
   const [re] = safeRegExp(query);
