@@ -5,6 +5,6 @@
     FROM
         ${ENT_person}      
     WHERE
-        gender != @val      
+        gender != @val0
     GROUP BY
         year_of_birth

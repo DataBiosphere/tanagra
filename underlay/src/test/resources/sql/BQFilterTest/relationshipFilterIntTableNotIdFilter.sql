@@ -16,6 +16,6 @@
                     FROM
                         ${ENT_brand}                      
                     WHERE
-                        concept_code = @val                 
+                        concept_code = @val0
                 )             
             )

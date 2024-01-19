@@ -16,7 +16,7 @@
                     FROM
                         ${ENT_brand}                      
                     WHERE
-                        concept_code = @val                 
+                        concept_code = @val0
                 )              
             GROUP BY
                 entity_B_id              

@@ -4,4 +4,4 @@
     FROM
         ${ENT_conditionOccurrence}      
     WHERE
-        person_id = @val
+        person_id = @val0

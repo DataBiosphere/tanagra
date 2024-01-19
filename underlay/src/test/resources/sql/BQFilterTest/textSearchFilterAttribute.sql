@@ -4,4 +4,4 @@
     FROM
         ${ENT_condition}      
     WHERE
-        REGEXP_CONTAINS(UPPER(name), UPPER(@val))
+        REGEXP_CONTAINS(UPPER(name), UPPER(@val0))

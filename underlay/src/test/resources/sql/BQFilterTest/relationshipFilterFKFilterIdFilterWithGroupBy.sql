@@ -10,7 +10,7 @@
             FROM
                 ${ENT_conditionOccurrence}              
             WHERE
-                person_id = @val              
+                person_id = @val0
             GROUP BY
                 person_id,
                 start_date              
