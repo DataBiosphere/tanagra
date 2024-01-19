@@ -17,8 +17,4 @@ public class SqlParams {
   public ImmutableMap<String, Literal> getParams() {
     return ImmutableMap.copyOf(params);
   }
-
-  private boolean isTest() {
-    return System.getProperty("IS_TEST") != null;
-  }
 }
