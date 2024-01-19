@@ -177,7 +177,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       List<Literal> insertRow = insertRows.get(i);
       List<String> paramNames = new ArrayList<>();
       for (int j = 0; j < insertRow.size(); j++) {
-        paramNames.add("@" + sqlParams.addParam("valr" + i + "c" + j, insertRow.get(j)));
+        paramNames.add("@" + sqlParams.addParam("valr", insertRow.get(j)));
       }
       insertRowSqls.add("(" + paramNames.stream().collect(Collectors.joining(",")) + ")");
     }
