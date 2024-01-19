@@ -1,6 +1,6 @@
 {
   "name": "cpt4Person",
-  "criteriaEntity": "cpt4",
+  "criteriaEntity": "cpt4Concept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "deviceOccurrence",

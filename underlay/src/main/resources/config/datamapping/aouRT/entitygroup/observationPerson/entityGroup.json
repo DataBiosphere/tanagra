@@ -1,6 +1,6 @@
 {
   "name": "observationPerson",
-  "criteriaEntity": "observation",
+  "criteriaEntity": "observationConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "observationOccurrence",

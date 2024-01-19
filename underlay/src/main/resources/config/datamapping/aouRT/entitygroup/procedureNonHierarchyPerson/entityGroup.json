@@ -1,6 +1,6 @@
 {
   "name": "procedureNonHierarchyPerson",
-  "criteriaEntity": "procedureNonHierarchy",
+  "criteriaEntity": "procedureNonHierarchyConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "procedureOccurrence",

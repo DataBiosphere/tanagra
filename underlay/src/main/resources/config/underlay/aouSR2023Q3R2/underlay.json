@@ -4,35 +4,35 @@
   "entities": [
     "aouRT/person",
 
-    "aouRT/condition",
+    "aouRT/conditionConcept",
     "aouRT/conditionOccurrence",
-    "aouRT/conditionNonHierarchy",
-    "aouRT/procedure",
+    "aouRT/conditionNonHierarchyConcept",
+    "aouRT/procedureConcept",
     "aouRT/procedureOccurrence",
-    "aouRT/procedureNonHierarchy",
+    "aouRT/procedureNonHierarchyConcept",
 
-    "aouRT/brand",
-    "aouRT/ingredient",
+    "aouRT/brandConcept",
+    "aouRT/ingredientConcept",
     "aouRT/ingredientOccurrence",
-    "aouRT/ingredientNonHierarchy",
+    "aouRT/ingredientNonHierarchyConcept",
 
-    "aouRT/measurementSnomed",
-    "aouRT/measurementLoinc",
-    "aouRT/measurementNonHierarchy",
+    "aouRT/measurementSnomedConcept",
+    "aouRT/measurementLoincConcept",
+    "aouRT/measurementNonHierarchyConcept",
     "aouRT/measurementOccurrence",
 
-    "aouRT/observation",
+    "aouRT/observationConcept",
     "aouRT/observationOccurrence",
-    "aouRT/device",
+    "aouRT/deviceConcept",
     "aouRT/deviceOccurrence",
-    "aouRT/visit",
+    "aouRT/visitConcept",
     "aouRT/visitOccurrence",
 
-    "aouRT/cpt4",
-    "aouRT/icd9cm",
-    "aouRT/icd9proc",
-    "aouRT/icd10cm",
-    "aouRT/icd10pcs",
+    "aouRT/cpt4Concept",
+    "aouRT/icd9cmConcept",
+    "aouRT/icd9procConcept",
+    "aouRT/icd10cmConcept",
+    "aouRT/icd10pcsConcept",
 
     "aouRT/activitySummary",
     "aouRT/heartRateLevel",
@@ -42,7 +42,7 @@
     "aouRT/stepsIntraday"
   ],
   "groupItemsEntityGroups": [
-    "aouRT/brandIngredient",
+    "aouRT/brandIngredientConcept",
 
     "aouRT/activitySummaryPerson",
     "aouRT/heartRateLevelPerson",
