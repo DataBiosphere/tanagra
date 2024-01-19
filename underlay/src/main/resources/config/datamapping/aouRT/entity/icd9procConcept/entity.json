@@ -1,0 +1,29 @@
+{
+  "name": "icd9procConcept",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
+    { "name": "name", "dataType": "STRING", "valueFieldName": "concept_name" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "vocabulary_id", "isComputeDisplayHint": true },
+    { "name": "standard_concept", "dataType": "STRING", "isComputeDisplayHint": true },
+    { "name": "concept_code", "dataType": "STRING" },
+    { "name": "label", "dataType": "STRING" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "concept_code" ],
+    "idTextPairsSqlFile": "textSearch.sql",
+    "idFieldName": "concept_id",
+    "textFieldName": "concept_synonym_name"
+  },
+  "hierarchies": [
+    {
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "rootNodeIds": [ 2500000080 ],
+      "maxDepth": 10,
+      "keepOrphanNodes": false
+    }
+  ]
+}

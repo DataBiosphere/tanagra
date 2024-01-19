@@ -7,8 +7,8 @@ import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.LogicalOperator;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -124,7 +124,7 @@ public class CohortsApiController implements CohortsApi {
     return CohortRevision.CriteriaGroupSection.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
-        .operator(LogicalOperator.valueOf(apiObj.getOperator().name()))
+        .operator(BooleanAndOrFilter.LogicalOperator.valueOf(apiObj.getOperator().name()))
         .setIsExcluded(apiObj.isExcluded())
         .criteriaGroups(
             apiObj.getCriteriaGroups().stream()

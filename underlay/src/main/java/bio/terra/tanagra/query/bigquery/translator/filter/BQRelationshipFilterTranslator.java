@@ -2,8 +2,8 @@ package bio.terra.tanagra.query.bigquery.translator.filter;
 
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
@@ -49,12 +49,8 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
 
     if (!relationshipFilter.hasSubFilter() && !relationshipFilter.hasGroupByFilter()) {
       // foreignKey IS NOT NULL
-      return apiTranslator.functionFilterSql(
-          foreignKeyField,
-          apiTranslator.functionTemplateSql(FunctionTemplate.IS_NOT_NULL),
-          List.of(),
-          null,
-          new SqlParams());
+      return apiTranslator.unaryFilterSql(
+          foreignKeyField, UnaryOperator.IS_NOT_NULL, null, sqlParams);
     } else if (apiTranslator
             .translator(relationshipFilter.getSubFilter())
             .isFilterOnAttribute(relationshipFilter.getFilterEntity().getIdAttribute())

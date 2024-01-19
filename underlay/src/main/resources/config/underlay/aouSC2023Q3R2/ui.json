@@ -149,7 +149,7 @@
       ],
       "groupingEntityGroups": [
         {
-          "id": "brandIngredient",
+          "id": "brandIngredientConcept",
           "sortOrder": {
             "attribute": "name",
             "direction": "ASC"

@@ -21,10 +21,10 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.FunctionTemplate;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.LogicalOperator;
+import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
@@ -68,12 +68,44 @@ public final class FromApiUtils {
     switch (apiFilter.getFilterType()) {
       case ATTRIBUTE:
         ApiAttributeFilter apiAttributeFilter = apiFilter.getFilterUnion().getAttributeFilter();
-        return new AttributeFilter(
-            underlay,
-            entity,
-            entity.getAttribute(apiAttributeFilter.getAttribute()),
-            fromApiObject(apiAttributeFilter.getOperator()),
-            fromApiObject(apiAttributeFilter.getValue()));
+
+        Optional<UnaryOperator> unaryOperator =
+            getEnumValueFromName(UnaryOperator.values(), apiAttributeFilter.getOperator().name());
+        if (unaryOperator.isPresent()) {
+          return new AttributeFilter(
+              underlay,
+              entity,
+              entity.getAttribute(apiAttributeFilter.getAttribute()),
+              unaryOperator.get());
+        }
+
+        Optional<BinaryOperator> binaryOperator =
+            getEnumValueFromName(BinaryOperator.values(), apiAttributeFilter.getOperator().name());
+        if (binaryOperator.isPresent()) {
+          return new AttributeFilter(
+              underlay,
+              entity,
+              entity.getAttribute(apiAttributeFilter.getAttribute()),
+              binaryOperator.get(),
+              fromApiObject(apiAttributeFilter.getValues().get(0)));
+        }
+
+        Optional<NaryOperator> naryOperator =
+            getEnumValueFromName(NaryOperator.values(), apiAttributeFilter.getOperator().name());
+        if (naryOperator.isPresent()) {
+          return new AttributeFilter(
+              underlay,
+              entity,
+              entity.getAttribute(apiAttributeFilter.getAttribute()),
+              naryOperator.get(),
+              apiAttributeFilter.getValues().stream()
+                  .map(FromApiUtils::fromApiObject)
+                  .collect(Collectors.toList()));
+        }
+
+        throw new InvalidQueryException(
+            "Invalid operator specified for an AttributeFilter: "
+                + apiAttributeFilter.getOperator());
       case TEXT:
         ApiTextFilter apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
         return new TextSearchFilter(
@@ -155,7 +187,9 @@ public final class FromApiUtils {
                   "Boolean logic operators OR, AND must have more than one sub-filter specified");
             }
             return new BooleanAndOrFilter(
-                LogicalOperator.valueOf(apiBooleanLogicFilter.getOperator().name()), subFilters);
+                BooleanAndOrFilter.LogicalOperator.valueOf(
+                    apiBooleanLogicFilter.getOperator().name()),
+                subFilters);
           default:
             throw new SystemException(
                 "Unknown boolean logic operator: " + apiBooleanLogicFilter.getOperator());
@@ -340,15 +374,18 @@ public final class FromApiUtils {
     return BinaryOperator.valueOf(apiOperator.name());
   }
 
-  public static FunctionTemplate fromApiObject(ApiTextFilter.MatchTypeEnum apiMatchType) {
-    switch (apiMatchType) {
-      case EXACT_MATCH:
-        return FunctionTemplate.TEXT_EXACT_MATCH;
-      case FUZZY_MATCH:
-        return FunctionTemplate.TEXT_FUZZY_MATCH;
-      default:
-        throw new SystemException("Unknown API text match type: " + apiMatchType.name());
+  public static TextSearchFilter.TextSearchOperator fromApiObject(
+      ApiTextFilter.MatchTypeEnum apiMatchType) {
+    return TextSearchFilter.TextSearchOperator.valueOf(apiMatchType.name());
+  }
+
+  private static <ET extends Enum> Optional<ET> getEnumValueFromName(ET[] values, String name) {
+    for (ET enumVal : values) {
+      if (enumVal.name().equals(name)) {
+        return Optional.of(enumVal);
+      }
     }
+    return Optional.empty();
   }
 
   public static Criteria fromApiObject(ApiCriteria apiObj) {

@@ -1,6 +1,6 @@
 {
   "name": "procedurePerson",
-  "criteriaEntity": "procedure",
+  "criteriaEntity": "procedureConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "procedureOccurrence",

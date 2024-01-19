@@ -1,6 +1,6 @@
 {
   "name": "devicePerson",
-  "criteriaEntity": "device",
+  "criteriaEntity": "deviceConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "deviceOccurrence",

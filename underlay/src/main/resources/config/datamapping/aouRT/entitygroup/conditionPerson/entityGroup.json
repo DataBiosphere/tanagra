@@ -1,6 +1,6 @@
 {
   "name": "conditionPerson",
-  "criteriaEntity": "condition",
+  "criteriaEntity": "conditionConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "conditionOccurrence",

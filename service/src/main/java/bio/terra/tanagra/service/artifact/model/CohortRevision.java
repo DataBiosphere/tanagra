@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.LogicalOperator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,14 +215,14 @@ public class CohortRevision {
     private final String id;
     private final @Nullable String displayName;
     private final List<CriteriaGroup> criteriaGroups;
-    private final LogicalOperator operator;
+    private final BooleanAndOrFilter.LogicalOperator operator;
     private final boolean isExcluded;
 
     private CriteriaGroupSection(
         String id,
         String displayName,
         List<CriteriaGroup> criteriaGroups,
-        LogicalOperator operator,
+        BooleanAndOrFilter.LogicalOperator operator,
         boolean isExcluded) {
       this.id = id;
       this.displayName = displayName;
@@ -247,7 +247,7 @@ public class CohortRevision {
       return Collections.unmodifiableList(criteriaGroups);
     }
 
-    public LogicalOperator getOperator() {
+    public BooleanAndOrFilter.LogicalOperator getOperator() {
       return operator;
     }
 
@@ -259,7 +259,7 @@ public class CohortRevision {
       private String id;
       private String displayName;
       private List<CriteriaGroup> criteriaGroups = new ArrayList<>();
-      private LogicalOperator operator = LogicalOperator.OR;
+      private BooleanAndOrFilter.LogicalOperator operator = BooleanAndOrFilter.LogicalOperator.OR;
       private boolean isExcluded;
 
       public Builder id(String id) {
@@ -277,7 +277,7 @@ public class CohortRevision {
         return this;
       }
 
-      public Builder operator(LogicalOperator operator) {
+      public Builder operator(BooleanAndOrFilter.LogicalOperator operator) {
         this.operator = operator;
         return this;
       }
