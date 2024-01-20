@@ -1,6 +1,6 @@
 {
   "name": "visitPerson",
-  "criteriaEntity": "visit",
+  "criteriaEntity": "visitConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "visitOccurrence",

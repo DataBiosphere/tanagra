@@ -1,6 +1,6 @@
 {
   "name": "measurementNonHierarchyPerson",
-  "criteriaEntity": "measurementNonHierarchy",
+  "criteriaEntity": "measurementNonHierarchyConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "measurementOccurrence",

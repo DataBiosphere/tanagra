@@ -1,6 +1,6 @@
 {
   "name": "ingredientNonHierarchyPerson",
-  "criteriaEntity": "ingredientNonHierarchy",
+  "criteriaEntity": "ingredientNonHierarchyConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "ingredientOccurrence",

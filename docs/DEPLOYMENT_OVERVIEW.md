@@ -4,6 +4,10 @@ Tanagra has two sets of GCP requirements, for the indexer environment and for th
 environments and service deployments are not one-to-one. You can have multiple indexer environments for a single 
 service deployment and vice versa.
 
+Once you have an environment or deployment setup, you need to set the relevant properties in the config files (e.g. GCP
+project id, BigQuery dataset id, GCS bucket name). Pointers to the relevant config properties are included in each
+section below.
+
 ## Indexer Environment
 An indexer environment is a GCP project configured with the items below.
 
@@ -33,9 +37,25 @@ Some of these may be enabled by default in your project.
    includes the [required permissions](https://cloud.google.com/dataflow/docs/concepts/access-control#dataflow.admin).
    - Attach the **"VM"** service account credentials to the Dataflow worker VMs. `roles/iam.serviceAccountUser` granted 
    at the service account-level (on the "VM" service account) 
-   includes the [required permissions](https://cloud.google.com/compute/docs/access/iam#the_serviceaccountuser_role). 
+   includes the [required permissions](https://cloud.google.com/compute/docs/access/iam#the_serviceaccountuser_role).
+- (Optional) VPC sub-network configured with [Private Google Access](https://cloud.google.com/vpc/docs/configure-private-google-access#configuring_access_to_google_services_from_internal_ips)
+  to help speed up the Dataflow jobs.
 
 You can use a single service account for both the "VM" and "runner" use cases, as long as it has all the permissions.
+
+### Config properties
+All indexer configuration lives in the indexer config file, the properties of which are all documented 
+[here](./generated/UNDERLAY_CONFIG.md#szindexer). In particular:
+
+  - Set the pointer to the [index BigQuery dataset](./generated/UNDERLAY_CONFIG.md#szindexerbigquery) that you create 
+with the **"runner"** credentials above.
+  - Set all the [Dataflow](./generated/UNDERLAY_CONFIG.md#szindexerdataflow) properties. 
+    - A directory in the GCS bucket above as the Dataflow [temp location](./generated/UNDERLAY_CONFIG.md#szdataflowgcstempdirectory).
+    - The **"VM"** service account as the Dataflow [service account email](./generated/UNDERLAY_CONFIG.md#szdataflowserviceaccountemail).
+    - (Optional) The Dataflow [VPC sub-network](./generated/UNDERLAY_CONFIG.md#szdataflowvpcsubnetworkname) if you have 
+    a custom-mode network.
+    - (Optional) The Dataflow [use public IPs](./generated/UNDERLAY_CONFIG.md#szdataflowusepublicips) flag if you want 
+    to use Private Google Access.
 
 ## Service Deployment
 A service deployment lives in a GCP project configured with the items below.
@@ -43,7 +63,7 @@ A service deployment lives in a GCP project configured with the items below.
 - Java service packaged as a runnable JAR file, deployed either in 
     [GKE](https://cloud.google.com/kubernetes-engine/docs/quickstarts/deploy-app-container-image#deploying_to_gke) or 
     [AppEngine](https://cloud.google.com/eclipse/docs/deploy-flex-jar#deploy_a_jar_or_war_file).
-- CloudSQL application database, either [PostGres](https://cloud.google.com/sql/docs/postgres) (recommended) or 
+- CloudSQL database, either [PostGres](https://cloud.google.com/sql/docs/postgres) (recommended) or 
     [MySQL](https://cloud.google.com/sql/docs/mysql).
 - GCS bucket for export files, one per index dataset location.
     - [Update the CORS configuration](https://cloud.google.com/storage/docs/using-cors#command-line) with any URLs that 
@@ -74,6 +94,27 @@ A service deployment lives in a GCP project configured with the items below.
     - Talk to the CloudSQL database. `roles/cloudsql.client` granted at the project-level includes the 
       [required permissions](https://cloud.google.com/sql/docs/mysql/iam-roles#roles).
 
+### Config properties
+Service configuration lives in two places, depending on whether they apply to a single underlay or the entire
+deployment.
+
+#### Single underlay
+Each underlay hosted by a service deployment has its own service config file.
+All service config file properties are documented [here](./generated/UNDERLAY_CONFIG.md#szservice). In particular:
+
+- Set the pointer to the [index BigQuery dataset](./generated/UNDERLAY_CONFIG.md#szservicebigquery) that you create
+  with the indexer **"runner"** credentials above.
+
+#### Entire deployment
+Each service deployment is a single Java application. You can configure this Java application with a custom 
+`application.yaml` file, or (more common) override the [default application properties](../service/src/main/resources/application.yml) 
+with environment variables. All application properties are documented [here](./generated/APPLICATION_CONFIG.md).
+In particular:
+
+- Set the GCS bucket(s) above as the [shared export](./generated/APPLICATION_CONFIG.md#export-shared) buckets.
+- Set the [application DB properties](./generated/APPLICATION_CONFIG.md#application-database) with the CloudSQL 
+information.
+
 ## Deployment Patterns
 
 ### Single project for indexer and service
@@ -98,7 +139,7 @@ service deployment project (e.g. don't need to enable Dataflow in your audited p
 
 ### Service deployment hosts multiple underlays
 A single service deployment can host one or more underlays. Each underlay should have its own service configuration
-file. The service deployment configuration [allows specifying](./generated/DEPLOYMENT_CONFIG.md#underlays) multiple
+file. The service deployment configuration [allows specifying](./generated/APPLICATION_CONFIG.md#underlays) multiple
 service configuration files.
 
 Keep in mind that the access control implementation is per deployment, not per underlay. So if you want
