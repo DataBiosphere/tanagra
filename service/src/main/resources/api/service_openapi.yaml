@@ -1497,8 +1497,10 @@ components:
         operator:
           type: string
           enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER"]
-        value:
-          $ref: "#/components/schemas/Literal"
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/Literal"
 
     RelationshipFilter:
       type: object
