@@ -9,6 +9,7 @@ import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
@@ -1788,6 +1789,99 @@ public class BQFilterTest extends BQRunnerTest {
                 true));
     assertSqlMatchesWithTableNameOnly(
         "primaryWithCriteriaFilterGroupByMultipleOccAttributeSubfilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+  }
+
+  @Test
+  void occurrenceForPrimaryFilter() throws IOException {
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity conditionOccurrence = criteriaOccurrence.getOccurrenceEntities().get(0);
+
+    // With sub-filter.
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)),
+            null,
+            null,
+            null,
+            null);
+    AttributeFilter attributeFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("gender"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(8_532L));
+    BooleanAndOrFilter booleanAndOrFilter =
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.AND,
+            List.of(primaryWithCriteriaFilter, attributeFilter));
+    OccurrenceForPrimaryFilter occurrenceForPrimaryFilter =
+        new OccurrenceForPrimaryFilter(
+            underlay, criteriaOccurrence, conditionOccurrence, booleanAndOrFilter);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, conditionOccurrence, conditionOccurrence.getIdAttribute(), false, false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                conditionOccurrence,
+                List.of(simpleAttribute),
+                occurrenceForPrimaryFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    List<BQTable> tableNamesToSubstitute = new ArrayList<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity ->
+                tableNamesToSubstitute.add(
+                    underlay
+                        .getIndexSchema()
+                        .getEntityMain(occurrenceEntity.getName())
+                        .getTablePointer()));
+    BQTable primaryEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    BQTable criteriaEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    tableNamesToSubstitute.add(primaryEntityTable);
+    tableNamesToSubstitute.add(criteriaEntityTable);
+    assertSqlMatchesWithTableNameOnly(
+        "occurrenceForPrimaryFilterWithSubFilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // No sub-filter.
+    occurrenceForPrimaryFilter =
+        new OccurrenceForPrimaryFilter(underlay, criteriaOccurrence, conditionOccurrence, null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                conditionOccurrence,
+                List.of(simpleAttribute),
+                occurrenceForPrimaryFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "occurrenceForPrimaryFilterNoSubFilter",
         listQueryResult.getSql(),
         tableNamesToSubstitute.toArray(new BQTable[0]));
   }
