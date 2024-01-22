@@ -12,6 +12,7 @@ import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
@@ -26,6 +27,7 @@ import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyHasAncestor
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyHasParentFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsMemberFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsRootFilterTranslator;
+import bio.terra.tanagra.query.bigquery.translator.filter.BQPrimaryWithCriteriaFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQRelationshipFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQTextSearchFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
@@ -91,6 +93,11 @@ public final class BQApiTranslator implements ApiTranslator {
   @Override
   public ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter) {
     return new BQHierarchyIsRootFilterTranslator(this, hierarchyIsRootFilter);
+  }
+
+  @Override
+  public ApiFilterTranslator translator(PrimaryWithCriteriaFilter primaryWithCriteriaFilter) {
+    return new BQPrimaryWithCriteriaFilterTranslator(this, primaryWithCriteriaFilter);
   }
 
   @Override

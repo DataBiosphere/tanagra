@@ -11,7 +11,8 @@ public final class Main {
   private Main() {}
 
   private enum Command {
-    APPLICATION_CONFIG_DOCS(new MarkdownWalker(new ApplicationConfigPath(), "APPLICATION_CONFIG.md")),
+    APPLICATION_CONFIG_DOCS(
+        new MarkdownWalker(new ApplicationConfigPath(), "APPLICATION_CONFIG.md")),
     UNDERLAY_CONFIG_DOCS(new MarkdownWalker(new UnderlayConfigPath(), "UNDERLAY_CONFIG.md")),
     UNDERLAY_CONFIG_TYPESCRIPT(new TypescriptWalker(new UnderlayConfigPath(), "underlayConfig.ts"));
     private final AnnotationWalker annotationWalker;

@@ -16,6 +16,7 @@ import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
@@ -315,6 +316,8 @@ public interface ApiTranslator {
 
   ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter);
 
+  ApiFilterTranslator translator(PrimaryWithCriteriaFilter primaryWithCriteriaFilter);
+
   ApiFilterTranslator translator(RelationshipFilter relationshipFilter);
 
   ApiFilterTranslator translator(TextSearchFilter textSearchFilter);
@@ -334,6 +337,8 @@ public interface ApiTranslator {
       return translator((HierarchyIsMemberFilter) entityFilter);
     } else if (entityFilter instanceof HierarchyIsRootFilter) {
       return translator((HierarchyIsRootFilter) entityFilter);
+    } else if (entityFilter instanceof PrimaryWithCriteriaFilter) {
+      return translator((PrimaryWithCriteriaFilter) entityFilter);
     } else if (entityFilter instanceof RelationshipFilter) {
       return translator((RelationshipFilter) entityFilter);
     } else if (entityFilter instanceof TextSearchFilter) {
