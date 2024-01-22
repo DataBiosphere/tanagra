@@ -10,5 +10,5 @@
             FROM
                 ${HCP_condition_default}              
             WHERE
-                parent = @val         
+                parent = @val0         
         )

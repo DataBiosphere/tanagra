@@ -4,4 +4,4 @@
     FROM
         ${ENT_brand}      
     WHERE
-        T_RCNT_brandIngredient_NOHIER > @val
+        T_RCNT_brandIngredient_NOHIER > @val0

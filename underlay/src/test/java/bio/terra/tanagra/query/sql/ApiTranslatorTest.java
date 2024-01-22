@@ -53,8 +53,8 @@ public class ApiTranslatorTest {
     String sql =
         apiTranslator.binaryFilterSql(
             field, BinaryOperator.LESS_THAN_OR_EQUAL, val, tableAlias, sqlParams);
-    assertEquals("tableAlias.columnName <= @val", sql);
-    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+    assertEquals("tableAlias.columnName <= @val0", sql);
+    assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
 
     field =
         SqlField.of(
@@ -66,9 +66,9 @@ public class ApiTranslatorTest {
         apiTranslator.binaryFilterSql(
             field, BinaryOperator.GREATER_THAN, val, tableAlias, sqlParams);
     assertEquals(
-        "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64) > @val",
+        "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), tableAlias.columnName, DAY) / 365.25) AS INT64) > @val0",
         sql);
-    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+    assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
   }
 
   @Test
@@ -80,8 +80,8 @@ public class ApiTranslatorTest {
     String sql =
         apiTranslator.textSearchFilterSql(
             field, TextSearchFilter.TextSearchOperator.EXACT_MATCH, val, tableAlias, sqlParams);
-    assertEquals("REGEXP_CONTAINS(UPPER(tableAlias.columnName), UPPER(@val))", sql);
-    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+    assertEquals("REGEXP_CONTAINS(UPPER(tableAlias.columnName), UPPER(@val0))", sql);
+    assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
   }
 
   @Test
@@ -95,22 +95,22 @@ public class ApiTranslatorTest {
     String sql =
         apiTranslator.naryFilterSql(
             field, NaryOperator.IN, List.of(val1, val2, val3), tableAlias, sqlParams);
-    assertEquals("tableAlias.columnName IN (@val,@val0,@val1)", sql);
-    assertEquals(ImmutableMap.of("val", val1, "val0", val2, "val1", val3), sqlParams.getParams());
+    assertEquals("tableAlias.columnName IN (@val0,@val1,@val2)", sql);
+    assertEquals(ImmutableMap.of("val0", val1, "val1", val2, "val2", val3), sqlParams.getParams());
 
     sqlParams = new SqlParams();
     sql =
         apiTranslator.naryFilterSql(
             field, NaryOperator.NOT_IN, List.of(val1, val2, val3), tableAlias, sqlParams);
-    assertEquals("tableAlias.columnName NOT IN (@val,@val0,@val1)", sql);
-    assertEquals(ImmutableMap.of("val", val1, "val0", val2, "val1", val3), sqlParams.getParams());
+    assertEquals("tableAlias.columnName NOT IN (@val0,@val1,@val2)", sql);
+    assertEquals(ImmutableMap.of("val0", val1, "val1", val2, "val2", val3), sqlParams.getParams());
 
     sqlParams = new SqlParams();
     sql =
         apiTranslator.naryFilterSql(
             field, NaryOperator.BETWEEN, List.of(val1, val2), tableAlias, sqlParams);
-    assertEquals("tableAlias.columnName BETWEEN @val AND @val0", sql);
-    assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
+    assertEquals("tableAlias.columnName BETWEEN @val0 AND @val1", sql);
+    assertEquals(ImmutableMap.of("val0", val1, "val1", val2), sqlParams.getParams());
 
     assertThrows(
         InvalidQueryException.class,
@@ -132,8 +132,8 @@ public class ApiTranslatorTest {
     String sql =
         apiTranslator.functionWithCommaSeparatedArgsFilterSql(
             field, "REGEXP_CONTAINS(${fieldSql},${values})", List.of(val), tableAlias, sqlParams);
-    assertEquals("REGEXP_CONTAINS(tableAlias.columnName,@val)", sql);
-    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+    assertEquals("REGEXP_CONTAINS(tableAlias.columnName,@val0)", sql);
+    assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
 
     sqlParams = new SqlParams();
     Literal val1 = Literal.forInt64(25L);
@@ -141,8 +141,8 @@ public class ApiTranslatorTest {
     sql =
         apiTranslator.functionWithCommaSeparatedArgsFilterSql(
             field, "${fieldSql} IN (${values})", List.of(val1, val2), tableAlias, sqlParams);
-    assertEquals("tableAlias.columnName IN (@val,@val0)", sql);
-    assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
+    assertEquals("tableAlias.columnName IN (@val0,@val1)", sql);
+    assertEquals(ImmutableMap.of("val0", val1, "val1", val2), sqlParams.getParams());
   }
 
   @Test
@@ -161,9 +161,9 @@ public class ApiTranslatorTest {
         apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, null, sqlParams);
     assertEquals(
-        "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val)",
+        "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0)",
         sql);
-    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+    assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
 
     // With literals.
     sqlParams = new SqlParams();
@@ -175,9 +175,9 @@ public class ApiTranslatorTest {
         apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, joinFilterSql, null, sqlParams, val0, val1);
     assertEquals(
-        "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val UNION ALL SELECT @val0 UNION ALL SELECT @val1)",
+        "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0 UNION ALL SELECT @val1 UNION ALL SELECT @val2)",
         sql);
-    assertEquals(ImmutableMap.of("val", val, "val0", val0, "val1", val1), sqlParams.getParams());
+    assertEquals(ImmutableMap.of("val0", val, "val1", val0, "val2", val1), sqlParams.getParams());
 
     // Null sub-filter, without having clause.
     sqlParams = new SqlParams();
@@ -186,9 +186,9 @@ public class ApiTranslatorTest {
         apiTranslator.inSelectFilterSql(
             field, tableAlias, joinField, joinTable, null, null, sqlParams, val);
     assertEquals(
-        "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName UNION ALL SELECT @val)",
+        "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName UNION ALL SELECT @val0)",
         sql);
-    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+    assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
 
     // Null sub-filter, with having clause.
     sqlParams = new SqlParams();
@@ -230,9 +230,9 @@ public class ApiTranslatorTest {
         apiTranslator.booleanAndOrFilterSql(
             BooleanAndOrFilter.LogicalOperator.OR, filterSql1, filterSql2);
     assertEquals(
-        "(tableAlias.columnName <= @val) OR (tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0))",
+        "(tableAlias.columnName <= @val0) OR (tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val1))",
         sql);
-    assertEquals(ImmutableMap.of("val", val1, "val0", val2), sqlParams.getParams());
+    assertEquals(ImmutableMap.of("val0", val1, "val1", val2), sqlParams.getParams());
   }
 
   @Test
@@ -246,8 +246,8 @@ public class ApiTranslatorTest {
         apiTranslator.binaryFilterSql(
             field, BinaryOperator.LESS_THAN_OR_EQUAL, val, tableAlias, sqlParams);
     String sql = apiTranslator.booleanNotFilterSql(subFilterSql);
-    assertEquals("NOT tableAlias.columnName <= @val", sql);
-    assertEquals(ImmutableMap.of("val", val), sqlParams.getParams());
+    assertEquals("NOT tableAlias.columnName <= @val0", sql);
+    assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
   }
 
   @Test
@@ -264,7 +264,7 @@ public class ApiTranslatorTest {
             List.of(groupByField),
             tableAlias,
             sqlParams);
-    assertEquals("GROUP BY tableAlias.columnName HAVING COUNT(*) >= @groupByCount", havingSql);
-    assertEquals(ImmutableMap.of("groupByCount", groupByCount), sqlParams.getParams());
+    assertEquals("GROUP BY tableAlias.columnName HAVING COUNT(*) >= @groupByCount0", havingSql);
+    assertEquals(ImmutableMap.of("groupByCount0", groupByCount), sqlParams.getParams());
   }
 }

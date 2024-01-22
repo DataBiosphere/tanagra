@@ -10,8 +10,8 @@
             FROM
                 ${HAD_condition_default}              
             WHERE
-                ancestor = @val              
+                ancestor = @val0              
             UNION
             ALL SELECT
-                @val0         
+                @val1         
         )
