@@ -316,7 +316,8 @@ public class ReviewsApiController implements ReviewsApi {
         .lastModified(review.getLastModified())
         .cohort(
             new ApiCohort()
-                .id(review.getRevision().getId())
+                .id(cohort.getId())
+                .revisionId(review.getRevision().getId())
                 .underlayName(cohort.getUnderlay())
                 .displayName(cohort.getDisplayName())
                 .description(cohort.getDescription())
