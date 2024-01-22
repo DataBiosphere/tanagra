@@ -722,7 +722,7 @@ export class BackendUnderlaySource implements UnderlaySource {
             hierarchyFilter: {
               hierarchy,
               operator: tanagra.HierarchyFilterOperatorEnum.ChildOf,
-              value: literalFromDataValue(parent),
+              values: [literalFromDataValue(parent)],
             },
           },
         });
@@ -745,7 +745,7 @@ export class BackendUnderlaySource implements UnderlaySource {
             hierarchyFilter: {
               hierarchy,
               operator: tanagra.HierarchyFilterOperatorEnum.IsRoot,
-              value: literalFromDataValue(true),
+              values: [literalFromDataValue(true)],
             },
           },
         });
@@ -758,7 +758,7 @@ export class BackendUnderlaySource implements UnderlaySource {
             hierarchyFilter: {
               hierarchy: hierarchy,
               operator: tanagra.HierarchyFilterOperatorEnum.IsMember,
-              value: literalFromDataValue(true),
+              values: [literalFromDataValue(true)],
             },
           },
         });
@@ -1395,7 +1395,7 @@ function generateFilter(
               hierarchy: entity.hierarchies[0].name,
               operator:
                 tanagra.HierarchyFilterOperatorEnum.DescendantOfInclusive,
-              value: literalFromDataValue(key),
+              values: [literalFromDataValue(key)],
             },
           },
         };
