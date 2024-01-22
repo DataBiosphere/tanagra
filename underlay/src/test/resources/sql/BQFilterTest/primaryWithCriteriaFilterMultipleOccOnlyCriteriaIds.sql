@@ -17,7 +17,7 @@
             ALL SELECT
                 person_id AS primary_id              
             FROM
-                ${ENT_procedureOccurrence}              
+                ${ENT_observationOccurrence}              
             WHERE
                 source_criteria_id IN (
                     @val1,@val2                 
@@ -26,7 +26,7 @@
             ALL SELECT
                 person_id AS primary_id              
             FROM
-                ${ENT_observationOccurrence}              
+                ${ENT_procedureOccurrence}              
             WHERE
                 source_criteria_id IN (
                     @val3,@val4                 

@@ -14,10 +14,12 @@ import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,6 +64,9 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     List<String> selectSqls = new ArrayList<>();
     CriteriaOccurrence criteriaOccurrence = primaryWithCriteriaFilter.getCriteriaOccurrence();
     primaryWithCriteriaFilter.getCriteriaOccurrence().getOccurrenceEntities().stream()
+        .sorted(
+            Comparator.comparing(
+                Entity::getName)) // Sort by name so the generated SQL is deterministic.
         .forEach(
             occurrenceEntity -> {
               Relationship occurrencePrimaryRelationship =

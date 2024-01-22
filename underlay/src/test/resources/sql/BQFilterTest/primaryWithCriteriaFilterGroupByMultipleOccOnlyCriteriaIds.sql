@@ -11,9 +11,9 @@
                 (SELECT
                     person_id AS primary_id,
                     age_at_occurrence AS group_by_0,
-                    date AS group_by_1                  
+                    start_date AS group_by_1                  
                 FROM
-                    ${ENT_observationOccurrence}                  
+                    ${ENT_conditionOccurrence}                  
                 WHERE
                     source_criteria_id IN (
                         @val,@val0                     
@@ -24,7 +24,7 @@
                     age_at_occurrence AS group_by_0,
                     date AS group_by_1                  
                 FROM
-                    ${ENT_procedureOccurrence}                  
+                    ${ENT_observationOccurrence}                  
                 WHERE
                     source_criteria_id IN (
                         @val1,@val2                     
@@ -33,9 +33,9 @@
                 ALL SELECT
                     person_id AS primary_id,
                     age_at_occurrence AS group_by_0,
-                    start_date AS group_by_1                  
+                    date AS group_by_1                  
                 FROM
-                    ${ENT_conditionOccurrence}                  
+                    ${ENT_procedureOccurrence}                  
                 WHERE
                     source_criteria_id IN (
                         @val3,@val4                     

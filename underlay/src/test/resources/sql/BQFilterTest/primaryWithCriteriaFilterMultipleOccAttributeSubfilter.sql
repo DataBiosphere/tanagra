@@ -20,7 +20,7 @@
             ALL SELECT
                 person_id AS primary_id              
             FROM
-                ${ENT_procedureOccurrence}              
+                ${ENT_observationOccurrence}              
             WHERE
                 (
                     source_criteria_id = @val2                 
@@ -32,7 +32,7 @@
             ALL SELECT
                 person_id AS primary_id              
             FROM
-                ${ENT_observationOccurrence}              
+                ${ENT_procedureOccurrence}              
             WHERE
                 (
                     source_criteria_id = @val5                 
