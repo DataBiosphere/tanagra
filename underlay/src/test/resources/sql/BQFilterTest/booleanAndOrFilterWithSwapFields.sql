@@ -11,10 +11,10 @@
                 FROM
                     ${HAD_condition_default}                  
                 WHERE
-                    ancestor = @val                  
+                    ancestor = @val0                  
                 UNION
                 ALL SELECT
-                    @val0             
+                    @val1             
             )     
     )      
     OR (
@@ -24,9 +24,9 @@
             FROM
                 ${HAD_condition_default}              
             WHERE
-                ancestor = @val1              
+                ancestor = @val2              
             UNION
             ALL SELECT
-                @val2         
+                @val3         
         ) 
 )

@@ -173,11 +173,10 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     // Do a single insert to BQ for all the hint rows.
     SqlParams sqlParams = new SqlParams();
     List<String> insertRowSqls = new ArrayList<>();
-    for (int i = 0; i < insertRows.size(); i++) {
-      List<Literal> insertRow = insertRows.get(i);
+    for (List<Literal> insertRow : insertRows) {
       List<String> paramNames = new ArrayList<>();
-      for (int j = 0; j < insertRow.size(); j++) {
-        paramNames.add("@" + sqlParams.addParam("valr" + i + "c" + j, insertRow.get(j)));
+      for (Literal literal : insertRow) {
+        paramNames.add("@" + sqlParams.addParam("valr", literal));
       }
       insertRowSqls.add("(" + paramNames.stream().collect(Collectors.joining(",")) + ")");
     }

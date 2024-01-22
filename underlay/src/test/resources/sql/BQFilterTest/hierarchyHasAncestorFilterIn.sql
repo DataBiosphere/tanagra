@@ -11,12 +11,12 @@
                 ${HAD_condition_default}              
             WHERE
                 ancestor IN (
-                    @val,@val0                 
+                    @val0,@val1                 
                 )              
             UNION
             ALL SELECT
-                @val1              
+                @val2              
             UNION
             ALL SELECT
-                @val2         
+                @val3         
         )

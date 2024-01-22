@@ -10,5 +10,5 @@
             FROM
                 ${RIDS_brandIngredient_brand_ingredient}              
             WHERE
-                entity_A_id = @val         
+                entity_A_id = @val0         
         )

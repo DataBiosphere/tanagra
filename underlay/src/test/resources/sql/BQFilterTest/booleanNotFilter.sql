@@ -4,4 +4,4 @@
     FROM
         ${ENT_person}      
     WHERE
-        NOT year_of_birth != @val
+        NOT year_of_birth != @val0

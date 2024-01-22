@@ -4,4 +4,4 @@
     FROM
         ${ENT_person}      
     WHERE
-        id = @val
+        id = @val0
