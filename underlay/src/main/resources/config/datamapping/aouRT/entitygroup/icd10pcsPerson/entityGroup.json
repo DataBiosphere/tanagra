@@ -1,6 +1,6 @@
 {
   "name": "icd10pcsPerson",
-  "criteriaEntity": "icd10pcs",
+  "criteriaEntity": "icd10pcsConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "ingredientOccurrence",

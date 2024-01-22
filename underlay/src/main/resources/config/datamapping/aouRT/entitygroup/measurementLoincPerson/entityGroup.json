@@ -1,6 +1,6 @@
 {
   "name": "measurementLoincPerson",
-  "criteriaEntity": "measurementLoinc",
+  "criteriaEntity": "measurementLoincConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "measurementOccurrence",

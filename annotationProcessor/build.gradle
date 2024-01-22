@@ -61,7 +61,7 @@ task noCloudAccessRequiredTests(type: Test) {
     }
 }
 
-// e.g. ./gradlew annotationProcessor:run -Pgenerator=DEPLOYMENT_CONFIG
+// e.g. ./gradlew annotationProcessor:run -Pgenerator=APPLICATION_CONFIG_DOCS
 // Possible values for the "generator" property are the Main.Command enum values.
 task run(type:JavaExec) {
     main = "bio.terra.tanagra.annotation.Main"

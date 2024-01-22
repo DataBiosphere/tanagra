@@ -1,27 +1,6 @@
 {
   "criteriaConfigs": [
     {
-      "type": "entityGroup",
-      "id": "tanagra-genotyping",
-      "title": "BioVU Genetic Data",
-      "category": "Demographics",
-      "columns": [
-        { "key": "name", "width": "100%", "title": "Genotyping platform" },
-        { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
-      ],
-      "hierarchyColumns": [
-        { "key": "name", "width": "100%", "title": "Genotyping platform" },
-        { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
-      ],
-      "classificationEntityGroups": [
-        {
-          "id": "genotypingPerson"
-        }
-      ]
-    },
-    {
       "type": "attribute",
       "id": "tanagra-ethnicity",
       "title": "Ethnicity",
@@ -71,8 +50,36 @@
     {
       "type": "biovu",
       "id": "biovu",
-      "title": "BioVU Samples",
+      "title": "BioVU DNA",
       "category": "BioVU"
+    },
+    {
+      "type": "biovu",
+      "id": "biovu-plasma",
+      "title": "BioVU Plasma",
+      "category": "BioVU",
+      "plasmaFilter": true
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-genotyping",
+      "title": "BioVU Genetic Data",
+      "category": "BioVU",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Genotyping platform" },
+        { "key": "id", "width": 100, "title": "Id" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Genotyping platform" },
+        { "key": "id", "width": 100, "title": "Id" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "genotypingPerson"
+        }
+      ]
     },
     {
       "type": "entityGroup",

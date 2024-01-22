@@ -1,6 +1,6 @@
 {
   "name": "ingredientPerson",
-  "criteriaEntity": "ingredient",
+  "criteriaEntity": "ingredientConcept",
   "occurrenceEntities": [
     {
       "occurrenceEntity": "ingredientOccurrence",
