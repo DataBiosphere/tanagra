@@ -11,10 +11,10 @@
                 ${ENT_conditionOccurrence}              
             WHERE
                 (
-                    source_criteria_id = @val                 
+                    source_criteria_id = @val0                 
                 )                  
                 AND (
-                    age_at_occurrence BETWEEN @val0 AND @val1                 
+                    age_at_occurrence BETWEEN @val1 AND @val2                 
                 )              
             UNION
             ALL SELECT
@@ -23,10 +23,10 @@
                 ${ENT_observationOccurrence}              
             WHERE
                 (
-                    source_criteria_id = @val2                 
+                    source_criteria_id = @val3                 
                 )                  
                 AND (
-                    age_at_occurrence BETWEEN @val3 AND @val4                 
+                    age_at_occurrence BETWEEN @val4 AND @val5                 
                 )              
             UNION
             ALL SELECT
@@ -35,9 +35,9 @@
                 ${ENT_procedureOccurrence}              
             WHERE
                 (
-                    source_criteria_id = @val5                 
+                    source_criteria_id = @val6                 
                 )                  
                 AND (
-                    age_at_occurrence BETWEEN @val6 AND @val7                 
+                    age_at_occurrence BETWEEN @val7 AND @val8                 
                 )         
         )

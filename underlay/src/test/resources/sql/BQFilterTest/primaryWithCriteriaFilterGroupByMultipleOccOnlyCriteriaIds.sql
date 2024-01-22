@@ -16,7 +16,7 @@
                     ${ENT_conditionOccurrence}                  
                 WHERE
                     source_criteria_id IN (
-                        @val,@val0                     
+                        @val0,@val1                     
                     )                  
                 UNION
                 ALL SELECT
@@ -27,7 +27,7 @@
                     ${ENT_observationOccurrence}                  
                 WHERE
                     source_criteria_id IN (
-                        @val1,@val2                     
+                        @val2,@val3                     
                     )                  
                 UNION
                 ALL SELECT
@@ -38,7 +38,7 @@
                     ${ENT_procedureOccurrence}                  
                 WHERE
                     source_criteria_id IN (
-                        @val3,@val4                     
+                        @val4,@val5                     
                     )             
             )          
         GROUP BY
@@ -46,5 +46,5 @@
             group_by_0,
             group_by_1          
         HAVING
-            COUNT(*) >= @groupByCountValue     
+            COUNT(*) >= @groupByCountValue6     
     )

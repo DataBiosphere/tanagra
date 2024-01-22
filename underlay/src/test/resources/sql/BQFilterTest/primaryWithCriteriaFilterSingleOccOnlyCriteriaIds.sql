@@ -11,6 +11,6 @@
                 ${ENT_conditionOccurrence}              
             WHERE
                 condition IN (
-                    @val,@val0                 
+                    @val0,@val1                 
                 )         
         )

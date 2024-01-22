@@ -14,10 +14,10 @@
                     ${ENT_conditionOccurrence}                  
                 WHERE
                     condition IN (
-                        @val,@val0                     
+                        @val0,@val1                     
                     ))              
             GROUP BY
                 primary_id              
             HAVING
-                COUNT(*) > @groupByCountValue             
+                COUNT(*) > @groupByCountValue2             
             )

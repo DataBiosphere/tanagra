@@ -11,9 +11,9 @@
                 ${ENT_conditionOccurrence}              
             WHERE
                 (
-                    condition = @val                 
+                    condition = @val0                 
                 )                  
                 AND (
-                    age_at_occurrence BETWEEN @val0 AND @val1                 
+                    age_at_occurrence BETWEEN @val1 AND @val2                 
                 )         
         )
