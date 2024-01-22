@@ -32,12 +32,28 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
+    // Without GroupBy:
     // WHERE primary.id IN (
     //  SELECT primary_id FROM occurrence WHERE [FILTER ON criteria] AND [sub-filters]
     //  UNION ALL
     //  SELECT primary_id FROM occurrence WHERE [FILTER ON criteria] AND [sub-filters]
     //  UNION ALL
     //  ...
+    // )
+
+    // With GroupBy:
+    // WHERE primary.id IN (
+    //  SELECT primary_id FROM (
+    //    SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
+    // [sub-filters]
+    //    UNION ALL
+    //    SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
+    // [sub-filters]
+    //    UNION ALL
+    //    ...
+    //    )
+    //    GROUP BY primary_id, group_by_fields
+    //    HAVING COUNT(*) group_by_operator group_by_count_val
     // )
 
     final String primaryIdFieldAlias = "primary_id";
