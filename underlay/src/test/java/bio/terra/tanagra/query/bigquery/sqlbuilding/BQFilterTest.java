@@ -9,6 +9,7 @@ import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
@@ -1884,5 +1885,111 @@ public class BQFilterTest extends BQRunnerTest {
         "occurrenceForPrimaryFilterNoSubFilter",
         listQueryResult.getSql(),
         tableNamesToSubstitute.toArray(new BQTable[0]));
+  }
+
+  @Test
+  void itemInGroupFilter() throws IOException {
+    GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
+
+    // No group by.
+    ItemInGroupFilter itemInGroupFilter =
+        new ItemInGroupFilter(
+            underlay, groupItems, Literal.forInt64(19_042_336L), null, null, null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getItemsEntity(),
+            groupItems.getItemsEntity().getAttribute("name"),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                itemInGroupFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    BQTable groupEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
+    BQTable itemsEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    BQTable idPairsTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "itemInGroup", listQueryResult.getSql(), groupEntityTable, itemsEntityTable, idPairsTable);
+
+    // With group by, no attribute.
+    itemInGroupFilter =
+        new ItemInGroupFilter(
+            underlay,
+            groupItems,
+            Literal.forInt64(19_042_336L),
+            null,
+            BinaryOperator.GREATER_THAN,
+            2);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                itemInGroupFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "itemInGroupWithGroupBy",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
+
+    // With group by attribute.
+    itemInGroupFilter =
+        new ItemInGroupFilter(
+            underlay,
+            groupItems,
+            Literal.forInt64(19_042_336L),
+            groupItems.getItemsEntity().getAttribute("vocabulary"),
+            BinaryOperator.GREATER_THAN,
+            2);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                itemInGroupFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "itemInGroupWithGroupByAttribute",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
   }
 }

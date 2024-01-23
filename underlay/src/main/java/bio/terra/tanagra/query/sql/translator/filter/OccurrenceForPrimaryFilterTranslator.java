@@ -1,4 +1,4 @@
-package bio.terra.tanagra.query.bigquery.translator.filter;
+package bio.terra.tanagra.query.sql.translator.filter;
 
 import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
@@ -7,10 +7,10 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 
-public class BQOccurrenceForPrimaryFilter extends ApiFilterTranslator {
+public class OccurrenceForPrimaryFilterTranslator extends ApiFilterTranslator {
   private final OccurrenceForPrimaryFilter occurrenceForPrimaryFilter;
 
-  public BQOccurrenceForPrimaryFilter(
+  public OccurrenceForPrimaryFilterTranslator(
       ApiTranslator apiTranslator, OccurrenceForPrimaryFilter occurrenceForPrimaryFilter) {
     super(apiTranslator);
     this.occurrenceForPrimaryFilter = occurrenceForPrimaryFilter;
