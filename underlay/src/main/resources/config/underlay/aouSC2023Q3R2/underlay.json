@@ -30,7 +30,9 @@
 
     "aouRT/cpt4Concept",
     "aouRT/icd9cmConcept",
+    "aouRT/icd9cmNonHierarchyConcept",
     "aouRT/icd9procConcept",
+    "aouRT/icd9procNonHierarchyConcept",
     "aouRT/icd10cmConcept",
     "aouRT/icd10pcsConcept",
 
@@ -73,7 +75,9 @@
 
     "aouRT/cpt4Person",
     "aouRT/icd9cmPerson",
+    "aouRT/icd9cmNonHierarchyPerson",
     "aouRT/icd9procPerson",
+    "aouRT/icd9procNonHierarchyPerson",
     "aouRT/icd10cmPerson",
     "aouRT/icd10pcsPerson"
   ],

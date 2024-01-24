@@ -349,6 +349,13 @@
             "attribute": "label",
             "direction": "ASC"
           }
+        },
+        {
+          "id": "icd9cmNonHierarchyPerson",
+          "sortOrder": {
+            "attribute": "label",
+            "direction": "ASC"
+          }
         }
       ],
       "modifiers": [
@@ -386,8 +393,14 @@
             "attribute": "label",
             "direction": "ASC"
           }
-        }
-      ],
+        },
+        {
+          "id": "icd9procNonHierarchyPerson",
+          "sortOrder": {
+            "attribute": "label",
+            "direction": "ASC"
+          }
+        }     ],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
