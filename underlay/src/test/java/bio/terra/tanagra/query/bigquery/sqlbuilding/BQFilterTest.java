@@ -1432,10 +1432,11 @@ public class BQFilterTest extends BQRunnerTest {
             .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
             .getTablePointer();
     BQTable criteriaAncestorDescendantTable =
-            underlay
-                    .getIndexSchema()
-                            .getHierarchyAncestorDescendant(criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
-                                    .getTablePointer();
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
     tableNamesToSubstitute.add(primaryEntityTable);
     tableNamesToSubstitute.add(criteriaEntityTable);
     tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
@@ -1543,10 +1544,11 @@ public class BQFilterTest extends BQRunnerTest {
             .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
             .getTablePointer();
     BQTable criteriaAncestorDescendantTable =
-            underlay
-                    .getIndexSchema()
-                    .getHierarchyAncestorDescendant(criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
-                    .getTablePointer();
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
     tableNamesToSubstitute.add(primaryEntityTable);
     tableNamesToSubstitute.add(criteriaEntityTable);
     tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
@@ -1664,10 +1666,11 @@ public class BQFilterTest extends BQRunnerTest {
             .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
             .getTablePointer();
     BQTable criteriaAncestorDescendantTable =
-            underlay
-                    .getIndexSchema()
-                    .getHierarchyAncestorDescendant(criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
-                    .getTablePointer();
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
     tableNamesToSubstitute.add(primaryEntityTable);
     tableNamesToSubstitute.add(criteriaEntityTable);
     tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
@@ -1796,10 +1799,11 @@ public class BQFilterTest extends BQRunnerTest {
             .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
             .getTablePointer();
     BQTable criteriaAncestorDescendantTable =
-            underlay
-                    .getIndexSchema()
-                    .getHierarchyAncestorDescendant(criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
-                    .getTablePointer();
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
     tableNamesToSubstitute.add(primaryEntityTable);
     tableNamesToSubstitute.add(criteriaEntityTable);
     tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
