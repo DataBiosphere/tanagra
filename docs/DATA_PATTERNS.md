@@ -1,26 +1,37 @@
 # Data Patterns
 
+## SQL schema agnostic
 Tanagra supports data patterns, instead of specific SQL schemas (e.g. OMOP).
 A data pattern is a set of `JOIN`s between one or more related SQL tables.
 Each `JOIN` can use a foreign key on one table or the other, or an intermediate table that contains pairs of ids.
 An underlay typically uses several data patterns, and may use each pattern one or more times.
 
+Supporting data patterns instead of specific SQL schemas helps us maximize code reuse across different datasets and
+makes us tolerant to some common variations across otherwise similar datasets (e.g. two OMOP datasets with
+different `JOIN` types for a particular relationship).
+
+## Considerations when configuring a new dataset
 The data patterns that we support today all appear in OMOP datasets, but they will also appear in datasets with other
 schemas. For example, the 1000 Genomes dataset doesn't include EMR-type data the way that an EMR-type dataset does. It
 has multiple samples per `Family_ID`, which fits the "set of records" data pattern that we use in OMOP to model
 multiple blood pressure readings per `person_id`.
 
-Supporting data patterns instead of specific SQL schemas helps us maximize code reuse across different datasets and
-makes us tolerant to some common variations across otherwise similar datasets (e.g. two OMOP datasets with
-different `JOIN` types for a particular relationship).
-
-When onboarding a new dataset, first look to see if we already support the relevant data patterns. If so, then you
+When configuring a new dataset, first look to see if we already support the relevant data patterns. If so, then you
 only need to write config files to index and deploy the dataset, no code changes required. We are much more likely
 to already support the relevant patterns when the new dataset contains similar types of data to datasets we've already 
 seen (e.g. another dataset with EMR-type data, even if it doesn't use the OMOP schema).
 
+## Supported patterns
 
-## Set of Records
+Below is a list of the currently supported patterns with examples.
+
+The examples refer to a list of something (e.g. ICD9-CM codes) living in one "table". The config files 
+actually require a SQL query instead of a table name. The indexer turns this query into an actual SQL table.
+So if your list of something does not exactly correspond to a single SQL table, as long as you can list it using a SQL
+query, that will work. e.g. `SELECT * FROM concept WHERE domain_id='ICD9-cm'` is a table for Tanagra's purposes that 
+is a subset of the `concept` SQL table.
+
+### Set of Records
 **Example: Person has a set of blood pressure readings**
 - List of people lives in one table (e.g. `person`).
 - List of blood pressure readings lives in another table (e.g. `blood_pressure`).
@@ -38,7 +49,7 @@ seen (e.g. another dataset with EMR-type data, even if it doesn't use the OMOP s
 - List the blood pressure readings for one or more people with a `ItemInGroup` filter. Useful for exporting data.
 
 
-## Set of Keyed Records
+### Set of Keyed Records
 **Example: Person has a set of diagnosis events keyed to the SNOMED vocabulary diagnosis codes**
 - List of people lives in one table (e.g. `person`).
 - List of diagnosis events, each keyed to a single SNOMED code, lives in another table (e.g. `condition_occurrence`).
@@ -64,7 +75,7 @@ defining a cohort.
 with the `RelatedEntityIdCount` field. Useful for ranking or ordering SNOMED codes in a display.
 
 
-## Hierarchy of Codes
+### Hierarchy of Codes
 **Example: Vocabulary of diagnosis codes are organized into a hierarchy**
 - List of ICD9-CM diagnosis codes lives in one table (e.g. `concept`).
 - List of parent-child relationships between the ICD9-CM codes live in another table (e.g. `concept_relationship`).
@@ -80,13 +91,16 @@ in a hierarchy view.
 - List all descendants of an ICD9-CM code with a `HierarchyHasAncestor` filter. In conjunction with a 
 `PrimaryForCriteria` filter, useful for defining a cohort of people with diagnoses of a particular ICD9-CM code or any
 of its descendants.
-- Fetch a flag that indicates whether a code is a member of the hierarchy with the `HierarchyIsMember` field.
-- Fetch the number of immediate children a code has with the `HierarchyNumChildren` field.
+- Fetch a flag that indicates whether a code is a member of the hierarchy with the `HierarchyIsMember` field. Useful
+for determining whether to show an icon to open a hierarchy view for a particular code.
+- Fetch the number of immediate children a code has with the `HierarchyNumChildren` field. Useful for determining
+whether to show an expand icon in the hierarchy view for a particular code.
 - Fetch a path from a code to any root node with the `HierarchyPath` field. If there are multiple possible paths from
-a code to a root node, the path returned may be any one of them.
+a code to a root node, the path returned may be any one of them. Useful for expanding a hierarchy view down to a 
+particular node.
 
 
-## Group of Items
+### Group of Items
 **Example: Drug brand contains a group of ingredients**
 - List of brands lives in one table (e.g. `brand`).
 - List of ingredients lives in another table (e.g. `ingredient`).
@@ -100,4 +114,7 @@ a code to a root node, the path returned may be any one of them.
 - Group-items entity group definition for the relationship between the two entities (e.g. [omop/brandIngredient](../underlay/src/main/resources/config/datamapping/omop/entitygroup/brandIngredient)).
 
 #### Queries
-- List the ingredients for a particular brand with a `ItemInGroup` filter.
+- List the ingredients for a particular brand with a `ItemInGroup` filter. Useful for expanding a brand to show a list
+of its ingredients.
+- Fetch the number of ingredients for a brand with the `RelatedEntityIdCount` field. Useful for determining whether
+to show an expand icon for the brand.
