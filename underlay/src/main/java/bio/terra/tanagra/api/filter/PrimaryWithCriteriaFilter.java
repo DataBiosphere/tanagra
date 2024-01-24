@@ -1,7 +1,6 @@
 package bio.terra.tanagra.api.filter;
 
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -16,7 +15,7 @@ import javax.annotation.Nullable;
 public class PrimaryWithCriteriaFilter extends EntityFilter {
   private final Underlay underlay;
   private final CriteriaOccurrence criteriaOccurrence;
-  private final ImmutableList<Literal> criteriaIds;
+  private final EntityFilter criteriaSubFilter;
   private final ImmutableMap<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity;
   private final ImmutableMap<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity;
   private final @Nullable BinaryOperator groupByCountOperator;
@@ -25,14 +24,14 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
   public PrimaryWithCriteriaFilter(
       Underlay underlay,
       CriteriaOccurrence criteriaOccurrence,
-      List<Literal> criteriaIds,
+      EntityFilter criteriaSubFilter,
       @Nullable Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity,
       @Nullable Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
     this.underlay = underlay;
     this.criteriaOccurrence = criteriaOccurrence;
-    this.criteriaIds = ImmutableList.copyOf(criteriaIds);
+    this.criteriaSubFilter = criteriaSubFilter;
     this.subFiltersPerOccurrenceEntity =
         subFiltersPerOccurrenceEntity == null
             ? ImmutableMap.of()
@@ -53,8 +52,8 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
     return criteriaOccurrence;
   }
 
-  public ImmutableList<Literal> getCriteriaIds() {
-    return criteriaIds;
+  public EntityFilter getCriteriaSubFilter() {
+    return criteriaSubFilter;
   }
 
   public boolean hasSubFilters(Entity occurrenceEntity) {
