@@ -168,7 +168,7 @@ public class DataExportService {
                 qr -> qr.getEntity().getName(),
                 qr -> {
                   ListQueryRequest dryRunQueryRequest = qr.cloneAndSetDryRun();
-                  return qr.getUnderlay().getQueryRunner().run(dryRunQueryRequest).getSql();
+                  return qr.getUnderlay().getQueryRunner().run(dryRunQueryRequest).getSqlNoParams();
                 }));
   }
 
