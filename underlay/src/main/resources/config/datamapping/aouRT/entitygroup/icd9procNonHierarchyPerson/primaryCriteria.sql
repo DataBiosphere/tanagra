@@ -1,7 +1,7 @@
 SELECT co.person_id, c.concept_id
 FROM `${omopDataset}.procedure_occurrence` AS co
 JOIN `${omopDataset}.concept` AS c
-    ON c.concept_id = co.condition_source_concept_id
+    ON c.concept_id = co.procedure_source_concept_id
 WHERE c.vocabulary_id = 'ICD9Proc'
   AND c.concept_id NOT IN(
     SELECT concept_id FROM `${omopDataset}.concept`
