@@ -45,17 +45,14 @@ public class BQExecutor {
     queryConfig.setDryRun(queryRequest.isDryRun());
     queryConfig.setUseQueryCache(true);
 
-    String nonParameterizedSql = queryRequest.getSql();
+    String sqlNoParams = queryRequest.getSql();
     for (String paramName : queryRequest.getSqlParams().getParamNamesLongestFirst()) {
-      LOGGER.info(
-          "param val: {}",
-          toQueryParameterValue(queryRequest.getSqlParams().getParamValue(paramName)));
-      nonParameterizedSql =
-          nonParameterizedSql.replaceAll(
+      sqlNoParams =
+          sqlNoParams.replaceAll(
               '@' + paramName,
               toSql(toQueryParameterValue(queryRequest.getSqlParams().getParamValue(paramName))));
     }
-    LOGGER.info("non-parameterized SQL: {}", nonParameterizedSql);
+    LOGGER.info("SQL no parameters: {}", sqlNoParams);
 
     LOGGER.info("Running SQL against BigQuery: {}", queryRequest.getSql());
     if (queryRequest.isDryRun()) {
@@ -67,7 +64,7 @@ public class BQExecutor {
           queryStatistics.getCacheHit(),
           queryStatistics.getTotalBytesProcessed(),
           queryStatistics.getTotalSlotMs());
-      return new SqlQueryResult(List.of(), null, 0, nonParameterizedSql);
+      return new SqlQueryResult(List.of(), null, 0, sqlNoParams);
     } else {
       TableResult tableResult =
           getBigQueryService()
@@ -86,7 +83,7 @@ public class BQExecutor {
       PageMarker nextPageMarker =
           tableResult.hasNextPage() ? PageMarker.forToken(tableResult.getNextPageToken()) : null;
       return new SqlQueryResult(
-          rowResults, nextPageMarker, tableResult.getTotalRows(), nonParameterizedSql);
+          rowResults, nextPageMarker, tableResult.getTotalRows(), sqlNoParams);
     }
   }
 

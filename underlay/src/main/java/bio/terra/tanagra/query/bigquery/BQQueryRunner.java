@@ -72,7 +72,7 @@ public class BQQueryRunner implements QueryRunner {
 
     return new ListQueryResult(
         sqlQueryRequest.getSql(),
-        sqlQueryResult.getNonParameterizedSql(),
+        sqlQueryResult.getSqlNoParams(),
         listInstances,
         sqlQueryResult.getNextPageMarker());
   }
