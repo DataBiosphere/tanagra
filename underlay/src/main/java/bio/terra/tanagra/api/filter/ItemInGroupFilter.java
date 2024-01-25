@@ -1,7 +1,6 @@
 package bio.terra.tanagra.api.filter;
 
 import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
@@ -10,7 +9,7 @@ import javax.annotation.Nullable;
 public class ItemInGroupFilter extends EntityFilter {
   private final Underlay underlay;
   private final GroupItems groupItems;
-  private final Literal groupId;
+  private final EntityFilter groupSubFilter;
   private final @Nullable Attribute groupByCountAttribute;
   private final @Nullable BinaryOperator groupByCountOperator;
   private final @Nullable Integer groupByCountValue;
@@ -18,13 +17,13 @@ public class ItemInGroupFilter extends EntityFilter {
   public ItemInGroupFilter(
       Underlay underlay,
       GroupItems groupItems,
-      Literal groupId,
+      EntityFilter groupSubFilter,
       @Nullable Attribute groupByCountAttribute,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
     this.underlay = underlay;
     this.groupItems = groupItems;
-    this.groupId = groupId;
+    this.groupSubFilter = groupSubFilter;
     this.groupByCountAttribute = groupByCountAttribute;
     this.groupByCountOperator = groupByCountOperator;
     this.groupByCountValue = groupByCountValue;
@@ -38,8 +37,8 @@ public class ItemInGroupFilter extends EntityFilter {
     return groupItems;
   }
 
-  public Literal getGroupId() {
-    return groupId;
+  public EntityFilter getGroupSubFilter() {
+    return groupSubFilter;
   }
 
   @Nullable

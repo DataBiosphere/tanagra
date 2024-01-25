@@ -5,7 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Stack from "@mui/material/Stack";
 import { TextField } from "mui-rff";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Form } from "react-final-form";
 import { OnChange } from "react-final-form-listeners";
 import { useLocalSearchState } from "util/searchState";
@@ -26,10 +26,20 @@ export function Search(props: SearchProps) {
   const [, updateSearchState] = useLocalSearchState<SearchState>();
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
+      }
+    };
+  }, []);
+
   const onSearch = (query: string) => {
-    if (searchTimeout.current) {
-      clearTimeout(searchTimeout.current);
+    if (!searchTimeout.current) {
+      return;
     }
+
+    clearTimeout(searchTimeout.current);
 
     if (props.onSearch) {
       props.onSearch(query);

@@ -16,7 +16,20 @@
                     ${ENT_conditionOccurrence}                  
                 WHERE
                     source_criteria_id IN (
-                        @val0,@val1                     
+                        SELECT
+                            descendant                          
+                        FROM
+                            ${HAD_icd9cm_default}                          
+                        WHERE
+                            ancestor IN (
+                                @val0,@val1                             
+                            )                          
+                        UNION
+                        ALL SELECT
+                            @val2                          
+                        UNION
+                        ALL SELECT
+                            @val3                     
                     )                  
                 UNION
                 ALL SELECT
@@ -27,7 +40,20 @@
                     ${ENT_observationOccurrence}                  
                 WHERE
                     source_criteria_id IN (
-                        @val2,@val3                     
+                        SELECT
+                            descendant                          
+                        FROM
+                            ${HAD_icd9cm_default}                          
+                        WHERE
+                            ancestor IN (
+                                @val4,@val5                             
+                            )                          
+                        UNION
+                        ALL SELECT
+                            @val6                          
+                        UNION
+                        ALL SELECT
+                            @val7                     
                     )                  
                 UNION
                 ALL SELECT
@@ -38,7 +64,20 @@
                     ${ENT_procedureOccurrence}                  
                 WHERE
                     source_criteria_id IN (
-                        @val4,@val5                     
+                        SELECT
+                            descendant                          
+                        FROM
+                            ${HAD_icd9cm_default}                          
+                        WHERE
+                            ancestor IN (
+                                @val8,@val9                             
+                            )                          
+                        UNION
+                        ALL SELECT
+                            @val10                          
+                        UNION
+                        ALL SELECT
+                            @val11                     
                     )             
             )          
         GROUP BY
@@ -46,5 +85,5 @@
             group_by_0,
             group_by_1          
         HAVING
-            COUNT(*) >= @groupByCountValue6     
+            COUNT(*) >= @groupByCountValue12     
     )
