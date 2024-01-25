@@ -5,6 +5,7 @@ import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
@@ -2067,5 +2068,105 @@ public class BQFilterTest extends BQRunnerTest {
         groupEntityTable,
         itemsEntityTable,
         idPairsTable);
+  }
+
+  @Test
+  void groupHasItemsFilter() throws IOException {
+    // Intermediate table.
+    GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
+    GroupHasItemsFilter groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getAttribute("name"),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getGroupEntity(),
+                List.of(simpleAttribute),
+                groupHasItemsFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    BQTable groupEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
+    BQTable itemsEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    BQTable idPairsTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "groupHasItemsIntTable",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
+
+    // Foreign key on items entity table.
+    // The cmssynpuf underlay does not have an example of this type of relationship
+    // (i.e. foreign key relationship on the filter entity).
+    // This is typical for things like vitals (e.g. list of pulse readings for a person,
+    // query is to get all persons with at least one pulse reading). So for this part
+    // of the test, we use the SD underlay. But since we the GHA does not have
+    // credentials to query against an SD dataset, here we just check the generated SQL.
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZService szService = configReader.readService("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+    Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
+    BQQueryRunner bqQueryRunner =
+        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+
+    groupItems = (GroupItems) underlay.getEntityGroup("pulsePerson");
+    groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            false,
+            false);
+    SqlQueryRequest sqlQueryRequest =
+        bqQueryRunner.buildListQuerySql(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getGroupEntity(),
+                List.of(simpleAttribute),
+                groupHasItemsFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    groupEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
+    itemsEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "groupHasItemsFKItemsTable", sqlQueryRequest.getSql(), groupEntityTable, itemsEntityTable);
   }
 }

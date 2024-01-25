@@ -12,6 +12,7 @@ import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
@@ -34,7 +35,9 @@ import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanAndOrFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanNotFilterTranslator;
+import bio.terra.tanagra.query.sql.translator.filter.GroupHasItemsFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.ItemInGroupFilterTranslator;
+import bio.terra.tanagra.query.sql.translator.filter.OccurrenceForPrimaryFilterTranslator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -321,11 +324,17 @@ public interface ApiTranslator {
 
   ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter);
 
+  default ApiFilterTranslator translator(GroupHasItemsFilter groupHasItemsFilter) {
+    return new GroupHasItemsFilterTranslator(this, groupHasItemsFilter);
+  }
+
   default ApiFilterTranslator translator(ItemInGroupFilter itemInGroupFilter) {
     return new ItemInGroupFilterTranslator(this, itemInGroupFilter);
   }
 
-  ApiFilterTranslator translator(OccurrenceForPrimaryFilter occurrenceForPrimaryFilter);
+  default ApiFilterTranslator translator(OccurrenceForPrimaryFilter occurrenceForPrimaryFilter) {
+    return new OccurrenceForPrimaryFilterTranslator(this, occurrenceForPrimaryFilter);
+  }
 
   ApiFilterTranslator translator(PrimaryWithCriteriaFilter primaryWithCriteriaFilter);
 
@@ -348,6 +357,8 @@ public interface ApiTranslator {
       return translator((HierarchyIsMemberFilter) entityFilter);
     } else if (entityFilter instanceof HierarchyIsRootFilter) {
       return translator((HierarchyIsRootFilter) entityFilter);
+    } else if (entityFilter instanceof GroupHasItemsFilter) {
+      return translator((GroupHasItemsFilter) entityFilter);
     } else if (entityFilter instanceof ItemInGroupFilter) {
       return translator((ItemInGroupFilter) entityFilter);
     } else if (entityFilter instanceof OccurrenceForPrimaryFilter) {
