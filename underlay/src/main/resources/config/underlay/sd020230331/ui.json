@@ -29,25 +29,6 @@
       "attribute": "age"
     },
     {
-      "type": "entityGroup",
-      "id": "tanagra-snp",
-      "title": "SNP variant",
-      "category": "Demographics",
-      "columns": [
-        { "key": "name", "width": "100%", "title": "SNP variant" },
-        { "key": "t_item_count", "width": 120, "title": "Count" }
-      ],
-      "classificationEntityGroups": [
-        {
-          "id": "snpPerson"
-        }
-      ],
-      "defaultSort": {
-        "attribute": "id",
-        "direction": "ASC"
-      }
-    },
-    {
       "type": "biovu",
       "id": "biovu",
       "title": "BioVU DNA",
