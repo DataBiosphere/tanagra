@@ -1892,9 +1892,15 @@ public class BQFilterTest extends BQRunnerTest {
     GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
 
     // No group by.
+    EntityFilter groupSubFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(19_042_336L));
     ItemInGroupFilter itemInGroupFilter =
-        new ItemInGroupFilter(
-            underlay, groupItems, Literal.forInt64(19_042_336L), null, null, null);
+        new ItemInGroupFilter(underlay, groupItems, groupSubFilter, null, null, null);
     AttributeField simpleAttribute =
         new AttributeField(
             underlay,
@@ -1939,12 +1945,7 @@ public class BQFilterTest extends BQRunnerTest {
     // With group by, no attribute.
     itemInGroupFilter =
         new ItemInGroupFilter(
-            underlay,
-            groupItems,
-            Literal.forInt64(19_042_336L),
-            null,
-            BinaryOperator.GREATER_THAN,
-            2);
+            underlay, groupItems, groupSubFilter, null, BinaryOperator.GREATER_THAN, 2);
     listQueryResult =
         bqQueryRunner.run(
             new ListQueryRequest(
@@ -1969,7 +1970,7 @@ public class BQFilterTest extends BQRunnerTest {
         new ItemInGroupFilter(
             underlay,
             groupItems,
-            Literal.forInt64(19_042_336L),
+            groupSubFilter,
             groupItems.getItemsEntity().getAttribute("vocabulary"),
             BinaryOperator.GREATER_THAN,
             2);

@@ -1,9 +1,7 @@
 package bio.terra.tanagra.query.sql.translator.filter;
 
-import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
-import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
@@ -22,20 +20,13 @@ public class ItemInGroupFilterTranslator extends ApiFilterTranslator {
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
     GroupItems groupItems = itemInGroupFilter.getGroupItems();
-    AttributeFilter groupIdFilter =
-        new AttributeFilter(
-            itemInGroupFilter.getUnderlay(),
-            groupItems.getGroupEntity(),
-            groupItems.getGroupEntity().getIdAttribute(),
-            BinaryOperator.EQUALS,
-            itemInGroupFilter.getGroupId());
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(
             itemInGroupFilter.getUnderlay(),
             groupItems,
             groupItems.getItemsEntity(),
             groupItems.getGroupItemsRelationship(),
-            groupIdFilter,
+            itemInGroupFilter.getGroupSubFilter(),
             itemInGroupFilter.getGroupByCountAttribute(),
             itemInGroupFilter.getGroupByCountOperator(),
             itemInGroupFilter.getGroupByCountValue());
