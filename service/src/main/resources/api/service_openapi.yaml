@@ -1429,7 +1429,7 @@ components:
         filterType:
           type: string
           enum:
-            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC"]
+            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC", "PRIMARY_WITH_CRITERIA"]
         filterUnion:
           type: object
           properties:
@@ -1443,6 +1443,8 @@ components:
               $ref: "#/components/schemas/RelationshipFilter"
             booleanLogicFilter:
               $ref: "#/components/schemas/BooleanLogicFilter"
+            primaryWithCriteriaFilter:
+              $ref: "#/components/schemas/PrimaryWithCriteriaFilter"
 
     AttributeFilter:
       type: object
@@ -1548,6 +1550,39 @@ components:
           enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
         value:
           $ref: "#/components/schemas/Literal"
+
+    PrimaryWithCriteriaFilter:
+      type: object
+      description: |
+        Filter the primary entity with a criteria-occurrence entity group (e.g. people where 
+        condition=diabetes and visit_type=inpatient).
+        If the group_by_count_operator is set, then the group_by_count_value must also be set.
+        The group_by_count_attributes are optional. If undefined, we group by the id only.
+        When group_by fields are set, we filter on # of related occurrence instances.
+        e.g. filter person instances with >2 related condition_occurrence instances
+      properties:
+        entity_group:
+          type: string
+        criteria_subfilter:
+          $ref: "#/components/schemas/Filter"
+        occurrence_subfilters_and_group_by_attributes:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              subfilters:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Filter"
+              group_by_count_attributes:
+                type: array
+                items:
+                  type: string
+        group_by_count_operator:
+          $ref: "#/components/schemas/BinaryOperator"
+        group_by_count_value:
+          type: integer
+          nullable: true
 
     OrderByDirection:
       type: string
