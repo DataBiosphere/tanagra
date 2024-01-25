@@ -1429,7 +1429,7 @@ components:
         filterType:
           type: string
           enum:
-            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC", "PRIMARY_WITH_CRITERIA"]
+            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC", "OCCURRENCE_FOR_PRIMARY", "PRIMARY_WITH_CRITERIA"]
         filterUnion:
           type: object
           properties:
@@ -1443,6 +1443,8 @@ components:
               $ref: "#/components/schemas/RelationshipFilter"
             booleanLogicFilter:
               $ref: "#/components/schemas/BooleanLogicFilter"
+            occurrenceForPrimaryFilter:
+              $ref: "#/components/schemas/OccurrenceForPrimaryFilter"
             primaryWithCriteriaFilter:
               $ref: "#/components/schemas/PrimaryWithCriteriaFilter"
 
@@ -1539,17 +1541,18 @@ components:
           items:
             $ref: "#/components/schemas/Filter"
 
-    AnnotationFilter:
+    OccurrenceForPrimaryFilter:
       type: object
-      description: Filter on an annotation value (e.g. reviewStatus=complete)
+      description: |
+        Filters an occurrence entity with a criteria-occurrence entity group (e.g. condition
+        occurrences for people with gender=female, condition=diabetes).
       properties:
-        annotation:
+        entity_group:
           type: string
-        operator:
+        occurrence_entity:
           type: string
-          enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
-        value:
-          $ref: "#/components/schemas/Literal"
+        primary_subfilter:
+          $ref: "#/components/schemas/Filter"
 
     PrimaryWithCriteriaFilter:
       type: object
@@ -1583,6 +1586,18 @@ components:
         group_by_count_value:
           type: integer
           nullable: true
+
+    AnnotationFilter:
+      type: object
+      description: Filter on an annotation value (e.g. reviewStatus=complete)
+      properties:
+        annotation:
+          type: string
+        operator:
+          type: string
+          enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
+        value:
+          $ref: "#/components/schemas/Literal"
 
     OrderByDirection:
       type: string

@@ -16,6 +16,7 @@ import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
@@ -36,6 +37,7 @@ import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
 import bio.terra.tanagra.generated.model.ApiLiteral;
+import bio.terra.tanagra.generated.model.ApiOccurrenceForPrimaryFilter;
 import bio.terra.tanagra.generated.model.ApiPrimaryWithCriteriaFilter;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
@@ -209,10 +211,24 @@ public final class FromApiUtils {
             throw new SystemException(
                 "Unknown boolean logic operator: " + apiBooleanLogicFilter.getOperator());
         }
+      case OCCURRENCE_FOR_PRIMARY:
+        ApiOccurrenceForPrimaryFilter apiOccurrenceForPrimaryFilter =
+            apiFilter.getFilterUnion().getOccurrenceForPrimaryFilter();
+        CriteriaOccurrence criteriaOccurrenceOccForPri =
+            (CriteriaOccurrence)
+                underlay.getEntityGroup(apiOccurrenceForPrimaryFilter.getEntityGroup());
+        Entity occurrenceEntityOccForPri =
+            underlay.getEntity(apiOccurrenceForPrimaryFilter.getOccurrenceEntity());
+        EntityFilter primarySubFilter =
+            apiOccurrenceForPrimaryFilter.getPrimarySubfilter() == null
+                ? null
+                : fromApiObject(apiOccurrenceForPrimaryFilter.getPrimarySubfilter(), underlay);
+        return new OccurrenceForPrimaryFilter(
+            underlay, criteriaOccurrenceOccForPri, occurrenceEntityOccForPri, primarySubFilter);
       case PRIMARY_WITH_CRITERIA:
         ApiPrimaryWithCriteriaFilter apiPrimaryWithCriteriaFilter =
             apiFilter.getFilterUnion().getPrimaryWithCriteriaFilter();
-        CriteriaOccurrence criteriaOccurrence =
+        CriteriaOccurrence criteriaOccurrencePriWithCri =
             (CriteriaOccurrence)
                 underlay.getEntityGroup(apiPrimaryWithCriteriaFilter.getEntityGroup());
         EntityFilter criteriaSubFilter =
@@ -238,7 +254,7 @@ public final class FromApiUtils {
                 });
         return new PrimaryWithCriteriaFilter(
             underlay,
-            criteriaOccurrence,
+            criteriaOccurrencePriWithCri,
             criteriaSubFilter,
             subFiltersPerOccurrenceEntity,
             groupByAttributesPerOccurrenceEntity,
