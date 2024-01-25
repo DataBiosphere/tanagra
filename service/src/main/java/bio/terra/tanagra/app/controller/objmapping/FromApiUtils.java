@@ -232,26 +232,30 @@ public final class FromApiUtils {
             (CriteriaOccurrence)
                 underlay.getEntityGroup(apiPrimaryWithCriteriaFilter.getEntityGroup());
         EntityFilter criteriaSubFilter =
-            fromApiObject(apiPrimaryWithCriteriaFilter.getCriteriaSubfilter(), underlay);
+            apiPrimaryWithCriteriaFilter.getCriteriaSubfilter() == null
+                ? null
+                : fromApiObject(apiPrimaryWithCriteriaFilter.getCriteriaSubfilter(), underlay);
         Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
         Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
-        apiPrimaryWithCriteriaFilter.getOccurrenceSubfiltersAndGroupByAttributes().entrySet()
-            .stream()
-            .forEach(
-                entry -> {
-                  Entity occurrenceEntity = underlay.getEntity(entry.getKey());
-                  List<EntityFilter> subFiltersForOcc =
-                      entry.getValue().getSubfilters().stream()
-                          .map(apiFilterForOcc -> fromApiObject(apiFilterForOcc, underlay))
-                          .collect(Collectors.toList());
-                  subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFiltersForOcc);
-                  List<Attribute> groupByAttributesForOcc =
-                      entry.getValue().getGroupByCountAttributes().stream()
-                          .map(occurrenceEntity::getAttribute)
-                          .collect(Collectors.toList());
-                  groupByAttributesPerOccurrenceEntity.put(
-                      occurrenceEntity, groupByAttributesForOcc);
-                });
+        if (apiPrimaryWithCriteriaFilter.getOccurrenceSubfiltersAndGroupByAttributes() != null) {
+          apiPrimaryWithCriteriaFilter.getOccurrenceSubfiltersAndGroupByAttributes().entrySet()
+              .stream()
+              .forEach(
+                  entry -> {
+                    Entity occurrenceEntity = underlay.getEntity(entry.getKey());
+                    List<EntityFilter> subFiltersForOcc =
+                        entry.getValue().getSubfilters().stream()
+                            .map(apiFilterForOcc -> fromApiObject(apiFilterForOcc, underlay))
+                            .collect(Collectors.toList());
+                    subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFiltersForOcc);
+                    List<Attribute> groupByAttributesForOcc =
+                        entry.getValue().getGroupByCountAttributes().stream()
+                            .map(occurrenceEntity::getAttribute)
+                            .collect(Collectors.toList());
+                    groupByAttributesPerOccurrenceEntity.put(
+                        occurrenceEntity, groupByAttributesForOcc);
+                  });
+        }
         return new PrimaryWithCriteriaFilter(
             underlay,
             criteriaOccurrencePriWithCri,

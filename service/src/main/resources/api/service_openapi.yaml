@@ -1543,19 +1543,21 @@ components:
 
     OccurrenceForPrimaryFilter:
       type: object
+      required: [entityGroup, occurrenceEntity]
       description: |
         Filters an occurrence entity with a criteria-occurrence entity group (e.g. condition
         occurrences for people with gender=female, condition=diabetes).
       properties:
-        entity_group:
+        entityGroup:
           type: string
-        occurrence_entity:
+        occurrenceEntity:
           type: string
-        primary_subfilter:
+        primarySubfilter:
           $ref: "#/components/schemas/Filter"
 
     PrimaryWithCriteriaFilter:
       type: object
+      required: [entityGroup]
       description: |
         Filter the primary entity with a criteria-occurrence entity group (e.g. people where 
         condition=diabetes and visit_type=inpatient).
@@ -1564,11 +1566,11 @@ components:
         When group_by fields are set, we filter on # of related occurrence instances.
         e.g. filter person instances with >2 related condition_occurrence instances
       properties:
-        entity_group:
+        entityGroup:
           type: string
-        criteria_subfilter:
+        criteriaSubfilter:
           $ref: "#/components/schemas/Filter"
-        occurrence_subfilters_and_group_by_attributes:
+        occurrenceSubfiltersAndGroupByAttributes:
           type: object
           additionalProperties:
             type: object
@@ -1581,11 +1583,10 @@ components:
                 type: array
                 items:
                   type: string
-        group_by_count_operator:
+        groupByCountOperator:
           $ref: "#/components/schemas/BinaryOperator"
-        group_by_count_value:
+        groupByCountValue:
           type: integer
-          nullable: true
 
     AnnotationFilter:
       type: object
