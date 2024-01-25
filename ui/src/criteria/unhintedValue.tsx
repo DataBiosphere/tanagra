@@ -174,6 +174,13 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
       : []),
   ];
 
+  const operatorTitles = {
+    [tanagraUI.UIComparisonOperator.Equal]: "Equals",
+    [tanagraUI.UIComparisonOperator.LessThanEqual]: "Less than or equals",
+    [tanagraUI.UIComparisonOperator.GreaterThanEqual]: "Greater than or equals",
+    [tanagraUI.UIComparisonOperator.Between]: "Between",
+  };
+
   const onSelectOperator = (event: SelectChangeEvent<string>) => {
     const {
       target: { value: sel },
@@ -200,7 +207,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
         >
           {operatorOptions.map((o) => (
             <MenuItem key={o} value={o}>
-              {o}
+              {operatorTitles[o]}
             </MenuItem>
           ))}
         </Select>
