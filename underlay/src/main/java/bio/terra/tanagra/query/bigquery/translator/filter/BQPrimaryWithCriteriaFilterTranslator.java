@@ -1,13 +1,10 @@
 package bio.terra.tanagra.query.bigquery.translator.filter;
 
-import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
-import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
@@ -100,27 +97,6 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
                 }
               }
 
-              AttributeFilter criteriaFilter;
-              if (primaryWithCriteriaFilter.getCriteriaIds().size() == 1) {
-                // FILTER ON criteria: WHERE criteria.id = 123
-                criteriaFilter =
-                    new AttributeFilter(
-                        primaryWithCriteriaFilter.getUnderlay(),
-                        criteriaOccurrence.getCriteriaEntity(),
-                        criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
-                        BinaryOperator.EQUALS,
-                        primaryWithCriteriaFilter.getCriteriaIds().get(0));
-              } else {
-                // FILTER ON criteria: WHERE criteria.id IN (123, 456)
-                criteriaFilter =
-                    new AttributeFilter(
-                        primaryWithCriteriaFilter.getUnderlay(),
-                        criteriaOccurrence.getCriteriaEntity(),
-                        criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
-                        NaryOperator.IN,
-                        primaryWithCriteriaFilter.getCriteriaIds());
-              }
-
               // FILTER ON occurrence: WHERE FILTER ON criteria
               RelationshipFilter occurrenceCriteriaFilter =
                   new RelationshipFilter(
@@ -129,7 +105,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
                       occurrenceEntity,
                       criteriaOccurrence.getOccurrenceCriteriaRelationship(
                           occurrenceEntity.getName()),
-                      criteriaFilter,
+                      primaryWithCriteriaFilter.getCriteriaSubFilter(),
                       null,
                       null,
                       null);

@@ -21,10 +21,8 @@ describe("Basic tests", () => {
     cy.iframe().find("a:Contains(Add some criteria)").first().click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("[data-testid='AccountTreeIcon']").first().click();
-    cy.iframe().find("[data-testid='Clinical finding']").click();
-    cy.iframe().contains(
-      '"Condition: Clinical finding" added to group Group 1'
-    );
+    cy.possiblyMultiSelect("Clinical finding");
+    cy.iframe().contains('"Condition: Clinical finding" added to group 1');
 
     cy.iframe().find("button:Contains(Add criteria)").first().click();
     cy.iframe().find("[data-testid='tanagra-race']").click();
@@ -44,16 +42,11 @@ describe("Basic tests", () => {
 
     cy.iframe().find("button:Contains(Add criteria)").last().click();
     cy.iframe().find("[data-testid='tanagra-observations']").click();
-    cy.iframe()
-      .find("[data-testid='Marital status']", { timeout: 20000 })
-      .click();
+    cy.possiblyMultiSelect("Marital status");
 
     cy.iframe().find("button:Contains(Add criteria)").last().click();
     cy.iframe().find("input").type("imaging");
-    cy.iframe()
-      .find("[data-testid='Imaging of soft tissue']", { timeout: 20000 })
-      .first()
-      .click();
+    cy.possiblyMultiSelect("Imaging of soft tissue");
 
     cy.iframe().find("[aria-label=back]").click();
 
@@ -71,7 +64,7 @@ describe("Basic tests", () => {
     cy.iframe().find("a:Contains(Add a data feature)").first().click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("[data-testid='AccountTreeIcon']").first().click();
-    cy.iframe().find("[data-testid='Clinical finding']").click();
+    cy.possiblyMultiSelect("Clinical finding");
     cy.iframe().find("[aria-label=back]").click();
 
     cy.get("button:Contains(Export)").click();

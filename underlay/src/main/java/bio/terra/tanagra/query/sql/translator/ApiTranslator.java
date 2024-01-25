@@ -35,7 +35,6 @@ import bio.terra.tanagra.query.sql.SqlTable;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanAndOrFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.BooleanNotFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.ItemInGroupFilterTranslator;
-import bio.terra.tanagra.query.sql.translator.filter.OccurrenceForPrimaryFilterTranslator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -326,9 +325,7 @@ public interface ApiTranslator {
     return new ItemInGroupFilterTranslator(this, itemInGroupFilter);
   }
 
-  default ApiFilterTranslator translator(OccurrenceForPrimaryFilter occurrenceForPrimaryFilter) {
-    return new OccurrenceForPrimaryFilterTranslator(this, occurrenceForPrimaryFilter);
-  }
+  ApiFilterTranslator translator(OccurrenceForPrimaryFilter occurrenceForPrimaryFilter);
 
   ApiFilterTranslator translator(PrimaryWithCriteriaFilter primaryWithCriteriaFilter);
 
