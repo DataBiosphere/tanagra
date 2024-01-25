@@ -12,10 +12,12 @@ import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.PageMarker;
@@ -33,7 +35,9 @@ import bio.terra.tanagra.generated.model.ApiBinaryOperator;
 import bio.terra.tanagra.generated.model.ApiBooleanLogicFilter;
 import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiFilter;
+import bio.terra.tanagra.generated.model.ApiGroupHasItemsFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
+import bio.terra.tanagra.generated.model.ApiItemInGroupFilter;
 import bio.terra.tanagra.generated.model.ApiLiteral;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
@@ -47,6 +51,7 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -204,6 +209,34 @@ public final class FromApiUtils {
             throw new SystemException(
                 "Unknown boolean logic operator: " + apiBooleanLogicFilter.getOperator());
         }
+      case ITEM_IN_GROUP:
+        ApiItemInGroupFilter apiItemInGroupFilter =
+            apiFilter.getFilterUnion().getItemInGroupFilter();
+        GroupItems groupItemsItemInGroup =
+            (GroupItems) underlay.getEntityGroup(apiItemInGroupFilter.getEntityGroup());
+        EntityFilter groupSubFilter =
+            apiItemInGroupFilter.getGroupSubfilter() == null
+                ? null
+                : fromApiObject(apiItemInGroupFilter.getGroupSubfilter(), underlay);
+        Attribute groupByAttrItemInGroup =
+            apiItemInGroupFilter.getGroupByCountAttribute() == null
+                ? null
+                : groupItemsItemInGroup
+                    .getItemsEntity()
+                    .getAttribute(apiItemInGroupFilter.getGroupByCountAttribute());
+        return new ItemInGroupFilter(
+            underlay,
+            groupItemsItemInGroup,
+            groupSubFilter,
+            groupByAttrItemInGroup,
+            fromApiObject(apiItemInGroupFilter.getGroupByCountOperator()),
+            apiItemInGroupFilter.getGroupByCountValue());
+      case GROUP_HAS_ITEMS:
+        ApiGroupHasItemsFilter apiGroupHasItemsFilter =
+            apiFilter.getFilterUnion().getGroupHasItemsFilter();
+        return new GroupHasItemsFilter(
+            underlay,
+            (GroupItems) underlay.getEntityGroup(apiGroupHasItemsFilter.getEntityGroup()));
       default:
         throw new SystemException("Unknown API filter type: " + apiFilter.getFilterType());
     }
@@ -381,7 +414,7 @@ public final class FromApiUtils {
   }
 
   public static BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {
-    return BinaryOperator.valueOf(apiOperator.name());
+    return apiOperator == null ? null : BinaryOperator.valueOf(apiOperator.name());
   }
 
   public static TextSearchFilter.TextSearchOperator fromApiObject(
