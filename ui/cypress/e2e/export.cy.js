@@ -27,7 +27,7 @@ describe("Basic tests", () => {
     cy.iframe().find("a:Contains(Add a data feature)").first().click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("input").type("Red color");
-    cy.iframe().find("[data-testid='Red color']").click();
+    cy.possiblyMultiSelect("Red color");
 
     cy.iframe().find("button:Contains(Add data feature)").first().click();
     cy.iframe().find("[data-testid='_demographics']").click();

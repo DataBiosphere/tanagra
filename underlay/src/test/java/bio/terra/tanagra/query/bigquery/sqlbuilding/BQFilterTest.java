@@ -4,10 +4,15 @@ import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.ItemInGroupFilter;
+import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
+import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
@@ -30,7 +35,10 @@ import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class BQFilterTest extends BQRunnerTest {
@@ -1370,5 +1378,795 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 true));
     assertSqlMatchesWithTableNameOnly("textSearchFilterAttribute", listQueryResult.getSql(), table);
+  }
+
+  @Test
+  void primaryWithCriteriaFilterSingleOccurrence() throws IOException {
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+
+    // Only filter on criteria ids.
+    EntityFilter criteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay, criteriaOccurrence, criteriaSubFilter, null, null, null, null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    List<BQTable> tableNamesToSubstitute = new ArrayList<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity ->
+                tableNamesToSubstitute.add(
+                    underlay
+                        .getIndexSchema()
+                        .getEntityMain(occurrenceEntity.getName())
+                        .getTablePointer()));
+    BQTable primaryEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    BQTable criteriaEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
+    tableNamesToSubstitute.add(primaryEntityTable);
+    tableNamesToSubstitute.add(criteriaEntityTable);
+    tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterSingleOccOnlyCriteriaIds",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // Filter on criteria ids + attribute subfilters.
+    Entity conditionOccurrence = criteriaOccurrence.getOccurrenceEntities().get(0);
+    criteriaSubFilter =
+        new AttributeFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(201_826L));
+    AttributeFilter ageAtOccurrenceFilter =
+        new AttributeFilter(
+            underlay,
+            conditionOccurrence,
+            conditionOccurrence.getAttribute("age_at_occurrence"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forInt64(45L), Literal.forInt64(65L)));
+    primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            criteriaSubFilter,
+            Map.of(conditionOccurrence, List.of(ageAtOccurrenceFilter)),
+            null,
+            null,
+            null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterSingleOccAttributeSubfilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+  }
+
+  @Test
+  void primaryWithCriteriaFilterMultipleOccurrences() throws IOException {
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("icd9cmPerson");
+
+    // Only filter on criteria ids.
+    EntityFilter criteriaSubFilter =
+        new AttributeFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
+            NaryOperator.IN,
+            List.of(Literal.forInt64(44_833_365L), Literal.forInt64(44_832_370L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay, criteriaOccurrence, criteriaSubFilter, null, null, null, null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    List<BQTable> tableNamesToSubstitute = new ArrayList<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity ->
+                tableNamesToSubstitute.add(
+                    underlay
+                        .getIndexSchema()
+                        .getEntityMain(occurrenceEntity.getName())
+                        .getTablePointer()));
+    BQTable primaryEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    BQTable criteriaEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
+    tableNamesToSubstitute.add(primaryEntityTable);
+    tableNamesToSubstitute.add(criteriaEntityTable);
+    tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterMultipleOccOnlyCriteriaIds",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // Filter on criteria ids + attribute subfilters.
+    Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity -> {
+              AttributeFilter ageAtOccurrenceFilter =
+                  new AttributeFilter(
+                      underlay,
+                      occurrenceEntity,
+                      occurrenceEntity.getAttribute("age_at_occurrence"),
+                      NaryOperator.BETWEEN,
+                      List.of(Literal.forInt64(45L), Literal.forInt64(65L)));
+              subFiltersPerOccurrenceEntity.put(occurrenceEntity, List.of(ageAtOccurrenceFilter));
+            });
+    criteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(44_833_365L));
+    primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            criteriaSubFilter,
+            subFiltersPerOccurrenceEntity,
+            null,
+            null,
+            null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterMultipleOccAttributeSubfilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+  }
+
+  @Test
+  void primaryWithCriteriaFilterSingleOccurrenceWithGroupBy() throws IOException {
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+
+    // Only filter on criteria ids, no group by attributes.
+    EntityFilter criteriaSubFilter =
+        new AttributeFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
+            NaryOperator.IN,
+            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            criteriaSubFilter,
+            null,
+            null,
+            BinaryOperator.GREATER_THAN,
+            2);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    List<BQTable> tableNamesToSubstitute = new ArrayList<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity ->
+                tableNamesToSubstitute.add(
+                    underlay
+                        .getIndexSchema()
+                        .getEntityMain(occurrenceEntity.getName())
+                        .getTablePointer()));
+    BQTable primaryEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    BQTable criteriaEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
+    tableNamesToSubstitute.add(primaryEntityTable);
+    tableNamesToSubstitute.add(criteriaEntityTable);
+    tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterGroupBySingleOccOnlyCriteriaIds",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // Filter on criteria ids + attribute subfilters, with group by attributes.
+    criteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
+    Entity conditionOccurrence = criteriaOccurrence.getOccurrenceEntities().get(0);
+    AttributeFilter ageAtOccurrenceFilter =
+        new AttributeFilter(
+            underlay,
+            conditionOccurrence,
+            conditionOccurrence.getAttribute("age_at_occurrence"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forInt64(45L), Literal.forInt64(65L)));
+    primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            criteriaSubFilter,
+            Map.of(conditionOccurrence, List.of(ageAtOccurrenceFilter)),
+            Map.of(conditionOccurrence, List.of(conditionOccurrence.getAttribute("start_date"))),
+            BinaryOperator.EQUALS,
+            4);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterGroupBySingleOccAttributeSubfilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+  }
+
+  @Test
+  void primaryWithCriteriaFilterMultipleOccurrencesWithGroupBy() throws IOException {
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("icd9cmPerson");
+
+    // Only filter on criteria ids, with group by attributes.
+    EntityFilter criteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(44_833_365L), Literal.forInt64(44_832_370L)));
+    Entity conditionOccurrence = underlay.getEntity("conditionOccurrence");
+    Entity observationOccurrence = underlay.getEntity("observationOccurrence");
+    Entity procedureOccurrence = underlay.getEntity("procedureOccurrence");
+    Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
+        Map.of(
+            conditionOccurrence,
+            List.of(
+                conditionOccurrence.getAttribute("age_at_occurrence"),
+                conditionOccurrence.getAttribute("start_date")),
+            observationOccurrence,
+            List.of(
+                observationOccurrence.getAttribute("age_at_occurrence"),
+                observationOccurrence.getAttribute("date")),
+            procedureOccurrence,
+            List.of(
+                procedureOccurrence.getAttribute("age_at_occurrence"),
+                procedureOccurrence.getAttribute("date")));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            criteriaSubFilter,
+            null,
+            groupByAttributesPerOccurrenceEntity,
+            BinaryOperator.GREATER_THAN_OR_EQUAL,
+            11);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    List<BQTable> tableNamesToSubstitute = new ArrayList<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity ->
+                tableNamesToSubstitute.add(
+                    underlay
+                        .getIndexSchema()
+                        .getEntityMain(occurrenceEntity.getName())
+                        .getTablePointer()));
+    BQTable primaryEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    BQTable criteriaEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
+    tableNamesToSubstitute.add(primaryEntityTable);
+    tableNamesToSubstitute.add(criteriaEntityTable);
+    tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterGroupByMultipleOccOnlyCriteriaIds",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // Filter on criteria ids + attribute subfilters, no group by attributes.
+    criteriaSubFilter =
+        new AttributeFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(44_833_365L));
+    Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity -> {
+              AttributeFilter ageAtOccurrenceFilter =
+                  new AttributeFilter(
+                      underlay,
+                      occurrenceEntity,
+                      occurrenceEntity.getAttribute("age_at_occurrence"),
+                      NaryOperator.BETWEEN,
+                      List.of(Literal.forInt64(45L), Literal.forInt64(65L)));
+              subFiltersPerOccurrenceEntity.put(occurrenceEntity, List.of(ageAtOccurrenceFilter));
+            });
+    primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            criteriaSubFilter,
+            subFiltersPerOccurrenceEntity,
+            null,
+            BinaryOperator.LESS_THAN,
+            14);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                primaryWithCriteriaFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "primaryWithCriteriaFilterGroupByMultipleOccAttributeSubfilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+  }
+
+  @Test
+  void occurrenceForPrimaryFilter() throws IOException {
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity conditionOccurrence = criteriaOccurrence.getOccurrenceEntities().get(0);
+
+    // With sub-filter.
+    EntityFilter criteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            criteriaOccurrence.getCriteriaEntity(),
+            criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay, criteriaOccurrence, criteriaSubFilter, null, null, null, null);
+    AttributeFilter attributeFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("gender"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(8_532L));
+    BooleanAndOrFilter booleanAndOrFilter =
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.AND,
+            List.of(primaryWithCriteriaFilter, attributeFilter));
+    OccurrenceForPrimaryFilter occurrenceForPrimaryFilter =
+        new OccurrenceForPrimaryFilter(
+            underlay, criteriaOccurrence, conditionOccurrence, booleanAndOrFilter);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, conditionOccurrence, conditionOccurrence.getIdAttribute(), false, false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                conditionOccurrence,
+                List.of(simpleAttribute),
+                occurrenceForPrimaryFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    List<BQTable> tableNamesToSubstitute = new ArrayList<>();
+    criteriaOccurrence.getOccurrenceEntities().stream()
+        .forEach(
+            occurrenceEntity ->
+                tableNamesToSubstitute.add(
+                    underlay
+                        .getIndexSchema()
+                        .getEntityMain(occurrenceEntity.getName())
+                        .getTablePointer()));
+    BQTable primaryEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    BQTable criteriaEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
+            .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
+    tableNamesToSubstitute.add(primaryEntityTable);
+    tableNamesToSubstitute.add(criteriaEntityTable);
+    tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
+    assertSqlMatchesWithTableNameOnly(
+        "occurrenceForPrimaryFilterWithSubFilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // No sub-filter.
+    occurrenceForPrimaryFilter =
+        new OccurrenceForPrimaryFilter(underlay, criteriaOccurrence, conditionOccurrence, null);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                conditionOccurrence,
+                List.of(simpleAttribute),
+                occurrenceForPrimaryFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "occurrenceForPrimaryFilterNoSubFilter",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+  }
+
+  @Test
+  void itemInGroupFilter() throws IOException {
+    GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
+
+    // No group by.
+    EntityFilter groupSubFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(19_042_336L));
+    ItemInGroupFilter itemInGroupFilter =
+        new ItemInGroupFilter(underlay, groupItems, groupSubFilter, null, null, null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getItemsEntity(),
+            groupItems.getItemsEntity().getAttribute("name"),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                itemInGroupFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    BQTable groupEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
+    BQTable itemsEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    BQTable idPairsTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "itemInGroup", listQueryResult.getSql(), groupEntityTable, itemsEntityTable, idPairsTable);
+
+    // With group by, no attribute.
+    itemInGroupFilter =
+        new ItemInGroupFilter(
+            underlay, groupItems, groupSubFilter, null, BinaryOperator.GREATER_THAN, 2);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                itemInGroupFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "itemInGroupWithGroupBy",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
+
+    // With group by attribute.
+    itemInGroupFilter =
+        new ItemInGroupFilter(
+            underlay,
+            groupItems,
+            groupSubFilter,
+            groupItems.getItemsEntity().getAttribute("vocabulary"),
+            BinaryOperator.GREATER_THAN,
+            2);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                itemInGroupFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "itemInGroupWithGroupByAttribute",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
+  }
+
+  @Test
+  void groupHasItemsFilter() throws IOException {
+    // Intermediate table.
+    GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
+    GroupHasItemsFilter groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getAttribute("name"),
+            false,
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getGroupEntity(),
+                List.of(simpleAttribute),
+                groupHasItemsFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    BQTable groupEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
+    BQTable itemsEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    BQTable idPairsTable =
+        underlay
+            .getIndexSchema()
+            .getRelationshipIdPairs(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "groupHasItemsIntTable",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
+
+    // Foreign key on items entity table.
+    // The cmssynpuf underlay does not have an example of this type of relationship
+    // (i.e. foreign key relationship on the filter entity).
+    // This is typical for things like vitals (e.g. list of pulse readings for a person,
+    // query is to get all persons with at least one pulse reading). So for this part
+    // of the test, we use the SD underlay. But since we the GHA does not have
+    // credentials to query against an SD dataset, here we just check the generated SQL.
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZService szService = configReader.readService("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+    Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
+    BQQueryRunner bqQueryRunner =
+        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+
+    groupItems = (GroupItems) underlay.getEntityGroup("pulsePerson");
+    groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    simpleAttribute =
+        new AttributeField(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            false,
+            false);
+    SqlQueryRequest sqlQueryRequest =
+        bqQueryRunner.buildListQuerySql(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getGroupEntity(),
+                List.of(simpleAttribute),
+                groupHasItemsFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+
+    groupEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getGroupEntity().getName())
+            .getTablePointer();
+    itemsEntityTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "groupHasItemsFKItemsTable", sqlQueryRequest.getSql(), groupEntityTable, itemsEntityTable);
   }
 }

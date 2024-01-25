@@ -1,10 +1,15 @@
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { Search } from "components/search";
+import { useSimpleDialog } from "components/simpleDialog";
 import {
   TreeGrid,
   TreeGridColumn,
@@ -37,6 +42,7 @@ import GridLayout from "layout/gridLayout";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
+import { useImmer } from "use-immer";
 import { useLocalSearchState } from "util/searchState";
 import emptyImage from "../images/empty.svg";
 
@@ -155,9 +161,13 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   displayDetails() {
-    if (this.data.selected.length > 0) {
+    const sel = this.data.selected;
+    if (sel.length > 0) {
       return {
-        title: this.data.selected[0].name,
+        title:
+          sel.length > 1
+            ? `${sel[0].name} and ${sel.length - 1} more`
+            : sel[0].name,
         standaloneTitle: true,
         additionalText: this.data.selected.slice(1).map((s) => s.name),
       };
@@ -178,18 +188,20 @@ class _ implements CriteriaPlugin<Data> {
         filters.push({
           type: FilterType.EntityGroup,
           entityGroupId: c.id,
-          entityId: entityGroup.entityId,
-          keys: this.data.selected.map(({ key }) => key),
+          entityId: entityGroup.relatedEntityId ?? entityGroup.entityId,
+          keys: keys.map(({ key }) => key),
         });
       }
     });
 
+    const keyFilter = makeArrayFilter({ min: 1 }, filters);
+
     const valueDataFilter = generateValueDataFilter([this.data.valueData]);
     if (valueDataFilter) {
-      filters.push(valueDataFilter);
+      return makeArrayFilter({}, [keyFilter, valueDataFilter]);
     }
 
-    return makeArrayFilter({}, filters);
+    return keyFilter;
   }
 
   filterEntityIds(underlaySource: UnderlaySource) {
@@ -238,23 +250,67 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const updateCriteria = useUpdateCriteria();
   const isNewCriteria = useIsNewCriteria();
 
+  const [localCriteria, updateLocalCriteria] = useImmer(props.data);
+
+  const selectedSets = useMemo(() => {
+    const sets = new Map<string, Set<DataKey>>();
+    localCriteria.selected.forEach((s) => {
+      if (!sets.has(s.entityGroup)) {
+        sets.set(s.entityGroup, new Set<DataKey>());
+      }
+      sets.get(s.entityGroup)?.add(s.key);
+    });
+    return sets;
+  }, [localCriteria]);
+
+  const updateCriteriaFromLocal = useCallback(() => {
+    updateCriteria(produce(props.data, () => localCriteria));
+  }, [updateCriteria, localCriteria]);
+
   const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
+
+  const [unconfirmedChangesDialog, showUnconfirmedChangesDialog] =
+    useSimpleDialog();
+
+  const unconfirmedChangesCallback = useCallback(
+    () =>
+      showUnconfirmedChangesDialog({
+        title: "Unsaved changes",
+        text: "Unsaved changes will be lost if you go back without saving.",
+        buttons: ["Cancel", "Go back", "Save"],
+        onButton: (button) => {
+          if (button === 1) {
+            props.doneAction();
+          } else if (button === 2) {
+            updateCriteriaFromLocal();
+            props.doneAction();
+          }
+        },
+      }),
+    [updateCriteriaFromLocal]
+  );
 
   useEffect(() => {
     // The extra function works around React defaulting to treating a function
     // as an update function.
-    props.setBackAction(() =>
-      searchState.hierarchy
-        ? () => {
-            updateSearchState((data) => {
-              data.hierarchy = undefined;
-              data.hierarchyEntityGroup = undefined;
-              data.highlightId = undefined;
-            });
-          }
-        : undefined
-    );
-  }, [searchState]);
+    props.setBackAction(() => {
+      if (searchState.hierarchy) {
+        return () => {
+          updateSearchState((data) => {
+            data.hierarchy = undefined;
+            data.hierarchyEntityGroup = undefined;
+            data.highlightId = undefined;
+          });
+        };
+      }
+
+      if (!props.config.multiSelect || isDataEqual(props.data, localCriteria)) {
+        return undefined;
+      } else {
+        return unconfirmedChangesCallback;
+      }
+    });
+  }, [searchState, localCriteria]);
 
   const [
     hasHierarchies,
@@ -459,7 +515,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const hierarchyColumns: TreeGridColumn[] = useMemo(
     () => [
       ...(props.config.hierarchyColumns ?? []),
-      { key: "t_add_button", width: 60 },
+      ...(!props.config.multiSelect
+        ? [{ key: "t_add_button", width: 60 }]
+        : []),
     ],
     [props.config.hierarchyColumns]
   );
@@ -467,10 +525,16 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
       ...props.config.columns,
-      {
-        key: "view_hierarchy",
-        width: hasHierarchies ? 200 : 60,
-      },
+      ...(hasHierarchies || !props.config.multiSelect
+        ? [
+            {
+              key: "view_hierarchy",
+              width:
+                (hasHierarchies ? 160 : 0) +
+                (!props.config.multiSelect ? 40 : 0),
+            },
+          ]
+        : []),
     ],
     [props.config.columns]
   );
@@ -483,227 +547,300 @@ function ClassificationEdit(props: ClassificationEditProps) {
         backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
-      <GridLayout rows>
-        {!searchState?.hierarchy && (
-          <GridBox
-            sx={{
-              px: 5,
-              py: 3,
-              height: "auto",
-            }}
-          >
-            <Search
-              placeholder="Search by code or description"
-              onSearch={(query: string) => {
-                updateSearchState((data: SearchState) => {
-                  data.query = query;
-                });
+      <GridLayout cols fillCol={0}>
+        <GridLayout rows>
+          {!searchState?.hierarchy && (
+            <GridBox
+              sx={{
+                px: 5,
+                py: 3,
+                height: "auto",
               }}
-              initialValue={searchState?.query}
-            />
-          </GridBox>
-        )}
-        <Loading status={instancesState}>
-          {!instancesState.data?.root?.children?.length ? (
-            <Empty
-              minHeight="300px"
-              image={emptyImage}
-              title="No matches found"
-            />
-          ) : (
-            <TreeGrid
-              columns={!!searchState?.hierarchy ? hierarchyColumns : allColumns}
-              data={instancesState?.data ?? {}}
-              defaultExpanded={searchState?.hierarchy}
-              highlightId={searchState?.highlightId}
-              rowCustomization={(id: TreeGridId, rowData: TreeGridRowData) => {
-                if (!instancesState.data) {
-                  return undefined;
+            >
+              <Search
+                placeholder="Search by code or description"
+                onSearch={(query: string) => {
+                  updateSearchState((data: SearchState) => {
+                    data.query = query;
+                  });
+                }}
+                initialValue={searchState?.query}
+              />
+            </GridBox>
+          )}
+          <Loading status={instancesState}>
+            {!instancesState.data?.root?.children?.length ? (
+              <Empty
+                minHeight="300px"
+                image={emptyImage}
+                title="No matches found"
+              />
+            ) : (
+              <TreeGrid
+                columns={
+                  !!searchState?.hierarchy ? hierarchyColumns : allColumns
                 }
+                data={instancesState?.data ?? {}}
+                defaultExpanded={searchState?.hierarchy}
+                highlightId={searchState?.highlightId}
+                rowCustomization={(
+                  id: TreeGridId,
+                  rowData: TreeGridRowData
+                ) => {
+                  if (!instancesState.data) {
+                    return undefined;
+                  }
 
-                // TODO(tjennison): Make TreeGridData's type generic so we can
-                // avoid this type assertion. Also consider passing the
-                // TreeGridItem to the callback instead of the TreeGridRowData.
-                const item = instancesState.data[id] as EntityNodeItem;
-                if (!item || item.groupingNode) {
-                  return undefined;
-                }
+                  // TODO(tjennison): Make TreeGridData's type generic so we can
+                  // avoid this type assertion. Also consider passing the
+                  // TreeGridItem to the callback instead of the TreeGridRowData.
+                  const item = instancesState.data[id] as EntityNodeItem;
+                  if (!item || item.groupingNode) {
+                    return undefined;
+                  }
 
-                const column = props.config.columns[nameColumnIndex];
-                const name = rowData[column.key];
-                const newItem = {
-                  key: item.node.data.key,
-                  name: !!name ? String(name) : "",
-                  entityGroup: item.entityGroup,
-                };
+                  const column = props.config.columns[nameColumnIndex];
+                  const name = rowData[column.key];
+                  const newItem = {
+                    key: item.node.data.key,
+                    name: !!name ? String(name) : "",
+                    entityGroup: item.entityGroup,
+                  };
 
-                const entityGroup = underlaySource.lookupEntityGroup(
-                  item.entityGroup
-                );
-
-                const hierarchyButton = (
-                  <Button
-                    startIcon={<AccountTreeIcon />}
-                    onClick={() => {
-                      updateSearchState((data: SearchState) => {
-                        if (rowData.view_hierarchy) {
-                          data.hierarchyEntityGroup = item.entityGroup;
-                          data.hierarchy = rowData.view_hierarchy as string[];
-                          data.highlightId = id;
-                        }
-                      });
-                    }}
-                  >
-                    View in hierarchy
-                  </Button>
-                );
-
-                const addButton = (
-                  <Button
-                    data-testid={name}
-                    onClick={() => {
-                      updateCriteria(
-                        produce(props.data, (data) => {
-                          data.selected = [newItem];
-                          data.valueData = ANY_VALUE_DATA;
-                        })
-                      );
-                      props.doneAction();
-                    }}
-                    variant="outlined"
-                    sx={{ minWidth: "auto" }}
-                  >
-                    {isNewCriteria ? "Add" : "Update"}
-                  </Button>
-                );
-
-                const listContent = !searchState?.hierarchy
-                  ? [
-                      {
-                        column: props.config.columns.length,
-                        content: (
-                          <GridLayout cols spacing={1} colAlign="center">
-                            {entityGroup.selectionEntity.hierarchies?.length
-                              ? hierarchyButton
-                              : null}
-                            {addButton}
-                          </GridLayout>
-                        ),
-                      },
-                    ]
-                  : [];
-
-                const hierarchyContent = searchState?.hierarchy
-                  ? [
-                      {
-                        column: hierarchyColumns.length - 1,
-                        content: (
-                          <GridLayout cols colAlign="center">
-                            {addButton}
-                          </GridLayout>
-                        ),
-                      },
-                    ]
-                  : [];
-
-                if (props.config.multiSelect) {
-                  // TODO(tjennison): Handle duplicate keys across entities.
-                  const index = props.data.selected.findIndex(
-                    (sel) => item.node.data.key === sel.key
+                  const entityGroup = underlaySource.lookupEntityGroup(
+                    item.entityGroup
                   );
 
-                  return [
-                    {
-                      column: nameColumnIndex,
-                      prefixElements: (
-                        <Checkbox
-                          size="small"
-                          fontSize="inherit"
-                          checked={index > -1}
-                          onChange={() => {
-                            updateCriteria(
-                              produce(props.data, (data) => {
-                                if (index > -1) {
-                                  data.selected.splice(index, 1);
+                  const hierarchyButton = (
+                    <Button
+                      startIcon={<AccountTreeIcon />}
+                      onClick={() => {
+                        updateSearchState((data: SearchState) => {
+                          if (rowData.view_hierarchy) {
+                            data.hierarchyEntityGroup = item.entityGroup;
+                            data.hierarchy = rowData.view_hierarchy as string[];
+                            data.highlightId = id;
+                          }
+                        });
+                      }}
+                    >
+                      View in hierarchy
+                    </Button>
+                  );
+
+                  const addButton = (
+                    <Button
+                      data-testid={name}
+                      onClick={() => {
+                        updateCriteria(
+                          produce(props.data, (data) => {
+                            data.selected = [newItem];
+                            data.valueData = ANY_VALUE_DATA;
+                          })
+                        );
+                        props.doneAction();
+                      }}
+                      variant="outlined"
+                      sx={{ minWidth: "auto" }}
+                    >
+                      {isNewCriteria ? "Add" : "Update"}
+                    </Button>
+                  );
+
+                  const listContent = !searchState?.hierarchy
+                    ? [
+                        {
+                          column: props.config.columns.length,
+                          content: (
+                            <GridLayout cols spacing={1} colAlign="center">
+                              {entityGroup.selectionEntity.hierarchies?.length
+                                ? hierarchyButton
+                                : null}
+                              {!props.config.multiSelect ? addButton : null}
+                            </GridLayout>
+                          ),
+                        },
+                      ]
+                    : [];
+
+                  const hierarchyContent =
+                    searchState?.hierarchy && !props.config.multiSelect
+                      ? [
+                          {
+                            column: hierarchyColumns.length - 1,
+                            content: (
+                              <GridLayout cols colAlign="center">
+                                {addButton}
+                              </GridLayout>
+                            ),
+                          },
+                        ]
+                      : [];
+
+                  if (props.config.multiSelect) {
+                    const entityGroupSet = selectedSets.get(item.entityGroup);
+                    const found = !!entityGroupSet?.has(item.node.data.key);
+                    const foundAncestor = !!item.node.ancestors?.reduce(
+                      (acc, cur) => acc || !!entityGroupSet?.has(cur),
+                      false
+                    );
+
+                    return [
+                      {
+                        column: nameColumnIndex,
+                        prefixElements: (
+                          <Checkbox
+                            size="small"
+                            fontSize="inherit"
+                            checked={found || foundAncestor}
+                            faded={!found && foundAncestor}
+                            onChange={() => {
+                              updateLocalCriteria((data) => {
+                                if (found) {
+                                  data.selected = data.selected.filter(
+                                    (s) =>
+                                      item.node.data.key !== s.key ||
+                                      item.entityGroup !== s.entityGroup
+                                  );
                                 } else {
                                   data.selected.push(newItem);
                                 }
                                 data.valueData = ANY_VALUE_DATA;
-                              })
-                            );
-                          }}
-                        />
-                      ),
-                    },
-                    ...listContent,
-                    ...hierarchyContent,
-                  ];
-                }
+                              });
+                            }}
+                          />
+                        ),
+                      },
+                      ...listContent,
+                      ...hierarchyContent,
+                    ];
+                  }
 
-                return [...listContent, ...hierarchyContent];
-              }}
-              loadChildren={(id: TreeGridId) => {
-                const data = instancesState.data;
-                if (!data) {
-                  return Promise.resolve();
-                }
+                  return [...listContent, ...hierarchyContent];
+                }}
+                loadChildren={(id: TreeGridId) => {
+                  const data = instancesState.data;
+                  if (!data) {
+                    return Promise.resolve();
+                  }
 
-                const findEntityGroupConfig = () => {
-                  const item = data[id] as EntityNodeItem;
-                  if (item) {
+                  const findEntityGroupConfig = () => {
+                    const item = data[id] as EntityNodeItem;
+                    if (item) {
+                      const config = configEntityGroups(props.config).find(
+                        (eg) => eg.id === item.entityGroup
+                      );
+                      if (!config) {
+                        throw new Error(
+                          `Unexpected entity group ${item.entityGroup}.`
+                        );
+                      }
+                      return config;
+                    }
+
                     const config = configEntityGroups(props.config).find(
-                      (eg) => eg.id === item.entityGroup
+                      (eg) => eg.id === searchState?.hierarchyEntityGroup
                     );
                     if (!config) {
                       throw new Error(
-                        `Unexpected entity group ${item.entityGroup}.`
+                        `Unexpected hierarchy entity group ${searchState?.hierarchyEntityGroup}.`
                       );
                     }
                     return config;
-                  }
+                  };
 
-                  const config = configEntityGroups(props.config).find(
-                    (eg) => eg.id === searchState?.hierarchyEntityGroup
-                  );
-                  if (!config) {
-                    throw new Error(
-                      `Unexpected hierarchy entity group ${searchState?.hierarchyEntityGroup}.`
-                    );
-                  }
-                  return config;
-                };
+                  const entityGroupConfig = findEntityGroupConfig();
 
-                const entityGroupConfig = findEntityGroupConfig();
-
-                return underlaySource
-                  .searchEntityGroup(
-                    attributes,
-                    entityGroupConfig.id,
-                    calcSortOrder(entityGroupConfig.id, true),
-                    {
-                      parent: keyFromDataKey(id as string),
-                      limit: props.config.limit,
-                      hierarchy: !!searchState.hierarchyEntityGroup,
-                    }
-                  )
-                  .then((res) => {
-                    updateData(
-                      processEntities(
-                        res.nodes.map((r) => ({
-                          source: entityGroupConfig.id,
-                          data: r,
-                        })),
-                        searchState?.hierarchy,
-                        id,
-                        data
-                      )
-                    );
-                  });
-              }}
-            />
-          )}
-        </Loading>
+                  return underlaySource
+                    .searchEntityGroup(
+                      attributes,
+                      entityGroupConfig.id,
+                      calcSortOrder(entityGroupConfig.id, true),
+                      {
+                        parent: keyFromDataKey(id as string),
+                        limit: props.config.limit,
+                        hierarchy: !!searchState.hierarchyEntityGroup,
+                      }
+                    )
+                    .then((res) => {
+                      updateData(
+                        processEntities(
+                          res.nodes.map((r) => ({
+                            source: entityGroupConfig.id,
+                            data: r,
+                          })),
+                          searchState?.hierarchy,
+                          id,
+                          data
+                        )
+                      );
+                    });
+                }}
+              />
+            )}
+          </Loading>
+        </GridLayout>
+        {props.config.multiSelect ? (
+          <GridBox
+            sx={{
+              p: 1,
+              backgroundColor: (theme) => theme.palette.background.default,
+            }}
+          >
+            <GridLayout rows fillRow={0} spacing={1} width="240px">
+              <Paper sx={{ p: 1, height: "100%" }}>
+                {localCriteria.selected?.length ? (
+                  <GridLayout rows fillRow={0}>
+                    <GridLayout rows rowAlign="top">
+                      <Typography variant="body1em">Selected items:</Typography>
+                      {localCriteria.selected.map((s, i) => (
+                        <GridLayout
+                          key={s.key}
+                          cols
+                          fillCol={0}
+                          rowAlign="middle"
+                          sx={{
+                            boxShadow:
+                              i !== 0
+                                ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+                                : undefined,
+                          }}
+                        >
+                          <Typography variant="body2">{s.name}</Typography>
+                          <IconButton
+                            onClick={() =>
+                              updateLocalCriteria((data) => {
+                                data.selected.splice(i, 1);
+                              })
+                            }
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </GridLayout>
+                      ))}
+                    </GridLayout>
+                  </GridLayout>
+                ) : (
+                  <Empty minHeight="300px" title="No items selected" />
+                )}
+              </Paper>
+              <GridLayout colAlign="right">
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => {
+                    updateCriteriaFromLocal();
+                    props.doneAction();
+                  }}
+                >
+                  Save criteria
+                </Button>
+              </GridLayout>
+            </GridLayout>
+          </GridBox>
+        ) : null}
       </GridLayout>
+      {unconfirmedChangesDialog}
     </GridBox>
   );
 }
@@ -815,6 +952,20 @@ function configEntityGroups(config: Config) {
     throw new Error("At least one entity group must be configured.");
   }
   return entityGroups;
+}
+
+function isDataEqual(data1: Data, data2: Data) {
+  // TODO(tjennison): In future the ValueData may need to be compared as well.
+  if (data1.selected.length != data2.selected.length) {
+    return false;
+  }
+  return data1.selected.reduce(
+    (acc, cur, i) =>
+      acc &&
+      cur.key === data2.selected[i].key &&
+      cur.entityGroup === data2.selected[i].entityGroup,
+    true
+  );
 }
 
 const DEFAULT_SORT_ORDER = {

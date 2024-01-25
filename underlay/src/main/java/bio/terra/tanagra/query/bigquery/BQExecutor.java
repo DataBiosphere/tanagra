@@ -45,6 +45,15 @@ public class BQExecutor {
     queryConfig.setDryRun(queryRequest.isDryRun());
     queryConfig.setUseQueryCache(true);
 
+    String sqlNoParams = queryRequest.getSql();
+    for (String paramName : queryRequest.getSqlParams().getParamNamesLongestFirst()) {
+      sqlNoParams =
+          sqlNoParams.replaceAll(
+              '@' + paramName,
+              toSql(toQueryParameterValue(queryRequest.getSqlParams().getParamValue(paramName))));
+    }
+    LOGGER.info("SQL no parameters: {}", sqlNoParams);
+
     LOGGER.info("Running SQL against BigQuery: {}", queryRequest.getSql());
     if (queryRequest.isDryRun()) {
       JobStatistics.QueryStatistics queryStatistics =
@@ -55,7 +64,7 @@ public class BQExecutor {
           queryStatistics.getCacheHit(),
           queryStatistics.getTotalBytesProcessed(),
           queryStatistics.getTotalSlotMs());
-      return new SqlQueryResult(List.of(), null, 0);
+      return new SqlQueryResult(List.of(), null, 0, sqlNoParams);
     } else {
       TableResult tableResult =
           getBigQueryService()
@@ -73,7 +82,8 @@ public class BQExecutor {
               (FieldValueList fieldValueList) -> new BQRowResult(fieldValueList));
       PageMarker nextPageMarker =
           tableResult.hasNextPage() ? PageMarker.forToken(tableResult.getNextPageToken()) : null;
-      return new SqlQueryResult(rowResults, nextPageMarker, tableResult.getTotalRows());
+      return new SqlQueryResult(
+          rowResults, nextPageMarker, tableResult.getTotalRows(), sqlNoParams);
     }
   }
 
@@ -130,6 +140,24 @@ public class BQExecutor {
             literal.getTimestampVal() == null ? null : literal.getTimestampVal().toString());
       default:
         throw new SystemException("Unsupported data type for BigQuery: " + literal.getDataType());
+    }
+  }
+
+  private static String toSql(QueryParameterValue queryParameterValue) {
+    switch (queryParameterValue.getType()) {
+      case INT64:
+      case BOOL:
+      case FLOAT64:
+        return queryParameterValue.getValue();
+      case STRING:
+        return "'" + queryParameterValue.getValue() + "'";
+      case DATE:
+        return "DATE('" + queryParameterValue.getValue() + "')";
+      case TIMESTAMP:
+        return "TIMESTAMP('" + queryParameterValue.getValue() + "')";
+      default:
+        throw new SystemException(
+            "Unsupported data type for BigQuery: " + queryParameterValue.getType());
     }
   }
 
