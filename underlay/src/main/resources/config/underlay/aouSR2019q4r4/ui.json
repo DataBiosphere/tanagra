@@ -5,6 +5,7 @@
       "id": "tanagra-conditions",
       "title": "Condition",
       "conceptSet": true,
+			"multiSelect": true,
       "category": "Domains",
       "columns": [
         { "key": "name", "width": "100%", "title": "Concept name" },

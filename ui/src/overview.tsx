@@ -496,13 +496,13 @@ function ParticipantsGroup(props: {
     inline = plugin.renderInline(props.group.id);
     if (inline) {
       inline = <GridBox sx={{ pt: 2 }}>{inline}</GridBox>;
+    } else if (additionalText) {
+      inline = (
+        <Typography variant="body2">
+          {plugin.displayDetails().additionalText?.join(", ")}
+        </Typography>
+      );
     }
-  } else if (additionalText) {
-    inline = (
-      <Typography variant="body2">
-        {plugin.displayDetails().additionalText?.join(", ")}
-      </Typography>
-    );
   }
 
   return (

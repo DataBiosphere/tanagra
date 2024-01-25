@@ -21,7 +21,7 @@ tanagra-clean-group - Clean the outputs of all jobs for a single entity group, o
 
 *tanagra clean group* [*--all*] [*--dry-run*] [*--github-dir*=_<githubDir>_]
                     *--indexer-config*=_<name>_ [*--job-executor*=_<jobExecutor>_]
-                    [*--output-dir*=_<outputDir>_] [*--names*=_<names>_]...
+                    [*--output-dir*=_<outputDir>_] [*--names*=_<names>_[,_<names>_...]]...
 
 // end::picocli-generated-man-section-synopsis[]
 
@@ -56,7 +56,7 @@ Clean the outputs of all jobs for a single entity group, or all entity groups.
 +
   Default: PARALLEL
 
-*--names*=_<names>_::
+*--names*=_<names>_[,_<names>_...]::
   Entity group name(s). Comma-separated list if more than one.
 
 *--output-dir*=_<outputDir>_::

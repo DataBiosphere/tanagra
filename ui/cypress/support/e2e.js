@@ -25,9 +25,32 @@ Cypress.Commands.add("createCohortFromSearch", (name, search, domain) => {
     cy.iframe().find(`[data-testid='${domain}']`).click();
   }
   cy.iframe().find("input").type(search);
-  cy.iframe()
-    .find(`[data-testid='${search}']`, { timeout: 20000 })
-    .first()
-    .click();
+
+  cy.possiblyMultiSelect(search);
+
   cy.iframe().find("button[aria-label=back]").click();
+});
+
+Cypress.Commands.add("multiSelect", (search) => {
+  cy.iframe()
+    .find(`p:Contains(${search}), button:Contains(${search})`, {
+      timeout: 20000,
+    })
+    .first()
+    .prev("button")
+    .click();
+});
+
+Cypress.Commands.add("possiblyMultiSelect", (search) => {
+  cy.iframe().then((iframe) => {
+    if (iframe.text().includes("Save criteria")) {
+      cy.multiSelect(search);
+      cy.iframe().find("button:Contains(Save criteria)").click();
+    } else {
+      cy.iframe()
+        .find(`[data-testid='${search}']`, { timeout: 20000 })
+        .first()
+        .click();
+    }
+  });
 });
