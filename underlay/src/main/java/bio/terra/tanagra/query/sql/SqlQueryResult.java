@@ -7,11 +7,17 @@ public class SqlQueryResult {
   private final PageMarker nextPageMarker;
   private final long totalNumRows;
 
+  private final String sqlNoParams;
+
   public SqlQueryResult(
-      Iterable<SqlRowResult> rowResults, PageMarker nextPageMarker, long totalNumRows) {
+      Iterable<SqlRowResult> rowResults,
+      PageMarker nextPageMarker,
+      long totalNumRows,
+      String sqlNoParams) {
     this.rowResults = rowResults;
     this.nextPageMarker = nextPageMarker;
     this.totalNumRows = totalNumRows;
+    this.sqlNoParams = sqlNoParams;
   }
 
   public Iterable<SqlRowResult> getRowResults() {
@@ -24,5 +30,9 @@ public class SqlQueryResult {
 
   public long getTotalNumRows() {
     return totalNumRows;
+  }
+
+  public String getSqlNoParams() {
+    return sqlNoParams;
   }
 }

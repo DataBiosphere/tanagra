@@ -144,7 +144,7 @@ public class UnderlaysApiController implements UnderlaysApi {
                 listQueryResult.getListInstances().stream()
                     .map(listInstance -> toApiObject(listInstance))
                     .collect(Collectors.toList()))
-            .sql(SqlFormatter.format(listQueryResult.getSql()))
+            .sql(SqlFormatter.format(listQueryResult.getSqlNoParams()))
             .pageMarker(
                 listQueryResult.getPageMarker() == null
                     ? null
