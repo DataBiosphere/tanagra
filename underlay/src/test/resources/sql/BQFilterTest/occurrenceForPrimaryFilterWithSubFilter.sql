@@ -21,7 +21,7 @@
                                 SELECT
                                     descendant                                  
                                 FROM
-                                    `verily-tanagra-dev.cmssynpuf_index_010224`.HAD_condition_default                                  
+                                    ${HAD_condition_default}                                  
                                 WHERE
                                     ancestor IN (
                                         @val0,@val1                                     

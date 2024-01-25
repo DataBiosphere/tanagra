@@ -1926,8 +1926,15 @@ public class BQFilterTest extends BQRunnerTest {
             .getIndexSchema()
             .getEntityMain(criteriaOccurrence.getCriteriaEntity().getName())
             .getTablePointer();
+    BQTable criteriaAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                criteriaOccurrence.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
     tableNamesToSubstitute.add(primaryEntityTable);
     tableNamesToSubstitute.add(criteriaEntityTable);
+    tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
     assertSqlMatchesWithTableNameOnly(
         "occurrenceForPrimaryFilterWithSubFilter",
         listQueryResult.getSql(),
