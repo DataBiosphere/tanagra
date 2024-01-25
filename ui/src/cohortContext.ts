@@ -7,12 +7,7 @@ import { useParams } from "react-router-dom";
 import { absoluteCohortURL, BaseParams } from "router";
 import useSWR, { useSWRConfig } from "swr";
 import * as tanagraUI from "tanagra-ui";
-import {
-  getCriteriaPlugin,
-  getCriteriaTitle,
-  sectionName,
-  upgradeCriteria,
-} from "./cohort";
+import { getCriteriaPlugin, getCriteriaTitle, upgradeCriteria } from "./cohort";
 
 type CohortState = {
   past: tanagraUI.UICohort[];
@@ -211,9 +206,8 @@ export function insertCohortCriteria(
 
     const plugin = getCriteriaPlugin(criteria);
     const title = getCriteriaTitle(criteria, plugin);
-    const name = sectionName(section, sectionIndex);
 
-    showSnackbar(`"${title}" added to group ${name}`);
+    showSnackbar(`"${title}" added to group ${sectionIndex + 1}`);
   });
 
   return group;

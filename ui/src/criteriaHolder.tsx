@@ -3,7 +3,7 @@ import { CriteriaPlugin } from "cohort";
 import Empty from "components/empty";
 import emptyImage from "images/empty.svg";
 import GridLayout from "layout/gridLayout";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "util/searchState";
 
 export type CriteriaHolderProps = {
@@ -17,13 +17,9 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
   const navigate = useNavigate();
   const [backAction, setBackAction] = useState<() => void | undefined>();
 
-  return (
-    <GridLayout rows>
-      <ActionBar
-        title={props.title}
-        backAction={backAction ?? props.backURL ?? props.exitAction}
-      />
-      {props.plugin.renderEdit ? (
+  const content = useMemo(
+    () =>
+      props.plugin.renderEdit ? (
         props.plugin.renderEdit(
           props.exitAction ?? (() => navigate("..")),
           setBackAction
@@ -35,7 +31,17 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
           image={emptyImage}
           subtitle="There are no editable properties for this criteria."
         />
-      )}
+      ),
+    []
+  );
+
+  return (
+    <GridLayout rows>
+      <ActionBar
+        title={props.title}
+        backAction={backAction ?? props.backURL ?? props.exitAction}
+      />
+      {content}
     </GridLayout>
   );
 }
