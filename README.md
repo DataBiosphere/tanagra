@@ -1,6 +1,6 @@
 # Tanagra
 
-Tanagra is a project to build a configurable data explorer. It provides tools for indexing a dataset, a backend
+Tanagra is a project to build a configurable data explorer. It provides tools for indexing datasets, a backend
 service for running queries against the dataset, and a UI for building cohorts and concept sets for the dataset.
 
 More information about this codebase can be found in the links below.
