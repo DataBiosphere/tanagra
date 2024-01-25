@@ -3,6 +3,8 @@ package bio.terra.tanagra.utils;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper.Builder;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -24,13 +26,15 @@ import org.slf4j.LoggerFactory;
 public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 
-  private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private static JsonMapper objectMapper = new JsonMapper();
 
   private JacksonMapper() {}
 
-  /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
-  private static ObjectMapper getMapper() {
-    return objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+  /** Getter for the singleton instance of the default Jackson {@link JsonMapper} instance. */
+  private static JsonMapper getMapper() {
+    Builder builder = new Builder(objectMapper);
+    builder.enable(JsonParser.Feature.ALLOW_COMMENTS);
+    return objectMapper;
   }
 
   /**
@@ -38,16 +42,17 @@ public final class JacksonMapper {
    * enabled. If no Jackson features are specified (i.e. the list of mapper featuers is empty), then
    * this method is equivalent to the {@link #getMapper()} method.
    */
-  private static ObjectMapper getMapper(List<MapperFeature> mapperFeatures) {
+  private static JsonMapper getMapper(List<MapperFeature> mapperFeatures) {
     // if no Jackson features are specified, just return the default mapper object
     if (mapperFeatures.isEmpty()) {
       return getMapper();
     }
 
     // create a copy of the default mapper and enable any Jackson features specified
-    ObjectMapper objectMapperWithFeatures = getMapper().copy();
+    JsonMapper objectMapperWithFeatures = getMapper().copy();
+    Builder builder = new Builder(objectMapperWithFeatures);
     for (MapperFeature mapperFeature : mapperFeatures) {
-      objectMapperWithFeatures.enable(mapperFeature);
+      builder.enable(mapperFeature);
     }
     return objectMapperWithFeatures;
   }
@@ -87,10 +92,11 @@ public final class JacksonMapper {
       List<Pair<DeserializationFeature, Boolean>> deserializationFeatures)
       throws IOException {
     // Use Jackson to map the file contents to an instance of the specified class.
-    ObjectMapper objectMapper = getMapper(mapperFeatures);
+    JsonMapper objectMapper = getMapper(mapperFeatures);
+    Builder builder = new Builder(objectMapper);
 
     // Enable any Jackson features specified.
-    mapperFeatures.stream().forEach(mf -> objectMapper.enable(mf));
+    mapperFeatures.stream().forEach(mf -> builder.enable(mf));
     deserializationFeatures.stream()
         .forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
 

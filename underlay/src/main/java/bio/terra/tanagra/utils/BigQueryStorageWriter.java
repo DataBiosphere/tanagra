@@ -6,6 +6,7 @@ import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedExecutorProvider;
+import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.cloud.bigquery.storage.v1.AppendRowsResponse;
 import com.google.cloud.bigquery.storage.v1.BigQueryWriteClient;
 import com.google.cloud.bigquery.storage.v1.BigQueryWriteSettings;
@@ -147,7 +148,7 @@ public final class BigQueryStorageWriter {
                       .setKeepAliveTime(Duration.ofMinutes(1))
                       .setKeepAliveTimeout(Duration.ofMinutes(1))
                       .setKeepAliveWithoutCalls(true)
-                      .setChannelsPerCpu(2)
+                      .setChannelPoolSettings(ChannelPoolSettings.builder().setMaxChannelCount(2).build())
                       .build())
               .setEnableConnectionPool(true)
               .build();
