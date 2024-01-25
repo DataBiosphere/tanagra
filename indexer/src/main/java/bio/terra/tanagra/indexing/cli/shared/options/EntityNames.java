@@ -12,6 +12,7 @@ import picocli.CommandLine;
 public class EntityNames {
   @CommandLine.Option(
       names = "--names",
+      split = ",",
       description = "Entity name(s). Comma-separated list if more than one.")
   public List<String> names;
 
