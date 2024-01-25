@@ -97,6 +97,7 @@ export type TreeGridProps = {
   wrapBodyText?: boolean;
   rowHeight?: number | string;
   padding?: number | string;
+  expandable?: boolean;
 
   sortOrders?: TreeGridSortOrder[];
   onSort?: (orders: TreeGridSortOrder[]) => void;
@@ -424,8 +425,8 @@ function renderChildren(
       };
 
       const expandable =
-        column === 0 &&
-        (!!child.children?.length || (props.loadChildren && !child.children));
+        (props.expandable && !!child.children?.length) ||
+        (props.loadChildren && !child.children);
       let content: ReactNode = null;
       if (columnCustomization?.onClick) {
         content = (
@@ -443,7 +444,7 @@ function renderChildren(
         );
       } else if (columnCustomization?.content) {
         content = columnCustomization?.content;
-      } else if (expandable) {
+      } else if (expandable && column === 0) {
         content = (
           <Link
             component="button"
@@ -473,12 +474,15 @@ function renderChildren(
 
       return (
         <>
-          {expandable ? (
+          {props.expandable && column === 0 ? (
             <IconButton
               size="small"
               title={childState?.errorMessage}
               onClick={() => {
                 toggleExpanded(childId);
+              }}
+              sx={{
+                visibility: !expandable ? "hidden" : undefined,
               }}
             >
               <ItemIcon state={childState} />

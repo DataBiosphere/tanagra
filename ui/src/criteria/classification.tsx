@@ -587,6 +587,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 data={instancesState?.data ?? {}}
                 defaultExpanded={searchState?.hierarchy}
                 highlightId={searchState?.highlightId}
+                expandable
                 rowCustomization={(
                   id: TreeGridId,
                   rowData: TreeGridRowData
