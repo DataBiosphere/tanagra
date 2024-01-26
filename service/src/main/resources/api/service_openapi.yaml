@@ -1547,9 +1547,9 @@ components:
       description: |
         Filter an items entity with a group-items entity group. (e.g. ingredients in a brand,
         blood pressure readings for a person).
-        If the group_by_count_operator is set, then the group_by_count_value must also be set.
-        The group_by_count_attribute is optional. If undefined, we group by the id only.
-        When group_by fields are set, we filter on # of related entity instances.
+        If the groupByCountOperator is set, then the groupByCountValue must also be set.
+        The groupByCountAttribute is optional. If undefined, we group by the id only.
+        When group by fields are set, we filter on the number of related entity instances.
         e.g. filter ingredients that are included in >2 brands
       properties:
         entityGroup:
