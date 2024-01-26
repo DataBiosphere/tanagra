@@ -148,7 +148,8 @@ public final class BigQueryStorageWriter {
                       .setKeepAliveTime(Duration.ofMinutes(1))
                       .setKeepAliveTimeout(Duration.ofMinutes(1))
                       .setKeepAliveWithoutCalls(true)
-                      .setChannelPoolSettings(ChannelPoolSettings.builder().setMaxChannelCount(2).build())
+                      .setChannelPoolSettings(
+                          ChannelPoolSettings.builder().setMaxChannelCount(2).build())
                       .build())
               .setEnableConnectionPool(true)
               .build();
