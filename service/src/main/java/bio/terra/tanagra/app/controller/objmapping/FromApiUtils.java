@@ -18,6 +18,8 @@ import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.filter.ItemInGroupFilter;
+import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
+import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.PageMarker;
@@ -39,6 +41,8 @@ import bio.terra.tanagra.generated.model.ApiGroupHasItemsFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
 import bio.terra.tanagra.generated.model.ApiItemInGroupFilter;
 import bio.terra.tanagra.generated.model.ApiLiteral;
+import bio.terra.tanagra.generated.model.ApiOccurrenceForPrimaryFilter;
+import bio.terra.tanagra.generated.model.ApiPrimaryWithCriteriaFilter;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
@@ -50,12 +54,15 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -237,6 +244,59 @@ public final class FromApiUtils {
         return new GroupHasItemsFilter(
             underlay,
             (GroupItems) underlay.getEntityGroup(apiGroupHasItemsFilter.getEntityGroup()));
+      case OCCURRENCE_FOR_PRIMARY:
+        ApiOccurrenceForPrimaryFilter apiOccurrenceForPrimaryFilter =
+            apiFilter.getFilterUnion().getOccurrenceForPrimaryFilter();
+        CriteriaOccurrence criteriaOccurrenceOccForPri =
+            (CriteriaOccurrence)
+                underlay.getEntityGroup(apiOccurrenceForPrimaryFilter.getEntityGroup());
+        Entity occurrenceEntityOccForPri =
+            underlay.getEntity(apiOccurrenceForPrimaryFilter.getOccurrenceEntity());
+        EntityFilter primarySubFilter =
+            apiOccurrenceForPrimaryFilter.getPrimarySubfilter() == null
+                ? null
+                : fromApiObject(apiOccurrenceForPrimaryFilter.getPrimarySubfilter(), underlay);
+        return new OccurrenceForPrimaryFilter(
+            underlay, criteriaOccurrenceOccForPri, occurrenceEntityOccForPri, primarySubFilter);
+      case PRIMARY_WITH_CRITERIA:
+        ApiPrimaryWithCriteriaFilter apiPrimaryWithCriteriaFilter =
+            apiFilter.getFilterUnion().getPrimaryWithCriteriaFilter();
+        CriteriaOccurrence criteriaOccurrencePriWithCri =
+            (CriteriaOccurrence)
+                underlay.getEntityGroup(apiPrimaryWithCriteriaFilter.getEntityGroup());
+        EntityFilter criteriaSubFilter =
+            apiPrimaryWithCriteriaFilter.getCriteriaSubfilter() == null
+                ? null
+                : fromApiObject(apiPrimaryWithCriteriaFilter.getCriteriaSubfilter(), underlay);
+        Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
+        Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
+        if (apiPrimaryWithCriteriaFilter.getOccurrenceSubfiltersAndGroupByAttributes() != null) {
+          apiPrimaryWithCriteriaFilter.getOccurrenceSubfiltersAndGroupByAttributes().entrySet()
+              .stream()
+              .forEach(
+                  entry -> {
+                    Entity occurrenceEntity = underlay.getEntity(entry.getKey());
+                    List<EntityFilter> subFiltersForOcc =
+                        entry.getValue().getSubfilters().stream()
+                            .map(apiFilterForOcc -> fromApiObject(apiFilterForOcc, underlay))
+                            .collect(Collectors.toList());
+                    subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFiltersForOcc);
+                    List<Attribute> groupByAttributesForOcc =
+                        entry.getValue().getGroupByCountAttributes().stream()
+                            .map(occurrenceEntity::getAttribute)
+                            .collect(Collectors.toList());
+                    groupByAttributesPerOccurrenceEntity.put(
+                        occurrenceEntity, groupByAttributesForOcc);
+                  });
+        }
+        return new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrencePriWithCri,
+            criteriaSubFilter,
+            subFiltersPerOccurrenceEntity,
+            groupByAttributesPerOccurrenceEntity,
+            fromApiObject(apiPrimaryWithCriteriaFilter.getGroupByCountOperator()),
+            apiPrimaryWithCriteriaFilter.getGroupByCountValue());
       default:
         throw new SystemException("Unknown API filter type: " + apiFilter.getFilterType());
     }
