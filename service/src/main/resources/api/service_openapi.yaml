@@ -1561,9 +1561,9 @@ components:
       description: |
         Filter the primary entity with a criteria-occurrence entity group (e.g. people where 
         condition=diabetes and visit_type=inpatient).
-        If the group_by_count_operator is set, then the group_by_count_value must also be set.
-        The group_by_count_attributes are optional. If undefined, we group by the id only.
-        When group_by fields are set, we filter on # of related occurrence instances.
+        If the groupByCountOperator is set, then the groupByCountValue must also be set.
+        The groupByCountAttributes are optional. If undefined, we group by the id only.
+        When group by fields are set, we filter on the number of related occurrence instances.
         e.g. filter person instances with >2 related condition_occurrence instances
       properties:
         entityGroup:
@@ -1572,6 +1572,9 @@ components:
           $ref: "#/components/schemas/Filter"
         occurrenceSubfiltersAndGroupByAttributes:
           type: object
+          description: |
+            Set of sub-filter and group by attributes per occurrence entity.
+            Map key is the occurrence entity name.
           additionalProperties:
             type: object
             properties:
