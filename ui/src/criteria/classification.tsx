@@ -205,11 +205,15 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   filterEntityIds(underlaySource: UnderlaySource) {
-    return configEntityGroups(this.config)
-      .map((eg) => {
-        return underlaySource.lookupEntityGroup(eg.id).occurrenceEntityIds;
-      })
-      .flat();
+    return [
+      ...new Set(
+        configEntityGroups(this.config)
+          .map((eg) => {
+            return underlaySource.lookupEntityGroup(eg.id).occurrenceEntityIds;
+          })
+          .flat()
+      ),
+    ];
   }
 }
 
