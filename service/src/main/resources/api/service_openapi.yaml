@@ -1429,7 +1429,7 @@ components:
         filterType:
           type: string
           enum:
-            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC"]
+            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC", "OCCURRENCE_FOR_PRIMARY", "PRIMARY_WITH_CRITERIA"]
         filterUnion:
           type: object
           properties:
@@ -1443,6 +1443,10 @@ components:
               $ref: "#/components/schemas/RelationshipFilter"
             booleanLogicFilter:
               $ref: "#/components/schemas/BooleanLogicFilter"
+            occurrenceForPrimaryFilter:
+              $ref: "#/components/schemas/OccurrenceForPrimaryFilter"
+            primaryWithCriteriaFilter:
+              $ref: "#/components/schemas/PrimaryWithCriteriaFilter"
 
     AttributeFilter:
       type: object
@@ -1536,6 +1540,56 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Filter"
+
+    OccurrenceForPrimaryFilter:
+      type: object
+      required: [entityGroup, occurrenceEntity]
+      description: |
+        Filters an occurrence entity with a criteria-occurrence entity group (e.g. condition
+        occurrences for people with gender=female, condition=diabetes).
+      properties:
+        entityGroup:
+          type: string
+        occurrenceEntity:
+          type: string
+        primarySubfilter:
+          $ref: "#/components/schemas/Filter"
+
+    PrimaryWithCriteriaFilter:
+      type: object
+      required: [entityGroup]
+      description: |
+        Filter the primary entity with a criteria-occurrence entity group (e.g. people where 
+        condition=diabetes and visit_type=inpatient).
+        If the groupByCountOperator is set, then the groupByCountValue must also be set.
+        The groupByCountAttributes are optional. If undefined, we group by the id only.
+        When group by fields are set, we filter on the number of related occurrence instances.
+        e.g. filter person instances with >2 related condition_occurrence instances
+      properties:
+        entityGroup:
+          type: string
+        criteriaSubfilter:
+          $ref: "#/components/schemas/Filter"
+        occurrenceSubfiltersAndGroupByAttributes:
+          type: object
+          description: |
+            Set of sub-filter and group by attributes per occurrence entity.
+            Map key is the occurrence entity name.
+          additionalProperties:
+            type: object
+            properties:
+              subfilters:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Filter"
+              group_by_count_attributes:
+                type: array
+                items:
+                  type: string
+        groupByCountOperator:
+          $ref: "#/components/schemas/BinaryOperator"
+        groupByCountValue:
+          type: integer
 
     AnnotationFilter:
       type: object
