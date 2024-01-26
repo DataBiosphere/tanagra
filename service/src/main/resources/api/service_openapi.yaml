@@ -1429,7 +1429,7 @@ components:
         filterType:
           type: string
           enum:
-            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC", "OCCURRENCE_FOR_PRIMARY", "PRIMARY_WITH_CRITERIA"]
+            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC", "ITEM_IN_GROUP", "GROUP_HAS_ITEMS", "OCCURRENCE_FOR_PRIMARY", "PRIMARY_WITH_CRITERIA"]
         filterUnion:
           type: object
           properties:
@@ -1443,6 +1443,10 @@ components:
               $ref: "#/components/schemas/RelationshipFilter"
             booleanLogicFilter:
               $ref: "#/components/schemas/BooleanLogicFilter"
+            itemInGroupFilter:
+              $ref: "#/components/schemas/ItemInGroupFilter"
+            groupHasItemsFilter:
+              $ref: "#/components/schemas/GroupHasItemsFilter"
             occurrenceForPrimaryFilter:
               $ref: "#/components/schemas/OccurrenceForPrimaryFilter"
             primaryWithCriteriaFilter:
@@ -1540,6 +1544,38 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Filter"
+
+    ItemInGroupFilter:
+      type: object
+      required: [entityGroup]
+      description: |
+        Filter an items entity with a group-items entity group. (e.g. ingredients in a brand,
+        blood pressure readings for a person).
+        If the groupByCountOperator is set, then the groupByCountValue must also be set.
+        The groupByCountAttribute is optional. If undefined, we group by the id only.
+        When group by fields are set, we filter on the number of related entity instances.
+        e.g. filter ingredients that are included in >2 brands
+      properties:
+        entityGroup:
+          type: string
+        groupSubfilter:
+          $ref: "#/components/schemas/Filter"
+        groupByCountAttribute:
+          type: string
+        groupByCountOperator:
+          $ref: "#/components/schemas/BinaryOperator"
+        groupByCountValue:
+          type: integer
+
+    GroupHasItemsFilter:
+      type: object
+      required: [entityGroup]
+      description: |
+        Filter a group entity with any related items entities using a group-items entity group.
+        (e.g. brand with at least one ingredient, person with at least one blood pressure reading).
+      properties:
+        entityGroup:
+          type: string
 
     OccurrenceForPrimaryFilter:
       type: object
