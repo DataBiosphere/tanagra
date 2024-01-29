@@ -16,10 +16,11 @@ public class SysOutWriter extends JobResultWriter {
   public SysOutWriter(
       List<String> commandArgs,
       List<JobResult> jobResults,
+      long elapsedTimeNS,
       String jobRunnerName,
       PrintStream outStream,
       PrintStream errStream) {
-    super(commandArgs, jobResults, jobRunnerName, outStream, errStream);
+    super(commandArgs, jobResults, elapsedTimeNS, jobRunnerName, outStream, errStream);
   }
 
   @Override

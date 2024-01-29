@@ -65,6 +65,7 @@ public abstract class Underlay extends BaseCommand {
     new HtmlWriter(
             BaseMain.getArgList(),
             allResults,
+            entityJobRunner.getElapsedTimeNS() + entityGroupJobRunner.getElapsedTimeNS(),
             jobExecutorAndDryRun.jobExecutor.name(),
             OUT,
             ERR,

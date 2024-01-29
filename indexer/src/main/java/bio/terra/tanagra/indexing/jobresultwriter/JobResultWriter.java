@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 public abstract class JobResultWriter {
   protected final List<String> commandArgs;
   protected final List<JobResult> jobResults;
+  protected final long elapsedTimeNS;
   protected final String jobRunnerName;
   protected final PrintStream outStream;
   protected final PrintStream errStream;
@@ -25,11 +26,13 @@ public abstract class JobResultWriter {
   protected JobResultWriter(
       List<String> commandArgs,
       List<JobResult> jobResults,
+      long elapsedTimeNS,
       String jobRunnerName,
       PrintStream outStream,
       PrintStream errStream) {
     this.commandArgs = commandArgs;
     this.jobResults = jobResults;
+    this.elapsedTimeNS = elapsedTimeNS;
     this.jobRunnerName = jobRunnerName;
     this.outStream = outStream;
     this.errStream = errStream;
@@ -62,6 +65,10 @@ public abstract class JobResultWriter {
 
   public long getNumFailures() {
     return numFailures;
+  }
+
+  public long getElapsedTimeNS() {
+    return elapsedTimeNS;
   }
 
   protected ImmutableMap<String, Summary> getEntitySummaries() {

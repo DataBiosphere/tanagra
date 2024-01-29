@@ -20,7 +20,7 @@ public final class SerialRunner extends JobRunner {
 
   /** Run all job sets serially. */
   @Override
-  public void runJobSets() {
+  public void runJobSetsWithoutTimer() {
     jobSets.forEach(
         jobSet -> {
           try {
