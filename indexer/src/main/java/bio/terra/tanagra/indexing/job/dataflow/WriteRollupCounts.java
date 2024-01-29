@@ -110,8 +110,9 @@ public class WriteRollupCounts extends BigQueryJob {
   @Override
   public String getName() {
     return String.format(
-        "%s-%s-%s",
+        "%s-%s-%s-%s",
         this.getClass().getSimpleName(),
+        entityGroup.getName(),
         getOutputTableName(),
         hierarchy == null ? ITEntityMain.NO_HIERARCHY_NAME : hierarchy.getName());
   }

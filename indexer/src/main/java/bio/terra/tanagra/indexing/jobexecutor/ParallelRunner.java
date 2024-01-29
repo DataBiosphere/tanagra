@@ -30,7 +30,7 @@ public final class ParallelRunner extends JobRunner {
 
   /** Run all job sets in parallel. */
   @Override
-  public void runJobSets() {
+  public void runJobSetsWithoutTimer() {
     // Create a thread pool to run the job set.
     ThreadPoolExecutor threadPool =
         (ThreadPoolExecutor) Executors.newFixedThreadPool(jobSets.size());

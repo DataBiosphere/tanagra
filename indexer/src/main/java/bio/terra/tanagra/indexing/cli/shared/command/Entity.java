@@ -50,6 +50,7 @@ public abstract class Entity extends BaseCommand {
     new HtmlWriter(
             BaseMain.getArgList(),
             jobRunner.getJobResults(),
+            jobRunner.getElapsedTimeNS(),
             jobExecutorAndDryRun.jobExecutor.name(),
             OUT,
             ERR,
