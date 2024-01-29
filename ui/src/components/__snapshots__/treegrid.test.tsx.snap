@@ -193,32 +193,12 @@ exports[`Table renders correctly 1`] = `
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
             >
-              <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                tabindex="0"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                  data-testid="KeyboardArrowRightIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                  />
-                </svg>
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
-              <button
-                class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineNone MuiLink-button css-14wmvzk-MuiTypography-root-MuiLink-root"
+              <p
+                class="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
                 title="1-col1"
               >
                 1-col1
-              </button>
+              </p>
             </div>
           </td>
           <td
@@ -578,32 +558,12 @@ exports[`Table renders correctly 2`] = `
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
             >
-              <button
-                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                tabindex="0"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                  data-testid="KeyboardArrowRightIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"
-                  />
-                </svg>
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
-              <button
-                class="MuiTypography-root MuiTypography-body2 MuiLink-root MuiLink-underlineNone MuiLink-button css-14wmvzk-MuiTypography-root-MuiLink-root"
+              <p
+                class="MuiTypography-root MuiTypography-body2 css-foitbu-MuiTypography-root"
                 title="1-col1"
               >
                 1-col1
-              </button>
+              </p>
             </div>
           </td>
           <td
