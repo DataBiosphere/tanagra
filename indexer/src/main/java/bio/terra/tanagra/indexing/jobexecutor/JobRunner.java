@@ -13,6 +13,7 @@ public abstract class JobRunner {
   protected final boolean isDryRun;
   protected final IndexingJob.RunType runType;
   protected final List<JobResult> jobResults;
+  private long elapsedTimeNS;
 
   public JobRunner(List<SequencedJobSet> jobSets, boolean isDryRun, IndexingJob.RunType runType) {
     this.jobSets = jobSets;
@@ -25,13 +26,24 @@ public abstract class JobRunner {
   public abstract String getName();
 
   /** Run all job sets. */
-  public abstract void runJobSets();
+  protected abstract void runJobSetsWithoutTimer();
 
   /** Run a single job set. */
   protected abstract void runSingleJobSet(SequencedJobSet sequencedJobSet)
       throws InterruptedException, ExecutionException;
 
+  /** Run all job sets. */
+  public void runJobSets() {
+    long startTime = System.nanoTime();
+    runJobSetsWithoutTimer();
+    elapsedTimeNS = System.nanoTime() - startTime;
+  }
+
   public List<JobResult> getJobResults() {
     return jobResults;
+  }
+
+  public long getElapsedTimeNS() {
+    return elapsedTimeNS;
   }
 }

@@ -54,6 +54,7 @@ public abstract class EntityGroup extends BaseCommand {
     new HtmlWriter(
             BaseMain.getArgList(),
             jobRunner.getJobResults(),
+            jobRunner.getElapsedTimeNS(),
             jobExecutorAndDryRun.jobExecutor.name(),
             OUT,
             ERR,

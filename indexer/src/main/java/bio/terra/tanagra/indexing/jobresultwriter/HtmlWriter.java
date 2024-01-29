@@ -46,6 +46,7 @@ public class HtmlWriter extends JobResultWriter {
           + "        <br/>\n"
           + "        <p><b>Total # jobs failed: ${jobWriter.numFailures}</b></p>\n"
           + "        <p><b>Total # jobs run: ${jobWriter.numJobs}</b></p>\n"
+          + "        <p><b>Elapsed Time (min.sec): ${jobWriter.elapsedTime}</b></p>\n"
           + "        <br/>\n"
           + "        <h2>Summary</h2>\n"
           + "        <table width=\"75%\" cellpadding=\"5\" cellspacing=\"2\">\n"
@@ -62,7 +63,7 @@ public class HtmlWriter extends JobResultWriter {
           + "            <tr class=\"tableheader\">\n"
           + "                <th align=\"left\">Entity/Group</th>\n"
           + "                <th align=\"left\">Job Name</th>\n"
-          + "                <th align=\"left\">Elapsed time (sec)</th>\n"
+          + "                <th align=\"left\">Elapsed time (min.sec)</th>\n"
           + "                <th align=\"left\">Thread</th>\n"
           + "                <th align=\"left\">Status</th>\n"
           + "            </tr>\n"
@@ -78,11 +79,12 @@ public class HtmlWriter extends JobResultWriter {
   public HtmlWriter(
       List<String> commandArgs,
       List<JobResult> jobResults,
+      long elapsedTimeNS,
       String jobRunnerName,
       PrintStream outStream,
       PrintStream errStream,
       Path outputDir) {
-    super(commandArgs, jobResults, jobRunnerName, outStream, errStream);
+    super(commandArgs, jobResults, elapsedTimeNS, jobRunnerName, outStream, errStream);
     this.outputDir = outputDir;
   }
 
@@ -99,6 +101,7 @@ public class HtmlWriter extends JobResultWriter {
     substitutionParams.put("jobRunner.workingDirectory", Path.of("").toAbsolutePath().toString());
     substitutionParams.put("jobWriter.numJobs", String.valueOf(getNumJobs()));
     substitutionParams.put("jobWriter.numFailures", String.valueOf(getNumFailures()));
+    substitutionParams.put("jobWriter.elapsedTime", elapsedTimeMinSec(getElapsedTimeNS()));
     substitutionParams.put("jobWriter.summaryTableRows", summaryTableRows());
     substitutionParams.put("jobWriter.detailTableRows", detailTableRows());
     substitutionParams.put("jobWriter.stackTraces", stackTraces());
@@ -193,8 +196,7 @@ public class HtmlWriter extends JobResultWriter {
                         + jobResult.getJobName()
                         + "</td>\n"
                         + "                <td>"
-                        + TimeUnit.MINUTES.convert(
-                            jobResult.getElapsedTimeNS(), TimeUnit.NANOSECONDS)
+                        + elapsedTimeMinSec(jobResult.getElapsedTimeNS())
                         + "</td>\n"
                         + "                <td>"
                         + jobResult.getThreadName()
@@ -208,6 +210,12 @@ public class HtmlWriter extends JobResultWriter {
               }
             });
     return detailRows.toString();
+  }
+
+  private String elapsedTimeMinSec(long elapsedTimeNS) {
+    long min = TimeUnit.MINUTES.convert(elapsedTimeNS, TimeUnit.NANOSECONDS);
+    long sec = TimeUnit.SECONDS.convert(elapsedTimeNS, TimeUnit.NANOSECONDS) - (min * 60);
+    return String.valueOf(min) + '.' + (sec < 10 ? '0' + String.valueOf(sec) : String.valueOf(sec));
   }
 
   private String stackTraces() {
