@@ -148,7 +148,7 @@ public class BQExecutor {
       case INT64:
       case BOOL:
       case FLOAT64:
-        return queryParameterValue.getValue();
+        return queryParameterValue.getValue() == null ? "null" : queryParameterValue.getValue();
       case STRING:
         return "'" + queryParameterValue.getValue() + "'";
       case DATE:
