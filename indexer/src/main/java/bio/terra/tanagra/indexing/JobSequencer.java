@@ -3,6 +3,7 @@ package bio.terra.tanagra.indexing;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.job.bigquery.CreateEntityMain;
 import bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes;
+import bio.terra.tanagra.indexing.job.bigquery.ValidateUniqueIds;
 import bio.terra.tanagra.indexing.job.bigquery.WriteChildParent;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
@@ -45,6 +46,8 @@ public final class JobSequencer {
     STEntityAttributes sourceEntityAttributes =
         underlay.getSourceSchema().getEntityAttributes(entity.getName());
     ITEntityMain indexEntityMain = underlay.getIndexSchema().getEntityMain(entity.getName());
+    jobSet.addJob(
+        new ValidateUniqueIds(indexerConfig, entity, sourceEntityAttributes, indexEntityMain));
     jobSet.addJob(
         new ValidateDataTypes(indexerConfig, entity, sourceEntityAttributes, indexEntityMain));
 
