@@ -9,7 +9,7 @@
     { "name": "end_date", "dataType": "DATE", "valueFieldName": "visit_end_date" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "visit_source_value" },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "visit_source_concept_id" },
-    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true }
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100 }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "visit" ]
