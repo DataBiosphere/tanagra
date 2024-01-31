@@ -1,5 +1,5 @@
 {
-  "name": "bmiOccurrence",
+  "name": "bmi",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id" },
