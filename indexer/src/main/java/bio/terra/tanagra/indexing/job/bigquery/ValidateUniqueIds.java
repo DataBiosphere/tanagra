@@ -7,7 +7,6 @@ import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
-import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
 import com.google.cloud.bigquery.TableResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,17 +15,11 @@ public class ValidateUniqueIds extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(ValidateDataTypes.class);
 
   private final Entity entity;
-  private final STEntityAttributes sourceTable;
   private final ITEntityMain indexTable;
 
-  public ValidateUniqueIds(
-      SZIndexer indexerConfig,
-      Entity entity,
-      STEntityAttributes sourceTable,
-      ITEntityMain indexTable) {
+  public ValidateUniqueIds(SZIndexer indexerConfig, Entity entity, ITEntityMain indexTable) {
     super(indexerConfig);
     this.entity = entity;
-    this.sourceTable = sourceTable;
     this.indexTable = indexTable;
   }
 
@@ -47,29 +40,33 @@ public class ValidateUniqueIds extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    // Build the query to select all duplicate ids from the source table.
-    String sourceIdFieldName =
-        sourceTable.getAttributeValueColumnSchema(entity.getIdAttribute()).getColumnName();
-    SqlQueryField sourceIdField = SqlQueryField.of(SqlField.of(sourceIdFieldName));
+    // Build the query to select all duplicate ids from the index table.
+    String indexIdFieldName =
+        indexTable.getAttributeValueColumnSchema(entity.getIdAttribute()).getColumnName();
+    SqlQueryField indexIdField = SqlQueryField.of(SqlField.of(indexIdFieldName));
     String selectDuplicateIdsSql =
         "SELECT "
-            + sourceIdField.renderForSelect()
+            + indexIdField.renderForSelect()
             + " FROM "
-            + sourceTable.getTablePointer().render()
+            + indexTable.getTablePointer().render()
             + " GROUP BY "
-            + sourceIdField.renderForGroupBy(null, true)
+            + indexIdField.renderForGroupBy(null, true)
             + " HAVING COUNT(*) > 1";
     LOGGER.info("Generated select SQL: {}", selectDuplicateIdsSql);
 
-    // Run the query and check that no rows were returned.
-    TableResult tableResult = googleBigQuery.queryBigQuery(selectDuplicateIdsSql);
-    if (tableResult.getTotalRows() > 0) {
-      throw new InvalidConfigException(
-          "Id attribute is not unique for entity: "
-              + entity.getName()
-              + ". "
-              + tableResult.getTotalRows()
-              + " duplicates found.");
+    if (getOutputTable().isEmpty()) {
+      LOGGER.info("Skipping unique id check because entity index table does not exist yet.");
+    } else {
+      // Run the query and check that no rows were returned.
+      TableResult tableResult = googleBigQuery.queryBigQuery(selectDuplicateIdsSql);
+      if (tableResult.getTotalRows() > 0) {
+        throw new InvalidConfigException(
+                "Id attribute is not unique for entity: "
+                        + entity.getName()
+                        + ". "
+                        + tableResult.getTotalRows()
+                        + " duplicates found.");
+      }
     }
   }
 

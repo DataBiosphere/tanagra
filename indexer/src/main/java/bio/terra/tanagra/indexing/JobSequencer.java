@@ -47,8 +47,6 @@ public final class JobSequencer {
         underlay.getSourceSchema().getEntityAttributes(entity.getName());
     ITEntityMain indexEntityMain = underlay.getIndexSchema().getEntityMain(entity.getName());
     jobSet.addJob(
-        new ValidateUniqueIds(indexerConfig, entity, sourceEntityAttributes, indexEntityMain));
-    jobSet.addJob(
         new ValidateDataTypes(indexerConfig, entity, sourceEntityAttributes, indexEntityMain));
 
     jobSet.startNewStage();
@@ -59,6 +57,8 @@ public final class JobSequencer {
         new WriteEntityAttributes(indexerConfig, sourceEntityAttributes, indexEntityMain));
 
     jobSet.startNewStage();
+    jobSet.addJob(
+            new ValidateUniqueIds(indexerConfig, entity, indexEntityMain));
     ITEntityLevelDisplayHints indexEntityHints =
         underlay.getIndexSchema().getEntityLevelDisplayHints(entity.getName());
     jobSet.addJob(
