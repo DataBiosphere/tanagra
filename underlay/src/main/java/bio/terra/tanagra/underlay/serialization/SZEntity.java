@@ -56,6 +56,13 @@ public class SZEntity {
   public String idAttribute;
 
   @AnnotatedField(
+      name = "SZEntity.duplicateHandling",
+      markdown = "Method for handling duplicate ids.",
+      optional = true,
+      defaultValue = "CHOOSE_ONE")
+  public DuplicateHandling duplicateHandling;
+
+  @AnnotatedField(
       name = "SZEntity.optimizeGroupByAttributes",
       markdown =
           "List of attributes to optimize for group by queries.\n\n"
@@ -345,5 +352,21 @@ public class SZEntity {
         name = "SZDataType.TIMESTAMP",
         markdown = "Maps to BigQuery `TIMESTAMP` data type.")
     TIMESTAMP
+  }
+
+  @AnnotatedClass(name = "SZDuplicateHandling", markdown = "Methods for handling duplicate ids.")
+  public enum DuplicateHandling {
+    @AnnotatedField(
+        name = "SZDuplicateHandling.EXPECT_NONE",
+        markdown = "Expect no duplicates, throw an error if any are found.")
+    EXPECT_NONE,
+    @AnnotatedField(
+        name = "SZDuplicateHandling.CHOOSE_ONE",
+        markdown = "Expect duplicates, choose one at random when found.")
+    CHOOSE_ONE,
+    @AnnotatedField(
+        name = "SZDuplicateHandling.REMOVE_ALL",
+        markdown = "Expect duplicates, remove all when found.")
+    REMOVE_ALL
   }
 }
