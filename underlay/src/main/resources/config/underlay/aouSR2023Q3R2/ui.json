@@ -559,6 +559,13 @@
       "title": "Fitbit Sleep Level",
       "category": "Fitbit",
       "attribute": "has_fitbit_sleep_level"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-bmi",
+      "title": "BMI",
+      "category": "Physical Measurememnts",
+      "attribute": "value_numeric"
     }
   ],
   "modifierConfigs": [

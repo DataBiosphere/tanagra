@@ -39,7 +39,9 @@
     "aouRT/heartRateSummary",
     "aouRT/sleepDailySummary",
     "aouRT/sleepLevel",
-    "aouRT/stepsIntraday"
+    "aouRT/stepsIntraday",
+
+    "aouRT/bmiOccurrence"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -49,7 +51,9 @@
     "aouRT/heartRateSummaryPerson",
     "aouRT/sleepDailySummaryPerson",
     "aouRT/sleepLevelPerson",
-    "aouRT/stepsIntradayPerson"
+    "aouRT/stepsIntradayPerson",
+
+    "aouRT/bmiPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
