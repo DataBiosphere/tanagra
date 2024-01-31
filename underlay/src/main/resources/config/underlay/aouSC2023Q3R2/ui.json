@@ -400,7 +400,8 @@
             "attribute": "label",
             "direction": "ASC"
           }
-        }     ],
+        }
+      ],
       "modifiers": [
         "age_at_occurrence",
         "visit_type",
