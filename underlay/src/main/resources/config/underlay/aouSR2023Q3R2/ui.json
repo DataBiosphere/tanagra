@@ -561,11 +561,18 @@
       "attribute": "has_fitbit_sleep_level"
     },
     {
-      "type": "attribute",
+      "type": "multiAttribute",
       "id": "tanagra-bmi",
       "title": "BMI",
       "category": "Physical Measurements",
-      "attribute": "value_numeric"
+      "entity": "bmi",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg/m^2"
+        }
+      ]
     }
   ],
   "modifierConfigs": [

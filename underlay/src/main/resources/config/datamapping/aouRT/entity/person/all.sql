@@ -9,7 +9,6 @@ SELECT p.person_id,
        ec.concept_name AS ethnicity_concept_name,
        p.sex_at_birth_concept_id,
        sc.concept_name AS sex_at_birth_concept_name,
-       mo.value_as_number,
        CASE
            WHEN asum.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_activity_summary,
        CASE
@@ -30,7 +29,6 @@ SELECT p.person_id,
        CASE
            WHEN d.death_date is null THEN 0 ELSE 1 END is_deceased
 FROM `${omopDataset}.person` p
-LEFT JOIN `${omopDataset}.measurement` mo ON mo.person_id = p.person_id
 LEFT JOIN `${omopDataset}.concept` gc ON gc.concept_id = p.gender_concept_id
 LEFT JOIN `${omopDataset}.concept` rc ON rc.concept_id = p.race_concept_id
 LEFT JOIN `${omopDataset}.concept` ec ON ec.concept_id = p.ethnicity_concept_id
