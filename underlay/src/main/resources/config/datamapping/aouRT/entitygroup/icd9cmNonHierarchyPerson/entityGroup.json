@@ -10,6 +10,33 @@
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
       }
+    },
+    {
+      "occurrenceEntity": "measurementOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "observationOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "procedureOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
     }
   ],
   "primaryCriteriaRelationship": {
