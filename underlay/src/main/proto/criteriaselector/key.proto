@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package tanagra;
+
+message Key {
+  oneof key {
+    string string_key = 1;
+    int64 int64_key = 2;
+  }
+}

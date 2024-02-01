@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package tanagra;
+
+import "criteriaselector/value.proto";
+
+message TextSearch {
+  message Selection {
+    Value value = 1;
+    string name = 2;
+  }
+  repeated Selection categories = 1;
+
+  string query = 2;
+}

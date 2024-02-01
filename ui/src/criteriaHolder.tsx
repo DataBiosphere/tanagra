@@ -8,7 +8,7 @@ import { useNavigate } from "util/searchState";
 
 export type CriteriaHolderProps = {
   title: string;
-  plugin: CriteriaPlugin<object>;
+  plugin: CriteriaPlugin<string>;
   exitAction?: () => void;
   backURL?: string;
 };

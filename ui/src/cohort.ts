@@ -308,7 +308,7 @@ type InitializeDataFn = (
   underlaySource: UnderlaySource,
   config: CriteriaConfig,
   dataEntry?: DataEntry
-) => object;
+) => string;
 
 type SearchFn = (
   underlaySource: UnderlaySource,
@@ -337,7 +337,7 @@ export function createCriteria(
 export function getCriteriaPlugin(
   criteria: tanagraUI.UICriteria,
   entity?: string
-): CriteriaPlugin<object> {
+): CriteriaPlugin<string> {
   return new (getCriteriaEntry(criteria.type).constructor)(
     criteria.id,
     criteria.config as CriteriaConfig,
@@ -358,9 +358,9 @@ interface CriteriaPluginConstructor {
   new (
     id: string,
     config: CriteriaConfig,
-    data: object,
+    data: string,
     entity?: string
-  ): CriteriaPlugin<object>;
+  ): CriteriaPlugin<string>;
 }
 
 type RegistryEntry = {
