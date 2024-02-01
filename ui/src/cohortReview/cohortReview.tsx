@@ -24,7 +24,7 @@ import { Tabs } from "components/tabs";
 import { FilterType } from "data/filter";
 import { Annotation, AnnotationType, ReviewInstance } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { DataEntry, DataValue } from "data/types";
+import { DataEntry, DataValue, stringifyDataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
 import produce from "immer";
@@ -232,7 +232,7 @@ export function CohortReview() {
                       {attribute.title}:&nbsp;
                     </Typography>
                     <Typography variant="body2">
-                      {instance?.data?.[attribute.key]}
+                      {stringifyDataValue(instance?.data?.[attribute.key])}
                     </Typography>
                   </GridLayout>
                 ))}
