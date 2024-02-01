@@ -211,7 +211,7 @@ export function insertPredefinedFeatureSetCriteria(
 
 export function updateFeatureSetCriteria(
   context: FeatureSetContextData,
-  data: object,
+  data: string,
   criteriaId?: string
 ) {
   context.updatePresent((present) => {

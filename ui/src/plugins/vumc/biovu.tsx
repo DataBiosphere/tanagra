@@ -19,8 +19,10 @@ import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import React from "react";
+import * as dataProto from "proto/criteriaselector/dataschema/biovu";
+import React, { useCallback, useMemo } from "react";
 import { CriteriaConfig } from "underlaysSlice";
+import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 
 enum SampleFilter {
@@ -79,25 +81,29 @@ interface Data {
 @registerCriteriaPlugin(
   "biovu",
   (underlaySource: UnderlaySource, c: Config, dataEntry?: DataEntry) => {
-    return {
+    return encodeData({
       sampleFilter: (dataEntry?.key as SampleFilter) ?? SampleFilter.ANY,
-    };
+    });
   },
   search
 )
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class _ implements CriteriaPlugin<Data> {
-  public data: Data;
+class _ implements CriteriaPlugin<string> {
+  public data: string;
   private config: Config;
 
   constructor(
     public id: string,
     config: Config,
-    data: unknown,
+    data: string,
     private entity?: string
   ) {
     this.config = config;
-    this.data = data as Data;
+    try {
+      this.data = encodeData(JSON.parse(data));
+    } catch (e) {
+      this.data = data;
+    }
   }
 
   renderInline(groupId: string) {
@@ -112,27 +118,31 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   displayDetails() {
+    const decodedData = decodeData(this.data);
+
     const additionalText: string[] = [];
-    if (this.data.excludeCompromised) {
+    if (decodedData.excludeCompromised) {
       additionalText.push(EXCLUDE_COMPROMISED);
     }
-    if (this.data.excludeInternal) {
+    if (decodedData.excludeInternal) {
       additionalText.push(EXCLUDE_INTERNAL);
     }
 
     return {
       title: this.config.plasmaFilter
         ? PLASMA
-        : sampleFilterDescriptions[this.data.sampleFilter],
+        : sampleFilterDescriptions[decodedData.sampleFilter],
       additionalText: additionalText,
     };
   }
 
   generateFilter() {
+    const decodedData = decodeData(this.data);
+
     const filters: (Filter | null)[] = [
-      sampleFilterFilters[this.data.sampleFilter] ?? null,
+      sampleFilterFilters[decodedData.sampleFilter] ?? null,
     ];
-    if (this.data.excludeCompromised) {
+    if (decodedData.excludeCompromised) {
       filters.push({
         type: FilterType.Unary,
         operator: UnaryFilterOperator.Not,
@@ -143,7 +153,7 @@ class _ implements CriteriaPlugin<Data> {
         },
       });
     }
-    if (this.data.excludeInternal) {
+    if (decodedData.excludeInternal) {
       filters.push({
         type: FilterType.Unary,
         operator: UnaryFilterOperator.Not,
@@ -174,18 +184,27 @@ type BioVUInlineProps = {
   groupId: string;
   criteriaId: string;
   config: Config;
-  data: Data;
+  data: string;
 };
 
 function BioVUInline(props: BioVUInlineProps) {
-  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
+  const updateEncodedCriteria = useUpdateCriteria(
+    props.groupId,
+    props.criteriaId
+  );
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
+
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
 
   const onSelectOperator = (event: SelectChangeEvent<string>) => {
     const {
       target: { value: sel },
     } = event;
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         data.sampleFilter = sel as SampleFilter;
       })
     );
@@ -200,7 +219,7 @@ function BioVUInline(props: BioVUInlineProps) {
         }}
       >
         <Select
-          value={props.data.sampleFilter}
+          value={decodedData.sampleFilter}
           input={<OutlinedInput />}
           onChange={onSelectOperator}
         >
@@ -219,10 +238,10 @@ function BioVUInline(props: BioVUInlineProps) {
           }}
         >
           <Checkbox
-            checked={props.data.excludeCompromised}
+            checked={decodedData.excludeCompromised}
             onChange={() =>
               updateCriteria(
-                produce(props.data, (data) => {
+                produce(decodedData, (data) => {
                   data.excludeCompromised = !data.excludeCompromised;
                 })
               )
@@ -242,10 +261,10 @@ function BioVUInline(props: BioVUInlineProps) {
           }}
         >
           <Checkbox
-            checked={props.data.excludeInternal}
+            checked={decodedData.excludeInternal}
             onChange={() =>
               updateCriteria(
-                produce(props.data, (data) => {
+                produce(decodedData, (data) => {
                   data.excludeInternal = !data.excludeInternal;
                 })
               )
@@ -280,4 +299,53 @@ async function search(
   });
 
   return results;
+}
+
+function decodeSampleFilter(
+  sampleFilter: dataProto.BioVU_SampleFilter
+): SampleFilter {
+  switch (sampleFilter) {
+    case dataProto.BioVU_SampleFilter.SAMPLE_FILTER_UNKNOWN:
+    case dataProto.BioVU_SampleFilter.SAMPLE_FILTER_ANY:
+      return SampleFilter.ANY;
+    case dataProto.BioVU_SampleFilter.SAMPLE_FILTER_ONE_HUNDRED:
+      return SampleFilter.ONE_HUNDRED;
+    case dataProto.BioVU_SampleFilter.SAMPLE_FILTER_FIVE_HUNDRED:
+      return SampleFilter.FIVE_HUNDRED;
+  }
+  throw new Error(`Unknown sample filter value ${sampleFilter}.`);
+}
+
+function decodeData(data: string): Data {
+  const message = dataProto.BioVU.decode(base64ToBytes(data));
+  return {
+    sampleFilter: decodeSampleFilter(message.sampleFilter),
+    excludeCompromised: message.excludeCompromised,
+    excludeInternal: message.excludeInternal,
+    plasma: message.plasma,
+  };
+}
+
+function encodeSampleFilter(
+  sampleFilter: SampleFilter
+): dataProto.BioVU_SampleFilter {
+  switch (sampleFilter) {
+    case SampleFilter.ANY:
+      return dataProto.BioVU_SampleFilter.SAMPLE_FILTER_ANY;
+    case SampleFilter.ONE_HUNDRED:
+      return dataProto.BioVU_SampleFilter.SAMPLE_FILTER_ONE_HUNDRED;
+    case SampleFilter.FIVE_HUNDRED:
+      return dataProto.BioVU_SampleFilter.SAMPLE_FILTER_FIVE_HUNDRED;
+  }
+  throw new Error(`Unknown internal sample filter value ${sampleFilter}.`);
+}
+
+function encodeData(data: Data): string {
+  const message: dataProto.BioVU = {
+    sampleFilter: encodeSampleFilter(data.sampleFilter),
+    excludeCompromised: !!data.excludeCompromised,
+    excludeInternal: !!data.excludeInternal,
+    plasma: !!data.plasma,
+  };
+  return bytesToBase64(dataProto.BioVU.encode(message).finish());
 }

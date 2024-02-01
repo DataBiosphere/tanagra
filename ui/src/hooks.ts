@@ -177,7 +177,7 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
     }
 
     if (newCriteria) {
-      return (data: object) => {
+      return (data: string) => {
         if (newCriteria) {
           insertCohortCriteria(cohortContext, section.id, {
             ...newCriteria,
@@ -189,7 +189,7 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
 
     const gId = groupId ?? group?.id;
     if (gId) {
-      return (data: object) => {
+      return (data: string) => {
         updateCohortCriteria(cohortContext, section.id, gId, data, criteriaId);
       };
     }
@@ -203,7 +203,7 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
     }
 
     if (newCriteria) {
-      return (data: object) => {
+      return (data: string) => {
         if (newCriteria) {
           insertFeatureSetCriteria(featureSetContext, {
             ...newCriteria,
@@ -216,7 +216,7 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
     if (!featureSetCriteria) {
       throw new Error("Null feature set criteria when updating it.");
     }
-    return (data: object) => {
+    return (data: string) => {
       updateFeatureSetCriteria(featureSetContext, data, featureSetCriteria.id);
     };
   }

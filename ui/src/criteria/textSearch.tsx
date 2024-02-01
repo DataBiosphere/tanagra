@@ -8,15 +8,21 @@ import TextField from "@mui/material/TextField";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Loading from "components/loading";
 import { FilterType, makeArrayFilter } from "data/filter";
-import { EnumHintOption } from "data/source";
+import {
+  dataValueFromProto,
+  EnumHintOption,
+  protoFromDataValue,
+} from "data/source";
 import { DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import GridLayout from "layout/gridLayout";
-import { useRef } from "react";
+import * as dataProto from "proto/criteriaselector/dataschema/text_search";
+import { useCallback, useMemo, useRef } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
+import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { isValid } from "util/valid";
 
 interface Config extends CriteriaConfig {
@@ -38,19 +44,23 @@ interface Data {
 // "search" plugins select entities using a text based search of the fields in
 // the entity.
 @registerCriteriaPlugin("search", () => {
-  return {
+  return encodeData({
     query: "",
     categories: [],
-  };
+  });
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class _ implements CriteriaPlugin<Data> {
-  public data: Data;
+class _ implements CriteriaPlugin<string> {
+  public data: string;
   private config: Config;
 
-  constructor(public id: string, config: CriteriaConfig, data: unknown) {
+  constructor(public id: string, config: CriteriaConfig, data: string) {
     this.config = config as Config;
-    this.data = data as Data;
+    try {
+      this.data = encodeData(JSON.parse(data));
+    } catch (e) {
+      this.data = data;
+    }
   }
 
   renderInline(groupId: string) {
@@ -64,23 +74,25 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   displayDetails() {
+    const decodedData = decodeData(this.data);
+
     let additionalText = ["Any category"];
-    if (this.data.categories.length > 0) {
-      additionalText = [...this.data.categories.map((c) => c.name)];
+    if (decodedData.categories.length > 0) {
+      additionalText = [...decodedData.categories.map((c) => c.name)];
     }
 
     let title = "Any";
-    if (this.data.query.length > 0) {
-      title = `"${this.data.query}"`;
+    if (decodedData.query.length > 0) {
+      title = `"${decodedData.query}"`;
     }
 
-    if (this.data.categories.length > 0) {
-      if (this.data.categories.length < 3) {
-        title = `${title} in [${this.data.categories
+    if (decodedData.categories.length > 0) {
+      if (decodedData.categories.length < 3) {
+        title = `${title} in [${decodedData.categories
           .map((c) => c.name)
           .join(", ")}]`;
       } else {
-        title = `${title} in ${this.data.categories.length} categories`;
+        title = `${title} in ${decodedData.categories.length} categories`;
       }
     }
 
@@ -91,16 +103,18 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter() {
+    const decodedData = decodeData(this.data);
+
     return makeArrayFilter({}, [
       {
         type: FilterType.Text,
         attribute: this.config.searchAttribute,
-        text: this.data.query,
+        text: decodedData.query,
       },
       {
         type: FilterType.Attribute,
         attribute: this.config.categoryAttribute ?? "",
-        values: this.data.categories.map((c) => c.value),
+        values: decodedData.categories.map((c) => c.value),
       },
     ]);
   }
@@ -113,12 +127,19 @@ class _ implements CriteriaPlugin<Data> {
 type TextSearchInlineProps = {
   groupId: string;
   config: Config;
-  data: Data;
+  data: string;
 };
 
 function TextSearchInline(props: TextSearchInlineProps) {
   const underlaySource = useUnderlaySource();
-  const updateCriteria = useUpdateCriteria(props.groupId);
+  const updateEncodedCriteria = useUpdateCriteria(props.groupId);
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
+
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
+
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const onUpdateQuery = (query: string) => {
@@ -127,7 +148,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
     }
 
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         data.query = query;
       })
     );
@@ -163,7 +184,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
       target: { value: sel },
     } = event;
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         if (typeof sel === "string") {
           // This case is only for selects with text input.
           return;
@@ -188,7 +209,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
 
   const onDelete = (category: string) => {
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         data.categories = data.categories.filter((c) => c.name !== category);
       })
     );
@@ -207,7 +228,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
           <GridLayout rows spacing={1} height="auto">
             <TextField
               label="Search text"
-              defaultValue={props.data.query}
+              defaultValue={decodedData.query}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 onQueryChange(event.target.value);
               }}
@@ -216,7 +237,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
               fullWidth
               multiple
               displayEmpty
-              value={props.data.categories.map((c) => c.name)}
+              value={decodedData.categories.map((c) => c.name)}
               input={<OutlinedInput />}
               renderValue={(categories) => (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
@@ -255,4 +276,28 @@ function TextSearchInline(props: TextSearchInlineProps) {
       ) : null}
     </Loading>
   );
+}
+
+function decodeData(data: string): Data {
+  const message = dataProto.TextSearch.decode(base64ToBytes(data));
+  return {
+    categories:
+      message.categories?.map((s) => ({
+        value: dataValueFromProto(s.value),
+        name: s.name,
+      })) ?? [],
+    query: message.query,
+  };
+}
+
+function encodeData(data: Data): string {
+  const message: dataProto.TextSearch = {
+    categories:
+      data.categories?.map((s) => ({
+        value: protoFromDataValue(s.value),
+        name: s.name,
+      })) ?? [],
+    query: data.query,
+  };
+  return bytesToBase64(dataProto.TextSearch.encode(message).finish());
 }

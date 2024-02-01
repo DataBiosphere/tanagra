@@ -7,12 +7,13 @@ import { HintDataSelect } from "components/hintDataSelect";
 import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
 import { FilterType, makeArrayFilter } from "data/filter";
-import { HintData } from "data/source";
+import { dataValueFromProto, HintData, protoFromDataValue } from "data/source";
 import { DataKey, DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
+import * as dataProto from "proto/criteriaselector/value_data";
 import { ReactNode, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { isValid } from "util/valid";
@@ -329,6 +330,43 @@ export function generateValueDataFilter(valueData: ValueData[]) {
       ranges: vd.numeric ? [vd.range] : undefined,
     }))
   );
+}
+
+export function decodeValueData(valueData?: dataProto.ValueData): ValueData {
+  if (!valueData || !valueData.range) {
+    throw new Error(`Invalid value data proto ${JSON.stringify(valueData)}`);
+  }
+
+  return {
+    attribute: valueData.attribute,
+    numeric: valueData.numeric,
+    selected:
+      valueData.selected?.map((s) => ({
+        value: dataValueFromProto(s.value),
+        name: s.name,
+      })) ?? [],
+    range: {
+      id: valueData.range.id,
+      min: valueData.range.min,
+      max: valueData.range.max,
+    },
+  };
+}
+
+export function encodeValueData(valueData: ValueData): dataProto.ValueData {
+  return {
+    attribute: valueData.attribute,
+    numeric: valueData.numeric,
+    selected: valueData.selected.map((s) => ({
+      value: protoFromDataValue(s.value),
+      name: s.name,
+    })),
+    range: {
+      id: valueData.range.id,
+      min: valueData.range.min,
+      max: valueData.range.max,
+    },
+  };
 }
 
 function defaultValueData(hintData: HintData): ValueData {

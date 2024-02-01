@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package tanagra;
+
+import "google/protobuf/timestamp.proto";
+
+message Value {
+  oneof value {
+    string string_value = 1;
+    int64 int64_value = 2;
+    bool bool_value = 3;
+    google.protobuf.Timestamp timestamp_value = 4;
+  }
+}

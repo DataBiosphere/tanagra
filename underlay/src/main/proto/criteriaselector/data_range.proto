@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package tanagra;
+
+message DataRange {
+  string id = 1;
+  double min = 2;
+  double max = 3;
+}
