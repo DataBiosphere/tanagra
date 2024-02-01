@@ -34,7 +34,9 @@
     "aouRT/icd9procConcept",
     "aouRT/icd9procNonHierarchyConcept",
     "aouRT/icd10cmConcept",
+    "aouRT/icd10cmNonHierarchyConcept",
     "aouRT/icd10pcsConcept",
+    "aouRT/icd10pcsNonHierarchyConcept",
 
     "aouRT/activitySummary",
     "aouRT/heartRateLevel",
@@ -77,7 +79,9 @@
     "aouRT/icd9procPerson",
     "aouRT/icd9procNonHierarchyPerson",
     "aouRT/icd10cmPerson",
-    "aouRT/icd10pcsPerson"
+    "aouRT/icd10cmNonHierarchyPerson",
+    "aouRT/icd10pcsPerson",
+    "aouRT/icd10pcsNonHierarchyPerson"
   ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset Controlled Tier",

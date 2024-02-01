@@ -437,6 +437,13 @@
             "attribute": "label",
             "direction": "ASC"
           }
+        },
+        {
+          "id": "icd10cmNonHierarchyPerson",
+          "sortOrder": {
+            "attribute": "label",
+            "direction": "ASC"
+          }
         }
       ],
       "modifiers": [
@@ -470,6 +477,13 @@
       "classificationEntityGroups": [
         {
           "id": "icd10pcsPerson",
+          "sortOrder": {
+            "attribute": "label",
+            "direction": "ASC"
+          }
+        },
+        {
+          "id": "icd10pcsNonHierarchyPerson",
           "sortOrder": {
             "attribute": "label",
             "direction": "ASC"

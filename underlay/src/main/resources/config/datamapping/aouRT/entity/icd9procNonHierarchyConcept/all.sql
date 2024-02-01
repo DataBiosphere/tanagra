@@ -9,13 +9,13 @@ FROM `${omopDataset}.concept` a
 WHERE
   vocabulary_id = 'ICD9Proc'
   AND concept_id IN (select distinct procedure_source_concept_id from `${omopDataset}.procedure_occurrence`)
-  AND concept_id NOT IN(
+  AND concept_id NOT IN (
     SELECT concept_id FROM `${omopDataset}.concept`
-    WHERE vocabulary_id = 'ICD9Proc'
-      AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
+        WHERE vocabulary_id = 'ICD9Proc'
+          AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
     UNION ALL
     SELECT concept_id FROM `${staticTablesDataset}.prep_concept`
-    WHERE vocabulary_id = 'ICD9Proc'
-      AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
+        WHERE vocabulary_id = 'ICD9Proc'
+          AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
     )
 
