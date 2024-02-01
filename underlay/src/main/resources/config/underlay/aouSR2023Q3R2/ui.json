@@ -564,7 +564,7 @@
       "type": "attribute",
       "id": "tanagra-bmi",
       "title": "BMI",
-      "category": "Physical Measurememnts",
+      "category": "Physical Measurements",
       "attribute": "value_numeric"
     }
   ],
