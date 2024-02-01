@@ -562,6 +562,48 @@
     },
     {
       "type": "multiAttribute",
+      "id": "tanagra-heart-rate",
+      "title": "Heart Rate",
+      "category": "Physical Measurements",
+      "entity": "heartRate",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "beats/min"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-height",
+      "title": "Height",
+      "category": "Physical Measurements",
+      "entity": "height",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-weight",
+      "title": "Weight",
+      "category": "Physical Measurements",
+      "entity": "weight",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
       "id": "tanagra-bmi",
       "title": "BMI",
       "category": "Physical Measurements",
@@ -576,10 +618,24 @@
     },
     {
       "type": "multiAttribute",
-      "id": "tanagra-height",
-      "title": "Height",
+      "id": "tanagra-waist-circumference",
+      "title": "Waist Circumference",
       "category": "Physical Measurements",
-      "entity": "height",
+      "entity": "waistCircumference",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-hip-circumference",
+      "title": "Hip Circumference",
+      "category": "Physical Measurements",
+      "entity": "hipCircumference",
       "valueConfigs": [
         {
           "title": "",
