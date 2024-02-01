@@ -41,7 +41,8 @@
     "aouRT/sleepLevel",
     "aouRT/stepsIntraday",
 
-    "aouRT/bmiOccurrence"
+    "aouRT/bmiOccurrence",
+    "aouRT/heightOccurrence"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -53,7 +54,8 @@
     "aouRT/sleepLevelPerson",
     "aouRT/stepsIntradayPerson",
 
-    "aouRT/bmiPerson"
+    "aouRT/bmiPerson",
+    "aouRT/heightPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",

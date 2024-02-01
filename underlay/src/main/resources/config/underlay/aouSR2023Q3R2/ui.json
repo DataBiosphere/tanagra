@@ -573,6 +573,20 @@
           "unit": "kg/m^2"
         }
       ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-height",
+      "title": "Height",
+      "category": "Physical Measurements",
+      "entity": "height",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
     }
   ],
   "modifierConfigs": [
