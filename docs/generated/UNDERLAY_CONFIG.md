@@ -41,7 +41,7 @@ Field or column name in the [all instances SQL file](#szentityallinstancessqlfil
 A separate display field is useful for enum-type attributes, which often use a foreign-key to another table to get a readable string from a code (e.g. in OMOP, `person.gender_concept_id` and `concept.concept_name`).
 
 ### SZAttribute.displayHintRangeMax
-**optional** double
+**optional** Double
 
 The maximum value to display when filtering on this attribute. This is useful when the underlying data has outliers that we want to exclude from the display, but not from the available data.
 
@@ -50,7 +50,7 @@ e.g. A person has an invalid date of birth that produces an age range that spans
 The #szattributedisplayhintrangemin may be set as well, but they are not required to be set together. The #szattributeiscomputedisplayhint is also independent of this property. You can still calculate the actual maximum in the data, if you set this property.
 
 ### SZAttribute.displayHintRangeMin
-**optional** double
+**optional** Double
 
 The minimum value to display when filtering on this attribute. This is useful when the underlying data has outliers that we want to exclude from the display, but not from the available data.
 
