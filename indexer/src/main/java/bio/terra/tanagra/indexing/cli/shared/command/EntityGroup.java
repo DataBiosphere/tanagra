@@ -6,6 +6,7 @@ import bio.terra.tanagra.indexing.JobSequencer;
 import bio.terra.tanagra.indexing.cli.shared.options.EntityGroupNames;
 import bio.terra.tanagra.indexing.cli.shared.options.IndexerConfig;
 import bio.terra.tanagra.indexing.cli.shared.options.JobExecutorAndDryRun;
+import bio.terra.tanagra.indexing.cli.shared.options.JobFilter;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
@@ -22,6 +23,7 @@ public abstract class EntityGroup extends BaseCommand {
   private @CommandLine.Mixin IndexerConfig indexerConfig;
   private @CommandLine.Mixin JobExecutorAndDryRun jobExecutorAndDryRun;
   private @CommandLine.Mixin EntityGroupNames entityGroupNames;
+  private @CommandLine.Mixin JobFilter jobFilter;
 
   protected abstract IndexingJob.RunType getRunType();
 
@@ -29,6 +31,7 @@ public abstract class EntityGroup extends BaseCommand {
   @Override
   protected void execute() {
     entityGroupNames.validate();
+    jobFilter.validate();
     ConfigReader configReader = ConfigReader.fromDiskFile(indexerConfig.getGitHubDirWithDefault());
     SZIndexer szIndexer = configReader.readIndexer(indexerConfig.name);
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
@@ -44,7 +47,8 @@ public abstract class EntityGroup extends BaseCommand {
         entityGroups.stream()
             .map(
                 entityGroup ->
-                    JobSequencer.getJobSetForEntityGroup(szIndexer, underlay, entityGroup))
+                    JobSequencer.getJobSetForEntityGroup(szIndexer, underlay, entityGroup)
+                        .filterJobs(jobFilter.getClassNamesWithPackage()))
             .collect(Collectors.toList());
     JobRunner jobRunner =
         jobExecutorAndDryRun.jobExecutor.getRunner(

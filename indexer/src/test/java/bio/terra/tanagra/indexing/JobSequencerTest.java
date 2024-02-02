@@ -138,4 +138,26 @@ public class JobSequencerTest {
 
     assertEquals(2, jobStageItr.next().size());
   }
+
+  @Test
+  public void filtered() {
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZIndexer szIndexer = configReader.readIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
+    SequencedJobSet jobs =
+        JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"))
+            .filterJobs(
+                List.of(
+                    "bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes",
+                    "bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes"));
+
+    assertEquals(2, jobs.getNumStages());
+    Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
+    IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
+    assertEquals(WriteEntityAttributes.class, job.getClass());
+  }
 }
