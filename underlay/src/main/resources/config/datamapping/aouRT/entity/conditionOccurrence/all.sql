@@ -3,6 +3,8 @@ SELECT
   co.person_id,
   co.condition_concept_id,
   cc.concept_name AS condition_concept_name,
+  cc.concept_code AS standard_code,
+  cc.vocabulary_id AS standard_vocabulary,
   co.condition_start_datetime,
   co.condition_end_datetime,
   co.stop_reason,
@@ -12,7 +14,6 @@ SELECT
   co.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
-
 FROM `${omopDataset}.condition_occurrence` AS co
 JOIN `${omopDataset}.person` AS p ON p.person_id = co.person_id
 JOIN `${omopDataset}.concept` AS cc ON cc.concept_id = co.condition_concept_id

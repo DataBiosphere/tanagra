@@ -742,9 +742,12 @@
         "plugin": {
           "entity": "conditionOccurrence",
           "columns": [
-            { "key": "condition", "width": "100%", "title": "Condition name" },
-            { "key": "start_date", "width": 200, "title": "Start date" },
-            { "key": "end_date", "width": 200, "title": "End date" }
+            { "key": "start_date", "width": "15%", "title": "Start date", "sortable": true },
+            { "key": "standard_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "condition", "width": "15%", "title": "Condition name", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "15%", "title": "Age at Occurrence", "sortable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true }
           ]
         }
       },
