@@ -144,7 +144,7 @@ export function CohortReview() {
               values: [instance?.data?.[primaryKey]],
             },
             null,
-            10000
+            0
           );
         })
       );

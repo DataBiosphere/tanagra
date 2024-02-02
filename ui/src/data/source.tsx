@@ -479,20 +479,40 @@ export class BackendUnderlaySource implements UnderlaySource {
       entity.idAttribute
     );
 
-    const res = await parseAPIError(
-      this.underlaysApi.listInstances({
-        entityName: entity.name,
-        underlayName: this.underlay.name,
-        query: this.makeQuery(ra, entityId, cohort, conceptSet, limit),
-      })
-    );
+    let pageMarker: string | undefined;
+    let sql: string | undefined;
+    const data: DataEntry[] = [];
+    while (true) {
+      const res = await parseAPIError(
+        this.underlaysApi.listInstances({
+          entityName: entity.name,
+          underlayName: this.underlay.name,
+          query: this.makeQuery(
+            ra,
+            entityId,
+            cohort,
+            conceptSet,
+            limit,
+            pageMarker
+          ),
+        })
+      );
 
-    const data = res.instances?.map((instance) =>
-      makeDataEntry(entity.idAttribute, instance.attributes)
-    );
+      data.push(
+        ...(res.instances?.map((instance) =>
+          makeDataEntry(entity.idAttribute, instance.attributes)
+        ) ?? [])
+      );
+
+      sql = res.sql;
+      pageMarker = res.pageMarker;
+      if (!pageMarker?.length || !res.instances?.length) {
+        break;
+      }
+    }
     return {
-      data: data ?? [],
-      sql: res.sql ?? "",
+      data: data,
+      sql: sql ?? "",
     };
   }
 
@@ -643,7 +663,8 @@ export class BackendUnderlaySource implements UnderlaySource {
     entityId: string,
     cohort: Filter,
     conceptSet: Filter | null,
-    limit?: number
+    limit?: number,
+    pageMarker?: string
   ): tanagra.Query {
     let cohortFilter = generateFilter(this, cohort);
     if (!cohortFilter) {
@@ -679,6 +700,7 @@ export class BackendUnderlaySource implements UnderlaySource {
       includeAttributes: requestedAttributes,
       filter,
       limit: limit === 0 ? undefined : limit ?? 50,
+      pageMarker,
     };
   }
 
