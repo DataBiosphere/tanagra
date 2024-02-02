@@ -705,16 +705,21 @@
   },
   "cohortReviewConfig": {
     "participantsListColumns": [
-      { "key": "id", "width": 100, "title": "Id" },
-      { "key": "gender", "width": 100, "title": "Gender" },
-      { "key": "race", "width": 100, "title": "Race" },
-      { "key": "ethnicity", "width": 100, "title": "Ethnicity" },
-      { "key": "age", "width": 60, "title": "Year of Birth" }
+      { "key": "id", "width": 35, "title": "Id" },
+      { "key": "age", "width": 25, "title": "Age" },
+      { "key": "gender", "width": 30, "title": "Gender" },
+      { "key": "sex_at_birth", "width": 40, "title": "Sex at Birth" },
+      { "key": "race", "width": 60, "title": "Race" },
+      { "key": "ethnicity", "width": 60, "title": "Ethnicity" }
     ],
     "attributes": [
       {
         "title": "Gender",
         "key": "gender"
+      },
+      {
+        "title": "Sex at Birth",
+        "key": "sex_at_birth"
       },
       {
         "title": "Age",
