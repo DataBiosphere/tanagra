@@ -603,7 +603,7 @@ public class BQFilterTest extends BQRunnerTest {
     // of the test, we use the SD underlay. But since we the GHA does not have
     // credentials to query against an SD dataset, here we just check the generated SQL.
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("sd020230331_verily");
+    SZService szService = configReader.readService("sd20230331_verily");
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
     BQQueryRunner bqQueryRunner =
@@ -2128,7 +2128,7 @@ public class BQFilterTest extends BQRunnerTest {
     // of the test, we use the SD underlay. But since we the GHA does not have
     // credentials to query against an SD dataset, here we just check the generated SQL.
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("sd020230331_verily");
+    SZService szService = configReader.readService("sd20230331_verily");
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
     BQQueryRunner bqQueryRunner =

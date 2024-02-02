@@ -1,5 +1,5 @@
 {
-  "name": "sd020230331",
+  "name": "sd",
   "primaryEntity": "person",
   "entities": [
     "sd/person",
