@@ -1,6 +1,6 @@
 SELECT p.person_id,
        p.year_of_birth,
-       TIMESTAMP(p.birth_datetime) AS birth_datetime,
+       p.birth_datetime,
        p.gender_concept_id,
        gc.concept_name AS gender_concept_name,
        p.race_concept_id,

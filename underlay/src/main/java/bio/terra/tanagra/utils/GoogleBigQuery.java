@@ -43,11 +43,11 @@ import org.slf4j.LoggerFactory;
 public final class GoogleBigQuery {
   private static final Logger LOGGER = LoggerFactory.getLogger(GoogleBigQuery.class);
 
-  // default value for the maximum number of times to retry HTTP requests to BQ
+  // Default value for the maximum number of times to retry HTTP requests.
   public static final int BQ_MAXIMUM_RETRIES = 5;
-  private static final Duration MAX_QUERY_WAIT_TIME = Duration.ofMinutes(5);
+  private static final Duration MAX_QUERY_WAIT_TIME = Duration.ofMinutes(10);
   private static final org.threeten.bp.Duration MAX_BQ_CLIENT_TIMEOUT =
-      org.threeten.bp.Duration.ofMinutes(5);
+      org.threeten.bp.Duration.ofMinutes(10);
 
   private final GoogleCredentials credentials;
   private final BigQuery bigQuery;

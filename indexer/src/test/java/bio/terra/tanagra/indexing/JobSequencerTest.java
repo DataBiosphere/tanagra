@@ -35,28 +35,22 @@ public class JobSequencerTest {
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
-        JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"));
+            JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"));
 
     assertEquals(4, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
 
-    List<IndexingJob> jobStage = jobStageItr.next();
-    Optional<IndexingJob> validateUniqueIds =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(ValidateUniqueIds.class))
-            .findFirst();
-    assertTrue(validateUniqueIds.isPresent());
-    Optional<IndexingJob> validateDataTypes =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(ValidateDataTypes.class))
-            .findFirst();
-    assertTrue(validateDataTypes.isPresent());
-
     IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
     assertEquals(CreateEntityMain.class, job.getClass());
 
     job = jobStageItr.next().get(0);
     assertEquals(WriteEntityAttributes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
+    assertEquals(ValidateUniqueIds.class, job.getClass());
   }
 
   @Test
@@ -66,60 +60,57 @@ public class JobSequencerTest {
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
-        JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("condition"));
+            JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("condition"));
 
     assertEquals(6, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
 
-    List<IndexingJob> jobStage = jobStageItr.next();
-    Optional<IndexingJob> validateUniqueIds =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(ValidateUniqueIds.class))
-            .findFirst();
-    assertTrue(validateUniqueIds.isPresent());
-    Optional<IndexingJob> validateDataTypes =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(ValidateDataTypes.class))
-            .findFirst();
-    assertTrue(validateDataTypes.isPresent());
-
     IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
     assertEquals(CreateEntityMain.class, job.getClass());
 
     job = jobStageItr.next().get(0);
     assertEquals(WriteEntityAttributes.class, job.getClass());
 
-    jobStage = jobStageItr.next();
+    List<IndexingJob> jobStage = jobStageItr.next();
+    Optional<IndexingJob> validateUniqueIds =
+            jobStage.stream()
+                    .filter(jobInStage -> jobInStage.getClass().equals(ValidateUniqueIds.class))
+                    .findFirst();
+    assertTrue(validateUniqueIds.isPresent());
+
     Optional<IndexingJob> writeEntityLevelDisplayHints =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(WriteEntityLevelDisplayHints.class))
-            .findFirst();
+            jobStage.stream()
+                    .filter(jobInStage -> jobInStage.getClass().equals(WriteEntityLevelDisplayHints.class))
+                    .findFirst();
     assertTrue(writeEntityLevelDisplayHints.isPresent());
 
     jobStage = jobStageItr.next();
     Optional<IndexingJob> buildTextSearchStrings =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(WriteTextSearchField.class))
-            .findFirst();
+            jobStage.stream()
+                    .filter(jobInStage -> jobInStage.getClass().equals(WriteTextSearchField.class))
+                    .findFirst();
     assertTrue(buildTextSearchStrings.isPresent());
 
     Optional<IndexingJob> writeParentChildIdPairs =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(WriteChildParent.class))
-            .findFirst();
+            jobStage.stream()
+                    .filter(jobInStage -> jobInStage.getClass().equals(WriteChildParent.class))
+                    .findFirst();
     assertTrue(writeParentChildIdPairs.isPresent());
 
     Optional<IndexingJob> writeAncestorDescendantIdPairs =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(WriteAncestorDescendant.class))
-            .findFirst();
+            jobStage.stream()
+                    .filter(jobInStage -> jobInStage.getClass().equals(WriteAncestorDescendant.class))
+                    .findFirst();
     assertTrue(writeAncestorDescendantIdPairs.isPresent());
 
     jobStage = jobStageItr.next();
     Optional<IndexingJob> buildNumChildrenAndPaths =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(WriteNumChildrenAndPaths.class))
-            .findFirst();
+            jobStage.stream()
+                    .filter(jobInStage -> jobInStage.getClass().equals(WriteNumChildrenAndPaths.class))
+                    .findFirst();
     assertTrue(buildNumChildrenAndPaths.isPresent());
   }
 
@@ -130,8 +121,8 @@ public class JobSequencerTest {
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
-        JobSequencer.getJobSetForGroupItems(
-            szIndexer, underlay, (GroupItems) underlay.getEntityGroup("brandIngredient"));
+            JobSequencer.getJobSetForGroupItems(
+                    szIndexer, underlay, (GroupItems) underlay.getEntityGroup("brandIngredient"));
 
     assertEquals(2, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
@@ -149,8 +140,8 @@ public class JobSequencerTest {
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
-        JobSequencer.getJobSetForCriteriaOccurrence(
-            szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));
+            JobSequencer.getJobSetForCriteriaOccurrence(
+                    szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));
 
     assertEquals(2, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
@@ -158,5 +149,27 @@ public class JobSequencerTest {
     assertEquals(WriteRelationshipIntermediateTable.class, job.getClass());
 
     assertEquals(2, jobStageItr.next().size());
+  }
+
+  @Test
+  public void filtered() {
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZIndexer szIndexer = configReader.readIndexer("sd020230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
+    SequencedJobSet jobs =
+            JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"))
+                    .filterJobs(
+                            List.of(
+                                    "bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes",
+                                    "bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes"));
+
+    assertEquals(2, jobs.getNumStages());
+    Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
+    IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
+    assertEquals(WriteEntityAttributes.class, job.getClass());
   }
 }
