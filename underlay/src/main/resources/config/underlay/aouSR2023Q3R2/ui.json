@@ -562,6 +562,27 @@
     },
     {
       "type": "multiAttribute",
+      "id": "tanagra-blood-pressure",
+      "title": "Blood pressure",
+      "category": "Physical Measurements",
+      "entity": "bloodPressure",
+      "valueConfigs": [
+        {
+          "title": "Category",
+          "attribute": "status_code"
+        },
+        {
+          "title": "Systolic",
+          "attribute": "systolic"
+        },
+        {
+          "title": "Diastolic",
+          "attribute": "diastolic"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
       "id": "tanagra-heart-rate",
       "title": "Heart Rate",
       "category": "Physical Measurements",

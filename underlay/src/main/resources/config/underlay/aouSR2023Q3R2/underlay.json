@@ -41,6 +41,7 @@
     "aouRT/sleepLevel",
     "aouRT/stepsIntraday",
 
+    "aouRT/bloodPressureOccurrence",
     "aouRT/heartRateOccurrence",
     "aouRT/heightOccurrence",
     "aouRT/weightOccurrence",
@@ -58,6 +59,7 @@
     "aouRT/sleepLevelPerson",
     "aouRT/stepsIntradayPerson",
 
+    "aouRT/bloodPressurePerson",
     "aouRT/heartRatePerson",
     "aouRT/heightPerson",
     "aouRT/weightPerson",
