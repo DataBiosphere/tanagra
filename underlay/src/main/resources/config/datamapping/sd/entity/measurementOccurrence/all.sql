@@ -35,10 +35,3 @@ ON vo.visit_occurrence_id = mo.visit_occurrence_id
 
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
-
-WHERE mo.measurement_id NOT IN (
-    SELECT mo2.measurement_id
-    FROM `${omopDataset}.measurement` mo2
-    GROUP BY mo2.measurement_id
-    HAVING COUNT(*) > 1
-)
