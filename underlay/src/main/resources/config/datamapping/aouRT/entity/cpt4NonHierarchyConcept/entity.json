@@ -1,0 +1,21 @@
+{
+  "name": "cpt4NonHierarchyConcept",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64" },
+    { "name": "concept_id", "dataType": "INT64" },
+    { "name": "name", "dataType": "STRING" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "type" },
+    { "name": "standard_concept", "dataType": "STRING", "isComputeDisplayHint": true },
+    { "name": "concept_code", "dataType": "STRING" },
+    { "name": "domain_id", "dataType": "STRING" },
+    { "name": "label", "dataType": "STRING" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "id", "name", "code" ],
+    "idTextPairsSqlFile": "textSearch.sql",
+    "idFieldName": "concept_id",
+    "textFieldName": "concept_synonym_name"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "cpt4NonHierarchyPerson",
+  "criteriaEntity": "cpt4NonHierarchyConcept",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "deviceOccurrence",
+      "criteriaRelationship": {
+        "idPairsSqlFile": "occurrenceCriteria_device.sql",
+        "occurrenceEntityIdFieldName": "device_exposure_id",
+        "criteriaEntityIdFieldName": "cpt4_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "ingredientOccurrence",
+      "criteriaRelationship": {
+        "idPairsSqlFile": "occurrenceCriteria_ingredient.sql",
+        "occurrenceEntityIdFieldName": "drug_exposure_id",
+        "criteriaEntityIdFieldName": "cpt4_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "measurementOccurrence",
+      "criteriaRelationship": {
+        "idPairsSqlFile": "occurrenceCriteria_measurement.sql",
+        "occurrenceEntityIdFieldName": "measurement_id",
+        "criteriaEntityIdFieldName": "cpt4_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "observationOccurrence",
+      "criteriaRelationship": {
+        "idPairsSqlFile": "occurrenceCriteria_observation.sql",
+        "occurrenceEntityIdFieldName": "observation_id",
+        "criteriaEntityIdFieldName": "cpt4_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "procedureOccurrence",
+      "criteriaRelationship": {
+        "idPairsSqlFile": "occurrenceCriteria_procedure.sql",
+        "occurrenceEntityIdFieldName": "procedure_occurrence_id",
+        "criteriaEntityIdFieldName": "cpt4_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "cpt4_id"
+  }
+}

@@ -29,6 +29,7 @@
     "aouRT/visitOccurrence",
 
     "aouRT/cpt4Concept",
+    "aouRT/cpt4NonHierarchyConcept",
     "aouRT/icd9cmConcept",
     "aouRT/icd9cmNonHierarchyConcept",
     "aouRT/icd9procConcept",
@@ -74,6 +75,7 @@
     "aouRT/visitPerson",
 
     "aouRT/cpt4Person",
+    "aouRT/cpt4NonHierarchyPerson",
     "aouRT/icd9cmPerson",
     "aouRT/icd9cmNonHierarchyPerson",
     "aouRT/icd9procPerson",
