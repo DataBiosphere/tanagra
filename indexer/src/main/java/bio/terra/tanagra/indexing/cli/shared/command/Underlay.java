@@ -40,10 +40,14 @@ public abstract class Underlay extends BaseCommand {
     List<SequencedJobSet> entityJobSets =
         underlay.getEntities().stream()
             .map(
-                entity ->
-                    JobSequencer.getJobSetForEntity(
-                            szIndexer, underlay, underlay.getEntity(entity.getName()))
-                        .filterJobs(jobFilter.getClassNamesWithPackage()))
+                entity -> {
+                  SequencedJobSet jobSet =
+                      JobSequencer.getJobSetForEntity(szIndexer, underlay, entity);
+                  if (jobFilter.isDefined()) {
+                    jobSet.filterJobs(jobFilter.getClassNamesWithPackage());
+                  }
+                  return jobSet;
+                })
             .collect(Collectors.toList());
     JobRunner entityJobRunner =
         jobExecutorAndDryRun.jobExecutor.getRunner(
@@ -53,10 +57,14 @@ public abstract class Underlay extends BaseCommand {
     List<SequencedJobSet> entityGroupJobSets =
         underlay.getEntityGroups().stream()
             .map(
-                entityGroup ->
-                    JobSequencer.getJobSetForEntityGroup(
-                            szIndexer, underlay, underlay.getEntityGroup(entityGroup.getName()))
-                        .filterJobs(jobFilter.getClassNamesWithPackage()))
+                entityGroup -> {
+                  SequencedJobSet jobSet =
+                      JobSequencer.getJobSetForEntityGroup(szIndexer, underlay, entityGroup);
+                  if (jobFilter.isDefined()) {
+                    jobSet.filterJobs(jobFilter.getClassNamesWithPackage());
+                  }
+                  return jobSet;
+                })
             .collect(Collectors.toList());
     JobRunner entityGroupJobRunner =
         jobExecutorAndDryRun.jobExecutor.getRunner(
