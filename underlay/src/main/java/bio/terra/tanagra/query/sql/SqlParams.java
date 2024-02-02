@@ -10,17 +10,10 @@ import java.util.stream.Collectors;
 
 public class SqlParams {
   private final Map<String, Literal> params = new HashMap<>();
-  private final Map<String, List<Literal>> paramList = new HashMap<>();
 
   public String addParam(String paramBaseName, Literal paramValue) {
     String paramName = paramBaseName + params.size();
     params.put(paramName, paramValue);
-    return paramName;
-  }
-
-  public String addParamList(String paramBaseName, List<Literal> paramValues) {
-    String paramName = paramBaseName + "List" + paramList.size();
-    paramList.put(paramName, paramValues);
     return paramName;
   }
 
