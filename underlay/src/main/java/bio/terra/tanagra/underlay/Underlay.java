@@ -267,7 +267,6 @@ public final class Underlay {
         primaryEntityName.equals(szEntity.name),
         attributes,
         hierarchies,
-        ConfigReader.deserializeDuplicateHandling(szEntity.duplicateHandling),
         optimizeGroupByAttributes,
         szEntity.textSearch != null,
         optimizeTextSearchAttributes);

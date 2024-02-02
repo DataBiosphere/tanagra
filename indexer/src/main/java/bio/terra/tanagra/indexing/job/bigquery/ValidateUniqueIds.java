@@ -61,11 +61,11 @@ public class ValidateUniqueIds extends BigQueryJob {
       TableResult tableResult = googleBigQuery.queryBigQuery(selectDuplicateIdsSql);
       if (tableResult.getTotalRows() > 0) {
         throw new InvalidConfigException(
-            "Id attribute is not unique for entity: "
-                + entity.getName()
-                + ". "
-                + tableResult.getTotalRows()
-                + " duplicates found.");
+                "Id attribute is not unique for entity: "
+                        + entity.getName()
+                        + ". "
+                        + tableResult.getTotalRows()
+                        + " duplicates found.");
       }
     }
   }

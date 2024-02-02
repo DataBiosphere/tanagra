@@ -2,7 +2,6 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.underlay.entitymodel.DuplicateHandling;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
@@ -285,12 +284,5 @@ public final class ConfigReader {
 
   public static DataType deserializeDataType(@Nullable SZEntity.DataType szDataType) {
     return szDataType == null ? null : DataType.valueOf(szDataType.name());
-  }
-
-  public static DuplicateHandling deserializeDuplicateHandling(
-      @Nullable SZEntity.DuplicateHandling szDuplicateHandling) {
-    return szDuplicateHandling == null
-        ? null
-        : DuplicateHandling.valueOf(szDuplicateHandling.name());
   }
 }

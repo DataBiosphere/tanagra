@@ -13,12 +13,11 @@ public final class Entity {
   private final boolean isPrimary;
   private final ImmutableList<Attribute> attributes;
   private final ImmutableList<Hierarchy> hierarchies;
-  private final DuplicateHandling duplicateHandling;
   private final ImmutableList<Attribute> optimizeGroupByAttributes;
   private final boolean hasTextSearch;
   private final ImmutableList<Attribute> optimizeTextSearchAttributes;
 
-  @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
+  @SuppressWarnings("checkstyle:ParameterNumber")
   public Entity(
       String name,
       String displayName,
@@ -26,7 +25,6 @@ public final class Entity {
       boolean isPrimary,
       List<Attribute> attributes,
       List<Hierarchy> hierarchies,
-      DuplicateHandling duplicateHandling,
       List<Attribute> optimizeGroupByAttributes,
       boolean hasTextSearch,
       List<Attribute> optimizeTextSearchAttributes) {
@@ -36,7 +34,6 @@ public final class Entity {
     this.isPrimary = isPrimary;
     this.attributes = ImmutableList.copyOf(attributes);
     this.hierarchies = ImmutableList.copyOf(hierarchies);
-    this.duplicateHandling = duplicateHandling;
     this.optimizeGroupByAttributes = ImmutableList.copyOf(optimizeGroupByAttributes);
     this.hasTextSearch = hasTextSearch;
     this.optimizeTextSearchAttributes = ImmutableList.copyOf(optimizeTextSearchAttributes);
@@ -95,10 +92,6 @@ public final class Entity {
             () ->
                 new NotFoundException(
                     "Hierarchy not found: entity=" + this.name + ", hierarchy=" + name));
-  }
-
-  public DuplicateHandling getDuplicateHandling() {
-    return duplicateHandling == null ? DuplicateHandling.CHOOSE_ONE : duplicateHandling;
   }
 
   public ImmutableList<Attribute> getOptimizeGroupByAttributes() {

@@ -11,9 +11,7 @@ import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
 import com.google.cloud.StringEnumValue;
 import com.google.cloud.bigquery.Field;
-import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.LegacySQLTypeName;
-import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.Schema;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,24 +54,18 @@ public class ValidateDataTypes extends BigQueryJob {
   @Override
   public void run(boolean isDryRun) {
     // Build the query to select all the attributes from the source table.
-    String selectOneRowSql = "SELECT * FROM " + sourceTable.getTablePointer().render();
+    String selectOneRowSql = "SELECT * FROM " + sourceTable.getTablePointer().render() + " LIMIT 1";
     LOGGER.info("Generated select SQL: {}", selectOneRowSql);
 
-    // Dry run the query just to get the returned schema.
-    QueryJobConfiguration queryConfig =
-        QueryJobConfiguration.newBuilder(selectOneRowSql)
-            .setUseLegacySql(false)
-            .setDryRun(true)
-            .build();
-    JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
-    Schema sourceQueryResultSchema = queryStatistics.getSchema();
+    Schema sourceQueryResultSchema = googleBigQuery.getQuerySchemaWithCaching(selectOneRowSql);
     LOGGER.info("Select SQL results schema: {}", sourceQueryResultSchema);
 
     // Check that the schema data types match those of the index table columns.
     boolean foundError = false;
     for (Attribute attribute : entity.getAttributes()) {
       ColumnSchema sourceTableSchema = sourceTable.getAttributeValueColumnSchema(attribute);
-      Set<LegacySQLTypeName> sourceTableBQDataTypes;
+      Set<LegacySQLTypeName>
+          sourceTableBQDataTypes; // BigQueryBeamUtils.fromSqlDataType(sourceTableSchema.getSqlDataType());
       switch (sourceTableSchema.getDataType()) {
         case STRING:
           sourceTableBQDataTypes = Set.of(LegacySQLTypeName.STRING);
