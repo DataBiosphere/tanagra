@@ -5,6 +5,7 @@ import bio.terra.tanagra.cli.command.BaseCommand;
 import bio.terra.tanagra.indexing.JobSequencer;
 import bio.terra.tanagra.indexing.cli.shared.options.IndexerConfig;
 import bio.terra.tanagra.indexing.cli.shared.options.JobExecutorAndDryRun;
+import bio.terra.tanagra.indexing.cli.shared.options.JobFilter;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import bio.terra.tanagra.indexing.jobexecutor.JobResult;
 import bio.terra.tanagra.indexing.jobexecutor.JobRunner;
@@ -21,12 +22,14 @@ import picocli.CommandLine;
 public abstract class Underlay extends BaseCommand {
   private @CommandLine.Mixin IndexerConfig indexerConfig;
   private @CommandLine.Mixin JobExecutorAndDryRun jobExecutorAndDryRun;
+  private @CommandLine.Mixin JobFilter jobFilter;
 
   protected abstract IndexingJob.RunType getRunType();
 
   /** Index/clean all entities and entity groups. */
   @Override
   protected void execute() {
+    jobFilter.validate();
     ConfigReader configReader = ConfigReader.fromDiskFile(indexerConfig.getGitHubDirWithDefault());
     SZIndexer szIndexer = configReader.readIndexer(indexerConfig.name);
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
@@ -39,7 +42,8 @@ public abstract class Underlay extends BaseCommand {
             .map(
                 entity ->
                     JobSequencer.getJobSetForEntity(
-                        szIndexer, underlay, underlay.getEntity(entity.getName())))
+                            szIndexer, underlay, underlay.getEntity(entity.getName()))
+                        .filterJobs(jobFilter.getClassNamesWithPackage()))
             .collect(Collectors.toList());
     JobRunner entityJobRunner =
         jobExecutorAndDryRun.jobExecutor.getRunner(
@@ -51,7 +55,8 @@ public abstract class Underlay extends BaseCommand {
             .map(
                 entityGroup ->
                     JobSequencer.getJobSetForEntityGroup(
-                        szIndexer, underlay, underlay.getEntityGroup(entityGroup.getName())))
+                            szIndexer, underlay, underlay.getEntityGroup(entityGroup.getName()))
+                        .filterJobs(jobFilter.getClassNamesWithPackage()))
             .collect(Collectors.toList());
     JobRunner entityGroupJobRunner =
         jobExecutorAndDryRun.jobExecutor.getRunner(

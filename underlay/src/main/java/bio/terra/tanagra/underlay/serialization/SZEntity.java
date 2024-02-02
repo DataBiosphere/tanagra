@@ -171,7 +171,7 @@ public class SZEntity {
                 + "together. The ${SZAttribute.isComputeDisplayHint} is also independent of this property. You can "
                 + "still calculate the actual minimum in the data, if you set this property.",
         optional = true)
-    public double displayHintRangeMin;
+    public Double displayHintRangeMin;
 
     @AnnotatedField(
         name = "SZAttribute.displayHintRangeMax",
@@ -187,7 +187,7 @@ public class SZEntity {
                 + "together. The ${SZAttribute.isComputeDisplayHint} is also independent of this property. You can "
                 + "still calculate the actual maximum in the data, if you set this property.",
         optional = true)
-    public double displayHintRangeMax;
+    public Double displayHintRangeMax;
   }
 
   @AnnotatedClass(name = "SZHierarchy", markdown = "Hierarchy for an entity.")
