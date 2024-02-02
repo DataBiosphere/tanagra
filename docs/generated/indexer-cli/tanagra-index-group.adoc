@@ -21,7 +21,8 @@ tanagra-index-group - Run all jobs for a single entity, or all entities.
 
 *tanagra index group* [*--all*] [*--dry-run*] [*--github-dir*=_<githubDir>_]
                     *--indexer-config*=_<name>_ [*--job-executor*=_<jobExecutor>_]
-                    [*--output-dir*=_<outputDir>_] [*--names*=_<names>_[,_<names>_...]]...
+                    [*--output-dir*=_<outputDir>_] [*--job-filter*=_<classNames>_[,
+                    _<classNames>_...]]... [*--names*=_<names>_[,_<names>_...]]...
 
 // end::picocli-generated-man-section-synopsis[]
 
@@ -55,6 +56,9 @@ Run all jobs for a single entity, or all entities.
   Executor to use when running jobs: PARALLEL, SERIAL. Recommend serial for debugging, parallel otherwise.
 +
   Default: PARALLEL
+
+*--job-filter*=_<classNames>_[,_<classNames>_...]::
+  Only run jobs with these class names. Specify the class names relative to the IndexingJob class (e.g. bigquery.ValidateDataTypes, not bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes). Useful for debugging a particular indexing job.
 
 *--names*=_<names>_[,_<names>_...]::
   Entity group name(s). Comma-separated list if more than one.

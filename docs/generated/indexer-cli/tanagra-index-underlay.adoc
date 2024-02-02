@@ -21,7 +21,8 @@ tanagra-index-underlay - Run all jobs for underlay.
 
 *tanagra index underlay* [*--dry-run*] [*--github-dir*=_<githubDir>_]
                        *--indexer-config*=_<name>_ [*--job-executor*=_<jobExecutor>_]
-                       [*--output-dir*=_<outputDir>_]
+                       [*--output-dir*=_<outputDir>_] [*--job-filter*=_<classNames>_[,
+                       _<classNames>_...]]...
 
 // end::picocli-generated-man-section-synopsis[]
 
@@ -50,6 +51,9 @@ Run all jobs for underlay.
   Executor to use when running jobs: PARALLEL, SERIAL. Recommend serial for debugging, parallel otherwise.
 +
   Default: PARALLEL
+
+*--job-filter*=_<classNames>_[,_<classNames>_...]::
+  Only run jobs with these class names. Specify the class names relative to the IndexingJob class (e.g. bigquery.ValidateDataTypes, not bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes). Useful for debugging a particular indexing job.
 
 *--output-dir*=_<outputDir>_::
   Absolute path to the directory where the html report will be written. Defaults to the current directory.
