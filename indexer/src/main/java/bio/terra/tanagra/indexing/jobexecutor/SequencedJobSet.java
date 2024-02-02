@@ -31,7 +31,7 @@ public class SequencedJobSet {
     return stages.iterator();
   }
 
-  public SequencedJobSet filterJobs(List<String> jobClassNames) {
+  public void filterJobs(List<String> jobClassNames) {
     List<List<IndexingJob>> filteredStages = new ArrayList<>();
     for (List<IndexingJob> stage : stages) {
       List<IndexingJob> filteredStage =
@@ -43,7 +43,6 @@ public class SequencedJobSet {
       }
     }
     this.stages = filteredStages;
-    return this;
   }
 
   public int getNumStages() {

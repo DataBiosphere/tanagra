@@ -19,6 +19,10 @@ public class JobFilter {
       split = ",")
   private List<String> classNames;
 
+  public boolean isDefined() {
+    return classNames != null && !classNames.isEmpty();
+  }
+
   public List<String> getClassNamesWithPackage() {
     final String packageName = IndexingJob.class.getPackageName();
     return classNames.stream()
@@ -27,6 +31,9 @@ public class JobFilter {
   }
 
   public void validate() {
+    if (!isDefined()) {
+      return;
+    }
     for (String className : getClassNamesWithPackage()) {
       try {
         Class<?> clazz = Class.forName(className);
