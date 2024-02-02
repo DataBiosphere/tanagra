@@ -84,9 +84,9 @@
   ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",
-    "description": "Dataset Updated March 31, 2023",
+    "description": "Dataset Updated August 31, 2023",
     "properties": {
-      "lastUpdated": "03/31/23"
+      "lastUpdated": "08/31/23"
     }
   },
   "uiConfigFile": "ui.json"
