@@ -44,9 +44,14 @@ public abstract class Entity extends BaseCommand {
     List<SequencedJobSet> jobSets =
         entities.stream()
             .map(
-                entity ->
-                    JobSequencer.getJobSetForEntity(szIndexer, underlay, entity)
-                        .filterJobs(jobFilter.getClassNamesWithPackage()))
+                entity -> {
+                  SequencedJobSet jobSet =
+                      JobSequencer.getJobSetForEntity(szIndexer, underlay, entity);
+                  if (jobFilter.isDefined()) {
+                    jobSet.filterJobs(jobFilter.getClassNamesWithPackage());
+                  }
+                  return jobSet;
+                })
             .collect(Collectors.toList());
     JobRunner jobRunner =
         jobExecutorAndDryRun.jobExecutor.getRunner(

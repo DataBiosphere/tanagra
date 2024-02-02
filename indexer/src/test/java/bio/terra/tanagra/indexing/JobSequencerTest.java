@@ -158,11 +158,11 @@ public class JobSequencerTest {
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
-        JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"))
-            .filterJobs(
-                List.of(
-                    "bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes",
-                    "bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes"));
+        JobSequencer.getJobSetForEntity(szIndexer, underlay, underlay.getEntity("person"));
+    jobs.filterJobs(
+        List.of(
+            "bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes",
+            "bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes"));
 
     assertEquals(2, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
