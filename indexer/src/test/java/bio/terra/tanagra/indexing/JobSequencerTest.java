@@ -40,23 +40,17 @@ public class JobSequencerTest {
     assertEquals(4, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
 
-    List<IndexingJob> jobStage = jobStageItr.next();
-    Optional<IndexingJob> validateUniqueIds =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(ValidateUniqueIds.class))
-            .findFirst();
-    assertTrue(validateUniqueIds.isPresent());
-    Optional<IndexingJob> validateDataTypes =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(ValidateDataTypes.class))
-            .findFirst();
-    assertTrue(validateDataTypes.isPresent());
-
     IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
     assertEquals(CreateEntityMain.class, job.getClass());
 
     job = jobStageItr.next().get(0);
     assertEquals(WriteEntityAttributes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
+    assertEquals(ValidateUniqueIds.class, job.getClass());
   }
 
   @Test
@@ -71,25 +65,22 @@ public class JobSequencerTest {
     assertEquals(6, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
 
+    IndexingJob job = jobStageItr.next().get(0);
+    assertEquals(ValidateDataTypes.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
+    assertEquals(CreateEntityMain.class, job.getClass());
+
+    job = jobStageItr.next().get(0);
+    assertEquals(WriteEntityAttributes.class, job.getClass());
+
     List<IndexingJob> jobStage = jobStageItr.next();
     Optional<IndexingJob> validateUniqueIds =
         jobStage.stream()
             .filter(jobInStage -> jobInStage.getClass().equals(ValidateUniqueIds.class))
             .findFirst();
     assertTrue(validateUniqueIds.isPresent());
-    Optional<IndexingJob> validateDataTypes =
-        jobStage.stream()
-            .filter(jobInStage -> jobInStage.getClass().equals(ValidateDataTypes.class))
-            .findFirst();
-    assertTrue(validateDataTypes.isPresent());
 
-    IndexingJob job = jobStageItr.next().get(0);
-    assertEquals(CreateEntityMain.class, job.getClass());
-
-    job = jobStageItr.next().get(0);
-    assertEquals(WriteEntityAttributes.class, job.getClass());
-
-    jobStage = jobStageItr.next();
     Optional<IndexingJob> writeEntityLevelDisplayHints =
         jobStage.stream()
             .filter(jobInStage -> jobInStage.getClass().equals(WriteEntityLevelDisplayHints.class))
