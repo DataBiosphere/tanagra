@@ -7,10 +7,14 @@ import org.slf4j.LoggerFactory;
 
 public final class PageMarker {
   private static final Logger LOGGER = LoggerFactory.getLogger(PageMarker.class);
-  private final String pageToken;
-  private final Integer offset;
+  private String pageToken;
+  private Integer offset;
 
-  public PageMarker(String pageToken, Integer offset) {
+  public PageMarker() {
+    // Default constructor for Jackson deserialization.
+  }
+
+  private PageMarker(String pageToken, Integer offset) {
     this.pageToken = pageToken;
     this.offset = offset;
   }
