@@ -1,0 +1,26 @@
+{
+  "underlay": "sd",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "sd-vumc-tanagra-test",
+      "datasetId": "sd_20230331",
+      "sqlSubstitutions": {
+        "omopDataset": "sd-vumc-tanagra-test.sd_20230331",
+        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep_uscentral1"
+      }
+    },
+    "indexData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "sd20230331_index_010224"
+    },
+    "queryProjectId": "verily-tanagra-dev",
+    "dataLocation": "us-central1"
+  },
+  "dataflow": {
+    "serviceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
+    "gcsTempDirectory": "gs://dataflow-staging-us-central1-694046000181/temp/",
+    "workerMachineType": "n1-standard-4",
+    "usePublicIps": false,
+    "vpcSubnetworkName": null
+  }
+}

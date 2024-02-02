@@ -9,7 +9,7 @@
       "runtimeDataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 },
     { "name": "person_source_value", "dataType": "STRING" },
     { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_concept_id", "displayFieldName": "gender_concept_name", "isComputeDisplayHint": true },
-    { "name": "race", "dataType": "INT64", "valueFieldName": "race_concept_id", "displayFieldName": "race_concept_name", "isComputeDisplayHint": true },
+    { "name": "race", "dataType": "INT64", "valueFieldName": "race_source_concept_id", "displayFieldName": "race_concept_name", "isComputeDisplayHint": true },
     { "name": "ethnicity", "dataType": "INT64", "valueFieldName": "ethnicity_concept_id", "displayFieldName": "ethnicity_concept_name", "isComputeDisplayHint": true },
     { "name": "has_biovu_sample", "dataType": "BOOLEAN" },
     { "name": "biovu_sample_dna_yield", "dataType": "INT64" },

@@ -16,13 +16,13 @@ public class ConfigReaderTest {
 
   @Test
   void deserializeUnderlay() {
-    SZUnderlay sdd = ConfigReader.fromJarResources().readUnderlay("sd020230331");
+    SZUnderlay sdd = ConfigReader.fromJarResources().readUnderlay("sd");
     assertNotNull(sdd);
   }
 
   @Test
   void deserializeIndexer() {
-    SZIndexer verilySdd = ConfigReader.fromJarResources().readIndexer("sd020230331_verily");
+    SZIndexer verilySdd = ConfigReader.fromJarResources().readIndexer("sd20230331_verily");
     assertNotNull(verilySdd);
   }
 }

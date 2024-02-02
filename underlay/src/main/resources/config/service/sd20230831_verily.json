@@ -1,0 +1,20 @@
+{
+  "underlay": "sd",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "sd-vumc-tanagra-test",
+      "datasetId": "sd_20230831",
+      "sqlSubstitutions": {
+        "omopDataset": "sd-vumc-tanagra-test.sd_20230831",
+        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep_uscentral1"
+      }
+    },
+    "indexData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "sd20230831_index_020224"
+    },
+    "queryProjectId": "verily-tanagra-dev",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}

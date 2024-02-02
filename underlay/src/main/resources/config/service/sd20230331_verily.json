@@ -1,5 +1,5 @@
 {
-  "underlay": "sd020230331",
+  "underlay": "sd",
   "bigQuery": {
     "sourceData": {
       "projectId": "sd-vumc-tanagra-test",
