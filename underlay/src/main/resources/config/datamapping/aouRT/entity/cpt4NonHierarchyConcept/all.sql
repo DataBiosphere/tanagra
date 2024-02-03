@@ -11,7 +11,7 @@ WHERE vocabulary_id = 'CPT4'
   AND concept_code NOT IN (
     SELECT pc.code FROM `${staticTablesDataset}.prep_cpt` pc WHERE pc.type='CPT4'
   )
-  AND c.concept_code IN (
+  AND concept_code IN (
     SELECT DISTINCT procedure_source_value as code from `${omopDataset}.procedure_occurrence`
     UNION DISTINCT
     SELECT DISTINCT observation_source_value as code from `${omopDataset}.observation`
