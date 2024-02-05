@@ -293,7 +293,6 @@
       "tags": ["Source Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "domain_id", "width": 120, "title": "Concept Domain Id" },
         { "key": "id", "width": 120, "title": "Concept Id" },
         { "key": "standard_concept", "width": 180, "title": "Source/Standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
