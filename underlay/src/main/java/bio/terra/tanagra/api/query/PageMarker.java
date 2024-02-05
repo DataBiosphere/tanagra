@@ -2,6 +2,7 @@ package bio.terra.tanagra.api.query;
 
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,10 @@ public final class PageMarker {
     }
   }
 
-  public static PageMarker deserialize(String jsonStr) {
+  public static PageMarker deserialize(@Nullable String jsonStr) {
+    if (jsonStr == null) {
+      return null;
+    }
     try {
       return JacksonMapper.deserializeJavaObject(jsonStr, PageMarker.class);
     } catch (JsonProcessingException jpEx) {

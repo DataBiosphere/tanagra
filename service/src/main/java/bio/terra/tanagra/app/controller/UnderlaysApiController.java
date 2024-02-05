@@ -13,6 +13,7 @@ import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
@@ -192,7 +193,14 @@ public class UnderlaysApiController implements UnderlaysApi {
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
-            underlay, entity, attributeFields, filter, null, null, entityLevelHints, false);
+            underlay,
+            entity,
+            attributeFields,
+            filter,
+            PageMarker.deserialize(body.getPageMarker()),
+            null,
+            entityLevelHints,
+            false);
 
     // Run the count query and map the results back to API objects.
     CountQueryResult countQueryResult = underlay.getQueryRunner().run(countQueryRequest);
@@ -202,7 +210,11 @@ public class UnderlaysApiController implements UnderlaysApi {
                 countQueryResult.getCountInstances().stream()
                     .map(ToApiUtils::toApiObject)
                     .collect(Collectors.toList()))
-            .sql(SqlFormatter.format(countQueryResult.getSql())));
+            .sql(SqlFormatter.format(countQueryResult.getSql()))
+            .pageMarker(
+                countQueryResult.getPageMarker() == null
+                    ? null
+                    : countQueryResult.getPageMarker().serialize()));
   }
 
   @Override
