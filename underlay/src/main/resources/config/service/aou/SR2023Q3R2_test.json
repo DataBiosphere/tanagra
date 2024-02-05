@@ -2,19 +2,19 @@
   "underlay": "aouSR2023Q3R2",
   "bigQuery": {
     "sourceData": {
-      "projectId": "fc-aou-cdr-synth-test",
+      "projectId": "all-of-us-ehr-dev",
       "datasetId": "SR2023Q3R2",
       "sqlSubstitutions": {
-        "omopDataset": "fc-aou-cdr-synth-test.SR2023Q3R2",
-        "staticTablesDataset": "fc-aou-cdr-synth-test.SR2023Q3R2"
+        "omopDataset": "all-of-us-ehr-dev.SR2023Q3R2",
+        "staticTablesDataset": "all-of-us-ehr-dev.SR2023Q3R2"
       }
     },
     "indexData": {
-      "projectId": "fc-aou-cdr-synth-test",
+      "projectId": "all-of-us-ehr-dev",
       "datasetId": "SR2023Q3R2",
       "tablePrefix": "T"
     },
-    "queryProjectId": "fc-aou-cdr-synth-test",
+    "queryProjectId": "all-of-us-ehr-dev",
     "dataLocation": "us-central1"
   },
   "uiConfigFile": "ui.json"
