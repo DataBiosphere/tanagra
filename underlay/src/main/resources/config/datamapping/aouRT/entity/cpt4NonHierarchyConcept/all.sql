@@ -11,15 +11,15 @@ WHERE vocabulary_id = 'CPT4'
   AND concept_code NOT IN (
     SELECT pc.code FROM `${staticTablesDataset}.prep_cpt` pc WHERE pc.type='CPT4'
   )
-  AND concept_code IN (
-    SELECT DISTINCT procedure_source_value as code from `${omopDataset}.procedure_occurrence`
+  AND concept_id IN (
+    SELECT DISTINCT procedure_source_concept_id as code from `${omopDataset}.procedure_occurrence`
     UNION DISTINCT
-    SELECT DISTINCT observation_source_value as code from `${omopDataset}.observation`
+    SELECT DISTINCT observation_source_concept_id as code from `${omopDataset}.observation`
     UNION DISTINCT
-    SELECT DISTINCT measurement_source_value as code from `${omopDataset}.measurement`
+    SELECT DISTINCT measurement_source_concept_id as code from `${omopDataset}.measurement`
     UNION DISTINCT
-    SELECT DISTINCT drug_source_value as code from `${omopDataset}.drug_exposure`
+    SELECT DISTINCT drug_source_concept_id as code from `${omopDataset}.drug_exposure`
     UNION DISTINCT
-    SELECT DISTINCT device_source_value as code from `${omopDataset}.device_exposure`
+    SELECT DISTINCT device_source_concept_id as code from `${omopDataset}.device_exposure`
   )
 
