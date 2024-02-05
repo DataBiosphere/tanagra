@@ -8,7 +8,6 @@
     { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "type" },
     { "name": "standard_concept", "dataType": "STRING", "isComputeDisplayHint": true },
     { "name": "concept_code", "dataType": "STRING" },
-    { "name": "domain_id", "dataType": "STRING" },
     { "name": "label", "dataType": "STRING" }
   ],
   "idAttribute": "id",

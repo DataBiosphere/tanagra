@@ -2,7 +2,7 @@ SELECT
      concept_id AS id,
      concept_id,
      concept_name AS name,
-     vocabulary_id,
+     vocabulary_id AS type,
      (CASE WHEN standard_concept IS NULL THEN 'Source' WHEN standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept,
      concept_code,
      CASE WHEN concept_code IS NULL THEN concept_name ELSE CONCAT(concept_code, ' ', concept_name) END AS label
