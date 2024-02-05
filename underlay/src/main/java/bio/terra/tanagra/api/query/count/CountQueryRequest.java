@@ -11,8 +11,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class CountQueryRequest {
-  // TODO: Lower this once the UI paginates through count results.
-  private static final Integer DEFAULT_PAGE_SIZE = 2000;
+  private static final Integer DEFAULT_PAGE_SIZE = 250;
 
   private final Underlay underlay;
   private final Entity entity;

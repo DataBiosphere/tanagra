@@ -1356,6 +1356,10 @@ components:
             type: string
         filter:
           $ref: "#/components/schemas/Filter"
+        pageSize:
+          $ref: "#/components/schemas/PageSize"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
 
     HintQuery:
       type: object
@@ -1726,6 +1730,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/InstanceCount"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
 
     DisplayHint:
       type: object
