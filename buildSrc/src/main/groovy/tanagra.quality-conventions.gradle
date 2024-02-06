@@ -18,6 +18,7 @@ quality {
     spotbugs = true
     pmdIncremental = false
     pmdVersion = '6.31.0'
+    spotbugsVersion = '4.7.2'
 
     configDir = "$rootDir/gradle/config/"
 
