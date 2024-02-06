@@ -589,6 +589,10 @@
       "entity": "heartRate",
       "valueConfigs": [
         {
+          "title": "Heart Rhythm Status",
+          "attribute": "heart_rhythm_status"
+        },
+        {
           "title": "",
           "attribute": "value_numeric",
           "unit": "beats/min"

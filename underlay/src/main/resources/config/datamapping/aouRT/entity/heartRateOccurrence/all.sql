@@ -14,7 +14,11 @@ SELECT
     CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
     mo.visit_occurrence_id,
     vo.visit_concept_id,
-    vc.concept_name AS visit_concept_name
+    vc.concept_name AS visit_concept_name,
+    CASE
+        WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4263255 THEN 'Irregularity detected'
+        WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4297303 THEN 'No-irregularity detected'
+        END as heart_rhythm_status
 FROM `${omopDataset}.measurement` AS mo
          JOIN `${omopDataset}.person` AS p ON p.person_id = mo.person_id
          LEFT JOIN `${omopDataset}.concept` AS mc ON mc.concept_id = mo.measurement_concept_id
@@ -22,4 +26,4 @@ FROM `${omopDataset}.measurement` AS mo
          LEFT JOIN `${omopDataset}.concept` AS uc ON uc.concept_id = mo.unit_concept_id
          LEFT JOIN `${omopDataset}.visit_occurrence` AS vo ON vo.visit_occurrence_id = mo.visit_occurrence_id
          LEFT JOIN `${omopDataset}.concept` AS vc ON vc.concept_id = vo.visit_concept_id
-WHERE mo.measurement_source_concept_id = 903126
+WHERE mo.measurement_source_concept_id IN (903126, 1586218)
