@@ -590,7 +590,7 @@
       "valueConfigs": [
         {
           "title": "Heart Rhythm Status",
-          "attribute": "heart_rhythm_status"
+          "attribute": "status_code"
         },
         {
           "title": "",

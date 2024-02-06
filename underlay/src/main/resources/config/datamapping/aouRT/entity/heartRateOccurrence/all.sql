@@ -16,9 +16,13 @@ SELECT
     vo.visit_concept_id,
     vc.concept_name AS visit_concept_name,
     CASE
+        WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4263255 THEN 1
+        WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4297303 THEN 2
+        END as status_code,
+    CASE
         WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4263255 THEN 'Irregularity detected'
         WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4297303 THEN 'No-irregularity detected'
-        END as heart_rhythm_status
+        END as status_code_name
 FROM `${omopDataset}.measurement` AS mo
          JOIN `${omopDataset}.person` AS p ON p.person_id = mo.person_id
          LEFT JOIN `${omopDataset}.concept` AS mc ON mc.concept_id = mo.measurement_concept_id
