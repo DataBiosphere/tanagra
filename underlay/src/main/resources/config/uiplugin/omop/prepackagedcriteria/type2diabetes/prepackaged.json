@@ -1,0 +1,10 @@
+{
+  "name": "type-2-diabetes",
+  "title": "Type 2 Diabetes",
+  "criteriaSelectorName": "condition",
+  "selectionData": [
+    {
+      "serializedFile": "selectedData.json"
+    }
+  ]
+}

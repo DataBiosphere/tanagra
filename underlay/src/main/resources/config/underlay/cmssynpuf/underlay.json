@@ -44,7 +44,10 @@
     "omop/gender",
     "omop/condition"
   ],
-  "prepackagedDataFeatures": [],
+  "prepackagedDataFeatures": [
+    "omop/demographics",
+    "omop/type2diabetes"
+  ],
   "metadata": {
     "displayName": "Centers for Medicare and Medicaid Services (CMS) Medicare Claims Synthetic Public Use Files (SynPUF)",
     "description": "Synthetic data containing 2008-2010 Medicare insurance claims",

@@ -1,0 +1,10 @@
+{
+  "name": "demographics",
+  "title": "Demographics",
+  "criteriaSelectorName": "gender",
+  "selectionData": [
+    {
+      "serializedFile": "selectedData.json"
+    }
+  ]
+}
