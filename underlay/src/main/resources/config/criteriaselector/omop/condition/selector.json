@@ -1,0 +1,13 @@
+{
+  "name": "condition",
+  "filterBuilderClass": "EntityGroupFilterBuilder.class",
+  "plugin": "core/entityGroup",
+  "pluginConfigFile": "pluginConfig.json",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "title": "Condition",
+    "category": "Domains",
+    "tags": [ "Standard Codes" ]
+  }
+}

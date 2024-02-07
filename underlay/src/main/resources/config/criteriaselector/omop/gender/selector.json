@@ -1,0 +1,13 @@
+{
+  "name": "gender",
+  "filterBuilderClass": "PrimaryEntityFilterBuilder.class",
+  "plugin": "core/attribute",
+  "pluginConfigFile": "pluginConfig.json",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "title": "Gender identity",
+    "category": "Demographics",
+    "tags": []
+  }
+}

@@ -79,6 +79,26 @@ public class SZUnderlay {
               + "template entity group definitions for standing up a new underlay.")
   public Set<String> criteriaOccurrenceEntityGroups;
 
+  @AnnotatedField(
+      name = "SZUnderlay.criteriaSelectors",
+      markdown =
+          "List of paths of all the criteria selectors.\n\n"
+              + "A criteria selector lets you pick a single criteria, either as part of a cohort\n\n "
+              + "definition or for a data feature.\n\n"
+              + "Path consists of two parts: [Criteria-Selector Group]/[Criteria-Selector Name] \n\n"
+              + "(e.g. `omop/gender`).\n\n"
+              + "[Criteria-Selector Group] is the name of a sub-directory of the config/criteriaselector/\n\n"
+              + "sub-directory in the underlay sub-project resources (e.g. `omop`).\n\n"
+              + "[Criteria-Selector Name] is specified in the selector file, and also matches the name of the "
+              + "sub-directory of the config/criteriaselector/[Criteria-Selector Group] sub-directory in the "
+              + "underlay sub-project resources (e.g. `gender`).\n\n"
+              + "Using the path here instead of just the selector name allows us to share selector definitions "
+              + "across underlays. For example, the `omop` criteria-selector group contains template "
+              + "selector definitions for standing up a new underlay.")
+  public Set<String> criteriaSelectors;
+
+  public Set<String> prepackagedDataFeatures;
+
   @AnnotatedField(name = "SZUnderlay.metadata", markdown = "Metadata for the underlay.")
   public Metadata metadata;
 
