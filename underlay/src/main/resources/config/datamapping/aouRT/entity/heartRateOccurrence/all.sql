@@ -22,6 +22,7 @@ SELECT
     CASE
         WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4263255 THEN 'Irregularity detected'
         WHEN measurement_source_concept_id = 1586218 AND value_as_concept_id = 4297303 THEN 'No-irregularity detected'
+        ELSE 'Unknown Status'
         END as status_code_name
 FROM `${omopDataset}.measurement` AS mo
          JOIN `${omopDataset}.person` AS p ON p.person_id = mo.person_id
