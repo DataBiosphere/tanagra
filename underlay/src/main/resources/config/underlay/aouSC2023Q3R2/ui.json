@@ -587,6 +587,115 @@
       "title": "Structural Variants",
       "category": "Genomics",
       "attribute": "has_structural_variant_data"
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-blood-pressure",
+      "title": "Blood pressure",
+      "category": "Physical Measurements",
+      "entity": "bloodPressure",
+      "valueConfigs": [
+        {
+          "title": "Category",
+          "attribute": "status_code"
+        },
+        {
+          "title": "Systolic",
+          "attribute": "systolic"
+        },
+        {
+          "title": "Diastolic",
+          "attribute": "diastolic"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-heart-rate",
+      "title": "Heart Rate",
+      "category": "Physical Measurements",
+      "entity": "heartRate",
+      "valueConfigs": [
+        {
+          "title": "Heart Rhythm Status",
+          "attribute": "status_code"
+        },
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "beats/min"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-height",
+      "title": "Height",
+      "category": "Physical Measurements",
+      "entity": "height",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-weight",
+      "title": "Weight",
+      "category": "Physical Measurements",
+      "entity": "weight",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-bmi",
+      "title": "BMI",
+      "category": "Physical Measurements",
+      "entity": "bmi",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg/m^2"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-waist-circumference",
+      "title": "Waist Circumference",
+      "category": "Physical Measurements",
+      "entity": "waistCircumference",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-hip-circumference",
+      "title": "Hip Circumference",
+      "category": "Physical Measurements",
+      "entity": "hipCircumference",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
     }
   ],
   "modifierConfigs": [

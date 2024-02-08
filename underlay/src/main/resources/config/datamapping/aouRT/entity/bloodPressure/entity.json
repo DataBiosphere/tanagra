@@ -1,0 +1,17 @@
+{
+  "name": "bloodPressure",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_datetime" },
+    { "name": "systolic", "dataType": "DOUBLE", "isComputeDisplayHint": true },
+    { "name": "diastolic", "dataType": "DOUBLE", "isComputeDisplayHint": true },
+    { "name": "status_code", "dataType": "INT64", "valueFieldName": "status_code", "displayFieldName": "status_code_name", "isComputeDisplayHint": true },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "visit_occurrence_id", "dataType": "INT64" },
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "status_code"]
+}

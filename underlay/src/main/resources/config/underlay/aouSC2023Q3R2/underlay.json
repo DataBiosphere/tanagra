@@ -40,7 +40,15 @@
     "aouRT/sleepDailySummary",
     "aouRT/sleepLevel",
     "aouRT/stepsIntraday",
-    "aouCT/zipcodeSocioeconomic"
+    "aouCT/zipcodeSocioeconomic",
+
+    "aouRT/bloodPressure",
+    "aouRT/heartRate",
+    "aouRT/height",
+    "aouRT/weight",
+    "aouRT/bmi",
+    "aouRT/waistCircumference",
+    "aouRT/hipCircumference"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -51,7 +59,15 @@
     "aouRT/sleepDailySummaryPerson",
     "aouRT/sleepLevelPerson",
     "aouRT/stepsIntradayPerson",
-    "aouCT/zipcodeSocioeconomicPerson"
+    "aouCT/zipcodeSocioeconomicPerson",
+
+    "aouRT/bloodPressurePerson",
+    "aouRT/heartRatePerson",
+    "aouRT/heightPerson",
+    "aouRT/weightPerson",
+    "aouRT/bmiPerson",
+    "aouRT/waistCircumferencePerson",
+    "aouRT/hipCircumferencePerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
