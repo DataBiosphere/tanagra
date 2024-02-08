@@ -41,13 +41,13 @@
     "aouRT/sleepLevel",
     "aouRT/stepsIntraday",
 
-    "aouRT/bloodPressureOccurrence",
-    "aouRT/heartRateOccurrence",
-    "aouRT/heightOccurrence",
-    "aouRT/weightOccurrence",
-    "aouRT/bmiOccurrence",
-    "aouRT/waistCircumferenceOccurrence",
-    "aouRT/hipCircumferenceOccurrence"
+    "aouRT/bloodPressure",
+    "aouRT/heartRate",
+    "aouRT/height",
+    "aouRT/weight",
+    "aouRT/bmi",
+    "aouRT/waistCircumference",
+    "aouRT/hipCircumference"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
