@@ -16,11 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Generate git log diff file between two releases
         run: |
-          git status
-          git diff 0.0.365..0.0.370 -- underlay/ indexer/
-          git diff "$first_release..$last_release" -- underlay/ indexer/
           .github/tools/diffReleases.sh $FIRST_RELEASE_TAG $LAST_RELEASE_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
