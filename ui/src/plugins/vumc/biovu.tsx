@@ -31,8 +31,8 @@ enum SampleFilter {
 
 const sampleFilterDescriptions = {
   [SampleFilter.ANY]: "Any BioVU DNA (no minimum amount or concentration)",
-  [SampleFilter.ONE_HUNDRED]: "At least 100ng with at least ng/µL BioVU DNA",
-  [SampleFilter.FIVE_HUNDRED]: "At least 500ng with at least ng/µL BioVU DNA",
+  [SampleFilter.ONE_HUNDRED]: "At least 100ng with at least 2 ng/µL BioVU DNA",
+  [SampleFilter.FIVE_HUNDRED]: "At least 500ng with at least 2 ng/µL BioVU DNA",
 };
 
 const sampleFilterFilters: { [key: string]: Filter } = {
