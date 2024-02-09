@@ -25,7 +25,7 @@ jobs:
       matrix:
         node-version: [19.x]
 
-    if: "!contains( github.event.sender.login, 'broadbot')"
+    if: "!contains( github.event.sender.login, 'marikomedlock')"
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}

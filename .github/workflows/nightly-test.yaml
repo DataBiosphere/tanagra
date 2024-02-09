@@ -14,7 +14,6 @@ jobs:
       matrix:
         company-and-underlay: [ "broad/aou_synthetic", "broad/cms_synpuf" ]
     runs-on: ubuntu-latest
-    if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
     - uses: actions/checkout@v3
     - name: Pull credentials
