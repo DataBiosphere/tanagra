@@ -30,6 +30,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+    if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
       - uses: actions/checkout@v3
       - name: Set up AdoptOpenJDK 11

@@ -18,6 +18,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
       - uses: actions/checkout@v3
       - name: Set up AdoptOpenJDK 11
