@@ -12,8 +12,10 @@ import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
+import bio.terra.tanagra.underlay.filterbuilder.CriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
@@ -45,6 +47,7 @@ public final class Underlay {
   private final SourceSchema sourceSchema;
   private final IndexSchema indexSchema;
   private final DataMappingSerialization dataMappingSerialization;
+  private final ImmutableList<CriteriaSelector> criteriaSelectors;
   private final String uiConfig;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -59,6 +62,7 @@ public final class Underlay {
       SourceSchema sourceSchema,
       IndexSchema indexSchema,
       DataMappingSerialization dataMappingSerialization,
+      List<CriteriaSelector> criteriaSelectors,
       String uiConfig) {
     this.name = name;
     this.displayName = displayName;
@@ -70,6 +74,7 @@ public final class Underlay {
     this.sourceSchema = sourceSchema;
     this.indexSchema = indexSchema;
     this.dataMappingSerialization = dataMappingSerialization;
+    this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
     this.uiConfig = uiConfig;
   }
 
@@ -138,6 +143,10 @@ public final class Underlay {
     return dataMappingSerialization;
   }
 
+  public ImmutableList<CriteriaSelector> getCriteriaSelectors() {
+    return criteriaSelectors;
+  }
+
   public String getUiConfig() {
     return uiConfig;
   }
@@ -196,6 +205,17 @@ public final class Underlay {
     BQQueryRunner queryRunner =
         new BQQueryRunner(szBigQuery.queryProjectId, szBigQuery.dataLocation);
 
+    // Build the criteria selectors.
+    Set<SZCriteriaSelector> szCriteriaSelectors = new HashSet<>();
+    List<CriteriaSelector> criteriaSelectors = new ArrayList<>();
+    szUnderlay.criteriaSelectors.stream().forEach(
+            criteriaSelectorPath -> {
+              SZCriteriaSelector szCriteriaSelector = configReader.readCriteriaSelector(criteriaSelectorPath);
+              szCriteriaSelectors.add(szCriteriaSelector);
+              criteriaSelectors.add(fromConfigCriteriaSelector(szCriteriaSelector));
+            }
+    );
+
     // Read the UI config.
     String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
 
@@ -210,7 +230,8 @@ public final class Underlay {
         sourceSchema,
         indexSchema,
         new DataMappingSerialization(
-            szUnderlay, szEntities, szGroupItemsEntityGroups, szCriteriaOccurrenceEntityGroups),
+            szUnderlay, szEntities, szGroupItemsEntityGroups, szCriteriaOccurrenceEntityGroups, szCriteriaSelectors),
+        criteriaSelectors,
         uiConfig);
   }
 
@@ -377,5 +398,19 @@ public final class Underlay {
         occurrencePrimaryRelationships,
         primaryCriteriaRelationship,
         occurrenceAttributesWithInstanceLevelHints);
+  }
+
+  private static CriteriaSelector fromConfigCriteriaSelector(SZCriteriaSelector szCriteriaSelector) {
+    // Read in the plugin config file to a string.
+
+    // Deserialize the modifiers.
+
+    return new CriteriaSelector(
+            szCriteriaSelector.name,
+            szCriteriaSelector.isEnabledForCohorts,
+            szCriteriaSelector.isEnabledForDataFeatureSets,
+            szCriteriaSelector.filterBuilder, szCriteriaSelector.plugin,
+            String pluginConfig,
+            List< CriteriaSelector.Modifier > modifiers);
   }
 }

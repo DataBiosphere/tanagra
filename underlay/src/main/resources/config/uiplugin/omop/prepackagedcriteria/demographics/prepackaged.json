@@ -1,5 +1,6 @@
 {
   "name": "demographics",
+<<<<<<< Updated upstream
   "title": "Demographics",
   "criteriaSelectorName": "gender",
   "selectionData": [
@@ -7,4 +8,9 @@
       "serializedFile": "selectedData.json"
     }
   ]
+=======
+  "displayName": "Demographics",
+  "criteriaSelector": "gender",
+  "selectionData": []
+>>>>>>> Stashed changes
 }

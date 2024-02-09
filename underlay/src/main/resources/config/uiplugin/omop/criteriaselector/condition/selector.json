@@ -1,5 +1,6 @@
 {
   "name": "condition",
+<<<<<<< Updated upstream
   "filterBuilderClass": "EntityGroupFilterBuilder.class",
   "plugin": "core/entityGroup",
   "pluginConfigFile": "pluginConfig.json",
@@ -10,4 +11,36 @@
     "category": "Domains",
     "tags": [ "Standard Codes" ]
   }
+=======
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "displayName": "Condition",
+    "category": "Domains",
+    "tags": [ "Standard Codes" ]
+  },
+  "filterBuilder": "CriteriaOccurrenceFilterBuilder",
+  "plugin": "core/entityGroup",
+  "pluginConfigFile": "condition.json",
+  "modifiers": [
+    {
+      "name": "age_at_occurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "core/attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    },
+    {
+      "name": "visit_type",
+      "displayName": "Visit type",
+      "plugin": "core/attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    },
+    {
+      "name": "group_by_count",
+      "displayName": "Occurrence count",
+      "plugin": "core/unhinted-value",
+      "pluginConfigFile": "groupBy.json"
+    }
+  ]
+>>>>>>> Stashed changes
 }

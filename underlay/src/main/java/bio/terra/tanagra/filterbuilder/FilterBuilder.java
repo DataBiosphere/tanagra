@@ -3,37 +3,37 @@ package bio.terra.tanagra.filterbuilder;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.filterbuilder.CriteriaSelector;
+
 import java.util.List;
 import java.util.Map;
 
 public abstract class FilterBuilder {
-  protected final Underlay underlay;
-  protected final String configSerialized;
+  protected final CriteriaSelector criteriaSelector;
 
-  public FilterBuilder(Underlay underlay, String configSerialized) {
-    this.underlay = underlay;
-    this.configSerialized = configSerialized;
+  public FilterBuilder(CriteriaSelector criteriaSelector) {
+    this.criteriaSelector = criteriaSelector;
   }
 
-  public EntityFilter buildForCohort(List<SelectionData> selectionData) {
+  public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
     if (selectionData.size() > 1) {
       throw new UnsupportedOperationException(
           "Filter builder only allows a single selection data, found " + selectionData.size());
     }
-    return buildForCohort(selectionData.get(0));
+    return buildForCohort(underlay, selectionData.get(0));
   }
 
-  protected abstract EntityFilter buildForCohort(SelectionData selectionData);
+  protected abstract EntityFilter buildForCohort(Underlay underlay, SelectionData selectionData);
 
-  public Map<Entity, EntityFilter> buildForDataFeature(List<SelectionData> selectionData) {
+  public Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, List<SelectionData> selectionData) {
     if (selectionData.size() > 1) {
       throw new UnsupportedOperationException(
           "Filter builder only allows a single selection data, found " + selectionData.size());
     }
-    return buildForDataFeature(selectionData.get(0));
+    return buildForDataFeature(underlay, selectionData.get(0));
   }
 
-  protected abstract Map<Entity, EntityFilter> buildForDataFeature(SelectionData selectionData);
+  protected abstract Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, SelectionData selectionData);
 
   public abstract <T> T deserializeConfig();
 

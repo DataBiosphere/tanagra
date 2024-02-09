@@ -4,6 +4,7 @@ import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -36,14 +37,17 @@ public final class ConfigReader {
   private static final String DATA_MAPPING_CONFIG_SUBDIR = "datamapping/";
   private static final String ENTITY_CONFIG_SUBDIR = "entity/";
   private static final String ENTITY_GROUP_CONFIG_SUBDIR = "entitygroup/";
+  private static final String UI_PLUGIN_CONFIG_SUBDIR = "uiplugin/";
+  private static final String CRITERIA_SELECTOR_CONFIG_SUBDIR = "criteriaselector/";
   private static final String FILE_EXTENSION = ".json";
   private static final String UNDERLAY_FILE_NAME = "underlay";
   private static final String ENTITY_FILE_NAME = "entity";
   private static final String ENTITY_GROUP_FILE_NAME = "entityGroup";
-
+  private static final String CRITERIA_SELECTOR_FILE_NAME = "selector";
   private final Map<String, SZEntity> szEntityCache = new HashMap<>();
   private final Map<String, SZGroupItems> szGroupItemsCache = new HashMap<>();
   private final Map<String, SZCriteriaOccurrence> szCriteriaOccurrenceCache = new HashMap<>();
+  private final Map<String, SZCriteriaSelector> szCriteriaSelectorCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entitySqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
   private String underlay;
@@ -96,6 +100,12 @@ public final class ConfigReader {
     return szCriteriaOccurrenceCache.get(criteriaOccurrencePath);
   }
 
+  public SZCriteriaSelector readCriteriaSelector(String criteriaSelectorPath) {
+    if (!szCriteriaSelectorCache.containsKey(criteriaSelectorPath)) {
+      szCriteriaSelectorCache.put(criteriaSelectorPath, deserializeCriteriaSelector(criteriaSelectorPath));
+    }
+    return szCriteriaSelectorCache.get(criteriaSelectorPath);
+  }
   public String readEntitySql(String entityPath, String fileName) {
     if (!entitySqlCache.containsKey(Pair.of(entityPath, fileName))) {
       Path sqlFile = resolveEntityDir(entityPath).resolve(fileName);
@@ -238,6 +248,27 @@ public final class ConfigReader {
     }
   }
 
+  private SZCriteriaSelector deserializeCriteriaSelector(String criteriaSelectorPath) {
+    try {
+      SZCriteriaSelector szCriteriaSelector =
+              JacksonMapper.readFileIntoJavaObject(
+                      getStream(
+                              resolveCriteriaSelectorDir(criteriaSelectorPath)
+                                      .resolve(CRITERIA_SELECTOR_FILE_NAME + FILE_EXTENSION)),
+                      SZCriteriaSelector.class);
+
+      // Initialize null collections to empty collections.
+      szCriteriaSelector.modifiers =
+              szCriteriaSelector.modifiers == null
+              ? new ArrayList<>()
+                      : szCriteriaSelector.modifiers;
+
+      return szCriteriaSelector;
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException(
+              "Error deserializing criteria selector config file", ioEx);
+    }
+  }
   private InputStream getStream(Path resourcesPath) {
     try {
       return useResourcesInputStream
@@ -254,7 +285,7 @@ public final class ConfigReader {
   }
 
   private static Path resolveEntityDir(String entityPath) {
-    Pair<String, String> underlayEntity = parseEntityOrGroupPath(entityPath);
+    Pair<String, String> underlayEntity = parseTwoPartPath(entityPath);
     return Path.of(RESOURCES_CONFIG_PATH)
         .resolve(DATA_MAPPING_CONFIG_SUBDIR)
         .resolve(underlayEntity.getLeft())
@@ -263,15 +294,23 @@ public final class ConfigReader {
   }
 
   private static Path resolveEntityGroupDir(String entityGroupPath) {
-    Pair<String, String> underlayEntityGroup = parseEntityOrGroupPath(entityGroupPath);
+    Pair<String, String> underlayEntityGroup = parseTwoPartPath(entityGroupPath);
     return Path.of(RESOURCES_CONFIG_PATH)
         .resolve(DATA_MAPPING_CONFIG_SUBDIR)
         .resolve(underlayEntityGroup.getLeft())
         .resolve(ENTITY_GROUP_CONFIG_SUBDIR)
         .resolve(underlayEntityGroup.getRight());
   }
+  private static Path resolveCriteriaSelectorDir(String criteriaSelectorPath) {
+    Pair<String, String> underlayCriteriaSelector = parseTwoPartPath(criteriaSelectorPath);
+    return Path.of(RESOURCES_CONFIG_PATH)
+            .resolve(UI_PLUGIN_CONFIG_SUBDIR)
+            .resolve(underlayCriteriaSelector.getLeft())
+            .resolve(CRITERIA_SELECTOR_CONFIG_SUBDIR)
+            .resolve(underlayCriteriaSelector.getRight());
+  }
 
-  private static Pair<String, String> parseEntityOrGroupPath(String path) {
+  private static Pair<String, String> parseTwoPartPath(String path) {
     String[] underlayEntityPathSplit = path.split("/");
     if (underlayEntityPathSplit.length <= 1) {
       throw new InvalidConfigException(

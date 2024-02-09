@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
@@ -18,16 +19,19 @@ public final class DataMappingSerialization {
   private final ImmutableSet<SZEntity> entities;
   private final ImmutableSet<SZGroupItems> groupItemsEntityGroups;
   private final ImmutableSet<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups;
+  private final  ImmutableSet<SZCriteriaSelector> criteriaSelectors;
 
   public DataMappingSerialization(
       SZUnderlay underlay,
       Set<SZEntity> entities,
       Set<SZGroupItems> groupItemsEntityGroups,
-      Set<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups) {
+      Set<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups,
+      Set<SZCriteriaSelector> criteriaSelectors) {
     this.underlay = underlay;
     this.entities = ImmutableSet.copyOf(entities);
     this.groupItemsEntityGroups = ImmutableSet.copyOf(groupItemsEntityGroups);
     this.criteriaOccurrenceEntityGroups = ImmutableSet.copyOf(criteriaOccurrenceEntityGroups);
+    this.criteriaSelectors = ImmutableSet.copyOf(criteriaSelectors);
   }
 
   public String serializeUnderlay() {
@@ -48,6 +52,10 @@ public final class DataMappingSerialization {
 
   public List<String> serializeCriteriaOccurrenceEntityGroups() {
     return serializeObjects(criteriaOccurrenceEntityGroups);
+  }
+
+  public List<String> serializeCriteriaSelectors() {
+    return serializeObjects(criteriaSelectors);
   }
 
   private static <T> List<String> serializeObjects(Collection<T> objects) {

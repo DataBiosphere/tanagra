@@ -4,12 +4,13 @@ import java.util.List;
 
 public class SZPrepackagedCriteria {
   public String name;
-  public String title;
-  public String criteriaSelectorName;
+  public String displayName;
+  public String criteriaSelector;
   public List<SelectionData> selectionData;
 
   public static class SelectionData {
-    public String pluginName;
-    public String serializedFile;
+    public String plugin;
+    public String pluginData;
+    public String pluginDataFile;
   }
 }

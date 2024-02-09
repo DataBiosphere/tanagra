@@ -21,6 +21,7 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay.filterbuilder.CriteriaSelector;
 import bio.terra.tanagra.utils.JacksonMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -34,12 +35,12 @@ import java.util.stream.Collectors;
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
     justification = "The config and data objects are deserialized by Jackson.")
 public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
-  public CriteriaOccurrenceFilterBuilder(Underlay underlay, String configSerialized) {
-    super(underlay, configSerialized);
+  public CriteriaOccurrenceFilterBuilder(CriteriaSelector criteriaSelector) {
+    super(criteriaSelector);
   }
 
   @Override
-  public EntityFilter buildForCohort(List<SelectionData> selectionData) {
+  public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
     PSEntityGroupConfig entityGroupConfig = deserializeConfig();
     PSEntityGroupData entityGroupSelectionData =
         deserializeData(selectionData.get(0).getSerialized());
@@ -48,7 +49,7 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
 
     // Build the criteria sub-filter.
     EntityFilter criteriaSubFilter =
-        buildCriteriaSubFilter(
+        buildCriteriaSubFilter(underlay,
             criteriaOccurrence.getCriteriaEntity(), entityGroupSelectionData.keys);
 
     // Build the attribute modifier filters.
@@ -132,7 +133,7 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public Map<Entity, EntityFilter> buildForDataFeature(List<SelectionData> selectionData) {
+  public Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, List<SelectionData> selectionData) {
     if (selectionData.size() > 1) {
       throw new UnsupportedOperationException("Modifiers are not yet supported for data features");
     }
@@ -144,7 +145,7 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
 
     // Build the criteria sub-filter.
     EntityFilter criteriaSubFilter =
-        buildCriteriaSubFilter(
+        buildCriteriaSubFilter(underlay,
             criteriaOccurrence.getCriteriaEntity(), entityGroupSelectionData.keys);
 
     // Build a filter for each occurrence entity.
@@ -168,7 +169,7 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
     return occurrenceFilters;
   }
 
-  private EntityFilter buildCriteriaSubFilter(Entity criteriaEntity, List<Literal> criteriaIds) {
+  private EntityFilter buildCriteriaSubFilter(Underlay underlay, Entity criteriaEntity, List<Literal> criteriaIds) {
     // Build the criteria sub-filter.
     if (criteriaEntity.hasHierarchies()) {
       // Use a has ancestor filter.
@@ -196,13 +197,13 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public EntityFilter buildForCohort(SelectionData selectionData) {
+  public EntityFilter buildForCohort(Underlay underlay, SelectionData selectionData) {
     throw new UnsupportedOperationException(
         "Entity group filter builder expects list of selection data.");
   }
 
   @Override
-  protected Map<Entity, EntityFilter> buildForDataFeature(SelectionData selectionData) {
+  protected Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, SelectionData selectionData) {
     throw new UnsupportedOperationException(
         "Entity group filter builder expects list of selection data.");
   }
@@ -210,7 +211,7 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
   @Override
   public PSEntityGroupConfig deserializeConfig() {
     return JacksonMapper.deserializeJavaObject(
-        configSerialized,
+        criteriaSelector.getPluginConfig(),
         PSEntityGroupConfig.class,
         (jpEx) -> new InvalidConfigException("Error deserializing criteria selector config", jpEx));
   }

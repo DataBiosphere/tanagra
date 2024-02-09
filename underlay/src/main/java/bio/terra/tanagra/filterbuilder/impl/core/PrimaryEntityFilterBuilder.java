@@ -9,30 +9,33 @@ import bio.terra.tanagra.filterbuilder.schema.attribute.PSAttributeConfig;
 import bio.terra.tanagra.filterbuilder.schema.attribute.PSAttributeData;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.filterbuilder.CriteriaSelector;
 import bio.terra.tanagra.utils.JacksonMapper;
+
+import java.util.List;
 import java.util.Map;
 
 public class PrimaryEntityFilterBuilder extends FilterBuilder {
-  public PrimaryEntityFilterBuilder(Underlay underlay, String configSerialized) {
-    super(underlay, configSerialized);
+  public PrimaryEntityFilterBuilder(CriteriaSelector criteriaSelector) {
+    super(criteriaSelector);
   }
 
   @Override
-  protected EntityFilter buildForCohort(SelectionData selectionData) {
+  protected EntityFilter buildForCohort(Underlay underlay, SelectionData selectionData) {
     PSAttributeConfig config = deserializeConfig();
     PSAttributeData data = deserializeData(selectionData.getSerialized());
     return AttributeSchemaUtils.buildForEntity(underlay, underlay.getPrimaryEntity(), config, data);
   }
 
   @Override
-  protected Map<Entity, EntityFilter> buildForDataFeature(SelectionData selectionData) {
+  protected Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, SelectionData selectionData) {
     return Map.of(underlay.getPrimaryEntity(), null);
   }
 
   @Override
   public PSAttributeConfig deserializeConfig() {
     return JacksonMapper.deserializeJavaObject(
-        configSerialized,
+        criteriaSelector.getPluginConfig(),
         PSAttributeConfig.class,
         (jpEx) -> new InvalidConfigException("Error deserializing criteria selector config", jpEx));
   }

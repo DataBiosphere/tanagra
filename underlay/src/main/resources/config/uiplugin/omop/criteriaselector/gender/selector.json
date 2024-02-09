@@ -1,5 +1,6 @@
 {
   "name": "gender",
+<<<<<<< Updated upstream
   "filterBuilderClass": "PrimaryEntityFilterBuilder.class",
   "plugin": "core/attribute",
   "pluginConfigFile": "pluginConfig.json",
@@ -10,4 +11,17 @@
     "category": "Demographics",
     "tags": []
   }
+=======
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "displayName": "Gender identity",
+    "category": "Demographics",
+    "tags": []
+  },
+  "filterBuilder": "PrimaryEntityFilterBuilder",
+  "plugin": "core/attribute",
+  "pluginConfigFile": "gender.json",
+  "modifiers": []
+>>>>>>> Stashed changes
 }
