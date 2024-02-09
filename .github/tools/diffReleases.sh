@@ -16,6 +16,7 @@ then
 else
   echo "REINDEXING RECOMMENDED" > diffReleases.txt
 fi
+echo "diff output done"
 
 echo >> diffReleases.txt
-git log $1..$2 --grep='^bump' --invert-grep --pretty=format:"%h %as %an%x09%s" >> diffReleases.txt
+git log $first_release..$last_release --grep='^bump' --invert-grep --pretty=format:"%h %as %an%x09%s" >> diffReleases.txt
