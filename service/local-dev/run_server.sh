@@ -5,13 +5,16 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":avtmd" arg; do
+while getopts ":avstmd" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
       ;;
     v) # Use Verily underlays.
       useVerilyUnderlays=1
+      ;;
+    s) # Use sd underlays.
+      useSdUnderlays=1
       ;;
     t) # Use AoU test underlays
       useAouUnderlays=1
@@ -55,6 +58,14 @@ elif [[ ${useAouUnderlays} ]]; then
   # uncomment both lines below for test AoU Workbench access-control model
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://api-dot-all-of-us-workbench-test.appspot.com
   # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
+elif [[ ${useSdUnderlays} ]]; then
+  echo "Using sd underlay."
+  export TANAGRA_UNDERLAY_FILES=sd020230831_vumc
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=sd-vumc-tanagra-test
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-test-tanagra-exports
+  # uncomment both lines below for sd access-control model
+  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://sd-tanagra-test.victrvumc.org
+  # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
 else
   echo "Using Broad underlays."
   export TANAGRA_UNDERLAY_FILES=cmssynpuf_broad,aouSR2019q4r4_broad
@@ -73,8 +84,13 @@ if [[ ${disableAuthChecks} ]]; then
 else
   echo "Enabling auth checks. bearer-token"
   export TANAGRA_AUTH_DISABLE_CHECKS=false
-  export TANAGRA_AUTH_BEARER_TOKEN=true
-  export TANAGRA_AUTH_IAP_GKE_JWT=false
+  if [[ ${useAouUnderlays} ]]; then
+    export TANAGRA_AUTH_BEARER_TOKEN=true
+    export TANAGRA_AUTH_IAP_GKE_JWT=false
+  elif [[ ${useSdUnderlays} ]]; then
+    export TANAGRA_AUTH_BEARER_TOKEN=false
+    export TANAGRA_AUTH_IAP_GKE_JWT=true
+  fi
 fi
 
 echo

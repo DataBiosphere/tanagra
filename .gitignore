@@ -8,6 +8,7 @@ workflow/rendered/
 !**/src/test/**
 */bin
 tanagra-indexing.html
+diffReleases.txt
 
 ### Jenv ###
 .java-version

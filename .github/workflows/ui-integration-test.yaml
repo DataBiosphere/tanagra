@@ -31,6 +31,7 @@ jobs:
         ports:
           - 5432:5432
 
+    if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
       - uses: actions/checkout@v3
 
