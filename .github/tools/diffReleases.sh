@@ -21,11 +21,6 @@ else
 fi
 echo >> $output_file
 
-echo "diff_output done"
-echo "$diff_output"
+git log "$first_release..$last_release" --grep='^bump' --invert-grep --pretty=format:"%h %as %an%x09%s" >> $output_file
 
-log_output=$(git log "$first_release..$last_release" --grep='^bump' --invert-grep --pretty=format:"%h %as %an%x09%s")
-echo $log_output >> $output_file
-
-echo "log_output done"
-echo "$log_output"
+cat $output_file

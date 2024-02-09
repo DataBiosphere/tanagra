@@ -31,3 +31,4 @@ jobs:
           name: diff-file
           path: diffReleases.txt
           retention-days: 1
+          compression-level: 0 # No compression
