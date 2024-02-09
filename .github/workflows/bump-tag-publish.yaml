@@ -130,4 +130,5 @@ jobs:
         id: create_release
         with:
           tag: ${{ steps.tag.outputs.tag }}
+          generateReleaseNotes: true
           artifacts: "./service/src/main/resources/api/service_openapi.yaml"

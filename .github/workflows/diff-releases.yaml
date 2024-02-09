@@ -1,0 +1,26 @@
+name: Diff Releases
+
+on:
+  workflow_dispatch:
+inputs:
+  first-release-tag:
+    description: 'First release tag (e.g. 0.0.365)'
+    required: true
+  last-release-tag:
+    description: 'Last release tag (e.g. 0.0.370)'
+    required: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate git log diff file between two releases
+        run: .github/tools/diffReleases.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Save diff file
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff-file
+          path: diffReleases.txt
+          retention-days: 1
