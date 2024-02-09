@@ -6,16 +6,22 @@ on:
       first-release-tag:
         description: 'First release tag (e.g. 0.0.365)'
         required: true
+        default: 0.0.365
       last-release-tag:
         description: 'Last release tag (e.g. 0.0.370)'
         required: true
+        default: 0.0.370
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Generate git log diff file between two releases
-        run: .github/tools/diffReleases.sh $FIRST_RELEASE_TAG $LAST_RELEASE_TAG
+        run: |
+          git status
+          git diff 0.0.365..0.0.370 -- underlay/ indexer/
+          git diff "$first_release..$last_release" -- underlay/ indexer/
+          .github/tools/diffReleases.sh $FIRST_RELEASE_TAG $LAST_RELEASE_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FIRST_RELEASE_TAG: ${{ github.event.inputs.first-release-tag }}
