@@ -19,6 +19,7 @@ More information about this codebase can be found in the links below.
 * [Deployment Config Properties](./docs/generated/APPLICATION_CONFIG.md)
 * [Underlay Config Properties](./docs/generated/UNDERLAY_CONFIG.md)
 * [Indexer CLI Manpage](./docs/generated/indexer-cli/tanagra.adoc)
+* [Diff Releases](./docs/DIFF_RELEASES.md)
 
 ![Underlay Tests](https://github.com/DataBiosphere/tanagra/actions/workflows/underlay-test.yaml/badge.svg?branch=main)
 
