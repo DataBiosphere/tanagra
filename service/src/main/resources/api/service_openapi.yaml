@@ -1169,6 +1169,11 @@ components:
           type: array
           items:
             type: string
+        criteriaSelectors:
+          description: Contents of the criteria selector selector.json files
+          type: array
+          items:
+            type: string
       required:
         - underlay
         - entities

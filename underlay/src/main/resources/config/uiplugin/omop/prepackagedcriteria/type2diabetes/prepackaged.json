@@ -1,19 +1,11 @@
 {
   "name": "type-2-diabetes",
-<<<<<<< Updated upstream
-  "title": "Type 2 Diabetes",
-  "criteriaSelectorName": "condition",
-  "selectionData": [
-    {
-      "serializedFile": "selectedData.json"
-=======
   "displayName": "Type 2 Diabetes",
   "criteriaSelector": "condition",
   "selectionData": [
     {
       "plugin": "core/entityGroup",
       "file": "conditionData.json"
->>>>>>> Stashed changes
     }
   ]
 }

@@ -270,9 +270,9 @@ There are 4 views over or ways to think about an underlay.
 - Set of entities and entity groups. These classes live in the `entitymodel` sub-package. More information about the 
 entity model in [this readme](./ENTITY_MODEL.md).
 - Set of config files defined by the user. The classes that define the config file schema live in the `serialization`
-sub-package. The `DataMappingSerialization` class contains pointers to most of the config files for a particular 
+sub-package. The `ClientConfig` class contains pointers to most of the config files for a particular 
 underlay. The config files themselves live in the `resource/config` directory. More information about the config files 
-in [this readme](./CONFIG_FILES.md).
+in [this readme](./CONFIG_FILES.md). The config file pointers in this class are passed to the UI via the service API.
 - Set of source data tables. The types of source tables are defined by classes in the `sourcetable` sub-package. The
 `SourceSchema` class contains pointers to all source tables for a particular underlay.
 - Set of index data tables. The types of index tables are defined by classes in the `indextable` sub-package. The 

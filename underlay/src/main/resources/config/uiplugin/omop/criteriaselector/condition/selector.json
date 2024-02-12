@@ -1,17 +1,5 @@
 {
   "name": "condition",
-<<<<<<< Updated upstream
-  "filterBuilderClass": "EntityGroupFilterBuilder.class",
-  "plugin": "core/entityGroup",
-  "pluginConfigFile": "pluginConfig.json",
-  "isEnabledForCohorts": true,
-  "isEnabledForDataFeatureSets": true,
-  "display": {
-    "title": "Condition",
-    "category": "Domains",
-    "tags": [ "Standard Codes" ]
-  }
-=======
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
   "display": {
@@ -42,5 +30,4 @@
       "pluginConfigFile": "groupBy.json"
     }
   ]
->>>>>>> Stashed changes
 }

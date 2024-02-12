@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class DataMappingSerialization {
+public final class ClientConfig {
   private final SZUnderlay underlay;
   private final ImmutableSet<SZEntity> entities;
   private final ImmutableSet<SZGroupItems> groupItemsEntityGroups;
   private final ImmutableSet<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups;
   private final ImmutableSet<SZCriteriaSelector> criteriaSelectors;
 
-  public DataMappingSerialization(
+  public ClientConfig(
       SZUnderlay underlay,
       Set<SZEntity> entities,
       Set<SZGroupItems> groupItemsEntityGroups,

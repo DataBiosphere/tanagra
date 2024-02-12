@@ -46,7 +46,7 @@ public final class Underlay {
   private final ImmutableList<EntityGroup> entityGroups;
   private final SourceSchema sourceSchema;
   private final IndexSchema indexSchema;
-  private final DataMappingSerialization dataMappingSerialization;
+  private final ClientConfig clientConfig;
   private final ImmutableList<CriteriaSelector> criteriaSelectors;
   private final String uiConfig;
 
@@ -61,7 +61,7 @@ public final class Underlay {
       List<EntityGroup> entityGroups,
       SourceSchema sourceSchema,
       IndexSchema indexSchema,
-      DataMappingSerialization dataMappingSerialization,
+      ClientConfig clientConfig,
       List<CriteriaSelector> criteriaSelectors,
       String uiConfig) {
     this.name = name;
@@ -73,7 +73,7 @@ public final class Underlay {
     this.entityGroups = ImmutableList.copyOf(entityGroups);
     this.sourceSchema = sourceSchema;
     this.indexSchema = indexSchema;
-    this.dataMappingSerialization = dataMappingSerialization;
+    this.clientConfig = clientConfig;
     this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
     this.uiConfig = uiConfig;
   }
@@ -139,8 +139,8 @@ public final class Underlay {
     return indexSchema;
   }
 
-  public DataMappingSerialization getDataMappingSerialization() {
-    return dataMappingSerialization;
+  public ClientConfig getClientConfig() {
+    return clientConfig;
   }
 
   public ImmutableList<CriteriaSelector> getCriteriaSelectors() {
@@ -208,16 +208,18 @@ public final class Underlay {
     // Build the criteria selectors.
     Set<SZCriteriaSelector> szCriteriaSelectors = new HashSet<>();
     List<CriteriaSelector> criteriaSelectors = new ArrayList<>();
-    szUnderlay.criteriaSelectors.stream()
-        .forEach(
-            criteriaSelectorPath -> {
-              SZCriteriaSelector szCriteriaSelector =
-                  configReader.readCriteriaSelector(criteriaSelectorPath);
-              szCriteriaSelectors.add(szCriteriaSelector);
-              criteriaSelectors.add(
-                  fromConfigCriteriaSelector(
-                      szCriteriaSelector, criteriaSelectorPath, configReader));
-            });
+    if (szUnderlay.criteriaSelectors != null) {
+      szUnderlay.criteriaSelectors.stream()
+          .forEach(
+              criteriaSelectorPath -> {
+                SZCriteriaSelector szCriteriaSelector =
+                    configReader.readCriteriaSelector(criteriaSelectorPath);
+                szCriteriaSelectors.add(szCriteriaSelector);
+                criteriaSelectors.add(
+                    fromConfigCriteriaSelector(
+                        szCriteriaSelector, criteriaSelectorPath, configReader));
+              });
+    }
 
     // Read the UI config.
     String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
@@ -232,7 +234,7 @@ public final class Underlay {
         entityGroups,
         sourceSchema,
         indexSchema,
-        new DataMappingSerialization(
+        new ClientConfig(
             szUnderlay,
             szEntities,
             szGroupItemsEntityGroups,
@@ -407,7 +409,8 @@ public final class Underlay {
         occurrenceAttributesWithInstanceLevelHints);
   }
 
-  private static CriteriaSelector fromConfigCriteriaSelector(
+  @VisibleForTesting
+  public static CriteriaSelector fromConfigCriteriaSelector(
       SZCriteriaSelector szCriteriaSelector,
       String criteriaSelectorPath,
       ConfigReader configReader) {
