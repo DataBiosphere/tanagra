@@ -208,13 +208,16 @@ public final class Underlay {
     // Build the criteria selectors.
     Set<SZCriteriaSelector> szCriteriaSelectors = new HashSet<>();
     List<CriteriaSelector> criteriaSelectors = new ArrayList<>();
-    szUnderlay.criteriaSelectors.stream().forEach(
+    szUnderlay.criteriaSelectors.stream()
+        .forEach(
             criteriaSelectorPath -> {
-              SZCriteriaSelector szCriteriaSelector = configReader.readCriteriaSelector(criteriaSelectorPath);
+              SZCriteriaSelector szCriteriaSelector =
+                  configReader.readCriteriaSelector(criteriaSelectorPath);
               szCriteriaSelectors.add(szCriteriaSelector);
-              criteriaSelectors.add(fromConfigCriteriaSelector(szCriteriaSelector));
-            }
-    );
+              criteriaSelectors.add(
+                  fromConfigCriteriaSelector(
+                      szCriteriaSelector, criteriaSelectorPath, configReader));
+            });
 
     // Read the UI config.
     String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
@@ -230,7 +233,11 @@ public final class Underlay {
         sourceSchema,
         indexSchema,
         new DataMappingSerialization(
-            szUnderlay, szEntities, szGroupItemsEntityGroups, szCriteriaOccurrenceEntityGroups, szCriteriaSelectors),
+            szUnderlay,
+            szEntities,
+            szGroupItemsEntityGroups,
+            szCriteriaOccurrenceEntityGroups,
+            szCriteriaSelectors),
         criteriaSelectors,
         uiConfig);
   }
@@ -400,17 +407,42 @@ public final class Underlay {
         occurrenceAttributesWithInstanceLevelHints);
   }
 
-  private static CriteriaSelector fromConfigCriteriaSelector(SZCriteriaSelector szCriteriaSelector) {
+  private static CriteriaSelector fromConfigCriteriaSelector(
+      SZCriteriaSelector szCriteriaSelector,
+      String criteriaSelectorPath,
+      ConfigReader configReader) {
     // Read in the plugin config file to a string.
+    String pluginConfig = szCriteriaSelector.pluginConfig;
+    if (szCriteriaSelector.pluginConfigFile != null) {
+      pluginConfig =
+          configReader.readCriteriaSelectorPluginConfig(
+              criteriaSelectorPath, szCriteriaSelector.pluginConfigFile);
+    }
 
     // Deserialize the modifiers.
+    List<CriteriaSelector.Modifier> modifiers = new ArrayList<>();
+    if (szCriteriaSelector.modifiers != null) {
+      szCriteriaSelector.modifiers.stream()
+          .map(
+              szModifier -> {
+                String modifierPluginConfig = szModifier.pluginConfig;
+                if (szModifier.pluginConfigFile != null && !szModifier.pluginConfigFile.isEmpty()) {
+                  modifierPluginConfig =
+                      configReader.readCriteriaSelectorPluginConfig(
+                          criteriaSelectorPath, szModifier.pluginConfigFile);
+                }
+                return new CriteriaSelector.Modifier(
+                    szModifier.name, szModifier.plugin, modifierPluginConfig);
+              });
+    }
 
     return new CriteriaSelector(
-            szCriteriaSelector.name,
-            szCriteriaSelector.isEnabledForCohorts,
-            szCriteriaSelector.isEnabledForDataFeatureSets,
-            szCriteriaSelector.filterBuilder, szCriteriaSelector.plugin,
-            String pluginConfig,
-            List< CriteriaSelector.Modifier > modifiers);
+        szCriteriaSelector.name,
+        szCriteriaSelector.isEnabledForCohorts,
+        szCriteriaSelector.isEnabledForDataFeatureSets,
+        szCriteriaSelector.filterBuilder,
+        szCriteriaSelector.plugin,
+        pluginConfig,
+        modifiers);
   }
 }

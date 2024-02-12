@@ -11,8 +11,6 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.filterbuilder.CriteriaSelector;
 import bio.terra.tanagra.utils.JacksonMapper;
-
-import java.util.List;
 import java.util.Map;
 
 public class PrimaryEntityFilterBuilder extends FilterBuilder {
@@ -28,7 +26,8 @@ public class PrimaryEntityFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  protected Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, SelectionData selectionData) {
+  protected Map<Entity, EntityFilter> buildForDataFeature(
+      Underlay underlay, SelectionData selectionData) {
     return Map.of(underlay.getPrimaryEntity(), null);
   }
 

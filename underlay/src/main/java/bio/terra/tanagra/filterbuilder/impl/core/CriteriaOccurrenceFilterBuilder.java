@@ -49,8 +49,8 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
 
     // Build the criteria sub-filter.
     EntityFilter criteriaSubFilter =
-        buildCriteriaSubFilter(underlay,
-            criteriaOccurrence.getCriteriaEntity(), entityGroupSelectionData.keys);
+        buildCriteriaSubFilter(
+            underlay, criteriaOccurrence.getCriteriaEntity(), entityGroupSelectionData.keys);
 
     // Build the attribute modifier filters.
     Map<String, PSEntityGroupConfig.AttributeModifier> attributeModifiers = new HashMap<>();
@@ -133,7 +133,8 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, List<SelectionData> selectionData) {
+  public Map<Entity, EntityFilter> buildForDataFeature(
+      Underlay underlay, List<SelectionData> selectionData) {
     if (selectionData.size() > 1) {
       throw new UnsupportedOperationException("Modifiers are not yet supported for data features");
     }
@@ -145,8 +146,8 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
 
     // Build the criteria sub-filter.
     EntityFilter criteriaSubFilter =
-        buildCriteriaSubFilter(underlay,
-            criteriaOccurrence.getCriteriaEntity(), entityGroupSelectionData.keys);
+        buildCriteriaSubFilter(
+            underlay, criteriaOccurrence.getCriteriaEntity(), entityGroupSelectionData.keys);
 
     // Build a filter for each occurrence entity.
     Map<Entity, EntityFilter> occurrenceFilters = new HashMap<>();
@@ -169,7 +170,8 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
     return occurrenceFilters;
   }
 
-  private EntityFilter buildCriteriaSubFilter(Underlay underlay, Entity criteriaEntity, List<Literal> criteriaIds) {
+  private EntityFilter buildCriteriaSubFilter(
+      Underlay underlay, Entity criteriaEntity, List<Literal> criteriaIds) {
     // Build the criteria sub-filter.
     if (criteriaEntity.hasHierarchies()) {
       // Use a has ancestor filter.
@@ -203,7 +205,8 @@ public class CriteriaOccurrenceFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  protected Map<Entity, EntityFilter> buildForDataFeature(Underlay underlay, SelectionData selectionData) {
+  protected Map<Entity, EntityFilter> buildForDataFeature(
+      Underlay underlay, SelectionData selectionData) {
     throw new UnsupportedOperationException(
         "Entity group filter builder expects list of selection data.");
   }

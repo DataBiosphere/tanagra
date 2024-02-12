@@ -50,6 +50,8 @@ public final class ConfigReader {
   private final Map<String, SZCriteriaSelector> szCriteriaSelectorCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entitySqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
+  private final Map<Pair<String, String>, String> criteriaSelectorPluginConfigCache =
+      new HashMap<>();
   private String underlay;
   private ImmutableMap<String, String> sqlSubstitutions;
   private final boolean useResourcesInputStream;
@@ -102,10 +104,12 @@ public final class ConfigReader {
 
   public SZCriteriaSelector readCriteriaSelector(String criteriaSelectorPath) {
     if (!szCriteriaSelectorCache.containsKey(criteriaSelectorPath)) {
-      szCriteriaSelectorCache.put(criteriaSelectorPath, deserializeCriteriaSelector(criteriaSelectorPath));
+      szCriteriaSelectorCache.put(
+          criteriaSelectorPath, deserializeCriteriaSelector(criteriaSelectorPath));
     }
     return szCriteriaSelectorCache.get(criteriaSelectorPath);
   }
+
   public String readEntitySql(String entityPath, String fileName) {
     if (!entitySqlCache.containsKey(Pair.of(entityPath, fileName))) {
       Path sqlFile = resolveEntityDir(entityPath).resolve(fileName);
@@ -124,6 +128,15 @@ public final class ConfigReader {
           Pair.of(entityGroupPath, fileName), StringSubstitutor.replace(sql, sqlSubstitutions));
     }
     return entityGroupSqlCache.get(Pair.of(entityGroupPath, fileName));
+  }
+
+  public String readCriteriaSelectorPluginConfig(String criteriaSelectorPath, String fileName) {
+    if (!criteriaSelectorPluginConfigCache.containsKey(Pair.of(criteriaSelectorPath, fileName))) {
+      Path pluginConfigFile = resolveCriteriaSelectorDir(criteriaSelectorPath).resolve(fileName);
+      String config = FileUtils.readStringFromFile(getStream(pluginConfigFile));
+      criteriaSelectorPluginConfigCache.put(Pair.of(criteriaSelectorPath, fileName), config);
+    }
+    return criteriaSelectorPluginConfigCache.get(Pair.of(criteriaSelectorPath, fileName));
   }
 
   public String readUIConfig(String fileName) {
@@ -251,24 +264,22 @@ public final class ConfigReader {
   private SZCriteriaSelector deserializeCriteriaSelector(String criteriaSelectorPath) {
     try {
       SZCriteriaSelector szCriteriaSelector =
-              JacksonMapper.readFileIntoJavaObject(
-                      getStream(
-                              resolveCriteriaSelectorDir(criteriaSelectorPath)
-                                      .resolve(CRITERIA_SELECTOR_FILE_NAME + FILE_EXTENSION)),
-                      SZCriteriaSelector.class);
+          JacksonMapper.readFileIntoJavaObject(
+              getStream(
+                  resolveCriteriaSelectorDir(criteriaSelectorPath)
+                      .resolve(CRITERIA_SELECTOR_FILE_NAME + FILE_EXTENSION)),
+              SZCriteriaSelector.class);
 
       // Initialize null collections to empty collections.
       szCriteriaSelector.modifiers =
-              szCriteriaSelector.modifiers == null
-              ? new ArrayList<>()
-                      : szCriteriaSelector.modifiers;
+          szCriteriaSelector.modifiers == null ? new ArrayList<>() : szCriteriaSelector.modifiers;
 
       return szCriteriaSelector;
     } catch (IOException ioEx) {
-      throw new InvalidConfigException(
-              "Error deserializing criteria selector config file", ioEx);
+      throw new InvalidConfigException("Error deserializing criteria selector config file", ioEx);
     }
   }
+
   private InputStream getStream(Path resourcesPath) {
     try {
       return useResourcesInputStream
@@ -301,13 +312,14 @@ public final class ConfigReader {
         .resolve(ENTITY_GROUP_CONFIG_SUBDIR)
         .resolve(underlayEntityGroup.getRight());
   }
+
   private static Path resolveCriteriaSelectorDir(String criteriaSelectorPath) {
     Pair<String, String> underlayCriteriaSelector = parseTwoPartPath(criteriaSelectorPath);
     return Path.of(RESOURCES_CONFIG_PATH)
-            .resolve(UI_PLUGIN_CONFIG_SUBDIR)
-            .resolve(underlayCriteriaSelector.getLeft())
-            .resolve(CRITERIA_SELECTOR_CONFIG_SUBDIR)
-            .resolve(underlayCriteriaSelector.getRight());
+        .resolve(UI_PLUGIN_CONFIG_SUBDIR)
+        .resolve(underlayCriteriaSelector.getLeft())
+        .resolve(CRITERIA_SELECTOR_CONFIG_SUBDIR)
+        .resolve(underlayCriteriaSelector.getRight());
   }
 
   private static Pair<String, String> parseTwoPartPath(String path) {

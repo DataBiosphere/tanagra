@@ -19,7 +19,7 @@ public final class DataMappingSerialization {
   private final ImmutableSet<SZEntity> entities;
   private final ImmutableSet<SZGroupItems> groupItemsEntityGroups;
   private final ImmutableSet<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups;
-  private final  ImmutableSet<SZCriteriaSelector> criteriaSelectors;
+  private final ImmutableSet<SZCriteriaSelector> criteriaSelectors;
 
   public DataMappingSerialization(
       SZUnderlay underlay,

@@ -3,7 +3,6 @@ package bio.terra.tanagra.underlay.filterbuilder;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import java.lang.reflect.InvocationTargetException;
-
 import java.util.List;
 
 public class CriteriaSelector {
@@ -16,9 +15,13 @@ public class CriteriaSelector {
   private final List<Modifier> modifiers;
 
   public CriteriaSelector(
-          String name,
-          boolean isEnabledForCohorts,
-          boolean isEnabledForDataFeatureSets, String filterBuilder, String plugin, String pluginConfig, List<Modifier> modifiers) {
+      String name,
+      boolean isEnabledForCohorts,
+      boolean isEnabledForDataFeatureSets,
+      String filterBuilder,
+      String plugin,
+      String pluginConfig,
+      List<Modifier> modifiers) {
     this.name = name;
     this.isEnabledForCohorts = isEnabledForCohorts;
     this.isEnabledForDataFeatureSets = isEnabledForDataFeatureSets;
@@ -39,6 +42,7 @@ public class CriteriaSelector {
   public boolean isEnabledForDataFeatureSets() {
     return isEnabledForDataFeatureSets;
   }
+
   public FilterBuilder getFilterBuilder() {
     try {
       return (FilterBuilder)
