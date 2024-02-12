@@ -11,9 +11,10 @@ then
 fi
 echo "First release tag: $first_release"
 echo "Last release tag: $last_release"
+echo
 
 diff_output=$(git diff "$first_release..$last_release" -- underlay/ indexer/)
-if [ -z $diff_output ];
+if [ -z "$diff_output" ];
 then
   echo "REINDEXING NOT NEEDED" > $output_file
 else
