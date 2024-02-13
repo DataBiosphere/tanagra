@@ -2,6 +2,7 @@ plugins {
     id "java"
     id "java-test-fixtures"
     id "tanagra.java-conventions"
+    id "com.google.protobuf" version "0.9.4"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -44,6 +45,15 @@ dependencies {
     // Static analysis
     compileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
     testCompileOnly group: "com.google.code.findbugs", name: "annotations", version: "3.0.1u2"
+
+    implementation group: "io.grpc", name: "grpc-protobuf", version: "1.61.0"
+    implementation group: "io.grpc", name: "grpc-stub", version: "1.61.0"
+    implementation group: "io.grpc", name: "grpc-netty", version: "1.61.0"
+}
+
+protobuf {
+    // By default, the proto plugin generates Java classes in the build/classes/ directory.
+    // generatedFilesBaseDir = "$projectDir/src/generated"
 }
 
 test {
