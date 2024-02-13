@@ -1,17 +1,16 @@
-package bio.terra.tanagra.underlay.filterbuilder;
+package bio.terra.tanagra.underlay.uiplugin;
 
-import bio.terra.tanagra.filterbuilder.SelectionData;
 import java.util.List;
 
 public class PrepackagedCriteria {
   private final String name;
-  private final String criteriaSelectorName;
+  private final String criteriaSelector;
   private final List<SelectionData> selectionData;
 
   public PrepackagedCriteria(
-      String name, String criteriaSelectorName, List<SelectionData> selectionData) {
+      String name, String criteriaSelector, List<SelectionData> selectionData) {
     this.name = name;
-    this.criteriaSelectorName = criteriaSelectorName;
+    this.criteriaSelector = criteriaSelector;
     this.selectionData = selectionData;
   }
 
@@ -19,8 +18,8 @@ public class PrepackagedCriteria {
     return name;
   }
 
-  public String getCriteriaSelectorName() {
-    return criteriaSelectorName;
+  public String getCriteriaSelector() {
+    return criteriaSelector;
   }
 
   public List<SelectionData> getSelectionData() {

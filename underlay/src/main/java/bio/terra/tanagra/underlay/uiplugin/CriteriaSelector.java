@@ -1,8 +1,5 @@
-package bio.terra.tanagra.underlay.filterbuilder;
+package bio.terra.tanagra.underlay.uiplugin;
 
-import bio.terra.tanagra.exception.InvalidConfigException;
-import bio.terra.tanagra.filterbuilder.FilterBuilder;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class CriteriaSelector {
@@ -43,20 +40,9 @@ public class CriteriaSelector {
     return isEnabledForDataFeatureSets;
   }
 
-  public FilterBuilder getFilterBuilder() {
-    try {
-      return (FilterBuilder)
-          Class.forName(filterBuilder)
-              .getDeclaredConstructor(CriteriaSelector.class)
-              .newInstance(this);
-    } catch (InstantiationException
-        | IllegalAccessException
-        | InvocationTargetException
-        | NoSuchMethodException
-        | ClassNotFoundException ex) {
-      throw new InvalidConfigException(
-          "Error instantiating filter builder class: " + filterBuilder, ex);
-    }
+  public String getFilterBuilder() {
+    // TODO: Change this getter to return the FilterBuilder class.
+    return filterBuilder;
   }
 
   public String getPlugin() {

@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.filterbuilder.CriteriaSelector;
-import bio.terra.tanagra.underlay.filterbuilder.PrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
+import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
 import org.junit.jupiter.api.Test;
 
 public class ConfigReaderTest {
