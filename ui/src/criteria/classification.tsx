@@ -823,33 +823,42 @@ function ClassificationEdit(props: ClassificationEditProps) {
               <Paper sx={{ p: 1, height: "100%" }}>
                 {localCriteria.selected?.length ? (
                   <GridLayout rows fillRow={0}>
-                    <GridLayout rows rowAlign="top">
+                    <GridLayout rows>
                       <Typography variant="body1em">Selected items:</Typography>
-                      {localCriteria.selected.map((s, i) => (
-                        <GridLayout
-                          key={s.key}
-                          cols
-                          fillCol={0}
-                          rowAlign="middle"
-                          sx={{
-                            boxShadow:
-                              i !== 0
-                                ? (theme) => `0 -1px 0 ${theme.palette.divider}`
-                                : undefined,
-                          }}
-                        >
-                          <Typography variant="body2">{s.name}</Typography>
-                          <IconButton
-                            onClick={() =>
-                              updateLocalCriteria((data) => {
-                                data.selected.splice(i, 1);
-                              })
-                            }
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                      <GridBox
+                        sx={{
+                          overflowY: "auto",
+                        }}
+                      >
+                        <GridLayout rows sx={{ height: "fit-content" }}>
+                          {localCriteria.selected.map((s, i) => (
+                            <GridLayout
+                              key={s.key}
+                              cols
+                              fillCol={0}
+                              rowAlign="middle"
+                              sx={{
+                                boxShadow:
+                                  i !== 0
+                                    ? (theme) =>
+                                        `0 -1px 0 ${theme.palette.divider}`
+                                    : undefined,
+                              }}
+                            >
+                              <Typography variant="body2">{s.name}</Typography>
+                              <IconButton
+                                onClick={() =>
+                                  updateLocalCriteria((data) => {
+                                    data.selected.splice(i, 1);
+                                  })
+                                }
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </GridLayout>
+                          ))}
                         </GridLayout>
-                      ))}
+                      </GridBox>
                     </GridLayout>
                   </GridLayout>
                 ) : (

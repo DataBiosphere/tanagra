@@ -127,6 +127,8 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
               gridArea,
               minWidth: 0,
               minHeight: 0,
+              width: ca === "stretch" ? "100%" : undefined,
+              height: ra === "stretch" ? "100%" : undefined,
             }}
           >
             {child}
