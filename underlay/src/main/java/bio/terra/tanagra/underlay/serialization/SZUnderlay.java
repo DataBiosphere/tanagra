@@ -79,8 +79,42 @@ public class SZUnderlay {
               + "template entity group definitions for standing up a new underlay.")
   public Set<String> criteriaOccurrenceEntityGroups;
 
+  @AnnotatedField(
+      name = "SZUnderlay.criteriaSelectors",
+      markdown =
+          "List of paths of all the criteria selectors.\n\n"
+              + "A criteria selector is an option for defining a filter on an entity (e.g. select a condition). It "
+              + "corresponds to one or more UI display plugins. (e.g. condition selector uses the entity group plugin "
+              + "for selecting the condition, the attribute plugin for selecting the visit type modifier, and the "
+              + "unhinted-value plugin for selecting the occurrence count modifier).\n\n"
+              + "Path consists of two parts: [Display Group]/[Criteria Selector Name] (e.g. `omop/gender`).\n\n"
+              + "[Display Group] is the name of a sub-directory of the config/display/ sub-directory "
+              + "in the underlay sub-project resources (e.g. `omop`).\n\n"
+              + "[Criteria Selector Name] is specified in the selector file, and also matches the name of the "
+              + "sub-directory of the config/display/[Display Group]/criteriaselector sub-directory in the "
+              + "underlay sub-project resources (e.g. `gender`).\n\n"
+              + "Using the path here instead of just the selector name allows us to share selector definitions "
+              + "across underlays. For example, the `omop` display group contains template "
+              + "selector definitions for standing up a new underlay.")
   public Set<String> criteriaSelectors;
 
+  @AnnotatedField(
+      name = "SZUnderlay.prepackagedDataFeatures",
+      markdown =
+          "List of paths of all the prepackaged data features.\n\n"
+              + "A prepackaged data feature is a predefined data feature for exporting data (e.g. demographics). It "
+              + "contains data for zero or more UI display plugins. (e.g. type 2 diabetes data feature defines data "
+              + "for the entity group plugin).\n\n"
+              + "Path consists of two parts: [Display Group]/[Prepackaged Data Feature Name] (e.g. "
+              + "`omop/demographics`).\n\n"
+              + "[Display Group] is the name of a sub-directory of the config/display/ sub-directory "
+              + "in the underlay sub-project resources (e.g. `omop`).\n\n"
+              + "[Prepackaged Data Feature Name] is specified in the prepackaged file, and also matches the name of the "
+              + "sub-directory of the config/display/[Display Group]/prepackagedcriteria sub-directory in the "
+              + "underlay sub-project resources (e.g. `demographics`).\n\n"
+              + "Using the path here instead of just the prepackaged criteria name allows us to share criteria "
+              + "definitions across underlays. For example, the `omop` display group contains template "
+              + "criteria definitions for standing up a new underlay.")
   public Set<String> prepackagedDataFeatures;
 
   @AnnotatedField(name = "SZUnderlay.metadata", markdown = "Metadata for the underlay.")

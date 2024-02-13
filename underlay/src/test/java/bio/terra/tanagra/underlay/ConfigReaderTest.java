@@ -52,13 +52,13 @@ public class ConfigReaderTest {
 
     // With selection data.
     SZPrepackagedCriteria szType2Diabetes =
-        ConfigReader.fromJarResources().readPrepackagedCriteria("omop/type2diabetes");
+        ConfigReader.fromJarResources().readPrepackagedCriteria("omop/type2Diabetes");
     assertNotNull(szType2Diabetes);
     PrepackagedCriteria type2diabetes =
         Underlay.fromConfigPrepackagedCriteria(
-            szType2Diabetes, "omop/type2diabetes", ConfigReader.fromJarResources());
+            szType2Diabetes, "omop/type2Diabetes", ConfigReader.fromJarResources());
     assertNotNull(type2diabetes);
-    assertEquals("type-2-diabetes", type2diabetes.getName());
+    assertEquals("type2Diabetes", type2diabetes.getName());
     assertEquals(1, type2diabetes.getSelectionData().size());
     assertTrue(
         type2diabetes.getSelectionData().get(0).getSerialized().contains("\"keys\": [ 201826 ]"));

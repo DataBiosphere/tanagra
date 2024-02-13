@@ -38,7 +38,7 @@ public final class ConfigReader {
   private static final String DATA_MAPPING_CONFIG_SUBDIR = "datamapping/";
   private static final String ENTITY_CONFIG_SUBDIR = "entity/";
   private static final String ENTITY_GROUP_CONFIG_SUBDIR = "entitygroup/";
-  private static final String UI_PLUGIN_CONFIG_SUBDIR = "uiplugin/";
+  private static final String UI_PLUGIN_CONFIG_SUBDIR = "display/";
   private static final String CRITERIA_SELECTOR_CONFIG_SUBDIR = "criteriaselector/";
   private static final String PREPACKAGED_CRITERIA_CONFIG_SUBDIR = "prepackagedcriteria/";
   private static final String FILE_EXTENSION = ".json";

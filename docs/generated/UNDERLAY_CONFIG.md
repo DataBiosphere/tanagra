@@ -748,6 +748,21 @@ Path consists of two parts: [Data-Mapping Group]/[Entity Group Name] (e.g. `omop
 
 Using the path here instead of just the entity group name allows us to share entity group definitions across underlays. For example, the `omop` data-mapping group contains template entity group definitions for standing up a new underlay.
 
+### SZUnderlay.criteriaSelectors
+**required** Set [ String ]
+
+List of paths of all the criteria selectors.
+
+A criteria selector is an option for defining a filter on an entity (e.g. select a condition). It corresponds to one or more UI display plugins. (e.g. condition selector uses the entity group plugin for selecting the condition, the attribute plugin for selecting the visit type modifier, and the unhinted-value plugin for selecting the occurrence count modifier).
+
+Path consists of two parts: [Display Group]/[Criteria Selector Name] (e.g. `omop/gender`).
+
+[Display Group] is the name of a sub-directory of the config/display/ sub-directory in the underlay sub-project resources (e.g. `omop`).
+
+[Criteria Selector Name] is specified in the selector file, and also matches the name of the sub-directory of the config/display/[Display Group]/criteriaselector sub-directory in the underlay sub-project resources (e.g. `gender`).
+
+Using the path here instead of just the selector name allows us to share selector definitions across underlays. For example, the `omop` display group contains template selector definitions for standing up a new underlay.
+
 ### SZUnderlay.entities
 **required** Set [ String ]
 
@@ -791,6 +806,21 @@ Name of the underlay.
 This is the unique identifier for the underlay. If you serve multiple underlays in a single service deployment, the underlay names cannot overlap. Name may not include spaces or special characters, only letters and numbers.
 
 This name is stored in the application database for cohorts and data feature sets, so once there are artifacts associated with an underlay, you can't change the underlay name.
+
+### SZUnderlay.prepackagedDataFeatures
+**required** Set [ String ]
+
+List of paths of all the prepackaged data features.
+
+A prepackaged data feature is a predefined data feature for exporting data (e.g. demographics). It contains data for zero or more UI display plugins. (e.g. type 2 diabetes data feature defines data for the entity group plugin).
+
+Path consists of two parts: [Display Group]/[Prepackaged Data Feature Name] (e.g. `omop/demographics`).
+
+[Display Group] is the name of a sub-directory of the config/display/ sub-directory in the underlay sub-project resources (e.g. `omop`).
+
+[Prepackaged Data Feature Name] is specified in the prepackaged file, and also matches the name of the sub-directory of the config/display/[Display Group]/prepackagedcriteria sub-directory in the underlay sub-project resources (e.g. `demographics`).
+
+Using the path here instead of just the prepackaged criteria name allows us to share criteria definitions across underlays. For example, the `omop` display group contains template criteria definitions for standing up a new underlay.
 
 ### SZUnderlay.primaryEntity
 **required** String

@@ -1,11 +1,11 @@
 {
-  "name": "type-2-diabetes",
+  "name": "type2Diabetes",
   "displayName": "Type 2 Diabetes",
   "criteriaSelector": "condition",
   "selectionData": [
     {
       "plugin": "core/entityGroup",
-      "pluginDataFile": "conditionData.json"
+      "pluginDataFile": "condition.json"
     }
   ]
 }

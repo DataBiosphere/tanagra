@@ -141,10 +141,12 @@ export type SZTextSearch = {
 
 export type SZUnderlay = {
   criteriaOccurrenceEntityGroups: string[];
+  criteriaSelectors: string[];
   entities: string[];
   groupItemsEntityGroups: string[];
   metadata: SZMetadata;
   name: string;
+  prepackagedDataFeatures: string[];
   primaryEntity: string;
   uiConfigFile: string;
 };
