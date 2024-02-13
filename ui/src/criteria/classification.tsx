@@ -20,6 +20,8 @@ import {
 } from "components/treegrid";
 import {
   ANY_VALUE_DATA,
+  decodeValueData,
+  encodeValueData,
   generateValueDataFilter,
   ValueConfig,
   ValueData,
@@ -32,17 +34,25 @@ import {
 } from "data/configuration";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
-import { EntityGroupData, EntityNode, UnderlaySource } from "data/source";
+import {
+  dataKeyFromProto,
+  EntityGroupData,
+  EntityNode,
+  protoFromDataKey,
+  UnderlaySource,
+} from "data/source";
 import { DataEntry, DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
+import * as dataProto from "proto/criteriaselector/dataschema/entity_group";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
 import { useImmer } from "use-immer";
+import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { useLocalSearchState } from "util/searchState";
 import emptyImage from "../images/empty.svg";
 
@@ -117,18 +127,22 @@ export interface Data {
       });
     }
 
-    return data;
+    return encodeData(data);
   },
   search
 )
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class _ implements CriteriaPlugin<Data> {
-  public data: Data;
+class _ implements CriteriaPlugin<string> {
+  public data: string;
   private config: Config;
 
-  constructor(public id: string, config: CriteriaConfig, data: unknown) {
+  constructor(public id: string, config: CriteriaConfig, data: string) {
     this.config = config as Config;
-    this.data = data as Data;
+    try {
+      this.data = encodeData(JSON.parse(data));
+    } catch (e) {
+      this.data = data;
+    }
   }
 
   renderEdit(
@@ -161,7 +175,9 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   displayDetails() {
-    const sel = this.data.selected;
+    const decodedData = decodeData(this.data);
+
+    const sel = decodedData.selected;
     if (sel.length > 0) {
       return {
         title:
@@ -169,7 +185,7 @@ class _ implements CriteriaPlugin<Data> {
             ? `${sel[0].name} and ${sel.length - 1} more`
             : sel[0].name,
         standaloneTitle: true,
-        additionalText: this.data.selected.slice(1).map((s) => s.name),
+        additionalText: decodedData.selected.slice(1).map((s) => s.name),
       };
     }
 
@@ -179,10 +195,11 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter(entityId: string, underlaySource: UnderlaySource) {
+    const decodedData = decodeData(this.data);
     const filters: Filter[] = [];
 
     configEntityGroups(this.config).forEach((c) => {
-      const keys = this.data.selected.filter((s) => s.entityGroup === c.id);
+      const keys = decodedData.selected.filter((s) => s.entityGroup === c.id);
       if (keys.length > 0) {
         const entityGroup = underlaySource.lookupEntityGroup(c.id);
         filters.push({
@@ -196,7 +213,7 @@ class _ implements CriteriaPlugin<Data> {
 
     const keyFilter = makeArrayFilter({ min: 1 }, filters);
 
-    const valueDataFilter = generateValueDataFilter([this.data.valueData]);
+    const valueDataFilter = generateValueDataFilter([decodedData.valueData]);
     if (valueDataFilter) {
       return makeArrayFilter({}, [keyFilter, valueDataFilter]);
     }
@@ -241,7 +258,7 @@ type SearchState = {
 };
 
 type ClassificationEditProps = {
-  data: Data;
+  data: string;
   config: Config;
   doneAction: () => void;
   setBackAction: (action?: () => void) => void;
@@ -251,10 +268,17 @@ const DEFAULT_LIMIT = 100;
 
 function ClassificationEdit(props: ClassificationEditProps) {
   const underlaySource = useUnderlaySource();
-  const updateCriteria = useUpdateCriteria();
+  const updateEncodedCriteria = useUpdateCriteria();
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
+
   const isNewCriteria = useIsNewCriteria();
 
-  const [localCriteria, updateLocalCriteria] = useImmer(props.data);
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
+
+  const [localCriteria, updateLocalCriteria] = useImmer(decodedData);
 
   const selectedSets = useMemo(() => {
     const sets = new Map<string, Set<DataKey>>();
@@ -268,7 +292,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
   }, [localCriteria]);
 
   const updateCriteriaFromLocal = useCallback(() => {
-    updateCriteria(produce(props.data, () => localCriteria));
+    updateCriteria(produce(decodedData, () => localCriteria));
   }, [updateCriteria, localCriteria]);
 
   const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
@@ -308,7 +332,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
         };
       }
 
-      if (!props.config.multiSelect || isDataEqual(props.data, localCriteria)) {
+      if (
+        !props.config.multiSelect ||
+        isDataEqual(decodedData, localCriteria)
+      ) {
         return undefined;
       } else {
         return unconfirmedChangesCallback;
@@ -638,7 +665,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                       data-testid={name}
                       onClick={() => {
                         updateCriteria(
-                          produce(props.data, (data) => {
+                          produce(decodedData, (data) => {
                             data.selected = [newItem];
                             data.valueData = ANY_VALUE_DATA;
                           })
@@ -853,33 +880,39 @@ function ClassificationEdit(props: ClassificationEditProps) {
 type ClassificationInlineProps = {
   groupId: string;
   criteriaId: string;
-  data: Data;
+  data: string;
   config: Config;
 };
 
 function ClassificationInline(props: ClassificationInlineProps) {
   const underlaySource = useUnderlaySource();
-  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
+  const updateEncodedCriteria = useUpdateCriteria();
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
+
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
 
   if (!props.config.valueConfigs) {
     return null;
   }
 
   const entityGroup = underlaySource.lookupEntityGroup(
-    props.data.selected[0].entityGroup
+    decodedData.selected[0].entityGroup
   );
 
   return (
     <ValueDataEdit
       hintEntity={entityGroup.occurrenceEntityIds[0]}
       relatedEntity={entityGroup.selectionEntity.name}
-      hintKey={props.data.selected[0].key}
+      hintKey={decodedData.selected[0].key}
       singleValue
       valueConfigs={props.config.valueConfigs}
-      valueData={[props.data.valueData]}
+      valueData={[decodedData.valueData]}
       update={(valueData) =>
         updateCriteria(
-          produce(props.data, (data) => {
+          produce(decodedData, (data) => {
             data.valueData = valueData[0];
           })
         )
@@ -971,6 +1004,31 @@ function isDataEqual(data1: Data, data2: Data) {
       cur.entityGroup === data2.selected[i].entityGroup,
     true
   );
+}
+
+function decodeData(data: string): Data {
+  const message = dataProto.EntityGroup.decode(base64ToBytes(data));
+  return {
+    selected:
+      message.selected?.map((s) => ({
+        key: dataKeyFromProto(s.key),
+        name: s.name,
+        entityGroup: s.entityGroup,
+      })) ?? [],
+    valueData: decodeValueData(message.valueData),
+  };
+}
+
+function encodeData(data: Data): string {
+  const message: dataProto.EntityGroup = {
+    selected: data.selected.map((s) => ({
+      key: protoFromDataKey(s.key),
+      name: s.name,
+      entityGroup: s.entityGroup,
+    })),
+    valueData: encodeValueData(data.valueData),
+  };
+  return bytesToBase64(dataProto.EntityGroup.encode(message).finish());
 }
 
 const DEFAULT_SORT_ORDER = {

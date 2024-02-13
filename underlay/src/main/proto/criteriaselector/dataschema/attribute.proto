@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package tanagra;
+
+import "criteriaselector/value.proto";
+import "criteriaselector/data_range.proto";
+
+message Attribute {
+  message Selection {
+    Value value = 1;
+    string name = 2;
+  }
+  repeated Selection selected = 1;
+
+  repeated DataRange data_ranges = 2;
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package tanagra;
+
+import "criteriaselector/key.proto";
+import "criteriaselector/value_data.proto";
+
+message EntityGroup {
+  message Selection {
+    Key key = 1;
+    string name = 2;
+    string entityGroup = 3;
+  }
+  repeated Selection selected = 1;
+
+  optional ValueData value_data = 2;
+}

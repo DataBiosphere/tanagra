@@ -9,9 +9,11 @@ import { FilterType } from "data/filter";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import GridLayout from "layout/gridLayout";
-import React, { useState } from "react";
+import * as dataProto from "proto/criteriaselector/dataschema/unhinted_value";
+import React, { useCallback, useMemo, useState } from "react";
 import * as tanagraUI from "tanagra-ui";
 import { CriteriaConfig } from "underlaysSlice";
+import { base64ToBytes, bytesToBase64 } from "util/base64";
 
 interface Config extends CriteriaConfig {
   groupByCount?: boolean;
@@ -46,25 +48,29 @@ function rangeFromData(data: Data) {
 }
 
 @registerCriteriaPlugin("unhinted-value", () => {
-  return {
+  return encodeData({
     operator: tanagraUI.UIComparisonOperator.GreaterThanEqual,
     min: 1,
     max: 10,
-  };
+  });
 })
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class _ implements CriteriaPlugin<Data> {
-  public data: Data;
+class _ implements CriteriaPlugin<string> {
+  public data: string;
   private config: Config;
 
   constructor(
     public id: string,
     config: CriteriaConfig,
-    data: unknown,
+    data: string,
     private entity?: string
   ) {
     this.config = config as Config;
-    this.data = data as Data;
+    try {
+      this.data = encodeData(JSON.parse(data));
+    } catch (e) {
+      this.data = data;
+    }
   }
 
   renderInline(groupId: string) {
@@ -86,6 +92,8 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter() {
+    const decodedData = decodeData(this.data);
+
     if (this.config.groupByCount) {
       return null;
     }
@@ -93,19 +101,21 @@ class _ implements CriteriaPlugin<Data> {
     return {
       type: FilterType.Attribute,
       attribute: this.config.attribute,
-      ranges: [rangeFromData(this.data)],
+      ranges: [rangeFromData(decodedData)],
     };
   }
 
   groupByCountFilter() {
+    const decodedData = decodeData(this.data);
+
     if (!this.config.groupByCount) {
       return null;
     }
 
     return {
       attribute: this.config.attribute,
-      operator: this.data.operator,
-      value: this.data.min,
+      operator: decodedData.operator,
+      value: decodedData.min,
     };
   }
 
@@ -118,17 +128,26 @@ type UnhintedValueInlineProps = {
   groupId: string;
   criteriaId: string;
   config: Config;
-  data: Data;
+  data: string;
   entity?: string;
 };
 
 function UnhintedValueInline(props: UnhintedValueInlineProps) {
-  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
+  const updateEncodedCriteria = useUpdateCriteria(
+    props.groupId,
+    props.criteriaId
+  );
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
 
-  const [minInputValue, setMinInputValue] = useState(String(props.data.min));
-  const [maxInputValue, setMaxInputValue] = useState(String(props.data.max));
-  const [minValue, setMinValue] = useState(String(props.data.max));
-  const [maxValue, setMaxValue] = useState(String(props.data.max));
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
+
+  const [minInputValue, setMinInputValue] = useState(String(decodedData.min));
+  const [maxInputValue, setMaxInputValue] = useState(String(decodedData.max));
+  const [minValue, setMinValue] = useState(String(decodedData.max));
+  const [maxValue, setMaxValue] = useState(String(decodedData.max));
 
   // Make sure empty input won't get changed.
   // TODO(tjennison): Consider if this can be refactored along with the code in
@@ -140,7 +159,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
     setMinValue(String(newMin));
 
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         data.min = newMin;
       })
     );
@@ -156,7 +175,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
     setMaxValue(String(newMax));
 
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         data.max = newMax;
       })
     );
@@ -186,7 +205,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
       target: { value: sel },
     } = event;
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         data.operator = sel as tanagraUI.UIComparisonOperator;
       })
     );
@@ -201,7 +220,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
         }}
       >
         <Select
-          value={props.data.operator}
+          value={decodedData.operator}
           input={<OutlinedInput />}
           onChange={onSelectOperator}
         >
@@ -222,7 +241,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
             type: "number",
           }}
         />
-        {props.data.operator === tanagraUI.UIComparisonOperator.Between ? (
+        {decodedData.operator === tanagraUI.UIComparisonOperator.Between ? (
           <GridLayout cols rowAlign="middle" height="auto">
             <Typography variant="body1">&nbsp;and&nbsp;</Typography>
             <Input
@@ -239,4 +258,61 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
       </GridLayout>
     </GridLayout>
   );
+}
+
+function decodeComparisonOperator(
+  operator: dataProto.UnhintedValue_ComparisonOperator
+): tanagraUI.UIComparisonOperator {
+  switch (operator) {
+    case dataProto.UnhintedValue_ComparisonOperator.COMPARISON_OPERATOR_UNKNOWN:
+    case dataProto.UnhintedValue_ComparisonOperator.COMPARISON_OPERATOR_EQUAL:
+      return tanagraUI.UIComparisonOperator.Equal;
+    case dataProto.UnhintedValue_ComparisonOperator.COMPARISON_OPERATOR_BETWEEN:
+      return tanagraUI.UIComparisonOperator.Between;
+    case dataProto.UnhintedValue_ComparisonOperator
+      .COMPARISON_OPERATOR_LESS_THAN_EQUAL:
+      return tanagraUI.UIComparisonOperator.LessThanEqual;
+    case dataProto.UnhintedValue_ComparisonOperator
+      .COMPARISON_OPERATOR_GREATER_THAN_EQUAL:
+      return tanagraUI.UIComparisonOperator.GreaterThanEqual;
+  }
+  throw new Error(`Unknown comparison operator value ${operator}.`);
+}
+
+function decodeData(data: string): Data {
+  const message = dataProto.UnhintedValue.decode(base64ToBytes(data));
+  return {
+    operator: decodeComparisonOperator(message.operator),
+    min: message.min,
+    max: message.max,
+  };
+}
+
+function encodeComparisonOperator(
+  operator: tanagraUI.UIComparisonOperator
+): dataProto.UnhintedValue_ComparisonOperator {
+  switch (operator) {
+    case tanagraUI.UIComparisonOperator.Equal:
+      return dataProto.UnhintedValue_ComparisonOperator
+        .COMPARISON_OPERATOR_EQUAL;
+    case tanagraUI.UIComparisonOperator.Between:
+      return dataProto.UnhintedValue_ComparisonOperator
+        .COMPARISON_OPERATOR_BETWEEN;
+    case tanagraUI.UIComparisonOperator.LessThanEqual:
+      return dataProto.UnhintedValue_ComparisonOperator
+        .COMPARISON_OPERATOR_LESS_THAN_EQUAL;
+    case tanagraUI.UIComparisonOperator.GreaterThanEqual:
+      return dataProto.UnhintedValue_ComparisonOperator
+        .COMPARISON_OPERATOR_GREATER_THAN_EQUAL;
+  }
+  throw new Error(`Unknown internal comparison operator value ${operator}.`);
+}
+
+function encodeData(data: Data): string {
+  const message: dataProto.UnhintedValue = {
+    operator: encodeComparisonOperator(data.operator),
+    min: data.min,
+    max: data.max,
+  };
+  return bytesToBase64(dataProto.UnhintedValue.encode(message).finish());
 }

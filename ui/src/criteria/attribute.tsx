@@ -8,14 +8,21 @@ import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
 import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
 import { FilterType } from "data/filter";
-import { IntegerHint, UnderlaySource } from "data/source";
+import {
+  dataValueFromProto,
+  IntegerHint,
+  protoFromDataValue,
+  UnderlaySource,
+} from "data/source";
 import { DataEntry, DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import * as dataProto from "proto/criteriaselector/dataschema/attribute";
 import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CriteriaConfig } from "underlaysSlice";
+import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 
 type Selection = {
@@ -44,28 +51,32 @@ interface Data {
     c: CriteriaConfig,
     dataEntry?: DataEntry
   ) => {
-    return {
+    return encodeData({
       selected: dataEntry
-        ? [{ value: dataEntry.key, name: dataEntry.name }]
+        ? [{ value: dataEntry.key, name: dataEntry.name as string }]
         : [],
       dataRanges: [],
-    };
+    });
   },
   search
 )
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class _ implements CriteriaPlugin<Data> {
-  public data: Data;
+class _ implements CriteriaPlugin<string> {
+  public data: string;
   private config: Config;
 
   constructor(
     public id: string,
     config: CriteriaConfig,
-    data: unknown,
+    data: string,
     private entity?: string
   ) {
     this.config = config as Config;
-    this.data = data as Data;
+    try {
+      this.data = encodeData(JSON.parse(data));
+    } catch (e) {
+      this.data = data;
+    }
   }
 
   renderInline(groupId: string) {
@@ -81,30 +92,32 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   displayDetails() {
-    if (this.data.selected.length > 0) {
-      return this.data.selected.length === 1
+    const decodedData = decodeData(this.data);
+
+    if (decodedData.selected.length > 0) {
+      return decodedData.selected.length === 1
         ? {
-            title: this.data.selected[0].name,
+            title: decodedData.selected[0].name,
           }
         : {
-            title: `(${this.data.selected.length} selected)`,
+            title: `(${decodedData.selected.length} selected)`,
             additionalText:
-              this.data.selected.length > 1
-                ? this.data.selected.map((s) => s.name)
+              decodedData.selected.length > 1
+                ? decodedData.selected.map((s) => s.name)
                 : undefined,
           };
     }
 
-    if (this.data.dataRanges.length > 0) {
+    if (decodedData.dataRanges.length > 0) {
       const additionalText = [
-        this.data.dataRanges.map((r) => `${r.min} - ${r.max}`).join(", "),
+        decodedData.dataRanges.map((r) => `${r.min} - ${r.max}`).join(", "),
       ];
-      return this.data.dataRanges.length === 1
+      return decodedData.dataRanges.length === 1
         ? {
             title: additionalText[0],
           }
         : {
-            title: `(${this.data.dataRanges.length} ranges)`,
+            title: `(${decodedData.dataRanges.length} ranges)`,
             additionalText,
           };
     }
@@ -115,11 +128,13 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter() {
+    const decodedData = decodeData(this.data);
+
     return {
       type: FilterType.Attribute,
       attribute: this.config.attribute,
-      values: this.data.selected?.map(({ value }) => value),
-      ranges: this.data.dataRanges,
+      values: decodedData.selected?.map(({ value }) => value),
+      ranges: decodedData.dataRanges,
     };
   }
 
@@ -132,7 +147,7 @@ type SliderProps = {
   minBound: number;
   maxBound: number;
   range: DataRange;
-  data: Data;
+  data: string;
   groupId?: string;
   criteriaId?: string;
   index: number;
@@ -141,8 +156,16 @@ type SliderProps = {
 };
 
 function AttributeSlider(props: SliderProps) {
-  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
-  const { data } = props;
+  const updateEncodedCriteria = useUpdateCriteria(
+    props.groupId,
+    props.criteriaId
+  );
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
+
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
 
   const onUpdate = (
     range: DataRange,
@@ -151,7 +174,7 @@ function AttributeSlider(props: SliderProps) {
     max: number
   ) => {
     updateCriteria(
-      produce(data, (oldData) => {
+      produce(decodedData, (oldData) => {
         if (oldData.dataRanges.length === 0) {
           oldData.dataRanges.push(range);
         }
@@ -164,7 +187,7 @@ function AttributeSlider(props: SliderProps) {
 
   const onDelete = (range: DataRange, index: number) => {
     updateCriteria(
-      produce(data, (oldData) => {
+      produce(decodedData, (oldData) => {
         oldData.dataRanges.splice(index, 1);
       })
     );
@@ -188,13 +211,22 @@ type AttributeInlineProps = {
   groupId: string;
   criteriaId: string;
   config: Config;
-  data: Data;
+  data: string;
   entity?: string;
 };
 
 function AttributeInline(props: AttributeInlineProps) {
   const underlaySource = useUnderlaySource();
-  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
+  const updateEncodedCriteria = useUpdateCriteria(
+    props.groupId,
+    props.criteriaId
+  );
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
+
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
 
   const entity = underlaySource.lookupEntity(props.entity ?? "");
   const attribute = entity.attributes.find(
@@ -217,7 +249,7 @@ function AttributeInline(props: AttributeInlineProps) {
   const handleAddRange = useCallback(
     (hint: IntegerHint) => {
       updateCriteria(
-        produce(props.data, (data) => {
+        produce(decodedData, (data) => {
           data.dataRanges.push({
             id: generateId(),
             ...hint,
@@ -225,7 +257,7 @@ function AttributeInline(props: AttributeInlineProps) {
         })
       );
     },
-    [props.data]
+    [decodedData]
   );
 
   const emptyRange = useMemo(
@@ -242,7 +274,7 @@ function AttributeInline(props: AttributeInlineProps) {
       return null;
     }
 
-    if (!props.config.multiRange && props.data.dataRanges.length === 0) {
+    if (!props.config.multiRange && decodedData.dataRanges.length === 0) {
       return (
         <AttributeSlider
           key={emptyRange.id}
@@ -262,7 +294,7 @@ function AttributeInline(props: AttributeInlineProps) {
       );
     }
 
-    return props.data.dataRanges.map(
+    return decodedData.dataRanges.map(
       (range, index) =>
         hintDataState.data?.integerHint && (
           <AttributeSlider
@@ -288,7 +320,7 @@ function AttributeInline(props: AttributeInlineProps) {
 
   const onSelect = (sel: Selection[]) => {
     updateCriteria(
-      produce(props.data, (data) => {
+      produce(decodedData, (data) => {
         data.selected = sel;
       })
     );
@@ -317,7 +349,7 @@ function AttributeInline(props: AttributeInlineProps) {
         <Box sx={{ maxWidth: 500 }}>
           <HintDataSelect
             hintData={hintDataState.data}
-            selected={props.data.selected}
+            selected={decodedData.selected}
             onSelect={onSelect}
           />
         </Box>
@@ -365,4 +397,38 @@ async function search(
       (b[ROLLUP_COUNT_ATTRIBUTE] as number) -
       (a[ROLLUP_COUNT_ATTRIBUTE] as number)
   );
+}
+
+function decodeData(data: string): Data {
+  const message = dataProto.Attribute.decode(base64ToBytes(data));
+  return {
+    selected:
+      message.selected?.map((s) => ({
+        value: dataValueFromProto(s.value),
+        name: s.name,
+      })) ?? [],
+    dataRanges:
+      message.dataRanges?.map((r) => ({
+        id: r.id,
+        min: r.min,
+        max: r.max,
+      })) ?? [],
+  };
+}
+
+function encodeData(data: Data): string {
+  const message: dataProto.Attribute = {
+    selected:
+      data.selected?.map((s) => ({
+        value: protoFromDataValue(s.value),
+        name: s.name,
+      })) ?? [],
+    dataRanges:
+      data.dataRanges?.map((r) => ({
+        id: r.id,
+        min: r.min,
+        max: r.max,
+      })) ?? [],
+  };
+  return bytesToBase64(dataProto.Attribute.encode(message).finish());
 }

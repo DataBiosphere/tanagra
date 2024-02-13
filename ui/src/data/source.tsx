@@ -1,5 +1,7 @@
 import { defaultSection, generateCohortFilter } from "cohort";
 import { getReasonPhrase } from "http-status-codes";
+import * as keyProto from "proto/criteriaselector/key";
+import * as valueProto from "proto/criteriaselector/value";
 import * as tanagra from "tanagra-api";
 import * as tanagraUI from "tanagra-ui";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
@@ -1280,6 +1282,50 @@ function dataValueFromLiteral(value?: tanagra.Literal | null): DataValue {
   throw new Error(`Unknown data type "${value?.dataType}".`);
 }
 
+export function protoFromDataKey(key: DataKey): keyProto.Key {
+  return {
+    int64Key: typeof key === "number" ? key : undefined,
+    stringKey: typeof key === "string" ? key : undefined,
+  };
+}
+
+export function dataKeyFromProto(key?: keyProto.Key): DataKey {
+  if (!key) {
+    throw new Error("Undefined key proto.");
+  }
+
+  const res: DataKey | undefined = key.int64Key ?? key.stringKey;
+  if (!res) {
+    throw new Error(`Invalid key ${keyProto.Key.toJSON(key)}.`);
+  }
+  return res;
+}
+
+export function protoFromDataValue(value: DataValue): valueProto.Value {
+  return {
+    int64Value: typeof value === "number" ? value : undefined,
+    stringValue: typeof value === "string" ? value : undefined,
+    boolValue: typeof value === "boolean" ? value : undefined,
+    timestampValue: value instanceof Date ? value : undefined,
+  };
+}
+
+export function dataValueFromProto(value?: valueProto.Value): DataValue {
+  if (!value) {
+    throw new Error("Undefined value proto.");
+  }
+
+  const res: DataValue | undefined =
+    value.int64Value ??
+    value.stringValue ??
+    value.boolValue ??
+    value.timestampValue;
+  if (!res) {
+    throw new Error(`Invalid key ${valueProto.Value.toJSON(value)}.`);
+  }
+  return res;
+}
+
 function convertSortDirection(dir: SortDirection) {
   return dir === SortDirection.Desc
     ? tanagra.OrderByDirection.Descending
@@ -1661,7 +1707,7 @@ function fromAPICriteria(criteria: tanagra.Criteria): tanagraUI.UICriteria {
   return {
     id: criteria.id,
     type: criteria.pluginName,
-    data: JSON.parse(criteria.selectionData),
+    data: criteria.selectionData,
     config: JSON.parse(criteria.uiConfig),
   };
 }
@@ -1712,7 +1758,7 @@ function toAPICriteria(criteria: tanagraUI.UICriteria): tanagra.Criteria {
     displayName: "",
     tags: {},
     pluginName: criteria.type,
-    selectionData: JSON.stringify(criteria.data),
+    selectionData: criteria.data,
     uiConfig: JSON.stringify(criteria.config),
   };
 }

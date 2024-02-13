@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package tanagra;
+
+message BioVU {
+  enum SampleFilter {
+    SAMPLE_FILTER_UNKNOWN = 0;
+    SAMPLE_FILTER_ANY = 1;
+    SAMPLE_FILTER_ONE_HUNDRED = 2;
+    SAMPLE_FILTER_FIVE_HUNDRED = 3;
+  }
+  SampleFilter sample_filter = 1;
+
+  bool exclude_compromised = 2;
+  bool exclude_internal = 3;
+  bool plasma = 4;
+}

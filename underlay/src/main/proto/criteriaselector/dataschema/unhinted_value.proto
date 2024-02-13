@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package tanagra;
+
+message UnhintedValue {
+  enum ComparisonOperator {
+    COMPARISON_OPERATOR_UNKNOWN = 0;
+    COMPARISON_OPERATOR_EQUAL = 1;
+    COMPARISON_OPERATOR_BETWEEN = 2;
+    COMPARISON_OPERATOR_LESS_THAN_EQUAL = 3;
+    COMPARISON_OPERATOR_GREATER_THAN_EQUAL = 4;
+  }
+  ComparisonOperator operator = 1;
+
+  double min = 2;
+  double max = 3;
+}

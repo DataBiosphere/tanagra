@@ -185,7 +185,7 @@ components:
           type: string
           description: The plugin type used by this criteria.
         data:
-          type: object
+          type: string
           description: The plugin specific data that defines this criteria.
         config:
           type: object

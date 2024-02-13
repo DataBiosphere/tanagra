@@ -279,7 +279,7 @@ export function updateCohortCriteria(
   context: CohortContextData,
   sectionId: string,
   groupId: string,
-  data: object,
+  data: string,
   criteriaId?: string
 ) {
   context.updatePresent((present) => {

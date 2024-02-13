@@ -1,6 +1,8 @@
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import {
   ANY_VALUE_DATA,
+  decodeValueData,
+  encodeValueData,
   generateValueDataFilter,
   ValueConfig,
   ValueData,
@@ -11,7 +13,10 @@ import { UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import * as dataProto from "proto/criteriaselector/dataschema/multi_attribute";
+import { useCallback, useMemo } from "react";
 import { CriteriaConfig } from "underlaysSlice";
+import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 import { isValid } from "util/valid";
 
@@ -46,20 +51,24 @@ export interface Data {
       });
     }
 
-    return {
+    return encodeData({
       valueData,
-    };
+    });
   },
   search
 )
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class _ implements CriteriaPlugin<Data> {
-  public data: Data;
+class _ implements CriteriaPlugin<string> {
+  public data: string;
   private config: Config;
 
-  constructor(public id: string, config: CriteriaConfig, data: unknown) {
+  constructor(public id: string, config: CriteriaConfig, data: string) {
     this.config = config as Config;
-    this.data = data as Data;
+    try {
+      this.data = encodeData(JSON.parse(data));
+    } catch (e) {
+      this.data = data;
+    }
   }
 
   renderInline(groupId: string) {
@@ -78,13 +87,15 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   displayDetails() {
-    if (this.data.valueData.length === 0) {
+    const decodedData = decodeData(this.data);
+
+    if (decodedData.valueData.length === 0) {
       return {
         title: "(any)",
       };
     }
 
-    const details = this.data.valueData.map((vd) => {
+    const details = decodedData.valueData.map((vd) => {
       if (vd.numeric) {
         return {
           title: `${vd.range.min} - ${vd.range.max}`,
@@ -113,7 +124,7 @@ class _ implements CriteriaPlugin<Data> {
       return details[0];
     }
 
-    const title = this.data.valueData
+    const title = decodedData.valueData
       .map((vd, i) => {
         const title = this.config.valueConfigs.find(
           (c) => c.attribute === vd.attribute
@@ -121,7 +132,7 @@ class _ implements CriteriaPlugin<Data> {
         return (title ? title + ": " : "") + details[i].title;
       })
       .join(", ");
-    const additionalText = this.data.valueData
+    const additionalText = decodedData.valueData
       .map((vd, i) => {
         const at = details[i].additionalText;
         if (!at) {
@@ -141,7 +152,8 @@ class _ implements CriteriaPlugin<Data> {
   }
 
   generateFilter() {
-    return generateValueDataFilter(this.data.valueData);
+    const decodedData = decodeData(this.data);
+    return generateValueDataFilter(decodedData.valueData);
   }
 
   filterEntityIds() {
@@ -152,12 +164,21 @@ class _ implements CriteriaPlugin<Data> {
 type MultiAttributeInlineProps = {
   groupId: string;
   criteriaId: string;
-  data: Data;
+  data: string;
   config: Config;
 };
 
 function MultiAttributeInline(props: MultiAttributeInlineProps) {
-  const updateCriteria = useUpdateCriteria(props.groupId, props.criteriaId);
+  const updateEncodedCriteria = useUpdateCriteria(
+    props.groupId,
+    props.criteriaId
+  );
+  const updateCriteria = useCallback(
+    (data: Data) => updateEncodedCriteria(encodeData(data)),
+    [updateEncodedCriteria]
+  );
+
+  const decodedData = useMemo(() => decodeData(props.data), [props.data]);
 
   if (!props.config.valueConfigs) {
     return null;
@@ -167,10 +188,10 @@ function MultiAttributeInline(props: MultiAttributeInlineProps) {
     <ValueDataEdit
       hintEntity={props.config.entity}
       valueConfigs={props.config.valueConfigs}
-      valueData={props.data.valueData}
+      valueData={decodedData.valueData}
       update={(valueData) =>
         updateCriteria(
-          produce(props.data, (data) => {
+          produce(decodedData, (data) => {
             data.valueData = valueData;
           })
         )
@@ -216,4 +237,18 @@ async function search(
       (b[ROLLUP_COUNT_ATTRIBUTE] as number) -
       (a[ROLLUP_COUNT_ATTRIBUTE] as number)
   );
+}
+
+function decodeData(data: string): Data {
+  const message = dataProto.MultiAttribute.decode(base64ToBytes(data));
+  return {
+    valueData: message.valueData?.map((vd) => decodeValueData(vd)) ?? [],
+  };
+}
+
+function encodeData(data: Data): string {
+  const message: dataProto.MultiAttribute = {
+    valueData: data.valueData.map((vd) => encodeValueData(vd)),
+  };
+  return bytesToBase64(dataProto.MultiAttribute.encode(message).finish());
 }
