@@ -10,9 +10,9 @@ public class BooleanAndOrFilter extends EntityFilter {
   }
 
   private final LogicalOperator operator;
-  private final List<? extends EntityFilter> subFilters;
+  private final List<EntityFilter> subFilters;
 
-  public BooleanAndOrFilter(LogicalOperator operator, List<? extends EntityFilter> subFilters) {
+  public BooleanAndOrFilter(LogicalOperator operator, List<EntityFilter> subFilters) {
     this.operator = operator;
     this.subFilters = subFilters;
   }
@@ -21,7 +21,7 @@ public class BooleanAndOrFilter extends EntityFilter {
     return operator;
   }
 
-  public ImmutableList<? extends EntityFilter> getSubFilters() {
+  public ImmutableList<EntityFilter> getSubFilters() {
     return ImmutableList.copyOf(subFilters);
   }
 }
