@@ -5,7 +5,7 @@
   "selectionData": [
     {
       "plugin": "core/entityGroup",
-      "file": "conditionData.json"
+      "pluginDataFile": "conditionData.json"
     }
   ]
 }

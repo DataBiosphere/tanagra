@@ -259,7 +259,8 @@ public class UnderlaysApiController implements UnderlaysApi {
         .entities(clientConfig.serializeEntities())
         .groupItemsEntityGroups(clientConfig.serializeGroupItemsEntityGroups())
         .criteriaOccurrenceEntityGroups(clientConfig.serializeCriteriaOccurrenceEntityGroups())
-        .criteriaSelectors(clientConfig.serializeCriteriaSelectors());
+        .criteriaSelectors(clientConfig.serializeCriteriaSelectors())
+        .prepackagedDataFeatures(clientConfig.serializePrepackagedDataFeatures());
   }
 
   private ApiEntity toApiObject(Entity entity) {

@@ -56,7 +56,8 @@ public final class ConfigReader {
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> criteriaSelectorPluginConfigCache =
       new HashMap<>();
-  private final Map<Pair<String, String>, String> prepackagedCriteriaPluginConfigCache = new HashMap<>();
+  private final Map<Pair<String, String>, String> prepackagedCriteriaPluginConfigCache =
+      new HashMap<>();
   private String underlay;
   private ImmutableMap<String, String> sqlSubstitutions;
   private final boolean useResourcesInputStream;
@@ -117,7 +118,8 @@ public final class ConfigReader {
 
   public SZPrepackagedCriteria readPrepackagedCriteria(String prepackagedCriteriaPath) {
     if (!szPrepackagedCriteriaCache.containsKey(prepackagedCriteriaPath)) {
-      szPrepackagedCriteriaCache.put(prepackagedCriteriaPath, deserializePrepackagedCriteria(prepackagedCriteriaPath));
+      szPrepackagedCriteriaCache.put(
+          prepackagedCriteriaPath, deserializePrepackagedCriteria(prepackagedCriteriaPath));
     }
     return szPrepackagedCriteriaCache.get(prepackagedCriteriaPath);
   }
@@ -151,9 +153,12 @@ public final class ConfigReader {
     return criteriaSelectorPluginConfigCache.get(Pair.of(criteriaSelectorPath, fileName));
   }
 
-  public String readPrepackagedCriteriaPluginConfig(String prepackagedCriteriaPath, String fileName) {
-    if (!prepackagedCriteriaPluginConfigCache.containsKey(Pair.of(prepackagedCriteriaPath, fileName))) {
-      Path pluginConfigFile = resolvePrepackagedCriteriaDir(prepackagedCriteriaPath).resolve(fileName);
+  public String readPrepackagedCriteriaPluginConfig(
+      String prepackagedCriteriaPath, String fileName) {
+    if (!prepackagedCriteriaPluginConfigCache.containsKey(
+        Pair.of(prepackagedCriteriaPath, fileName))) {
+      Path pluginConfigFile =
+          resolvePrepackagedCriteriaDir(prepackagedCriteriaPath).resolve(fileName);
       String config = FileUtils.readStringFromFile(getStream(pluginConfigFile));
       prepackagedCriteriaPluginConfigCache.put(Pair.of(prepackagedCriteriaPath, fileName), config);
     }
@@ -304,15 +309,21 @@ public final class ConfigReader {
   private SZPrepackagedCriteria deserializePrepackagedCriteria(String prepackagedCriteriaPath) {
     try {
       SZPrepackagedCriteria szPrepackagedCriteria =
-              JacksonMapper.readFileIntoJavaObject(
-                      getStream(resolvePrepackagedCriteriaDir(prepackagedCriteriaPath).resolve(PREPACKAGED_CRITERIA_FILE_NAME + FILE_EXTENSION)),
-                      SZPrepackagedCriteria.class);
+          JacksonMapper.readFileIntoJavaObject(
+              getStream(
+                  resolvePrepackagedCriteriaDir(prepackagedCriteriaPath)
+                      .resolve(PREPACKAGED_CRITERIA_FILE_NAME + FILE_EXTENSION)),
+              SZPrepackagedCriteria.class);
 
       // Initialize null collections to empty collections.
-      szPrepackagedCriteria.selectionData = szPrepackagedCriteria.selectionData == null ? new ArrayList<>() : szPrepackagedCriteria.selectionData;
+      szPrepackagedCriteria.selectionData =
+          szPrepackagedCriteria.selectionData == null
+              ? new ArrayList<>()
+              : szPrepackagedCriteria.selectionData;
       return szPrepackagedCriteria;
     } catch (IOException ioEx) {
-      throw new InvalidConfigException("Error deserializing prepackaged criteria config file", ioEx);
+      throw new InvalidConfigException(
+          "Error deserializing prepackaged criteria config file", ioEx);
     }
   }
 
@@ -361,10 +372,10 @@ public final class ConfigReader {
   private static Path resolvePrepackagedCriteriaDir(String prepackagedCriteriaPath) {
     Pair<String, String> underlayPrepackagedCriteria = parseTwoPartPath(prepackagedCriteriaPath);
     return Path.of(RESOURCES_CONFIG_PATH)
-            .resolve(UI_PLUGIN_CONFIG_SUBDIR)
-            .resolve(underlayPrepackagedCriteria.getLeft())
-            .resolve(PREPACKAGED_CRITERIA_CONFIG_SUBDIR)
-            .resolve(underlayPrepackagedCriteria.getRight());
+        .resolve(UI_PLUGIN_CONFIG_SUBDIR)
+        .resolve(underlayPrepackagedCriteria.getLeft())
+        .resolve(PREPACKAGED_CRITERIA_CONFIG_SUBDIR)
+        .resolve(underlayPrepackagedCriteria.getRight());
   }
 
   private static Pair<String, String> parseTwoPartPath(String path) {
