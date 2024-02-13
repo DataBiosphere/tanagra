@@ -18,6 +18,7 @@ import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -219,6 +220,19 @@ public final class Underlay {
                     fromConfigCriteriaSelector(
                         szCriteriaSelector, criteriaSelectorPath, configReader));
               });
+    }
+
+    // Build the prepackaged data features.
+    Set<SZPrepackagedCriteria> szPrepackagedDataFeatures = new HashSet<>();
+    if (szUnderlay.prepackagedDataFeatures != null) {
+      szUnderlay.prepackagedDataFeatures.stream()
+              .forEach(
+                      prepackagedCriteriaPath -> {
+                        SZPrepackagedCriteria szPrepackagedCriteria = configReader.readPrepackagedCriteria(prepackagedCriteriaPath);
+                        szPrepackagedDataFeatures.add(
+                                fromConfigPrepackagedCriteria(szPrepackagedCriteria, prepackagedCriteriaPath, configReader));
+                      }
+              );
     }
 
     // Read the UI config.
@@ -447,5 +461,45 @@ public final class Underlay {
         szCriteriaSelector.plugin,
         pluginConfig,
         modifiers);
+  }
+
+  @VisibleForTesting
+  public static CriteriaSelector fromConfigPrepackagedCriteria(
+          SZPrepackagedCriteria szPrepackagedCriteria,
+          String prepackagedCriteriaPath,
+          ConfigReader configReader) {
+    // Read in the plugin config file to a string.
+    String pluginConfig = szPrepackagedCriteria.selectionData;
+    if (szCriteriaSelector.pluginConfigFile != null) {
+      pluginConfig =
+              configReader.readCriteriaSelectorPluginConfig(
+                      criteriaSelectorPath, szCriteriaSelector.pluginConfigFile);
+    }
+
+    // Deserialize the modifiers.
+    List<CriteriaSelector.Modifier> modifiers = new ArrayList<>();
+    if (szCriteriaSelector.modifiers != null) {
+      szCriteriaSelector.modifiers.stream()
+              .map(
+                      szModifier -> {
+                        String modifierPluginConfig = szModifier.pluginConfig;
+                        if (szModifier.pluginConfigFile != null && !szModifier.pluginConfigFile.isEmpty()) {
+                          modifierPluginConfig =
+                                  configReader.readCriteriaSelectorPluginConfig(
+                                          criteriaSelectorPath, szModifier.pluginConfigFile);
+                        }
+                        return new CriteriaSelector.Modifier(
+                                szModifier.name, szModifier.plugin, modifierPluginConfig);
+                      });
+    }
+
+    return new CriteriaSelector(
+            szCriteriaSelector.name,
+            szCriteriaSelector.isEnabledForCohorts,
+            szCriteriaSelector.isEnabledForDataFeatureSets,
+            szCriteriaSelector.filterBuilder,
+            szCriteriaSelector.plugin,
+            pluginConfig,
+            modifiers);
   }
 }
