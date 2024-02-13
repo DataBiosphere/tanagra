@@ -46,7 +46,7 @@
   ],
   "prepackagedDataFeatures": [
     "omop/demographics",
-    "omop/type2diabetes"
+    "omop/type2Diabetes"
   ],
   "metadata": {
     "displayName": "Centers for Medicare and Medicaid Services (CMS) Medicare Claims Synthetic Public Use Files (SynPUF)",
