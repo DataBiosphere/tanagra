@@ -1,0 +1,14 @@
+{
+  "name": "gender",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "displayName": "Gender identity",
+    "category": "Demographics",
+    "tags": []
+  },
+  "filterBuilder": "PrimaryEntityFilterBuilder",
+  "plugin": "core/attribute",
+  "pluginConfigFile": "gender.json",
+  "modifiers": []
+}

@@ -52,7 +52,7 @@ import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.underlay.DataMappingSerialization;
+import bio.terra.tanagra.underlay.ClientConfig;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
@@ -100,7 +100,7 @@ public class UnderlaysApiController implements UnderlaysApi {
     return ResponseEntity.ok(
         new ApiUnderlay()
             .summary(ToApiUtils.toApiObject(underlay))
-            .serializedConfiguration(toApiObject(underlay.getDataMappingSerialization()))
+            .serializedConfiguration(toApiObject(underlay.getClientConfig()))
             .uiConfiguration(underlay.getUiConfig()));
   }
 
@@ -253,14 +253,14 @@ public class UnderlaysApiController implements UnderlaysApi {
                     .collect(Collectors.toList())));
   }
 
-  private ApiUnderlaySerializedConfiguration toApiObject(
-      DataMappingSerialization dataMappingSerialization) {
+  private ApiUnderlaySerializedConfiguration toApiObject(ClientConfig clientConfig) {
     return new ApiUnderlaySerializedConfiguration()
-        .underlay(dataMappingSerialization.serializeUnderlay())
-        .entities(dataMappingSerialization.serializeEntities())
-        .groupItemsEntityGroups(dataMappingSerialization.serializeGroupItemsEntityGroups())
-        .criteriaOccurrenceEntityGroups(
-            dataMappingSerialization.serializeCriteriaOccurrenceEntityGroups());
+        .underlay(clientConfig.serializeUnderlay())
+        .entities(clientConfig.serializeEntities())
+        .groupItemsEntityGroups(clientConfig.serializeGroupItemsEntityGroups())
+        .criteriaOccurrenceEntityGroups(clientConfig.serializeCriteriaOccurrenceEntityGroups())
+        .criteriaSelectors(clientConfig.serializeCriteriaSelectors())
+        .prepackagedDataFeatures(clientConfig.serializePrepackagedDataFeatures());
   }
 
   private ApiEntity toApiObject(Entity entity) {

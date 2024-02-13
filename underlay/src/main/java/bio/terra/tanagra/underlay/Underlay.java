@@ -14,9 +14,14 @@ import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
+import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
+import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -44,7 +49,9 @@ public final class Underlay {
   private final ImmutableList<EntityGroup> entityGroups;
   private final SourceSchema sourceSchema;
   private final IndexSchema indexSchema;
-  private final DataMappingSerialization dataMappingSerialization;
+  private final ClientConfig clientConfig;
+  private final ImmutableList<CriteriaSelector> criteriaSelectors;
+  private final ImmutableList<PrepackagedCriteria> prepackagedDataFeatures;
   private final String uiConfig;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -58,7 +65,9 @@ public final class Underlay {
       List<EntityGroup> entityGroups,
       SourceSchema sourceSchema,
       IndexSchema indexSchema,
-      DataMappingSerialization dataMappingSerialization,
+      ClientConfig clientConfig,
+      List<CriteriaSelector> criteriaSelectors,
+      List<PrepackagedCriteria> prepackagedDataFeatures,
       String uiConfig) {
     this.name = name;
     this.displayName = displayName;
@@ -69,7 +78,9 @@ public final class Underlay {
     this.entityGroups = ImmutableList.copyOf(entityGroups);
     this.sourceSchema = sourceSchema;
     this.indexSchema = indexSchema;
-    this.dataMappingSerialization = dataMappingSerialization;
+    this.clientConfig = clientConfig;
+    this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
+    this.prepackagedDataFeatures = ImmutableList.copyOf(prepackagedDataFeatures);
     this.uiConfig = uiConfig;
   }
 
@@ -134,14 +145,23 @@ public final class Underlay {
     return indexSchema;
   }
 
-  public DataMappingSerialization getDataMappingSerialization() {
-    return dataMappingSerialization;
+  public ClientConfig getClientConfig() {
+    return clientConfig;
+  }
+
+  public ImmutableList<CriteriaSelector> getCriteriaSelectors() {
+    return criteriaSelectors;
+  }
+
+  public ImmutableList<PrepackagedCriteria> getPrepackagedDataFeatures() {
+    return prepackagedDataFeatures;
   }
 
   public String getUiConfig() {
     return uiConfig;
   }
 
+  @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
   public static Underlay fromConfig(
       SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
     // Build the source and index table schemas.
@@ -196,6 +216,38 @@ public final class Underlay {
     BQQueryRunner queryRunner =
         new BQQueryRunner(szBigQuery.queryProjectId, szBigQuery.dataLocation);
 
+    // Build the criteria selectors.
+    Set<SZCriteriaSelector> szCriteriaSelectors = new HashSet<>();
+    List<CriteriaSelector> criteriaSelectors = new ArrayList<>();
+    if (szUnderlay.criteriaSelectors != null) {
+      szUnderlay.criteriaSelectors.stream()
+          .forEach(
+              criteriaSelectorPath -> {
+                SZCriteriaSelector szCriteriaSelector =
+                    configReader.readCriteriaSelector(criteriaSelectorPath);
+                szCriteriaSelectors.add(szCriteriaSelector);
+                criteriaSelectors.add(
+                    fromConfigCriteriaSelector(
+                        szCriteriaSelector, criteriaSelectorPath, configReader));
+              });
+    }
+
+    // Build the prepackaged data features.
+    Set<SZPrepackagedCriteria> szPrepackagedDataFeatures = new HashSet<>();
+    List<PrepackagedCriteria> prepackagedDataFeatures = new ArrayList<>();
+    if (szUnderlay.prepackagedDataFeatures != null) {
+      szUnderlay.prepackagedDataFeatures.stream()
+          .forEach(
+              prepackagedCriteriaPath -> {
+                SZPrepackagedCriteria szPrepackagedCriteria =
+                    configReader.readPrepackagedCriteria(prepackagedCriteriaPath);
+                szPrepackagedDataFeatures.add(szPrepackagedCriteria);
+                prepackagedDataFeatures.add(
+                    fromConfigPrepackagedCriteria(
+                        szPrepackagedCriteria, prepackagedCriteriaPath, configReader));
+              });
+    }
+
     // Read the UI config.
     String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
 
@@ -209,8 +261,15 @@ public final class Underlay {
         entityGroups,
         sourceSchema,
         indexSchema,
-        new DataMappingSerialization(
-            szUnderlay, szEntities, szGroupItemsEntityGroups, szCriteriaOccurrenceEntityGroups),
+        new ClientConfig(
+            szUnderlay,
+            szEntities,
+            szGroupItemsEntityGroups,
+            szCriteriaOccurrenceEntityGroups,
+            szCriteriaSelectors,
+            szPrepackagedDataFeatures),
+        criteriaSelectors,
+        prepackagedDataFeatures,
         uiConfig);
   }
 
@@ -377,5 +436,70 @@ public final class Underlay {
         occurrencePrimaryRelationships,
         primaryCriteriaRelationship,
         occurrenceAttributesWithInstanceLevelHints);
+  }
+
+  @VisibleForTesting
+  public static CriteriaSelector fromConfigCriteriaSelector(
+      SZCriteriaSelector szCriteriaSelector,
+      String criteriaSelectorPath,
+      ConfigReader configReader) {
+    // Read in the plugin config file to a string.
+    String pluginConfig = szCriteriaSelector.pluginConfig;
+    if (szCriteriaSelector.pluginConfigFile != null) {
+      pluginConfig =
+          configReader.readCriteriaSelectorPluginConfig(
+              criteriaSelectorPath, szCriteriaSelector.pluginConfigFile);
+    }
+
+    // Deserialize the modifiers.
+    List<CriteriaSelector.Modifier> modifiers = new ArrayList<>();
+    if (szCriteriaSelector.modifiers != null) {
+      szCriteriaSelector.modifiers.stream()
+          .map(
+              szModifier -> {
+                String modifierPluginConfig = szModifier.pluginConfig;
+                if (szModifier.pluginConfigFile != null && !szModifier.pluginConfigFile.isEmpty()) {
+                  modifierPluginConfig =
+                      configReader.readCriteriaSelectorPluginConfig(
+                          criteriaSelectorPath, szModifier.pluginConfigFile);
+                }
+                return new CriteriaSelector.Modifier(
+                    szModifier.name, szModifier.plugin, modifierPluginConfig);
+              });
+    }
+
+    return new CriteriaSelector(
+        szCriteriaSelector.name,
+        szCriteriaSelector.isEnabledForCohorts,
+        szCriteriaSelector.isEnabledForDataFeatureSets,
+        szCriteriaSelector.filterBuilder,
+        szCriteriaSelector.plugin,
+        pluginConfig,
+        modifiers);
+  }
+
+  @VisibleForTesting
+  public static PrepackagedCriteria fromConfigPrepackagedCriteria(
+      SZPrepackagedCriteria szPrepackagedCriteria,
+      String prepackagedCriteriaPath,
+      ConfigReader configReader) {
+    // Read in the plugin config files.
+    List<SelectionData> selectionData = new ArrayList<>();
+    if (szPrepackagedCriteria.selectionData != null) {
+      szPrepackagedCriteria.selectionData.stream()
+          .forEach(
+              szSelectionData -> {
+                if (szSelectionData.pluginDataFile != null
+                    && !szSelectionData.pluginDataFile.isEmpty()) {
+                  szSelectionData.pluginData =
+                      configReader.readPrepackagedCriteriaPluginConfig(
+                          prepackagedCriteriaPath, szSelectionData.pluginDataFile);
+                }
+                selectionData.add(
+                    new SelectionData(szSelectionData.plugin, szSelectionData.pluginData));
+              });
+    }
+    return new PrepackagedCriteria(
+        szPrepackagedCriteria.name, szPrepackagedCriteria.criteriaSelector, selectionData);
   }
 }
