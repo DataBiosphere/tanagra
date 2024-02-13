@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package criteriaselector.simple;
+
+option java_multiple_files = false;
+option java_package = "bio.terra.tanagra.proto.criteriaselector";
+
+message Config {
+  string displayName = 1;
+  string description = 2;
+}
+
+message Data {
+  int64 selectedId = 1;
+  string selectedDisplay = 2;
+}
