@@ -7,6 +7,9 @@ This documentation is generated from annotations in the configuration classes.
 * [SZBigQuery](#szbigquery)
 * [SZCriteriaOccurrence](#szcriteriaoccurrence)
 * [SZCriteriaRelationship](#szcriteriarelationship)
+* [SZCriteriaSelector](#szcriteriaselector)
+* [SZCriteriaSelectorDisplay](#szcriteriaselectordisplay)
+* [SZCriteriaSelectorModifier](#szcriteriaselectormodifier)
 * [SZDataType](#szdatatype)
 * [SZDataflow](#szdataflow)
 * [SZEntity](#szentity)
@@ -16,8 +19,10 @@ This documentation is generated from annotations in the configuration classes.
 * [SZIndexer](#szindexer)
 * [SZMetadata](#szmetadata)
 * [SZOccurrenceEntity](#szoccurrenceentity)
+* [SZPrepackagedCriteria](#szprepackagedcriteria)
 * [SZPrimaryCriteriaRelationship](#szprimarycriteriarelationship)
 * [SZPrimaryRelationship](#szprimaryrelationship)
+* [SZSelectionData](#szselectiondata)
 * [SZService](#szservice)
 * [SZSourceData](#szsourcedata)
 * [SZTextSearch](#sztextsearch)
@@ -185,6 +190,136 @@ There can be other columns selected in the SQL file (e.g. `SELECT * FROM relatio
 Name of the field or column name that maps to the occurrence entity id. Required if the [id pairs SQL](#szcriteriarelationshipidpairssqlfile) is defined.
 
 *Example value:* `occurrence_id`
+
+
+
+## SZCriteriaSelector
+Criteria selector configuration.
+
+Define a version of this file for each set of UI plugins + configuration.
+
+### SZCriteriaSelector.display
+**required** [SZCriteriaSelectorDisplay](#szcriteriaselectordisplay)
+
+Display information.
+
+### SZCriteriaSelector.filterBuilder
+**required** String
+
+Name of a Java class that implements the `FilterBuilder` interface. This class will take in the selector configuration and user selections and produce an `EntityFilter` on either the primary entity (for a cohort) or another entity (for a data feature).
+
+### SZCriteriaSelector.isEnabledForCohorts
+**required** boolean
+
+True if this criteria selector should be displayed in the cohort builder.
+
+### SZCriteriaSelector.isEnabledForDataFeatureSets
+**required** boolean
+
+True if this criteria selector should be displayed in the data feature set builder.
+
+### SZCriteriaSelector.modifiers
+**required** List [ SZCriteriaSelector$Modifier ]
+
+Configuration for modifiers.
+
+### SZCriteriaSelector.name
+**required** String
+
+Name of the criteria selector.
+
+This is the unique identifier for the selector. The selector names cannot overlap within an underlay.
+
+Name may not include spaces or special characters, only letters and numbers.
+
+This name is stored in the application database for cohorts and data feature sets, so once there are artifacts associated with a criteria selector, you can't change the selector name.
+
+### SZCriteriaSelector.plugin
+**required** String
+
+Name of the primary UI display plugin. (e.g. selector for condition, not any of the modifiers).
+
+This plugin name is stored in the application database, so once there are cohorts or data features that use this selector, you can't change the plugin names.
+
+### SZCriteriaSelector.pluginConfig
+**required** String
+
+Serialized configuration of the primary UI display plugin e.g. "{"attribute":"gender"}".
+
+### SZCriteriaSelector.pluginConfig
+**required** String
+
+Name of the file that contains the serialized configuration of the primary UI display plugin.
+
+This file should be in the same directory as the criteria selector (e.g. `gender.json`).
+
+If this property is specified, the value of the `pluginConfig` property is ignored.
+
+
+
+## SZCriteriaSelectorDisplay
+Criteria selector display configuration.
+
+### SZCriteriaSelectorDisplay.category
+**required** String
+
+Category that the criteria selector is listed under when a user goes to 
+
+add a new criteria. (e.g. "Vitals")
+
+### SZCriteriaSelectorDisplay.displayName
+**required** String
+
+Display name.
+
+### SZCriteriaSelectorDisplay.tags
+**required** List [ String ]
+
+Tags that the criteria selector should match when a user uses the dropdown in the add new
+
+criteria page. (e.g. "Source Codes")
+
+
+
+## SZCriteriaSelectorModifier
+Criteria selector display configuration.
+
+### SZCriteriaSelectorModifier.displayName
+**required** String
+
+Display name.
+
+### SZCriteriaSelectorModifier.name
+**required** String
+
+Name of the criteria selector modifier.
+
+This is the unique identifier for the modifier. The modifier names cannot overlap within a selector.
+
+Name may not include spaces or special characters, only letters and numbers.
+
+This name is stored in the application database for cohorts and data feature sets, so once there are artifacts associated with a modifier, you can't change the modifier name.
+
+### SZCriteriaSelectorModifier.plugin
+**required** String
+
+Name of the modifier UI display plugin. (e.g. selector for condition visit type).
+
+This plugin name is stored in the application database, so once there are cohorts or data features that use this modifier, you can't change the plugin names.
+
+### SZCriteriaSelectorModifier.pluginConfig
+**required** String
+
+Serialized configuration of the modifier UI display plugin e.g. "{"attribute":"visitType"}".
+
+### SZCriteriaSelectorModifier.pluginConfig
+**required** String
+
+Name of the file that contains the serialized configuration of the modifier UI display plugin.
+
+This file should be in the same directory as the criteria selector (e.g. `visitType.json`).
+
+If this property is specified, the value of the `pluginConfig` property is ignored.
 
 
 
@@ -591,6 +726,39 @@ Relationship or join between this occurrence entity and the primary entity (e.g.
 
 
 
+## SZPrepackagedCriteria
+Prepackaged criteria configuration.
+
+### SZPrepackagedCriteria.criteriaSelector
+**required** String
+
+Name of the criteria selector this criteria is associated with.
+
+The criteria selector must be defined for the underlay. (e.g. The condition selector must be defined in order to define a prepackaged data feature for condition = Type 2 Diabetes.)
+
+### SZPrepackagedCriteria.displayName
+**required** String
+
+Display name.
+
+### SZPrepackagedCriteria.name
+**required** String
+
+Name of the prepackaged criteria.
+
+This is the unique identifier for the criteria. The criteria names cannot overlap within an underlay.
+
+Name may not include spaces or special characters, only letters and numbers.
+
+This name is stored in the application database for data feature sets, so once there are artifacts associated with a prepackaged criteria, you can't change the criteria name.
+
+### SZPrepackagedCriteria.selectionData
+**required** List [ SZPrepackagedCriteria$SelectionData ]
+
+List of selection data.
+
+
+
 ## SZPrimaryCriteriaRelationship
 Relationship or join between the primary and criteria entities (e.g. condition and person).
 
@@ -647,6 +815,32 @@ Name of the field or column name that maps to the occurrence entity id. Required
 Name of the field or column name that maps to the primary entity id. Required if the [id pairs SQL](#szprimaryrelationshipidpairssqlfile) is defined.
 
 *Example value:* `primary_id`
+
+
+
+## SZSelectionData
+Prepackaged criteria selection data, one per UI display plugin.
+
+### SZSelectionData.plugin
+**required** String
+
+Name of the UI display plugin. (e.g. selector for condition).
+
+This plugin name is stored in the application database, so once there are cohorts or data features that use this prepackaged criteria, you can't change the plugin names.
+
+### SZSelectionData.pluginData
+**required** String
+
+Serialized data for the UI display plugin e.g. "{"conceptId":"201826"}".
+
+### SZSelectionData.pluginDataFile
+**required** String
+
+Name of the file that contains the serialized data for the UI display plugin.
+
+This file should be in the same directory as the prepackaged criteria (e.g. `condition.json`).
+
+If this property is specified, the value of the `pluginData` property is ignored.
 
 
 

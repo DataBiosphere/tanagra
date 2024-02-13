@@ -31,6 +31,32 @@ export type SZCriteriaRelationship = {
   occurrenceEntityIdFieldName?: string;
 };
 
+export type SZCriteriaSelector = {
+  display: SZCriteriaSelectorDisplay;
+  filterBuilder: string;
+  isEnabledForCohorts: boolean;
+  isEnabledForDataFeatureSets: boolean;
+  modifiers: SZCriteriaSelectorModifier[];
+  name: string;
+  plugin: string;
+  pluginConfig: string;
+  pluginConfigFile: string;
+};
+
+export type SZCriteriaSelectorDisplay = {
+  category: string;
+  displayName: string;
+  tags: string[];
+};
+
+export type SZCriteriaSelectorModifier = {
+  displayName: string;
+  name: string;
+  plugin: string;
+  pluginConfig: string;
+  pluginConfigFile: string;
+};
+
 export enum SZDataType {
   BOOLEAN = "BOOLEAN",
   DATE = "DATE",
@@ -108,6 +134,13 @@ export type SZOccurrenceEntity = {
   primaryRelationship: SZPrimaryRelationship;
 };
 
+export type SZPrepackagedCriteria = {
+  criteriaSelector: string;
+  displayName: string;
+  name: string;
+  selectionData: SZSelectionData[];
+};
+
 export type SZPrimaryCriteriaRelationship = {
   criteriaEntityIdFieldName: string;
   idPairsSqlFile: string;
@@ -119,6 +152,12 @@ export type SZPrimaryRelationship = {
   idPairsSqlFile?: string;
   occurrenceEntityIdFieldName?: string;
   primaryEntityIdFieldName?: string;
+};
+
+export type SZSelectionData = {
+  plugin: string;
+  pluginData: string;
+  pluginDataFile: string;
 };
 
 export type SZService = {

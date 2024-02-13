@@ -2,9 +2,11 @@ package bio.terra.tanagra.annotation;
 
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.util.List;
@@ -37,7 +39,12 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZCriteriaOccurrence.OccurrenceEntity.class,
           SZCriteriaOccurrence.OccurrenceEntity.CriteriaRelationship.class,
           SZCriteriaOccurrence.OccurrenceEntity.PrimaryRelationship.class,
-          SZCriteriaOccurrence.PrimaryCriteriaRelationship.class);
+          SZCriteriaOccurrence.PrimaryCriteriaRelationship.class,
+          SZCriteriaSelector.class,
+          SZCriteriaSelector.Display.class,
+          SZCriteriaSelector.Modifier.class,
+          SZPrepackagedCriteria.class,
+          SZPrepackagedCriteria.SelectionData.class);
 
   @Override
   public String getTitle() {
