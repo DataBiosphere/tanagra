@@ -7,9 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass.Key;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass.ValueData;
-import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
-import com.google.api.client.json.Json;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
 import org.junit.jupiter.api.Test;
@@ -35,7 +33,8 @@ public class ProtoSchemaTest {
 
   @Test
   void deserializeNestedSchema() throws InvalidProtocolBufferException {
-    String serialized = "{ \"attribute\": \"id\", \"numeric\": true,  \"range\": { \"id\": \"15\", \"min\": 0, \"max\": 89 } }";
+    String serialized =
+        "{ \"attribute\": \"id\", \"numeric\": true,  \"range\": { \"id\": \"15\", \"min\": 0, \"max\": 89 } }";
     ValueData.Builder builder = ValueData.newBuilder();
     JsonFormat.parser().ignoringUnknownFields().merge(serialized, builder);
     ValueData valueData = builder.build();
@@ -51,15 +50,19 @@ public class ProtoSchemaTest {
 
   @Test
   void serializeNestedSchema() throws InvalidProtocolBufferException {
-    ValueData valueData = ValueData.newBuilder()
+    ValueData valueData =
+        ValueData.newBuilder()
             .setAttribute("vocabulary")
             .setNumeric(false)
             .addSelected(
-              ValueData.Selection.newBuilder()
-                      .setValue(
-                              Value.newBuilder().setInt64Value(24).build())
-                      .setName("SNOMED").build()).build();
+                ValueData.Selection.newBuilder()
+                    .setValue(Value.newBuilder().setInt64Value(24).build())
+                    .setName("SNOMED")
+                    .build())
+            .build();
     String serialized = JsonFormat.printer().omittingInsignificantWhitespace().print(valueData);
-    assertEquals("{\"attribute\":\"vocabulary\",\"selected\":[{\"value\":{\"int64Value\":\"24\"},\"name\":\"SNOMED\"}]}", serialized);
+    assertEquals(
+        "{\"attribute\":\"vocabulary\",\"selected\":[{\"value\":{\"int64Value\":\"24\"},\"name\":\"SNOMED\"}]}",
+        serialized);
   }
 }
