@@ -15,5 +15,5 @@ message EntityGroup {
   }
   repeated Selection selected = 1;
 
-  optional ValueData value_data = 2;
+  ValueData value_data = 2;
 }
