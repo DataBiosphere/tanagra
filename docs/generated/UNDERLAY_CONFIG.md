@@ -603,6 +603,13 @@ There can be other columns selected in the SQL file (e.g. `SELECT * FROM relatio
 
 *Example value:* `childParent.sql`
 
+### SZHierarchy.cleanHierarchyNodesWithZeroCounts
+**optional** boolean
+
+When false, indexing jobs will not clean hierarchy nodes with both a zero item and rollup counts. When true, indexing jobs will clean hierarchy nodes with both a zero item and rollup counts.
+
+*Default value:* `false`
+
 ### SZHierarchy.keepOrphanNodes
 **optional** boolean
 

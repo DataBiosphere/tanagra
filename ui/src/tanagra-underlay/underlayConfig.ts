@@ -108,6 +108,7 @@ export type SZGroupItems = {
 export type SZHierarchy = {
   childIdFieldName: string;
   childParentIdPairsSqlFile: string;
+  cleanHierarchyNodesWithZeroCounts?: boolean;
   keepOrphanNodes?: boolean;
   maxDepth: number;
   name?: string;
