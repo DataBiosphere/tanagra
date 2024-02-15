@@ -9,6 +9,7 @@ import bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
 import bio.terra.tanagra.indexing.job.bigquery.WriteRelationshipIntermediateTable;
 import bio.terra.tanagra.indexing.job.bigquery.WriteTextSearchField;
+import bio.terra.tanagra.indexing.job.dataflow.CleanHierarchyNodesWithZeroCounts;
 import bio.terra.tanagra.indexing.job.dataflow.WriteAncestorDescendant;
 import bio.terra.tanagra.indexing.job.dataflow.WriteInstanceLevelDisplayHints;
 import bio.terra.tanagra.indexing.job.dataflow.WriteNumChildrenAndPaths;
@@ -222,6 +223,22 @@ public final class JobSequencer {
                                 groupItems.getGroupEntity().getName(), hierarchy.getName())));
               });
     }
+
+    if (groupItems.getGroupEntity().hasHierarchies()) {
+      groupItems
+          .getGroupEntity()
+          .getHierarchies()
+          .forEach(
+              hierarchy -> {
+                if (hierarchy.isCleanHierarchyNodesWithZeroCounts()) {
+                  jobSet.startNewStage();
+                  jobSet.addJob(
+                      new CleanHierarchyNodesWithZeroCounts(
+                          indexerConfig, groupItems, groupEntityIndexTable, hierarchy));
+                }
+              });
+    }
+
     return jobSet;
   }
 
@@ -404,6 +421,21 @@ public final class JobSequencer {
                       criteriaOccurrence.getName(),
                       occurrenceEntity.getName(),
                       criteriaOccurrence.getCriteriaEntity().getName())));
+    }
+
+    if (criteriaOccurrence.getCriteriaEntity().hasHierarchies()) {
+      criteriaOccurrence
+          .getCriteriaEntity()
+          .getHierarchies()
+          .forEach(
+              hierarchy -> {
+                if (hierarchy.isCleanHierarchyNodesWithZeroCounts()) {
+                  jobSet.startNewStage();
+                  jobSet.addJob(
+                      new CleanHierarchyNodesWithZeroCounts(
+                          indexerConfig, criteriaOccurrence, criteriaEntityIndexTable, hierarchy));
+                }
+              });
     }
 
     return jobSet;
