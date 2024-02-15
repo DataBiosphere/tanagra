@@ -23,7 +23,8 @@
       "parentIdFieldName": "parent",
       "rootNodeIds": [ 2500000023, 2500000024, 2500000025 ],
       "maxDepth": 10,
-      "keepOrphanNodes": false
+      "keepOrphanNodes": false,
+      "cleanHierarchyNodesWithZeroCounts": true
     }
   ]
 }

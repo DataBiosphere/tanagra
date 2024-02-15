@@ -25,7 +25,8 @@
       "rootNodeIdsSqlFile": "rootNode.sql",
       "rootIdFieldName": "id",
       "maxDepth": 10,
-      "keepOrphanNodes": false
+      "keepOrphanNodes": false,
+      "cleanHierarchyNodesWithZeroCounts": true
     }
   ]
 }
