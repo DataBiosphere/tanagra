@@ -52,6 +52,11 @@ dependencies {
 }
 
 protobuf {
+    // Configure the protoc executable
+    protoc {
+        // Download from repositories
+        artifact = 'com.google.protobuf:protoc:3.0.0'
+    }
     // By default, the proto plugin generates Java classes in the build/classes/ directory.
     // generatedFilesBaseDir = "$projectDir/src/generated"
 }
