@@ -277,6 +277,15 @@ public class SZEntity {
         optional = true,
         defaultValue = "false")
     public boolean keepOrphanNodes;
+
+    @AnnotatedField(
+        name = "SZHierarchy.cleanHierarchyNodesWithZeroCounts",
+        markdown =
+            "When false, indexing jobs will not clean hierarchy nodes with both a zero item and rollup counts. "
+                + "When true, indexing jobs will clean hierarchy nodes with both a zero item and rollup counts.",
+        optional = true,
+        defaultValue = "false")
+    public boolean cleanHierarchyNodesWithZeroCounts;
   }
 
   @AnnotatedClass(name = "SZTextSearch", markdown = "Text search configuration for an entity.")

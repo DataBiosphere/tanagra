@@ -323,7 +323,8 @@ public final class Underlay {
                           szHierarchy.name,
                           szHierarchy.maxDepth,
                           szHierarchy.keepOrphanNodes,
-                          szHierarchy.rootNodeIds))
+                          szHierarchy.rootNodeIds,
+                          szHierarchy.cleanHierarchyNodesWithZeroCounts))
               .collect(Collectors.toList());
     }
     return new Entity(
