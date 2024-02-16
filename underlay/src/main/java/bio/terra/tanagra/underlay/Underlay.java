@@ -504,7 +504,8 @@ public final class Underlay {
                           prepackagedCriteriaPath, szSelectionData.pluginDataFile);
                 }
                 selectionData.add(
-                    new SelectionData(szSelectionData.plugin, szSelectionData.pluginData));
+                    new SelectionData(
+                        szSelectionData.selectorOrModifierName, szSelectionData.pluginData));
               });
     }
     return new PrepackagedCriteria(

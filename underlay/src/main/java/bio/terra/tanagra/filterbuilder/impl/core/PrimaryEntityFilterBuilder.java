@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
-import bio.terra.tanagra.filterbuilder.impl.utils.AttributeSchemaUtils;
+import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.Underlay;

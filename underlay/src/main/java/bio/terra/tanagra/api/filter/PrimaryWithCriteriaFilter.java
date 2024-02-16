@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 public class PrimaryWithCriteriaFilter extends EntityFilter {
@@ -101,5 +102,36 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
   @Nullable
   public Integer getGroupByCountValue() {
     return groupByCountValue;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PrimaryWithCriteriaFilter that = (PrimaryWithCriteriaFilter) o;
+    return underlay.equals(that.underlay)
+        && criteriaOccurrence.equals(that.criteriaOccurrence)
+        && Objects.equals(criteriaSubFilter, that.criteriaSubFilter)
+        && Objects.equals(subFiltersPerOccurrenceEntity, that.subFiltersPerOccurrenceEntity)
+        && Objects.equals(
+            groupByAttributesPerOccurrenceEntity, that.groupByAttributesPerOccurrenceEntity)
+        && groupByCountOperator == that.groupByCountOperator
+        && Objects.equals(groupByCountValue, that.groupByCountValue);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        underlay,
+        criteriaOccurrence,
+        criteriaSubFilter,
+        subFiltersPerOccurrenceEntity,
+        groupByAttributesPerOccurrenceEntity,
+        groupByCountOperator,
+        groupByCountValue);
   }
 }

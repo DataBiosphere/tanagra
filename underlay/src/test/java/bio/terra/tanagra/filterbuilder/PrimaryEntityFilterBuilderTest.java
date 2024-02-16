@@ -11,7 +11,7 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.filterbuilder.impl.core.PrimaryEntityFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
-import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass;
+import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.ConfigReader;
@@ -55,11 +55,11 @@ public class PrimaryEntityFilterBuilderTest {
         DTAttribute.Attribute.newBuilder()
             .addSelected(
                 DTAttribute.Attribute.Selection.newBuilder()
-                    .setValue(ValueOuterClass.Value.newBuilder().setInt64Value(8_532L).build())
+                    .setValue(Value.newBuilder().setInt64Value(8_532L).build())
                     .setName("Female")
                     .build())
             .build();
-    SelectionData selectionData = new SelectionData("core/attribute", serializeToJson(data));
+    SelectionData selectionData = new SelectionData("gender", serializeToJson(data));
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNotNull(cohortFilter);
     EntityFilter expectedCohortFilter =
@@ -76,16 +76,16 @@ public class PrimaryEntityFilterBuilderTest {
         DTAttribute.Attribute.newBuilder()
             .addSelected(
                 DTAttribute.Attribute.Selection.newBuilder()
-                    .setValue(ValueOuterClass.Value.newBuilder().setInt64Value(8_532L).build())
+                    .setValue(Value.newBuilder().setInt64Value(8_532L).build())
                     .setName("Female")
                     .build())
             .addSelected(
                 DTAttribute.Attribute.Selection.newBuilder()
-                    .setValue(ValueOuterClass.Value.newBuilder().setInt64Value(8_507L).build())
+                    .setValue(Value.newBuilder().setInt64Value(8_507L).build())
                     .setName("Male")
                     .build())
             .build();
-    selectionData = new SelectionData("core/attribute", serializeToJson(data));
+    selectionData = new SelectionData("gender", serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNotNull(cohortFilter);
     expectedCohortFilter =
@@ -117,7 +117,7 @@ public class PrimaryEntityFilterBuilderTest {
         DTAttribute.Attribute.newBuilder()
             .addDataRanges(DataRange.newBuilder().setMin(0).setMax(89).build())
             .build();
-    SelectionData selectionData = new SelectionData("core/attribute", serializeToJson(data));
+    SelectionData selectionData = new SelectionData("age", serializeToJson(data));
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNotNull(cohortFilter);
     EntityFilter expectedCohortFilter =

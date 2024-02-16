@@ -1,16 +1,16 @@
 package bio.terra.tanagra.underlay.uiplugin;
 
 public final class SelectionData {
-  private final String plugin;
+  private final String selectorOrModifierName;
   private final String pluginData;
 
-  public SelectionData(String plugin, String pluginData) {
-    this.plugin = plugin;
+  public SelectionData(String selectorOrModifierName, String pluginData) {
+    this.selectorOrModifierName = selectorOrModifierName;
     this.pluginData = pluginData;
   }
 
-  public String getPlugin() {
-    return plugin;
+  public String getSelectorOrModifierName() {
+    return selectorOrModifierName;
   }
 
   public String getPluginData() {

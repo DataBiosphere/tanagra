@@ -13,7 +13,7 @@ import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
-import bio.terra.tanagra.filterbuilder.impl.utils.AttributeSchemaUtils;
+import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
@@ -40,7 +40,7 @@ import org.apache.commons.lang3.NotImplementedException;
     justification = "The config and data objects are deserialized by Jackson.")
 public class EntityGroupFilterBuilder extends FilterBuilder {
   private static final String ATTRIBUTE_MODIFIER_PLUGIN = "core/attribute";
-  private static final String GROUP_BY_MODIFIER_PLUGIN = "core/attribute";
+  private static final String GROUP_BY_MODIFIER_PLUGIN = "core/unhinted-value";
 
   public EntityGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
@@ -50,7 +50,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
   public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
     DTEntityGroup.EntityGroup entityGroupSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
-    List<SelectionData> modifiersSelectionData = selectionData.subList(0, selectionData.size());
+    List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // We want to build one filter per entity group, not one filter per selected id.
     Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup = new HashMap<>();
@@ -113,11 +113,14 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     modifiersSelectionData.stream()
         .filter(
             modifierSelectionData ->
-                ATTRIBUTE_MODIFIER_PLUGIN.equals(modifierSelectionData.getPlugin()))
+                ATTRIBUTE_MODIFIER_PLUGIN.equals(
+                    criteriaSelector
+                        .getModifier(modifierSelectionData.getSelectorOrModifierName())
+                        .getPlugin()))
         .forEach(
             modifierSelectionData -> {
               CriteriaSelector.Modifier modifierDefn =
-                  criteriaSelector.getModifier(modifierSelectionData.getPlugin());
+                  criteriaSelector.getModifier(modifierSelectionData.getSelectorOrModifierName());
               CFPlaceholder.Placeholder modifierConfig =
                   AttributeSchemaUtils.deserializeConfig(modifierDefn.getPluginConfig());
               DTAttribute.Attribute modifierData =
@@ -142,7 +145,10 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
         modifiersSelectionData.stream()
             .filter(
                 modifierSelectionData ->
-                    GROUP_BY_MODIFIER_PLUGIN.equals(modifierSelectionData.getPlugin()))
+                    GROUP_BY_MODIFIER_PLUGIN.equals(
+                        criteriaSelector
+                            .getModifier(modifierSelectionData.getSelectorOrModifierName())
+                            .getPlugin()))
             .findFirst();
     if (groupByCountSelectionData.isEmpty()) {
       return new PrimaryWithCriteriaFilter(
@@ -159,7 +165,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     CFPlaceholder.Placeholder groupByModifierConfig =
         deserializeGroupByCountConfig(
             criteriaSelector
-                .getModifier(groupByCountSelectionData.get().getPlugin())
+                .getModifier(groupByCountSelectionData.get().getSelectorOrModifierName())
                 .getPluginConfig());
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
     if (!groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().isEmpty()) {

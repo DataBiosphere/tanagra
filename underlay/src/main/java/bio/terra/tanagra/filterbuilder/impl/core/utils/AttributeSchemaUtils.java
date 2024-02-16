@@ -1,4 +1,4 @@
-package bio.terra.tanagra.filterbuilder.impl.utils;
+package bio.terra.tanagra.filterbuilder.impl.core.utils;
 
 import static bio.terra.tanagra.filterbuilder.SchemaUtils.toLiteral;
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
