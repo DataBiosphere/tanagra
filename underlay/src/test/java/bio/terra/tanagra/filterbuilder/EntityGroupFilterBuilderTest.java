@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
@@ -121,6 +122,61 @@ public class EntityGroupFilterBuilderTest {
             null,
             null,
             null);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Multiple ids, different entity groups.
+    data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
+                    .setName("Type 2 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(4_198_190L).build())
+                    .setName("Appendectomy")
+                    .setEntityGroup("procedurePerson")
+                    .build())
+            .build();
+    selectionData = new SelectionData("condition", serializeToJson(data));
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNotNull(cohortFilter);
+    EntityFilter expectedCriteriaSubFilter1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("condition"),
+            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
+    EntityFilter expectedCohortFilter1 =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            expectedCriteriaSubFilter1,
+            null,
+            null,
+            null,
+            null);
+    EntityFilter expectedCriteriaSubFilter2 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("procedure"),
+            underlay.getEntity("procedure").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(4_198_190L));
+    EntityFilter expectedCohortFilter2 =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("procedurePerson"),
+            expectedCriteriaSubFilter2,
+            null,
+            null,
+            null,
+            null);
+    expectedCohortFilter =
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR,
+            List.of(expectedCohortFilter1, expectedCohortFilter2));
     assertEquals(expectedCohortFilter, cohortFilter);
   }
 
