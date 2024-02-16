@@ -159,12 +159,12 @@ public class JobSequencerTest {
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
-            JobSequencer.getJobSetForCriteriaOccurrence(
-                    szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));
+        JobSequencer.getJobSetForCriteriaOccurrence(
+            szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));
 
     assertEquals(3, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
-    
+
     // Assert stage 1 job is WriteRelationshipIntermediateTable
     List<IndexingJob> stage1Jobs = jobStageItr.next();
     assertEquals(1, stage1Jobs.size());

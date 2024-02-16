@@ -44,6 +44,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
     return indexTable.getTablePointer().getTableName();
   }
 
+  @Override
   protected Optional<Table> getOutputTable() {
     return googleBigQuery.getTable(
         indexerConfig.bigQuery.indexData.projectId,
