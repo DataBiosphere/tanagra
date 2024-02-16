@@ -4,7 +4,7 @@
   "entities": [
     "omop/person",
 
-    "omop/condition",
+    "aouSR2019q4r4/conditionConcept",
     "omop/conditionOccurrence",
     "omop/procedure",
     "omop/procedureOccurrence",
@@ -34,7 +34,7 @@
     "omop/brandIngredient"
   ],
   "criteriaOccurrenceEntityGroups": [
-    "omop/conditionPerson",
+    "aouSR2019q4r4/conditionPerson",
     "omop/procedurePerson",
 
     "omop/ingredientPerson",
