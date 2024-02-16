@@ -145,7 +145,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
         modifiersSelectionData.stream()
             .filter(
                 modifierSelectionData ->
-                    SZCorePlugin.GROUP_BY_COUNT
+                    SZCorePlugin.UNHINTED_VALUE
                         .getIdInConfig()
                         .equals(
                             criteriaSelector

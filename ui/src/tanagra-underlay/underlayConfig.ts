@@ -20,9 +20,9 @@ export type SZBigQuery = {
 export enum SZCorePlugin {
   ATTRIBUTE = "ATTRIBUTE",
   ENTITY_GROUP = "ENTITY_GROUP",
-  GROUP_BY_COUNT = "GROUP_BY_COUNT",
   MULTI_ATTRIBUTE = "MULTI_ATTRIBUTE",
   TEXT_SEARCH = "TEXT_SEARCH",
+  UNHINTED_VALUE = "UNHINTED_VALUE",
 };
 
 export type SZCriteriaOccurrence = {

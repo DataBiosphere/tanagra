@@ -143,11 +143,6 @@ Use `plugin: "core/attribute"`.
 
 Use `plugin: "core/entityGroup"`.
 
-### SZCorePlugin.GROUP_BY_COUNT
-**required** [SZCorePlugin](#szcoreplugin)
-
-Use `plugin: "core/unhinted-value"`.
-
 ### SZCorePlugin.MULTI_ATTRIBUTE
 **required** [SZCorePlugin](#szcoreplugin)
 
@@ -157,6 +152,11 @@ Use `plugin: "core/multiAttribute"`.
 **required** [SZCorePlugin](#szcoreplugin)
 
 Use `plugin: "core/search"`.
+
+### SZCorePlugin.UNHINTED_VALUE
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "core/unhinted-value"`.
 
 
 

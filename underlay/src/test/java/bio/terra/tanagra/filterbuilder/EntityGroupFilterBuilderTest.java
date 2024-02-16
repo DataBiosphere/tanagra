@@ -306,7 +306,7 @@ public class EntityGroupFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
-            SZCorePlugin.GROUP_BY_COUNT.getIdInConfig(),
+            SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
     CriteriaSelector criteriaSelector =
@@ -389,7 +389,7 @@ public class EntityGroupFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
-            SZCorePlugin.GROUP_BY_COUNT.getIdInConfig(),
+            SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
     CriteriaSelector criteriaSelector =

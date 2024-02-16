@@ -21,9 +21,9 @@ public enum SZCorePlugin {
   @AnnotatedField(name = "SZCorePlugin.TEXT_SEARCH", markdown = "Use `plugin: \"core/search\"`.")
   TEXT_SEARCH("core/search"),
   @AnnotatedField(
-      name = "SZCorePlugin.GROUP_BY_COUNT",
+      name = "SZCorePlugin.UNHINTED_VALUE",
       markdown = "Use `plugin: \"core/unhinted-value\"`.")
-  GROUP_BY_COUNT("core/unhinted-value");
+  UNHINTED_VALUE("core/unhinted-value");
   private final String idInConfig;
 
   SZCorePlugin(String idInConfig) {
