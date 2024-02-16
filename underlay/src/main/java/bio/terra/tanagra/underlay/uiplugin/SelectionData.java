@@ -1,16 +1,18 @@
 package bio.terra.tanagra.underlay.uiplugin;
 
+import javax.annotation.Nullable;
+
 public final class SelectionData {
-  private final String selectorOrModifierName;
+  private final @Nullable String modifierName;
   private final String pluginData;
 
-  public SelectionData(String selectorOrModifierName, String pluginData) {
-    this.selectorOrModifierName = selectorOrModifierName;
+  public SelectionData(@Nullable String modifierName, String pluginData) {
+    this.modifierName = modifierName;
     this.pluginData = pluginData;
   }
 
-  public String getSelectorOrModifierName() {
-    return selectorOrModifierName;
+  public @Nullable String getModifierName() {
+    return modifierName;
   }
 
   public String getPluginData() {

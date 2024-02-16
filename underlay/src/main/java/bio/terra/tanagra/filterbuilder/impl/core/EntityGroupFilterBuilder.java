@@ -115,12 +115,12 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
             modifierSelectionData ->
                 ATTRIBUTE_MODIFIER_PLUGIN.equals(
                     criteriaSelector
-                        .getModifier(modifierSelectionData.getSelectorOrModifierName())
+                        .getModifier(modifierSelectionData.getModifierName())
                         .getPlugin()))
         .forEach(
             modifierSelectionData -> {
               CriteriaSelector.Modifier modifierDefn =
-                  criteriaSelector.getModifier(modifierSelectionData.getSelectorOrModifierName());
+                  criteriaSelector.getModifier(modifierSelectionData.getModifierName());
               CFPlaceholder.Placeholder modifierConfig =
                   AttributeSchemaUtils.deserializeConfig(modifierDefn.getPluginConfig());
               DTAttribute.Attribute modifierData =
@@ -147,7 +147,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
                 modifierSelectionData ->
                     GROUP_BY_MODIFIER_PLUGIN.equals(
                         criteriaSelector
-                            .getModifier(modifierSelectionData.getSelectorOrModifierName())
+                            .getModifier(modifierSelectionData.getModifierName())
                             .getPlugin()))
             .findFirst();
     if (groupByCountSelectionData.isEmpty()) {
@@ -165,7 +165,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     CFPlaceholder.Placeholder groupByModifierConfig =
         deserializeGroupByCountConfig(
             criteriaSelector
-                .getModifier(groupByCountSelectionData.get().getSelectorOrModifierName())
+                .getModifier(groupByCountSelectionData.get().getModifierName())
                 .getPluginConfig());
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
     if (!groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().isEmpty()) {

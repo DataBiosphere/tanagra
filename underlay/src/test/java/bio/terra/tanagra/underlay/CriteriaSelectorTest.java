@@ -48,6 +48,14 @@ public class CriteriaSelectorTest {
     assertEquals("core/entityGroup", condition.getPlugin());
     assertEquals(3, condition.getModifiers().size());
 
+    CriteriaSelector.Modifier ageAtOccurrenceModifier = condition.getModifier("age_at_occurrence");
+    assertNotNull(ageAtOccurrenceModifier);
+    assertEquals("core/attribute", ageAtOccurrenceModifier.getPlugin());
+
+    CriteriaSelector.Modifier visitTypeModifier = condition.getModifier("visit_type");
+    assertNotNull(visitTypeModifier);
+    assertEquals("core/attribute", visitTypeModifier.getPlugin());
+
     FilterBuilder filterBuilder = condition.getFilterBuilder();
     assertNotNull(filterBuilder);
     assertEquals(EntityGroupFilterBuilder.class, filterBuilder.getClass());

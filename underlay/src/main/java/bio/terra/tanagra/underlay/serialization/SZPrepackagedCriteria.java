@@ -38,12 +38,14 @@ public class SZPrepackagedCriteria {
       markdown = "Prepackaged criteria selection data, one per UI display plugin.")
   public static class SelectionData {
     @AnnotatedField(
-        name = "SZSelectionData.selectorOrModifierName",
+        name = "SZSelectionData.modifierName",
         markdown =
-            "Name of the criteria selector or modifier. (e.g. condition, visitType).\n\n"
+            "Name of the modifier (e.g. age_at_occurrence, visit_type).\n\n"
                 + "This name is stored in the application database, so once there are cohorts or data features "
-                + "that use this prepackaged criteria, you can't change the selector or modifier names.")
-    public String selectorOrModifierName;
+                + "that use this prepackaged criteria, you can't change the modifier names.\n\n"
+                + "This property is ignored for the first selection data, which is the primary selection.",
+        optional = true)
+    public String modifierName;
 
     @AnnotatedField(
         name = "SZSelectionData.pluginData",
