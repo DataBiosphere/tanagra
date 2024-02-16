@@ -9,6 +9,7 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Objects;
 
 public class AttributeFilter extends EntityFilter {
   private final Underlay underlay;
@@ -94,5 +95,29 @@ public class AttributeFilter extends EntityFilter {
 
   public boolean hasBinaryOperator() {
     return binaryOperator != null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AttributeFilter that = (AttributeFilter) o;
+    return underlay.equals(that.underlay)
+        && entity.equals(that.entity)
+        && attribute.equals(that.attribute)
+        && unaryOperator == that.unaryOperator
+        && binaryOperator == that.binaryOperator
+        && naryOperator == that.naryOperator
+        && values.equals(that.values);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        underlay, entity, attribute, unaryOperator, binaryOperator, naryOperator, values);
   }
 }

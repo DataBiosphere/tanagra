@@ -1,8 +1,13 @@
 package bio.terra.tanagra.underlay.uiplugin;
 
+import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.filterbuilder.FilterBuilder;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class CriteriaSelector {
+  private static final String FILTER_BUILDER_PACKAGE = "bio.terra.tanagra.filterbuilder.impl";
   private final String name;
   private final boolean isEnabledForCohorts;
   private final boolean isEnabledForDataFeatureSets;
@@ -40,9 +45,20 @@ public class CriteriaSelector {
     return isEnabledForDataFeatureSets;
   }
 
-  public String getFilterBuilder() {
-    // TODO: Change this getter to return the FilterBuilder class.
-    return filterBuilder;
+  public FilterBuilder getFilterBuilder() {
+    try {
+      return (FilterBuilder)
+          Class.forName(FILTER_BUILDER_PACKAGE + '.' + filterBuilder)
+              .getDeclaredConstructor(CriteriaSelector.class)
+              .newInstance(this);
+    } catch (InstantiationException
+        | IllegalAccessException
+        | InvocationTargetException
+        | NoSuchMethodException
+        | ClassNotFoundException ex) {
+      throw new InvalidConfigException(
+          "Error instantiating filter builder class: " + filterBuilder, ex);
+    }
   }
 
   public String getPlugin() {
@@ -55,6 +71,13 @@ public class CriteriaSelector {
 
   public List<Modifier> getModifiers() {
     return modifiers;
+  }
+
+  public Modifier getModifier(String name) {
+    return modifiers.stream()
+        .filter(m -> m.getName().equals(name))
+        .findAny()
+        .orElseThrow(() -> new NotFoundException("Modifier not found: " + name));
   }
 
   public static class Modifier {
