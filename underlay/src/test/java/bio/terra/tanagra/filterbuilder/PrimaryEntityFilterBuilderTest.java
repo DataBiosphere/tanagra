@@ -129,4 +129,25 @@ public class PrimaryEntityFilterBuilderTest {
             List.of(Literal.forDouble(0.0), Literal.forDouble(89.0)));
     assertEquals(expectedCohortFilter, cohortFilter);
   }
+
+  @Test
+  void dataFeatureFilter() {
+    CFPlaceholder.Placeholder config =
+        CFPlaceholder.Placeholder.newBuilder().setAttribute("gender").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "gender",
+            true,
+            true,
+            "core.PrimaryEntityFilterBuilder",
+            "core/attribute",
+            serializeToJson(config),
+            List.of());
+    PrimaryEntityFilterBuilder filterBuilder = new PrimaryEntityFilterBuilder(criteriaSelector);
+
+    List<EntityOutput> dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of());
+    assertEquals(1, dataFeatureOutputs.size());
+    EntityOutput expectedDataFeatureOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
+    assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+  }
 }

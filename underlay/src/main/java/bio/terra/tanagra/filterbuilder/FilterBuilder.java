@@ -2,11 +2,9 @@ package bio.terra.tanagra.filterbuilder;
 
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.List;
-import java.util.Map;
 
 public abstract class FilterBuilder {
   protected final CriteriaSelector criteriaSelector;
@@ -15,27 +13,10 @@ public abstract class FilterBuilder {
     this.criteriaSelector = criteriaSelector;
   }
 
-  public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
-    if (selectionData.size() > 1) {
-      throw new UnsupportedOperationException(
-          "Filter builder only allows a single selection data, found " + selectionData.size());
-    }
-    return buildForCohort(underlay, selectionData.get(0));
-  }
+  public abstract EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData);
 
-  protected abstract EntityFilter buildForCohort(Underlay underlay, SelectionData selectionData);
-
-  public Map<Entity, EntityFilter> buildForDataFeature(
-      Underlay underlay, List<SelectionData> selectionData) {
-    if (selectionData.size() > 1) {
-      throw new UnsupportedOperationException(
-          "Filter builder only allows a single selection data, found " + selectionData.size());
-    }
-    return buildForDataFeature(underlay, selectionData.get(0));
-  }
-
-  protected abstract Map<Entity, EntityFilter> buildForDataFeature(
-      Underlay underlay, SelectionData selectionData);
+  public abstract List<EntityOutput> buildForDataFeature(
+      Underlay underlay, List<SelectionData> selectionData);
 
   public abstract <T> T deserializeConfig();
 

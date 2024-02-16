@@ -11,6 +11,7 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.utils.AttributeSchemaUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
@@ -93,7 +94,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public Map<Entity, EntityFilter> buildForDataFeature(
+  public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
     return null; // TODO
   }
@@ -212,19 +213,6 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
               BinaryOperator.EQUALS,
               criteriaIds.get(0));
     }
-  }
-
-  @Override
-  public EntityFilter buildForCohort(Underlay underlay, SelectionData selectionData) {
-    throw new UnsupportedOperationException(
-        "Entity group filter builder expects list of selection data.");
-  }
-
-  @Override
-  protected Map<Entity, EntityFilter> buildForDataFeature(
-      Underlay underlay, SelectionData selectionData) {
-    throw new UnsupportedOperationException(
-        "Entity group filter builder expects list of selection data.");
   }
 
   @Override
