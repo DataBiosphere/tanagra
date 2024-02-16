@@ -5,6 +5,7 @@ This documentation is generated from annotations in the configuration classes.
 
 * [SZAttribute](#szattribute)
 * [SZBigQuery](#szbigquery)
+* [SZCorePlugin](#szcoreplugin)
 * [SZCriteriaOccurrence](#szcriteriaoccurrence)
 * [SZCriteriaRelationship](#szcriteriarelationship)
 * [SZCriteriaSelector](#szcriteriaselector)
@@ -129,6 +130,36 @@ Pointer to the source BigQuery dataset.
 
 
 
+## SZCorePlugin
+Names of core plugins in the criteria selector and prepackaged criteria definitions.
+
+### SZCorePlugin.ATTRIBUTE
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "core/attribute"`.
+
+### SZCorePlugin.ENTITY_GROUP
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "core/entityGroup"`.
+
+### SZCorePlugin.GROUP_BY_COUNT
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "core/unhinted-value"`.
+
+### SZCorePlugin.MULTI_ATTRIBUTE
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "core/multiAttribute"`.
+
+### SZCorePlugin.TEXT_SEARCH
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "core/search"`.
+
+
+
 ## SZCriteriaOccurrence
 Criteria-Occurrence entity group configuration.
 
@@ -241,6 +272,8 @@ Name of the primary UI display plugin. (e.g. selector for condition, not any of 
 
 This plugin name is stored in the application database, so once there are cohorts or data features that use this selector, you can't change the plugin names.
 
+The plugin can either be one of the core plugins (e.g. core/attribute, all possibilities are listed [here](#szcoreplugin), or a dataset-specific plugin (e.g. sd/biovu).
+
 ### SZCriteriaSelector.pluginConfig
 **required** String
 
@@ -306,6 +339,8 @@ This name is stored in the application database for cohorts and data feature set
 Name of the modifier UI display plugin. (e.g. selector for condition visit type).
 
 This plugin name is stored in the application database, so once there are cohorts or data features that use this modifier, you can't change the plugin names.
+
+The plugin can either be one of the core plugins (e.g. core/attribute, all possibilities are listed [here](#szcoreplugin), or a dataset-specific plugin (e.g. sd/biovu).
 
 ### SZCriteriaSelectorModifier.pluginConfig
 **required** String
@@ -821,12 +856,14 @@ Name of the field or column name that maps to the primary entity id. Required if
 ## SZSelectionData
 Prepackaged criteria selection data, one per UI display plugin.
 
-### SZSelectionData.plugin
-**required** String
+### SZSelectionData.modifierName
+**optional** String
 
-Name of the UI display plugin. (e.g. selector for condition).
+Name of the modifier (e.g. age_at_occurrence, visit_type).
 
-This plugin name is stored in the application database, so once there are cohorts or data features that use this prepackaged criteria, you can't change the plugin names.
+This name is stored in the application database, so once there are cohorts or data features that use this prepackaged criteria, you can't change the modifier names.
+
+This property is ignored for the first selection data, which is the primary selection.
 
 ### SZSelectionData.pluginData
 **required** String

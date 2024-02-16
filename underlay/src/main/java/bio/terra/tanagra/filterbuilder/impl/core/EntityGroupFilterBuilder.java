@@ -24,6 +24,7 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -39,9 +40,6 @@ import org.apache.commons.lang3.NotImplementedException;
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
     justification = "The config and data objects are deserialized by Jackson.")
 public class EntityGroupFilterBuilder extends FilterBuilder {
-  private static final String ATTRIBUTE_MODIFIER_PLUGIN = "core/attribute";
-  private static final String GROUP_BY_MODIFIER_PLUGIN = "core/unhinted-value";
-
   public EntityGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
@@ -113,10 +111,12 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     modifiersSelectionData.stream()
         .filter(
             modifierSelectionData ->
-                ATTRIBUTE_MODIFIER_PLUGIN.equals(
-                    criteriaSelector
-                        .getModifier(modifierSelectionData.getModifierName())
-                        .getPlugin()))
+                SZCorePlugin.ATTRIBUTE
+                    .getIdInConfig()
+                    .equals(
+                        criteriaSelector
+                            .getModifier(modifierSelectionData.getModifierName())
+                            .getPlugin()))
         .forEach(
             modifierSelectionData -> {
               CriteriaSelector.Modifier modifierDefn =
@@ -145,10 +145,12 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
         modifiersSelectionData.stream()
             .filter(
                 modifierSelectionData ->
-                    GROUP_BY_MODIFIER_PLUGIN.equals(
-                        criteriaSelector
-                            .getModifier(modifierSelectionData.getModifierName())
-                            .getPlugin()))
+                    SZCorePlugin.GROUP_BY_COUNT
+                        .getIdInConfig()
+                        .equals(
+                            criteriaSelector
+                                .getModifier(modifierSelectionData.getModifierName())
+                                .getPlugin()))
             .findFirst();
     if (groupByCountSelectionData.isEmpty()) {
       return new PrimaryWithCriteriaFilter(

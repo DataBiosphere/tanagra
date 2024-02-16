@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.EntityGroupFilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.PrimaryEntityFilterBuilder;
+import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
@@ -31,7 +32,7 @@ public class CriteriaSelectorTest {
     assertNotNull(gender);
     assertTrue(gender.isEnabledForCohorts());
     assertFalse(gender.isEnabledForDataFeatureSets());
-    assertEquals("core/attribute", gender.getPlugin());
+    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), gender.getPlugin());
     assertTrue(gender.getModifiers().isEmpty());
 
     FilterBuilder filterBuilder = gender.getFilterBuilder();
@@ -45,16 +46,16 @@ public class CriteriaSelectorTest {
     assertNotNull(condition);
     assertTrue(condition.isEnabledForCohorts());
     assertTrue(condition.isEnabledForDataFeatureSets());
-    assertEquals("core/entityGroup", condition.getPlugin());
+    assertEquals(SZCorePlugin.ENTITY_GROUP.getIdInConfig(), condition.getPlugin());
     assertEquals(3, condition.getModifiers().size());
 
     CriteriaSelector.Modifier ageAtOccurrenceModifier = condition.getModifier("age_at_occurrence");
     assertNotNull(ageAtOccurrenceModifier);
-    assertEquals("core/attribute", ageAtOccurrenceModifier.getPlugin());
+    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), ageAtOccurrenceModifier.getPlugin());
 
     CriteriaSelector.Modifier visitTypeModifier = condition.getModifier("visit_type");
     assertNotNull(visitTypeModifier);
-    assertEquals("core/attribute", visitTypeModifier.getPlugin());
+    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), visitTypeModifier.getPlugin());
 
     FilterBuilder filterBuilder = condition.getFilterBuilder();
     assertNotNull(filterBuilder);

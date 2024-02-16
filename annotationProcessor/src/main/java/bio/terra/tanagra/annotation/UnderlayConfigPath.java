@@ -1,6 +1,7 @@
 package bio.terra.tanagra.annotation;
 
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
+import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
@@ -44,7 +45,8 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZCriteriaSelector.Display.class,
           SZCriteriaSelector.Modifier.class,
           SZPrepackagedCriteria.class,
-          SZPrepackagedCriteria.SelectionData.class);
+          SZPrepackagedCriteria.SelectionData.class,
+          SZCorePlugin.class);
 
   @Override
   public String getTitle() {

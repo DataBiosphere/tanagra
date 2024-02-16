@@ -16,6 +16,7 @@ import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
@@ -45,7 +46,7 @@ public class PrimaryEntityFilterBuilderTest {
             true,
             true,
             "core.PrimaryEntityFilterBuilder",
-            "core/attribute",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(config),
             List.of());
     PrimaryEntityFilterBuilder filterBuilder = new PrimaryEntityFilterBuilder(criteriaSelector);
@@ -108,7 +109,7 @@ public class PrimaryEntityFilterBuilderTest {
             true,
             false,
             "core.PrimaryEntityFilterBuilder",
-            "core/attribute",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(config),
             List.of());
     PrimaryEntityFilterBuilder filterBuilder = new PrimaryEntityFilterBuilder(criteriaSelector);
@@ -140,7 +141,7 @@ public class PrimaryEntityFilterBuilderTest {
             true,
             true,
             "core.PrimaryEntityFilterBuilder",
-            "core/attribute",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(config),
             List.of());
     PrimaryEntityFilterBuilder filterBuilder = new PrimaryEntityFilterBuilder(criteriaSelector);

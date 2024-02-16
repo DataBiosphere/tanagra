@@ -17,6 +17,14 @@ export type SZBigQuery = {
   sourceData: SZSourceData;
 };
 
+export enum SZCorePlugin {
+  ATTRIBUTE = "ATTRIBUTE",
+  ENTITY_GROUP = "ENTITY_GROUP",
+  GROUP_BY_COUNT = "GROUP_BY_COUNT",
+  MULTI_ATTRIBUTE = "MULTI_ATTRIBUTE",
+  TEXT_SEARCH = "TEXT_SEARCH",
+};
+
 export type SZCriteriaOccurrence = {
   criteriaEntity: string;
   name: string;
@@ -155,7 +163,7 @@ export type SZPrimaryRelationship = {
 };
 
 export type SZSelectionData = {
-  plugin: string;
+  modifierName?: string;
   pluginData: string;
   pluginDataFile: string;
 };

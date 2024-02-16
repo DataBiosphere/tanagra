@@ -24,6 +24,7 @@ import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
@@ -53,7 +54,7 @@ public class EntityGroupFilterBuilderTest {
             true,
             true,
             "core.EntityGroupFilterBuilder",
-            "core/entityGroup",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(config),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
@@ -186,12 +187,14 @@ public class EntityGroupFilterBuilderTest {
         CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
-            "age_at_occurrence", "core/attribute", serializeToJson(ageAtOccurrenceConfig));
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
     CFPlaceholder.Placeholder visitTypeConfig =
         CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", "core/attribute", serializeToJson(visitTypeConfig));
+            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
     CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
@@ -199,7 +202,7 @@ public class EntityGroupFilterBuilderTest {
             true,
             true,
             "core.EntityGroupFilterBuilder",
-            "core/entityGroup",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(conditionConfig),
             List.of(ageAtOccurrenceModifier, visitTypeModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
@@ -302,7 +305,9 @@ public class EntityGroupFilterBuilderTest {
             .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
-            "group_by_count", "core/unhinted-value", serializeToJson(groupByConfig));
+            "group_by_count",
+            SZCorePlugin.GROUP_BY_COUNT.getIdInConfig(),
+            serializeToJson(groupByConfig));
     CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
@@ -310,7 +315,7 @@ public class EntityGroupFilterBuilderTest {
             true,
             true,
             "core.EntityGroupFilterBuilder",
-            "core/entityGroup",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(conditionConfig),
             List.of(groupByModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
@@ -365,12 +370,14 @@ public class EntityGroupFilterBuilderTest {
         CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
-            "age_at_occurrence", "core/attribute", serializeToJson(ageAtOccurrenceConfig));
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
     CFPlaceholder.Placeholder visitTypeConfig =
         CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", "core/attribute", serializeToJson(visitTypeConfig));
+            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
     CFPlaceholder.Placeholder groupByConfig =
         CFPlaceholder.Placeholder.newBuilder()
             .putGroupByAttributesPerOccurrenceEntity(
@@ -381,7 +388,9 @@ public class EntityGroupFilterBuilderTest {
             .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
-            "group_by_count", "core/unhinted-value", serializeToJson(groupByConfig));
+            "group_by_count",
+            SZCorePlugin.GROUP_BY_COUNT.getIdInConfig(),
+            serializeToJson(groupByConfig));
     CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
@@ -389,7 +398,7 @@ public class EntityGroupFilterBuilderTest {
             true,
             true,
             "core.EntityGroupFilterBuilder",
-            "core/entityGroup",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(conditionConfig),
             List.of(ageAtOccurrenceModifier, visitTypeModifier, groupByModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
