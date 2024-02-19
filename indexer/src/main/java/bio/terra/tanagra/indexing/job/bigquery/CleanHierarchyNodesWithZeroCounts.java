@@ -1,4 +1,4 @@
-package bio.terra.tanagra.indexing.job.dataflow;
+package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(WriteRollupCounts.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CleanHierarchyNodesWithZeroCounts.class);
 
   private final EntityGroup entityGroup;
   private final ITEntityMain indexTable;

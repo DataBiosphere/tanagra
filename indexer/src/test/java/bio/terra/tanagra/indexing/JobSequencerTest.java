@@ -12,7 +12,7 @@ import bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
 import bio.terra.tanagra.indexing.job.bigquery.WriteRelationshipIntermediateTable;
 import bio.terra.tanagra.indexing.job.bigquery.WriteTextSearchField;
-import bio.terra.tanagra.indexing.job.dataflow.CleanHierarchyNodesWithZeroCounts;
+import bio.terra.tanagra.indexing.job.bigquery.CleanHierarchyNodesWithZeroCounts;
 import bio.terra.tanagra.indexing.job.dataflow.WriteAncestorDescendant;
 import bio.terra.tanagra.indexing.job.dataflow.WriteNumChildrenAndPaths;
 import bio.terra.tanagra.indexing.job.dataflow.WriteRollupCounts;
