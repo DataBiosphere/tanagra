@@ -15,8 +15,12 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(BQRelationshipFilterTranslator.class);
   private final RelationshipFilter relationshipFilter;
 
   public BQRelationshipFilterTranslator(
@@ -37,6 +41,10 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
   }
 
   private String foreignKeyOnSelectEntity(SqlParams sqlParams, String tableAlias) {
+    LOGGER.info(
+        "foreignKeyOnSelectEntity: select={}, filter={}",
+        relationshipFilter.getSelectEntity().getName(),
+        relationshipFilter.getFilterEntity().getName());
     Attribute foreignKeyAttribute =
         relationshipFilter
             .getRelationship()
@@ -79,6 +87,11 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
                   .translator(relationshipFilter.getSubFilter())
                   .buildSql(sqlParams, null)
               : null;
+      LOGGER.info(
+          "foreignKeyOnSelectEntity: select={}, filter={}. inSelectFilterSql={}",
+          relationshipFilter.getSelectEntity().getName(),
+          relationshipFilter.getFilterEntity().getName(),
+          inSelectFilterSql);
       if (relationshipFilter.hasGroupByFilter()) {
         throw new InvalidQueryException(
             "A having clause is unsupported for relationships where the foreign key is on the selected entity table.");
@@ -95,6 +108,10 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
   }
 
   private String foreignKeyOnFilterEntity(SqlParams sqlParams, String tableAlias) {
+    LOGGER.info(
+        "foreignKeyOnFilterEntity: select={}, filter={}",
+        relationshipFilter.getSelectEntity().getName(),
+        relationshipFilter.getFilterEntity().getName());
     Attribute foreignKeyAttribute =
         relationshipFilter
             .getRelationship()
@@ -123,7 +140,8 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             .getEntityGroup()
             .hasRollupCountField(
                 relationshipFilter.getSelectEntity().getName(),
-                relationshipFilter.getFilterEntity().getName())) {
+                relationshipFilter.getFilterEntity().getName())
+        && !attributeSwapFields.containsKey(selectIdAttribute)) {
       // rollupCount > 0
       SqlField selectRollupField =
           selectEntityTable.getEntityGroupCountField(
@@ -206,7 +224,8 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             .getEntityGroup()
             .hasRollupCountField(
                 relationshipFilter.getSelectEntity().getName(),
-                relationshipFilter.getFilterEntity().getName())) {
+                relationshipFilter.getFilterEntity().getName())
+        && !attributeSwapFields.containsKey(selectIdAttribute)) {
       // rollupCount > 0
       SqlField selectRollupField =
           selectEntityTable.getEntityGroupCountField(
@@ -364,6 +383,6 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return attribute.isId();
+    return attribute.isId() && !relationshipFilter.hasSubFilter();
   }
 }
