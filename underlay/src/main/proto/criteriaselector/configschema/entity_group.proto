@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package tanagra.configschema;
+
+option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configschemapb";
+option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
+option java_outer_classname = "CFEntityGroup";
+
+import "criteriaselector/sort_order.proto";
+import "criteriaselector/value_config.proto";
+
+message EntityGroup {
+  message Column {
+    string key = 1;
+
+    oneof width {
+      string width_string = 2;
+      double width_double = 3;
+    }
+
+    string title = 4;
+
+    bool sortable = 5;
+    bool filterable = 6;
+  }
+  repeated Column columns = 1;
+  repeated Column hierarchy_columns = 2;
+
+  int32 name_column_index = 3;
+
+  message EntityGroupConfig {
+    string id = 1;
+    SortOrder sort_order = 2;
+  }
+  repeated EntityGroupConfig classification_entity_groups = 4;
+  repeated EntityGroupConfig grouping_entity_groups = 5;
+
+  bool multi_select = 6;
+
+  repeated ValueConfig value_configs = 7;
+
+  SortOrder default_sort = 8;
+
+  optional int32 limit = 9;
+}

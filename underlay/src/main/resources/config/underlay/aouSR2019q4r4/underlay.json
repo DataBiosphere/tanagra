@@ -52,6 +52,21 @@
     "omop/icd10cmPerson",
     "omop/icd10pcsPerson"
   ],
+  "criteriaSelectors": [
+    "aouSR2019q4r4/conditions",
+    "aouSR2019q4r4/procedures",
+    "aouSR2019q4r4/observations",
+    "aouSR2019q4r4/drugs",
+    "aouSR2019q4r4/ethnicity",
+    "aouSR2019q4r4/gender",
+    "aouSR2019q4r4/race",
+    "aouSR2019q4r4/sexAtBirth",
+    "aouSR2019q4r4/yearOfBirth",
+    "aouSR2019q4r4/outputUnfiltered"
+  ],
+  "prepackagedDataFeatures": [
+    "aouSR2019q4r4/_demographics"
+  ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset SR2019q4r4",
     "description": "Dataset From 2019",

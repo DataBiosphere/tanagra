@@ -118,17 +118,11 @@ export function createAppRouter() {
                 },
               ],
             },
+            {
+              path: "activityLog/cohorts/:cohortId/:revisionId",
+              element: <CohortRevision />,
+            },
           ],
-        },
-      ],
-    },
-    {
-      path: "tanagra/studies/:studyId",
-      element: <StudySourceContextRoot />,
-      children: [
-        {
-          path: "activityLog/cohorts/:cohortId/:revisionId",
-          element: <CohortRevision />,
         },
       ],
     },

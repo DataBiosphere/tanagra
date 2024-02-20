@@ -22,6 +22,7 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { MergedItem } from "data/mergeLists";
+import { Criteria } from "data/source";
 import { DataEntry, DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import {
@@ -40,8 +41,7 @@ import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
 import { cohortURL, featureSetURL, newCriteriaURL } from "router";
 import useSWRImmutable from "swr/immutable";
-import * as tanagraUI from "tanagra-ui";
-import { CriteriaConfig } from "underlaysSlice";
+import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { safeRegExp } from "util/safeRegExp";
 import {
   useGlobalSearchState,
@@ -66,7 +66,7 @@ export function AddCohortCriteria() {
   const { cohort, section, sectionIndex } = useCohortGroupSectionAndGroup();
 
   const onInsertCriteria = useCallback(
-    (criteria: tanagraUI.UICriteria) => {
+    (criteria: Criteria) => {
       const group = insertCohortCriteria(context, section.id, criteria);
       navigate("../../" + cohortURL(cohort.id, section.id, group.id));
     },
@@ -89,7 +89,7 @@ export function AddFeatureSetCriteria() {
   const featureSet = useFeatureSet();
 
   const onInsertCriteria = useCallback(
-    (criteria: tanagraUI.UICriteria) => {
+    (criteria: Criteria) => {
       insertFeatureSetCriteria(context, criteria);
       navigate("../../" + featureSetURL(featureSet.id));
     },
@@ -116,20 +116,21 @@ export function AddFeatureSetCriteria() {
 }
 
 type AddCriteriaOption = {
-  id: string;
+  name: string;
   title: string;
   showMore: boolean;
   category?: string;
   tags?: string[];
+  cohort?: boolean;
   conceptSet?: boolean;
-  criteriaConfig?: CriteriaConfig;
+  selector?: tanagraUnderlay.SZCriteriaSelector;
 };
 
 type AddCriteriaProps = {
   conceptSet?: boolean;
   title: string;
   backAction?: () => void;
-  onInsertCriteria: (criteria: tanagraUI.UICriteria) => void;
+  onInsertCriteria: (criteria: Criteria) => void;
   excludedPredefinedCriteria?: string[];
   onInsertPredefinedCriteria?: (criteria: string, title: string) => void;
 };
@@ -142,35 +143,40 @@ function AddCriteria(props: AddCriteriaProps) {
   const query = useLocalSearchState<LocalSearchState>()[0].search ?? "";
   const [globalSearchState, updateGlobalSearchState] = useGlobalSearchState();
 
-  const criteriaConfigs = underlay.uiConfiguration.criteriaConfigs;
-  const predefinedCriteria = underlay.uiConfiguration.prepackagedConceptSets;
+  const selectors = underlay.criteriaSelectors;
+  const predefinedCriteria = underlay.prepackagedDataFeatures;
   const searchConfig = underlay.uiConfiguration.criteriaSearchConfig;
 
   const options = useMemo(() => {
     const options: AddCriteriaOption[] = [];
     if (props.onInsertPredefinedCriteria) {
-      predefinedCriteria.forEach((c) =>
+      predefinedCriteria.forEach((p) =>
         options.push({
-          title: c.name,
-          category: c.category ?? "Predefined",
+          name: p.name,
+          title: p.displayName,
+          category: "Predefined",
           conceptSet: true,
           showMore: false,
-          ...c,
         })
       );
     }
 
-    criteriaConfigs.forEach((cc) =>
+    selectors.forEach((s) =>
       options.push({
-        criteriaConfig: cc,
-        showMore: !!getCriteriaPlugin(createCriteria(underlaySource, cc))
+        name: s.name,
+        title: s.displayName,
+        category: s.display.category,
+        tags: s.display.tags,
+        selector: s,
+        cohort: s.isEnabledForCohorts,
+        conceptSet: s.isEnabledForDataFeatureSets,
+        showMore: !!getCriteriaPlugin(createCriteria(underlaySource, s))
           .renderEdit,
-        ...cc,
       })
     );
 
     return options;
-  }, [props.onInsertPredefinedCriteria, criteriaConfigs, predefinedCriteria]);
+  }, [props.onInsertPredefinedCriteria, selectors, predefinedCriteria]);
 
   const tagList = useMemo(
     () =>
@@ -186,7 +192,7 @@ function AddCriteria(props: AddCriteriaProps) {
   );
 
   const optionsMap = useMemo(
-    () => new Map(options.map((o) => [o.id, o])),
+    () => new Map(options.map((o) => [o.name, o])),
     [options]
   );
 
@@ -198,7 +204,10 @@ function AddCriteria(props: AddCriteriaProps) {
   const selectedOptions = useMemo(
     () =>
       options.filter((option) => {
-        if (props.conceptSet && !option.conceptSet) {
+        if (
+          (props.conceptSet && !option.conceptSet) ||
+          (!props.conceptSet && !option.cohort)
+        ) {
           return false;
         }
 
@@ -264,19 +273,19 @@ function AddCriteria(props: AddCriteriaProps) {
 
   const onClick = useCallback(
     (option: AddCriteriaOption, dataEntry?: DataEntry) => {
-      if (option.criteriaConfig) {
+      if (option.selector) {
         const criteria = createCriteria(
           underlaySource,
-          option.criteriaConfig,
+          option.selector,
           dataEntry
         );
         if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
-          navigate("../" + newCriteriaURL(option.id));
+          navigate("../" + newCriteriaURL(option.name));
         } else {
           props.onInsertCriteria(criteria);
         }
       } else {
-        props.onInsertPredefinedCriteria?.(option.id, option.title);
+        props.onInsertPredefinedCriteria?.(option.name, option.title);
       }
     },
     [underlaySource, navigate]
@@ -291,7 +300,7 @@ function AddCriteria(props: AddCriteriaProps) {
     if (query) {
       const res = await searchCriteria(
         underlaySource,
-        selectedOptions.map((o) => o.criteriaConfig).filter(isValid),
+        selectedOptions.map((o) => o.selector).filter(isValid),
         query
       );
 
@@ -406,12 +415,12 @@ function AddCriteria(props: AddCriteriaProps) {
               <GridLayout cols spacing={2}>
                 {category.flatMap((option, i) => {
                   const disabled =
-                    (props.excludedPredefinedCriteria?.indexOf(option.id) ??
+                    (props.excludedPredefinedCriteria?.indexOf(option.name) ??
                       -1) >= 0;
                   const button = (
                     <Button
-                      key={option.id}
-                      data-testid={option.id}
+                      key={option.name}
+                      data-testid={option.name}
                       variant="outlined"
                       startIcon={option.showMore ? <SearchIcon /> : <AddIcon />}
                       disabled={disabled}

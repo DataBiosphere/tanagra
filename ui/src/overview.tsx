@@ -28,9 +28,15 @@ import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { SaveStatus } from "components/saveStatus";
 import { useTextInputDialog } from "components/textInputDialog";
+import {
+  Cohort,
+  Group,
+  GroupSection,
+  GroupSectionFilterKind,
+} from "data/source";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { DemographicCharts } from "demographicCharts";
-import { useCohort, useCohortGroupSectionAndGroup, useUnderlay } from "hooks";
+import { useCohort, useCohortGroupSectionAndGroup } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback, useMemo } from "react";
@@ -44,7 +50,6 @@ import {
 } from "router";
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
-import * as tanagraUI from "tanagra-ui";
 import UndoRedoToolbar from "undoRedoToolbar";
 import { RouterLink, useNavigate } from "util/searchState";
 import {
@@ -194,7 +199,7 @@ function GroupList() {
 }
 
 function ParticipantsGroupSection(props: {
-  groupSection: tanagraUI.UIGroupSection;
+  groupSection: GroupSection;
   sectionIndex: number;
 }) {
   const underlaySource = useUnderlaySource();
@@ -204,7 +209,7 @@ function ParticipantsGroupSection(props: {
   const { group } = useCohortGroupSectionAndGroup();
 
   const fetchSectionCount = useCallback(async () => {
-    const cohortForFilter: tanagraUI.UICohort = {
+    const cohortForFilter: Cohort = {
       ...cohort,
       groupSections: [props.groupSection],
     };
@@ -274,8 +279,7 @@ function ParticipantsGroupSection(props: {
                   undefined,
                   {
                     ...props.groupSection.filter,
-                    kind: event.target
-                      .value as tanagraUI.UIGroupSectionFilterKindEnum,
+                    kind: event.target.value as GroupSectionFilterKind,
                   }
                 );
               }}
@@ -289,12 +293,8 @@ function ParticipantsGroupSection(props: {
                 },
               }}
             >
-              <MenuItem value={tanagraUI.UIGroupSectionFilterKindEnum.Any}>
-                any
-              </MenuItem>
-              <MenuItem value={tanagraUI.UIGroupSectionFilterKindEnum.All}>
-                all
-              </MenuItem>
+              <MenuItem value={GroupSectionFilterKind.Any}>any</MenuItem>
+              <MenuItem value={GroupSectionFilterKind.All}>all</MenuItem>
             </Select>
           </FormControl>
           <Typography variant="body1">
@@ -350,7 +350,7 @@ function ParticipantsGroupSection(props: {
                 <Chip
                   label={
                     props.groupSection.filter.kind ===
-                    tanagraUI.UIGroupSectionFilterKindEnum.Any
+                    GroupSectionFilterKind.Any
                       ? "OR"
                       : "AND"
                   }
@@ -399,18 +399,17 @@ function ParticipantsGroupSection(props: {
 }
 
 function ParticipantsGroup(props: {
-  groupSection: tanagraUI.UIGroupSection;
-  group: tanagraUI.UIGroup;
+  groupSection: GroupSection;
+  group: Group;
 }) {
   const underlaySource = useUnderlaySource();
   const cohort = useCohort();
   const navigate = useNavigate();
   const context = useCohortContext();
-  const uiConfig = useUnderlay().uiConfiguration;
   const { groupId } = useParams<{ groupId: string }>();
 
   const fetchGroupCount = useCallback(async () => {
-    const cohortForFilter: tanagraUI.UICohort = {
+    const cohortForFilter: Cohort = {
       ...cohort,
       groupSections: [
         {
@@ -459,19 +458,18 @@ function ParticipantsGroup(props: {
     [modifierCriteria, props.group.entity]
   );
 
-  const hasModifiers = props.group.criteria[0].config.modifiers?.length;
-  const [menu, showMenu] = useMenu({
-    children: props.group.criteria[0].config.modifiers?.map((m: string) => {
-      const config = uiConfig.modifierConfigs?.find((c) => c.id === m);
-      if (!config) {
-        return null;
-      }
+  const selector = underlaySource.lookupCriteriaSelector(
+    props.group.criteria[0].config.name
+  );
+  const hasModifiers = selector.modifiers?.length;
 
-      const sel = !!modifierCriteria.find((c) => c.config.id === m);
+  const [menu, showMenu] = useMenu({
+    children: selector.modifiers?.map((config) => {
+      const sel = !!modifierCriteria.find((c) => c.config.name === config.name);
 
       return (
         <MenuItem
-          key={m}
+          key={config.name}
           selected={sel}
           disabled={sel}
           onClick={() => {
@@ -483,7 +481,7 @@ function ParticipantsGroup(props: {
             );
           }}
         >
-          {config.title}
+          {config.displayName}
         </MenuItem>
       );
     }),
@@ -638,7 +636,7 @@ function ParticipantsGroup(props: {
                       </GridLayout>
                       <GridLayout cols height="auto" rowAlign="middle">
                         <Typography variant="body2">
-                          {modifierCriteria[i].config.title}
+                          {modifierCriteria[i].config.displayName}
                         </Typography>
                         <GridBox
                           onClick={(e) => {

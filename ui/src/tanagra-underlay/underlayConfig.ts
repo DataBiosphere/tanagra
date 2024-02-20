@@ -42,6 +42,7 @@ export type SZCriteriaRelationship = {
 
 export type SZCriteriaSelector = {
   display: SZCriteriaSelectorDisplay;
+  displayName: string;
   filterBuilder: string;
   isEnabledForCohorts: boolean;
   isEnabledForDataFeatureSets: boolean;
@@ -54,7 +55,6 @@ export type SZCriteriaSelector = {
 
 export type SZCriteriaSelectorDisplay = {
   category: string;
-  displayName: string;
   tags: string[];
 };
 

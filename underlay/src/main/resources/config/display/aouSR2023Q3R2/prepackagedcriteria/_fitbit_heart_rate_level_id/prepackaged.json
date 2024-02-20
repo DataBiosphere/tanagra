@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_heart_rate_level_id",
+  "displayName": "Fitbit Heart Rate Level",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitHeartRateLevelId.json"
+}

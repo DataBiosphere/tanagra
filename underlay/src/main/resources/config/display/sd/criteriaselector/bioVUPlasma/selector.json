@@ -1,0 +1,15 @@
+{
+  "name": "biovu-plasma",
+  "displayName": "BioVU Plasma",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "BioVU",
+    "tags": null
+  },
+  "filterBuilder": "sd.BioVUFilterBuilder",
+  "plugin": "biovu",
+  "pluginConfig": null,
+  "pluginConfigFile": "bioVUPlasma.json",
+  "modifiers": null
+}

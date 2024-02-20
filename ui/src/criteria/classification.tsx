@@ -23,7 +23,6 @@ import {
   decodeValueData,
   encodeValueData,
   generateValueDataFilter,
-  ValueConfig,
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
@@ -35,6 +34,7 @@ import {
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
 import {
+  CommonSelectorConfig,
   dataKeyFromProto,
   EntityGroupData,
   EntityNode,
@@ -47,10 +47,11 @@ import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
+import * as configProto from "proto/criteriaselector/configschema/entity_group";
 import * as dataProto from "proto/criteriaselector/dataschema/entity_group";
+import * as sortOrderProto from "proto/criteriaselector/sort_order";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
-import { CriteriaConfig } from "underlaysSlice";
 import { useImmer } from "use-immer";
 import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { useLocalSearchState } from "util/searchState";
@@ -70,23 +71,6 @@ type EntityNodeItem = TreeGridItem & {
   groupingNode: boolean;
 };
 
-export type EntityGroupConfig = {
-  id: string;
-  sortOrder?: SortOrder;
-};
-
-export interface Config extends CriteriaConfig {
-  columns: TreeGridColumn[];
-  nameColumnIndex?: number;
-  hierarchyColumns?: TreeGridColumn[];
-  classificationEntityGroups?: EntityGroupConfig[];
-  groupingEntityGroups?: EntityGroupConfig[];
-  multiSelect?: boolean;
-  valueConfigs?: ValueConfig[];
-  defaultSort?: SortOrder;
-  limit?: number;
-}
-
 // Exported for testing purposes.
 export interface Data {
   selected: Selection[];
@@ -99,10 +83,10 @@ export interface Data {
   "entityGroup",
   (
     underlaySource: UnderlaySource,
-    c: CriteriaConfig,
+    c: CommonSelectorConfig,
     dataEntry?: DataEntry
   ) => {
-    const config = c as Config;
+    const config = decodeConfig(c);
 
     const data: Data = {
       selected: [],
@@ -134,10 +118,12 @@ export interface Data {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
-  private config: Config;
+  private selector: CommonSelectorConfig;
+  private config: configProto.EntityGroup;
 
-  constructor(public id: string, config: CriteriaConfig, data: string) {
-    this.config = config as Config;
+  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+    this.selector = selector;
+    this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
     } catch (e) {
@@ -160,7 +146,7 @@ class _ implements CriteriaPlugin<string> {
   }
 
   renderInline(groupId: string) {
-    if (!this.config.valueConfigs) {
+    if (!this.config.valueConfigs.length) {
       return null;
     }
 
@@ -259,7 +245,7 @@ type SearchState = {
 
 type ClassificationEditProps = {
   data: string;
-  config: Config;
+  config: configProto.EntityGroup;
   doneAction: () => void;
   setBackAction: (action?: () => void) => void;
 };
@@ -428,7 +414,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   const allEntityGroupConfigs = useMemo(() => {
     const configs: {
-      eg: EntityGroupConfig;
+      eg: configProto.EntityGroup_EntityGroupConfig;
       grouping: boolean;
     }[] = [];
     (props.config.classificationEntityGroups ?? []).forEach((eg) =>
@@ -494,7 +480,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           await underlaySource.searchEntityGroup(
             attributes,
             c.eg.id,
-            calcSortOrder(c.eg.id, false, c.grouping),
+            fromProtoSortOrder(calcSortOrder(c.eg.id, false, c.grouping)),
             {
               query: !searchState?.hierarchy
                 ? searchState?.query ?? ""
@@ -509,11 +495,12 @@ function ClassificationEdit(props: ClassificationEditProps) {
       ])
     );
 
+    const sortOrder = fromProtoSortOrder(calcSortOrder());
     const classifications = mergeLists(
       raw.filter((r, i) => !entityGroupConfigs[i].grouping),
       props.config.limit ?? DEFAULT_LIMIT,
-      calcSortOrder().direction,
-      (n) => n.data[calcSortOrder().attribute]
+      sortOrder.direction,
+      (n) => n.data[sortOrder.attribute]
     );
     const groups = raw
       .filter((r, i) => entityGroupConfigs[i].grouping)
@@ -545,7 +532,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   const hierarchyColumns: TreeGridColumn[] = useMemo(
     () => [
-      ...(props.config.hierarchyColumns ?? []),
+      ...(fromProtoColumns(props.config.hierarchyColumns) ?? []),
       ...(!props.config.multiSelect
         ? [{ key: "t_add_button", width: 60 }]
         : []),
@@ -555,7 +542,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
-      ...props.config.columns,
+      ...fromProtoColumns(props.config.columns),
       ...(hasHierarchies || !props.config.multiSelect
         ? [
             {
@@ -787,7 +774,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     .searchEntityGroup(
                       attributes,
                       entityGroupConfig.id,
-                      calcSortOrder(entityGroupConfig.id, true),
+                      fromProtoSortOrder(
+                        calcSortOrder(entityGroupConfig.id, true)
+                      ),
                       {
                         parent: keyFromDataKey(id as string),
                         limit: props.config.limit,
@@ -890,7 +879,7 @@ type ClassificationInlineProps = {
   groupId: string;
   criteriaId: string;
   data: string;
-  config: Config;
+  config: configProto.EntityGroup;
 };
 
 function ClassificationInline(props: ClassificationInlineProps) {
@@ -903,7 +892,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
 
   const decodedData = useMemo(() => decodeData(props.data), [props.data]);
 
-  if (!props.config.valueConfigs) {
+  if (!props.config.valueConfigs.length) {
     return null;
   }
 
@@ -932,17 +921,17 @@ function ClassificationInline(props: ClassificationInlineProps) {
 
 async function search(
   underlaySource: UnderlaySource,
-  c: CriteriaConfig,
+  c: CommonSelectorConfig,
   query: string
 ): Promise<DataEntry[]> {
-  const config = c as Config;
+  const config = decodeConfig(c);
   const results = await Promise.all(
     (config.classificationEntityGroups ?? []).map((eg) =>
       underlaySource
         .searchEntityGroup(
           config.columns.map(({ key }) => key),
           eg.id,
-          config.defaultSort ?? DEFAULT_SORT_ORDER,
+          fromProtoSortOrder(config.defaultSort ?? DEFAULT_SORT_ORDER),
           {
             query,
           }
@@ -960,7 +949,7 @@ async function search(
 }
 
 function useEntityData(
-  config: Config
+  config: configProto.EntityGroup
 ): [boolean, EntityGroupData[], EntityGroupData[]] {
   const underlaySource = useUnderlaySource();
 
@@ -990,7 +979,7 @@ function lookupEntityGroupData(list: EntityGroupData[], id: string) {
   return list.find((eg) => eg.id === id);
 }
 
-function configEntityGroups(config: Config) {
+function configEntityGroups(config: configProto.EntityGroup) {
   const entityGroups = [
     ...(config.classificationEntityGroups ?? []),
     ...(config.groupingEntityGroups ?? []),
@@ -1042,5 +1031,32 @@ function encodeData(data: Data): string {
 
 const DEFAULT_SORT_ORDER = {
   attribute: ROLLUP_COUNT_ATTRIBUTE,
-  direction: SortDirection.Desc,
+  direction: sortOrderProto.SortOrder_Direction.SORT_ORDER_DIRECTION_DESCENDING,
 };
+
+function decodeConfig(selector: CommonSelectorConfig): configProto.EntityGroup {
+  return configProto.EntityGroup.fromJSON(JSON.parse(selector.pluginConfig));
+}
+
+function fromProtoSortOrder(sortOrder: sortOrderProto.SortOrder): SortOrder {
+  return {
+    attribute: sortOrder.attribute,
+    direction:
+      sortOrder.direction ===
+      sortOrderProto.SortOrder_Direction.SORT_ORDER_DIRECTION_DESCENDING
+        ? SortDirection.Desc
+        : SortDirection.Asc,
+  };
+}
+
+function fromProtoColumns(
+  columns: configProto.EntityGroup_Column[]
+): TreeGridColumn[] {
+  return columns.map((c) => ({
+    key: c.key,
+    width: c.widthString ?? c.widthDouble ?? 100,
+    title: c.title,
+    sortable: c.sortable,
+    filterable: c.filterable,
+  }));
+}

@@ -13,15 +13,15 @@ import {
   makeArrayFilter,
   UnaryFilterOperator,
 } from "data/filter";
-import { UnderlaySource } from "data/source";
+import { CommonSelectorConfig, UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
+import * as configProto from "proto/criteriaselector/configschema/biovu";
 import * as dataProto from "proto/criteriaselector/dataschema/biovu";
 import React, { useCallback, useMemo } from "react";
-import { CriteriaConfig } from "underlaysSlice";
 import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 
@@ -67,10 +67,6 @@ const EXCLUDE_COMPROMISED_TOOLTIP = `"Compromised" DNA may not represent
 const EXCLUDE_INTERNAL_TOOLTIP =
   "Some BioVU sample cannot be tested outsize of Vanderbilt";
 
-interface Config extends CriteriaConfig {
-  plasmaFilter?: string;
-}
-
 interface Data {
   sampleFilter: SampleFilter;
   excludeCompromised?: boolean;
@@ -80,7 +76,11 @@ interface Data {
 
 @registerCriteriaPlugin(
   "biovu",
-  (underlaySource: UnderlaySource, c: Config, dataEntry?: DataEntry) => {
+  (
+    underlaySource: UnderlaySource,
+    c: CommonSelectorConfig,
+    dataEntry?: DataEntry
+  ) => {
     return encodeData({
       sampleFilter: (dataEntry?.key as SampleFilter) ?? SampleFilter.ANY,
     });
@@ -90,15 +90,17 @@ interface Data {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
-  private config: Config;
+  private selector: CommonSelectorConfig;
+  private config: configProto.BioVU;
 
   constructor(
     public id: string,
-    config: Config,
+    selector: CommonSelectorConfig,
     data: string,
     private entity?: string
   ) {
-    this.config = config;
+    this.selector = selector;
+    this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
     } catch (e) {
@@ -183,7 +185,7 @@ class _ implements CriteriaPlugin<string> {
 type BioVUInlineProps = {
   groupId: string;
   criteriaId: string;
-  config: Config;
+  config: configProto.BioVU;
   data: string;
 };
 
@@ -282,7 +284,7 @@ function BioVUInline(props: BioVUInlineProps) {
 
 async function search(
   underlaySource: UnderlaySource,
-  c: Config,
+  c: CommonSelectorConfig,
   query: string
 ): Promise<DataEntry[]> {
   const [re] = safeRegExp(query);
@@ -348,4 +350,8 @@ function encodeData(data: Data): string {
     plasma: !!data.plasma,
   };
   return bytesToBase64(dataProto.BioVU.encode(message).finish());
+}
+
+function decodeConfig(selector: CommonSelectorConfig): configProto.BioVU {
+  return configProto.BioVU.fromJSON(JSON.parse(selector.pluginConfig));
 }

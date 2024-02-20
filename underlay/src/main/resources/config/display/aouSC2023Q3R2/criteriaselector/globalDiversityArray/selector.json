@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-global-diversity-array",
+  "displayName": "Global Diversity Array",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Genomics",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "globalDiversityArray.json",
+  "modifiers": null
+}

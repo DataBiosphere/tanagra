@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-year_of_birth",
+  "displayName": "Year of birth",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Program data",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "yearOfBirth.json",
+  "modifiers": null
+}

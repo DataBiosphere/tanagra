@@ -50,6 +50,20 @@
     "omop/icd9procPerson",
     "omop/icd10cmPerson"
   ],
+  "criteriaSelectors": [
+    "pilotsynthea2022q3/conditions",
+    "pilotsynthea2022q3/procedures",
+    "pilotsynthea2022q3/observations",
+    "pilotsynthea2022q3/drugs",
+    "pilotsynthea2022q3/ethnicity",
+    "pilotsynthea2022q3/gender",
+    "pilotsynthea2022q3/race",
+    "pilotsynthea2022q3/yearOfBirth",
+    "pilotsynthea2022q3/outputUnfiltered"
+  ],
+  "prepackagedDataFeatures": [
+    "pilotsynthea2022q3/_demographics"
+  ],
   "metadata": {
     "displayName": "Pilot Synthetic Dataset 2022q3",
     "description": "Dataset For Pilot",

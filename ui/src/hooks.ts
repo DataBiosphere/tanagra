@@ -4,7 +4,7 @@ import {
   insertCohortCriteria,
   updateCohortCriteria,
 } from "cohortContext";
-import { FeatureSet } from "data/source";
+import { Cohort, Criteria, FeatureSet, Group, GroupSection } from "data/source";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import {
   FeatureSetContext,
@@ -13,7 +13,6 @@ import {
 } from "featureSet/featureSetContext";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import * as tanagraUI from "tanagra-ui";
 
 export class PathError extends Error {}
 
@@ -38,7 +37,7 @@ function useOptionalCohort(throwOnUnknown: boolean) {
 }
 
 export function useCohort() {
-  return useOptionalCohort(true) as NonNullable<tanagraUI.UICohort>;
+  return useOptionalCohort(true) as NonNullable<Cohort>;
 }
 
 export function useCohortGroupSectionAndGroup() {
@@ -80,7 +79,7 @@ function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
   return { section, sectionIndex, group };
 }
 
-let newCriteria: tanagraUI.UICriteria | undefined;
+let newCriteria: Criteria | undefined;
 let newCriteriaRefCount = 0;
 
 function useOptionalNewCriteria(throwOnUnknown: boolean) {
@@ -89,12 +88,12 @@ function useOptionalNewCriteria(throwOnUnknown: boolean) {
   const { configId } = useParams<{ configId: string }>();
 
   if (!newCriteria) {
-    for (const config of underlay.uiConfiguration.criteriaConfigs) {
-      if (config.id !== configId) {
+    for (const selector of underlay.criteriaSelectors) {
+      if (selector.name !== configId) {
         continue;
       }
 
-      newCriteria = createCriteria(underlaySource, config);
+      newCriteria = createCriteria(underlaySource, selector);
     }
   }
 
@@ -116,7 +115,7 @@ function useOptionalNewCriteria(throwOnUnknown: boolean) {
 }
 
 export function useNewCriteria() {
-  return useOptionalNewCriteria(true) as NonNullable<tanagraUI.UICriteria>;
+  return useOptionalNewCriteria(true) as NonNullable<Criteria>;
 }
 
 export function useIsNewCriteria() {
@@ -127,9 +126,9 @@ export function useGroupSectionAndGroup() {
   const { section, sectionIndex, group } =
     useOptionalGroupSectionAndGroup(true);
   return {
-    section: section as NonNullable<tanagraUI.UIGroupSection>,
+    section: section as NonNullable<GroupSection>,
     sectionIndex,
-    group: group as NonNullable<tanagraUI.UIGroup>,
+    group: group as NonNullable<Group>,
   };
 }
 
@@ -158,7 +157,7 @@ function useOptionalFeatureSetAndCriteria(throwOnUnknown: boolean) {
 export function useFeatureSetAndCriteria() {
   return useOptionalFeatureSetAndCriteria(true) as {
     featureSet: FeatureSet;
-    criteria: tanagraUI.UICriteria;
+    criteria: Criteria;
   };
 }
 

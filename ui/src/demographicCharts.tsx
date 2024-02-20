@@ -5,7 +5,7 @@ import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import { FilterCountValue } from "data/source";
+import { Cohort, FilterCountValue } from "data/source";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
 import emptyImage from "images/empty.svg";
@@ -23,7 +23,6 @@ import {
   YAxis,
 } from "recharts";
 import useSWRImmutable from "swr/immutable";
-import * as tanagraUI from "tanagra-ui";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
 import { generateCohortFilter } from "./cohort";
@@ -134,7 +133,7 @@ function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
 }
 
 export type DemographicChartsProps = {
-  cohort: tanagraUI.UICohort;
+  cohort: Cohort;
   separateCharts?: boolean;
   extraControls?: ReactNode;
 };

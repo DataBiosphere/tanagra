@@ -28,7 +28,7 @@ public class CriteriaSelectorTest {
 
   @Test
   void gender() {
-    CriteriaSelector gender = underlay.getCriteriaSelector("gender");
+    CriteriaSelector gender = underlay.getCriteriaSelector("tanagra-gender");
     assertNotNull(gender);
     assertTrue(gender.isEnabledForCohorts());
     assertFalse(gender.isEnabledForDataFeatureSets());
@@ -42,20 +42,16 @@ public class CriteriaSelectorTest {
 
   @Test
   void condition() {
-    CriteriaSelector condition = underlay.getCriteriaSelector("condition");
+    CriteriaSelector condition = underlay.getCriteriaSelector("tanagra-conditions");
     assertNotNull(condition);
     assertTrue(condition.isEnabledForCohorts());
     assertTrue(condition.isEnabledForDataFeatureSets());
     assertEquals(SZCorePlugin.ENTITY_GROUP.getIdInConfig(), condition.getPlugin());
-    assertEquals(3, condition.getModifiers().size());
+    assertEquals(2, condition.getModifiers().size());
 
-    CriteriaSelector.Modifier ageAtOccurrenceModifier = condition.getModifier("age_at_occurrence");
+    CriteriaSelector.Modifier ageAtOccurrenceModifier = condition.getModifier("ageAtOccurrence");
     assertNotNull(ageAtOccurrenceModifier);
     assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), ageAtOccurrenceModifier.getPlugin());
-
-    CriteriaSelector.Modifier visitTypeModifier = condition.getModifier("visit_type");
-    assertNotNull(visitTypeModifier);
-    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), visitTypeModifier.getPlugin());
 
     FilterBuilder filterBuilder = condition.getFilterBuilder();
     assertNotNull(filterBuilder);

@@ -1,0 +1,9 @@
+{
+  "entity": "waistCircumference",
+  "valueConfigs": [
+    {
+      "attribute": "value_numeric",
+      "unit": "cm"
+    }
+  ]
+}

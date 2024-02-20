@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: selector_column
+      author: tjennison
+      dbms: postgresql,mariadb,mysql
+      changes:
+        - addColumn:
+            tableName: criteria
+            columns:
+              - column:
+                  name: selector_or_modifier_name
+                  type: ${id.type}
+                  constraints:
+                    nullable: true

@@ -578,7 +578,7 @@
     },
     {
       "type": "unhinted-value",
-      "id": "start_date_group_by_count",
+      "id": "date_group_by_count",
       "title": "Occurrence count",
       "attribute": "date",
       "groupByCount": true

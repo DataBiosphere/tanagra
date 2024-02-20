@@ -9,6 +9,7 @@ import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +21,7 @@ public final class ClientConfig {
   private final ImmutableSet<SZEntity> entities;
   private final ImmutableSet<SZGroupItems> groupItemsEntityGroups;
   private final ImmutableSet<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups;
-  private final ImmutableSet<SZCriteriaSelector> criteriaSelectors;
+  private final ImmutableList<SZCriteriaSelector> criteriaSelectors;
   private final ImmutableSet<SZPrepackagedCriteria> prepackagedDataFeatures;
 
   public ClientConfig(
@@ -28,13 +29,13 @@ public final class ClientConfig {
       Set<SZEntity> entities,
       Set<SZGroupItems> groupItemsEntityGroups,
       Set<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups,
-      Set<SZCriteriaSelector> criteriaSelectors,
+      List<SZCriteriaSelector> criteriaSelectors,
       Set<SZPrepackagedCriteria> prepackagedDataFeatures) {
     this.underlay = underlay;
     this.entities = ImmutableSet.copyOf(entities);
     this.groupItemsEntityGroups = ImmutableSet.copyOf(groupItemsEntityGroups);
     this.criteriaOccurrenceEntityGroups = ImmutableSet.copyOf(criteriaOccurrenceEntityGroups);
-    this.criteriaSelectors = ImmutableSet.copyOf(criteriaSelectors);
+    this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
     this.prepackagedDataFeatures = ImmutableSet.copyOf(prepackagedDataFeatures);
   }
 

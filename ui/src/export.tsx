@@ -30,7 +30,7 @@ import Loading from "components/loading";
 import { Tabs as TanagraTabs } from "components/tabs";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, makeArrayFilter } from "data/filter";
-import { ExportModel, FeatureSet } from "data/source";
+import { Cohort, ExportModel, FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useStudyId, useUnderlay } from "hooks";
@@ -51,13 +51,13 @@ import {
 import { StudyName } from "studyName";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
-import * as tanagraUI from "tanagra-ui";
 import { useImmer } from "use-immer";
 import { useNavigate } from "util/searchState";
 import { isValid } from "util/valid";
 
 export function Export() {
   const studySource = useStudySource();
+  const underlaySource = useUnderlaySource();
   const studyId = useStudyId();
   const exit = useExitAction();
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ export function Export() {
 
   const cohortsState = useSWR(
     { type: "cohort", studyId, list: true },
-    async () => await studySource.listCohorts(studyId)
+    async () => await studySource.listCohorts(studyId, underlaySource)
   );
 
   const cohorts = useMemo(
@@ -78,7 +78,7 @@ export function Export() {
 
   const featureSetsState = useSWR(
     { type: "featureSet", studyId, list: true },
-    async () => await studySource.listFeatureSets(studyId)
+    async () => await studySource.listFeatureSets(studyId, underlaySource)
   );
 
   const featureSets = useMemo(
@@ -100,7 +100,7 @@ export function Export() {
       studyId,
       `Untitled cohort ${new Date().toLocaleString()}`
     );
-    navigate(cohortURL(cohort.id, cohort.groupSections[0].id));
+    navigate(cohortURL(cohort.id));
   };
 
   const newFeatureSet = async () => {
@@ -330,14 +330,13 @@ export function Export() {
 }
 
 type PreviewProps = {
-  cohorts: tanagraUI.UICohort[];
+  cohorts: Cohort[];
   featureSets: FeatureSet[];
   selectedCohorts: Set<string>;
   selectedFeatureSets: Set<string>;
 };
 
 function Preview(props: PreviewProps) {
-  const underlay = useUnderlay();
   const underlaySource = useUnderlaySource();
 
   const filteredCohorts = useMemo(
@@ -370,8 +369,7 @@ function Preview(props: PreviewProps) {
       const ol = getOccurrenceList(
         underlaySource,
         new Set(fs.criteria.map((c) => c.id).concat(fs.predefinedCriteria)),
-        fs.criteria,
-        underlay.uiConfiguration.prepackagedConceptSets
+        fs.criteria
       );
 
       ol.forEach((of) => {
@@ -618,7 +616,7 @@ function PreviewTable(props: PreviewTableProps) {
 }
 
 type PreviewSummaryProps = {
-  cohorts: tanagraUI.UICohort[];
+  cohorts: Cohort[];
   occurrenceFilters: OccurrenceFilters[];
   empty: boolean;
 };
@@ -675,7 +673,7 @@ function PreviewSummary(props: PreviewSummaryProps) {
 }
 
 type ExportDialogProps = {
-  cohorts: tanagraUI.UICohort[];
+  cohorts: Cohort[];
   cohortsFilter: Filter | null;
   occurrenceFilters: OccurrenceFilters[];
 };

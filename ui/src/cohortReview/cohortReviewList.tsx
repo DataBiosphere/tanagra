@@ -32,9 +32,8 @@ import {
   TreeGridId,
   useArrayAsTreeGridData,
 } from "components/treegrid";
-import { Annotation, AnnotationType } from "data/source";
+import { Annotation, AnnotationType, CohortReview } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { CohortReview } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
 import { DemographicCharts } from "demographicCharts";
@@ -141,7 +140,11 @@ function Reviews() {
     { component: "CohortReviewList", cohortId: cohort.id },
     async () => {
       const res = wrapResults(
-        await studySource.listCohortReviews(params.studyId, cohort.id)
+        await studySource.listCohortReviews(
+          params.studyId,
+          underlaySource,
+          cohort.id
+        )
       );
       if (!reviewId) {
         const first = firstReview(res);
@@ -179,7 +182,11 @@ function Reviews() {
           size
         );
         const res = wrapResults(
-          await studySource.listCohortReviews(params.studyId, cohort.id)
+          await studySource.listCohortReviews(
+            params.studyId,
+            underlaySource,
+            cohort.id
+          )
         );
         if (!reviewId) {
           const first = firstReview(res);
@@ -217,7 +224,11 @@ function Reviews() {
           navigate(absoluteCohortReviewListURL(params, cohort.id));
         }
         return wrapResults(
-          await studySource.listCohortReviews(params.studyId, cohort.id)
+          await studySource.listCohortReviews(
+            params.studyId,
+            underlaySource,
+            cohort.id
+          )
         );
       },
       {
@@ -234,13 +245,18 @@ function Reviews() {
         if (selectedReview?.id) {
           await studySource.renameCohortReview(
             params.studyId,
+            underlaySource,
             cohort.id,
             selectedReview.id,
             name
           );
         }
         return wrapResults(
-          await studySource.listCohortReviews(params.studyId, cohort.id)
+          await studySource.listCohortReviews(
+            params.studyId,
+            underlaySource,
+            cohort.id
+          )
         );
       },
       {
