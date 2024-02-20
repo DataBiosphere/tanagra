@@ -81,6 +81,11 @@ task noCloudAccessRequiredTests(type: Test) {
     }
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode = LockMode.STRICT
+}
+
 // Apply Gradle Script Plugins for more modular gradle files.
 // See also https://docs.gradle.org/current/userguide/plugins.html#sec:script_plugins
 apply from: "$rootDir/underlay/gradle/task-dependencies.gradle"
