@@ -518,6 +518,7 @@ public final class FromApiUtils {
         .pluginName(apiObj.getPluginName())
         .pluginVersion(apiObj.getPluginVersion() == null ? 0 : apiObj.getPluginVersion())
         .predefinedId(apiObj.getPredefinedId())
+        .selectorOrModifierName(apiObj.getSelectorOrModifierName())
         .uiConfig(apiObj.getUiConfig())
         .selectionData(apiObj.getSelectionData())
         .tags(apiObj.getTags())

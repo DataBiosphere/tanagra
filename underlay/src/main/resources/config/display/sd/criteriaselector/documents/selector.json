@@ -1,0 +1,34 @@
+{
+  "name": "tanagra-documents",
+  "displayName": "Documents",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Domains",
+    "tags": null
+  },
+  "filterBuilder": "core.TextSearchFilterBuilder",
+  "plugin": "search",
+  "pluginConfig": null,
+  "pluginConfigFile": "documents.json",
+  "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    },
+    {
+      "name": "visitType",
+      "displayName": "Visit type",
+      "plugin": "attribute",
+      "pluginConfigFile": "visitType.json"
+    },
+    {
+      "name": "startDateGroupByCount",
+      "displayName": "Occurrence count",
+      "plugin": "unhinted-value",
+      "pluginConfigFile": "startDateGroupByCount.json"
+    }
+  ]
+}

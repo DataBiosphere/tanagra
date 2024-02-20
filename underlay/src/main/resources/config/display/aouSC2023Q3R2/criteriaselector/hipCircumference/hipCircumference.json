@@ -1,0 +1,9 @@
+{
+  "entity": "hipCircumference",
+  "valueConfigs": [
+    {
+      "attribute": "value_numeric",
+      "unit": "cm"
+    }
+  ]
+}

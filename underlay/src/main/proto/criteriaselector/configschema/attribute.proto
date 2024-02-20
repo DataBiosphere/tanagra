@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package tanagra.configschema;
+
+option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configschemapb";
+option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
+option java_outer_classname = "CFAttribute";
+
+message Attribute {
+  string attribute = 1;
+  bool multiRange = 2;
+  optional string unit = 3;
+}

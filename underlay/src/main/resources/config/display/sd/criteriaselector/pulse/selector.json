@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-pulse",
+  "displayName": "Pulse",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Vitals",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "pulse.json",
+  "modifiers": null
+}

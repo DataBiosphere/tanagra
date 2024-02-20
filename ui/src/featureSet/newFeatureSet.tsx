@@ -12,7 +12,7 @@ export function NewFeatureSet() {
 
   return (
     <CriteriaHolder
-      title={`Adding "${criteria.config.title}" criteria to ${featureSet.name}`}
+      title={`Adding "${criteria.config.displayName}" criteria to ${featureSet.name}`}
       plugin={getCriteriaPlugin(criteria)}
       exitAction={() => navigate(absoluteFeatureSetURL(params, featureSet.id))}
       backURL=".."

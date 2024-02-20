@@ -41,12 +41,18 @@
     "cmssynpuf/icd10cmPerson"
   ],
   "criteriaSelectors": [
-    "omop/gender",
-    "omop/condition"
+    "cmssynpuf/conditions",
+    "cmssynpuf/procedures",
+    "cmssynpuf/observations",
+    "cmssynpuf/drugs",
+    "cmssynpuf/ethnicity",
+    "cmssynpuf/gender",
+    "cmssynpuf/race",
+    "cmssynpuf/age",
+    "cmssynpuf/outputUnfiltered"
   ],
   "prepackagedDataFeatures": [
-    "omop/demographics",
-    "omop/type2Diabetes"
+    "cmssynpuf/_demographics"
   ],
   "metadata": {
     "displayName": "Centers for Medicare and Medicaid Services (CMS) Medicare Claims Synthetic Public Use Files (SynPUF)",

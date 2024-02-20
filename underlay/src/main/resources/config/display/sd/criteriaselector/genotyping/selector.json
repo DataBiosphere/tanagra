@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-genotyping",
+  "displayName": "BioVU Genetic Data",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "BioVU",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "genotyping.json",
+  "modifiers": null
+}

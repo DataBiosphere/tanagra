@@ -1,0 +1,13 @@
+{
+  "entity": "height",
+  "valueConfigs": [
+    {
+      "attribute": "is_clean",
+      "title": "Cleanliness"
+    },
+    {
+      "attribute": "value_numeric",
+      "unit": "cm"
+    }
+  ]
+}

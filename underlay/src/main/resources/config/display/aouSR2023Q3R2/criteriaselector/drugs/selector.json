@@ -1,0 +1,36 @@
+{
+  "name": "tanagra-drugs",
+  "displayName": "Drug",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Domains",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "drugs.json",
+  "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    },
+    {
+      "name": "visitType",
+      "displayName": "Visit type",
+      "plugin": "attribute",
+      "pluginConfigFile": "visitType.json"
+    },
+    {
+      "name": "startDateGroupByCount",
+      "displayName": "Occurrence count",
+      "plugin": "unhinted-value",
+      "pluginConfigFile": "startDateGroupByCount.json"
+    }
+  ]
+}

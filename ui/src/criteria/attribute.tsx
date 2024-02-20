@@ -9,6 +9,7 @@ import { DataRange, RangeSlider } from "components/rangeSlider";
 import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
 import { FilterType } from "data/filter";
 import {
+  CommonSelectorConfig,
   dataValueFromProto,
   IntegerHint,
   protoFromDataValue,
@@ -18,10 +19,10 @@ import { DataEntry, DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import * as configProto from "proto/criteriaselector/configschema/attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/attribute";
 import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
-import { CriteriaConfig } from "underlaysSlice";
 import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 
@@ -29,12 +30,6 @@ type Selection = {
   value: DataValue;
   name: string;
 };
-
-interface Config extends CriteriaConfig {
-  attribute: string;
-  multiRange?: boolean;
-  unit?: string;
-}
 
 interface Data {
   // Selected is valid for enum attributes.
@@ -48,7 +43,7 @@ interface Data {
   "attribute",
   (
     underlaySource: UnderlaySource,
-    c: CriteriaConfig,
+    c: CommonSelectorConfig,
     dataEntry?: DataEntry
   ) => {
     return encodeData({
@@ -63,15 +58,17 @@ interface Data {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
-  private config: Config;
+  private selector: CommonSelectorConfig;
+  private config: configProto.Attribute;
 
   constructor(
     public id: string,
-    config: CriteriaConfig,
+    selector: CommonSelectorConfig,
     data: string,
     private entity?: string
   ) {
-    this.config = config as Config;
+    this.selector = selector;
+    this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
     } catch (e) {
@@ -210,7 +207,7 @@ function AttributeSlider(props: SliderProps) {
 type AttributeInlineProps = {
   groupId: string;
   criteriaId: string;
-  config: Config;
+  config: configProto.Attribute;
   data: string;
   entity?: string;
 };
@@ -366,10 +363,10 @@ function AttributeInline(props: AttributeInlineProps) {
 
 async function search(
   underlaySource: UnderlaySource,
-  c: CriteriaConfig,
+  c: CommonSelectorConfig,
   query: string
 ): Promise<DataEntry[]> {
-  const config = c as Config;
+  const config = decodeConfig(c);
 
   const hintData = await underlaySource.getHintData("", config.attribute);
   if (!hintData?.enumHintOptions) {
@@ -431,4 +428,8 @@ function encodeData(data: Data): string {
       })) ?? [],
   };
   return bytesToBase64(dataProto.Attribute.encode(message).finish());
+}
+
+function decodeConfig(selector: CommonSelectorConfig): configProto.Attribute {
+  return configProto.Attribute.fromJSON(JSON.parse(selector.pluginConfig));
 }

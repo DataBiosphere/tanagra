@@ -1,7 +1,7 @@
 import Typography from "@mui/material/Typography";
+import { Cohort, GroupSectionFilterKind } from "data/source";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import * as tanagraUI from "tanagra-ui";
 import {
   getCriteriaPlugin,
   getCriteriaTitle,
@@ -9,7 +9,7 @@ import {
 } from "./cohort";
 
 export type CohortSummaryProps = {
-  cohort: tanagraUI.UICohort;
+  cohort: Cohort;
 };
 
 export function CohortSummary(props: CohortSummaryProps) {
@@ -24,9 +24,7 @@ export function CohortSummary(props: CohortSummaryProps) {
           >
             {si != 0 ? "and " : ""}
             {s.filter.excluded ? "exclude " : "include "}participants with
-            {s.filter.kind === tanagraUI.UIGroupSectionFilterKindEnum.Any
-              ? " any "
-              : " all "}
+            {s.filter.kind === GroupSectionFilterKind.Any ? " any " : " all "}
             of the following criteria:
           </Typography>
           {s.groups.map((g, gi) => (
@@ -51,7 +49,7 @@ export function CohortSummary(props: CohortSummaryProps) {
               ) : null}
               {gi != s.groups.length - 1 ? (
                 <Typography variant="body2em" component="span">
-                  {s.filter.kind === tanagraUI.UIGroupSectionFilterKindEnum.Any
+                  {s.filter.kind === GroupSectionFilterKind.Any
                     ? " or "
                     : " and "}
                 </Typography>

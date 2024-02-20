@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-sex_at_birth",
+  "displayName": "Sex assigned at birth",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Program data",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "sexAtBirth.json",
+  "modifiers": null
+}

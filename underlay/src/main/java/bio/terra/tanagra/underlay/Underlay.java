@@ -223,7 +223,7 @@ public final class Underlay {
         new BQQueryRunner(szBigQuery.queryProjectId, szBigQuery.dataLocation);
 
     // Build the criteria selectors.
-    Set<SZCriteriaSelector> szCriteriaSelectors = new HashSet<>();
+    List<SZCriteriaSelector> szCriteriaSelectors = new ArrayList<>();
     List<CriteriaSelector> criteriaSelectors = new ArrayList<>();
     if (szUnderlay.criteriaSelectors != null) {
       szUnderlay.criteriaSelectors.stream()

@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay.serialization;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,7 +97,7 @@ public class SZUnderlay {
               + "Using the path here instead of just the selector name allows us to share selector definitions "
               + "across underlays. For example, the `omop` display group contains template "
               + "selector definitions for standing up a new underlay.")
-  public Set<String> criteriaSelectors;
+  public List<String> criteriaSelectors;
 
   @AnnotatedField(
       name = "SZUnderlay.prepackagedDataFeatures",

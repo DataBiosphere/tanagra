@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package tanagra.dataschema;
+
+option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/dataschemapb";
+option java_package = "bio.terra.tanagra.proto.criteriaselector.dataschema";
+option java_outer_classname = "DTOutputUnfiltered";
+
+message OutputUnfiltered {
+  repeated string entities = 1;
+}

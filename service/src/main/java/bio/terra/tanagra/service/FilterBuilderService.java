@@ -38,7 +38,7 @@ public class FilterBuilderService {
     }
 
     // TODO: Replace plugin name with criteria selector name, once we're storing that.
-    String criteriaSelectorName = criteriaGroup.getCriteria().get(0).getPluginName();
+    String criteriaSelectorOrModifierName = criteriaGroup.getCriteria().get(0).getPluginName();
     List<SelectionData> selectionData =
         criteriaGroup.getCriteria().stream()
             .map(
@@ -48,7 +48,7 @@ public class FilterBuilderService {
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
     FilterBuilder filterBuilder =
-        underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
+        underlay.getCriteriaSelector(criteriaSelectorOrModifierName).getFilterBuilder();
     return filterBuilder.buildForCohort(underlay, selectionData);
   }
 
@@ -128,9 +128,12 @@ public class FilterBuilderService {
                       criteriaSelectorData -> {
                         // TODO: Replace plugin name with criteria selector name, once we're storing
                         // that.
-                        String criteriaSelectorName = criteriaSelectorData.getPluginName();
+                        String criteriaSelectorOrModifierName =
+                            criteriaSelectorData.getPluginName();
                         FilterBuilder filterBuilder =
-                            underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
+                            underlay
+                                .getCriteriaSelector(criteriaSelectorOrModifierName)
+                                .getFilterBuilder();
 
                         // Generate the entity outputs for each concept set criteria.
                         List<SelectionData> selectionData =

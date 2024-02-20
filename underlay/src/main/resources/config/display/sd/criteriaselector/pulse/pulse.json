@@ -1,0 +1,9 @@
+{
+  "entity": "pulse",
+  "valueConfigs": [
+    {
+      "attribute": "value_numeric",
+      "unit": "bpm"
+    }
+  ]
+}

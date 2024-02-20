@@ -31,6 +31,9 @@ public class SZCriteriaSelector {
           "True if this criteria selector should be displayed in the data feature set builder.")
   public boolean isEnabledForDataFeatureSets;
 
+  @AnnotatedField(name = "SZCriteriaSelector.displayName", markdown = "Display name.")
+  public String displayName;
+
   @AnnotatedField(name = "SZCriteriaSelector.display", markdown = "Display information.")
   public Display display;
 
@@ -73,9 +76,6 @@ public class SZCriteriaSelector {
       name = "SZCriteriaSelectorDisplay",
       markdown = "Criteria selector display configuration.")
   public static class Display {
-    @AnnotatedField(name = "SZCriteriaSelectorDisplay.displayName", markdown = "Display name.")
-    public String displayName;
-
     @AnnotatedField(
         name = "SZCriteriaSelectorDisplay.category",
         markdown =

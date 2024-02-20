@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_steps_intraday_id",
+  "displayName": "Fitbit Steps Intraday",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitStepsIntradayId.json"
+}

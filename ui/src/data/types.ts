@@ -1,22 +1,9 @@
-import * as tanagraUI from "tanagra-ui";
-
 export type DataKey = string | number;
 export type DataValue = null | string | number | boolean | Date;
 
 export type DataEntry = {
   key: DataKey;
   [x: string]: DataValue;
-};
-
-export type CohortReview = {
-  id: string;
-  displayName: string;
-  description?: string;
-  size: number;
-  cohort: tanagraUI.UICohort;
-  created: Date;
-  createdBy: string;
-  lastModified: Date;
 };
 
 export function compareDataValues(a?: DataValue, b?: DataValue) {
@@ -49,3 +36,16 @@ export function stringifyDataValue(v?: DataValue): string {
   }
   return String(v);
 }
+
+export enum ComparisonOperator {
+  Equal = "EQUAL",
+  GreaterThanEqual = "LESS_THAN_EQUAL",
+  LessThanEqual = "GREATER_THAN_EQUAL",
+  Between = "BETWEEN",
+}
+
+export type GroupByCount = {
+  attribute: string;
+  operator: ComparisonOperator;
+  value: number;
+};

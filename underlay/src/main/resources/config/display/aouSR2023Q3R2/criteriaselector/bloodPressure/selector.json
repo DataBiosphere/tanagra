@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-blood-pressure",
+  "displayName": "Blood pressure",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Physical Measurements",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "bloodPressure.json",
+  "modifiers": null
+}
