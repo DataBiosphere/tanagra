@@ -155,7 +155,7 @@ public class JobSequencerTest {
   @Test
   public void conditionPersonCleanHierarchyNodesWithZeroCounts() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZIndexer szIndexer = configReader.readIndexer("aouSR2019q4r4_verily");
+    SZIndexer szIndexer = configReader.readIndexer("aou/SC2023Q3R2");
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
