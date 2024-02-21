@@ -1,7 +1,15 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
-  CASE WHEN xvw.x_invalid = 'N' THEN TRUE ELSE FALSE END is_clean,
+  CASE
+    WHEN xvw.x_invalid = 'N' THEN 1
+    ELSE 0
+  END AS is_clean,
+  CASE
+    WHEN xvw.x_invalid = 'N' THEN 'Clean'
+    ELSE 'Raw'
+  END AS is_clean_name,
+  CASE WHEN xvw.x_invalid = 'N' THEN TRUE ELSE FALSE END x_invalid_bool,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,
@@ -15,11 +23,11 @@ SELECT
 
 FROM `${omopDataset}.measurement` AS mo
 
-JOIN `${omopDataset}.person` AS p
-    ON p.person_id = mo.person_id
-
 LEFT JOIN `${omopDataset}.x_vs_wh` AS xvw
     ON xvw.measurement_id = mo.measurement_id
+
+JOIN `${omopDataset}.person` AS p
+    ON p.person_id = mo.person_id
 
 LEFT JOIN `${omopDataset}.concept` AS mvc
     ON mvc.concept_id = mo.value_as_concept_id
