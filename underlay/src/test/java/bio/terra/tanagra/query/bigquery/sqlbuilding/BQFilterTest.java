@@ -1255,8 +1255,16 @@ public class BQFilterTest extends BQRunnerTest {
                 true));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    BQTable itemsTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(groupItems.getItemsEntity().getName())
+            .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
-        "relationshipFilterNestedNullFilterFKFilter", sqlQueryRequest.getSql(), occurrenceTable);
+        "relationshipFilterNestedNullFilterFKFilter",
+        sqlQueryRequest.getSql(),
+        occurrenceTable,
+        itemsTable);
   }
 
   @Test
