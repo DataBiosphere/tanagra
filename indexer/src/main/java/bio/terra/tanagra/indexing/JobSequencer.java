@@ -226,8 +226,8 @@ public final class JobSequencer {
               });
     }
 
-    AtomicBoolean isNewStage = new AtomicBoolean(true);
     if (groupItems.getGroupEntity().hasHierarchies()) {
+      AtomicBoolean isNewStage = new AtomicBoolean(true);
       groupItems
           .getGroupEntity()
           .getHierarchies()
@@ -444,8 +444,8 @@ public final class JobSequencer {
                       criteriaOccurrence.getCriteriaEntity().getName())));
     }
 
-    AtomicBoolean isNewStage = new AtomicBoolean(true);
     if (criteriaOccurrence.getCriteriaEntity().hasHierarchies()) {
+      AtomicBoolean isNewStage = new AtomicBoolean(true);
       criteriaOccurrence
           .getCriteriaEntity()
           .getHierarchies()
