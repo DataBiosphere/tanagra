@@ -1333,10 +1333,7 @@ export function dataValueFromProto(value?: valueProto.Value): DataValue {
     value.stringValue ??
     value.boolValue ??
     value.timestampValue;
-  if (!res) {
-    throw new Error(`Invalid key ${valueProto.Value.toJSON(value)}.`);
-  }
-  return res;
+  return res ?? null;
 }
 
 function convertSortDirection(dir: SortDirection) {
