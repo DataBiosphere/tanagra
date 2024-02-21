@@ -1,0 +1,818 @@
+{
+  "criteriaConfigs": [
+    {
+      "type": "attribute",
+      "id": "tanagra-ethnicity",
+      "title": "Ethnicity",
+      "category": "Demographics",
+      "attribute": "ethnicity"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-gender",
+      "title": "Gender identity",
+      "category": "Demographics",
+      "attribute": "gender"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-race",
+      "title": "Race",
+      "category": "Demographics",
+      "attribute": "race"
+    },
+    {
+      "type": "attribute",
+      "id": "tanagra-age",
+      "title": "Age",
+      "category": "Demographics",
+      "attribute": "age"
+    },
+    {
+      "type": "biovu",
+      "id": "biovu",
+      "title": "BioVU DNA",
+      "category": "BioVU"
+    },
+    {
+      "type": "biovu",
+      "id": "biovu-plasma",
+      "title": "BioVU Plasma",
+      "category": "BioVU",
+      "plasmaFilter": true
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-genotyping",
+      "title": "BioVU Genetic Data",
+      "category": "BioVU",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Genotyping platform" },
+        { "key": "id", "width": 100, "title": "Id" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Genotyping platform" },
+        { "key": "id", "width": 100, "title": "Id" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "genotypingPerson"
+        }
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-measurement",
+      "title": "Labs and measurements",
+      "conceptSet": true,
+      "category": "Domains",
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_item_count", "width": 120, "title": "Count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Condition" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "measurementLoincPerson"
+        },
+        {
+          "id": "measurementSnomedPerson"
+        }
+      ],
+      "defaultSort": {
+        "attribute": "t_item_count",
+        "direction": "DESC"
+      },
+      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
+      "valueConfigs": [
+        {
+          "title": "Categorical value",
+          "attribute": "value_enum"
+        },
+        {
+          "title": "Numeric value",
+          "attribute": "value_numeric"
+        }
+      ]
+    },
+    {
+      "type": "search",
+      "id": "tanagra-documents",
+      "title": "Documents",
+      "conceptSet": true,
+      "category": "Domains",
+      "entity": "noteOccurrence",
+      "categoryAttribute": "note",
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-conditions",
+      "title": "Condition",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Domains",
+      "tags": ["Standard Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Condition" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "conditionPerson"
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-phewas",
+      "title": "PheWAS",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "phewasPerson",
+          "sortOrder": {
+            "attribute": "numeric_code",
+            "direction": "ASC"
+          }
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ],
+      "limit": 1000
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-cpt4",
+      "title": "CPT-4",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "is_standard", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "cpt4Person",
+          "sortOrder": {
+            "attribute": "code",
+            "direction": "ASC"
+          }
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-icd9cm",
+      "title": "ICD-9-CM",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "icd9cmPerson",
+          "sortOrder": {
+            "attribute": "concept_code",
+            "direction": "ASC"
+          }
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-icd9proc",
+      "title": "ICD-9-Proc",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "icd9procPerson",
+          "sortOrder": {
+            "attribute": "concept_code",
+            "direction": "ASC"
+          }
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-icd10cm",
+      "title": "ICD-10-CM",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "icd10cmPerson",
+          "sortOrder": {
+            "attribute": "concept_code",
+            "direction": "ASC"
+          }
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-icd10pcs",
+      "title": "ICD-10-PCS",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Source Codes",
+      "tags": ["Source Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "label", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "icd10pcsPerson",
+          "sortOrder": {
+            "attribute": "concept_code",
+            "direction": "ASC"
+          }
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-procedures",
+      "title": "Procedure",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Domains",
+      "tags": ["Standard Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Procedure" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "procedurePerson"
+        }
+      ],
+      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-observations",
+      "title": "Observation",
+      "conceptSet": true,
+      "category": "Domains",
+      "tags": ["Standard Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "observationPerson"
+        }
+      ],
+      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
+    },
+    {
+      "type": "entityGroup",
+      "id": "tanagra-drugs",
+      "title": "Drug",
+      "conceptSet": true,
+			"multiSelect": true,
+      "category": "Domains",
+      "tags": ["Standard Codes"],
+      "columns": [
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 100, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "hierarchyColumns": [
+        { "key": "name", "width": "100%", "title": "Drug" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+      ],
+      "classificationEntityGroups": [
+        {
+          "id": "ingredientPerson"
+        }
+      ],
+      "groupingEntityGroups": [
+        {
+          "id": "brandIngredient",
+          "sortOrder": {
+            "attribute": "name",
+            "direction": "ASC"
+          }
+        }
+      ],
+      "modifiers": [
+        "age_at_occurrence",
+        "visit_type",
+        "start_date_group_by_count"
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-bmi",
+      "title": "BMI",
+      "category": "Vitals",
+      "entity": "bmi",
+      "valueConfigs": [
+        {
+          "title": "Cleanliness",
+          "attribute": "is_clean"
+        },
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg/m^2"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-blood-pressure",
+      "title": "Blood pressure",
+      "category": "Vitals",
+      "entity": "bloodPressure",
+      "valueConfigs": [
+        {
+          "title": "Category",
+          "attribute": "status_code"
+        },
+        {
+          "title": "Systolic",
+          "attribute": "systolic"
+        },
+        {
+          "title": "Diastolic",
+          "attribute": "diastolic"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-height",
+      "title": "Height",
+      "category": "Vitals",
+      "entity": "height",
+      "valueConfigs": [
+        {
+          "title": "Cleanliness",
+          "attribute": "is_clean"
+        },
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "cm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-weight",
+      "title": "Weight",
+      "category": "Vitals",
+      "entity": "weight",
+      "valueConfigs": [
+        {
+          "title": "Cleanliness",
+          "attribute": "is_clean"
+        },
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "kg"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-pulse",
+      "title": "Pulse",
+      "category": "Vitals",
+      "entity": "pulse",
+      "valueConfigs": [
+        {
+          "title": "",
+          "attribute": "value_numeric",
+          "unit": "bpm"
+        }
+      ]
+    },
+    {
+      "type": "multiAttribute",
+      "id": "tanagra-resp-rate",
+      "title": "Resp Rate",
+      "category": "Vitals",
+      "entity": "respiratoryRate",
+      "valueConfigs": [
+        {
+          "title": "Resp rate in br/min",
+          "attribute": "value_numeric",
+          "unit": "br/min"
+        }
+      ]
+    }
+  ],
+  "modifierConfigs": [
+    {
+      "type": "unhinted-value",
+      "id": "start_date_group_by_count",
+      "title": "Occurrence count",
+      "attribute": "start_date",
+      "groupByCount": true
+    },
+    {
+      "type": "unhinted-value",
+      "id": "date_group_by_count",
+      "title": "Occurrence count",
+      "attribute": "date",
+      "groupByCount": true
+    },
+    {
+      "type": "attribute",
+      "id": "visit_type",
+      "title": "Visit type",
+      "attribute": "visit_type"
+    },
+    {
+      "type": "attribute",
+      "id": "age_at_occurrence",
+      "title": "Age at occurrence",
+      "attribute": "age_at_occurrence"
+    }
+  ],
+  "demographicChartConfigs": {
+    "groupByAttributes": ["gender", "race", "age"],
+    "chartConfigs": [
+      {
+        "title": "Gender identity",
+        "primaryProperties": [{ "key": "gender" }]
+      },
+      {
+        "title": "Gender identity, Current age, Race",
+        "primaryProperties": [
+          { "key": "gender" },
+          {
+            "key": "age",
+            "buckets": [
+              {
+                "min": 18,
+                "max": 45,
+                "displayName": "18-44"
+              },
+              {
+                "min": 45,
+                "max": 65,
+                "displayName": "45-64"
+              },
+              {
+                "min": 65,
+                "displayName": "65+"
+              }
+            ]
+          }
+        ],
+        "stackedProperty": { "key": "race" }
+      }
+    ]
+  },
+  "prepackagedConceptSets": [
+    {
+      "id": "_demographics",
+      "name": "Demographics",
+      "entity": ""
+    }
+  ],
+  "criteriaSearchConfig": {
+    "criteriaTypeWidth": 120,
+    "columns": [
+      { "key": "name", "width": "100%", "title": "Concept Name" },
+      { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+      { "key": "concept_code", "width": 120, "title": "Code" },
+      { "key": "t_rollup_count", "width": 120, "title": "Roll-up Count" }
+    ]
+  },
+  "cohortReviewConfig": {
+    "participantIdAttribute": "person_source_value",
+    "participantsListColumns": [
+      { "key": "person_source_value", "width": 100, "title": "GRID" },
+      { "key": "gender", "width": 100, "title": "Gender" },
+      { "key": "race", "width": 100, "title": "Race" },
+      { "key": "ethnicity", "width": 100, "title": "Ethnicity" },
+      { "key": "age", "width": 60, "title": "Age" }
+    ],
+    "attributes": [
+      {
+        "title": "Gender",
+        "key": "gender"
+      },
+      {
+        "title": "Age",
+        "key": "age"
+      },
+      {
+        "title": "Race",
+        "key": "race"
+      },
+      {
+        "title": "Ethnicity",
+        "key": "ethnicity"
+      }
+    ],
+    "pages": [
+      {
+        "type": "entityTable",
+        "id": "condition",
+        "title": "Conditions",
+        "plugin": {
+          "entity": "conditionOccurrence",
+          "columns": [
+            {
+              "key": "condition",
+              "width": "100%",
+              "title": "Condition name",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "start_date",
+              "width": 200,
+              "title": "Start date",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "end_date",
+              "width": 200,
+              "title": "End date",
+              "sortable": true,
+              "filterable": true
+            }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "procedure",
+        "title": "Procedures",
+        "plugin": {
+          "entity": "procedureOccurrence",
+          "columns": [
+            {
+              "key": "procedure",
+              "width": "100%",
+              "title": "Procedure name",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "observation",
+        "title": "Observations",
+        "plugin": {
+          "entity": "observationOccurrence",
+          "columns": [
+            {
+              "key": "observation",
+              "width": "100%",
+              "title": "Observation name",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "ingredient",
+        "title": "Drugs",
+        "plugin": {
+          "entity": "ingredientOccurrence",
+          "columns": [
+            {
+              "key": "ingredient",
+              "width": "100%",
+              "title": "Drug name",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "start_date",
+              "width": 200,
+              "title": "Start date",
+              "sortable": true
+            },
+            {
+              "key": "end_date",
+              "width": 200,
+              "title": "End date",
+              "sortable": true
+            }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "measurements",
+        "title": "Labs and measurements",
+        "plugin": {
+          "entity": "measurementOccurrence",
+          "columns": [
+            {
+              "key": "measurement",
+              "width": "100%",
+              "title": "Lab/measurement name",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true },
+            {
+              "key": "value_enum",
+              "width": 160,
+              "title": "Categorical value",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "value_numeric",
+              "width": 160,
+              "title": "Numeric value",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "unit", "width": 160, "title": "Unit", "sortable": true }
+          ]
+        }
+      },
+      {
+        "type": "textSearch",
+        "id": "notes",
+        "title": "Documents",
+        "plugin": {
+          "entity": "noteOccurrence",
+          "title": "title",
+          "subtitles": ["note", "date"],
+          "text": "note_text",
+          "categoryAttribute": "note",
+          "sortOrder": {
+            "attribute": "date",
+            "direction": "ASC"
+          }
+        }
+      }
+    ]
+  }
+}

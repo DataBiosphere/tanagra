@@ -1,0 +1,22 @@
+{
+  "name": "person",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "person_id" },
+    { "name": "year_of_birth", "dataType": "INT64", "isComputeDisplayHint": true },
+    { "name": "age", "dataType": "TIMESTAMP", "valueFieldName": "birth_datetime",
+      "runtimeSqlFunctionWrapper": "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
+      "runtimeDataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 },
+    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
+    { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_concept_id", "displayFieldName": "gender_concept_name", "isComputeDisplayHint": true },
+    { "name": "race", "dataType": "INT64", "valueFieldName": "race_source_concept_id", "displayFieldName": "race_concept_name", "isComputeDisplayHint": true },
+    { "name": "ethnicity", "dataType": "INT64", "valueFieldName": "ethnicity_concept_id", "displayFieldName": "ethnicity_concept_name", "isComputeDisplayHint": true },
+    { "name": "has_biovu_sample", "dataType": "BOOLEAN" },
+    { "name": "biovu_sample_dna_yield", "dataType": "INT64" },
+    { "name": "biovu_sample_is_compromised", "dataType": "BOOLEAN" },
+    { "name": "biovu_sample_is_nonshippable", "dataType": "BOOLEAN" },
+    { "name": "biovu_sample_has_plasma", "dataType": "BOOLEAN" }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "gender", "race", "age" ]
+}

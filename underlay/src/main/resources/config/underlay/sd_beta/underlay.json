@@ -1,0 +1,93 @@
+{
+  "name": "sd_beta",
+  "primaryEntity": "person",
+  "entities": [
+    "sd_beta/person",
+
+    "omop/condition",
+    "sd_beta/conditionOccurrence",
+    "omop/procedure",
+    "sd_beta/procedureOccurrence",
+
+    "omop/brand",
+    "omop/ingredient",
+    "sd_beta/ingredientOccurrence",
+
+    "omop/measurementLoinc",
+    "omop/measurementSnomed",
+    "sd_beta/measurementOccurrence",
+
+    "omop/observation",
+    "sd_beta/observationOccurrence",
+    "omop/device",
+    "sd_beta/deviceOccurrence",
+    "omop/visit",
+    "sd_beta/visitOccurrence",
+
+    "omop/note",
+    "sd_beta/noteOccurrence",
+    "sd_beta/familyHistory",
+
+    "omop/cpt4",
+    "omop/icd9cm",
+    "omop/icd9proc",
+    "omop/icd10cm",
+    "omop/icd10pcs",
+    "sd_beta/phewas",
+
+    "sd_beta/genotyping",
+    "sd_beta/snp",
+
+    "sd_beta/bloodPressure",
+    "sd_beta/bmi",
+    "sd_beta/height",
+    "sd_beta/weight",
+    "sd_beta/pulse",
+    "sd_beta/respiratoryRate"
+  ],
+  "groupItemsEntityGroups": [
+    "omop/brandIngredient",
+
+    "sd_beta/familyHistoryPerson",
+
+    "sd_beta/genotypingPerson",
+    "sd_beta/snpPerson",
+
+    "sd_beta/bloodPressurePerson",
+    "sd_beta/bmiPerson",
+    "sd_beta/heightPerson",
+    "sd_beta/weightPerson",
+    "sd_beta/pulsePerson",
+    "sd_beta/respiratoryRatePerson"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "omop/conditionPerson",
+    "omop/procedurePerson",
+
+    "omop/ingredientPerson",
+
+    "omop/measurementLoincPerson",
+    "omop/measurementSnomedPerson",
+
+    "omop/observationPerson",
+    "omop/devicePerson",
+    "omop/visitPerson",
+
+    "omop/notePerson",
+
+    "omop/cpt4Person",
+    "omop/icd9cmPerson",
+    "omop/icd9procPerson",
+    "omop/icd10cmPerson",
+    "omop/icd10pcsPerson",
+    "sd_beta/phewasPerson"
+  ],
+  "metadata": {
+    "displayName": "Synthetic Derivative Discover Dataset",
+    "description": "Dataset Updated August 31, 2023",
+    "properties": {
+      "lastUpdated": "08/31/23"
+    }
+  },
+  "uiConfigFile": "ui.json"
+}
