@@ -12,5 +12,6 @@
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "visit_source_concept_id" },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 }
   ],
-  "idAttribute": "id"
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "visit" ]
 }

@@ -1,6 +1,7 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
+  p.person_source_value,
   CASE
     WHEN mo.measurement_source_value = 'BMI_CLEAN' THEN 1
     ELSE 0

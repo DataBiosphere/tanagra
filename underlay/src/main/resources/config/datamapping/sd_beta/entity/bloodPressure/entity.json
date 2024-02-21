@@ -4,6 +4,7 @@
   "attributes": [
     { "name": "id", "dataType": "INT64" },
     { "name": "person_id", "dataType": "INT64" },
+    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
     { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_datetime" },
     { "name": "systolic", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "diastolic", "dataType": "INT64", "isComputeDisplayHint": true },
