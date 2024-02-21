@@ -1,6 +1,7 @@
 SELECT
   vo.visit_occurrence_id,
   vo.person_id,
+  p.person_source_value,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name,
   vo.visit_start_date,

@@ -1,6 +1,0 @@
-{
-  "name": "pulsePerson",
-  "groupEntity": "person",
-  "itemsEntity": "pulse",
-  "foreignKeyAttributeItemsEntity":  "person_id"
-}

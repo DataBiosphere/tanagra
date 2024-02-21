@@ -1,5 +1,5 @@
 {
-  "underlay": "sd_beta",
+  "underlay": "sd",
   "bigQuery": {
     "sourceData": {
       "projectId": "sd-vumc-tanagra-test",
@@ -16,10 +16,5 @@
     "queryProjectId": "sd-vumc-tanagra-test",
     "dataLocation": "us-central1"
   },
-  "dataflow": {
-    "serviceAccountEmail": "sd-test-dataflow-index-admin@sd-vumc-tanagra-test.iam.gserviceaccount.com",
-    "gcsTempDirectory": "gs://dataflow-indexing-sd-test-tanagra/temp/",
-    "workerMachineType": "n1-standard-4",
-    "usePublicIps": false
-  }
+  "uiConfigFile": "ui.json"
 }

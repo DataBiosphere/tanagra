@@ -4,6 +4,7 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "observation_id" },
     { "name": "person_id", "dataType": "INT64" },
+    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
     { "name": "observation", "dataType": "INT64", "valueFieldName": "observation_concept_id", "displayFieldName": "observation_concept_name" },
     { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "observation_date" },
     { "name": "value_as_string", "dataType": "STRING" },
@@ -15,5 +16,6 @@
     { "name": "visit_occurrence_id", "dataType": "INT64" },
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
   ],
-  "idAttribute": "id"
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "observation" ]
 }

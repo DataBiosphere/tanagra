@@ -4,6 +4,7 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "condition_occurrence_id" },
     { "name": "person_id", "dataType": "INT64" },
+    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
     { "name": "condition", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "condition_concept_name" },
     { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "condition_start_date" },
     { "name": "end_date", "dataType": "TIMESTAMP", "valueFieldName": "condition_end_date" },
@@ -14,5 +15,6 @@
     { "name": "visit_occurrence_id", "dataType": "INT64" },
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
   ],
-  "idAttribute": "id"
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "condition" ]
 }

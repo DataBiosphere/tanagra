@@ -1,6 +1,0 @@
-{
-  "name": "familyHistoryPerson",
-  "groupEntity": "person",
-  "itemsEntity": "familyHistory",
-  "foreignKeyAttributeItemsEntity":  "person_id"
-}
