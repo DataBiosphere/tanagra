@@ -82,7 +82,7 @@ public class ReviewSampleSizeTest {
   }
 
   @AfterEach
-  void deleteReviewsAndAnnotations() {
+  void deleteStudy() {
     try {
       studyService.deleteStudy(study1.getId(), "abc@123.com");
       LOGGER.info("Deleted study1 {}", study1.getId());
