@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.list.ListInstance;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
@@ -15,6 +16,7 @@ import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -54,6 +56,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReviewService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewService.class);
+  public static final int MAX_REVIEW_SIZE = 10_000;
 
   private final CohortService cohortService;
   private final UnderlayService underlayService;
@@ -87,10 +90,14 @@ public class ReviewService {
       String userEmail,
       EntityFilter entityFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
-
+    if (reviewBuilder.getSize() > MAX_REVIEW_SIZE) {
+      throw new InvalidQueryException(
+          "Review size " + reviewBuilder.getSize() + " exceeds maximum allowed " + MAX_REVIEW_SIZE);
+    }
     List<Long> randomSampleQueryResult =
         cohortService.getRandomSample(studyId, cohortId, entityFilter, reviewBuilder.getSize());
     long cohortRecordsCount = cohortService.getRecordsCount(studyId, cohortId, entityFilter);
+    LOGGER.info("Created review with {} primary entity ids", randomSampleQueryResult.size());
     return createReviewHelper(
         studyId, cohortId, reviewBuilder, userEmail, randomSampleQueryResult, cohortRecordsCount);
   }
@@ -291,7 +298,7 @@ public class ReviewService {
               List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
     }
 
-    // Get all the primary entity instances.
+    // Get all the primary entity instances. Paginate through all the results.
     List<ValueDisplayField> attributeFields = new ArrayList<>();
     reviewQueryRequest.getAttributes().stream()
         .forEach(
@@ -300,8 +307,37 @@ public class ReviewService {
                     new AttributeField(underlay, primaryEntity, attribute, false, false)));
     ListQueryRequest listQueryRequest =
         new ListQueryRequest(
-            underlay, primaryEntity, attributeFields, entityFilter, null, null, null, null, false);
+            underlay,
+            primaryEntity,
+            attributeFields,
+            entityFilter,
+            null,
+            null,
+            null,
+            MAX_REVIEW_SIZE,
+            false);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
+    List<ListInstance> listInstances = new ArrayList<>();
+    listQueryResult.getListInstances().stream()
+        .forEach(listInstance -> listInstances.add(listInstance));
+    while (listQueryResult.getPageMarker() != null) {
+      // Using the MAX_REVIEW_SIZE as the page size should mean we get all results back in a single
+      // page, but that's not guaranteed, so paginate here just in case.
+      listQueryRequest =
+          new ListQueryRequest(
+              underlay,
+              primaryEntity,
+              attributeFields,
+              entityFilter,
+              null,
+              null,
+              listQueryResult.getPageMarker(),
+              MAX_REVIEW_SIZE,
+              false);
+      listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
+      listQueryResult.getListInstances().stream()
+          .forEach(listInstance -> listInstances.add(listInstance));
+    }
 
     // Get the annotation values.
     List<AnnotationValue> annotationValues = listAnnotationValues(studyId, cohortId, reviewId);
@@ -309,7 +345,7 @@ public class ReviewService {
     // Merge entity instances and annotation values, filtering out any instances that don't match
     // the annotation filter (if specified).
     List<ReviewInstance> reviewInstances = new ArrayList<>();
-    listQueryResult.getListInstances().stream()
+    listInstances.stream()
         .forEach(
             listInstance -> {
               Map<Attribute, ValueDisplay> attributeValues = new HashMap<>();
