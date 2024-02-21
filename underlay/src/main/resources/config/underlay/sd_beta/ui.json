@@ -407,7 +407,7 @@
         { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_item_count", "width": 120, "title": "Count" },
+        { "key": "t_item_count", "width": 120, "title": "Count" }
       ],
       "classificationEntityGroups": [
         {
