@@ -647,9 +647,9 @@
     ]
   },
   "cohortReviewConfig": {
-    "participantIdAttribute": "person_source_value",
+    "participantIdAttribute": "GRID",
     "participantsListColumns": [
-      { "key": "person_source_value", "width": 100, "title": "GRID" },
+      { "key": "GRID", "width": 100, "title": "GRID" },
       { "key": "gender", "width": 100, "title": "Gender" },
       { "key": "race", "width": 100, "title": "Race" },
       { "key": "ethnicity", "width": 100, "title": "Ethnicity" },
