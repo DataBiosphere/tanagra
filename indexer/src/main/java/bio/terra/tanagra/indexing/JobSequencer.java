@@ -239,11 +239,6 @@ public final class JobSequencer {
                           .getIndexSchema()
                           .getHierarchyChildParent(
                               groupItems.getGroupEntity().getName(), hierarchy.getName());
-                  ITHierarchyAncestorDescendant indexAncestorDescendant =
-                      underlay
-                          .getIndexSchema()
-                          .getHierarchyAncestorDescendant(
-                              groupItems.getGroupEntity().getName(), hierarchy.getName());
                   Attribute idAttribute = groupItems.getGroupEntity().getIdAttribute();
                   if (isNewStage.getAndSet(false)) {
                     jobSet.startNewStage();
@@ -456,12 +451,6 @@ public final class JobSequencer {
                       underlay
                           .getIndexSchema()
                           .getHierarchyChildParent(
-                              criteriaOccurrence.getCriteriaEntity().getName(),
-                              hierarchy.getName());
-                  ITHierarchyAncestorDescendant indexAncestorDescendant =
-                      underlay
-                          .getIndexSchema()
-                          .getHierarchyAncestorDescendant(
                               criteriaOccurrence.getCriteriaEntity().getName(),
                               hierarchy.getName());
                   Attribute idAttribute = criteriaOccurrence.getCriteriaEntity().getIdAttribute();
