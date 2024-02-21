@@ -444,7 +444,17 @@ public class ReviewService {
     return underlay.getQueryRunner().run(countQueryRequest);
   }
 
-  public String buildCsvStringForAnnotationValues(Study study, Cohort cohort) {
+  /**
+   * Build a CSV string, with annotation keys as the header and values as the body. Return null if
+   * there are no annotation values.
+   */
+  public @Nullable String buildCsvStringForAnnotationValues(Study study, Cohort cohort) {
+    // Get all the annotation values for the latest revision.
+    List<AnnotationValue> annotationValues = listAnnotationValues(study.getId(), cohort.getId());
+    if (annotationValues.isEmpty()) {
+      return null; // Don't generate a file with no data.
+    }
+
     // Build the column headers: id column name in source data, then annotation key display names.
     // Sort the annotation keys by display name, so that we get a consistent ordering.
     // e.g. person_id, key1, key2
@@ -474,9 +484,6 @@ public class ReviewService {
             columnHeaders.append(
                 String.format(",%s", StringEscapeUtils.escapeCsv(annotation.getDisplayName()))));
     StringBuilder fileContents = new StringBuilder(columnHeaders + "\n");
-
-    // Get all the annotation values for the latest revision.
-    List<AnnotationValue> annotationValues = listAnnotationValues(study.getId(), cohort.getId());
 
     // Convert the list of annotation values to a CSV-ready table.
     Table<String, String, String> csvValues = HashBasedTable.create();

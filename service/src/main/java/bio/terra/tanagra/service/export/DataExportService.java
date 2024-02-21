@@ -211,19 +211,20 @@ public class DataExportService {
       String fileNameTemplate, Study study, List<Cohort> cohorts) {
     // Just pick the first GCS bucket name.
     String bucketName = shared.getGcsBucketNames().get(0);
-    return cohorts.stream()
-        .collect(
-            Collectors.toMap(
-                Function.identity(),
-                cohort -> {
-                  String cohortIdAndName =
-                      simplifyStringForName(cohort.getDisplayName() + "_" + cohort.getId());
-                  String fileName = getFileName(fileNameTemplate, "cohort", cohortIdAndName);
-                  String fileContents =
-                      reviewService.buildCsvStringForAnnotationValues(study, cohort);
-                  BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
-                  return blobId.toGsUtilUri();
-                }));
+    Map<Cohort, String> cohortToGcsUrl = new HashMap<>();
+    cohorts.stream()
+        .forEach(
+            cohort -> {
+              String fileContents = reviewService.buildCsvStringForAnnotationValues(study, cohort);
+              if (fileContents != null) {
+                String cohortIdAndName =
+                    simplifyStringForName(cohort.getDisplayName() + "_" + cohort.getId());
+                String fileName = getFileName(fileNameTemplate, "cohort", cohortIdAndName);
+                BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
+                cohortToGcsUrl.put(cohort, blobId.toGsUtilUri());
+              }
+            });
+    return cohortToGcsUrl;
   }
 
   /** Return the rendered filename with substitutions. */
