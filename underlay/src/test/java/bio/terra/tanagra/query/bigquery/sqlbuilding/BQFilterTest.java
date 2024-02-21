@@ -1198,6 +1198,68 @@ public class BQFilterTest extends BQRunnerTest {
   }
 
   @Test
+  void relationshipFilterNestedNullFilterFKFilter() throws IOException {
+    // The cmssynpuf underlay does not have an example of this type of relationship
+    // (i.e. foreign key relationship on the filter entity).
+    // This is typical for things like vitals (e.g. list of pulse readings for a person,
+    // query is to get all persons with at least one pulse reading). So for this part
+    // of the test, we use the SD underlay. But since we the GHA does not have
+    // credentials to query against an SD dataset, here we just check the generated SQL.
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZService szService = configReader.readService("sd20230331_verily");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+    Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
+    BQQueryRunner bqQueryRunner =
+        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+
+    // e.g. SELECT conditionOccurrence FILTER ON (person FILTER ON HAS ANY bmi).
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    Entity occurrenceEntity = underlay.getEntity("conditionOccurrence");
+    GroupItems groupItems = (GroupItems) underlay.getEntityGroup("bmiPerson");
+
+    RelationshipFilter personFilter =
+        new RelationshipFilter(
+            underlay,
+            groupItems,
+            underlay.getPrimaryEntity(),
+            groupItems.getGroupItemsRelationship(),
+            null,
+            null,
+            null,
+            null);
+    RelationshipFilter occurrenceFilter =
+        new RelationshipFilter(
+            underlay,
+            criteriaOccurrence,
+            occurrenceEntity,
+            criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
+            personFilter,
+            null,
+            null,
+            null);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+    SqlQueryRequest sqlQueryRequest =
+        bqQueryRunner.buildListQuerySql(
+            new ListQueryRequest(
+                underlay,
+                occurrenceEntity,
+                List.of(simpleAttribute),
+                occurrenceFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    BQTable occurrenceTable =
+        underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "relationshipFilterNestedNullFilterFKFilter", sqlQueryRequest.getSql(), occurrenceTable);
+  }
+
+  @Test
   void booleanAndOrFilterWithSwapFields() throws IOException {
     // e.g. SELECT occurrence BOOLEAN LOGIC FILTER ON condition (foreign key is on the occurrence
     // table).
