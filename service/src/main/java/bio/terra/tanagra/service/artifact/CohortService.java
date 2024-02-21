@@ -188,7 +188,10 @@ public class CohortService {
             List.of(ListQueryRequest.OrderBy.random()),
             sampleSize,
             null,
-            null,
+            // BQ does not allow paginating through a query that is ordered randomly, unless we
+            // manually persist the results in a temp table (i.e. BQ does not cache the query
+            // results in an anonymous dataset for us).
+            sampleSize,
             false);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", listQueryResult.getSql());

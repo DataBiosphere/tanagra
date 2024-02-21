@@ -198,7 +198,7 @@ public class UnderlaysApiController implements UnderlaysApi {
             attributeFields,
             filter,
             PageMarker.deserialize(body.getPageMarker()),
-            null,
+            body.getPageSize(),
             entityLevelHints,
             false);
 

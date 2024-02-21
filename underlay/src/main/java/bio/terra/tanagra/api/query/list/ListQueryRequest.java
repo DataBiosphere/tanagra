@@ -6,12 +6,13 @@ import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
 
 public class ListQueryRequest {
-  private static final Integer DEFAULT_PAGE_SIZE = 250;
+  @VisibleForTesting public static final Integer DEFAULT_PAGE_SIZE = 250;
 
   private final Underlay underlay;
   private final Entity entity;
