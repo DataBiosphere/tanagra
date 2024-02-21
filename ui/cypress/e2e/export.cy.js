@@ -8,10 +8,10 @@ function generateName(type) {
 describe("Basic tests", () => {
   it("Export", () => {
     const cohort1 = "export1";
-    cy.createCohortFromSearch(cohort1, "Red color", "tanagra-conditions");
+    cy.createCohortFromSearchThenAddAnnotationData(cohort1, "Red color", "tanagra-conditions");
 
     const cohort2 = "export2";
-    cy.createCohortFromSearch(cohort2, "Papule of skin");
+    cy.createCohortFromSearchThenAddAnnotationData(cohort2, "Papule of skin");
 
     cy.get("button:Contains(New feature set)").click();
     cy.wait(2000);
@@ -47,8 +47,8 @@ describe("Basic tests", () => {
     cy.iframe().find("li:Contains(Download individual files)").click();
     cy.iframe().find("button:Contains(Export)").last().click();
 
-//    cy.iframe().find(`a:Contains(${cohort1})`, { timeout: 20000 });
-//    cy.iframe().find(`a:Contains(${cohort2})`);
+    cy.iframe().find(`a:Contains(${cohort1})`, { timeout: 20000 });
+    cy.iframe().find(`a:Contains(${cohort2})`);
     cy.iframe().find("a:Contains(person)");
     cy.iframe().find("a:Contains(conditionOccurrence)");
   });
