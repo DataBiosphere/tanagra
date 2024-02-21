@@ -407,7 +407,7 @@
         { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
+        { "key": "t_item_count", "width": 120, "title": "Count" },
       ],
       "classificationEntityGroups": [
         {
@@ -462,6 +462,7 @@
       "id": "tanagra-bmi",
       "title": "BMI",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "bmi",
       "valueConfigs": [
         {
@@ -480,6 +481,7 @@
       "id": "tanagra-blood-pressure",
       "title": "Blood pressure",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "bloodPressure",
       "valueConfigs": [
         {
@@ -501,6 +503,7 @@
       "id": "tanagra-height",
       "title": "Height",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "height",
       "valueConfigs": [
         {
@@ -519,6 +522,7 @@
       "id": "tanagra-weight",
       "title": "Weight",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "weight",
       "valueConfigs": [
         {
@@ -537,6 +541,7 @@
       "id": "tanagra-pulse",
       "title": "Pulse",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "pulse",
       "valueConfigs": [
         {
@@ -551,6 +556,7 @@
       "id": "tanagra-resp-rate",
       "title": "Resp Rate",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "respiratoryRate",
       "valueConfigs": [
         {

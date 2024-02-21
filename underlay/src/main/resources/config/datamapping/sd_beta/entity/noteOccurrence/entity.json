@@ -17,6 +17,5 @@
   "idAttribute": "id",
   "textSearch": {
     "attributes": [ "title", "note_text" ]
-  },
-  "optimizeGroupByAttributes": [ "note" ]
+  }
 }
