@@ -322,8 +322,7 @@ public class ReviewService {
         .forEach(listInstance -> listInstances.add(listInstance));
     while (listQueryResult.getPageMarker() != null) {
       // Using the MAX_REVIEW_SIZE as the page size should mean we get all results back in a single
-      // page,
-      // but that's not guaranteed, so paginate here just in case.
+      // page, but that's not guaranteed, so paginate here just in case.
       listQueryRequest =
           new ListQueryRequest(
               underlay,
