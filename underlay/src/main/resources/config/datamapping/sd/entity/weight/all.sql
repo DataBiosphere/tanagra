@@ -1,14 +1,8 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
-  CASE
-    WHEN xvw.x_invalid = 'N' THEN 1
-    ELSE 0
-  END AS is_clean,
-  CASE
-    WHEN xvw.x_invalid = 'N' THEN 'Clean'
-    ELSE 'Raw'
-  END AS is_clean_name,
+  (SELECT COUNT(*) FROM `${omopDataset}.x_vs_wh` AS xvw
+   WHERE xvw.measurement_id = mo.measurement_id AND xvw.x_invalid = 'N') > 1 AS is_clean,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,
@@ -21,9 +15,6 @@ SELECT
   vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.measurement` AS mo
-
-LEFT JOIN `${omopDataset}.x_vs_wh` AS xvw
-    ON xvw.measurement_id = mo.measurement_id
 
 JOIN `${omopDataset}.person` AS p
     ON p.person_id = mo.person_id
@@ -43,4 +34,3 @@ LEFT JOIN `${omopDataset}.concept` AS vc
 WHERE mo.measurement_type_concept_id = 44818701
     AND (mo.measurement_source_value = 'WEIGHT'
         OR mo.measurement_concept_id in (3011043, 3023166, 3025315, 21492642))
-

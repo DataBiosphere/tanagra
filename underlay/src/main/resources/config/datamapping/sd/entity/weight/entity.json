@@ -4,7 +4,7 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id" },
     { "name": "person_id", "dataType": "INT64" },
-    { "name": "is_clean", "dataType": "INT64", "displayFieldName": "is_clean_name", "isComputeDisplayHint": true },
+    { "name": "is_clean", "dataType": "BOOLEAN" },
     { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_date" },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isComputeDisplayHint": true },
     { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name", "isComputeDisplayHint": true },
