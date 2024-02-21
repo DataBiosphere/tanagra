@@ -23,7 +23,7 @@
       "rootNodeIds": [ 441840 ],
       "maxDepth": 20,
       "keepOrphanNodes": false,
-      "cleanHierarchyNodesWithZeroCounts": false
+      "cleanHierarchyNodesWithZeroCounts": true
     }
   ]
 }
