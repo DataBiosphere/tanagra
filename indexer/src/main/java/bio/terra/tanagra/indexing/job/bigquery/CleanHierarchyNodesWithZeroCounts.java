@@ -5,9 +5,11 @@ import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlQueryField;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableResult;
@@ -17,20 +19,26 @@ import org.slf4j.LoggerFactory;
 
 public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CleanHierarchyNodesWithZeroCounts.class);
-
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(CleanHierarchyNodesWithZeroCounts.class);
   private final EntityGroup entityGroup;
-  private final ITEntityMain indexTable;
+  private final ITEntityMain indexEntityTable;
+  private final ITHierarchyChildParent indexChildParentTable;
+  private final Attribute idAttribute;
   private final Hierarchy hierarchy;
 
   public CleanHierarchyNodesWithZeroCounts(
       SZIndexer indexerConfig,
       EntityGroup entityGroup,
-      ITEntityMain indexTable,
+      ITEntityMain indexEntityTable,
+      ITHierarchyChildParent indexChildParentTable,
+      Attribute idAttribute,
       Hierarchy hierarchy) {
     super(indexerConfig);
     this.entityGroup = entityGroup;
-    this.indexTable = indexTable;
+    this.indexEntityTable = indexEntityTable;
+    this.indexChildParentTable = indexChildParentTable;
+    this.idAttribute = idAttribute;
     this.hierarchy = hierarchy;
   }
 
@@ -41,7 +49,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
 
   @Override
   protected String getOutputTableName() {
-    return indexTable.getTablePointer().getTableName();
+    return indexEntityTable.getTablePointer().getTableName();
   }
 
   @Override
@@ -61,6 +69,8 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
+    cleanChildParent(isDryRun);
+    updateNumChildren(isDryRun);
     cleanHierarchyNodesWithZeroCounts(isDryRun);
   }
 
@@ -68,10 +78,76 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
     /* Build a delete-from query for the index entity main table that have zero counts
     for both hierarchy and non hierarchy fields */
     String cleanHierarchyNodesWithZeroCounts = "DELETE FROM " + generateSqlBody();
-    LOGGER.info("delete-from query: {}", cleanHierarchyNodesWithZeroCounts);
+    LOGGER.info("main-entity-delete-from query: {}", cleanHierarchyNodesWithZeroCounts);
 
     // Run the update-from-select to write the count field in the index entity main table.
     googleBigQuery.runInsertUpdateQuery(cleanHierarchyNodesWithZeroCounts, isDryRun);
+  }
+
+  private void cleanChildParent(boolean isDryRun) {
+    SqlField childField = indexChildParentTable.getChildField();
+    SqlField idField = indexEntityTable.getAttributeValueField(idAttribute.getName());
+    // Build a delete-from query for the child parent relationships that have zero counts
+    String cleanChildParent =
+        "DELETE FROM "
+            + indexChildParentTable.getTablePointer().render()
+            + " WHERE "
+            + SqlQueryField.of(childField).renderForSelect()
+            + " IN ( SELECT "
+            + SqlQueryField.of(idField).renderForSelect()
+            + " FROM "
+            + generateSqlBody()
+            + ")";
+    LOGGER.info("child-parent-delete-from query: {}", cleanChildParent);
+
+    // Run the update-from-select to write the count field in the index entity main table.
+    googleBigQuery.runInsertUpdateQuery(cleanChildParent, isDryRun);
+  }
+
+  private void updateNumChildren(boolean isDryRun) {
+    String updateTableAlias = "updatetable";
+    String tempTableAlias = "temptable";
+    final String textAlias = "count";
+    SqlField childField = indexChildParentTable.getChildField();
+    SqlField parentField = indexChildParentTable.getParentField();
+    SqlField idField = indexEntityTable.getAttributeValueField(idAttribute.getName());
+    SqlField entityNumChildrenField =
+        indexEntityTable.getHierarchyNumChildrenField(hierarchy.getName());
+
+    String innerSelect =
+        "SELECT "
+            + SqlQueryField.of(parentField).renderForSelect()
+            + ", COUNT("
+            + SqlQueryField.of(childField).renderForSelect()
+            + ") AS "
+            + textAlias
+            + " FROM "
+            + indexChildParentTable.getTablePointer().render()
+            + " GROUP BY "
+            + SqlQueryField.of(parentField).renderForSelect();
+
+    String updateFromSelectSql =
+        "UPDATE "
+            + indexEntityTable.getTablePointer().render()
+            + " AS "
+            + updateTableAlias
+            + " SET "
+            + SqlQueryField.of(entityNumChildrenField).renderForSelect(updateTableAlias)
+            + " = "
+            + SqlQueryField.of(SqlField.of(textAlias)).renderForSelect(tempTableAlias)
+            + " FROM ("
+            + innerSelect
+            + ") AS "
+            + tempTableAlias
+            + " WHERE "
+            + SqlQueryField.of(idField).renderForSelect(updateTableAlias)
+            + " = "
+            + SqlQueryField.of(parentField).renderForSelect(tempTableAlias);
+
+    LOGGER.info("update-num-children-from-select query: {}", updateFromSelectSql);
+
+    // Run the update-from-select to write the text search field in the index entity main table.
+    googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
   }
 
   private boolean outputTableHasNoNodesWithZeroCounts() {
@@ -84,12 +160,12 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
   private String generateSqlBody() {
     // Get the hierarchy and non hierarchy count fields
     SqlField entityTableCountField =
-        indexTable.getEntityGroupCountField(entityGroup.getName(), hierarchy.getName());
+        indexEntityTable.getEntityGroupCountField(entityGroup.getName(), hierarchy.getName());
     SqlField entityTableNoHierCountField =
-        indexTable.getEntityGroupCountField(entityGroup.getName(), null);
+        indexEntityTable.getEntityGroupCountField(entityGroup.getName(), null);
 
     BQApiTranslator bqTranslator = new BQApiTranslator();
-    return indexTable.getTablePointer().render()
+    return indexEntityTable.getTablePointer().render()
         + " WHERE "
         + SqlQueryField.of(entityTableCountField).renderForSelect()
         + bqTranslator.binaryOperatorSql(BinaryOperator.EQUALS)
