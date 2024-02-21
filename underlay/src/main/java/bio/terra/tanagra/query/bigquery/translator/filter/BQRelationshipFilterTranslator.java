@@ -383,6 +383,6 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return attribute.isId() && !relationshipFilter.hasSubFilter();
+    return attribute.isId();
   }
 }
