@@ -38,7 +38,7 @@ tanagra:
         type: VWB_FILE_IMPORT
         redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
 
-# logging.pattern.level: '%X{requestId} %5p'
+logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG
 
 server:
