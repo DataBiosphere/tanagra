@@ -1,8 +1,7 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
-  (SELECT COUNT(*) FROM `${omopDataset}.x_vs_wh` AS xvw
-   WHERE xvw.measurement_id = mo.measurement_id AND xvw.x_invalid = 'N') > 1 AS is_clean,
+  CASE WHEN xvw.x_invalid = 'N' THEN TRUE ELSE FALSE END is_clean,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,
@@ -18,6 +17,9 @@ FROM `${omopDataset}.measurement` AS mo
 
 JOIN `${omopDataset}.person` AS p
     ON p.person_id = mo.person_id
+
+LEFT JOIN `${omopDataset}.x_vs_wh` AS xvw
+    ON xvw.measurement_id = mo.measurement_id
 
 LEFT JOIN `${omopDataset}.concept` AS mvc
     ON mvc.concept_id = mo.value_as_concept_id
