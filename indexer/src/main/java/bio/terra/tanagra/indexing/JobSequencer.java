@@ -239,6 +239,11 @@ public final class JobSequencer {
                           .getIndexSchema()
                           .getHierarchyChildParent(
                               groupItems.getGroupEntity().getName(), hierarchy.getName());
+                  ITHierarchyAncestorDescendant indexAncestorDescendant =
+                      underlay
+                          .getIndexSchema()
+                          .getHierarchyAncestorDescendant(
+                              groupItems.getGroupEntity().getName(), hierarchy.getName());
                   Attribute idAttribute = groupItems.getGroupEntity().getIdAttribute();
                   if (isNewStage.getAndSet(false)) {
                     jobSet.startNewStage();
@@ -249,6 +254,7 @@ public final class JobSequencer {
                           groupItems,
                           groupEntityIndexTable,
                           indexChildParent,
+                          indexAncestorDescendant,
                           idAttribute,
                           hierarchy));
                 }
@@ -453,6 +459,12 @@ public final class JobSequencer {
                           .getHierarchyChildParent(
                               criteriaOccurrence.getCriteriaEntity().getName(),
                               hierarchy.getName());
+                  ITHierarchyAncestorDescendant indexAncestorDescendant =
+                      underlay
+                          .getIndexSchema()
+                          .getHierarchyAncestorDescendant(
+                              criteriaOccurrence.getCriteriaEntity().getName(),
+                              hierarchy.getName());
                   Attribute idAttribute = criteriaOccurrence.getCriteriaEntity().getIdAttribute();
                   if (isNewStage.getAndSet(false)) {
                     jobSet.startNewStage();
@@ -463,6 +475,7 @@ public final class JobSequencer {
                           criteriaOccurrence,
                           criteriaEntityIndexTable,
                           indexChildParent,
+                          indexAncestorDescendant,
                           idAttribute,
                           hierarchy));
                 }

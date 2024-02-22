@@ -9,6 +9,7 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Table;
@@ -24,6 +25,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
   private final EntityGroup entityGroup;
   private final ITEntityMain indexEntityTable;
   private final ITHierarchyChildParent indexChildParentTable;
+  private final ITHierarchyAncestorDescendant indexAncestorDescendantTable;
   private final Attribute idAttribute;
   private final Hierarchy hierarchy;
 
@@ -32,12 +34,14 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
       EntityGroup entityGroup,
       ITEntityMain indexEntityTable,
       ITHierarchyChildParent indexChildParentTable,
+      ITHierarchyAncestorDescendant indexAncestorDescendantTable,
       Attribute idAttribute,
       Hierarchy hierarchy) {
     super(indexerConfig);
     this.entityGroup = entityGroup;
     this.indexEntityTable = indexEntityTable;
     this.indexChildParentTable = indexChildParentTable;
+    this.indexAncestorDescendantTable = indexAncestorDescendantTable;
     this.idAttribute = idAttribute;
     this.hierarchy = hierarchy;
   }
@@ -70,6 +74,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
   @Override
   public void run(boolean isDryRun) {
     cleanChildParent(isDryRun);
+    cleanAncestorDescendant(isDryRun);
     updateNumChildren(isDryRun);
     cleanHierarchyNodesWithZeroCounts(isDryRun);
   }
@@ -80,7 +85,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
     String cleanHierarchyNodesWithZeroCounts = "DELETE FROM " + generateSqlBody();
     LOGGER.info("main-entity-delete-from query: {}", cleanHierarchyNodesWithZeroCounts);
 
-    // Run the update-from-select to write the count field in the index entity main table.
+    // Run the delete-from to remove entities that have zero counts
     googleBigQuery.runInsertUpdateQuery(cleanHierarchyNodesWithZeroCounts, isDryRun);
   }
 
@@ -100,14 +105,34 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
             + ")";
     LOGGER.info("child-parent-delete-from query: {}", cleanChildParent);
 
-    // Run the update-from-select to write the count field in the index entity main table.
+    // Run the delete-from to remove the child parent relationships that have zero counts
     googleBigQuery.runInsertUpdateQuery(cleanChildParent, isDryRun);
+  }
+
+  private void cleanAncestorDescendant(boolean isDryRun) {
+    SqlField descendantField = indexAncestorDescendantTable.getDescendantField();
+    SqlField idField = indexEntityTable.getAttributeValueField(idAttribute.getName());
+    // Build a delete-from query for the ancestor descendant relationships that have zero counts
+    String cleanAncestorDescendant =
+        "DELETE FROM "
+            + indexAncestorDescendantTable.getTablePointer().render()
+            + " WHERE "
+            + SqlQueryField.of(descendantField).renderForSelect()
+            + " IN ( SELECT "
+            + SqlQueryField.of(idField).renderForSelect()
+            + " FROM "
+            + generateSqlBody()
+            + ")";
+    LOGGER.info("ancestor-descendant-delete-from query: {}", cleanAncestorDescendant);
+
+    // Run the delete-from query for the ancestor descendant relationships that have zero counts
+    googleBigQuery.runInsertUpdateQuery(cleanAncestorDescendant, isDryRun);
   }
 
   private void updateNumChildren(boolean isDryRun) {
     String updateTableAlias = "updatetable";
     String tempTableAlias = "temptable";
-    final String textAlias = "count";
+    final String countAlias = "count";
     SqlField childField = indexChildParentTable.getChildField();
     SqlField parentField = indexChildParentTable.getParentField();
     SqlField idField = indexEntityTable.getAttributeValueField(idAttribute.getName());
@@ -120,7 +145,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
             + ", COUNT("
             + SqlQueryField.of(childField).renderForSelect()
             + ") AS "
-            + textAlias
+            + countAlias
             + " FROM "
             + indexChildParentTable.getTablePointer().render()
             + " GROUP BY "
@@ -134,7 +159,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
             + " SET "
             + SqlQueryField.of(entityNumChildrenField).renderForSelect(updateTableAlias)
             + " = "
-            + SqlQueryField.of(SqlField.of(textAlias)).renderForSelect(tempTableAlias)
+            + SqlQueryField.of(SqlField.of(countAlias)).renderForSelect(tempTableAlias)
             + " FROM ("
             + innerSelect
             + ") AS "
@@ -146,7 +171,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
 
     LOGGER.info("update-num-children-from-select query: {}", updateFromSelectSql);
 
-    // Run the update-from-select to write the text search field in the index entity main table.
+    // Run the update-from-select to update the count for num children.
     googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
   }
 
