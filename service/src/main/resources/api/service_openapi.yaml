@@ -1604,6 +1604,8 @@ components:
           type: string
         primarySubfilter:
           $ref: "#/components/schemas/Filter"
+        criteriaSubfilter:
+          $ref: "#/components/schemas/Filter"
 
     PrimaryWithCriteriaFilter:
       type: object

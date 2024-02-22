@@ -252,12 +252,20 @@ public final class FromApiUtils {
                 underlay.getEntityGroup(apiOccurrenceForPrimaryFilter.getEntityGroup());
         Entity occurrenceEntityOccForPri =
             underlay.getEntity(apiOccurrenceForPrimaryFilter.getOccurrenceEntity());
-        EntityFilter primarySubFilter =
+        EntityFilter ofpPrimarySubFilter =
             apiOccurrenceForPrimaryFilter.getPrimarySubfilter() == null
                 ? null
                 : fromApiObject(apiOccurrenceForPrimaryFilter.getPrimarySubfilter(), underlay);
+        EntityFilter ofpCriteriaSubFilter =
+            apiOccurrenceForPrimaryFilter.getCriteriaSubfilter() == null
+                ? null
+                : fromApiObject(apiOccurrenceForPrimaryFilter.getCriteriaSubfilter(), underlay);
         return new OccurrenceForPrimaryFilter(
-            underlay, criteriaOccurrenceOccForPri, occurrenceEntityOccForPri, primarySubFilter);
+            underlay,
+            criteriaOccurrenceOccForPri,
+            occurrenceEntityOccForPri,
+            ofpPrimarySubFilter,
+            ofpCriteriaSubFilter);
       case PRIMARY_WITH_CRITERIA:
         ApiPrimaryWithCriteriaFilter apiPrimaryWithCriteriaFilter =
             apiFilter.getFilterUnion().getPrimaryWithCriteriaFilter();
