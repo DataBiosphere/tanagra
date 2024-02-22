@@ -60,7 +60,7 @@ elif [[ ${useAouUnderlays} ]]; then
   # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
 elif [[ ${useSdUnderlays} ]]; then
   echo "Using sd underlay."
-  export TANAGRA_UNDERLAY_FILES=sd020230831_vumc
+  export TANAGRA_UNDERLAY_FILES=sd/sd020230831
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=sd-vumc-tanagra-test
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-test-tanagra-exports
   # uncomment both lines below for sd access-control model

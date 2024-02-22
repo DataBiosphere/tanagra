@@ -8,5 +8,6 @@
   "idAttribute": "id",
   "textSearch": {
     "attributes": [ "id", "name" ]
-  }
+  },
+  "optimizeGroupByAttributes": [ "snp_id" ]
 }

@@ -1,6 +1,7 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
+  p.person_source_value,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,

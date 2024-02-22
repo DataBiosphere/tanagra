@@ -4,6 +4,7 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id" },
     { "name": "person_id", "dataType": "INT64" },
+    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
     { "name": "is_clean", "dataType": "INT64", "displayFieldName": "is_clean_name", "isComputeDisplayHint": true },
     { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_date" },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isComputeDisplayHint": true },

@@ -1,6 +1,7 @@
 SELECT
   n.note_id,
   n.person_id,
+  p.person_source_value,
   n.note_type_concept_id,
   nc.concept_name AS note_type_concept_name,
   n.note_date,

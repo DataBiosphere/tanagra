@@ -1,6 +1,7 @@
 SELECT
   de.device_exposure_id,
   de.person_id,
+  p.person_source_value,
   de.device_concept_id,
   dc.concept_name AS device_concept_name,
   de.device_exposure_start_date,

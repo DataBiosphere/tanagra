@@ -4,6 +4,7 @@
   "attributes": [
     { "name": "id", "dataType": "INT64" },
     { "name": "person_id", "dataType": "INT64" },
+    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
     { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "entry_date" },
     { "name": "note_text", "dataType": "STRING" },
     { "name": "family_history_src_name", "dataType": "STRING" },
