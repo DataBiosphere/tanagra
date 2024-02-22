@@ -1,6 +1,7 @@
 SELECT
   mo.measurement_id,
   mo.person_id,
+  p.person_source_value,
   (CASE WHEN mo.measurement_concept_id IS NULL THEN 0 ELSE mo.measurement_concept_id END) AS measurement_concept_id,
   mc.concept_name AS measurement_concept_name,
   mo.measurement_date,

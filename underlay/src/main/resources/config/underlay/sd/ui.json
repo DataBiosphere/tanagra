@@ -49,12 +49,12 @@
       "columns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" },
         { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Genotyping platform" },
         { "key": "id", "width": 100, "title": "Id" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -70,8 +70,8 @@
       "category": "Domains",
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_item_count", "width": 120, "title": "Count" }
@@ -79,7 +79,7 @@
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Condition" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -129,16 +129,16 @@
       "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Condition" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -163,12 +163,12 @@
         { "key": "label", "width": "100%", "title": "Name" },
         { "key": "code", "width": 120, "title": "Code" },
         { "key": "id", "width": 100, "title": "ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -197,15 +197,15 @@
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
         { "key": "id", "width": 100, "title": "ID" },
-        { "key": "is_standard", "width": 120, "title": "Source/standard" },
+        { "key": "is_standard", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -232,16 +232,16 @@
       "tags": ["Source Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -268,16 +268,16 @@
       "tags": ["Source Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -304,16 +304,16 @@
       "tags": ["Source Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -340,16 +340,16 @@
       "tags": ["Source Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "label", "width": "100%", "title": "Name" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -376,16 +376,16 @@
       "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Procedure" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -403,11 +403,11 @@
       "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_item_count", "width": 120, "title": "Count" }
       ],
       "classificationEntityGroups": [
         {
@@ -426,16 +426,16 @@
       "tags": ["Standard Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "Concept ID" },
-        { "key": "standard_concept", "width": 120, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept ID" },
+        { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
         { "key": "concept_code", "width": 120, "title": "Code" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
         { "key": "name", "width": "100%", "title": "Drug" },
         { "key": "id", "width": 120, "title": "Concept ID" },
-        { "key": "t_rollup_count", "width": 120, "title": "Roll-up count" }
+        { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "classificationEntityGroups": [
         {
@@ -462,6 +462,7 @@
       "id": "tanagra-bmi",
       "title": "BMI",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "bmi",
       "valueConfigs": [
         {
@@ -480,6 +481,7 @@
       "id": "tanagra-blood-pressure",
       "title": "Blood pressure",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "bloodPressure",
       "valueConfigs": [
         {
@@ -501,6 +503,7 @@
       "id": "tanagra-height",
       "title": "Height",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "height",
       "valueConfigs": [
         {
@@ -519,6 +522,7 @@
       "id": "tanagra-weight",
       "title": "Weight",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "weight",
       "valueConfigs": [
         {
@@ -537,6 +541,7 @@
       "id": "tanagra-pulse",
       "title": "Pulse",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "pulse",
       "valueConfigs": [
         {
@@ -551,6 +556,7 @@
       "id": "tanagra-resp-rate",
       "title": "Resp Rate",
       "category": "Vitals",
+      "conceptSet": true,
       "entity": "respiratoryRate",
       "valueConfigs": [
         {
@@ -637,13 +643,13 @@
       { "key": "name", "width": "100%", "title": "Concept Name" },
       { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
       { "key": "concept_code", "width": 120, "title": "Code" },
-      { "key": "t_rollup_count", "width": 120, "title": "Roll-up Count" }
+      { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" }
     ]
   },
   "cohortReviewConfig": {
-    "participantIdAttribute": "person_source_value",
+    "participantIdAttribute": "GRID",
     "participantsListColumns": [
-      { "key": "person_source_value", "width": 100, "title": "GRID" },
+      { "key": "GRID", "width": 100, "title": "GRID" },
       { "key": "gender", "width": 100, "title": "Gender" },
       { "key": "race", "width": 100, "title": "Race" },
       { "key": "ethnicity", "width": 100, "title": "Ethnicity" },

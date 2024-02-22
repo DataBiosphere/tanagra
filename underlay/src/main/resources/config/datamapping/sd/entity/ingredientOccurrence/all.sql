@@ -1,6 +1,7 @@
 SELECT
   de.drug_exposure_id,
   de.person_id,
+  p.person_source_value,
   de.drug_concept_id,
   ic.concept_name AS drug_concept_name,
   de.drug_exposure_start_date,

@@ -1,6 +1,7 @@
 SELECT
   co.condition_occurrence_id,
   co.person_id,
+  p.person_source_value,
   co.condition_concept_id,
   cc.concept_name AS condition_concept_name,
   co.condition_start_date,
