@@ -7,7 +7,7 @@
     "category": "Domains",
     "tags": [ "Standard Codes" ]
   },
-  "filterBuilder": "CriteriaOccurrenceFilterBuilder",
+  "filterBuilder": "core.EntityGroupFilterBuilder",
   "plugin": "core/entityGroup",
   "pluginConfigFile": "condition.json",
   "modifiers": [

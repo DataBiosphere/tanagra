@@ -153,6 +153,13 @@ public final class Underlay {
     return criteriaSelectors;
   }
 
+  public CriteriaSelector getCriteriaSelector(String name) {
+    return criteriaSelectors.stream()
+        .filter(cs -> name.equals(cs.getName()))
+        .findFirst()
+        .orElseThrow(() -> new NotFoundException("Criteria selector not found: " + name));
+  }
+
   public ImmutableList<PrepackagedCriteria> getPrepackagedDataFeatures() {
     return prepackagedDataFeatures;
   }
@@ -455,7 +462,7 @@ public final class Underlay {
     List<CriteriaSelector.Modifier> modifiers = new ArrayList<>();
     if (szCriteriaSelector.modifiers != null) {
       szCriteriaSelector.modifiers.stream()
-          .map(
+          .forEach(
               szModifier -> {
                 String modifierPluginConfig = szModifier.pluginConfig;
                 if (szModifier.pluginConfigFile != null && !szModifier.pluginConfigFile.isEmpty()) {
@@ -463,8 +470,9 @@ public final class Underlay {
                       configReader.readCriteriaSelectorPluginConfig(
                           criteriaSelectorPath, szModifier.pluginConfigFile);
                 }
-                return new CriteriaSelector.Modifier(
-                    szModifier.name, szModifier.plugin, modifierPluginConfig);
+                modifiers.add(
+                    new CriteriaSelector.Modifier(
+                        szModifier.name, szModifier.plugin, modifierPluginConfig));
               });
     }
 
@@ -496,7 +504,7 @@ public final class Underlay {
                           prepackagedCriteriaPath, szSelectionData.pluginDataFile);
                 }
                 selectionData.add(
-                    new SelectionData(szSelectionData.plugin, szSelectionData.pluginData));
+                    new SelectionData(szSelectionData.modifierName, szSelectionData.pluginData));
               });
     }
     return new PrepackagedCriteria(

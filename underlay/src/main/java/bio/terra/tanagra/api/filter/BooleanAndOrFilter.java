@@ -2,6 +2,7 @@ package bio.terra.tanagra.api.filter;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Objects;
 
 public class BooleanAndOrFilter extends EntityFilter {
   public enum LogicalOperator {
@@ -23,5 +24,22 @@ public class BooleanAndOrFilter extends EntityFilter {
 
   public ImmutableList<EntityFilter> getSubFilters() {
     return ImmutableList.copyOf(subFilters);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    BooleanAndOrFilter that = (BooleanAndOrFilter) o;
+    return operator == that.operator && subFilters.equals(that.subFilters);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(operator, subFilters);
   }
 }

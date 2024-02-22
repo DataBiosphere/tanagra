@@ -30,6 +30,11 @@
     </Match>
 
     <Match>
+        <Source name="~.*/bio/terra/tanagra/proto/.*\.java"/>
+        <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+
+    <Match>
         <Source name="~.*/bio/terra/tanagra/indexing/cli/.*\.java"/>
         <Bug pattern="NM_SAME_SIMPLE_NAME_AS_SUPERCLASS"/>
     </Match>
