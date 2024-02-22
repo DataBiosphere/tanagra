@@ -9,6 +9,7 @@ SELECT
     WHEN xvw.x_invalid = 'N' THEN 'Clean'
     ELSE 'Raw'
   END AS is_clean_name,
+  CASE WHEN xvw.x_invalid = 'N' THEN TRUE ELSE FALSE END x_invalid_bool,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,
@@ -43,4 +44,3 @@ LEFT JOIN `${omopDataset}.concept` AS vc
 WHERE mo.measurement_type_concept_id = 44818701
     AND (mo.measurement_source_value = 'WEIGHT'
         OR mo.measurement_concept_id in (3011043, 3023166, 3025315, 21492642))
-

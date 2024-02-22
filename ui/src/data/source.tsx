@@ -581,22 +581,35 @@ export class BackendUnderlaySource implements UnderlaySource {
     filter: Filter | null,
     groupByAttributes?: string[]
   ): Promise<FilterCountValue[]> {
-    const data = await parseAPIError(
-      this.underlaysApi.countInstances({
-        underlayName: this.underlay.name,
-        entityName: this.underlay.underlayConfig.primaryEntity,
-        countQuery: {
-          attributes: groupByAttributes,
-          filter: generateFilter(this, filter) ?? undefined,
-        },
-      })
-    );
+    let pageMarker: string | undefined;
+    const instanceCounts: tanagra.InstanceCount[] = [];
 
-    if (!data.instanceCounts) {
+    while (true) {
+      const data = await parseAPIError(
+        this.underlaysApi.countInstances({
+          underlayName: this.underlay.name,
+          entityName: this.underlay.underlayConfig.primaryEntity,
+          countQuery: {
+            attributes: groupByAttributes,
+            filter: generateFilter(this, filter) ?? undefined,
+            pageMarker,
+          },
+        })
+      );
+
+      pageMarker = data.pageMarker;
+      instanceCounts.push(...(data.instanceCounts ?? []));
+
+      if (!pageMarker?.length) {
+        break;
+      }
+    }
+
+    if (!instanceCounts.length) {
       throw new Error("Count API returned no counts.");
     }
 
-    return data.instanceCounts.map((count) => {
+    return instanceCounts.map((count) => {
       const value: FilterCountValue = {
         count: count.count ?? 0,
       };
@@ -1320,10 +1333,7 @@ export function dataValueFromProto(value?: valueProto.Value): DataValue {
     value.stringValue ??
     value.boolValue ??
     value.timestampValue;
-  if (!res) {
-    throw new Error(`Invalid key ${valueProto.Value.toJSON(value)}.`);
-  }
-  return res;
+  return res ?? null;
 }
 
 function convertSortDirection(dir: SortDirection) {

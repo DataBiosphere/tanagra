@@ -9,6 +9,7 @@ SELECT
     WHEN xvw.x_invalid = 'N' THEN 'Clean'
     ELSE 'Raw'
   END AS is_clean_name,
+  CASE WHEN xvw.x_invalid = 'N' THEN TRUE ELSE FALSE END x_invalid_bool,
   mo.measurement_date,
   mo.value_as_number,
   mo.value_as_concept_id,

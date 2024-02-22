@@ -8,10 +8,10 @@ function generateName(type) {
 describe("Basic tests", () => {
   it("Export", () => {
     const cohort1 = "export1";
-    cy.createCohortFromSearch(cohort1, "Red color", "tanagra-conditions");
+    cy.createCohortFromSearchThenAddAnnotationData(cohort1, "Red color", "tanagra-conditions");
 
     const cohort2 = "export2";
-    cy.createCohortFromSearch(cohort2, "Papule of skin");
+    cy.createCohortFromSearchThenAddAnnotationData(cohort2, "Papule of skin");
 
     cy.get("button:Contains(New feature set)").click();
     cy.wait(2000);

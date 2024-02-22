@@ -408,7 +408,7 @@ function Preview(props: PreviewProps) {
   }, [filteredFeatureSets]);
 
   const [exportDialog, showExportDialog] = useExportDialog({
-    cohorts: props.cohorts,
+    cohorts: filteredCohorts,
     cohortsFilter: cohortsFilter,
     occurrenceFilters: occurrenceFilters,
   });

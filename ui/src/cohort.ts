@@ -278,9 +278,10 @@ export function getOccurrenceList(
   return Array.from(occurrences)
     .sort()
     .map(([id, filters]) => {
+      const entity = underlaySource.lookupEntity(id);
       return {
         id,
-        name: id,
+        name: entity.displayName ?? entity.name,
         attributes: underlaySource.listAttributes(id),
         filters,
         sourceCriteria,
