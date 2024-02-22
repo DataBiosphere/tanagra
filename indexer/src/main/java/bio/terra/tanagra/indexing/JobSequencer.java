@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing;
 
 import bio.terra.tanagra.indexing.job.IndexingJob;
+import bio.terra.tanagra.indexing.job.bigquery.CleanHierarchyNodesWithZeroCounts;
 import bio.terra.tanagra.indexing.job.bigquery.CreateEntityMain;
 import bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes;
 import bio.terra.tanagra.indexing.job.bigquery.ValidateUniqueIds;
@@ -18,6 +19,7 @@ import bio.terra.tanagra.indexing.jobexecutor.ParallelRunner;
 import bio.terra.tanagra.indexing.jobexecutor.SequencedJobSet;
 import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
@@ -35,6 +37,7 @@ import bio.terra.tanagra.underlay.sourcetable.STHierarchyRootFilter;
 import bio.terra.tanagra.underlay.sourcetable.STRelationshipIdPairs;
 import bio.terra.tanagra.underlay.sourcetable.STTextSearchTerms;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class JobSequencer {
   private JobSequencer() {}
@@ -222,6 +225,42 @@ public final class JobSequencer {
                                 groupItems.getGroupEntity().getName(), hierarchy.getName())));
               });
     }
+
+    if (groupItems.getGroupEntity().hasHierarchies()) {
+      AtomicBoolean isNewStage = new AtomicBoolean(true);
+      groupItems
+          .getGroupEntity()
+          .getHierarchies()
+          .forEach(
+              hierarchy -> {
+                if (hierarchy.isCleanHierarchyNodesWithZeroCounts()) {
+                  ITHierarchyChildParent indexChildParent =
+                      underlay
+                          .getIndexSchema()
+                          .getHierarchyChildParent(
+                              groupItems.getGroupEntity().getName(), hierarchy.getName());
+                  ITHierarchyAncestorDescendant indexAncestorDescendant =
+                      underlay
+                          .getIndexSchema()
+                          .getHierarchyAncestorDescendant(
+                              groupItems.getGroupEntity().getName(), hierarchy.getName());
+                  Attribute idAttribute = groupItems.getGroupEntity().getIdAttribute();
+                  if (isNewStage.getAndSet(false)) {
+                    jobSet.startNewStage();
+                  }
+                  jobSet.addJob(
+                      new CleanHierarchyNodesWithZeroCounts(
+                          indexerConfig,
+                          groupItems,
+                          groupEntityIndexTable,
+                          indexChildParent,
+                          indexAncestorDescendant,
+                          idAttribute,
+                          hierarchy));
+                }
+              });
+    }
+
     return jobSet;
   }
 
@@ -404,6 +443,43 @@ public final class JobSequencer {
                       criteriaOccurrence.getName(),
                       occurrenceEntity.getName(),
                       criteriaOccurrence.getCriteriaEntity().getName())));
+    }
+
+    if (criteriaOccurrence.getCriteriaEntity().hasHierarchies()) {
+      AtomicBoolean isNewStage = new AtomicBoolean(true);
+      criteriaOccurrence
+          .getCriteriaEntity()
+          .getHierarchies()
+          .forEach(
+              hierarchy -> {
+                if (hierarchy.isCleanHierarchyNodesWithZeroCounts()) {
+                  ITHierarchyChildParent indexChildParent =
+                      underlay
+                          .getIndexSchema()
+                          .getHierarchyChildParent(
+                              criteriaOccurrence.getCriteriaEntity().getName(),
+                              hierarchy.getName());
+                  ITHierarchyAncestorDescendant indexAncestorDescendant =
+                      underlay
+                          .getIndexSchema()
+                          .getHierarchyAncestorDescendant(
+                              criteriaOccurrence.getCriteriaEntity().getName(),
+                              hierarchy.getName());
+                  Attribute idAttribute = criteriaOccurrence.getCriteriaEntity().getIdAttribute();
+                  if (isNewStage.getAndSet(false)) {
+                    jobSet.startNewStage();
+                  }
+                  jobSet.addJob(
+                      new CleanHierarchyNodesWithZeroCounts(
+                          indexerConfig,
+                          criteriaOccurrence,
+                          criteriaEntityIndexTable,
+                          indexChildParent,
+                          indexAncestorDescendant,
+                          idAttribute,
+                          hierarchy));
+                }
+              });
     }
 
     return jobSet;

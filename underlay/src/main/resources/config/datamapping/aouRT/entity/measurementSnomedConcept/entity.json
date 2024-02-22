@@ -21,7 +21,8 @@
       "childIdFieldName": "child",
       "parentIdFieldName": "parent",
       "maxDepth": 11,
-      "keepOrphanNodes": false
+      "keepOrphanNodes": false,
+      "cleanHierarchyNodesWithZeroCounts": true
     }
   ]
 }

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import bio.terra.tanagra.indexing.job.IndexingJob;
+import bio.terra.tanagra.indexing.job.bigquery.CleanHierarchyNodesWithZeroCounts;
 import bio.terra.tanagra.indexing.job.bigquery.CreateEntityMain;
 import bio.terra.tanagra.indexing.job.bigquery.ValidateDataTypes;
 import bio.terra.tanagra.indexing.job.bigquery.ValidateUniqueIds;
@@ -149,6 +150,36 @@ public class JobSequencerTest {
     assertEquals(WriteRelationshipIntermediateTable.class, job.getClass());
 
     assertEquals(2, jobStageItr.next().size());
+  }
+
+  @Test
+  public void conditionPersonCleanHierarchyNodesWithZeroCounts() {
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZIndexer szIndexer = configReader.readIndexer("aou/SC2023Q3R2");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
+    Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
+    SequencedJobSet jobs =
+        JobSequencer.getJobSetForCriteriaOccurrence(
+            szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));
+
+    assertEquals(3, jobs.getNumStages());
+    Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
+
+    // Assert stage 1 job is WriteRelationshipIntermediateTable
+    List<IndexingJob> stage1Jobs = jobStageItr.next();
+    assertEquals(1, stage1Jobs.size());
+    assertEquals(WriteRelationshipIntermediateTable.class, stage1Jobs.get(0).getClass());
+
+    // Assert stage 2 job is WriteRollupCounts
+    List<IndexingJob> stage2Jobs = jobStageItr.next();
+    assertEquals(2, stage2Jobs.size());
+    assertEquals(WriteRollupCounts.class, stage2Jobs.get(0).getClass());
+    assertEquals(WriteRollupCounts.class, stage2Jobs.get(1).getClass());
+
+    // Assert stage 3 job is CleanHierarchyNodesWithZeroCounts
+    List<IndexingJob> stage3Jobs = jobStageItr.next();
+    assertEquals(1, stage3Jobs.size());
+    assertEquals(CleanHierarchyNodesWithZeroCounts.class, stage3Jobs.get(0).getClass());
   }
 
   @Test

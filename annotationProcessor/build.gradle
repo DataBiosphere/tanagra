@@ -64,7 +64,7 @@ task noCloudAccessRequiredTests(type: Test) {
 // e.g. ./gradlew annotationProcessor:run -Pgenerator=APPLICATION_CONFIG_DOCS
 // Possible values for the "generator" property are the Main.Command enum values.
 task run(type:JavaExec) {
-    main = "bio.terra.tanagra.annotation.Main"
+    mainClass = "bio.terra.tanagra.annotation.Main"
     classpath = sourceSets.main.runtimeClasspath
-    args "$projectDir/..", project.hasProperty("generator") ? project.findProperty("generator") : "undefined"
+    args "$rootDir", project.hasProperty("generator") ? project.findProperty("generator") : "undefined"
 }
