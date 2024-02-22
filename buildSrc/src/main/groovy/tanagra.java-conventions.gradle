@@ -31,11 +31,11 @@ repositories {
 
 sourceCompatibility = JavaVersion.VERSION_11
 
-// see https://docs.gradle.org/current/userguide/dependency_locking.html
-//dependencyLocking {
-//    lockAllConfigurations()
-//    lockMode = LockMode.STRICT
-//}
+// See https://docs.gradle.org/current/userguide/dependency_locking.html
+dependencyLocking {
+    lockAllConfigurations()
+    lockMode = LockMode.STRICT
+}
 
 dependencies {
     // GCP BOM version controlled libraries
