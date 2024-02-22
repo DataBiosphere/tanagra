@@ -1,6 +1,7 @@
 SELECT
   po.procedure_occurrence_id,
   po.person_id,
+  p.person_source_value,
   po.procedure_concept_id,
   pc.concept_name AS procedure_concept_name,
   po.procedure_date,

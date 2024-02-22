@@ -1,6 +1,7 @@
 SELECT
   ROW_NUMBER() OVER (ORDER BY xfh.uniq) AS id, 
   xfh.person_id,
+  p.person_source_value,
   xfh.entry_date, 
   xfh.item AS note_text, 
   xfh.family_history_src_name, 

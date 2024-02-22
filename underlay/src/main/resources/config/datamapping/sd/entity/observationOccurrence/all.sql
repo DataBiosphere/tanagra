@@ -1,6 +1,7 @@
 SELECT
   o.observation_id,
   o.person_id,
+  p.person_source_value,
   o.observation_concept_id,
   oc.concept_name AS observation_concept_name,
   o.observation_date,
