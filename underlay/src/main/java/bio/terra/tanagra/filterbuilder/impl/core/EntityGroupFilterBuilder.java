@@ -29,6 +29,7 @@ import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
 
     List<EntityFilter> entityFilters = new ArrayList<>();
     selectedIdsPerEntityGroup.entrySet().stream()
+        .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
         .forEach(
             entry -> {
               EntityGroup entityGroup = entry.getKey();

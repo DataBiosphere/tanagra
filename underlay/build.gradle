@@ -50,8 +50,14 @@ dependencies {
 protobuf {
     // Configure the protoc executable
     protoc {
-        // Download from repositories
-        artifact = "com.google.protobuf:protoc:3.25.2"
+        // This executable is downloaded from Maven.
+        // The version here must match the Google Cloud libraries BOM specified in the buildSrc Gradle sub-project.
+        // https://cloud.google.com/java/docs/bom
+        // This com.google.protobuf plugin does not yet support using a BOM.
+        // https://github.com/google/protobuf-gradle-plugin/issues/412
+        // So we have to manually keep this version in sync, by referencing the BOM dashboard.
+        // https://storage.googleapis.com/cloud-opensource-java-dashboard/com.google.cloud/libraries-bom/index.html
+        artifact = "com.google.protobuf:protoc:3.23.2"
     }
     // By default, the proto plugin generates Java classes in the build/classes/ directory.
     // generatedFilesBaseDir = "$projectDir/src/generated"
