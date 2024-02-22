@@ -47,7 +47,9 @@ public class SZCriteriaSelector {
       markdown =
           "Name of the primary UI display plugin. (e.g. selector for condition, not any of the modifiers).\n\n"
               + "This plugin name is stored in the application database, so once there are cohorts or "
-              + "data features that use this selector, you can't change the plugin names.")
+              + "data features that use this selector, you can't change the plugin names.\n\n"
+              + "The plugin can either be one of the core plugins (e.g. core/attribute, all possibilities are "
+              + "listed [here](${SZCorePlugin}), or a dataset-specific plugin (e.g. sd/biovu).")
   public String plugin;
 
   @AnnotatedField(
@@ -111,7 +113,9 @@ public class SZCriteriaSelector {
         markdown =
             "Name of the modifier UI display plugin. (e.g. selector for condition visit type).\n\n"
                 + "This plugin name is stored in the application database, so once there are cohorts or "
-                + "data features that use this modifier, you can't change the plugin names.")
+                + "data features that use this modifier, you can't change the plugin names.\n\n"
+                + "The plugin can either be one of the core plugins (e.g. core/attribute, all possibilities are "
+                + "listed [here](${SZCorePlugin}), or a dataset-specific plugin (e.g. sd/biovu).")
     public String plugin;
 
     @AnnotatedField(

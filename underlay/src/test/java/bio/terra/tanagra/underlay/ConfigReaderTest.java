@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -59,7 +60,9 @@ public class ConfigReaderTest {
             szType2Diabetes, "omop/type2Diabetes", ConfigReader.fromJarResources());
     assertNotNull(type2diabetes);
     assertEquals("type2Diabetes", type2diabetes.getName());
+    assertEquals("condition", type2diabetes.getCriteriaSelector());
     assertEquals(1, type2diabetes.getSelectionData().size());
+    assertNull(type2diabetes.getSelectionData().get(0).getModifierName());
     assertTrue(
         type2diabetes.getSelectionData().get(0).getPluginData().contains("\"keys\": [ 201826 ]"));
   }

@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -21,6 +23,7 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.UnaryOperator;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.bigquery.BQQueryRunner;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
@@ -1939,8 +1942,8 @@ public class BQFilterTest extends BQRunnerTest {
         (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
     Entity conditionOccurrence = criteriaOccurrence.getOccurrenceEntities().get(0);
 
-    // With sub-filter.
-    EntityFilter criteriaSubFilter =
+    // Only primary entity sub-filter.
+    EntityFilter conditionFilter =
         new HierarchyHasAncestorFilter(
             underlay,
             criteriaOccurrence.getCriteriaEntity(),
@@ -1948,7 +1951,7 @@ public class BQFilterTest extends BQRunnerTest {
             List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
     PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
         new PrimaryWithCriteriaFilter(
-            underlay, criteriaOccurrence, criteriaSubFilter, null, null, null, null);
+            underlay, criteriaOccurrence, conditionFilter, null, null, null, null);
     AttributeFilter attributeFilter =
         new AttributeFilter(
             underlay,
@@ -1956,13 +1959,13 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity().getAttribute("gender"),
             BinaryOperator.EQUALS,
             Literal.forInt64(8_532L));
-    BooleanAndOrFilter booleanAndOrFilter =
+    BooleanAndOrFilter personFilter =
         new BooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(primaryWithCriteriaFilter, attributeFilter));
     OccurrenceForPrimaryFilter occurrenceForPrimaryFilter =
         new OccurrenceForPrimaryFilter(
-            underlay, criteriaOccurrence, conditionOccurrence, booleanAndOrFilter);
+            underlay, criteriaOccurrence, conditionOccurrence, personFilter, null);
     AttributeField simpleAttribute =
         new AttributeField(
             underlay, conditionOccurrence, conditionOccurrence.getIdAttribute(), false, false);
@@ -2008,13 +2011,14 @@ public class BQFilterTest extends BQRunnerTest {
     tableNamesToSubstitute.add(criteriaEntityTable);
     tableNamesToSubstitute.add(criteriaAncestorDescendantTable);
     assertSqlMatchesWithTableNameOnly(
-        "occurrenceForPrimaryFilterWithSubFilter",
+        "occurrenceForPrimaryFilterWithPrimarySubFilterOnly",
         listQueryResult.getSql(),
         tableNamesToSubstitute.toArray(new BQTable[0]));
 
-    // No sub-filter.
+    // Only criteria entity sub-filter.
     occurrenceForPrimaryFilter =
-        new OccurrenceForPrimaryFilter(underlay, criteriaOccurrence, conditionOccurrence, null);
+        new OccurrenceForPrimaryFilter(
+            underlay, criteriaOccurrence, conditionOccurrence, null, conditionFilter);
     listQueryResult =
         bqQueryRunner.run(
             new ListQueryRequest(
@@ -2028,9 +2032,49 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 true));
     assertSqlMatchesWithTableNameOnly(
-        "occurrenceForPrimaryFilterNoSubFilter",
+        "occurrenceForPrimaryFilterWithCriteriaSubFilterOnly",
         listQueryResult.getSql(),
         tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // Both primary and criteria entity sub-filters.
+    occurrenceForPrimaryFilter =
+        new OccurrenceForPrimaryFilter(
+            underlay, criteriaOccurrence, conditionOccurrence, personFilter, conditionFilter);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                conditionOccurrence,
+                List.of(simpleAttribute),
+                occurrenceForPrimaryFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "occurrenceForPrimaryFilterWithBothSubFilters",
+        listQueryResult.getSql(),
+        tableNamesToSubstitute.toArray(new BQTable[0]));
+
+    // Neither sub-filter.
+    OccurrenceForPrimaryFilter invalidOccurrenceForPrimaryFilter =
+        new OccurrenceForPrimaryFilter(
+            underlay, criteriaOccurrence, conditionOccurrence, null, null);
+    assertThrows(
+        InvalidQueryException.class,
+        () ->
+            bqQueryRunner.run(
+                new ListQueryRequest(
+                    underlay,
+                    conditionOccurrence,
+                    List.of(simpleAttribute),
+                    invalidOccurrenceForPrimaryFilter,
+                    null,
+                    null,
+                    null,
+                    null,
+                    true)));
   }
 
   @Test

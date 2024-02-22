@@ -6,6 +6,7 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Objects;
 
 public class HierarchyHasAncestorFilter extends EntityFilter {
   private final Underlay underlay;
@@ -43,5 +44,25 @@ public class HierarchyHasAncestorFilter extends EntityFilter {
 
   public ImmutableList<Literal> getAncestorIds() {
     return ancestorIds;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    HierarchyHasAncestorFilter that = (HierarchyHasAncestorFilter) o;
+    return underlay.equals(that.underlay)
+        && entity.equals(that.entity)
+        && hierarchy.equals(that.hierarchy)
+        && ancestorIds.equals(that.ancestorIds);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(underlay, entity, hierarchy, ancestorIds);
   }
 }
