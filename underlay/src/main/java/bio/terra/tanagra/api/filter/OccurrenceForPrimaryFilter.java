@@ -3,6 +3,7 @@ package bio.terra.tanagra.api.filter;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 public class OccurrenceForPrimaryFilter extends EntityFilter {
@@ -52,5 +53,27 @@ public class OccurrenceForPrimaryFilter extends EntityFilter {
 
   public @Nullable EntityFilter getCriteriaSubFilter() {
     return criteriaSubFilter;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OccurrenceForPrimaryFilter that = (OccurrenceForPrimaryFilter) o;
+    return underlay.equals(that.underlay)
+        && criteriaOccurrence.equals(that.criteriaOccurrence)
+        && occurrenceEntity.equals(that.occurrenceEntity)
+        && Objects.equals(primarySubFilter, that.primarySubFilter)
+        && Objects.equals(criteriaSubFilter, that.criteriaSubFilter);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        underlay, criteriaOccurrence, occurrenceEntity, primarySubFilter, criteriaSubFilter);
   }
 }

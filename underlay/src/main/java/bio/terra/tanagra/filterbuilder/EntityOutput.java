@@ -7,11 +7,11 @@ import javax.annotation.Nullable;
 
 public final class EntityOutput {
   private final Entity entity;
-  private final @Nullable EntityFilter entityFilter;
+  private final @Nullable EntityFilter dataFeatureFilter;
 
-  private EntityOutput(Entity entity, @Nullable EntityFilter entityFilter) {
+  private EntityOutput(Entity entity, @Nullable EntityFilter dataFeatureFilter) {
     this.entity = entity;
-    this.entityFilter = entityFilter;
+    this.dataFeatureFilter = dataFeatureFilter;
   }
 
   public static EntityOutput filtered(Entity entity, EntityFilter entityFilter) {
@@ -26,9 +26,13 @@ public final class EntityOutput {
     return entity;
   }
 
+  public boolean hasDataFeatureFilter() {
+    return dataFeatureFilter != null;
+  }
+
   @Nullable
-  public EntityFilter getEntityFilter() {
-    return entityFilter;
+  public EntityFilter getDataFeatureFilter() {
+    return dataFeatureFilter;
   }
 
   @Override
@@ -40,11 +44,11 @@ public final class EntityOutput {
       return false;
     }
     EntityOutput that = (EntityOutput) o;
-    return entity.equals(that.entity) && Objects.equals(entityFilter, that.entityFilter);
+    return entity.equals(that.entity) && Objects.equals(dataFeatureFilter, that.dataFeatureFilter);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(entity, entityFilter);
+    return Objects.hash(entity, dataFeatureFilter);
   }
 }
