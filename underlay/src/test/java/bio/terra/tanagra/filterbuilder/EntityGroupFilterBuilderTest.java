@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
+import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
@@ -22,6 +23,7 @@ import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
@@ -29,8 +31,12 @@ import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -482,5 +488,345 @@ public class EntityGroupFilterBuilderTest {
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
+  void criteriaOnlySingleOccurrenceDataFeatureFilter() {
+    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "condition",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Single id.
+    DTEntityGroup.EntityGroup data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
+                    .setName("Type 2 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .build();
+    SelectionData selectionData = new SelectionData("condition", serializeToJson(data));
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("condition"),
+            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
+    EntityFilter expectedDataFeatureFilter =
+        new OccurrenceForPrimaryFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            underlay.getEntity("conditionOccurrence"),
+            null,
+            expectedCriteriaSubFilter);
+    EntityOutput expectedDataFeatureOutput =
+        EntityOutput.filtered(underlay.getEntity("conditionOccurrence"), expectedDataFeatureFilter);
+    assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+
+    // Multiple ids, same entity group.
+    data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
+                    .setName("Type 2 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_254L).build())
+                    .setName("Type 1 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .build();
+    selectionData = new SelectionData("condition", serializeToJson(data));
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("condition"),
+            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+    expectedDataFeatureFilter =
+        new OccurrenceForPrimaryFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            underlay.getEntity("conditionOccurrence"),
+            null,
+            expectedCriteriaSubFilter);
+    expectedDataFeatureOutput =
+        EntityOutput.filtered(underlay.getEntity("conditionOccurrence"), expectedDataFeatureFilter);
+    assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+
+    // Multiple ids, different entity groups.
+    data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
+                    .setName("Type 2 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(4_198_190L).build())
+                    .setName("Appendectomy")
+                    .setEntityGroup("procedurePerson")
+                    .build())
+            .build();
+    selectionData = new SelectionData("condition", serializeToJson(data));
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(2, dataFeatureOutputs.size());
+    EntityFilter expectedCriteriaSubFilter1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("condition"),
+            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
+    EntityFilter expectedDataFeatureFilter1 =
+        new OccurrenceForPrimaryFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            underlay.getEntity("conditionOccurrence"),
+            null,
+            expectedCriteriaSubFilter1);
+    EntityOutput expectedDataFeatureOutput1 =
+        EntityOutput.filtered(
+            underlay.getEntity("conditionOccurrence"), expectedDataFeatureFilter1);
+    EntityFilter expectedCriteriaSubFilter2 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("procedure"),
+            underlay.getEntity("procedure").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(4_198_190L));
+    EntityFilter expectedDataFeatureFilter2 =
+        new OccurrenceForPrimaryFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("procedurePerson"),
+            underlay.getEntity("procedureOccurrence"),
+            null,
+            expectedCriteriaSubFilter2);
+    EntityOutput expectedDataFeatureOutput2 =
+        EntityOutput.filtered(
+            underlay.getEntity("procedureOccurrence"), expectedDataFeatureFilter2);
+    assertEquals(
+        List.of(expectedDataFeatureOutput1, expectedDataFeatureOutput2), dataFeatureOutputs);
+  }
+
+  @Test
+  void criteriaOnlyMultipleOccurrencesDataFeatureFilter() {
+    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "icd9cm",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Single id.
+    DTEntityGroup.EntityGroup data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(44_833_365L).build())
+                    .setName("Diabetes mellitus")
+                    .setEntityGroup("icd9cmPerson")
+                    .build())
+            .build();
+    SelectionData selectionData = new SelectionData("icd9cm", serializeToJson(data));
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(4, dataFeatureOutputs.size());
+    EntityFilter expectedCriteriaSubFilterSingleId =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("icd9cm"),
+            underlay.getEntity("icd9cm").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(44_833_365L));
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("icd9cmPerson");
+    List<EntityOutput> expectedDataFeatureOutputs =
+        criteriaOccurrence.getOccurrenceEntities().stream()
+            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
+            .map(
+                occurrenceEntity ->
+                    EntityOutput.filtered(
+                        occurrenceEntity,
+                        new OccurrenceForPrimaryFilter(
+                            underlay,
+                            criteriaOccurrence,
+                            occurrenceEntity,
+                            null,
+                            expectedCriteriaSubFilterSingleId)))
+            .collect(Collectors.toList());
+    assertEquals(expectedDataFeatureOutputs, dataFeatureOutputs);
+
+    // Multiple ids, same entity group.
+    data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(44_833_365L).build())
+                    .setName("Diabetes mellitus")
+                    .setEntityGroup("icd9cmPerson")
+                    .build())
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(44_833_556L).build())
+                    .setName("Essential hypertension")
+                    .setEntityGroup("icd9cmPerson")
+                    .build())
+            .build();
+    selectionData = new SelectionData("icd9cm", serializeToJson(data));
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(4, dataFeatureOutputs.size());
+    EntityFilter expectedCriteriaSubFilterMultipleIdsSameGroup =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("icd9cm"),
+            underlay.getEntity("icd9cm").getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(44_833_365L), Literal.forInt64(44_833_556L)));
+    expectedDataFeatureOutputs =
+        criteriaOccurrence.getOccurrenceEntities().stream()
+            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
+            .map(
+                occurrenceEntity ->
+                    EntityOutput.filtered(
+                        occurrenceEntity,
+                        new OccurrenceForPrimaryFilter(
+                            underlay,
+                            criteriaOccurrence,
+                            occurrenceEntity,
+                            null,
+                            expectedCriteriaSubFilterMultipleIdsSameGroup)))
+            .collect(Collectors.toList());
+    assertEquals(expectedDataFeatureOutputs, dataFeatureOutputs);
+
+    // Multiple ids, different entity groups.
+    data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(44_833_365L).build())
+                    .setName("Diabetes mellitus")
+                    .setEntityGroup("icd9cmPerson")
+                    .build())
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(2_002_907L).build())
+                    .setName("Appendectomy")
+                    .setEntityGroup("icd9procPerson")
+                    .build())
+            .build();
+    selectionData = new SelectionData("icd9cm_icd9proc", serializeToJson(data));
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(5, dataFeatureOutputs.size());
+
+    CriteriaOccurrence criteriaOccurrenceGroup1 =
+        (CriteriaOccurrence) underlay.getEntityGroup("icd9cmPerson");
+    EntityFilter expectedCriteriaSubFilterGroup1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("icd9cm"),
+            underlay.getEntity("icd9cm").getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(44_833_365L)));
+    List<EntityOutput> expectedDataFeatureOutputsGroup1 =
+        criteriaOccurrenceGroup1.getOccurrenceEntities().stream()
+            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
+            .map(
+                occurrenceEntity ->
+                    EntityOutput.filtered(
+                        occurrenceEntity,
+                        new OccurrenceForPrimaryFilter(
+                            underlay,
+                            criteriaOccurrenceGroup1,
+                            occurrenceEntity,
+                            null,
+                            expectedCriteriaSubFilterGroup1)))
+            .collect(Collectors.toList());
+    CriteriaOccurrence criteriaOccurrenceGroup2 =
+        (CriteriaOccurrence) underlay.getEntityGroup("icd9procPerson");
+    EntityFilter expectedCriteriaSubFilterGroup2 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("icd9proc"),
+            underlay.getEntity("icd9proc").getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(2_002_907L)));
+    List<EntityOutput> expectedDataFeatureOutputsGroup2 =
+        criteriaOccurrenceGroup2.getOccurrenceEntities().stream()
+            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
+            .map(
+                occurrenceEntity ->
+                    EntityOutput.filtered(
+                        occurrenceEntity,
+                        new OccurrenceForPrimaryFilter(
+                            underlay,
+                            criteriaOccurrenceGroup2,
+                            occurrenceEntity,
+                            null,
+                            expectedCriteriaSubFilterGroup2)))
+            .collect(Collectors.toList());
+
+    // Combine the data feature outputs from both.
+    Map<Entity, List<EntityOutput>> bothOutputs = new HashMap<>();
+    expectedDataFeatureOutputsGroup1.stream()
+        .forEach(
+            entityOutput -> {
+              List<EntityOutput> entityOutputs = new ArrayList<>();
+              entityOutputs.add(entityOutput);
+              bothOutputs.put(entityOutput.getEntity(), entityOutputs);
+            });
+    expectedDataFeatureOutputsGroup2.stream()
+        .forEach(
+            entityOutput -> {
+              List<EntityOutput> entityOutputs =
+                  bothOutputs.containsKey(entityOutput.getEntity())
+                      ? bothOutputs.get(entityOutput.getEntity())
+                      : new ArrayList<>();
+              entityOutputs.add(entityOutput);
+              bothOutputs.put(entityOutput.getEntity(), entityOutputs);
+            });
+    List<EntityOutput> mergedOutputs = new ArrayList<>();
+    bothOutputs.entrySet().stream()
+        .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
+        .forEach(
+            entry -> {
+              List<EntityFilter> filters = new ArrayList<>();
+              entry.getValue().stream()
+                  .forEach(
+                      entityOutput -> {
+                        if (entityOutput.hasDataFeatureFilter()) {
+                          filters.add(entityOutput.getDataFeatureFilter());
+                        }
+                      });
+              if (filters.isEmpty()) {
+                mergedOutputs.add(EntityOutput.unfiltered(entry.getKey()));
+              } else if (filters.size() == 1) {
+                mergedOutputs.add(EntityOutput.filtered(entry.getKey(), filters.get(0)));
+              } else {
+                mergedOutputs.add(
+                    EntityOutput.filtered(
+                        entry.getKey(),
+                        new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters)));
+              }
+            });
+    assertEquals(mergedOutputs, dataFeatureOutputs);
   }
 }
