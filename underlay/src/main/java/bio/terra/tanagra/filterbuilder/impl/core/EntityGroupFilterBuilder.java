@@ -6,10 +6,12 @@ import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
+import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
@@ -52,17 +54,8 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // We want to build one filter per entity group, not one filter per selected id.
-    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup = new HashMap<>();
-    for (DTEntityGroup.EntityGroup.Selection selectedId :
-        entityGroupSelectionData.getSelectedList()) {
-      EntityGroup entityGroup = underlay.getEntityGroup(selectedId.getEntityGroup());
-      List<Literal> selectedIds =
-          selectedIdsPerEntityGroup.containsKey(entityGroup)
-              ? selectedIdsPerEntityGroup.get(entityGroup)
-              : new ArrayList<>();
-      selectedIds.add(Literal.forInt64(selectedId.getKey().getInt64Key()));
-      selectedIdsPerEntityGroup.put(entityGroup, selectedIds);
-    }
+    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
+        selectedIdsPerEntityGroup(underlay, entityGroupSelectionData);
 
     List<EntityFilter> entityFilters = new ArrayList<>();
     selectedIdsPerEntityGroup.entrySet().stream()
@@ -96,7 +89,87 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
   @Override
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
-    return null; // TODO
+    if (selectionData.size() > 1) {
+      throw new InvalidQueryException("Modifiers are not supported for data features");
+    }
+    DTEntityGroup.EntityGroup entityGroupSelectionData =
+        deserializeData(selectionData.get(0).getPluginData());
+
+    // We want to build filters per entity group, not per selected id.
+    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
+        selectedIdsPerEntityGroup(underlay, entityGroupSelectionData);
+
+    Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
+    selectedIdsPerEntityGroup.entrySet().stream()
+        .forEach(
+            entry -> {
+              EntityGroup entityGroup = entry.getKey();
+              List<Literal> selectedIds = entry.getValue();
+              switch (entityGroup.getType()) {
+                case CRITERIA_OCCURRENCE:
+                  CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
+                  EntityFilter criteriaSubFilter =
+                      buildCriteriaSubFilter(
+                          underlay, criteriaOccurrence.getCriteriaEntity(), selectedIds);
+                  criteriaOccurrence.getOccurrenceEntities().stream()
+                      .forEach(
+                          occurrenceEntity -> {
+                            List<EntityFilter> occurrenceEntityFilters =
+                                filtersPerEntity.containsKey(occurrenceEntity)
+                                    ? filtersPerEntity.get(occurrenceEntity)
+                                    : new ArrayList<>();
+                            occurrenceEntityFilters.add(
+                                new OccurrenceForPrimaryFilter(
+                                    underlay,
+                                    criteriaOccurrence,
+                                    occurrenceEntity,
+                                    null,
+                                    criteriaSubFilter));
+                            filtersPerEntity.put(occurrenceEntity, occurrenceEntityFilters);
+                          });
+                  break;
+                case GROUP_ITEMS:
+                  throw new NotImplementedException("Group items entity groups not supported yet");
+                default:
+                  throw new SystemException(
+                      "Unsupported entity group type: " + entityGroup.getType());
+              }
+            });
+
+    // If there are multiple filters for a single entity, OR them together.
+    return filtersPerEntity.entrySet().stream()
+        .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
+        .map(
+            entry -> {
+              Entity entity = entry.getKey();
+              List<EntityFilter> entityFilters = entry.getValue();
+              if (entityFilters.isEmpty()) {
+                return EntityOutput.unfiltered(entity);
+              } else if (entityFilters.size() == 1) {
+                return EntityOutput.filtered(entity, entityFilters.get(0));
+              } else {
+                return EntityOutput.filtered(
+                    entity,
+                    new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, entityFilters));
+              }
+            })
+        .collect(Collectors.toList());
+  }
+
+  private Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup(
+      Underlay underlay, DTEntityGroup.EntityGroup entityGroupSelectionData) {
+    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup = new HashMap<>();
+    for (DTEntityGroup.EntityGroup.Selection selectedId :
+        entityGroupSelectionData.getSelectedList()) {
+      EntityGroup entityGroup = underlay.getEntityGroup(selectedId.getEntityGroup());
+      List<Literal> selectedIds =
+          selectedIdsPerEntityGroup.containsKey(entityGroup)
+              ? selectedIdsPerEntityGroup.get(entityGroup)
+              : new ArrayList<>();
+      selectedIds.add(Literal.forInt64(selectedId.getKey().getInt64Key()));
+      selectedIdsPerEntityGroup.put(entityGroup, selectedIds);
+    }
+    return selectedIdsPerEntityGroup;
   }
 
   private EntityFilter buildPrimaryWithCriteriaFilter(
