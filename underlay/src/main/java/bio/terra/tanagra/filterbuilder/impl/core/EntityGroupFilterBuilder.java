@@ -304,13 +304,13 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
             ? groupItems.getItemsEntity()
             : groupItems.getGroupEntity();
 
-    // Build the group sub-filters.
+    // Build the sub-filters on the non-primary entity.
     List<EntityFilter> subFiltersGroupEntity = new ArrayList<>();
     if (!selectedIds.isEmpty()) {
       subFiltersGroupEntity.add(buildCriteriaSubFilter(underlay, notPrimaryEntity, selectedIds));
     }
 
-    // Build the attribute modifier filters.
+    // Build the attribute modifier filters for the non-primary entity.
     modifiersSelectionData.stream()
         .filter(
             modifierSelectionData ->
@@ -333,7 +333,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
                       underlay, notPrimaryEntity, modifierConfig, modifierData));
             });
 
-    // If there's more than one filter on the group entity, AND them together.
+    // If there's more than one filter on the non-primary entity, AND them together.
     EntityFilter notPrimarySubFilter;
     if (subFiltersGroupEntity.isEmpty()) {
       notPrimarySubFilter = null;
