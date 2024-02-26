@@ -366,6 +366,12 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             + SqlQueryField.of(filterIdField).renderForWhere(filterTableAlias)
             + " = "
             + SqlQueryField.of(filterIdIntTable).renderForWhere(intermediateTableAlias)
+            + (relationshipFilter.hasSubFilter()
+                ? " WHERE "
+                    + apiTranslator
+                        .translator(relationshipFilter.getSubFilter())
+                        .buildSql(sqlParams, filterTableAlias)
+                : "")
             + " GROUP BY "
             + SqlQueryField.of(selectIdIntTable).renderForGroupBy(intermediateTableAlias, true)
             + ", "
