@@ -229,7 +229,7 @@ public final class FromApiUtils {
             apiItemInGroupFilter.getGroupByCountAttribute() == null
                 ? null
                 : groupItemsItemInGroup
-                    .getItemsEntity()
+                    .getGroupEntity()
                     .getAttribute(apiItemInGroupFilter.getGroupByCountAttribute());
         return new ItemInGroupFilter(
             underlay,
@@ -241,9 +241,25 @@ public final class FromApiUtils {
       case GROUP_HAS_ITEMS:
         ApiGroupHasItemsFilter apiGroupHasItemsFilter =
             apiFilter.getFilterUnion().getGroupHasItemsFilter();
+        GroupItems groupItemsGroupHasItems =
+            (GroupItems) underlay.getEntityGroup(apiGroupHasItemsFilter.getEntityGroup());
+        EntityFilter itemsSubFilter =
+            apiGroupHasItemsFilter.getItemsSubfilter() == null
+                ? null
+                : fromApiObject(apiGroupHasItemsFilter.getItemsSubfilter(), underlay);
+        Attribute groupByAttrGroupHasItems =
+            apiGroupHasItemsFilter.getGroupByCountAttribute() == null
+                ? null
+                : groupItemsGroupHasItems
+                    .getItemsEntity()
+                    .getAttribute(apiGroupHasItemsFilter.getGroupByCountAttribute());
         return new GroupHasItemsFilter(
             underlay,
-            (GroupItems) underlay.getEntityGroup(apiGroupHasItemsFilter.getEntityGroup()));
+            groupItemsGroupHasItems,
+            itemsSubFilter,
+            groupByAttrGroupHasItems,
+            fromApiObject(apiGroupHasItemsFilter.getGroupByCountOperator()),
+            apiGroupHasItemsFilter.getGroupByCountValue());
       case OCCURRENCE_FOR_PRIMARY:
         ApiOccurrenceForPrimaryFilter apiOccurrenceForPrimaryFilter =
             apiFilter.getFilterUnion().getOccurrenceForPrimaryFilter();

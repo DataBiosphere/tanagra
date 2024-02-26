@@ -39,8 +39,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EntityGroupFilterBuilderTest {
+public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(EntityGroupFilterBuilderForCriteriaOccurrenceTest.class);
   private Underlay underlay;
 
   @BeforeEach
@@ -827,6 +831,16 @@ public class EntityGroupFilterBuilderTest {
                         new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters)));
               }
             });
+
+    EntityOutput lastExpected = mergedOutputs.get(mergedOutputs.size() - 1);
+    EntityOutput lastActual = dataFeatureOutputs.get(dataFeatureOutputs.size() - 1);
+    LOGGER.info(
+        "entity: e={}, a={}", lastExpected.getEntity().getName(), lastActual.getEntity().getName());
+    LOGGER.info(
+        "filter: e={}, a={}",
+        lastExpected.getDataFeatureFilter(),
+        lastActual.getDataFeatureFilter());
+
     assertEquals(mergedOutputs, dataFeatureOutputs);
   }
 }

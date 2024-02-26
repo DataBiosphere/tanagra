@@ -2188,7 +2188,8 @@ public class BQFilterTest extends BQRunnerTest {
   void groupHasItemsFilter() throws IOException {
     // Intermediate table.
     GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
-    GroupHasItemsFilter groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    GroupHasItemsFilter groupHasItemsFilter =
+        new GroupHasItemsFilter(underlay, groupItems, null, null, null, null);
     AttributeField simpleAttribute =
         new AttributeField(
             underlay,
@@ -2249,7 +2250,7 @@ public class BQFilterTest extends BQRunnerTest {
         new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
 
     groupItems = (GroupItems) underlay.getEntityGroup("pulsePerson");
-    groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems, null, null, null, null);
     simpleAttribute =
         new AttributeField(
             underlay,
