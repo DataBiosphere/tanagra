@@ -14,4 +14,7 @@ message Placeholder {
     repeated string attribute = 1;
   }
   map<string, GroupByAttributes> groupByAttributesPerOccurrenceEntity = 2;
+
+  // core/search
+  string entity = 3;
 }

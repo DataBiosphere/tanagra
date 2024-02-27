@@ -19,6 +19,7 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
+import bio.terra.tanagra.filterbuilder.impl.core.utils.GroupByCountSchemaUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
@@ -30,7 +31,6 @@ import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
-import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
@@ -208,23 +209,11 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
 
     // Build the attribute modifier filters.
     Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
-    modifiersSelectionData.stream()
-        .filter(
-            modifierSelectionData ->
-                SZCorePlugin.ATTRIBUTE
-                    .getIdInConfig()
-                    .equals(
-                        criteriaSelector
-                            .getModifier(modifierSelectionData.getModifierName())
-                            .getPlugin()))
+    AttributeSchemaUtils.getModifiers(criteriaSelector, modifiersSelectionData).stream()
         .forEach(
-            modifierSelectionData -> {
-              CriteriaSelector.Modifier modifierDefn =
-                  criteriaSelector.getModifier(modifierSelectionData.getModifierName());
-              CFPlaceholder.Placeholder modifierConfig =
-                  AttributeSchemaUtils.deserializeConfig(modifierDefn.getPluginConfig());
-              DTAttribute.Attribute modifierData =
-                  AttributeSchemaUtils.deserializeData(modifierSelectionData.getPluginData());
+            configAndData -> {
+              CFPlaceholder.Placeholder modifierConfig = configAndData.getLeft();
+              DTAttribute.Attribute modifierData = configAndData.getRight();
 
               // Add a separate filter for each occurrence entity.
               criteriaOccurrence.getOccurrenceEntities().stream()
@@ -241,18 +230,10 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
                       });
             });
 
-    Optional<SelectionData> groupByCountSelectionData =
-        modifiersSelectionData.stream()
-            .filter(
-                modifierSelectionData ->
-                    SZCorePlugin.UNHINTED_VALUE
-                        .getIdInConfig()
-                        .equals(
-                            criteriaSelector
-                                .getModifier(modifierSelectionData.getModifierName())
-                                .getPlugin()))
-            .findFirst();
-    if (groupByCountSelectionData.isEmpty()) {
+    Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
+        groupByModifierConfigAndData =
+            GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
+    if (groupByModifierConfigAndData.isEmpty()) {
       return new PrimaryWithCriteriaFilter(
           underlay,
           criteriaOccurrence,
@@ -262,13 +243,11 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
           null,
           null);
     }
+    CFPlaceholder.Placeholder groupByModifierConfig = groupByModifierConfigAndData.get().getLeft();
+    DTUnhintedValue.UnhintedValue groupByModifierData =
+        groupByModifierConfigAndData.get().getRight();
 
     // Build the group by filter information.
-    CFPlaceholder.Placeholder groupByModifierConfig =
-        deserializeGroupByCountConfig(
-            criteriaSelector
-                .getModifier(groupByCountSelectionData.get().getModifierName())
-                .getPluginConfig());
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
     if (!groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().isEmpty()) {
       groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().entrySet().stream()
@@ -282,8 +261,6 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
                 groupByAttributesPerOccurrenceEntity.put(occurrenceEntity, groupByAttributes);
               });
     }
-    DTUnhintedValue.UnhintedValue groupByModifierData =
-        deserializeGroupByCountData(groupByCountSelectionData.get().getPluginData());
 
     return new PrimaryWithCriteriaFilter(
         underlay,
@@ -291,7 +268,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
         criteriaSubFilter,
         subFiltersPerOccurrenceEntity,
         groupByAttributesPerOccurrenceEntity,
-        toBinaryOperator(groupByModifierData.getOperator()),
+        GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
         (int) groupByModifierData.getMin());
   }
 
@@ -312,23 +289,11 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     }
 
     // Build the attribute modifier filters for the non-primary entity.
-    modifiersSelectionData.stream()
-        .filter(
-            modifierSelectionData ->
-                SZCorePlugin.ATTRIBUTE
-                    .getIdInConfig()
-                    .equals(
-                        criteriaSelector
-                            .getModifier(modifierSelectionData.getModifierName())
-                            .getPlugin()))
+    AttributeSchemaUtils.getModifiers(criteriaSelector, modifiersSelectionData).stream()
         .forEach(
-            modifierSelectionData -> {
-              CriteriaSelector.Modifier modifierDefn =
-                  criteriaSelector.getModifier(modifierSelectionData.getModifierName());
-              CFPlaceholder.Placeholder modifierConfig =
-                  AttributeSchemaUtils.deserializeConfig(modifierDefn.getPluginConfig());
-              DTAttribute.Attribute modifierData =
-                  AttributeSchemaUtils.deserializeData(modifierSelectionData.getPluginData());
+            configAndData -> {
+              CFPlaceholder.Placeholder modifierConfig = configAndData.getLeft();
+              DTAttribute.Attribute modifierData = configAndData.getRight();
               subFiltersGroupEntity.add(
                   AttributeSchemaUtils.buildForEntity(
                       underlay, notPrimaryEntity, modifierConfig, modifierData));
@@ -345,18 +310,10 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
           new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.AND, subFiltersGroupEntity);
     }
 
-    Optional<SelectionData> groupByCountSelectionData =
-        modifiersSelectionData.stream()
-            .filter(
-                modifierSelectionData ->
-                    SZCorePlugin.UNHINTED_VALUE
-                        .getIdInConfig()
-                        .equals(
-                            criteriaSelector
-                                .getModifier(modifierSelectionData.getModifierName())
-                                .getPlugin()))
-            .findFirst();
-    if (groupByCountSelectionData.isEmpty()) {
+    Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
+        groupByModifierConfigAndData =
+            GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
+    if (groupByModifierConfigAndData.isEmpty()) {
       if (groupItems.getGroupEntity().isPrimary()) {
         // e.g. vitals, person=group / height=items
         return new GroupHasItemsFilter(underlay, groupItems, notPrimarySubFilter, null, null, null);
@@ -365,13 +322,11 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
         return new ItemInGroupFilter(underlay, groupItems, notPrimarySubFilter, null, null, null);
       }
     }
+    CFPlaceholder.Placeholder groupByModifierConfig = groupByModifierConfigAndData.get().getLeft();
+    DTUnhintedValue.UnhintedValue groupByModifierData =
+        groupByModifierConfigAndData.get().getRight();
 
     // Build the group by filter information.
-    CFPlaceholder.Placeholder groupByModifierConfig =
-        deserializeGroupByCountConfig(
-            criteriaSelector
-                .getModifier(groupByCountSelectionData.get().getModifierName())
-                .getPluginConfig());
     List<Attribute> groupByAttributes;
     if (groupByModifierConfig
         .getGroupByAttributesPerOccurrenceEntityMap()
@@ -389,8 +344,6 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
       throw new InvalidConfigException(
           "More than one group by attribute is not yet supported for GroupItems entity groups.");
     }
-    DTUnhintedValue.UnhintedValue groupByModifierData =
-        deserializeGroupByCountData(groupByCountSelectionData.get().getPluginData());
 
     if (groupItems.getGroupEntity().isPrimary()) {
       return new GroupHasItemsFilter(
@@ -398,7 +351,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
           groupItems,
           notPrimarySubFilter,
           groupByAttributes.size() == 1 ? groupByAttributes.get(0) : null,
-          toBinaryOperator(groupByModifierData.getOperator()),
+          GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
           (int) groupByModifierData.getMin());
     } else {
       return new ItemInGroupFilter(
@@ -406,7 +359,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
           groupItems,
           notPrimarySubFilter,
           groupByAttributes.size() == 1 ? groupByAttributes.get(0) : null,
-          toBinaryOperator(groupByModifierData.getOperator()),
+          GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
           (int) groupByModifierData.getMin());
     }
   }
@@ -449,29 +402,5 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
   @Override
   public DTEntityGroup.EntityGroup deserializeData(String serialized) {
     return deserializeFromJson(serialized, DTEntityGroup.EntityGroup.newBuilder()).build();
-  }
-
-  public static CFPlaceholder.Placeholder deserializeGroupByCountConfig(String serialized) {
-    return deserializeFromJson(serialized, CFPlaceholder.Placeholder.newBuilder()).build();
-  }
-
-  public static DTUnhintedValue.UnhintedValue deserializeGroupByCountData(String serialized) {
-    return deserializeFromJson(serialized, DTUnhintedValue.UnhintedValue.newBuilder()).build();
-  }
-
-  private static BinaryOperator toBinaryOperator(
-      DTUnhintedValue.UnhintedValue.ComparisonOperator comparisonOperator) {
-    switch (comparisonOperator) {
-      case COMPARISON_OPERATOR_EQUAL:
-        return BinaryOperator.EQUALS;
-      case COMPARISON_OPERATOR_LESS_THAN_EQUAL:
-        return BinaryOperator.LESS_THAN_OR_EQUAL;
-      case COMPARISON_OPERATOR_GREATER_THAN_EQUAL:
-        return BinaryOperator.GREATER_THAN_OR_EQUAL;
-      case COMPARISON_OPERATOR_BETWEEN:
-      default:
-        throw new SystemException(
-            "Unsupported unhinted-value comparison operator: " + comparisonOperator);
-    }
   }
 }
