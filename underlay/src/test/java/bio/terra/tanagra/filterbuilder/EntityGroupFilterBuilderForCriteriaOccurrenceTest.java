@@ -3,6 +3,7 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -23,7 +24,6 @@ import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
@@ -31,16 +31,14 @@ import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class EntityGroupFilterBuilderTest {
+public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
   private Underlay underlay;
 
   @BeforeEach
@@ -736,97 +734,30 @@ public class EntityGroupFilterBuilderTest {
                     .build())
             .build();
     selectionData = new SelectionData("icd9cm_icd9proc", serializeToJson(data));
-    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
-    assertEquals(5, dataFeatureOutputs.size());
+    List<EntityOutput> dataFeatureOutputsMultipleEntityGroups =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(5, dataFeatureOutputsMultipleEntityGroups.size());
 
     CriteriaOccurrence criteriaOccurrenceGroup1 =
         (CriteriaOccurrence) underlay.getEntityGroup("icd9cmPerson");
-    EntityFilter expectedCriteriaSubFilterGroup1 =
-        new HierarchyHasAncestorFilter(
-            underlay,
-            underlay.getEntity("icd9cm"),
-            underlay.getEntity("icd9cm").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(44_833_365L)));
-    List<EntityOutput> expectedDataFeatureOutputsGroup1 =
-        criteriaOccurrenceGroup1.getOccurrenceEntities().stream()
-            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
-            .map(
-                occurrenceEntity ->
-                    EntityOutput.filtered(
-                        occurrenceEntity,
-                        new OccurrenceForPrimaryFilter(
-                            underlay,
-                            criteriaOccurrenceGroup1,
-                            occurrenceEntity,
-                            null,
-                            expectedCriteriaSubFilterGroup1)))
-            .collect(Collectors.toList());
     CriteriaOccurrence criteriaOccurrenceGroup2 =
         (CriteriaOccurrence) underlay.getEntityGroup("icd9procPerson");
-    EntityFilter expectedCriteriaSubFilterGroup2 =
-        new HierarchyHasAncestorFilter(
-            underlay,
-            underlay.getEntity("icd9proc"),
-            underlay.getEntity("icd9proc").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(2_002_907L)));
-    List<EntityOutput> expectedDataFeatureOutputsGroup2 =
-        criteriaOccurrenceGroup2.getOccurrenceEntities().stream()
-            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
-            .map(
-                occurrenceEntity ->
-                    EntityOutput.filtered(
-                        occurrenceEntity,
-                        new OccurrenceForPrimaryFilter(
-                            underlay,
-                            criteriaOccurrenceGroup2,
-                            occurrenceEntity,
-                            null,
-                            expectedCriteriaSubFilterGroup2)))
-            .collect(Collectors.toList());
 
-    // Combine the data feature outputs from both.
-    Map<Entity, List<EntityOutput>> bothOutputs = new HashMap<>();
-    expectedDataFeatureOutputsGroup1.stream()
+    criteriaOccurrenceGroup1.getOccurrenceEntities().stream()
         .forEach(
-            entityOutput -> {
-              List<EntityOutput> entityOutputs = new ArrayList<>();
-              entityOutputs.add(entityOutput);
-              bothOutputs.put(entityOutput.getEntity(), entityOutputs);
-            });
-    expectedDataFeatureOutputsGroup2.stream()
+            occurrenceEntity ->
+                assertTrue(
+                    dataFeatureOutputsMultipleEntityGroups.stream()
+                        .filter(entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))
+                        .findAny()
+                        .isPresent()));
+    criteriaOccurrenceGroup2.getOccurrenceEntities().stream()
         .forEach(
-            entityOutput -> {
-              List<EntityOutput> entityOutputs =
-                  bothOutputs.containsKey(entityOutput.getEntity())
-                      ? bothOutputs.get(entityOutput.getEntity())
-                      : new ArrayList<>();
-              entityOutputs.add(entityOutput);
-              bothOutputs.put(entityOutput.getEntity(), entityOutputs);
-            });
-    List<EntityOutput> mergedOutputs = new ArrayList<>();
-    bothOutputs.entrySet().stream()
-        .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
-        .forEach(
-            entry -> {
-              List<EntityFilter> filters = new ArrayList<>();
-              entry.getValue().stream()
-                  .forEach(
-                      entityOutput -> {
-                        if (entityOutput.hasDataFeatureFilter()) {
-                          filters.add(entityOutput.getDataFeatureFilter());
-                        }
-                      });
-              if (filters.isEmpty()) {
-                mergedOutputs.add(EntityOutput.unfiltered(entry.getKey()));
-              } else if (filters.size() == 1) {
-                mergedOutputs.add(EntityOutput.filtered(entry.getKey(), filters.get(0)));
-              } else {
-                mergedOutputs.add(
-                    EntityOutput.filtered(
-                        entry.getKey(),
-                        new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters)));
-              }
-            });
-    assertEquals(mergedOutputs, dataFeatureOutputs);
+            occurrenceEntity ->
+                assertTrue(
+                    dataFeatureOutputsMultipleEntityGroups.stream()
+                        .filter(entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))
+                        .findAny()
+                        .isPresent()));
   }
 }

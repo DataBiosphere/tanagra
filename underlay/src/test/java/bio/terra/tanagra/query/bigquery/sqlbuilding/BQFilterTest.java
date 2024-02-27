@@ -2078,19 +2078,12 @@ public class BQFilterTest extends BQRunnerTest {
   }
 
   @Test
-  void itemInGroupFilter() throws IOException {
+  void itemInGroupFilterIntermediateTable() throws IOException {
     GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
 
-    // No group by.
-    EntityFilter groupSubFilter =
-        new AttributeFilter(
-            underlay,
-            groupItems.getGroupEntity(),
-            groupItems.getGroupEntity().getIdAttribute(),
-            BinaryOperator.EQUALS,
-            Literal.forInt64(19_042_336L));
+    // No sub-filter.
     ItemInGroupFilter itemInGroupFilter =
-        new ItemInGroupFilter(underlay, groupItems, groupSubFilter, null, null, null);
+        new ItemInGroupFilter(underlay, groupItems, null, null, null, null);
     AttributeField simpleAttribute =
         new AttributeField(
             underlay,
@@ -2130,12 +2123,22 @@ public class BQFilterTest extends BQRunnerTest {
                 groupItems.getItemsEntity().getName())
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
-        "itemInGroup", listQueryResult.getSql(), groupEntityTable, itemsEntityTable, idPairsTable);
+        "itemInGroupNoSubFilterIntTable",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
 
-    // With group by, no attribute.
+    // With sub-filter.
+    EntityFilter groupSubFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(19_042_336L));
     itemInGroupFilter =
-        new ItemInGroupFilter(
-            underlay, groupItems, groupSubFilter, null, BinaryOperator.GREATER_THAN, 2);
+        new ItemInGroupFilter(underlay, groupItems, groupSubFilter, null, null, null);
     listQueryResult =
         bqQueryRunner.run(
             new ListQueryRequest(
@@ -2149,13 +2152,42 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 true));
     assertSqlMatchesWithTableNameOnly(
-        "itemInGroupWithGroupBy",
+        "itemInGroupWithSubFilterIntTable",
         listQueryResult.getSql(),
         groupEntityTable,
         itemsEntityTable,
         idPairsTable);
 
-    // With group by attribute.
+    // With group by, no attribute, no sub-filter.
+    itemInGroupFilter =
+        new ItemInGroupFilter(underlay, groupItems, null, null, BinaryOperator.GREATER_THAN, 2);
+    listQueryResult =
+        bqQueryRunner.run(
+            new ListQueryRequest(
+                underlay,
+                groupItems.getItemsEntity(),
+                List.of(simpleAttribute),
+                itemInGroupFilter,
+                null,
+                null,
+                null,
+                null,
+                true));
+    assertSqlMatchesWithTableNameOnly(
+        "itemInGroupWithGroupByNoSubFilterIntTable",
+        listQueryResult.getSql(),
+        groupEntityTable,
+        itemsEntityTable,
+        idPairsTable);
+
+    // With group by attribute, with sub-filter.
+    groupSubFilter =
+        new AttributeFilter(
+            underlay,
+            groupItems.getGroupEntity(),
+            groupItems.getGroupEntity().getAttribute("standard_concept"),
+            BinaryOperator.EQUALS,
+            Literal.forString("S"));
     itemInGroupFilter =
         new ItemInGroupFilter(
             underlay,
@@ -2177,7 +2209,7 @@ public class BQFilterTest extends BQRunnerTest {
                 null,
                 true));
     assertSqlMatchesWithTableNameOnly(
-        "itemInGroupWithGroupByAttribute",
+        "itemInGroupWithGroupByAttributeWithSubFilterIntTable",
         listQueryResult.getSql(),
         groupEntityTable,
         itemsEntityTable,
@@ -2185,10 +2217,11 @@ public class BQFilterTest extends BQRunnerTest {
   }
 
   @Test
-  void groupHasItemsFilter() throws IOException {
+  void groupHasItemsFilterIntermediateTable() throws IOException {
     // Intermediate table.
     GroupItems groupItems = (GroupItems) underlay.getEntityGroup("brandIngredient");
-    GroupHasItemsFilter groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    GroupHasItemsFilter groupHasItemsFilter =
+        new GroupHasItemsFilter(underlay, groupItems, null, null, null, null);
     AttributeField simpleAttribute =
         new AttributeField(
             underlay,
@@ -2249,7 +2282,7 @@ public class BQFilterTest extends BQRunnerTest {
         new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
 
     groupItems = (GroupItems) underlay.getEntityGroup("pulsePerson");
-    groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems);
+    groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems, null, null, null, null);
     simpleAttribute =
         new AttributeField(
             underlay,
