@@ -118,6 +118,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
                       buildCriteriaSubFilter(
                           underlay, criteriaOccurrence.getCriteriaEntity(), selectedIds);
                   criteriaOccurrence.getOccurrenceEntities().stream()
+                      .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
                       .forEach(
                           occurrenceEntity -> {
                             List<EntityFilter> occurrenceEntityFilters =
