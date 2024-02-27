@@ -93,7 +93,7 @@
         "attribute": "t_item_count",
         "direction": "DESC"
       },
-      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"],
+      "modifiers": ["age_at_occurrence", "visit_type", "start_date_group_by_count"],
       "valueConfigs": [
         {
           "title": "Categorical value",
@@ -392,7 +392,7 @@
           "id": "procedurePerson"
         }
       ],
-      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
+      "modifiers": ["age_at_occurrence", "visit_type", "start_date_group_by_count"]
     },
     {
       "type": "entityGroup",
@@ -414,7 +414,7 @@
           "id": "observationPerson"
         }
       ],
-      "modifiers": ["age_at_occurrence", "visit_type", "date_group_by_count"]
+      "modifiers": ["age_at_occurrence", "visit_type", "start_date_group_by_count"]
     },
     {
       "type": "entityGroup",
@@ -577,7 +577,7 @@
     },
     {
       "type": "unhinted-value",
-      "id": "date_group_by_count",
+      "id": "start_date_group_by_count",
       "title": "Occurrence count",
       "attribute": "date",
       "groupByCount": true

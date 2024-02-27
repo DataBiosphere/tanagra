@@ -47,6 +47,13 @@ function rangeFromData(data: Data) {
   };
 }
 
+const operatorTitles = {
+  [tanagraUI.UIComparisonOperator.Equal]: "Equals",
+  [tanagraUI.UIComparisonOperator.LessThanEqual]: "Less than or equals",
+  [tanagraUI.UIComparisonOperator.GreaterThanEqual]: "Greater than or equals",
+  [tanagraUI.UIComparisonOperator.Between]: "Between",
+};
+
 @registerCriteriaPlugin("unhinted-value", () => {
   return encodeData({
     operator: tanagraUI.UIComparisonOperator.GreaterThanEqual,
@@ -86,8 +93,17 @@ class _ implements CriteriaPlugin<string> {
   }
 
   displayDetails() {
+    const decodedData = decodeData(this.data);
+
+    let title = `${operatorTitles[decodedData.operator]} ${decodedData.min}`;
+    if (decodedData.operator === tanagraUI.UIComparisonOperator.Between) {
+      title = `${operatorTitles[decodedData.operator]} ${decodedData.min} and ${
+        decodedData.max
+      }`;
+    }
+
     return {
-      title: "",
+      title,
     };
   }
 
@@ -192,13 +208,6 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
       ? [tanagraUI.UIComparisonOperator.Between]
       : []),
   ];
-
-  const operatorTitles = {
-    [tanagraUI.UIComparisonOperator.Equal]: "Equals",
-    [tanagraUI.UIComparisonOperator.LessThanEqual]: "Less than or equals",
-    [tanagraUI.UIComparisonOperator.GreaterThanEqual]: "Greater than or equals",
-    [tanagraUI.UIComparisonOperator.Between]: "Between",
-  };
 
   const onSelectOperator = (event: SelectChangeEvent<string>) => {
     const {
