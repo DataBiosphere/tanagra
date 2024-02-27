@@ -6,7 +6,7 @@
     { "name": "person_id", "dataType": "INT64" },
     { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
     { "name": "procedure", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "procedure_concept_name" },
-    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "procedure_date" },
+    { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "procedure_date" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "procedure_source_value" },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id" },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 },
