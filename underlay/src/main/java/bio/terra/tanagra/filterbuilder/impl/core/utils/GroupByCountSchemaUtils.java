@@ -6,11 +6,17 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class GroupByCountSchemaUtils {
@@ -48,6 +54,28 @@ public final class GroupByCountSchemaUtils {
     DTUnhintedValue.UnhintedValue groupByModifierData =
         GroupByCountSchemaUtils.deserializeData(groupByCountSelectionData.get().getPluginData());
     return Optional.of(Pair.of(groupByModifierConfig, groupByModifierData));
+  }
+
+  public static Map<Entity, List<Attribute>> getGroupByAttributesPerOccurrenceEntity(
+      Underlay underlay,
+      Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
+          groupByModifierConfigAndData) {
+    CFPlaceholder.Placeholder groupByModifierConfig = groupByModifierConfigAndData.get().getLeft();
+
+    Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
+    if (!groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().isEmpty()) {
+      groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().entrySet().stream()
+          .forEach(
+              entry -> {
+                Entity occurrenceEntity = underlay.getEntity(entry.getKey());
+                List<Attribute> groupByAttributes =
+                    entry.getValue().getAttributeList().stream()
+                        .map(attrName -> occurrenceEntity.getAttribute(attrName))
+                        .collect(Collectors.toList());
+                groupByAttributesPerOccurrenceEntity.put(occurrenceEntity, groupByAttributes);
+              });
+    }
+    return groupByAttributesPerOccurrenceEntity;
   }
 
   public static BinaryOperator toBinaryOperator(

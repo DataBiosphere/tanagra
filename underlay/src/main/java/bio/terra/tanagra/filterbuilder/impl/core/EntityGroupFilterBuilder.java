@@ -2,32 +2,25 @@ package bio.terra.tanagra.filterbuilder.impl.core;
 
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
 
-import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.ItemInGroupFilter;
-import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
-import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
-import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
+import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.GroupByCountSchemaUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
-import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
@@ -40,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
@@ -114,29 +106,8 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
               List<Literal> selectedIds = entry.getValue();
               switch (entityGroup.getType()) {
                 case CRITERIA_OCCURRENCE:
-                  CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
-                  EntityFilter criteriaSubFilterCO =
-                      buildCriteriaSubFilter(
-                          underlay, criteriaOccurrence.getCriteriaEntity(), selectedIds);
-                  criteriaOccurrence.getOccurrenceEntities().stream()
-                      .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
-                      .forEach(
-                          occurrenceEntity -> {
-                            List<EntityFilter> occurrenceEntityFilters =
-                                filtersPerEntity.containsKey(occurrenceEntity)
-                                    ? filtersPerEntity.get(occurrenceEntity)
-                                    : new ArrayList<>();
-                            if (!selectedIds.isEmpty()) {
-                              occurrenceEntityFilters.add(
-                                  new OccurrenceForPrimaryFilter(
-                                      underlay,
-                                      criteriaOccurrence,
-                                      occurrenceEntity,
-                                      null,
-                                      criteriaSubFilterCO));
-                            }
-                            filtersPerEntity.put(occurrenceEntity, occurrenceEntityFilters);
-                          });
+                  EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
+                      underlay, (CriteriaOccurrence) entityGroup, selectedIds, filtersPerEntity);
                   break;
                 case GROUP_ITEMS:
                   GroupItems groupItems = (GroupItems) entityGroup;
@@ -150,7 +121,8 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
                           : new ArrayList<>();
                   if (!selectedIds.isEmpty()) {
                     notPrimaryEntityFilters.add(
-                        buildCriteriaSubFilter(underlay, notPrimaryEntity, selectedIds));
+                        EntityGroupFilterUtils.buildIdSubFilter(
+                            underlay, notPrimaryEntity, selectedIds));
                   }
                   filtersPerEntity.put(notPrimaryEntity, notPrimaryEntityFilters);
                   break;
@@ -161,23 +133,8 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
             });
 
     // If there are multiple filters for a single entity, OR them together.
-    return filtersPerEntity.entrySet().stream()
-        .sorted(Comparator.comparing(entry -> entry.getKey().getName()))
-        .map(
-            entry -> {
-              Entity entity = entry.getKey();
-              List<EntityFilter> entityFilters = entry.getValue();
-              if (entityFilters.isEmpty()) {
-                return EntityOutput.unfiltered(entity);
-              } else if (entityFilters.size() == 1) {
-                return EntityOutput.filtered(entity, entityFilters.get(0));
-              } else {
-                return EntityOutput.filtered(
-                    entity,
-                    new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, entityFilters));
-              }
-            })
-        .collect(Collectors.toList());
+    return EntityGroupFilterUtils.mergeFiltersForDataFeature(
+        filtersPerEntity, BooleanAndOrFilter.LogicalOperator.OR);
   }
 
   private Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup(
@@ -205,30 +162,16 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
       List<SelectionData> modifiersSelectionData) {
     // Build the criteria sub-filter.
     EntityFilter criteriaSubFilter =
-        buildCriteriaSubFilter(underlay, criteriaOccurrence.getCriteriaEntity(), selectedIds);
+        EntityGroupFilterUtils.buildIdSubFilter(
+            underlay, criteriaOccurrence.getCriteriaEntity(), selectedIds);
 
     // Build the attribute modifier filters.
-    Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
-    AttributeSchemaUtils.getModifiers(criteriaSelector, modifiersSelectionData).stream()
-        .forEach(
-            configAndData -> {
-              CFPlaceholder.Placeholder modifierConfig = configAndData.getLeft();
-              DTAttribute.Attribute modifierData = configAndData.getRight();
-
-              // Add a separate filter for each occurrence entity.
-              criteriaOccurrence.getOccurrenceEntities().stream()
-                  .forEach(
-                      occurrenceEntity -> {
-                        List<EntityFilter> subFilters =
-                            subFiltersPerOccurrenceEntity.containsKey(occurrenceEntity)
-                                ? subFiltersPerOccurrenceEntity.get(occurrenceEntity)
-                                : new ArrayList<>();
-                        subFilters.add(
-                            AttributeSchemaUtils.buildForEntity(
-                                underlay, occurrenceEntity, modifierConfig, modifierData));
-                        subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFilters);
-                      });
-            });
+    Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity =
+        EntityGroupFilterUtils.buildAttributeModifierFilters(
+            underlay,
+            criteriaSelector,
+            modifiersSelectionData,
+            criteriaOccurrence.getOccurrenceEntities());
 
     Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
@@ -243,25 +186,13 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
           null,
           null);
     }
-    CFPlaceholder.Placeholder groupByModifierConfig = groupByModifierConfigAndData.get().getLeft();
-    DTUnhintedValue.UnhintedValue groupByModifierData =
-        groupByModifierConfigAndData.get().getRight();
 
     // Build the group by filter information.
-    Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
-    if (!groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().isEmpty()) {
-      groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().entrySet().stream()
-          .forEach(
-              entry -> {
-                Entity occurrenceEntity = underlay.getEntity(entry.getKey());
-                List<Attribute> groupByAttributes =
-                    entry.getValue().getAttributeList().stream()
-                        .map(attrName -> occurrenceEntity.getAttribute(attrName))
-                        .collect(Collectors.toList());
-                groupByAttributesPerOccurrenceEntity.put(occurrenceEntity, groupByAttributes);
-              });
-    }
-
+    Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
+        GroupByCountSchemaUtils.getGroupByAttributesPerOccurrenceEntity(
+            underlay, groupByModifierConfigAndData);
+    DTUnhintedValue.UnhintedValue groupByModifierData =
+        groupByModifierConfigAndData.get().getRight();
     return new PrimaryWithCriteriaFilter(
         underlay,
         criteriaOccurrence,
@@ -285,19 +216,17 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     // Build the sub-filters on the non-primary entity.
     List<EntityFilter> subFiltersGroupEntity = new ArrayList<>();
     if (!selectedIds.isEmpty()) {
-      subFiltersGroupEntity.add(buildCriteriaSubFilter(underlay, notPrimaryEntity, selectedIds));
+      subFiltersGroupEntity.add(
+          EntityGroupFilterUtils.buildIdSubFilter(underlay, notPrimaryEntity, selectedIds));
     }
 
     // Build the attribute modifier filters for the non-primary entity.
-    AttributeSchemaUtils.getModifiers(criteriaSelector, modifiersSelectionData).stream()
-        .forEach(
-            configAndData -> {
-              CFPlaceholder.Placeholder modifierConfig = configAndData.getLeft();
-              DTAttribute.Attribute modifierData = configAndData.getRight();
-              subFiltersGroupEntity.add(
-                  AttributeSchemaUtils.buildForEntity(
-                      underlay, notPrimaryEntity, modifierConfig, modifierData));
-            });
+    Map<Entity, List<EntityFilter>> attributeModifierFilters =
+        EntityGroupFilterUtils.buildAttributeModifierFilters(
+            underlay, criteriaSelector, modifiersSelectionData, List.of(notPrimaryEntity));
+    if (attributeModifierFilters.containsKey(notPrimaryEntity)) {
+      subFiltersGroupEntity.addAll(attributeModifierFilters.get(notPrimaryEntity));
+    }
 
     // If there's more than one filter on the non-primary entity, AND them together.
     EntityFilter notPrimarySubFilter;
@@ -322,29 +251,22 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
         return new ItemInGroupFilter(underlay, groupItems, notPrimarySubFilter, null, null, null);
       }
     }
-    CFPlaceholder.Placeholder groupByModifierConfig = groupByModifierConfigAndData.get().getLeft();
-    DTUnhintedValue.UnhintedValue groupByModifierData =
-        groupByModifierConfigAndData.get().getRight();
 
     // Build the group by filter information.
-    List<Attribute> groupByAttributes;
-    if (groupByModifierConfig
-        .getGroupByAttributesPerOccurrenceEntityMap()
-        .containsKey(notPrimaryEntity.getName())) {
-      groupByAttributes =
-          groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap()
-              .get(notPrimaryEntity.getName()).getAttributeList().stream()
-              .map(attrName -> notPrimaryEntity.getAttribute(attrName))
-              .collect(Collectors.toList());
-    } else {
-      groupByAttributes = new ArrayList<>();
-    }
+    Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
+        GroupByCountSchemaUtils.getGroupByAttributesPerOccurrenceEntity(
+            underlay, groupByModifierConfigAndData);
+    List<Attribute> groupByAttributes =
+        groupByAttributesPerOccurrenceEntity.containsKey(notPrimaryEntity)
+            ? groupByAttributesPerOccurrenceEntity.get(notPrimaryEntity)
+            : new ArrayList<>();
     if (groupByAttributes.size() > 1) {
       // TODO: Support multiple attributes.
       throw new InvalidConfigException(
           "More than one group by attribute is not yet supported for GroupItems entity groups.");
     }
-
+    DTUnhintedValue.UnhintedValue groupByModifierData =
+        groupByModifierConfigAndData.get().getRight();
     if (groupItems.getGroupEntity().isPrimary()) {
       return new GroupHasItemsFilter(
           underlay,
@@ -361,34 +283,6 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
           groupByAttributes.size() == 1 ? groupByAttributes.get(0) : null,
           GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
           (int) groupByModifierData.getMin());
-    }
-  }
-
-  private EntityFilter buildCriteriaSubFilter(
-      Underlay underlay, Entity criteriaEntity, List<Literal> criteriaIds) {
-    // Build the criteria sub-filter.
-    if (criteriaEntity.hasHierarchies()) {
-      // Use a has ancestor filter.
-      return new HierarchyHasAncestorFilter(
-          underlay,
-          criteriaEntity,
-          criteriaEntity.getHierarchy(Hierarchy.DEFAULT_NAME),
-          criteriaIds);
-    } else {
-      // Use an attribute filter on the id.
-      return criteriaIds.size() > 1
-          ? new AttributeFilter(
-              underlay,
-              criteriaEntity,
-              criteriaEntity.getIdAttribute(),
-              NaryOperator.IN,
-              criteriaIds)
-          : new AttributeFilter(
-              underlay,
-              criteriaEntity,
-              criteriaEntity.getIdAttribute(),
-              BinaryOperator.EQUALS,
-              criteriaIds.get(0));
     }
   }
 
