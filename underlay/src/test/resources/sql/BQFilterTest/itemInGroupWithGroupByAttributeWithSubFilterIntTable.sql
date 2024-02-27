@@ -12,9 +12,11 @@
             JOIN
                 ${ENT_brand} fe                      
                     ON fe.id = it.entity_A_id              
+            WHERE
+                fe.standard_concept = @val1              
             GROUP BY
                 entity_B_id,
                 fe.vocabulary              
             HAVING
-                COUNT(*) > @groupByCount1         
+                COUNT(*) > @groupByCount2         
         )

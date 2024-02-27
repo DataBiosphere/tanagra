@@ -1590,6 +1590,14 @@ components:
       properties:
         entityGroup:
           type: string
+        itemsSubfilter:
+          $ref: "#/components/schemas/Filter"
+        groupByCountAttribute:
+          type: string
+        groupByCountOperator:
+          $ref: "#/components/schemas/BinaryOperator"
+        groupByCountValue:
+          type: integer
 
     OccurrenceForPrimaryFilter:
       type: object

@@ -26,10 +26,10 @@ public class GroupHasItemsFilterTranslator extends ApiFilterTranslator {
             groupItems,
             groupItems.getGroupEntity(),
             groupItems.getGroupItemsRelationship(),
-            null,
-            null,
-            null,
-            null);
+            groupHasItemsFilter.getItemsSubFilter(),
+            groupHasItemsFilter.getGroupByCountAttribute(),
+            groupHasItemsFilter.getGroupByCountOperator(),
+            groupHasItemsFilter.getGroupByCountValue());
     return apiTranslator.translator(relationshipFilter).buildSql(sqlParams, tableAlias);
   }
 

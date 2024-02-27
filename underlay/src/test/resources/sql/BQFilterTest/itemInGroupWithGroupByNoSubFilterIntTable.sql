@@ -9,10 +9,8 @@
                 entity_B_id              
             FROM
                 ${RIDS_brandIngredient_brand_ingredient}              
-            WHERE
-                entity_A_id = @val0              
             GROUP BY
                 entity_B_id              
             HAVING
-                COUNT(*) > @groupByCount1         
+                COUNT(*) > @groupByCount0         
         )
