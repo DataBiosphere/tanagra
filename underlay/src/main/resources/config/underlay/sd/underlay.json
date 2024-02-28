@@ -28,7 +28,7 @@
     "sd/noteOccurrence",
     "sd/familyHistory",
 
-    "omop/cpt4",
+    "sd/cpt4",
     "omop/icd9cm",
     "omop/icd9proc",
     "omop/icd10cm",
@@ -75,7 +75,7 @@
 
     "omop/notePerson",
 
-    "omop/cpt4Person",
+    "sd/cpt4Person",
     "omop/icd9cmPerson",
     "omop/icd9procPerson",
     "omop/icd10cmPerson",
