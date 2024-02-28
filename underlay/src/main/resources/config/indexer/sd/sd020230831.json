@@ -11,7 +11,7 @@
     },
     "indexData": {
       "projectId": "sd-vumc-tanagra-test",
-      "datasetId": "sd_20230831_indexed_2"
+      "datasetId": "indexed_sd_20230831_1"
     },
     "queryProjectId": "sd-vumc-tanagra-test",
     "dataLocation": "us-central1"
