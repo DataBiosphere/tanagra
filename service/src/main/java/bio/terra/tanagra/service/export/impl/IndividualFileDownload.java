@@ -45,9 +45,9 @@ public class IndividualFileDownload implements DataExport {
   @Override
   public ExportResult run(ExportRequest request) {
     Map<String, String> entityToGcsUrl =
-        request.writeEntityDataToGcs("tanagra_${entity}_" + Instant.now() + "_*.csv");
+        request.writeEntityDataToGcs("tanagra_${entity}_" + Instant.now());
     Map<Cohort, String> cohortToGcsUrl =
-        request.writeAnnotationDataToGcs("tanagra_${cohort}_" + Instant.now() + "_*.csv");
+        request.writeAnnotationDataToGcs("tanagra_${cohort}_" + Instant.now());
 
     Map<String, String> outputParams = new HashMap<>();
     entityToGcsUrl.entrySet().stream()

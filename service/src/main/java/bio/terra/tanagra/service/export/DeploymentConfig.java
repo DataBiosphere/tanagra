@@ -37,19 +37,26 @@ public final class DeploymentConfig {
 
   public static final class Shared {
     private final String gcpProjectId;
+    private final List<String> bqDatasetIds;
     private final List<String> gcsBucketNames;
 
-    private Shared(String gcpProjectId, List<String> gcsBucketNames) {
+    private Shared(String gcpProjectId, List<String> bqDatasetIds, List<String> gcsBucketNames) {
       this.gcpProjectId = gcpProjectId;
+      this.bqDatasetIds = bqDatasetIds;
       this.gcsBucketNames = gcsBucketNames;
     }
 
     public static Shared fromApplicationConfig(ExportConfiguration.Shared appConfig) {
-      return new Shared(appConfig.getGcsProjectId(), appConfig.getGcsBucketNames());
+      return new Shared(
+          appConfig.getGcpProjectId(), appConfig.getBqDatasetIds(), appConfig.getGcsBucketNames());
     }
 
     public String getGcpProjectId() {
       return gcpProjectId;
+    }
+
+    public List<String> getBqDatasetIds() {
+      return Collections.unmodifiableList(bqDatasetIds);
     }
 
     public List<String> getGcsBucketNames() {

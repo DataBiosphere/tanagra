@@ -10,6 +10,7 @@ import com.google.cloud.bigquery.BigQueryOptions;
 import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
+import com.google.cloud.bigquery.ExtractJobConfiguration;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
 import com.google.cloud.bigquery.JobStatistics;
@@ -212,6 +213,70 @@ public final class GoogleBigQuery {
       queryJobConfig.setClustering(clustering);
     }
     return runUpdateQuery(queryJobConfig.build(), isDryRun);
+  }
+
+  public Table createTableFromQuery(QueryJobConfiguration queryJobConfig) {
+    // Create a temporary table from the query.
+    TableResult createTableResult = runUpdateQuery(queryJobConfig, false);
+    LOGGER.info(
+        "Created temporary table from query successfully: jobId={}",
+        createTableResult.getJobId().getJob());
+
+    // Make sure the temporary table exists.
+    TableId destinationTempTable = queryJobConfig.getDestinationTable();
+    LOGGER.info("Temporary table created: {}", destinationTempTable);
+    Optional<Table> tempTable =
+        getTable(
+            destinationTempTable.getProject(),
+            destinationTempTable.getDataset(),
+            destinationTempTable.getTable());
+    if (tempTable.isEmpty()) {
+      throw new SystemException(
+          "Temporary table not found: "
+              + destinationTempTable.getProject()
+              + '.'
+              + destinationTempTable.getDataset()
+              + '.'
+              + destinationTempTable.getTable());
+    }
+    return tempTable.get();
+  }
+
+  public String findDatasetForExportTempTable(
+      String gcpProjectId, List<String> bqDatasetIds, String bigQueryDataLocation) {
+    // Lookup the BQ dataset location. Return the first dataset with a compatible location for the
+    // dataset.
+    for (String datasetId : bqDatasetIds) {
+      Optional<Dataset> dataset =
+          getDataset(
+              gcpProjectId,
+              datasetId,
+              BigQuery.DatasetOption.fields(BigQuery.DatasetField.LOCATION));
+      if (dataset.isEmpty()) {
+        LOGGER.warn("Dataset not found: {}", datasetId);
+        continue;
+      }
+      String datasetLocation = dataset.get().getLocation();
+      if (bigQueryDataLocation.equalsIgnoreCase(datasetLocation)) {
+        return datasetId;
+      }
+    }
+    throw new SystemException(
+        "No compatible BQ dataset found for export from BQ dataset in location: "
+            + bigQueryDataLocation);
+  }
+
+  public Job exportTableToGcs(
+      TableId sourceTable, String destinationUrl, String compression, String fileFormat) {
+    ExtractJobConfiguration extractConfig =
+        ExtractJobConfiguration.newBuilder(sourceTable, destinationUrl)
+            .setCompression(compression)
+            .setFormat(fileFormat)
+            .build();
+    Job job = bigQuery.create(JobInfo.of(extractConfig));
+
+    // Blocks until this job completes its execution, either failing or succeeding.
+    return callWithRetries(() -> job.waitFor(), "Retryable error running query");
   }
 
   /**

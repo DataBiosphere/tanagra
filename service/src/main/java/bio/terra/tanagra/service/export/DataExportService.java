@@ -192,7 +192,8 @@ public class DataExportService {
                       new ExportQueryRequest(
                           qr,
                           wildcardFilename,
-                          shared.getGcsProjectId(),
+                          shared.getGcpProjectId(),
+                          shared.getBqDatasetIds(),
                           shared.getGcsBucketNames());
                   ExportQueryResult exportQueryResult =
                       qr.getUnderlay().getQueryRunner().run(exportQueryRequest);
@@ -244,7 +245,7 @@ public class DataExportService {
   private GoogleCloudStorage getStorageService() {
     if (storageService == null) {
       storageService =
-          GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcsProjectId());
+          GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcpProjectId());
     }
     return storageService;
   }

@@ -7,16 +7,19 @@ public class ExportQueryRequest {
   private final ListQueryRequest listQueryRequest;
   private final String fileNamePrefix;
   private final String gcsProjectId;
+  private final List<String> availableBqDatasetIds;
   private final List<String> availableGcsBucketNames;
 
   public ExportQueryRequest(
       ListQueryRequest listQueryRequest,
       String fileNamePrefix,
       String gcsProjectId,
+      List<String> availableBqDatasetIds,
       List<String> availableGcsBucketNames) {
     this.listQueryRequest = listQueryRequest;
     this.fileNamePrefix = fileNamePrefix;
     this.gcsProjectId = gcsProjectId;
+    this.availableBqDatasetIds = availableBqDatasetIds;
     this.availableGcsBucketNames = availableGcsBucketNames;
   }
 
@@ -30,6 +33,10 @@ public class ExportQueryRequest {
 
   public String getGcsProjectId() {
     return gcsProjectId;
+  }
+
+  public List<String> getAvailableBqDatasetIds() {
+    return availableBqDatasetIds;
   }
 
   public List<String> getAvailableGcsBucketNames() {

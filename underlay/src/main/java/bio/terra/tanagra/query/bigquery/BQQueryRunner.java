@@ -377,8 +377,8 @@ public class BQQueryRunner implements QueryRunner {
     String exportFileName =
         bigQueryExecutor.export(
             sqlQueryRequest,
-            exportQueryRequest.getFileNamePrefix(),
             exportQueryRequest.getGcsProjectId(),
+            exportQueryRequest.getAvailableBqDatasetIds(),
             exportQueryRequest.getAvailableGcsBucketNames());
 
     return new ExportQueryResult(exportFileName);
