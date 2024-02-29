@@ -232,10 +232,20 @@ public final class Underlay {
               criteriaSelectorPath -> {
                 SZCriteriaSelector szCriteriaSelector =
                     configReader.readCriteriaSelector(criteriaSelectorPath);
-                szCriteriaSelectors.add(szCriteriaSelector);
-                criteriaSelectors.add(
+                CriteriaSelector criteriaSelector =
                     fromConfigCriteriaSelector(
-                        szCriteriaSelector, criteriaSelectorPath, configReader));
+                        szCriteriaSelector, criteriaSelectorPath, configReader);
+
+                // Update the szCriteriaSelector with the contents of the plugin config files.
+                szCriteriaSelector.pluginConfig = criteriaSelector.getPluginConfig();
+                szCriteriaSelector.modifiers.stream()
+                    .forEach(
+                        modifier ->
+                            modifier.pluginConfig =
+                                criteriaSelector.getModifier(modifier.name).getPluginConfig());
+
+                szCriteriaSelectors.add(szCriteriaSelector);
+                criteriaSelectors.add(criteriaSelector);
               });
     }
 
@@ -248,10 +258,18 @@ public final class Underlay {
               prepackagedCriteriaPath -> {
                 SZPrepackagedCriteria szPrepackagedCriteria =
                     configReader.readPrepackagedCriteria(prepackagedCriteriaPath);
-                szPrepackagedDataFeatures.add(szPrepackagedCriteria);
-                prepackagedDataFeatures.add(
+                PrepackagedCriteria prepackagedCriteria =
                     fromConfigPrepackagedCriteria(
-                        szPrepackagedCriteria, prepackagedCriteriaPath, configReader));
+                        szPrepackagedCriteria, prepackagedCriteriaPath, configReader);
+
+                // Update the szPrepackagedCriteria with the contents of the plugin data files.
+                for (int i = 0; i < szPrepackagedCriteria.selectionData.size(); i++) {
+                  szPrepackagedCriteria.selectionData.get(i).pluginData =
+                      prepackagedCriteria.getSelectionData().get(i).getPluginData();
+                }
+
+                szPrepackagedDataFeatures.add(szPrepackagedCriteria);
+                prepackagedDataFeatures.add(prepackagedCriteria);
               });
     }
 
