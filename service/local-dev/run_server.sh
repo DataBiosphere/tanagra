@@ -56,7 +56,7 @@ elif [[ ${useAouUnderlays} ]]; then
   export TANAGRA_UNDERLAY_FILES=aou/SR2023Q3R2_local,aou/SC2023Q3R2_local
   export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=broad-tanagra-dev
   export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=service_export_us,service_export_uscentral1
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
   # uncomment both lines below for test AoU Workbench access-control model
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://api-dot-all-of-us-workbench-test.appspot.com
   # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
@@ -73,7 +73,7 @@ else
   export TANAGRA_UNDERLAY_FILES=cmssynpuf_broad,aouSR2019q4r4_broad
   export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=broad-tanagra-dev
   export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=service_export_us,service_export_uscentral1
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
 fi
 
 export TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED=true

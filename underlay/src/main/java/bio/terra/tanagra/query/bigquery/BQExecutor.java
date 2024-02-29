@@ -96,6 +96,8 @@ public class BQExecutor {
       String exportProjectId,
       List<String> exportDatasetIds,
       List<String> exportBucketNames) {
+    LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
+
     // Create a temporary view with the results of the query.
     final String tempTableName = TEMPORARY_TABLE_BASE_NAME + '_' + Instant.now().toEpochMilli();
     String exportDatasetId =

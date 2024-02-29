@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -164,7 +165,7 @@ public final class GoogleCloudStorage {
         continue;
       }
       String bucketLocation = bucket.get().getLocation();
-      if (bigQueryDataLocation.equalsIgnoreCase(bucketLocation)) {
+      if (bucketLocation.equalsIgnoreCase(bigQueryDataLocation)) {
         return bucketName;
       } else if ("US".equalsIgnoreCase(bigQueryDataLocation)) {
         return bucketName;
@@ -175,7 +176,9 @@ public final class GoogleCloudStorage {
     }
     throw new SystemException(
         "No compatible GCS bucket found for export from BQ dataset in location: "
-            + bigQueryDataLocation);
+            + bigQueryDataLocation
+            + ", "
+            + gcsBucketNames.stream().collect(Collectors.joining("/")));
   }
 
   /**
