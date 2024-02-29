@@ -124,7 +124,7 @@ public class BQExecutor {
     String bucketName =
         getCloudStorageService()
             .findBucketForBigQueryExport(exportProjectId, exportBucketNames, datasetLocation);
-    String gcsUrl = String.format("gs://%s/%s", bucketName, tempTableName);
+    String gcsUrl = String.format("gs://%s/%s.gzip", bucketName, tempTableName);
     LOGGER.info("Exporting temporary table to GCS file: {}", gcsUrl);
     Job exportJob = getBigQueryService().exportTableToGcs(tempTableId, gcsUrl, "GZIP", "CSV");
     if (exportJob == null) {
