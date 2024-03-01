@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class BQExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BQExecutor.class);
   private static final String TEMPORARY_TABLE_BASE_NAME = "exporttemptable";
 
+  private static final Random RANDOM = new Random();
   private final String queryProjectId;
   private final String datasetLocation;
 
@@ -99,7 +101,14 @@ public class BQExecutor {
     LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
     // Create a temporary view with the results of the query.
-    final String tempTableName = TEMPORARY_TABLE_BASE_NAME + '_' + Instant.now().toEpochMilli();
+    final String tempTableName =
+        TEMPORARY_TABLE_BASE_NAME
+            + '_'
+            + Instant.now().getEpochSecond()
+            + '_'
+            + Instant.now().getNano()
+            + '_'
+            + RANDOM.nextInt();
     String exportDatasetId =
         getBigQueryService()
             .findDatasetForExportTempTable(exportProjectId, exportDatasetIds, datasetLocation);
