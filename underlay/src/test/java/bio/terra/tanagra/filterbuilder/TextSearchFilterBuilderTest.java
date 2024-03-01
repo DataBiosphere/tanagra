@@ -424,7 +424,7 @@ public class TextSearchFilterBuilderTest {
             .putGroupByAttributesPerOccurrenceEntity(
                 "noteOccurrence",
                 CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("date")
+                    .addAttribute("start_date")
                     .build())
             .build();
     CriteriaSelector.Modifier groupByModifier =
@@ -479,7 +479,7 @@ public class TextSearchFilterBuilderTest {
             criteriaOccurrence,
             null,
             Map.of(occurrenceEntity, List.of(expectedTextSearchSubFilter)),
-            Map.of(occurrenceEntity, List.of(occurrenceEntity.getAttribute("date"))),
+            Map.of(occurrenceEntity, List.of(occurrenceEntity.getAttribute("start_date"))),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -504,7 +504,7 @@ public class TextSearchFilterBuilderTest {
             .putGroupByAttributesPerOccurrenceEntity(
                 "noteOccurrence",
                 CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("date")
+                    .addAttribute("start_date")
                     .build())
             .build();
     CriteriaSelector.Modifier groupByModifier =
@@ -613,7 +613,7 @@ public class TextSearchFilterBuilderTest {
                     expectedAgeAtOccurrenceSubFilter,
                     expectedVisitTypeSubFilter,
                     expectedTextSearchSubFilter)),
-            Map.of(occurrenceEntity, List.of(occurrenceEntity.getAttribute("date"))),
+            Map.of(occurrenceEntity, List.of(occurrenceEntity.getAttribute("start_date"))),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
