@@ -16,11 +16,17 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
+import bio.terra.tanagra.utils.threadpool.Job;
+import bio.terra.tanagra.utils.threadpool.JobResult;
+import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
+import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -181,24 +187,42 @@ public class DataExportService {
    */
   private Map<String, String> writeEntityDataToGcs(
       String fileNameTemplate, List<ListQueryRequest> listQueryRequests) {
-    return listQueryRequests.stream()
-        .collect(
-            Collectors.toMap(
-                qr -> qr.getEntity().getName(),
-                qr -> {
-                  String wildcardFilename =
-                      getFileName(fileNameTemplate, "entity", qr.getEntity().getName());
-                  ExportQueryRequest exportQueryRequest =
-                      new ExportQueryRequest(
-                          qr,
-                          wildcardFilename,
-                          shared.getGcpProjectId(),
-                          shared.getBqDatasetIds(),
-                          shared.getGcsBucketNames());
-                  ExportQueryResult exportQueryResult =
-                      qr.getUnderlay().getQueryRunner().run(exportQueryRequest);
-                  return exportQueryResult.getFileName();
-                }));
+    // Build set of export jobs.
+    Set<Job<ExportQueryResult>> exportJobs = new HashSet<>();
+    listQueryRequests.stream()
+        .forEach(
+            listQueryRequest -> {
+              String wildcardFilename =
+                  getFileName(fileNameTemplate, "entity", listQueryRequest.getEntity().getName());
+              ExportQueryRequest exportQueryRequest =
+                  new ExportQueryRequest(
+                      listQueryRequest,
+                      listQueryRequest.getEntity().getName(),
+                      wildcardFilename,
+                      shared.getGcpProjectId(),
+                      shared.getBqDatasetIds(),
+                      shared.getGcsBucketNames());
+              exportJobs.add(
+                  new Job<>(
+                      listQueryRequest.getEntity().getName() + '_' + Instant.now().toEpochMilli(),
+                      () ->
+                          listQueryRequest.getUnderlay().getQueryRunner().run(exportQueryRequest)));
+            });
+
+    // Kick off jobs in parallel.
+    Set<JobResult<ExportQueryResult>> exportJobResults =
+        ThreadPoolUtils.runInParallel(listQueryRequests.size(), exportJobs);
+
+    // Compile the results.
+    Map<String, String> entityToUrlMap = new HashMap<>();
+    exportJobResults.stream()
+        .forEach(
+            // TODO: Pass out any error information also, once that's included in the OpenAPI spec.
+            exportJobResult ->
+                entityToUrlMap.put(
+                    exportJobResult.getJobOutput().getFileDisplayName(),
+                    exportJobResult.getJobOutput().getFilePath()));
+    return entityToUrlMap;
   }
 
   /**

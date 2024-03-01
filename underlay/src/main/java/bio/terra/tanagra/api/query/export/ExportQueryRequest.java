@@ -5,6 +5,7 @@ import java.util.List;
 
 public class ExportQueryRequest {
   private final ListQueryRequest listQueryRequest;
+  private final String fileDisplayName;
   private final String fileNamePrefix;
   private final String gcsProjectId;
   private final List<String> availableBqDatasetIds;
@@ -12,11 +13,13 @@ public class ExportQueryRequest {
 
   public ExportQueryRequest(
       ListQueryRequest listQueryRequest,
+      String fileDisplayName,
       String fileNamePrefix,
       String gcsProjectId,
       List<String> availableBqDatasetIds,
       List<String> availableGcsBucketNames) {
     this.listQueryRequest = listQueryRequest;
+    this.fileDisplayName = fileDisplayName;
     this.fileNamePrefix = fileNamePrefix;
     this.gcsProjectId = gcsProjectId;
     this.availableBqDatasetIds = availableBqDatasetIds;
@@ -25,6 +28,10 @@ public class ExportQueryRequest {
 
   public ListQueryRequest getListQueryRequest() {
     return listQueryRequest;
+  }
+
+  public String getFileDisplayName() {
+    return fileDisplayName;
   }
 
   public String getFileNamePrefix() {
