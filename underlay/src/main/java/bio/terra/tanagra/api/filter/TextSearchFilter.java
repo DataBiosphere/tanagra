@@ -3,6 +3,7 @@ package bio.terra.tanagra.api.filter;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 public class TextSearchFilter extends EntityFilter {
@@ -53,5 +54,26 @@ public class TextSearchFilter extends EntityFilter {
 
   public String getText() {
     return text;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TextSearchFilter that = (TextSearchFilter) o;
+    return underlay.equals(that.underlay)
+        && entity.equals(that.entity)
+        && operator == that.operator
+        && text.equals(that.text)
+        && Objects.equals(attribute, that.attribute);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(underlay, entity, operator, text, attribute);
   }
 }
