@@ -244,7 +244,7 @@ public class DataExportServiceTest {
             .get("Data:" + underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
     assertNotNull(signedUrl);
     LOGGER.info("Entity instances signed URL: {}", signedUrl);
-    String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
+    String fileContents = GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl);
     assertFalse(fileContents.isEmpty());
     LOGGER.info("Entity instances fileContents: {}", fileContents);
     String fileContentsFirstLine = fileContents.split(System.lineSeparator())[0];
@@ -322,7 +322,9 @@ public class DataExportServiceTest {
     assertEquals(2, annotationsFileContents.split("\n").length); // 1 annotation + header row
 
     String entityInstancesFileContents =
-        annotationsFileContents.equals(fileContents1) ? fileContents2 : fileContents1;
+        annotationsFileContents.equals(fileContents1)
+            ? GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl2)
+            : GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl1);
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
     String fileContentsFirstLine = entityInstancesFileContents.split(System.lineSeparator())[0];
     assertEquals(

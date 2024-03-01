@@ -48,20 +48,22 @@ fi
 if [[ ${useVerilyUnderlays} ]]; then
   echo "Using Verily underlays."
   export TANAGRA_UNDERLAY_FILES=cmssynpuf_verily,aouSR2019q4r4_verily,sd20230831_verily,pilotsynthea2022q3_verily
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=verily-tanagra-dev
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-dev-export-bucket
+  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=verily-tanagra-test
+  export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=service_export_us,service_export_uscentral1
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-test-export-bucket,verily-tanagra-test-export-bucket-uscentral1
 elif [[ ${useAouUnderlays} ]]; then
   echo "Using AoU test underlays."
   export TANAGRA_UNDERLAY_FILES=aou/SR2023Q3R2_local,aou/SC2023Q3R2_local
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
+  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=broad-tanagra-dev
+  export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=service_export_us,service_export_uscentral1
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
   # uncomment both lines below for test AoU Workbench access-control model
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://api-dot-all-of-us-workbench-test.appspot.com
   # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
 elif [[ ${useSdUnderlays} ]]; then
   echo "Using sd underlay."
   export TANAGRA_UNDERLAY_FILES=sd/sd020230831_local
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=sd-vumc-tanagra-test
+  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=sd-vumc-tanagra-test
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-test-tanagra-exports
   # uncomment both lines below for sd access-control model
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://sd-tanagra-test.victrvumc.org
@@ -69,8 +71,9 @@ elif [[ ${useSdUnderlays} ]]; then
 else
   echo "Using Broad underlays."
   export TANAGRA_UNDERLAY_FILES=cmssynpuf_broad,aouSR2019q4r4_broad
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID=broad-tanagra-dev
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export
+  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=broad-tanagra-dev
+  export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=service_export_us,service_export_uscentral1
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
 fi
 
 export TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED=true

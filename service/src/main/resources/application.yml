@@ -27,8 +27,9 @@ tanagra:
 
   export:
     shared:
-      gcs-bucket-project-id: broad-tanagra-dev
-      gcs-bucket-names: broad-tanagra-dev-bq-export
+      gcp-project-id: broad-tanagra-dev
+      bq-dataset-ids: service_export_us, service_export_uscentral1
+      gcs-bucket-names: broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
     models:
       -
         type: INDIVIDUAL_FILE_DOWNLOAD

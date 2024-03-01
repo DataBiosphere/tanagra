@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +88,15 @@ public final class GoogleCloudStorage {
     return blob.getBlobId();
   }
 
+  public BlobId writeGzipFile(String bucketName, String fileName, String fileContents) {
+    BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(bucketName, fileName)).build();
+    Blob blob =
+        callWithRetries(
+            () -> storage.create(blobInfo, fileContents.getBytes(StandardCharsets.UTF_8)),
+            "Error creating blob");
+    return blob.getBlobId();
+  }
+
   public String createSignedUrl(String fullGcsPath) {
     return createSignedUrl(fullGcsPath, DEFAULT_SIGNED_URL_DURATION, DEFAULT_SIGNED_URL_UNIT);
   }
@@ -124,6 +135,20 @@ public final class GoogleCloudStorage {
     return fileContents.toString();
   }
 
+  public static String readGzipFileContentsFromUrl(String signedUrl) throws IOException {
+    try (GZIPInputStream gzipInputStream =
+            new GZIPInputStream(new URL(signedUrl).openConnection().getInputStream());
+        InputStreamReader inputStreamReader = new InputStreamReader(gzipInputStream, "UTF-8");
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
+      StringBuffer fileContents = new StringBuffer();
+      String inputLine;
+      while ((inputLine = bufferedReader.readLine()) != null) {
+        fileContents.append(inputLine).append(System.lineSeparator());
+      }
+      return fileContents.toString();
+    }
+  }
+
   @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
   public String findBucketForBigQueryExport(
       String gcsProjectId, List<String> gcsBucketNames, String bigQueryDataLocation) {
@@ -140,16 +165,20 @@ public final class GoogleCloudStorage {
         continue;
       }
       String bucketLocation = bucket.get().getLocation();
-      if (bigQueryDataLocation.equals(bucketLocation)
-          || "US".equalsIgnoreCase(bigQueryDataLocation)
-          || (bigQueryDataLocation.startsWith("us") && "US".equalsIgnoreCase(bucketLocation))
-          || ("EU".equalsIgnoreCase(bigQueryDataLocation) && bucketLocation.startsWith("europe"))) {
+      if (bucketLocation.equalsIgnoreCase(bigQueryDataLocation)) {
+        return bucketName;
+      } else if ("US".equalsIgnoreCase(bigQueryDataLocation)) {
+        return bucketName;
+      } else if ("EU".equalsIgnoreCase(bigQueryDataLocation)
+          && bucketLocation.startsWith("europe")) {
         return bucketName;
       }
     }
     throw new SystemException(
         "No compatible GCS bucket found for export from BQ dataset in location: "
-            + bigQueryDataLocation);
+            + bigQueryDataLocation
+            + ", "
+            + gcsBucketNames.stream().collect(Collectors.joining("/")));
   }
 
   /**
