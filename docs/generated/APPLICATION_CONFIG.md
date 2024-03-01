@@ -252,6 +252,24 @@ Pointer to the access control model Java class. Currently this must be one of th
 ## Export (Shared)
 Configure the export options shared by all models.
 
+### tanagra.export.shared.bqDatasetIds
+**optional** List [ String ]
+
+Comma separated list of all BQ dataset ids that all export models can use. Required if there are any export models that need to export from BQ to GCS.
+
+*Environment variable:* `TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS`
+
+*Example value:* `service_export_us,service_export_uscentral1`
+
+### tanagra.export.shared.gcpProjectId
+**optional** String
+
+GCP project id that contains the BQ dataset and GCS bucket(s) that all export models can use. Required if there are any export models that need to export from BQ to GCS.
+
+*Environment variable:* `TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID`
+
+*Example value:* `broad-tanagra-dev`
+
 ### tanagra.export.shared.gcsBucketNames
 **optional** List [ String ]
 
@@ -260,15 +278,6 @@ Comma separated list of all GCS bucket names that all export models can use. Onl
 *Environment variable:* `TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES`
 
 *Example value:* `broad-tanagra-dev-bq-export-uscentral1,broad-tanagra-dev-bq-export-useast1`
-
-### tanagra.export.shared.gcsProjectId
-**optional** String
-
-GCP project id that contains the GCS bucket(s) that all export models can use. Required if there are any export models that need to write to GCS.
-
-*Environment variable:* `TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID`
-
-*Example value:* `broad-tanagra-dev`
 
 
 

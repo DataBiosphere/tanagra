@@ -6,7 +6,7 @@
       "datasetId": "sd_20230831",
       "sqlSubstitutions": {
         "omopDataset": "sd-vumc-tanagra-prod.sd_20230831",
-        "staticTablesDataset": "sd-vumc-tanagra-prod.sd_20230331"
+        "staticTablesDataset": "sd-vumc-tanagra-prod.sd_20230831"
       }
     },
     "indexData": {

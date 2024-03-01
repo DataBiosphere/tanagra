@@ -160,9 +160,10 @@
       "category": "Source Codes",
       "tags": ["Source Codes"],
       "columns": [
-        { "key": "label", "width": "100%", "title": "Name" },
-        { "key": "code", "width": 120, "title": "Code" },
-        { "key": "id", "width": 100, "title": "ID" },
+        { "key": "name", "width": "100%", "title": "Name" },
+        { "key": "id", "width": 120, "title": "Concept Id" },
+        { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
@@ -196,10 +197,10 @@
       "tags": ["Source Codes"],
       "columns": [
         { "key": "name", "width": "100%", "title": "Name" },
-        { "key": "id", "width": 100, "title": "ID" },
-        { "key": "is_standard", "width": 180, "title": "Source/standard" },
+        { "key": "id", "width": 120, "title": "Concept Id" },
+        { "key": "is_standard", "width": 180, "title": "Source/Standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
-        { "key": "code", "width": 120, "title": "Code" },
+        { "key": "concept_code", "width": 120, "title": "Code" },
         { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [
@@ -211,7 +212,7 @@
         {
           "id": "cpt4Person",
           "sortOrder": {
-            "attribute": "code",
+            "attribute": "label",
             "direction": "ASC"
           }
         }
@@ -235,7 +236,7 @@
         { "key": "id", "width": 120, "title": "Concept ID" },
         { "key": "standard_concept", "width": 180, "title": "Source/standard" },
         { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
-        { "key": "concept_code", "width": 120, "title": "Code" },
+        { "key": "concept_code", "width": 180, "title": "Code" },
         { "key": "t_rollup_count", "width": 150, "title": "Roll-up count" }
       ],
       "hierarchyColumns": [

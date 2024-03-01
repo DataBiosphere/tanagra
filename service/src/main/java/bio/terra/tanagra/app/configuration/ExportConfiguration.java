@@ -39,7 +39,7 @@ public class ExportConfiguration {
 
   /** Write the data export flags into the log. Add an entry here for each new flag. */
   public void log() {
-    LOGGER.info("Export: shared gcs-project-id: {}", shared.getGcsProjectId());
+    LOGGER.info("Export: shared gcs-project-id: {}", shared.getGcpProjectId());
     LOGGER.info(
         "Export: shared gcs-bucket-names: {}",
         shared.getGcsBucketNames().stream().collect(Collectors.joining(",")));
@@ -61,14 +61,24 @@ public class ExportConfiguration {
       markdown = "Configure the export options shared by all models.")
   public static class Shared {
     @AnnotatedField(
-        name = "tanagra.export.shared.gcsProjectId",
+        name = "tanagra.export.shared.gcpProjectId",
         markdown =
-            "GCP project id that contains the GCS bucket(s) that all export models can use. "
-                + "Required if there are any export models that need to write to GCS.",
-        environmentVariable = "TANAGRA_EXPORT_SHARED_GCS_BUCKET_PROJECT_ID",
+            "GCP project id that contains the BQ dataset and GCS bucket(s) that all export models can use. "
+                + "Required if there are any export models that need to export from BQ to GCS.",
+        environmentVariable = "TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID",
         optional = true,
         exampleValue = "broad-tanagra-dev")
-    private String gcsProjectId;
+    private String gcpProjectId;
+
+    @AnnotatedField(
+        name = "tanagra.export.shared.bqDatasetIds",
+        markdown =
+            "Comma separated list of all BQ dataset ids that all export models can use. "
+                + "Required if there are any export models that need to export from BQ to GCS.",
+        environmentVariable = "TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS",
+        optional = true,
+        exampleValue = "service_export_us,service_export_uscentral1")
+    private List<String> bqDatasetIds;
 
     @AnnotatedField(
         name = "tanagra.export.shared.gcsBucketNames",
@@ -81,12 +91,20 @@ public class ExportConfiguration {
         exampleValue = "broad-tanagra-dev-bq-export-uscentral1,broad-tanagra-dev-bq-export-useast1")
     private List<String> gcsBucketNames;
 
-    public String getGcsProjectId() {
-      return gcsProjectId;
+    public String getGcpProjectId() {
+      return gcpProjectId;
     }
 
-    public void setGcsProjectId(String gcsProjectId) {
-      this.gcsProjectId = gcsProjectId;
+    public void setGcpProjectId(String gcpProjectId) {
+      this.gcpProjectId = gcpProjectId;
+    }
+
+    public List<String> getBqDatasetIds() {
+      return bqDatasetIds;
+    }
+
+    public void setBqDatasetIds(List<String> bqDatasetIds) {
+      this.bqDatasetIds = bqDatasetIds;
     }
 
     public List<String> getGcsBucketNames() {

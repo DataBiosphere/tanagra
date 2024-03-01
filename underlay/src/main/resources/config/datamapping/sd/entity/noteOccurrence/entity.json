@@ -6,7 +6,7 @@
     { "name": "person_id", "dataType": "INT64" },
     { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
     { "name": "note", "dataType": "INT64", "valueFieldName": "note_type_concept_id", "displayFieldName": "note_type_concept_name", "isComputeDisplayHint": true },
-    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "note_date" },
+    { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "note_date" },
     { "name": "title", "dataType": "STRING", "valueFieldName": "note_title" },
     { "name": "note_text", "dataType": "STRING" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "note_source_value" },

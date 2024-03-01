@@ -10,19 +10,25 @@ import bio.terra.tanagra.utils.GoogleBigQuery;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.FieldValueList;
+import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.QueryParameterValue;
+import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BQExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BQExecutor.class);
+  private static final String TEMPORARY_TABLE_BASE_NAME = "exporttemptable";
 
+  private static final Random RANDOM = new Random();
   private final String queryProjectId;
   private final String datasetLocation;
 
@@ -89,37 +95,56 @@ public class BQExecutor {
 
   public String export(
       SqlQueryRequest queryRequest,
-      String fileNamePrefix,
       String exportProjectId,
+      List<String> exportDatasetIds,
       List<String> exportBucketNames) {
-    // Validate the filename.
-    // GCS file name must be in wildcard format.
-    // https://cloud.google.com/bigquery/docs/reference/standard-sql/other-statements#export_option_list:~:text=The%20uri%20option%20must%20be%20a%20single%2Dwildcard%20URI
-    String validatedFilename;
-    if (fileNamePrefix == null || !fileNamePrefix.contains("*")) {
-      validatedFilename = "tanagra_" + System.currentTimeMillis() + "_*.csv";
-      LOGGER.warn(
-          "No (or invalid) filename specified for GCS export ({}), using default: {}",
-          fileNamePrefix,
-          validatedFilename);
-    } else {
-      validatedFilename = fileNamePrefix;
-    }
+    LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
-    // Prefix the SQL query with the export to GCS directive.
+    // Create a temporary view with the results of the query.
+    final String tempTableName =
+        TEMPORARY_TABLE_BASE_NAME
+            + '_'
+            + Instant.now().getEpochSecond()
+            + '_'
+            + Instant.now().getNano()
+            + '_'
+            + RANDOM.nextInt();
+    String exportDatasetId =
+        getBigQueryService()
+            .findDatasetForExportTempTable(exportProjectId, exportDatasetIds, datasetLocation);
+    TableId tempTableId = TableId.of(exportProjectId, exportDatasetId, tempTableName);
+
+    // Pass query parameters to the job.
+    QueryJobConfiguration.Builder queryConfig =
+        QueryJobConfiguration.newBuilder(queryRequest.getSql())
+            .setUseLegacySql(false)
+            .setDestinationTable(tempTableId);
+    queryRequest.getSqlParams().getParams().entrySet().stream()
+        .forEach(
+            sqlParam ->
+                queryConfig.addNamedParameter(
+                    sqlParam.getKey(), toQueryParameterValue(sqlParam.getValue())));
+    getBigQueryService().createTableFromQuery(queryConfig.build());
+    LOGGER.info(
+        "Temporary table created for export: {}.{}.{}",
+        exportProjectId,
+        exportDatasetId,
+        tempTableName);
+
+    // Export the temporary table to a compressed file.
     String bucketName =
         getCloudStorageService()
             .findBucketForBigQueryExport(exportProjectId, exportBucketNames, datasetLocation);
-    String sqlWithExportPrefix =
-        String.format(
-            "EXPORT DATA OPTIONS(uri='gs://%s/%s',format='CSV',overwrite=true,header=true) AS %n%s",
-            bucketName, validatedFilename, queryRequest.getSql());
-    run(queryRequest.cloneAndSetSql(sqlWithExportPrefix));
-
-    // Multiple files will be created only if export is very large (> 1GB). For now, just assume
-    // only "000000000000" was created.
-    // TODO: Detect and handle case where mulitple files are created.
-    return String.format("gs://%s/%s", bucketName, validatedFilename.replace("*", "000000000000"));
+    String gcsUrl = String.format("gs://%s/%s.gzip", bucketName, tempTableName);
+    LOGGER.info("Exporting temporary table to GCS file: {}", gcsUrl);
+    Job exportJob = getBigQueryService().exportTableToGcs(tempTableId, gcsUrl, "GZIP", "CSV");
+    if (exportJob == null) {
+      throw new SystemException("BigQuery extract job failed: job no longer exists");
+    } else if (exportJob.getStatus().getError() != null) {
+      throw new SystemException("BigQuery extract job failed: " + exportJob.getStatus().getError());
+    }
+    LOGGER.info("Export of temporary table completed: {}", exportJob.getStatus().getState());
+    return gcsUrl;
   }
 
   private static QueryParameterValue toQueryParameterValue(Literal literal) {
