@@ -21,4 +21,7 @@ message Placeholder {
 
   // core/multiAttribute
   string entityGroup_multiAttr = 5;
+
+  // sd/biovu
+  bool plasma_filter = 6;
 }
