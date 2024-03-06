@@ -18,4 +18,7 @@ message Placeholder {
   // core/search
   string entityGroup = 3;
   string searchAttribute = 4;
+
+  // core/multiAttribute
+  string entityGroup_multiAttr = 5;
 }
