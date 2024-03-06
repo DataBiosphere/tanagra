@@ -27,11 +27,7 @@ public final class AttributeSchemaUtils {
   private AttributeSchemaUtils() {}
 
   public static EntityFilter buildForEntity(
-      Underlay underlay,
-      Entity entity,
-      CFPlaceholder.Placeholder config,
-      DTAttribute.Attribute data) {
-    Attribute attribute = entity.getAttribute(config.getAttribute());
+      Underlay underlay, Entity entity, Attribute attribute, DTAttribute.Attribute data) {
     if (!data.getSelectedList().isEmpty()) {
       // Enum value filter.
       return data.getSelectedCount() == 1

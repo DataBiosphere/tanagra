@@ -24,7 +24,11 @@ public class PrimaryEntityFilterBuilder extends FilterBuilder {
     }
     CFPlaceholder.Placeholder config = deserializeConfig();
     DTAttribute.Attribute data = deserializeData(selectionData.get(0).getPluginData());
-    return AttributeSchemaUtils.buildForEntity(underlay, underlay.getPrimaryEntity(), config, data);
+    return AttributeSchemaUtils.buildForEntity(
+        underlay,
+        underlay.getPrimaryEntity(),
+        underlay.getPrimaryEntity().getAttribute(config.getAttribute()),
+        data);
   }
 
   @Override

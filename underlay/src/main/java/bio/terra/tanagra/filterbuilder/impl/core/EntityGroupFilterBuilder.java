@@ -4,11 +4,8 @@ import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
-import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
@@ -214,76 +211,13 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
             : groupItems.getGroupEntity();
 
     // Build the sub-filters on the non-primary entity.
-    List<EntityFilter> subFiltersGroupEntity = new ArrayList<>();
+    List<EntityFilter> idFilterNonPrimaryEntity = new ArrayList<>();
     if (!selectedIds.isEmpty()) {
-      subFiltersGroupEntity.add(
+      idFilterNonPrimaryEntity.add(
           EntityGroupFilterUtils.buildIdSubFilter(underlay, notPrimaryEntity, selectedIds));
     }
-
-    // Build the attribute modifier filters for the non-primary entity.
-    Map<Entity, List<EntityFilter>> attributeModifierFilters =
-        EntityGroupFilterUtils.buildAttributeModifierFilters(
-            underlay, criteriaSelector, modifiersSelectionData, List.of(notPrimaryEntity));
-    if (attributeModifierFilters.containsKey(notPrimaryEntity)) {
-      subFiltersGroupEntity.addAll(attributeModifierFilters.get(notPrimaryEntity));
-    }
-
-    // If there's more than one filter on the non-primary entity, AND them together.
-    EntityFilter notPrimarySubFilter;
-    if (subFiltersGroupEntity.isEmpty()) {
-      notPrimarySubFilter = null;
-    } else if (subFiltersGroupEntity.size() == 1) {
-      notPrimarySubFilter = subFiltersGroupEntity.get(0);
-    } else {
-      notPrimarySubFilter =
-          new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.AND, subFiltersGroupEntity);
-    }
-
-    Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
-        groupByModifierConfigAndData =
-            GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
-    if (groupByModifierConfigAndData.isEmpty()) {
-      if (groupItems.getGroupEntity().isPrimary()) {
-        // e.g. vitals, person=group / height=items
-        return new GroupHasItemsFilter(underlay, groupItems, notPrimarySubFilter, null, null, null);
-      } else {
-        // e.g. genotyping, genotyping=group / person=items
-        return new ItemInGroupFilter(underlay, groupItems, notPrimarySubFilter, null, null, null);
-      }
-    }
-
-    // Build the group by filter information.
-    Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
-        GroupByCountSchemaUtils.getGroupByAttributesPerOccurrenceEntity(
-            underlay, groupByModifierConfigAndData);
-    List<Attribute> groupByAttributes =
-        groupByAttributesPerOccurrenceEntity.containsKey(notPrimaryEntity)
-            ? groupByAttributesPerOccurrenceEntity.get(notPrimaryEntity)
-            : new ArrayList<>();
-    if (groupByAttributes.size() > 1) {
-      // TODO: Support multiple attributes.
-      throw new InvalidConfigException(
-          "More than one group by attribute is not yet supported for GroupItems entity groups.");
-    }
-    DTUnhintedValue.UnhintedValue groupByModifierData =
-        groupByModifierConfigAndData.get().getRight();
-    if (groupItems.getGroupEntity().isPrimary()) {
-      return new GroupHasItemsFilter(
-          underlay,
-          groupItems,
-          notPrimarySubFilter,
-          groupByAttributes.size() == 1 ? groupByAttributes.get(0) : null,
-          GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
-          (int) groupByModifierData.getMin());
-    } else {
-      return new ItemInGroupFilter(
-          underlay,
-          groupItems,
-          notPrimarySubFilter,
-          groupByAttributes.size() == 1 ? groupByAttributes.get(0) : null,
-          GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
-          (int) groupByModifierData.getMin());
-    }
+    return EntityGroupFilterUtils.buildGroupItemsFilter(
+        underlay, criteriaSelector, groupItems, idFilterNonPrimaryEntity, modifiersSelectionData);
   }
 
   @Override
