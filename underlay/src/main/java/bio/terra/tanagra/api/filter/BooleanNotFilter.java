@@ -1,5 +1,7 @@
 package bio.terra.tanagra.api.filter;
 
+import java.util.Objects;
+
 public class BooleanNotFilter extends EntityFilter {
   private final EntityFilter subFilter;
 
@@ -9,5 +11,22 @@ public class BooleanNotFilter extends EntityFilter {
 
   public EntityFilter getSubFilter() {
     return subFilter;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    BooleanNotFilter that = (BooleanNotFilter) o;
+    return subFilter.equals(that.subFilter);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(subFilter);
   }
 }
