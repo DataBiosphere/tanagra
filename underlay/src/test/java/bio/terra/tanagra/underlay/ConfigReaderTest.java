@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,7 +50,7 @@ public class ConfigReaderTest {
             szDemographics, "omop/demographics", ConfigReader.fromJarResources());
     assertNotNull(demographics);
     assertEquals("demographics", demographics.getName());
-    assertTrue(demographics.getSelectionData().isEmpty());
+    assertFalse(demographics.hasSelectionData());
 
     // With selection data.
     SZPrepackagedCriteria szType2Diabetes =
@@ -61,10 +62,9 @@ public class ConfigReaderTest {
     assertNotNull(type2diabetes);
     assertEquals("type2Diabetes", type2diabetes.getName());
     assertEquals("condition", type2diabetes.getCriteriaSelector());
-    assertEquals(1, type2diabetes.getSelectionData().size());
-    assertNull(type2diabetes.getSelectionData().get(0).getModifierName());
-    assertTrue(
-        type2diabetes.getSelectionData().get(0).getPluginData().contains("\"keys\": [ 201826 ]"));
+    assertTrue(type2diabetes.hasSelectionData());
+    assertNull(type2diabetes.getSelectionData().getModifierName());
+    assertTrue(type2diabetes.getSelectionData().getPluginData().contains("\"keys\": [ 201826 ]"));
   }
 
   @Test

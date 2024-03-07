@@ -147,7 +147,8 @@ export type SZPrepackagedCriteria = {
   criteriaSelector: string;
   displayName: string;
   name: string;
-  selectionData: SZSelectionData[];
+  pluginData: string;
+  pluginDataFile: string;
 };
 
 export type SZPrimaryCriteriaRelationship = {
@@ -161,12 +162,6 @@ export type SZPrimaryRelationship = {
   idPairsSqlFile?: string;
   occurrenceEntityIdFieldName?: string;
   primaryEntityIdFieldName?: string;
-};
-
-export type SZSelectionData = {
-  modifierName?: string;
-  pluginData: string;
-  pluginDataFile: string;
 };
 
 export type SZService = {

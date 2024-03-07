@@ -2,7 +2,6 @@ package bio.terra.tanagra.underlay.serialization;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
-import java.util.List;
 
 @AnnotatedClass(name = "SZPrepackagedCriteria", markdown = "Prepackaged criteria configuration.")
 public class SZPrepackagedCriteria {
@@ -29,35 +28,15 @@ public class SZPrepackagedCriteria {
   public String criteriaSelector;
 
   @AnnotatedField(
-      name = "SZPrepackagedCriteria.selectionData",
-      markdown = "List of selection data.")
-  public List<SelectionData> selectionData;
+      name = "SZPrepackagedCriteria.pluginData",
+      markdown = "Serialized data for the UI display plugin e.g. \"{\"conceptId\":\"201826\"}\".")
+  public String pluginData;
 
-  @AnnotatedClass(
-      name = "SZSelectionData",
-      markdown = "Prepackaged criteria selection data, one per UI display plugin.")
-  public static class SelectionData {
-    @AnnotatedField(
-        name = "SZSelectionData.modifierName",
-        markdown =
-            "Name of the modifier (e.g. age_at_occurrence, visit_type).\n\n"
-                + "This name is stored in the application database, so once there are cohorts or data features "
-                + "that use this prepackaged criteria, you can't change the modifier names.\n\n"
-                + "This property is ignored for the first selection data, which is the primary selection.",
-        optional = true)
-    public String modifierName;
-
-    @AnnotatedField(
-        name = "SZSelectionData.pluginData",
-        markdown = "Serialized data for the UI display plugin e.g. \"{\"conceptId\":\"201826\"}\".")
-    public String pluginData;
-
-    @AnnotatedField(
-        name = "SZSelectionData.pluginDataFile",
-        markdown =
-            "Name of the file that contains the serialized data for the UI display plugin.\n\n"
-                + "This file should be in the same directory as the prepackaged criteria (e.g. `condition.json`).\n\n"
-                + "If this property is specified, the value of the `pluginData` property is ignored.")
-    public String pluginDataFile;
-  }
+  @AnnotatedField(
+      name = "SZPrepackagedCriteria.pluginDataFile",
+      markdown =
+          "Name of the file that contains the serialized data for the UI display plugin.\n\n"
+              + "This file should be in the same directory as the prepackaged criteria (e.g. `condition.json`).\n\n"
+              + "If this property is specified, the value of the `pluginData` property is ignored.")
+  public String pluginDataFile;
 }

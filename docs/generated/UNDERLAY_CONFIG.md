@@ -23,7 +23,6 @@ This documentation is generated from annotations in the configuration classes.
 * [SZPrepackagedCriteria](#szprepackagedcriteria)
 * [SZPrimaryCriteriaRelationship](#szprimarycriteriarelationship)
 * [SZPrimaryRelationship](#szprimaryrelationship)
-* [SZSelectionData](#szselectiondata)
 * [SZService](#szservice)
 * [SZSourceData](#szsourcedata)
 * [SZTextSearch](#sztextsearch)
@@ -794,10 +793,19 @@ Name may not include spaces or special characters, only letters and numbers.
 
 This name is stored in the application database for data feature sets, so once there are artifacts associated with a prepackaged criteria, you can't change the criteria name.
 
-### SZPrepackagedCriteria.selectionData
-**required** List [ SZPrepackagedCriteria$SelectionData ]
+### SZPrepackagedCriteria.pluginData
+**required** String
 
-List of selection data.
+Serialized data for the UI display plugin e.g. "{"conceptId":"201826"}".
+
+### SZPrepackagedCriteria.pluginDataFile
+**required** String
+
+Name of the file that contains the serialized data for the UI display plugin.
+
+This file should be in the same directory as the prepackaged criteria (e.g. `condition.json`).
+
+If this property is specified, the value of the `pluginData` property is ignored.
 
 
 
@@ -857,34 +865,6 @@ Name of the field or column name that maps to the occurrence entity id. Required
 Name of the field or column name that maps to the primary entity id. Required if the [id pairs SQL](#szprimaryrelationshipidpairssqlfile) is defined.
 
 *Example value:* `primary_id`
-
-
-
-## SZSelectionData
-Prepackaged criteria selection data, one per UI display plugin.
-
-### SZSelectionData.modifierName
-**optional** String
-
-Name of the modifier (e.g. age_at_occurrence, visit_type).
-
-This name is stored in the application database, so once there are cohorts or data features that use this prepackaged criteria, you can't change the modifier names.
-
-This property is ignored for the first selection data, which is the primary selection.
-
-### SZSelectionData.pluginData
-**required** String
-
-Serialized data for the UI display plugin e.g. "{"conceptId":"201826"}".
-
-### SZSelectionData.pluginDataFile
-**required** String
-
-Name of the file that contains the serialized data for the UI display plugin.
-
-This file should be in the same directory as the prepackaged criteria (e.g. `condition.json`).
-
-If this property is specified, the value of the `pluginData` property is ignored.
 
 
 

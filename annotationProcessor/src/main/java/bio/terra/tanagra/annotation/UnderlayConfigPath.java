@@ -45,7 +45,6 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZCriteriaSelector.Display.class,
           SZCriteriaSelector.Modifier.class,
           SZPrepackagedCriteria.class,
-          SZPrepackagedCriteria.SelectionData.class,
           SZCorePlugin.class);
 
   @Override

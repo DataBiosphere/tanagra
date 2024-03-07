@@ -21,7 +21,6 @@ import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
-import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -263,9 +262,9 @@ public final class Underlay {
                         szPrepackagedCriteria, prepackagedCriteriaPath, configReader);
 
                 // Update the szPrepackagedCriteria with the contents of the plugin data files.
-                for (int i = 0; i < szPrepackagedCriteria.selectionData.size(); i++) {
-                  szPrepackagedCriteria.selectionData.get(i).pluginData =
-                      prepackagedCriteria.getSelectionData().get(i).getPluginData();
+                if (prepackagedCriteria.hasSelectionData()) {
+                  szPrepackagedCriteria.pluginData =
+                      prepackagedCriteria.getSelectionData().getPluginData();
                 }
 
                 szPrepackagedDataFeatures.add(szPrepackagedCriteria);
@@ -511,22 +510,15 @@ public final class Underlay {
       String prepackagedCriteriaPath,
       ConfigReader configReader) {
     // Read in the plugin config files.
-    List<SelectionData> selectionData = new ArrayList<>();
-    if (szPrepackagedCriteria.selectionData != null) {
-      szPrepackagedCriteria.selectionData.stream()
-          .forEach(
-              szSelectionData -> {
-                if (szSelectionData.pluginDataFile != null
-                    && !szSelectionData.pluginDataFile.isEmpty()) {
-                  szSelectionData.pluginData =
-                      configReader.readPrepackagedCriteriaPluginConfig(
-                          prepackagedCriteriaPath, szSelectionData.pluginDataFile);
-                }
-                selectionData.add(
-                    new SelectionData(szSelectionData.modifierName, szSelectionData.pluginData));
-              });
+    if (szPrepackagedCriteria.pluginDataFile != null
+        && !szPrepackagedCriteria.pluginDataFile.isEmpty()) {
+      szPrepackagedCriteria.pluginData =
+          configReader.readPrepackagedCriteriaPluginConfig(
+              prepackagedCriteriaPath, szPrepackagedCriteria.pluginDataFile);
     }
     return new PrepackagedCriteria(
-        szPrepackagedCriteria.name, szPrepackagedCriteria.criteriaSelector, selectionData);
+        szPrepackagedCriteria.name,
+        szPrepackagedCriteria.criteriaSelector,
+        szPrepackagedCriteria.pluginData);
   }
 }
