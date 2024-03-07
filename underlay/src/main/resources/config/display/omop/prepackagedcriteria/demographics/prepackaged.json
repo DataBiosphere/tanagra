@@ -2,5 +2,5 @@
   "name": "demographics",
   "displayName": "Demographics",
   "criteriaSelector": "gender",
-  "selectionData": []
+  "pluginData": null
 }

@@ -1,17 +1,14 @@
 package bio.terra.tanagra.underlay.uiplugin;
 
-import java.util.List;
-
 public class PrepackagedCriteria {
   private final String name;
   private final String criteriaSelector;
-  private final List<SelectionData> selectionData;
+  private final String pluginData;
 
-  public PrepackagedCriteria(
-      String name, String criteriaSelector, List<SelectionData> selectionData) {
+  public PrepackagedCriteria(String name, String criteriaSelector, String pluginData) {
     this.name = name;
     this.criteriaSelector = criteriaSelector;
-    this.selectionData = selectionData;
+    this.pluginData = pluginData;
   }
 
   public String getName() {
@@ -22,7 +19,11 @@ public class PrepackagedCriteria {
     return criteriaSelector;
   }
 
-  public List<SelectionData> getSelectionData() {
-    return selectionData;
+  public boolean hasSelectionData() {
+    return pluginData != null && !pluginData.isEmpty();
+  }
+
+  public SelectionData getSelectionData() {
+    return hasSelectionData() ? new SelectionData(null, pluginData) : null;
   }
 }

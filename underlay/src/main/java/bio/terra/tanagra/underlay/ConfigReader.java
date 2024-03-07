@@ -308,19 +308,11 @@ public final class ConfigReader {
 
   private SZPrepackagedCriteria deserializePrepackagedCriteria(String prepackagedCriteriaPath) {
     try {
-      SZPrepackagedCriteria szPrepackagedCriteria =
-          JacksonMapper.readFileIntoJavaObject(
-              getStream(
-                  resolvePrepackagedCriteriaDir(prepackagedCriteriaPath)
-                      .resolve(PREPACKAGED_CRITERIA_FILE_NAME + FILE_EXTENSION)),
-              SZPrepackagedCriteria.class);
-
-      // Initialize null collections to empty collections.
-      szPrepackagedCriteria.selectionData =
-          szPrepackagedCriteria.selectionData == null
-              ? new ArrayList<>()
-              : szPrepackagedCriteria.selectionData;
-      return szPrepackagedCriteria;
+      return JacksonMapper.readFileIntoJavaObject(
+          getStream(
+              resolvePrepackagedCriteriaDir(prepackagedCriteriaPath)
+                  .resolve(PREPACKAGED_CRITERIA_FILE_NAME + FILE_EXTENSION)),
+          SZPrepackagedCriteria.class);
     } catch (IOException ioEx) {
       throw new InvalidConfigException(
           "Error deserializing prepackaged criteria config file", ioEx);
