@@ -1,22 +1,26 @@
-package bio.terra.tanagra.service.filterbuilder;
+package bio.terra.tanagra.service;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
-import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class FilterBuilderService {
@@ -117,6 +121,31 @@ public class FilterBuilderService {
 
   public List<EntityOutput> buildOutputsForExport(
       List<Cohort> cohorts, List<ConceptSet> conceptSets) {
+    // All cohorts and data feature sets must be for the same underlay.
+    String underlayName = cohorts.get(0).getUnderlay();
+    cohorts.stream()
+        .forEach(
+            cohort -> {
+              if (!cohort.getUnderlay().equals(underlayName)) {
+                throw new InvalidQueryException(
+                    "All cohorts must be for the same underlay: "
+                        + underlayName
+                        + ", "
+                        + cohort.getUnderlay());
+              }
+            });
+    conceptSets.stream()
+        .forEach(
+            conceptSet -> {
+              if (!conceptSet.getUnderlay().equals(underlayName)) {
+                throw new InvalidQueryException(
+                    "All data feature sets must be for the same underlay: "
+                        + underlayName
+                        + ", "
+                        + conceptSet.getUnderlay());
+              }
+            });
+
     // Build a single filter on the primary entity by OR-ing all the individual cohort filters
     // together.
     List<EntityFilter> cohortFilters = new ArrayList<>();
@@ -130,18 +159,18 @@ public class FilterBuilderService {
                 cohortFilters.add(cohortFilter);
               }
             });
-    EntityFilter primaryEntityFilter;
+    EntityFilter combinedCohortFilter;
     if (cohortFilters.isEmpty()) {
-      primaryEntityFilter = null;
+      combinedCohortFilter = null;
     } else if (cohortFilters.size() == 1) {
-      primaryEntityFilter = cohortFilters.get(0);
+      combinedCohortFilter = cohortFilters.get(0);
     } else {
-      primaryEntityFilter =
+      combinedCohortFilter =
           new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortFilters);
     }
 
     // Build a list of output entities and the filters on them from the data feature sets.
-    Map<Entity, List<EntityFilter>> outputEntitiesAndFilters = new HashMap<>();
+    Map<Entity, List<EntityFilter>> outputEntitiesAndDataFeatureFilters = new HashMap<>();
     conceptSets.stream()
         .forEach(
             conceptSet -> {
@@ -150,24 +179,74 @@ public class FilterBuilderService {
                   .forEach(
                       entityOutput -> {
                         List<EntityFilter> entityFilters =
-                            outputEntitiesAndFilters.containsKey(entityOutput.getEntity())
-                                ? outputEntitiesAndFilters.get(entityOutput.getEntity())
+                            outputEntitiesAndDataFeatureFilters.containsKey(
+                                    entityOutput.getEntity())
+                                ? outputEntitiesAndDataFeatureFilters.get(entityOutput.getEntity())
                                 : new ArrayList<>();
                         if (entityOutput.hasDataFeatureFilter()) {
                           entityFilters.add(entityOutput.getDataFeatureFilter());
                         }
-                        outputEntitiesAndFilters.put(entityOutput.getEntity(), entityFilters);
+                        outputEntitiesAndDataFeatureFilters.put(
+                            entityOutput.getEntity(), entityFilters);
                       });
             });
 
-    // Build a single filter for each output entity that includes the data feature filters and the
-    // primary entity filter.
+    Underlay underlay = underlayService.getUnderlay(underlayName);
     List<EntityOutput> entityOutputs = new ArrayList<>();
-    outputEntitiesAndFilters.entrySet().stream()
+    outputEntitiesAndDataFeatureFilters.entrySet().stream()
         .forEach(
             entry -> {
-              // Find the relationship between this output entity and the primary entity.
-              // TODO
+              Entity outputEntity = entry.getKey();
+              List<EntityFilter> dataFeatureFilters = entry.getValue();
+              List<EntityFilter> outputEntitySubFilters = new ArrayList<>();
+
+              // Build a single filter per output entity that includes all relevant data feature
+              // sets, by OR-ing the individual data feature set filters.
+              // e.g. data feature set 1 = condition diabetes, data feature set 2 = condition
+              // hypertension, output entity condition_occurrence filtered on condition diabetes or
+              // hypertension
+              if (dataFeatureFilters.size() == 1) {
+                outputEntitySubFilters.add(dataFeatureFilters.get(0));
+              } else if (!dataFeatureFilters.isEmpty()) {
+                outputEntitySubFilters.add(
+                    new BooleanAndOrFilter(
+                        BooleanAndOrFilter.LogicalOperator.OR, dataFeatureFilters));
+              }
+
+              if (combinedCohortFilter != null) {
+                // Find the relationship between this output entity and the primary entity.
+                Pair<EntityGroup, Relationship> outputToPrimary =
+                    UnderlayService.getRelationship(
+                        underlay.getEntityGroups(), outputEntity, underlay.getPrimaryEntity());
+
+                // Build a single relationship filter per output entity that has the combined cohort
+                // filter as the primary entity sub-filter.
+                outputEntitySubFilters.add(
+                    new RelationshipFilter(
+                        underlay,
+                        outputToPrimary.getLeft(),
+                        outputEntity,
+                        outputToPrimary.getRight(),
+                        combinedCohortFilter,
+                        null,
+                        null,
+                        null));
+              }
+
+              // Build a single filter per output entity with the combined cohort and data feature
+              // filters.
+              if (outputEntitySubFilters.isEmpty()) {
+                entityOutputs.add(EntityOutput.unfiltered(outputEntity));
+              } else if (outputEntitySubFilters.size() == 1) {
+                entityOutputs.add(
+                    EntityOutput.filtered(outputEntity, outputEntitySubFilters.get(0)));
+              } else {
+                entityOutputs.add(
+                    EntityOutput.filtered(
+                        outputEntity,
+                        new BooleanAndOrFilter(
+                            BooleanAndOrFilter.LogicalOperator.AND, outputEntitySubFilters)));
+              }
             });
     return entityOutputs;
   }
