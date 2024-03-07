@@ -239,7 +239,7 @@ public class UnderlaysApiController implements UnderlaysApi {
               entity,
               relatedEntity,
               FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
-              FromApiUtils.getRelationship(underlay.getEntityGroups(), entity, relatedEntity)
+              UnderlayService.getRelationship(underlay.getEntityGroups(), entity, relatedEntity)
                   .getLeft(),
               false);
     }

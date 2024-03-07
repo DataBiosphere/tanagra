@@ -1,6 +1,5 @@
 package bio.terra.tanagra.app.controller.objmapping;
 
-import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.HierarchyIsMemberField;
 import bio.terra.tanagra.api.field.HierarchyIsRootField;
@@ -48,6 +47,7 @@ import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
+import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -58,7 +58,6 @@ import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -161,7 +160,7 @@ public final class FromApiUtils {
             apiFilter.getFilterUnion().getRelationshipFilter();
         Entity relatedEntity = underlay.getEntity(apiRelationshipFilter.getEntity());
         Pair<EntityGroup, Relationship> entityGroupAndRelationship =
-            getRelationship(underlay.getEntityGroups(), entity, relatedEntity);
+            UnderlayService.getRelationship(underlay.getEntityGroups(), entity, relatedEntity);
         EntityFilter subFilter =
             apiRelationshipFilter.getSubfilter() == null
                 ? null
@@ -463,23 +462,9 @@ public final class FromApiUtils {
         underlay,
         entity,
         relatedEntity,
-        getRelationship(underlay.getEntityGroups(), entity, relatedEntity).getLeft(),
+        UnderlayService.getRelationship(underlay.getEntityGroups(), entity, relatedEntity)
+            .getLeft(),
         hierarchy);
-  }
-
-  public static Pair<EntityGroup, Relationship> getRelationship(
-      Collection<EntityGroup> entityGroups, Entity entity1, Entity entity2) {
-    for (EntityGroup entityGroup : entityGroups) {
-      Optional<Relationship> relationship =
-          entityGroup.getRelationships().stream()
-              .filter(r -> r.matchesEntities(entity1, entity2))
-              .findAny();
-      if (relationship.isPresent()) {
-        return Pair.of(entityGroup, relationship.get());
-      }
-    }
-    throw new NotFoundException(
-        "Relationship not found for entities: " + entity1.getName() + ", " + entity2.getName());
   }
 
   public static Literal fromApiObject(ApiLiteral apiLiteral) {
