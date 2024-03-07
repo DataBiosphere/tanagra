@@ -99,29 +99,98 @@ public class FilterBuilderService {
             BooleanAndOrFilter.LogicalOperator.AND, criteriaGroupSectionFilters);
   }
 
-  public List<EntityOutput> buildOutputsForConceptSet(ConceptSet conceptSet) {
-    if (conceptSet.getCriteria().isEmpty()) {
-      return List.of();
-    }
+  public List<EntityOutput> buildOutputsForConceptSets(List<ConceptSet> conceptSets) {
+    // All data feature sets must be for the same underlay.
+    String underlayName = conceptSets.get(0).getUnderlay();
+    conceptSets.stream()
+        .forEach(
+            conceptSet -> {
+              if (!conceptSet.getUnderlay().equals(underlayName)) {
+                throw new InvalidQueryException(
+                    "All data feature sets must be for the same underlay: "
+                        + underlayName
+                        + ", "
+                        + conceptSet.getUnderlay());
+              }
+            });
+    Underlay underlay = underlayService.getUnderlay(underlayName);
 
-    // TODO: Replace plugin name with criteria selector name, once we're storing that.
-    String criteriaSelectorName = conceptSet.getCriteria().get(0).getPluginName();
-    List<SelectionData> selectionData =
-        conceptSet.getCriteria().stream()
-            .map(
-                criteria ->
-                    new SelectionData(criteria.getPluginName(), criteria.getSelectionData()))
-            .collect(Collectors.toList());
+    // Build a list of output entities and the filters on them from the data feature sets.
+    Map<Entity, List<EntityFilter>> outputEntitiesAndDataFeatureFilters = new HashMap<>();
+    conceptSets.stream()
+        .forEach(
+            conceptSet -> {
+              if (conceptSet.getCriteria().isEmpty()) {
+                return;
+              }
+              conceptSet.getCriteria().stream()
+                  .forEach(
+                      criteriaSelectorData -> {
+                        // TODO: Replace plugin name with criteria selector name, once we're storing
+                        // that.
+                        String criteriaSelectorName = criteriaSelectorData.getPluginName();
+                        FilterBuilder filterBuilder =
+                            underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
 
-    Underlay underlay = underlayService.getUnderlay(conceptSet.getUnderlay());
-    FilterBuilder filterBuilder =
-        underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
-    return filterBuilder.buildForDataFeature(underlay, selectionData);
+                        // Generate the entity outputs for each concept set criteria.
+                        List<SelectionData> selectionData =
+                            criteriaSelectorData.getSelectionData() == null
+                                    || criteriaSelectorData.getSelectionData().isEmpty()
+                                ? List.of()
+                                : List.of(
+                                    new SelectionData(
+                                        null, criteriaSelectorData.getSelectionData()));
+                        List<EntityOutput> entityOutputs =
+                            filterBuilder.buildForDataFeature(underlay, selectionData);
+
+                        // Break apart the entity outputs into entity-filter[] pairs, so we can
+                        // combine filters for the same entity across concept set criteria.
+                        entityOutputs.stream()
+                            .forEach(
+                                entityOutput -> {
+                                  List<EntityFilter> entityFilters =
+                                      outputEntitiesAndDataFeatureFilters.containsKey(
+                                              entityOutput.getEntity())
+                                          ? outputEntitiesAndDataFeatureFilters.get(
+                                              entityOutput.getEntity())
+                                          : new ArrayList<>();
+                                  if (entityOutput.hasDataFeatureFilter()) {
+                                    entityFilters.add(entityOutput.getDataFeatureFilter());
+                                  }
+                                  outputEntitiesAndDataFeatureFilters.put(
+                                      entityOutput.getEntity(), entityFilters);
+                                });
+                      });
+            });
+
+    // Build a single filter per output entity that includes all relevant data feature
+    // sets, by OR-ing the individual data feature set filters.
+    // e.g. data feature set 1 = condition diabetes, data feature set 2 = condition
+    // hypertension, output entity condition_occurrence filtered on condition diabetes or
+    // hypertension
+    List<EntityOutput> entityOutputs = new ArrayList<>();
+    outputEntitiesAndDataFeatureFilters.entrySet().stream()
+        .forEach(
+            entry -> {
+              Entity outputEntity = entry.getKey();
+              List<EntityFilter> filters = entry.getValue();
+              if (filters.isEmpty()) {
+                entityOutputs.add(EntityOutput.unfiltered(outputEntity));
+              } else if (filters.size() == 1) {
+                entityOutputs.add(EntityOutput.filtered(outputEntity, filters.get(0)));
+              } else {
+                entityOutputs.add(
+                    EntityOutput.filtered(
+                        outputEntity,
+                        new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters)));
+              }
+            });
+    return entityOutputs;
   }
 
   public List<EntityOutput> buildOutputsForExport(
       List<Cohort> cohorts, List<ConceptSet> conceptSets) {
-    // All cohorts and data feature sets must be for the same underlay.
+    // All cohorts must be for the same underlay.
     String underlayName = cohorts.get(0).getUnderlay();
     cohorts.stream()
         .forEach(
@@ -132,17 +201,6 @@ public class FilterBuilderService {
                         + underlayName
                         + ", "
                         + cohort.getUnderlay());
-              }
-            });
-    conceptSets.stream()
-        .forEach(
-            conceptSet -> {
-              if (!conceptSet.getUnderlay().equals(underlayName)) {
-                throw new InvalidQueryException(
-                    "All data feature sets must be for the same underlay: "
-                        + underlayName
-                        + ", "
-                        + conceptSet.getUnderlay());
               }
             });
 
@@ -169,48 +227,18 @@ public class FilterBuilderService {
           new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortFilters);
     }
 
-    // Build a list of output entities and the filters on them from the data feature sets.
-    Map<Entity, List<EntityFilter>> outputEntitiesAndDataFeatureFilters = new HashMap<>();
-    conceptSets.stream()
-        .forEach(
-            conceptSet -> {
-              List<EntityOutput> entityOutputs = buildOutputsForConceptSet(conceptSet);
-              entityOutputs.stream()
-                  .forEach(
-                      entityOutput -> {
-                        List<EntityFilter> entityFilters =
-                            outputEntitiesAndDataFeatureFilters.containsKey(
-                                    entityOutput.getEntity())
-                                ? outputEntitiesAndDataFeatureFilters.get(entityOutput.getEntity())
-                                : new ArrayList<>();
-                        if (entityOutput.hasDataFeatureFilter()) {
-                          entityFilters.add(entityOutput.getDataFeatureFilter());
-                        }
-                        outputEntitiesAndDataFeatureFilters.put(
-                            entityOutput.getEntity(), entityFilters);
-                      });
-            });
+    // Build a combined filter per output entity from all the data feature sets.
+    List<EntityOutput> dataFeatureOutputs = buildOutputsForConceptSets(conceptSets);
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
     List<EntityOutput> entityOutputs = new ArrayList<>();
-    outputEntitiesAndDataFeatureFilters.entrySet().stream()
+    dataFeatureOutputs.stream()
         .forEach(
-            entry -> {
-              Entity outputEntity = entry.getKey();
-              List<EntityFilter> dataFeatureFilters = entry.getValue();
+            dataFeatureOutput -> {
+              Entity outputEntity = dataFeatureOutput.getEntity();
               List<EntityFilter> outputEntitySubFilters = new ArrayList<>();
-
-              // Build a single filter per output entity that includes all relevant data feature
-              // sets, by OR-ing the individual data feature set filters.
-              // e.g. data feature set 1 = condition diabetes, data feature set 2 = condition
-              // hypertension, output entity condition_occurrence filtered on condition diabetes or
-              // hypertension
-              if (dataFeatureFilters.size() == 1) {
-                outputEntitySubFilters.add(dataFeatureFilters.get(0));
-              } else if (!dataFeatureFilters.isEmpty()) {
-                outputEntitySubFilters.add(
-                    new BooleanAndOrFilter(
-                        BooleanAndOrFilter.LogicalOperator.OR, dataFeatureFilters));
+              if (dataFeatureOutput.hasDataFeatureFilter()) {
+                outputEntitySubFilters.add(dataFeatureOutput.getDataFeatureFilter());
               }
 
               if (combinedCohortFilter != null) {
