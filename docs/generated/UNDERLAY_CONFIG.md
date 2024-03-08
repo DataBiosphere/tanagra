@@ -135,32 +135,32 @@ Names of core plugins in the criteria selector and prepackaged criteria definiti
 ### SZCorePlugin.ATTRIBUTE
 **required** [SZCorePlugin](#szcoreplugin)
 
-Use `plugin: "core/attribute"`.
+Use `plugin: "attribute"`.
 
 ### SZCorePlugin.ENTITY_GROUP
 **required** [SZCorePlugin](#szcoreplugin)
 
-Use `plugin: "core/entityGroup"`.
+Use `plugin: "entityGroup"`.
 
 ### SZCorePlugin.MULTI_ATTRIBUTE
 **required** [SZCorePlugin](#szcoreplugin)
 
-Use `plugin: "core/multiAttribute"`.
+Use `plugin: "multiAttribute"`.
 
 ### SZCorePlugin.OUTPUT_UNFILTERED
 **required** [SZCorePlugin](#szcoreplugin)
 
-Use `plugin: "core/outputUnfiltered"`.
+Use `plugin: "outputUnfiltered"`.
 
 ### SZCorePlugin.TEXT_SEARCH
 **required** [SZCorePlugin](#szcoreplugin)
 
-Use `plugin: "core/search"`.
+Use `plugin: "search"`.
 
 ### SZCorePlugin.UNHINTED_VALUE
 **required** [SZCorePlugin](#szcoreplugin)
 
-Use `plugin: "core/unhinted-value"`.
+Use `plugin: "unhinted-value"`.
 
 
 

@@ -8,7 +8,7 @@
     "tags": []
   },
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
-  "plugin": "core/attribute",
+  "plugin": "attribute",
   "pluginConfigFile": "gender.json",
   "modifiers": []
 }

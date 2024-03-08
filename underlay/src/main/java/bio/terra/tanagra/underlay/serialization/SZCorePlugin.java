@@ -8,26 +8,26 @@ import bio.terra.tanagra.annotation.AnnotatedField;
     markdown =
         "Names of core plugins in the criteria selector and prepackaged criteria definitions.")
 public enum SZCorePlugin {
-  @AnnotatedField(name = "SZCorePlugin.ATTRIBUTE", markdown = "Use `plugin: \"core/attribute\"`.")
-  ATTRIBUTE("core/attribute"),
+  @AnnotatedField(name = "SZCorePlugin.ATTRIBUTE", markdown = "Use `plugin: \"attribute\"`.")
+  ATTRIBUTE("attribute"),
   @AnnotatedField(
       name = "SZCorePlugin.ENTITY_GROUP",
-      markdown = "Use `plugin: \"core/entityGroup\"`.")
-  ENTITY_GROUP("core/entityGroup"),
+      markdown = "Use `plugin: \"entityGroup\"`.")
+  ENTITY_GROUP("entityGroup"),
   @AnnotatedField(
       name = "SZCorePlugin.MULTI_ATTRIBUTE",
-      markdown = "Use `plugin: \"core/multiAttribute\"`.")
-  MULTI_ATTRIBUTE("core/multiAttribute"),
-  @AnnotatedField(name = "SZCorePlugin.TEXT_SEARCH", markdown = "Use `plugin: \"core/search\"`.")
-  TEXT_SEARCH("core/search"),
+      markdown = "Use `plugin: \"multiAttribute\"`.")
+  MULTI_ATTRIBUTE("multiAttribute"),
+  @AnnotatedField(name = "SZCorePlugin.TEXT_SEARCH", markdown = "Use `plugin: \"search\"`.")
+  TEXT_SEARCH("search"),
   @AnnotatedField(
       name = "SZCorePlugin.UNHINTED_VALUE",
-      markdown = "Use `plugin: \"core/unhinted-value\"`.")
-  UNHINTED_VALUE("core/unhinted-value"),
+      markdown = "Use `plugin: \"unhinted-value\"`.")
+  UNHINTED_VALUE("unhinted-value"),
   @AnnotatedField(
       name = "SZCorePlugin.OUTPUT_UNFILTERED",
-      markdown = "Use `plugin: \"core/outputUnfiltered\"`.")
-  OUTPUT_UNFILTERED("core/outputUnfiltered");
+      markdown = "Use `plugin: \"outputUnfiltered\"`.")
+  OUTPUT_UNFILTERED("outputUnfiltered");
   private final String idInConfig;
 
   SZCorePlugin(String idInConfig) {
