@@ -23,7 +23,11 @@ public enum SZCorePlugin {
   @AnnotatedField(
       name = "SZCorePlugin.UNHINTED_VALUE",
       markdown = "Use `plugin: \"core/unhinted-value\"`.")
-  UNHINTED_VALUE("core/unhinted-value");
+  UNHINTED_VALUE("core/unhinted-value"),
+  @AnnotatedField(
+      name = "SZCorePlugin.OUTPUT_UNFILTERED",
+      markdown = "Use `plugin: \"core/outputUnfiltered\"`.")
+  OUTPUT_UNFILTERED("core/outputUnfiltered");
   private final String idInConfig;
 
   SZCorePlugin(String idInConfig) {

@@ -100,7 +100,7 @@ public class BQExecutor {
       List<String> exportBucketNames) {
     LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
-    // Create a temporary view with the results of the query.
+    // Create a temporary table with the results of the query.
     final String tempTableName =
         TEMPORARY_TABLE_BASE_NAME
             + '_'

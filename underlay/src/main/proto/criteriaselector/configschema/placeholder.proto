@@ -24,4 +24,7 @@ message Placeholder {
 
   // sd/biovu
   bool plasma_filter = 6;
+
+  // core/outputAll
+  repeated string output_unfiltered_entities = 7;
 }

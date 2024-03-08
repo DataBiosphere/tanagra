@@ -147,6 +147,11 @@ Use `plugin: "core/entityGroup"`.
 
 Use `plugin: "core/multiAttribute"`.
 
+### SZCorePlugin.OUTPUT_UNFILTERED
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "core/outputUnfiltered"`.
+
 ### SZCorePlugin.TEXT_SEARCH
 **required** [SZCorePlugin](#szcoreplugin)
 
