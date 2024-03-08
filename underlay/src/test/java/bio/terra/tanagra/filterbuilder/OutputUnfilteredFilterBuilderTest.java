@@ -1,0 +1,101 @@
+package bio.terra.tanagra.filterbuilder;
+
+import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import bio.terra.tanagra.filterbuilder.impl.core.OutputUnfilteredFilterBuilder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.underlay.ConfigReader;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
+import bio.terra.tanagra.underlay.serialization.SZService;
+import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class OutputUnfilteredFilterBuilderTest {
+  private Underlay underlay;
+
+  @BeforeEach
+  void setup() {
+    ConfigReader configReader = ConfigReader.fromJarResources();
+    SZService szService = configReader.readService("cmssynpuf_broad");
+    SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+    underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
+  }
+
+  @Test
+  void cohortFilter() {
+    CFPlaceholder.Placeholder config =
+        CFPlaceholder.Placeholder.newBuilder().addOutputUnfilteredEntities("person").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "demographics",
+            false,
+            true,
+            "core.OutputUnfilteredFilterBuilder",
+            SZCorePlugin.OUTPUT_UNFILTERED.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    OutputUnfilteredFilterBuilder filterBuilder =
+        new OutputUnfilteredFilterBuilder(criteriaSelector);
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> filterBuilder.buildForCohort(underlay, List.of()));
+  }
+
+  @Test
+  void singleEntityDataFeatureFilter() {
+    CFPlaceholder.Placeholder config =
+        CFPlaceholder.Placeholder.newBuilder().addOutputUnfilteredEntities("person").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "demographics",
+            false,
+            true,
+            "core.OutputUnfilteredFilterBuilder",
+            SZCorePlugin.OUTPUT_UNFILTERED.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    OutputUnfilteredFilterBuilder filterBuilder =
+        new OutputUnfilteredFilterBuilder(criteriaSelector);
+
+    List<EntityOutput> dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of());
+    assertEquals(1, dataFeatureOutputs.size());
+    EntityOutput expectedDataFeatureOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
+    assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+  }
+
+  @Test
+  void multipleEntityDataFeatureFilter() {
+    CFPlaceholder.Placeholder config =
+        CFPlaceholder.Placeholder.newBuilder()
+            .addOutputUnfilteredEntities("conditionOccurrence")
+            .addOutputUnfilteredEntities("procedureOccurrence")
+            .build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "conditionsAndProcedures",
+            false,
+            true,
+            "core.OutputUnfilteredFilterBuilder",
+            SZCorePlugin.OUTPUT_UNFILTERED.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    OutputUnfilteredFilterBuilder filterBuilder =
+        new OutputUnfilteredFilterBuilder(criteriaSelector);
+
+    List<EntityOutput> dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of());
+    assertEquals(2, dataFeatureOutputs.size());
+    EntityOutput expectedDataFeatureOutput1 =
+        EntityOutput.unfiltered(underlay.getEntity("conditionOccurrence"));
+    EntityOutput expectedDataFeatureOutput2 =
+        EntityOutput.unfiltered(underlay.getEntity("procedureOccurrence"));
+    assertTrue(dataFeatureOutputs.contains(expectedDataFeatureOutput1));
+    assertTrue(dataFeatureOutputs.contains(expectedDataFeatureOutput2));
+  }
+}
