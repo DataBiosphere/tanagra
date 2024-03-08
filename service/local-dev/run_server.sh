@@ -36,7 +36,7 @@ export TANAGRA_DATABASE_NAME=tanagra_db
 export TANAGRA_DB_INITIALIZE_ON_START=false
 export TANAGRA_DB_USERNAME=dbuser
 export TANAGRA_DB_PASSWORD=dbpwd
-export TANAGRA_FEATURE_MAX_CHILD_THREADS= # Set to 0 or 1 to run everything serially.
+export TANAGRA_FEATURE_MAX_CHILD_THREADS= # Set to 0 to run everything serially.
 
 if [[ ${useMariaDB} ]]; then
   echo "Using MariaDB for application DB."

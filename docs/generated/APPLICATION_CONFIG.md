@@ -305,7 +305,11 @@ When true, artifacts can be created, updated and deleted. Artifacts include stud
 ### tanagra.feature.maxChildThreads
 **optional** String
 
-The maximum number of child threads a single request can spawn. When unset, the application will default to using multi-threading. When set to 0 or 1, the application will only ever run things serially.
+The maximum number of child threads a single request can spawn. The application will only use multi-threading where it could improve performance, so just configuring a specific number here is not a guarantee that exactly that many or even any child threads will be spawned for a given request.
+
+ When unset, the application will default to using multi-threading where it could improve performance. When set to 0, the application will only run things serially. When set to some N > 0 (e.g. 2), the application may spawn at most N child threads.
+
+ (For export, spawning a single child thread would not improve performance, so 0 and 1 cause identical behavior, i.e. run serially in same thread as request.)
 
 *Environment variable:* `TANAGRA_FEATURE_MAX_CHILD_THREADS`
 
