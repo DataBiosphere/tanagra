@@ -10,9 +10,7 @@ import bio.terra.tanagra.annotation.AnnotatedField;
 public enum SZCorePlugin {
   @AnnotatedField(name = "SZCorePlugin.ATTRIBUTE", markdown = "Use `plugin: \"attribute\"`.")
   ATTRIBUTE("attribute"),
-  @AnnotatedField(
-      name = "SZCorePlugin.ENTITY_GROUP",
-      markdown = "Use `plugin: \"entityGroup\"`.")
+  @AnnotatedField(name = "SZCorePlugin.ENTITY_GROUP", markdown = "Use `plugin: \"entityGroup\"`.")
   ENTITY_GROUP("entityGroup"),
   @AnnotatedField(
       name = "SZCorePlugin.MULTI_ATTRIBUTE",
