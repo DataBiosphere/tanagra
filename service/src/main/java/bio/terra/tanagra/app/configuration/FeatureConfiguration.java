@@ -38,7 +38,10 @@ public class FeatureConfiguration {
 
   @AnnotatedField(
       name = "tanagra.feature.maxChildThreads",
-      markdown = "The maximum number of child threads a single request can spawn.",
+      markdown =
+          "The maximum number of child threads a single request can spawn. "
+              + "When unset, the application will default to using multi-threading. "
+              + "When set to 0 or 1, the application will only ever run things serially.",
       environmentVariable = "TANAGRA_FEATURE_MAX_CHILD_THREADS",
       optional = true)
   private String maxChildThreads;
