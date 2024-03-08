@@ -36,6 +36,13 @@ public class FeatureConfiguration {
       defaultValue = "false")
   private boolean activityLogEnabled;
 
+  @AnnotatedField(
+      name = "tanagra.feature.maxChildThreads",
+      markdown = "The maximum number of child threads a single request can spawn.",
+      environmentVariable = "TANAGRA_FEATURE_MAX_CHILD_THREADS",
+      optional = true)
+  private String maxChildThreads;
+
   public boolean isArtifactStorageEnabled() {
     return artifactStorageEnabled;
   }
@@ -44,12 +51,30 @@ public class FeatureConfiguration {
     return activityLogEnabled;
   }
 
+  public Integer getMaxChildThreads() {
+    try {
+      return Integer.parseInt(maxChildThreads);
+    } catch (NumberFormatException nfEx) {
+      // Don't throw an exception here, which would prevent the service from starting up.
+      LOGGER.warn("Invalid max child threads: {}", maxChildThreads);
+      return null;
+    }
+  }
+
+  public boolean hasMaxChildThreads() {
+    return getMaxChildThreads() != null;
+  }
+
   public void setArtifactStorageEnabled(boolean artifactStorageEnabled) {
     this.artifactStorageEnabled = artifactStorageEnabled;
   }
 
   public void setActivityLogEnabled(boolean activityLogEnabled) {
     this.activityLogEnabled = activityLogEnabled;
+  }
+
+  public void setMaxChildThreads(String maxChildThreads) {
+    this.maxChildThreads = maxChildThreads;
   }
 
   public void artifactStorageEnabledCheck() {
@@ -67,5 +92,6 @@ public class FeatureConfiguration {
   public void log() {
     LOGGER.info("Feature: artifact-storage-enabled: {}", isArtifactStorageEnabled());
     LOGGER.info("Feature: activity-log-enabled: {}", isActivityLogEnabled());
+    LOGGER.info("Feature: max-child-threads: {}", getMaxChildThreads());
   }
 }

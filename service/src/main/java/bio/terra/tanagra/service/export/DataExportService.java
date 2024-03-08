@@ -6,6 +6,7 @@ import bio.terra.tanagra.api.query.export.ExportQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
+import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
@@ -22,6 +23,7 @@ import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +43,7 @@ public class DataExportService {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportService.class);
   private static final String SIMPLIFY_TO_NAME_REGEX = "[^a-zA-Z0-9_]";
 
+  private final FeatureConfiguration featureConfiguration;
   private final ExportConfiguration.Shared shared;
   private final Map<String, DataExport> modelToImpl = new HashMap<>();
   private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
@@ -53,12 +56,14 @@ public class DataExportService {
 
   @Autowired
   public DataExportService(
+      FeatureConfiguration featureConfiguration,
       ExportConfiguration exportConfiguration,
       UnderlayService underlayService,
       StudyService studyService,
       CohortService cohortService,
       ReviewService reviewService,
       ActivityLogService activityLogService) {
+    this.featureConfiguration = featureConfiguration;
     this.shared = exportConfiguration.getShared();
     for (PerModel perModelConfig : exportConfiguration.getModels()) {
       DataExport dataExportImplInstance = perModelConfig.getType().createNewInstance();
@@ -187,41 +192,85 @@ public class DataExportService {
    */
   private Map<String, String> writeEntityDataToGcs(
       String fileNameTemplate, List<ListQueryRequest> listQueryRequests) {
-    // Build set of export jobs.
-    Set<Job<ExportQueryResult>> exportJobs = new HashSet<>();
-    listQueryRequests.stream()
-        .forEach(
-            listQueryRequest -> {
-              String wildcardFilename =
-                  getFileName(fileNameTemplate, "entity", listQueryRequest.getEntity().getName());
-              ExportQueryRequest exportQueryRequest =
-                  new ExportQueryRequest(
+    // Build set of export requests.
+    List<ExportQueryRequest> exportQueryRequests =
+        listQueryRequests.stream()
+            .map(
+                listQueryRequest -> {
+                  String wildcardFilename =
+                      getFileName(
+                          fileNameTemplate, "entity", listQueryRequest.getEntity().getName());
+                  return new ExportQueryRequest(
                       listQueryRequest,
                       listQueryRequest.getEntity().getName(),
                       wildcardFilename,
                       shared.getGcpProjectId(),
                       shared.getBqDatasetIds(),
                       shared.getGcsBucketNames());
-              exportJobs.add(
-                  new Job<>(
-                      listQueryRequest.getEntity().getName() + '_' + Instant.now().toEpochMilli(),
-                      () ->
-                          listQueryRequest.getUnderlay().getQueryRunner().run(exportQueryRequest)));
-            });
+                })
+            .collect(Collectors.toList());
 
-    // Kick off jobs in parallel.
-    Set<JobResult<ExportQueryResult>> exportJobResults =
-        ThreadPoolUtils.runInParallel(listQueryRequests.size(), exportJobs);
+    List<ExportQueryResult> exportQueryResults = new ArrayList<>();
+    if (!featureConfiguration.hasMaxChildThreads()
+        || featureConfiguration.getMaxChildThreads() > 1) {
+      // Build set of export jobs.
+      Set<Job<ExportQueryResult>> exportJobs = new HashSet<>();
+      exportQueryRequests.stream()
+          .forEach(
+              exportQueryRequest ->
+                  exportJobs.add(
+                      new Job<>(
+                          exportQueryRequest.getListQueryRequest().getEntity().getName()
+                              + '_'
+                              + Instant.now().toEpochMilli(),
+                          () ->
+                              exportQueryRequest
+                                  .getListQueryRequest()
+                                  .getUnderlay()
+                                  .getQueryRunner()
+                                  .run(exportQueryRequest))));
+      // Kick off jobs in parallel.
+      int threadPoolSize =
+          featureConfiguration.hasMaxChildThreads()
+              ? Math.min(listQueryRequests.size(), featureConfiguration.getMaxChildThreads())
+              : listQueryRequests.size();
+      LOGGER.info(
+          "Running export requests in parallel, with a thread pool size of {}", threadPoolSize);
+      Set<JobResult<ExportQueryResult>> exportJobResults =
+          ThreadPoolUtils.runInParallel(threadPoolSize, exportJobs);
+      exportJobResults.stream()
+          .forEach(
+              exportJobResult -> {
+                if (exportJobResult != null
+                    && JobResult.Status.COMPLETED.equals(exportJobResult.getJobStatus())
+                    && exportJobResult.getJobOutput() != null) {
+                  exportQueryResults.add(exportJobResult.getJobOutput());
+                }
+              });
+    } else {
+      // Kick off jobs in serial.
+      LOGGER.info("Running export requests in serial");
+      exportQueryRequests.stream()
+          .forEach(
+              exportQueryRequest -> {
+                ExportQueryResult exportQueryResult =
+                    exportQueryRequest
+                        .getListQueryRequest()
+                        .getUnderlay()
+                        .getQueryRunner()
+                        .run(exportQueryRequest);
+                exportQueryResults.add(exportQueryResult);
+              });
+    }
 
     // Compile the results.
     Map<String, String> entityToUrlMap = new HashMap<>();
-    exportJobResults.stream()
+    exportQueryResults.stream()
         .forEach(
             // TODO: Pass out any error information also, once that's included in the OpenAPI spec.
-            exportJobResult ->
+            exportQueryResult ->
                 entityToUrlMap.put(
-                    exportJobResult.getJobOutput().getFileDisplayName(),
-                    exportJobResult.getJobOutput().getFilePath()));
+                    exportQueryResult.getFileDisplayName(), exportQueryResult.getFilePath()));
     return entityToUrlMap;
   }
 

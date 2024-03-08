@@ -302,6 +302,13 @@ When true, artifacts can be created, updated and deleted. Artifacts include stud
 
 *Default value:* `false`
 
+### tanagra.feature.maxChildThreads
+**optional** String
+
+The maximum number of child threads a single request can spawn.
+
+*Environment variable:* `TANAGRA_FEATURE_MAX_CHILD_THREADS`
+
 
 
 ## Underlays
