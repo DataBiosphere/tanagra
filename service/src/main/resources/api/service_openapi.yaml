@@ -38,21 +38,6 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/features":
-    get:
-      tags: [Unauthenticated]
-      description: Returns the set of feature flags
-      operationId: serviceFeatures
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SystemFeatures"
-        500:
-          $ref: "#/components/responses/ServerError"
-
   "/v2/profile":
     get:
       tags: [Users]
@@ -1119,17 +1104,6 @@ components:
         build:
           type: string
           description: Version of the currently deployed app declared in build.gradle. Client and server versions are linked.
-
-    SystemFeatures:
-      type: object
-      required: [activityLogEnabled, backendFiltersEnabled]
-      properties:
-        activityLogEnabled:
-          type: boolean
-          description: When true, we store activity log events in the application database.
-        backendFiltersEnabled:
-          type: boolean
-          description: When true, we generate filters from criteria selectors on the backend instead of the frontend.
 
     UserProfile:
       type: object
