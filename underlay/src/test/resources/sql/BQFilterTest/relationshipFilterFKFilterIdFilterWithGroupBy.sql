@@ -12,8 +12,7 @@
             WHERE
                 person_id = @val0              
             GROUP BY
-                person_id,
-                start_date              
+                person_id              
             HAVING
-                COUNT(*) > @groupByCount1         
+                COUNT(DISTINCT start_date) > @groupByCount1         
         )

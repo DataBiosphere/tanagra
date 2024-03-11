@@ -253,18 +253,22 @@ public class ApiTranslatorTest {
   @Test
   void having() {
     String tableAlias = "tableAlias";
-    SqlField groupByField = SqlField.of("columnName");
+    SqlField groupByField = SqlField.of("idColumnName");
+    SqlField distinctField = SqlField.of("columnName");
     SqlParams sqlParams = new SqlParams();
     Literal groupByCount = Literal.forInt64(4L);
 
     String havingSql =
         apiTranslator.havingSql(
+            groupByField,
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             groupByCount.getInt64Val().intValue(),
-            List.of(groupByField),
+            distinctField,
             tableAlias,
             sqlParams);
-    assertEquals("GROUP BY tableAlias.columnName HAVING COUNT(*) >= @groupByCount0", havingSql);
+    assertEquals(
+        "GROUP BY tableAlias.idColumnName HAVING COUNT(DISTINCT tableAlias.columnName) >= @groupByCount0",
+        havingSql);
     assertEquals(ImmutableMap.of("groupByCount0", groupByCount), sqlParams.getParams());
   }
 }

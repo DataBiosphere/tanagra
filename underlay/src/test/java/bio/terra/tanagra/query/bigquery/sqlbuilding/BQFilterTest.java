@@ -1815,17 +1815,11 @@ public class BQFilterTest extends BQRunnerTest {
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
         Map.of(
             conditionOccurrence,
-            List.of(
-                conditionOccurrence.getAttribute("age_at_occurrence"),
-                conditionOccurrence.getAttribute("start_date")),
+            List.of(conditionOccurrence.getAttribute("start_date")),
             observationOccurrence,
-            List.of(
-                observationOccurrence.getAttribute("age_at_occurrence"),
-                observationOccurrence.getAttribute("date")),
+            List.of(observationOccurrence.getAttribute("date")),
             procedureOccurrence,
-            List.of(
-                procedureOccurrence.getAttribute("age_at_occurrence"),
-                procedureOccurrence.getAttribute("date")));
+            List.of(procedureOccurrence.getAttribute("date")));
     PrimaryWithCriteriaFilter primaryWithCriteriaFilter =
         new PrimaryWithCriteriaFilter(
             underlay,
