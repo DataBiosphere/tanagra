@@ -12,8 +12,7 @@
             WHERE
                 stop_reason IS NULL              
             GROUP BY
-                person_id,
-                start_date              
+                person_id              
             HAVING
-                COUNT(*) > @groupByCount0         
+                COUNT(DISTINCT start_date) > @groupByCount0         
         )

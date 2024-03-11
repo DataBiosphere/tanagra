@@ -255,19 +255,24 @@ public interface ApiTranslator {
   }
 
   default String havingSql(
-      BinaryOperator groupByOperator,
-      Integer groupByCount,
-      List<SqlField> groupByFields,
+      SqlField groupByField,
+      BinaryOperator havingOperator,
+      Integer havingCount,
+      SqlField distinctField,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
     String groupByCountParam =
-        sqlParams.addParam("groupByCount", Literal.forInt64(Long.valueOf(groupByCount)));
+        sqlParams.addParam("groupByCount", Literal.forInt64(Long.valueOf(havingCount)));
+    String countSql =
+        distinctField == null
+            ? "*"
+            : "DISTINCT " + SqlQueryField.of(distinctField).renderForGroupBy(tableAlias, false);
     return "GROUP BY "
-        + groupByFields.stream()
-            .map(groupByField -> SqlQueryField.of(groupByField).renderForWhere(tableAlias))
-            .collect(Collectors.joining(","))
-        + " HAVING COUNT(*) "
-        + binaryOperatorSql(groupByOperator)
+        + SqlQueryField.of(groupByField).renderForGroupBy(tableAlias, false)
+        + " HAVING COUNT("
+        + countSql
+        + ") "
+        + binaryOperatorSql(havingOperator)
         + " @"
         + groupByCountParam;
   }

@@ -5,6 +5,7 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
@@ -51,8 +52,8 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     //    UNION ALL
     //    ...
     //    )
-    //    GROUP BY primary_id, group_by_fields
-    //    HAVING COUNT(*) group_by_operator group_by_count_val
+    //    GROUP BY primary_id
+    //    HAVING COUNT(DISTINCT group_by_fields) group_by_operator group_by_count_val
     // )
 
     final String primaryIdFieldAlias = "primary_id";
@@ -149,20 +150,23 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
             : selectEntityTable.getAttributeValueField(selectIdAttribute.getName());
 
     if (primaryWithCriteriaFilter.hasGroupByModifier()) {
-      List<String> groupByFields = new ArrayList<>();
-      groupByFields.add(primaryIdFieldAlias);
-      for (int i = 0; i < primaryWithCriteriaFilter.getNumGroupByAttributes(); i++) {
-        groupByFields.add(groupByFieldAliasPrefix + i);
+      if (primaryWithCriteriaFilter.getNumGroupByAttributes() > 1) {
+        throw new InvalidQueryException("Multiple group by attributes are not yet supported");
       }
-
+      String countSql =
+          primaryWithCriteriaFilter.getNumGroupByAttributes() == 0
+              ? "*"
+              : "DISTINCT " + groupByFieldAliasPrefix + '0';
       return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
           + " IN (SELECT "
           + primaryIdFieldAlias
           + " FROM ("
           + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
           + ") GROUP BY "
-          + groupByFields.stream().collect(Collectors.joining(","))
-          + " HAVING COUNT(*) "
+          + primaryIdFieldAlias
+          + " HAVING COUNT("
+          + countSql
+          + ") "
           + apiTranslator.binaryOperatorSql(primaryWithCriteriaFilter.getGroupByCountOperator())
           + " @"
           + sqlParams.addParam(

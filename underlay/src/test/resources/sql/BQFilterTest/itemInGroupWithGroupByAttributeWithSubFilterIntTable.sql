@@ -15,8 +15,7 @@
             WHERE
                 fe.standard_concept = @val1              
             GROUP BY
-                entity_B_id,
-                fe.vocabulary              
+                entity_B_id              
             HAVING
-                COUNT(*) > @groupByCount2         
+                COUNT(DISTINCT fe.vocabulary) > @groupByCount2         
         )

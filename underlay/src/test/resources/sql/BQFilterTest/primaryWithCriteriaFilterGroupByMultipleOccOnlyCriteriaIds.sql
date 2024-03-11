@@ -10,8 +10,7 @@
             FROM
                 (SELECT
                     person_id AS primary_id,
-                    age_at_occurrence AS group_by_0,
-                    start_date AS group_by_1                  
+                    start_date AS group_by_0                  
                 FROM
                     ${ENT_conditionOccurrence}                  
                 WHERE
@@ -34,8 +33,7 @@
                 UNION
                 ALL SELECT
                     person_id AS primary_id,
-                    age_at_occurrence AS group_by_0,
-                    date AS group_by_1                  
+                    date AS group_by_0                  
                 FROM
                     ${ENT_observationOccurrence}                  
                 WHERE
@@ -58,8 +56,7 @@
                 UNION
                 ALL SELECT
                     person_id AS primary_id,
-                    age_at_occurrence AS group_by_0,
-                    date AS group_by_1                  
+                    date AS group_by_0                  
                 FROM
                     ${ENT_procedureOccurrence}                  
                 WHERE
@@ -81,9 +78,7 @@
                     )             
             )          
         GROUP BY
-            primary_id,
-            group_by_0,
-            group_by_1          
+            primary_id          
         HAVING
-            COUNT(*) >= @groupByCountValue12     
+            COUNT(DISTINCT group_by_0) >= @groupByCountValue12     
     )

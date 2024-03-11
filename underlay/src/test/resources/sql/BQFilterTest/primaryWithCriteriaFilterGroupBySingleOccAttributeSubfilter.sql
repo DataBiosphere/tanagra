@@ -32,8 +32,7 @@
                 )             
             )          
         GROUP BY
-            primary_id,
-            group_by_0          
+            primary_id          
         HAVING
-            COUNT(*) = @groupByCountValue4         
+            COUNT(DISTINCT group_by_0) = @groupByCountValue4         
         )
