@@ -426,7 +426,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
               .collect(Collectors.joining(", "))
           + ") GROUP BY "
           + SqlQueryField.of(selectIdIntTable).renderForGroupBy(null, false)
-          + " HAVING COUNT (*) "
+          + " HAVING COUNT(*) "
           + apiTranslator.binaryOperatorSql(relationshipFilter.getGroupByCountOperator())
           + " @"
           + sqlParams.addParam(

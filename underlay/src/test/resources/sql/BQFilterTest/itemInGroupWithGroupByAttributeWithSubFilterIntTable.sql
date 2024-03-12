@@ -23,5 +23,5 @@
             GROUP BY
                 entity_B_id              
             HAVING
-                COUNT (*) > @groupByCount2             
+                COUNT(*) > @groupByCount2             
             )

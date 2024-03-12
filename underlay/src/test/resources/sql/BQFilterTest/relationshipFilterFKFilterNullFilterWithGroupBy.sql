@@ -14,7 +14,8 @@
                     ${ENT_conditionOccurrence}                  
                 GROUP BY
                     person_id,
-                    start_date)              
+                    start_date,
+                    condition)              
             GROUP BY
                 person_id              
             HAVING

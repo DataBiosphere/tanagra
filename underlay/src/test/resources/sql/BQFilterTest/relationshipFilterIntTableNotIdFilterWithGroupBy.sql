@@ -8,18 +8,20 @@
             SELECT
                 entity_B_id              
             FROM
-                ${RIDS_brandIngredient_brand_ingredient}              
-            WHERE
-                entity_A_id IN (
-                    SELECT
-                        id                      
-                    FROM
-                        ${ENT_brand}                      
-                    WHERE
-                        concept_code = @val0                 
-                )              
+                (SELECT
+                    it.entity_B_id                  
+                FROM
+                    ${RIDS_brandIngredient_brand_ingredient} AS it                  
+                JOIN
+                    ${ENT_brand} AS fe                          
+                        ON fe.id = it.entity_A_id                  
+                WHERE
+                    fe.concept_code = @val1                  
+                GROUP BY
+                    entity_B_id,
+                    fe.vocabulary)              
             GROUP BY
                 entity_B_id              
             HAVING
-                COUNT(*) = @groupByCount1             
+                COUNT(*) = @groupByCount2             
             )

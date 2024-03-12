@@ -16,7 +16,8 @@
                     person_id = @val0                  
                 GROUP BY
                     person_id,
-                    start_date)              
+                    start_date,
+                    condition)              
             GROUP BY
                 person_id              
             HAVING

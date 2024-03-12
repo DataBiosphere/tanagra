@@ -844,7 +844,9 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             attributeFilter,
-            List.of(occurrenceEntity.getAttribute("start_date")),
+            List.of(
+                occurrenceEntity.getAttribute("start_date"),
+                occurrenceEntity.getAttribute("condition")),
             BinaryOperator.GREATER_THAN,
             1);
     AttributeField simpleAttribute =
@@ -893,7 +895,9 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             attributeFilter,
-            List.of(occurrenceEntity.getAttribute("start_date")),
+            List.of(
+                occurrenceEntity.getAttribute("start_date"),
+                occurrenceEntity.getAttribute("condition")),
             BinaryOperator.GREATER_THAN,
             1);
     listQueryResult =
@@ -922,7 +926,9 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             null,
-            List.of(occurrenceEntity.getAttribute("start_date")),
+            List.of(
+                occurrenceEntity.getAttribute("start_date"),
+                occurrenceEntity.getAttribute("condition")),
             BinaryOperator.GREATER_THAN,
             14);
     listQueryResult =
@@ -963,7 +969,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getItemsEntity(),
             groupItems.getGroupItemsRelationship(),
             attributeFilter,
-            null,
+            List.of(groupItems.getGroupEntity().getAttribute("vocabulary")),
             BinaryOperator.EQUALS,
             1);
     AttributeField simpleAttribute =
@@ -1025,7 +1031,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getItemsEntity(),
             groupItems.getGroupItemsRelationship(),
             attributeFilter,
-            null,
+            List.of(groupItems.getGroupEntity().getAttribute("vocabulary")),
             BinaryOperator.EQUALS,
             1);
     listQueryResult =
