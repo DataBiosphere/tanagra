@@ -166,7 +166,7 @@ public final class FromApiUtils {
                 ? null
                 : fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlay);
 
-        List<Attribute> groupByCountAttributes = List.of();
+        List<Attribute> groupByCountAttributes = new ArrayList<>();
         BinaryOperator groupByCountOperator = null;
         Integer groupByCountValue = null;
         if (apiRelationshipFilter.getGroupByCountOperator() != null
