@@ -31,7 +31,7 @@ public class OccurrenceForPrimaryFilterTranslator extends ApiFilterTranslator {
                 .getOccurrencePrimaryRelationship(
                     occurrenceForPrimaryFilter.getOccurrenceEntity().getName()),
             occurrenceForPrimaryFilter.getPrimarySubFilter(),
-            null,
+            List.of(),
             null,
             null);
 
@@ -45,7 +45,7 @@ public class OccurrenceForPrimaryFilterTranslator extends ApiFilterTranslator {
                 .getOccurrenceCriteriaRelationship(
                     occurrenceForPrimaryFilter.getOccurrenceEntity().getName()),
             occurrenceForPrimaryFilter.getCriteriaSubFilter(),
-            null,
+            List.of(),
             null,
             null);
 

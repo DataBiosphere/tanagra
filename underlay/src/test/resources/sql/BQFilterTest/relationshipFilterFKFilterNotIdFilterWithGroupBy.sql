@@ -8,11 +8,18 @@
             SELECT
                 person_id              
             FROM
-                ${ENT_conditionOccurrence}              
-            WHERE
-                stop_reason IS NULL              
+                (SELECT
+                    person_id                  
+                FROM
+                    ${ENT_conditionOccurrence}                  
+                WHERE
+                    stop_reason IS NULL                  
+                GROUP BY
+                    person_id,
+                    start_date,
+                    condition)              
             GROUP BY
                 person_id              
             HAVING
-                COUNT(DISTINCT start_date) > @groupByCount0         
-        )
+                COUNT(*) > @groupByCount0             
+            )

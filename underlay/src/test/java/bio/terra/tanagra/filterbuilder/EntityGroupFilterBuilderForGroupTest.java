@@ -309,7 +309,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             underlay,
             (GroupItems) underlay.getEntityGroup("genotypingPerson"),
             expectedCriteriaSubFilter,
-            underlay.getEntity("genotyping").getAttribute("name"),
+            List.of(underlay.getEntity("genotyping").getAttribute("name")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -399,7 +399,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             new BooleanAndOrFilter(
                 BooleanAndOrFilter.LogicalOperator.AND,
                 List.of(expectedCriteriaSubFilter, expectedNameSubFilter)),
-            underlay.getEntity("genotyping").getAttribute("name"),
+            List.of(underlay.getEntity("genotyping").getAttribute("name")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);

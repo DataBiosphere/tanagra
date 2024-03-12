@@ -5,7 +5,6 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
@@ -41,7 +40,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     //  ...
     // )
 
-    // With GroupBy:
+    // With GroupBy No GroupByAttributes:
     // WHERE primary.id IN (
     //  SELECT primary_id FROM (
     //    SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
@@ -53,7 +52,25 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     //    ...
     //    )
     //    GROUP BY primary_id
-    //    HAVING COUNT(DISTINCT group_by_fields) group_by_operator group_by_count_val
+    //    HAVING COUNT(*) group_by_operator group_by_count_val
+    // )
+
+    // With GroupBy And GroupByAttributes:
+    // WHERE primary.id IN (
+    //  SELECT primary_id FROM (
+    //    SELECT primary_id, group_by_fields FROM (
+    //      SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
+    //        [sub-filters]
+    //      UNION ALL
+    //      SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
+    //        [sub-filters]
+    //      UNION ALL
+    //      ...
+    //    )
+    //    GROUP BY primary_id, group_by_fields
+    //  )
+    //  GROUP BY primary_id
+    //  HAVING COUNT(*) group_by_operator group_by_count_val
     // )
 
     final String primaryIdFieldAlias = "primary_id";
@@ -149,14 +166,14 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
             ? attributeSwapFields.get(selectIdAttribute)
             : selectEntityTable.getAttributeValueField(selectIdAttribute.getName());
 
-    if (primaryWithCriteriaFilter.hasGroupByModifier()) {
-      if (primaryWithCriteriaFilter.getNumGroupByAttributes() > 1) {
-        throw new InvalidQueryException("Multiple group by attributes are not yet supported");
-      }
-      String countSql =
-          primaryWithCriteriaFilter.getNumGroupByAttributes() == 0
-              ? "*"
-              : "DISTINCT " + groupByFieldAliasPrefix + '0';
+    if (!primaryWithCriteriaFilter.hasGroupByModifier()) {
+      return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
+          + " IN ("
+          + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
+          + ')';
+    }
+
+    if (!primaryWithCriteriaFilter.hasGroupByAttributes()) {
       return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
           + " IN (SELECT "
           + primaryIdFieldAlias
@@ -164,21 +181,42 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
           + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
           + ") GROUP BY "
           + primaryIdFieldAlias
-          + " HAVING COUNT("
-          + countSql
-          + ") "
+          + " HAVING COUNT(*) "
           + apiTranslator.binaryOperatorSql(primaryWithCriteriaFilter.getGroupByCountOperator())
           + " @"
           + sqlParams.addParam(
               "groupByCountValue",
               Literal.forInt64(Long.valueOf(primaryWithCriteriaFilter.getGroupByCountValue())))
           + ')';
-    } else {
-      return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
-          + " IN ("
-          + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
-          + ')';
     }
+
+    List<String> groupByFieldsSql = new ArrayList<>();
+    for (int i = 0; i < primaryWithCriteriaFilter.getNumGroupByAttributes(); i++) {
+      groupByFieldsSql.add(groupByFieldAliasPrefix + i);
+    }
+    String groupByFieldsSqlJoined = groupByFieldsSql.stream().collect(Collectors.joining(", "));
+    return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
+        + " IN (SELECT "
+        + primaryIdFieldAlias
+        + " FROM (SELECT "
+        + primaryIdFieldAlias
+        + ", "
+        + groupByFieldsSqlJoined
+        + " FROM ("
+        + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
+        + ") GROUP BY "
+        + primaryIdFieldAlias
+        + ", "
+        + groupByFieldsSqlJoined
+        + ") GROUP BY "
+        + primaryIdFieldAlias
+        + " HAVING COUNT(*) "
+        + apiTranslator.binaryOperatorSql(primaryWithCriteriaFilter.getGroupByCountOperator())
+        + " @"
+        + sqlParams.addParam(
+            "groupByCountValue",
+            Literal.forInt64(Long.valueOf(primaryWithCriteriaFilter.getGroupByCountValue())))
+        + ')';
   }
 
   @Override

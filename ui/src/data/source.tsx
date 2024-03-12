@@ -1451,7 +1451,9 @@ function generateFilter(
         relationshipFilter: {
           entity: filter.entityId,
           subfilter: subfilter,
-          groupByCountAttribute: filter.groupByCount?.attribute,
+          groupByCountAttributes: filter.groupByCount
+            ? [filter.groupByCount.attribute]
+            : [],
           groupByCountOperator: filter.groupByCount
             ? toAPIBinaryOperator(filter.groupByCount.operator)
             : undefined,

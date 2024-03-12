@@ -10,7 +10,6 @@ import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
-import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
@@ -137,10 +136,12 @@ public final class EntityGroupFilterUtils {
     if (groupByModifierConfigAndData.isEmpty()) {
       if (groupItems.getGroupEntity().isPrimary()) {
         // e.g. vitals, person=group / height=items
-        return new GroupHasItemsFilter(underlay, groupItems, notPrimarySubFilter, null, null, null);
+        return new GroupHasItemsFilter(
+            underlay, groupItems, notPrimarySubFilter, List.of(), null, null);
       } else {
         // e.g. genotyping, genotyping=group / person=items
-        return new ItemInGroupFilter(underlay, groupItems, notPrimarySubFilter, null, null, null);
+        return new ItemInGroupFilter(
+            underlay, groupItems, notPrimarySubFilter, List.of(), null, null);
       }
     }
 
@@ -152,11 +153,6 @@ public final class EntityGroupFilterUtils {
         groupByAttributesPerOccurrenceEntity.containsKey(notPrimaryEntity)
             ? groupByAttributesPerOccurrenceEntity.get(notPrimaryEntity)
             : new ArrayList<>();
-    if (groupByAttributes.size() > 1) {
-      // TODO: Support multiple attributes.
-      throw new InvalidConfigException(
-          "More than one group by attribute is not yet supported for GroupItems entity groups.");
-    }
     DTUnhintedValue.UnhintedValue groupByModifierData =
         groupByModifierConfigAndData.get().getRight();
     if (groupItems.getGroupEntity().isPrimary()) {
@@ -164,7 +160,7 @@ public final class EntityGroupFilterUtils {
           underlay,
           groupItems,
           notPrimarySubFilter,
-          groupByAttributes.size() == 1 ? groupByAttributes.get(0) : null,
+          groupByAttributes,
           GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
           (int) groupByModifierData.getMin());
     } else {
@@ -172,7 +168,7 @@ public final class EntityGroupFilterUtils {
           underlay,
           groupItems,
           notPrimarySubFilter,
-          groupByAttributes.size() == 1 ? groupByAttributes.get(0) : null,
+          groupByAttributes,
           GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
           (int) groupByModifierData.getMin());
     }

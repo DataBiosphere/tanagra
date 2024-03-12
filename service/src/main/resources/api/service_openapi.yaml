@@ -1537,11 +1537,13 @@ components:
           type: string
         subfilter:
           $ref: "#/components/schemas/Filter"
-        group_by_count_attribute:
-          type: string
-        group_by_count_operator:
+        groupByCountAttributes:
+          type: array
+          items:
+            type: string
+        groupByCountOperator:
           $ref: "#/components/schemas/BinaryOperator"
-        group_by_count_value:
+        groupByCountValue:
           type: integer
           nullable: true
 
@@ -1574,8 +1576,10 @@ components:
           type: string
         groupSubfilter:
           $ref: "#/components/schemas/Filter"
-        groupByCountAttribute:
-          type: string
+        groupByCountAttributes:
+          type: array
+          items:
+            type: string
         groupByCountOperator:
           $ref: "#/components/schemas/BinaryOperator"
         groupByCountValue:
@@ -1592,8 +1596,10 @@ components:
           type: string
         itemsSubfilter:
           $ref: "#/components/schemas/Filter"
-        groupByCountAttribute:
-          type: string
+        groupByCountAttributes:
+          type: array
+          items:
+            type: string
         groupByCountOperator:
           $ref: "#/components/schemas/BinaryOperator"
         groupByCountValue:

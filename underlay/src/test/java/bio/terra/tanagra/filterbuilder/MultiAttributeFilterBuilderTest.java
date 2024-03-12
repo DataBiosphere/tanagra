@@ -344,7 +344,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay,
             (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
             itemsSubFilter,
-            underlay.getEntity("bloodPressure").getAttribute("date"),
+            List.of(underlay.getEntity("bloodPressure").getAttribute("date")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -391,7 +391,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay,
             (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
             itemsSubFilter,
-            underlay.getEntity("bloodPressure").getAttribute("date"),
+            List.of(underlay.getEntity("bloodPressure").getAttribute("date")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -489,7 +489,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay,
             (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
             itemsSubFilter,
-            underlay.getEntity("bloodPressure").getAttribute("date"),
+            List.of(underlay.getEntity("bloodPressure").getAttribute("date")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -563,7 +563,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay,
             (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
             itemsSubFilter,
-            underlay.getEntity("bloodPressure").getAttribute("date"),
+            List.of(underlay.getEntity("bloodPressure").getAttribute("date")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);

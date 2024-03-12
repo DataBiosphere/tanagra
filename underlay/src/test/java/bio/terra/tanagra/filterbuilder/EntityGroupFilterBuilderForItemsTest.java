@@ -150,7 +150,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             underlay,
             (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
             null,
-            underlay.getEntity("bloodPressure").getAttribute("date"),
+            List.of(underlay.getEntity("bloodPressure").getAttribute("date")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -229,7 +229,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             underlay,
             (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
             expectedSystolicSubFilter,
-            underlay.getEntity("bloodPressure").getAttribute("date"),
+            List.of(underlay.getEntity("bloodPressure").getAttribute("date")),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);
