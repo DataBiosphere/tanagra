@@ -27,7 +27,7 @@ public class ItemInGroupFilterTranslator extends ApiFilterTranslator {
             groupItems.getItemsEntity(),
             groupItems.getGroupItemsRelationship(),
             itemInGroupFilter.getGroupSubFilter(),
-            itemInGroupFilter.getGroupByCountAttribute(),
+            itemInGroupFilter.getGroupByCountAttributes(),
             itemInGroupFilter.getGroupByCountOperator(),
             itemInGroupFilter.getGroupByCountValue());
     return apiTranslator.translator(relationshipFilter).buildSql(sqlParams, tableAlias);

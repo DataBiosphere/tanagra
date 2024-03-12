@@ -13,6 +13,9 @@ import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,37 +159,79 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           .swapAttributeField(foreignKeyAttribute, selectIdField)
           .buildSql(sqlParams, tableAlias);
     } else {
-      // id IN (SELECT foreignKey FROM filterEntity [WHERE subFilter] [GROUP BY
-      // foreignKey HAVING COUNT(DISTINCT groupByAttr) groupByOp groupByCount])
-      String inSelectFilterSql = "";
+      // id IN (SELECT foreignKey FROM filterEntity [WHERE subFilter])
+      String inSelectFilterSql = null;
       if (relationshipFilter.hasSubFilter()) {
         inSelectFilterSql =
             apiTranslator.translator(relationshipFilter.getSubFilter()).buildSql(sqlParams, null);
+        if (inSelectFilterSql.isEmpty()) {
+          inSelectFilterSql = null;
+        }
       }
-      String inSelectHavingSql = "";
-      if (relationshipFilter.hasGroupByFilter()) {
-        SqlField groupByField =
-            relationshipFilter.hasGroupByCountAttribute()
-                ? filterEntityTable.getAttributeValueField(
-                    relationshipFilter.getGroupByCountAttribute().getName())
-                : null;
-        inSelectHavingSql =
-            apiTranslator.havingSql(
-                foreignKeyField,
-                relationshipFilter.getGroupByCountOperator(),
-                relationshipFilter.getGroupByCountValue(),
-                groupByField,
-                null,
-                sqlParams);
+
+      if (!relationshipFilter.hasGroupByFilter()) {
+        return apiTranslator.inSelectFilterSql(
+            selectIdField,
+            tableAlias,
+            foreignKeyField,
+            filterEntityTable.getTablePointer(),
+            inSelectFilterSql,
+            null,
+            sqlParams);
       }
-      return apiTranslator.inSelectFilterSql(
-          selectIdField,
-          tableAlias,
-          foreignKeyField,
-          filterEntityTable.getTablePointer(),
-          inSelectFilterSql.isEmpty() ? null : inSelectFilterSql,
-          inSelectHavingSql.isEmpty() ? null : inSelectHavingSql,
-          sqlParams);
+
+      String groupByCountParam =
+          sqlParams.addParam(
+              "groupByCount",
+              Literal.forInt64(Long.valueOf(relationshipFilter.getGroupByCountValue())));
+      if (!relationshipFilter.hasGroupByCountAttributes()) {
+        // id IN
+        // (SELECT foreignKey FROM filterEntity [WHERE subFilter] [GROUP BY foreignKey HAVING
+        // COUNT(*) groupByOp groupByCount])
+        return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
+            + " IN (SELECT "
+            + SqlQueryField.of(foreignKeyField).renderForSelect()
+            + " FROM "
+            + filterEntityTable.getTablePointer().render()
+            + (inSelectFilterSql != null ? " WHERE " + inSelectFilterSql : "")
+            + " GROUP BY "
+            + SqlQueryField.of(foreignKeyField).renderForGroupBy(tableAlias, false)
+            + " HAVING COUNT(*) "
+            + apiTranslator.binaryOperatorSql(relationshipFilter.getGroupByCountOperator())
+            + " @"
+            + groupByCountParam
+            + ')';
+      }
+      // id IN (SELECT foreignKey FROM
+      // (SELECT foreignKey FROM filterEntity [WHERE subFilter] [GROUP BY foreignKey, groupByAttrs])
+      // GROUP BY foreignKey HAVING COUNT(*) groupByOp groupByCount)
+      List<SqlField> groupByFields = new ArrayList<>();
+      groupByFields.add(foreignKeyField);
+      relationshipFilter.getGroupByCountAttributes().stream()
+          .forEach(
+              groupByAttr ->
+                  groupByFields.add(
+                      filterEntityTable.getAttributeValueField(groupByAttr.getName())));
+      return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
+          + " IN (SELECT "
+          + SqlQueryField.of(foreignKeyField).renderForSelect()
+          + " FROM "
+          + " (SELECT "
+          + SqlQueryField.of(foreignKeyField).renderForSelect()
+          + " FROM "
+          + filterEntityTable.getTablePointer().render()
+          + (inSelectFilterSql != null ? " WHERE " + inSelectFilterSql : "")
+          + " GROUP BY "
+          + groupByFields.stream()
+              .map(groupByField -> SqlQueryField.of(groupByField).renderForGroupBy(null, false))
+              .collect(Collectors.joining(", "))
+          + ") GROUP BY "
+          + SqlQueryField.of(foreignKeyField).renderForGroupBy(tableAlias, false)
+          + " HAVING COUNT(*) "
+          + apiTranslator.binaryOperatorSql(relationshipFilter.getGroupByCountOperator())
+          + " @"
+          + groupByCountParam
+          + ')';
     }
   }
 
@@ -233,9 +278,9 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             .translator(relationshipFilter.getSubFilter())
             .isFilterOnAttribute(relationshipFilter.getFilterEntity().getIdAttribute())
         && (!relationshipFilter.hasGroupByFilter()
-            || !relationshipFilter.hasGroupByCountAttribute())) {
+            || !relationshipFilter.hasGroupByCountAttributes())) {
       // id IN (SELECT selectId FROM intermediateTable WHERE subFilter(id->inttable field)
-      // [GROUP BY selectId HAVING groupByOp groupByCount])
+      // [GROUP BY selectId HAVING COUNT(*) groupByOp groupByCount])
       String subFilterSql = "";
       if (relationshipFilter.hasSubFilter()) {
         subFilterSql =
@@ -247,16 +292,11 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
       }
       String havingSql = "";
       if (relationshipFilter.hasGroupByFilter()) {
-        if (relationshipFilter.hasGroupByCountAttribute()) {
-          throw new InvalidQueryException(
-              "An additional group by attribute is unsupported for relationships that use an intermediate table.");
-        }
         havingSql =
             apiTranslator.havingSql(
                 selectIdIntTable,
                 relationshipFilter.getGroupByCountOperator(),
                 relationshipFilter.getGroupByCountValue(),
-                null,
                 null,
                 sqlParams);
       }
@@ -269,9 +309,11 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           havingSql.isEmpty() ? null : havingSql,
           sqlParams);
     } else {
-      // id IN (SELECT selectId FROM intermediateTable [WHERE filterId IN (SELECT id FROM
-      // filterEntity WHERE subFilter)] [GROUP BY selectId HAVING COUNT(DISTINCT groupByAttr)
-      // groupByOp groupByCount])
+      // id IN (SELECT selectId FROM
+      // (SELECT selectId FROM intermediateTable [WHERE filterId IN (SELECT id FROM filterEntity
+      // WHERE subFilter)]
+      // [GROUP BY selectId, groupByAttrs])
+      // GROUP BY selectId HAVING COUNT(*) groupByOp groupByCount])
       String filterIdInSelectSql = "";
       if (relationshipFilter.hasSubFilter()) {
         ITEntityMain filterEntityTable =
@@ -306,17 +348,15 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             sqlParams);
       }
 
-      if (!relationshipFilter.hasGroupByCountAttribute()
-          || relationshipFilter.getGroupByCountAttribute().isId()) {
+      if (!relationshipFilter.hasGroupByCountAttributes()) {
         // id IN (SELECT selectId FROM intermediateTable [WHERE filterId IN (SELECT id FROM
-        // filterEntity WHERE subFilter)] [GROUP BY selectId HAVING groupByOp
+        // filterEntity WHERE subFilter)] [GROUP BY selectId HAVING COUNT(*) groupByOp
         // groupByCount])
         String havingSql =
             apiTranslator.havingSql(
                 selectIdIntTable,
                 relationshipFilter.getGroupByCountOperator(),
                 relationshipFilter.getGroupByCountValue(),
-                null,
                 null,
                 sqlParams);
         return apiTranslator.inSelectFilterSql(
@@ -327,61 +367,72 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             filterIdInSelectSql.isEmpty() ? null : filterIdInSelectSql,
             havingSql,
             sqlParams);
-      } else {
-        // id IN (
-        //   SELECT it.selectId
-        //   FROM intermediateTable it
-        //   JOIN filterEntity fe ON fe.id=it.filterId
-        //   [GROUP BY it.selectId
-        //   HAVING COUNT(DISTINCT fe.group_by_field) groupByOp groupByCount])
-        ITEntityMain filterEntityTable =
-            relationshipFilter
-                .getUnderlay()
-                .getIndexSchema()
-                .getEntityMain(relationshipFilter.getFilterEntity().getName());
-        Attribute filterIdAttribute = relationshipFilter.getFilterEntity().getIdAttribute();
-        SqlField filterIdField =
-            filterEntityTable.getAttributeValueField(filterIdAttribute.getName());
-        SqlField groupByAttrField =
-            filterEntityTable.getAttributeValueField(
-                relationshipFilter.getGroupByCountAttribute().getName());
-
-        final String intermediateTableAlias = "it";
-        final String filterTableAlias = "fe";
-        return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
-            + " IN ("
-            + "SELECT "
-            + SqlQueryField.of(selectIdIntTable).renderForSelect(intermediateTableAlias)
-            + " FROM "
-            + idPairsTable.getTablePointer().render()
-            + ' '
-            + intermediateTableAlias
-            + " JOIN "
-            + filterEntityTable.getTablePointer().render()
-            + ' '
-            + filterTableAlias
-            + " ON "
-            + SqlQueryField.of(filterIdField).renderForWhere(filterTableAlias)
-            + " = "
-            + SqlQueryField.of(filterIdIntTable).renderForWhere(intermediateTableAlias)
-            + (relationshipFilter.hasSubFilter()
-                ? " WHERE "
-                    + apiTranslator
-                        .translator(relationshipFilter.getSubFilter())
-                        .buildSql(sqlParams, filterTableAlias)
-                : "")
-            + " GROUP BY "
-            + SqlQueryField.of(selectIdIntTable).renderForGroupBy(intermediateTableAlias, true)
-            + " HAVING COUNT(DISTINCT "
-            + SqlQueryField.of(groupByAttrField).renderForGroupBy(filterTableAlias, false)
-            + ") "
-            + apiTranslator.binaryOperatorSql(relationshipFilter.getGroupByCountOperator())
-            + " @"
-            + sqlParams.addParam(
-                "groupByCount",
-                Literal.forInt64(Long.valueOf(relationshipFilter.getGroupByCountValue())))
-            + ')';
       }
+
+      // id IN (
+      // SELECT selectId FROM (
+      //   SELECT it.selectId
+      //   FROM intermediateTable it
+      //   JOIN filterEntity fe ON fe.id=it.filterId
+      //   GROUP BY it.selectId, fe.group_by_attrs)
+      // GROUP BY selectId HAVING COUNT(*) groupByOp groupByCount])
+      ITEntityMain filterEntityTable =
+          relationshipFilter
+              .getUnderlay()
+              .getIndexSchema()
+              .getEntityMain(relationshipFilter.getFilterEntity().getName());
+      Attribute filterIdAttribute = relationshipFilter.getFilterEntity().getIdAttribute();
+      SqlField filterIdField =
+          filterEntityTable.getAttributeValueField(filterIdAttribute.getName());
+      List<SqlField> groupByAttrFields = new ArrayList<>();
+      relationshipFilter.getGroupByCountAttributes().stream()
+          .forEach(
+              groupByAttr ->
+                  groupByAttrFields.add(
+                      filterEntityTable.getAttributeValueField(groupByAttr.getName())));
+
+      final String intermediateTableAlias = "it";
+      final String filterTableAlias = "fe";
+      return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
+          + " IN (SELECT "
+          + SqlQueryField.of(selectIdIntTable).renderForSelect()
+          + " FROM (SELECT "
+          + SqlQueryField.of(selectIdIntTable).renderForSelect(intermediateTableAlias)
+          + " FROM "
+          + idPairsTable.getTablePointer().render()
+          + " AS "
+          + intermediateTableAlias
+          + " JOIN "
+          + filterEntityTable.getTablePointer().render()
+          + " AS "
+          + filterTableAlias
+          + " ON "
+          + SqlQueryField.of(filterIdField).renderForWhere(filterTableAlias)
+          + " = "
+          + SqlQueryField.of(filterIdIntTable).renderForWhere(intermediateTableAlias)
+          + (relationshipFilter.hasSubFilter()
+              ? " WHERE "
+                  + apiTranslator
+                      .translator(relationshipFilter.getSubFilter())
+                      .buildSql(sqlParams, filterTableAlias)
+              : "")
+          + " GROUP BY "
+          + SqlQueryField.of(selectIdIntTable).renderForGroupBy(intermediateTableAlias, true)
+          + ", "
+          + groupByAttrFields.stream()
+              .map(
+                  groupByAttrField ->
+                      SqlQueryField.of(groupByAttrField).renderForGroupBy(filterTableAlias, false))
+              .collect(Collectors.joining(", "))
+          + ") GROUP BY "
+          + SqlQueryField.of(selectIdIntTable).renderForGroupBy(null, false)
+          + " HAVING COUNT (*) "
+          + apiTranslator.binaryOperatorSql(relationshipFilter.getGroupByCountOperator())
+          + " @"
+          + sqlParams.addParam(
+              "groupByCount",
+              Literal.forInt64(Long.valueOf(relationshipFilter.getGroupByCountValue())))
+          + ')';
     }
   }
 

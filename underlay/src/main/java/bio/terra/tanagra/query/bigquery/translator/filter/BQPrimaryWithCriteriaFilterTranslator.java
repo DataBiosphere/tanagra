@@ -41,7 +41,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     //  ...
     // )
 
-    // With GroupBy:
+    // With GroupBy No GroupByAttributes:
     // WHERE primary.id IN (
     //  SELECT primary_id FROM (
     //    SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
@@ -53,7 +53,22 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     //    ...
     //    )
     //    GROUP BY primary_id
-    //    HAVING COUNT(DISTINCT group_by_fields) group_by_operator group_by_count_val
+    //    HAVING COUNT(*) group_by_operator group_by_count_val
+    // )
+
+    // With GroupBy And GroupByAttributes:
+    // WHERE primary.id IN (
+    //  SELECT primary_id FROM (
+    //    SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
+    // [sub-filters]
+    //    UNION ALL
+    //    SELECT primary_id, group_by_fields FROM occurrence WHERE [FILTER ON criteria] AND
+    // [sub-filters]
+    //    UNION ALL
+    //    ...
+    //    )
+    //    GROUP BY primary_id
+    //    HAVING COUNT(*) group_by_operator group_by_count_val
     // )
 
     final String primaryIdFieldAlias = "primary_id";

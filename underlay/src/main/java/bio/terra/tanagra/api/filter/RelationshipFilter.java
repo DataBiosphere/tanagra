@@ -6,6 +6,8 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import javax.annotation.Nullable;
 
 public class RelationshipFilter extends EntityFilter {
@@ -15,7 +17,7 @@ public class RelationshipFilter extends EntityFilter {
   private final Entity filterEntity;
   private final Relationship relationship;
   private final @Nullable EntityFilter subFilter;
-  private final @Nullable Attribute groupByCountAttribute;
+  private final @Nullable List<Attribute> groupByCountAttributes;
   private final @Nullable BinaryOperator groupByCountOperator;
   private final @Nullable Integer groupByCountValue;
 
@@ -26,7 +28,7 @@ public class RelationshipFilter extends EntityFilter {
       Entity selectEntity,
       Relationship relationship,
       @Nullable EntityFilter subFilter,
-      @Nullable Attribute groupByCountAttribute,
+      @Nullable List<Attribute> groupByCountAttributes,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
     this.underlay = underlay;
@@ -38,7 +40,10 @@ public class RelationshipFilter extends EntityFilter {
             : relationship.getEntityA();
     this.relationship = relationship;
     this.subFilter = subFilter;
-    this.groupByCountAttribute = groupByCountAttribute;
+    this.groupByCountAttributes =
+        groupByCountAttributes == null
+            ? ImmutableList.of()
+            : ImmutableList.copyOf(groupByCountAttributes);
     this.groupByCountOperator = groupByCountOperator;
     this.groupByCountValue = groupByCountValue;
   }
@@ -71,16 +76,16 @@ public class RelationshipFilter extends EntityFilter {
     return subFilter;
   }
 
-  public boolean hasGroupByCountAttribute() {
-    return groupByCountAttribute != null;
+  public boolean hasGroupByCountAttributes() {
+    return !groupByCountAttributes.isEmpty();
   }
 
   public boolean hasGroupByFilter() {
     return groupByCountOperator != null && groupByCountValue != null;
   }
 
-  public Attribute getGroupByCountAttribute() {
-    return groupByCountAttribute;
+  public List<Attribute> getGroupByCountAttributes() {
+    return groupByCountAttributes;
   }
 
   @Nullable

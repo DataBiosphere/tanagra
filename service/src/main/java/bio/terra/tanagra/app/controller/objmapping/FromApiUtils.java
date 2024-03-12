@@ -166,17 +166,20 @@ public final class FromApiUtils {
                 ? null
                 : fromApiObject(apiRelationshipFilter.getSubfilter(), relatedEntity, underlay);
 
-        Attribute groupByCountAttribute = null;
+        List<Attribute> groupByCountAttributes = List.of();
         BinaryOperator groupByCountOperator = null;
         Integer groupByCountValue = null;
         if (apiRelationshipFilter.getGroupByCountOperator() != null
             && apiRelationshipFilter.getGroupByCountValue() != null) {
-          groupByCountAttribute =
-              apiRelationshipFilter.getGroupByCountAttribute() == null
-                  ? null
-                  : relatedEntity.getAttribute(apiRelationshipFilter.getGroupByCountAttribute());
           groupByCountOperator = fromApiObject(apiRelationshipFilter.getGroupByCountOperator());
           groupByCountValue = apiRelationshipFilter.getGroupByCountValue();
+          if (apiRelationshipFilter.getGroupByCountAttributes() != null) {
+            apiRelationshipFilter.getGroupByCountAttributes().stream()
+                .forEach(
+                    groupByCountAttrName ->
+                        groupByCountAttributes.add(
+                            relatedEntity.getAttribute(groupByCountAttrName)));
+          }
         }
         return new RelationshipFilter(
             underlay,
@@ -184,7 +187,7 @@ public final class FromApiUtils {
             entity,
             entityGroupAndRelationship.getRight(),
             subFilter,
-            groupByCountAttribute,
+            groupByCountAttributes,
             groupByCountOperator,
             groupByCountValue);
       case BOOLEAN_LOGIC:
@@ -224,17 +227,21 @@ public final class FromApiUtils {
             apiItemInGroupFilter.getGroupSubfilter() == null
                 ? null
                 : fromApiObject(apiItemInGroupFilter.getGroupSubfilter(), underlay);
-        Attribute groupByAttrItemInGroup =
-            apiItemInGroupFilter.getGroupByCountAttribute() == null
-                ? null
-                : groupItemsItemInGroup
-                    .getGroupEntity()
-                    .getAttribute(apiItemInGroupFilter.getGroupByCountAttribute());
+        List<Attribute> groupByAttrsItemInGroup = new ArrayList<>();
+        if (apiItemInGroupFilter.getGroupByCountAttributes() != null) {
+          apiItemInGroupFilter.getGroupByCountAttributes().stream()
+              .forEach(
+                  groupByCountAttrName ->
+                      groupByAttrsItemInGroup.add(
+                          groupItemsItemInGroup
+                              .getGroupEntity()
+                              .getAttribute(groupByCountAttrName)));
+        }
         return new ItemInGroupFilter(
             underlay,
             groupItemsItemInGroup,
             groupSubFilter,
-            groupByAttrItemInGroup,
+            groupByAttrsItemInGroup,
             fromApiObject(apiItemInGroupFilter.getGroupByCountOperator()),
             apiItemInGroupFilter.getGroupByCountValue());
       case GROUP_HAS_ITEMS:
@@ -246,17 +253,21 @@ public final class FromApiUtils {
             apiGroupHasItemsFilter.getItemsSubfilter() == null
                 ? null
                 : fromApiObject(apiGroupHasItemsFilter.getItemsSubfilter(), underlay);
-        Attribute groupByAttrGroupHasItems =
-            apiGroupHasItemsFilter.getGroupByCountAttribute() == null
-                ? null
-                : groupItemsGroupHasItems
-                    .getItemsEntity()
-                    .getAttribute(apiGroupHasItemsFilter.getGroupByCountAttribute());
+        List<Attribute> groupByAttrsGroupHasItems = new ArrayList<>();
+        if (apiGroupHasItemsFilter.getGroupByCountAttributes() != null) {
+          apiGroupHasItemsFilter.getGroupByCountAttributes().stream()
+              .forEach(
+                  groupByCountAttrName ->
+                      groupByAttrsGroupHasItems.add(
+                          groupItemsGroupHasItems
+                              .getItemsEntity()
+                              .getAttribute(groupByCountAttrName)));
+        }
         return new GroupHasItemsFilter(
             underlay,
             groupItemsGroupHasItems,
             itemsSubFilter,
-            groupByAttrGroupHasItems,
+            groupByAttrsGroupHasItems,
             fromApiObject(apiGroupHasItemsFilter.getGroupByCountOperator()),
             apiGroupHasItemsFilter.getGroupByCountValue());
       case OCCURRENCE_FOR_PRIMARY:

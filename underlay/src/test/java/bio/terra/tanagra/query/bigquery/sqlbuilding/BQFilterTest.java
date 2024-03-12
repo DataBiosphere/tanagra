@@ -844,7 +844,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             attributeFilter,
-            occurrenceEntity.getAttribute("start_date"),
+            List.of(occurrenceEntity.getAttribute("start_date")),
             BinaryOperator.GREATER_THAN,
             1);
     AttributeField simpleAttribute =
@@ -893,7 +893,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             attributeFilter,
-            occurrenceEntity.getAttribute("start_date"),
+            List.of(occurrenceEntity.getAttribute("start_date")),
             BinaryOperator.GREATER_THAN,
             1);
     listQueryResult =
@@ -922,7 +922,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay.getPrimaryEntity(),
             criteriaOccurrence.getOccurrencePrimaryRelationship(occurrenceEntity.getName()),
             null,
-            occurrenceEntity.getAttribute("start_date"),
+            List.of(occurrenceEntity.getAttribute("start_date")),
             BinaryOperator.GREATER_THAN,
             14);
     listQueryResult =
@@ -2187,7 +2187,7 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems,
             groupSubFilter,
-            groupItems.getItemsEntity().getAttribute("vocabulary"),
+            List.of(groupItems.getItemsEntity().getAttribute("vocabulary")),
             BinaryOperator.GREATER_THAN,
             2);
     listQueryResult =

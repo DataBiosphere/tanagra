@@ -8,11 +8,17 @@
             SELECT
                 person_id              
             FROM
-                ${ENT_conditionOccurrence}              
-            WHERE
-                person_id = @val0              
+                (SELECT
+                    person_id                  
+                FROM
+                    ${ENT_conditionOccurrence}                  
+                WHERE
+                    person_id = @val0                  
+                GROUP BY
+                    person_id,
+                    start_date)              
             GROUP BY
                 person_id              
             HAVING
-                COUNT(DISTINCT start_date) > @groupByCount1         
-        )
+                COUNT(*) > @groupByCount1             
+            )

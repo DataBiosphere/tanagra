@@ -4,6 +4,8 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
@@ -11,7 +13,7 @@ public class ItemInGroupFilter extends EntityFilter {
   private final Underlay underlay;
   private final GroupItems groupItems;
   private final @Nullable EntityFilter groupSubFilter;
-  private final @Nullable Attribute groupByCountAttribute;
+  private final @Nullable List<Attribute> groupByCountAttributes;
   private final @Nullable BinaryOperator groupByCountOperator;
   private final @Nullable Integer groupByCountValue;
 
@@ -19,13 +21,16 @@ public class ItemInGroupFilter extends EntityFilter {
       Underlay underlay,
       GroupItems groupItems,
       @Nullable EntityFilter groupSubFilter,
-      @Nullable Attribute groupByCountAttribute,
+      @Nullable List<Attribute> groupByCountAttributes,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
     this.underlay = underlay;
     this.groupItems = groupItems;
     this.groupSubFilter = groupSubFilter;
-    this.groupByCountAttribute = groupByCountAttribute;
+    this.groupByCountAttributes =
+        groupByCountAttributes == null
+            ? ImmutableList.of()
+            : ImmutableList.copyOf(groupByCountAttributes);
     this.groupByCountOperator = groupByCountOperator;
     this.groupByCountValue = groupByCountValue;
   }
@@ -43,8 +48,8 @@ public class ItemInGroupFilter extends EntityFilter {
   }
 
   @Nullable
-  public Attribute getGroupByCountAttribute() {
-    return groupByCountAttribute;
+  public List<Attribute> getGroupByCountAttributes() {
+    return groupByCountAttributes;
   }
 
   @Nullable
@@ -69,7 +74,7 @@ public class ItemInGroupFilter extends EntityFilter {
     return underlay.equals(that.underlay)
         && groupItems.equals(that.groupItems)
         && Objects.equals(groupSubFilter, that.groupSubFilter)
-        && Objects.equals(groupByCountAttribute, that.groupByCountAttribute)
+        && Objects.equals(groupByCountAttributes, that.groupByCountAttributes)
         && groupByCountOperator == that.groupByCountOperator
         && Objects.equals(groupByCountValue, that.groupByCountValue);
   }
@@ -80,7 +85,7 @@ public class ItemInGroupFilter extends EntityFilter {
         underlay,
         groupItems,
         groupSubFilter,
-        groupByCountAttribute,
+        groupByCountAttributes,
         groupByCountOperator,
         groupByCountValue);
   }
