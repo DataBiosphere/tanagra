@@ -94,6 +94,10 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
     return numGroupByAttributes;
   }
 
+  public boolean hasGroupByAttributes() {
+    return getNumGroupByAttributes() > 0;
+  }
+
   @Nullable
   public BinaryOperator getGroupByCountOperator() {
     return groupByCountOperator;
