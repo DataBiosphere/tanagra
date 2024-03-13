@@ -23,9 +23,14 @@ export type Underlay = {
 };
 
 export type UIConfiguration = {
+  featureConfig?: FeatureConfig;
   demographicChartConfigs: DemographicChartConfig;
   criteriaSearchConfig: CriteriaSearchConfig;
   cohortReviewConfig: CohortReviewConfig;
+};
+
+export type FeatureConfig = {
+  disableExportButton?: boolean;
 };
 
 export type DemographicChartConfig = {

@@ -337,6 +337,7 @@ type PreviewProps = {
 };
 
 function Preview(props: PreviewProps) {
+  const underlay = useUnderlay();
   const underlaySource = useUnderlaySource();
 
   const filteredCohorts = useMemo(
@@ -452,7 +453,10 @@ function Preview(props: PreviewProps) {
           <GridLayout cols colAlign="right" sx={{ width: 200 }}>
             <Button
               variant="contained"
-              disabled={empty}
+              disabled={
+                empty ||
+                underlay.uiConfiguration.featureConfig?.disableExportButton
+              }
               onClick={() => {
                 showExportDialog();
               }}
