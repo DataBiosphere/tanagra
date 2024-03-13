@@ -2488,7 +2488,6 @@ components:
       properties:
         study:
           type: string
-          nullable: false
         cohorts:
           description: List of cohort ids
           type: array
@@ -2501,6 +2500,8 @@ components:
             type: string
         limit:
           type: integer
+      required:
+        - study
 
     ExportRequest:
       type: object
