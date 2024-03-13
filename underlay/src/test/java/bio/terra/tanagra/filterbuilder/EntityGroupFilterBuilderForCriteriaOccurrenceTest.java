@@ -18,7 +18,9 @@ import bio.terra.tanagra.filterbuilder.impl.core.EntityGroupFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass.Key;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
@@ -51,7 +53,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaOnlyCohortFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -187,19 +189,19 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaWithAttrModifiersCohortFilter() {
-    CFPlaceholder.Placeholder ageAtOccurrenceConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
-    CFPlaceholder.Placeholder visitTypeConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
-    CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup conditionConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -299,20 +301,14 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "conditionOccurrence",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("start_date")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup conditionConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -370,32 +366,26 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaWithAttrAndGroupByModifiersCohortFilter() {
-    CFPlaceholder.Placeholder ageAtOccurrenceConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
-    CFPlaceholder.Placeholder visitTypeConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "conditionOccurrence",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("start_date")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder conditionConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup conditionConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -490,7 +480,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaOnlySingleOccurrenceDataFeatureFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -626,7 +616,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaOnlyMultipleOccurrencesDataFeatureFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "icd9cm",

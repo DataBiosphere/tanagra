@@ -247,8 +247,7 @@ public class FilterBuilderService {
               if (combinedCohortFilter != null) {
                 // Find the relationship between this output entity and the primary entity.
                 Pair<EntityGroup, Relationship> outputToPrimary =
-                    UnderlayService.getRelationship(
-                        underlay.getEntityGroups(), outputEntity, underlay.getPrimaryEntity());
+                    underlay.getRelationship(outputEntity, underlay.getPrimaryEntity());
 
                 // Build a single relationship filter per output entity that has the combined cohort
                 // filter as the primary entity sub-filter.

@@ -47,7 +47,6 @@ import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
-import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -160,7 +159,7 @@ public final class FromApiUtils {
             apiFilter.getFilterUnion().getRelationshipFilter();
         Entity relatedEntity = underlay.getEntity(apiRelationshipFilter.getEntity());
         Pair<EntityGroup, Relationship> entityGroupAndRelationship =
-            UnderlayService.getRelationship(underlay.getEntityGroups(), entity, relatedEntity);
+            underlay.getRelationship(entity, relatedEntity);
         EntityFilter subFilter =
             apiRelationshipFilter.getSubfilter() == null
                 ? null
@@ -473,8 +472,7 @@ public final class FromApiUtils {
         underlay,
         entity,
         relatedEntity,
-        UnderlayService.getRelationship(underlay.getEntityGroups(), entity, relatedEntity)
-            .getLeft(),
+        underlay.getRelationship(entity, relatedEntity).getLeft(),
         hierarchy);
   }
 

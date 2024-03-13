@@ -12,7 +12,9 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.filterbuilder.impl.core.EntityGroupFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
@@ -41,12 +43,12 @@ public class EntityGroupFilterBuilderForItemsTest {
 
   @Test
   void criteriaWithAttrModifiersCohortFilter() {
-    CFPlaceholder.Placeholder systolicConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("systolic").build();
+    CFAttribute.Attribute systolicConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("systolic").build();
     CriteriaSelector.Modifier systolicModifier =
         new CriteriaSelector.Modifier(
             "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
-    CFPlaceholder.Placeholder bloodPressureConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -98,20 +100,14 @@ public class EntityGroupFilterBuilderForItemsTest {
 
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "bloodPressure",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("date")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder bloodPressureConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -158,25 +154,19 @@ public class EntityGroupFilterBuilderForItemsTest {
 
   @Test
   void criteriaWithAttrAndGroupByModifiersCohortFilter() {
-    CFPlaceholder.Placeholder systolicConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("systolic").build();
+    CFAttribute.Attribute systolicConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("systolic").build();
     CriteriaSelector.Modifier systolicModifier =
         new CriteriaSelector.Modifier(
             "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "bloodPressure",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("date")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder bloodPressureConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -237,7 +227,7 @@ public class EntityGroupFilterBuilderForItemsTest {
 
   @Test
   void criteriaOnlyDataFeatureFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",

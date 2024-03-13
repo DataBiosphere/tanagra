@@ -10,7 +10,7 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -63,7 +63,7 @@ public final class AttributeSchemaUtils {
     }
   }
 
-  public static List<Pair<CFPlaceholder.Placeholder, DTAttribute.Attribute>> getModifiers(
+  public static List<Pair<CFAttribute.Attribute, DTAttribute.Attribute>> getModifiers(
       CriteriaSelector criteriaSelector, List<SelectionData> selectionData) {
     return selectionData.stream()
         .filter(
@@ -78,7 +78,7 @@ public final class AttributeSchemaUtils {
             modifierSelectionData -> {
               CriteriaSelector.Modifier modifierDefn =
                   criteriaSelector.getModifier(modifierSelectionData.getModifierName());
-              CFPlaceholder.Placeholder modifierConfig =
+              CFAttribute.Attribute modifierConfig =
                   deserializeConfig(modifierDefn.getPluginConfig());
               DTAttribute.Attribute modifierData =
                   deserializeData(modifierSelectionData.getPluginData());
@@ -87,8 +87,8 @@ public final class AttributeSchemaUtils {
         .collect(Collectors.toList());
   }
 
-  public static CFPlaceholder.Placeholder deserializeConfig(String serialized) {
-    return deserializeFromJson(serialized, CFPlaceholder.Placeholder.newBuilder()).build();
+  public static CFAttribute.Attribute deserializeConfig(String serialized) {
+    return deserializeFromJson(serialized, CFAttribute.Attribute.newBuilder()).build();
   }
 
   public static DTAttribute.Attribute deserializeData(String serialized) {

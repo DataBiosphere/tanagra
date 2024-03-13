@@ -16,7 +16,9 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.filterbuilder.impl.core.EntityGroupFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass.Key;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
@@ -47,7 +49,7 @@ public class EntityGroupFilterBuilderForGroupTest {
 
   @Test
   void criteriaOnlyCohortFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
@@ -180,12 +182,12 @@ public class EntityGroupFilterBuilderForGroupTest {
 
   @Test
   void criteriaWithAttrModifiersCohortFilter() {
-    CFPlaceholder.Placeholder nameConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("name").build();
+    CFAttribute.Attribute nameConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier nameModifier =
         new CriteriaSelector.Modifier(
             "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
-    CFPlaceholder.Placeholder genotypingConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
@@ -249,20 +251,14 @@ public class EntityGroupFilterBuilderForGroupTest {
 
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "genotyping",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("name")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder genotypingConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
@@ -317,25 +313,19 @@ public class EntityGroupFilterBuilderForGroupTest {
 
   @Test
   void criteriaWithAttrAndGroupByModifiersCohortFilter() {
-    CFPlaceholder.Placeholder nameConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("name").build();
+    CFAttribute.Attribute nameConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier nameModifier =
         new CriteriaSelector.Modifier(
             "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "genotyping",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("name")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder genotypingConfig = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
@@ -407,7 +397,7 @@ public class EntityGroupFilterBuilderForGroupTest {
 
   @Test
   void criteriaOnlyDataFeatureFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
