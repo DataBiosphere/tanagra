@@ -2248,6 +2248,9 @@ components:
         predefinedId:
           type: string
           description: Id of the predefined criteria in the config
+        selectorOrModifierName:
+          type: string
+          description: Name of the selector or modifier used by this config
         selectionData:
           type: string # JSON formatted
           description: Serialized plugin-specific representation of the user's selection

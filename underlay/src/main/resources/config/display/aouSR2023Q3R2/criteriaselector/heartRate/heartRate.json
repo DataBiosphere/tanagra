@@ -1,0 +1,13 @@
+{
+  "entity": "heartRate",
+  "valueConfigs": [
+    {
+      "attribute": "status_code",
+      "title": "Heart Rhythm Status"
+    },
+    {
+      "attribute": "value_numeric",
+      "unit": "beats/min"
+    }
+  ]
+}

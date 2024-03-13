@@ -238,6 +238,11 @@ Define a version of this file for each set of UI plugins + configuration.
 
 Display information.
 
+### SZCriteriaSelector.displayName
+**required** String
+
+Display name.
+
 ### SZCriteriaSelector.filterBuilder
 **required** String
 
@@ -303,11 +308,6 @@ Criteria selector display configuration.
 Category that the criteria selector is listed under when a user goes to 
 
 add a new criteria. (e.g. "Vitals")
-
-### SZCriteriaSelectorDisplay.displayName
-**required** String
-
-Display name.
 
 ### SZCriteriaSelectorDisplay.tags
 **required** List [ String ]
@@ -972,7 +972,7 @@ Path consists of two parts: [Data-Mapping Group]/[Entity Group Name] (e.g. `omop
 Using the path here instead of just the entity group name allows us to share entity group definitions across underlays. For example, the `omop` data-mapping group contains template entity group definitions for standing up a new underlay.
 
 ### SZUnderlay.criteriaSelectors
-**required** Set [ String ]
+**required** List [ String ]
 
 List of paths of all the criteria selectors.
 

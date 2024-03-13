@@ -1,0 +1,88 @@
+{
+  "columns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept ID"
+    },
+    {
+      "key": "standard_concept",
+      "widthDouble": 180,
+      "title": "Source/standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 120,
+      "title": "Count"
+    }
+  ],
+  "hierarchyColumns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept ID"
+    },
+    {
+      "key": "standard_concept",
+      "widthDouble": 180,
+      "title": "Source/standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 120,
+      "title": "Count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "measurementLoincPerson"
+    },
+    {
+      "id": "measurementSnomedPerson"
+    }
+  ],
+  "valueConfigs": [
+    {
+      "attribute": "value_enum",
+      "title": "Categorical value"
+    },
+    {
+      "attribute": "value_numeric",
+      "title": "Numeric value"
+    }
+  ],
+  "defaultSort": {
+    "attribute": "t_item_count",
+    "direction": "SORT_ORDER_DIRECTION_DESCENDING"
+  }
+}

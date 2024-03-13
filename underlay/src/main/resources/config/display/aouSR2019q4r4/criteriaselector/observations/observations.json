@@ -1,0 +1,71 @@
+{
+  "columns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Concept name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 100,
+      "title": "Concept ID"
+    },
+    {
+      "key": "standard_concept",
+      "widthDouble": 120,
+      "title": "Source/standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 120,
+      "title": "Roll-up count"
+    }
+  ],
+  "hierarchyColumns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Concept name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 100,
+      "title": "Concept ID"
+    },
+    {
+      "key": "standard_concept",
+      "widthDouble": 120,
+      "title": "Source/standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 120,
+      "title": "Roll-up count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "observationPerson"
+    }
+  ]
+}

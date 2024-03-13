@@ -1,4 +1,5 @@
 import { useCohortContext } from "cohortContext";
+import { Cohort } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
@@ -6,14 +7,13 @@ import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useBaseParams } from "router";
 import useSWR from "swr";
-import * as tanagraUI from "tanagra-ui";
 import { CohortReviewConfig } from "underlaysSlice";
 import { useLocalSearchState } from "util/searchState";
 
 export type ReviewParams = {
   studyId: string;
   reviewId: string;
-  cohort: tanagraUI.UICohort;
+  cohort: Cohort;
 
   primaryKey: string;
   primaryAttributes: string[];

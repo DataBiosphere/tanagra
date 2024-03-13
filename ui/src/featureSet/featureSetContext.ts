@@ -1,13 +1,12 @@
-import { getCriteriaTitle, upgradeCriteria } from "cohort";
-import { FeatureSet } from "data/source";
+import { getCriteriaTitle } from "cohort";
+import { Criteria, FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { useUnderlay } from "hooks";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteFeatureSetURL, BaseParams } from "router";
 import useSWR, { useSWRConfig } from "swr";
-import * as tanagraUI from "tanagra-ui";
 
 type FeatureSetState = {
   past: FeatureSet[];
@@ -44,8 +43,8 @@ export function useFeatureSetContext() {
 export function useNewFeatureSetContext(
   showSnackbar: (message: string) => void
 ) {
-  const underlay = useUnderlay();
   const studySource = useStudySource();
+  const underlaySource = useUnderlaySource();
   const { studyId, featureSetId } =
     useParams<{ studyId: string; featureSetId: string }>();
 
@@ -63,11 +62,11 @@ export function useNewFeatureSetContext(
     featureSetId,
   };
   const status = useSWR(key, async () => {
-    const featureSet = await studySource.getFeatureSet(studyId, featureSetId);
-    for (const c of featureSet.criteria) {
-      upgradeCriteria(c, underlay.uiConfiguration.criteriaConfigs);
-    }
-    return featureSet;
+    return await studySource.getFeatureSet(
+      studyId,
+      underlaySource,
+      featureSetId
+    );
   });
 
   useEffect(
@@ -190,7 +189,7 @@ export function featureSetUndoRedo(
 
 export function insertFeatureSetCriteria(
   context: FeatureSetContextData,
-  criteria: tanagraUI.UICriteria
+  criteria: Criteria
 ) {
   context.updatePresent((present, showSnackbar) => {
     present.criteria.push(criteria);

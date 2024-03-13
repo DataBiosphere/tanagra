@@ -18,13 +18,12 @@ export type Underlay = {
   criteriaOccurrences: underlayConfig.SZCriteriaOccurrence[];
   groupItems: underlayConfig.SZGroupItems[];
   entities: underlayConfig.SZEntity[];
+  criteriaSelectors: underlayConfig.SZCriteriaSelector[];
+  prepackagedDataFeatures: underlayConfig.SZPrepackagedCriteria[];
 };
 
 export type UIConfiguration = {
-  criteriaConfigs: CriteriaConfig[];
-  modifierConfigs: CriteriaConfig[];
   demographicChartConfigs: DemographicChartConfig;
-  prepackagedConceptSets: PrepackagedConceptSet[];
   criteriaSearchConfig: CriteriaSearchConfig;
   cohortReviewConfig: CohortReviewConfig;
 };
@@ -78,19 +77,3 @@ export type CohortReviewPageConfig = {
   // Plugin specific config.
   plugin: unknown;
 };
-
-// CriteriaConfigs are used to initialize CriteriaPlugins and provide a list of
-// possible criteria.
-export interface CriteriaConfig {
-  // The plugin type to use for this criteria.
-  type: string;
-  id: string;
-  title: string;
-  conceptSet?: boolean;
-  category?: string;
-  tags?: string[];
-  modifiers?: string[];
-
-  // Plugin specific config.
-  plugin: unknown;
-}

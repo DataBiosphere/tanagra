@@ -1,0 +1,30 @@
+{
+  "name": "tanagra-visits",
+  "displayName": "Visit",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Domains",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "visits.json",
+  "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    },
+    {
+      "name": "startDateGroupByCount",
+      "displayName": "Occurrence count",
+      "plugin": "unhinted-value",
+      "pluginConfigFile": "startDateGroupByCount.json"
+    }
+  ]
+}

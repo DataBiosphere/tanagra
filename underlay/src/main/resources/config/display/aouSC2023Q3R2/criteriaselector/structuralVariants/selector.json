@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-structural-variants",
+  "displayName": "Structural Variants",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Genomics",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "structuralVariants.json",
+  "modifiers": null
+}

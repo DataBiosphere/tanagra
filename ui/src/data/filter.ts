@@ -1,6 +1,5 @@
-import * as tanagraUI from "tanagra-ui";
 import { isValid } from "util/valid";
-import { DataKey, DataValue } from "./types";
+import { DataKey, DataValue, GroupByCount } from "./types";
 
 export enum FilterType {
   Unary = "UNARY",
@@ -83,7 +82,7 @@ export function isTextFilter(filter: Filter): filter is TextFilter {
 export type RelationshipFilter = BaseFilter & {
   entityId: string;
   subfilter: Filter;
-  groupByCount?: tanagraUI.UIGroupByCount;
+  groupByCount?: GroupByCount;
 };
 
 export function isRelationshipFilter(

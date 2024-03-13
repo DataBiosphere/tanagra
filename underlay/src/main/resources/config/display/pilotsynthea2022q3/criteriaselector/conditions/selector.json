@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-conditions",
+  "displayName": "Condition",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Domains",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "conditions.json",
+  "modifiers": null
+}

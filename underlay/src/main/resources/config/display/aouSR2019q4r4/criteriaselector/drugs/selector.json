@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-drugs",
+  "displayName": "Drug",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Domains",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "drugs.json",
+  "modifiers": null
+}

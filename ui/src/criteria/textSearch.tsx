@@ -9,6 +9,7 @@ import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Loading from "components/loading";
 import { FilterType, makeArrayFilter } from "data/filter";
 import {
+  CommonSelectorConfig,
   dataValueFromProto,
   EnumHintOption,
   protoFromDataValue,
@@ -18,18 +19,12 @@ import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import GridLayout from "layout/gridLayout";
+import * as configProto from "proto/criteriaselector/configschema/text_search";
 import * as dataProto from "proto/criteriaselector/dataschema/text_search";
 import { useCallback, useMemo, useRef } from "react";
 import useSWRImmutable from "swr/immutable";
-import { CriteriaConfig } from "underlaysSlice";
 import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { isValid } from "util/valid";
-
-interface Config extends CriteriaConfig {
-  entity: string;
-  searchAttribute: string;
-  categoryAttribute?: string;
-}
 
 type Selection = {
   value: DataValue;
@@ -52,10 +47,12 @@ interface Data {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
-  private config: Config;
+  private selector: CommonSelectorConfig;
+  private config: configProto.TextSearch;
 
-  constructor(public id: string, config: CriteriaConfig, data: string) {
-    this.config = config as Config;
+  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+    this.selector = selector;
+    this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
     } catch (e) {
@@ -126,7 +123,7 @@ class _ implements CriteriaPlugin<string> {
 
 type TextSearchInlineProps = {
   groupId: string;
-  config: Config;
+  config: configProto.TextSearch;
   data: string;
 };
 
@@ -300,4 +297,8 @@ function encodeData(data: Data): string {
     query: data.query,
   };
   return bytesToBase64(dataProto.TextSearch.encode(message).finish());
+}
+
+function decodeConfig(selector: CommonSelectorConfig): configProto.TextSearch {
+  return configProto.TextSearch.fromJSON(JSON.parse(selector.pluginConfig));
 }

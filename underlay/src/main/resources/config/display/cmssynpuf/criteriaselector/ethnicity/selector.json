@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-ethnicity",
+  "displayName": "Ethnicity",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Program data",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "ethnicity.json",
+  "modifiers": null
+}

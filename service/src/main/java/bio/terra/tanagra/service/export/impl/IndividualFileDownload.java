@@ -1,11 +1,12 @@
 package bio.terra.tanagra.service.export.impl;
 
+import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
+
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,10 +45,22 @@ public class IndividualFileDownload implements DataExport {
 
   @Override
   public ExportResult run(ExportRequest request) {
+    String studyUnderlayRef =
+        simplifyStringForName(request.getStudy().getId() + "_" + request.getUnderlay().getName());
+    String cohortRef =
+        simplifyStringForName(
+                request.getCohorts().get(0).getDisplayName()
+                    + "_"
+                    + request.getCohorts().get(0).getId())
+            + (request.getCohorts().size() > 1
+                ? "_plus" + (request.getCohorts().size() - 1) + "more"
+                : "");
     Map<String, String> entityToGcsUrl =
-        request.writeEntityDataToGcs("tanagra_${entity}_" + Instant.now());
+        request.writeEntityDataToGcs(
+            "${entity}_cohort" + cohortRef + "_" + studyUnderlayRef + "_${random}");
     Map<Cohort, String> cohortToGcsUrl =
-        request.writeAnnotationDataToGcs("tanagra_${cohort}_" + Instant.now());
+        request.writeAnnotationDataToGcs(
+            "annotations_cohort${cohort}" + "_" + studyUnderlayRef + "_${random}");
 
     Map<String, String> outputParams = new HashMap<>();
     entityToGcsUrl.entrySet().stream()

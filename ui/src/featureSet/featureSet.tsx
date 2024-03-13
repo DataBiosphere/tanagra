@@ -29,6 +29,7 @@ import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
+import { Criteria } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import {
@@ -52,7 +53,6 @@ import {
 } from "router";
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
-import * as tanagraUI from "tanagra-ui";
 import UndoRedoToolbar from "undoRedoToolbar";
 import { safeRegExp } from "util/safeRegExp";
 import { useGlobalSearchState, useNavigate } from "util/searchState";
@@ -151,7 +151,7 @@ export function FeatureSet() {
 type FeatureListCriteria = {
   id: string;
   title: string;
-  criteria?: tanagraUI.UICriteria;
+  criteria?: Criteria;
 };
 
 function FeatureList() {
@@ -161,15 +161,15 @@ function FeatureList() {
 
   const addURL = `../${featureSetURL(featureSet.id)}/add`;
 
-  const predefinedCriteria = underlay.uiConfiguration.prepackagedConceptSets;
+  const predefinedCriteria = underlay.prepackagedDataFeatures;
 
   const sortedCriteria = useMemo(() => {
     const criteria: FeatureListCriteria[] = [];
     predefinedCriteria.forEach((c) => {
-      if (featureSet.predefinedCriteria.indexOf(c.id) >= 0) {
+      if (featureSet.predefinedCriteria.indexOf(c.name) >= 0) {
         criteria.push({
-          id: c.id,
-          title: c.name,
+          id: c.name,
+          title: c.displayName,
         });
       }
     });
@@ -270,7 +270,6 @@ type PreviewTabData = {
 
 function Preview() {
   const featureSet = useFeatureSet();
-  const underlay = useUnderlay();
   const underlaySource = useUnderlaySource();
   const navigate = useNavigate();
 
@@ -285,8 +284,7 @@ function Preview() {
     return getOccurrenceList(
       underlaySource,
       selectedCriteria,
-      featureSet.criteria,
-      underlay.uiConfiguration.prepackagedConceptSets
+      featureSet.criteria
     );
   }, [featureSet.criteria, featureSet.predefinedCriteria]);
 

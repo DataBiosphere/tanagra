@@ -6,6 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { generateCohortFilter } from "cohort";
 import Loading from "components/loading";
+import { Cohort } from "data/source";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -13,11 +14,10 @@ import { TextField } from "mui-rff";
 import { useState } from "react";
 import { Form } from "react-final-form";
 import useSWRImmutable from "swr/immutable";
-import * as tanagraUI from "tanagra-ui";
 import { isValid } from "util/valid";
 
 export type UseNewReviewDialogProps = {
-  cohort: tanagraUI.UICohort;
+  cohort: Cohort;
   onCreate: (name: string, size: number) => void;
 };
 

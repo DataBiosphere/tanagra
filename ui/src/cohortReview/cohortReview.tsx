@@ -61,6 +61,7 @@ export function CohortReview() {
     async (key) => {
       return await studySource.getCohortReview(
         key.studyId,
+        underlaySource,
         key.cohortId,
         key.reviewId
       );

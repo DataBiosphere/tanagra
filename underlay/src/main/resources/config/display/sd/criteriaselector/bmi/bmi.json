@@ -1,0 +1,13 @@
+{
+  "entity": "bmi",
+  "valueConfigs": [
+    {
+      "attribute": "is_clean",
+      "title": "Cleanliness"
+    },
+    {
+      "attribute": "value_numeric",
+      "unit": "kg/m^2"
+    }
+  ]
+}

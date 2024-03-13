@@ -70,6 +70,14 @@ export function UnderlaySourceContextRoot() {
         entities: apiUnderlay.serializedConfiguration.entities.map((e) =>
           JSON.parse(e)
         ),
+        criteriaSelectors:
+          apiUnderlay.serializedConfiguration.criteriaSelectors?.map((cs) =>
+            JSON.parse(cs)
+          ) ?? [],
+        prepackagedDataFeatures:
+          apiUnderlay.serializedConfiguration.prepackagedDataFeatures?.map(
+            (df) => JSON.parse(df)
+          ) ?? [],
       };
 
       return {

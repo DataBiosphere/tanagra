@@ -6,13 +6,20 @@ import {
   UnaryFilterOperator,
 } from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
-import { UnderlaySource } from "data/source";
-import { DataEntry } from "data/types";
+import {
+  Cohort,
+  CommonSelectorConfig,
+  Criteria,
+  Group,
+  GroupSection,
+  GroupSectionFilter,
+  GroupSectionFilterKind,
+  UnderlaySource,
+} from "data/source";
+import { DataEntry, GroupByCount } from "data/types";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
-import * as tanagraUI from "tanagra-ui";
 import { isValid } from "util/valid";
-import { CriteriaConfig } from "./underlaysSlice";
 
 export function generateId(): string {
   return generate(8);
@@ -20,7 +27,7 @@ export function generateId(): string {
 
 export function generateCohortFilter(
   underlaySource: UnderlaySource,
-  cohort: tanagraUI.UICohort
+  cohort: Cohort
 ): Filter | null {
   return makeArrayFilter(
     {},
@@ -32,12 +39,10 @@ export function generateCohortFilter(
 
 function generateSectionFilter(
   underlaySource: UnderlaySource,
-  section: tanagraUI.UIGroupSection
+  section: GroupSection
 ): Filter | null {
   const filter = makeArrayFilter(
-    section.filter.kind === tanagraUI.UIGroupSectionFilterKindEnum.Any
-      ? { min: 1 }
-      : {},
+    section.filter.kind === GroupSectionFilterKind.Any ? { min: 1 } : {},
     section.groups
       .map((group) => generateGroupSectionFilter(underlaySource, group))
       .filter(isValid)
@@ -55,7 +60,7 @@ function generateSectionFilter(
 
 function generateGroupSectionFilter(
   underlaySource: UnderlaySource,
-  group: tanagraUI.UIGroup
+  group: Group
 ): Filter | null {
   const plugins = group.criteria.map((c) => getCriteriaPlugin(c));
 
@@ -101,26 +106,22 @@ function generateGroupSectionFilter(
   return makeArrayFilter({ min: 1 }, entityFilters);
 }
 
-export function sectionName(section: tanagraUI.UIGroupSection, index: number) {
+export function sectionName(section: GroupSection, index: number) {
   return section.name || "Group " + String(index + 1);
 }
 
-export function defaultSection(
-  criteria?: tanagraUI.UICriteria
-): tanagraUI.UIGroupSection {
+export function defaultSection(criteria?: Criteria): GroupSection {
   return {
     id: generateId(),
     filter: {
-      kind: tanagraUI.UIGroupSectionFilterKindEnum.Any,
+      kind: GroupSectionFilterKind.Any,
       excluded: false,
     },
     groups: !!criteria ? [defaultGroup(criteria)] : [],
   };
 }
 
-export function defaultGroup(
-  criteria: tanagraUI.UICriteria
-): tanagraUI.UIGroup {
+export function defaultGroup(criteria: Criteria): Group {
   return {
     id: criteria.id,
     // TODO: **************** Is this necessary?
@@ -129,8 +130,8 @@ export function defaultGroup(
   };
 }
 
-export const defaultFilter: tanagraUI.UIGroupSectionFilter = {
-  kind: tanagraUI.UIGroupSectionFilterKindEnum.Any,
+export const defaultFilter: GroupSectionFilter = {
+  kind: GroupSectionFilterKind.Any,
   excluded: false,
 };
 
@@ -149,7 +150,7 @@ export interface CriteriaPlugin<DataType> {
     occurrenceId: string,
     underlaySource: UnderlaySource
   ) => Filter | null;
-  groupByCountFilter?: () => tanagraUI.UIGroupByCount | null;
+  groupByCountFilter?: () => GroupByCount | null;
   filterEntityIds: (underlaySource: UnderlaySource) => string[];
   outputEntityIds?: () => string[];
 }
@@ -161,32 +162,32 @@ export type DisplayDetails = {
 };
 
 export function getCriteriaTitle<DataType>(
-  criteria: tanagraUI.UICriteria,
+  criteria: Criteria,
   plugin?: CriteriaPlugin<DataType>
 ) {
   const p = plugin ?? getCriteriaPlugin(criteria);
   const title = p.displayDetails().title;
-  return criteria.config.title + (title.length > 0 ? `: ${title}` : "");
+  return criteria.config.displayName + (title.length > 0 ? `: ${title}` : "");
 }
 
 export function getCriteriaTitleFull<DataType>(
-  criteria: tanagraUI.UICriteria,
+  criteria: Criteria,
   plugin?: CriteriaPlugin<DataType>
 ) {
   const p = plugin ?? getCriteriaPlugin(criteria);
   const details = p.displayDetails();
   const title = details.additionalText?.join(", ") || details.title;
-  return criteria.config.title + (title.length > 0 ? `: ${title}` : "");
+  return criteria.config.displayName + (title.length > 0 ? `: ${title}` : "");
 }
 
 export function searchCriteria(
   underlaySource: UnderlaySource,
-  configs: CriteriaConfig[],
+  configs: CommonSelectorConfig[],
   query: string
 ): Promise<SearchResponse> {
   const promises: Promise<[string, DataEntry[]]>[] = configs
     .map((config) => {
-      const entry = criteriaRegistry.get(config.type);
+      const entry = criteriaRegistry.get(config.plugin);
       if (!entry?.search) {
         return null;
       }
@@ -195,7 +196,7 @@ export function searchCriteria(
       // explicitly typed.
       const p: Promise<[string, DataEntry[]]> = entry
         .search(underlaySource, config, query)
-        .then((res) => [config.id, res]);
+        .then((res) => [config.name, res]);
       return p;
     })
     .filter(isValid);
@@ -210,26 +211,6 @@ export function searchCriteria(
   }));
 }
 
-export function upgradeCriteria(
-  criteria: tanagraUI.UICriteria,
-  criteriaConfigs: CriteriaConfig[]
-) {
-  const cc = criteriaConfigs.find((cc) => cc.id === criteria.config.id);
-  if (cc) {
-    // TODO(tjennison): Add version to criteria so plugins can have an
-    // opportunity to apply custom upgrades. For now, just always update the
-    // CriteriaConfig to the latest.
-    criteria.config = cc;
-  }
-}
-
-export interface PredefinedCriteria {
-  id: string;
-  name: string;
-  entity: string;
-  filter?: Filter;
-}
-
 export type OccurrenceFilters = {
   id: string;
   name: string;
@@ -241,8 +222,7 @@ export type OccurrenceFilters = {
 export function getOccurrenceList(
   underlaySource: UnderlaySource,
   selectedCriteria: Set<string>,
-  userCriteria?: tanagraUI.UICriteria[],
-  predefinedCriteria?: PredefinedCriteria[]
+  userCriteria?: Criteria[]
 ): OccurrenceFilters[] {
   const occurrences = new Map<string, Filter[]>();
   const sourceCriteria: string[] = [];
@@ -255,14 +235,11 @@ export function getOccurrenceList(
     }
   };
 
-  predefinedCriteria
-    ?.filter((c) => selectedCriteria.has(c.id))
-    ?.forEach((c) => {
-      sourceCriteria.push(c.name);
-      addFilter(c.entity, c.filter);
-    });
+  const pc = underlaySource.underlay.prepackagedDataFeatures
+    ?.filter((criteria) => selectedCriteria.has(criteria.name))
+    ?.map((criteria) => underlaySource.createPredefinedCriteria(criteria.name));
 
-  userCriteria
+  [...pc, ...(userCriteria ?? [])]
     ?.filter((criteria) => selectedCriteria.has(criteria.id))
     ?.forEach((criteria) => {
       const plugin = getCriteriaPlugin(criteria);
@@ -307,13 +284,13 @@ export function registerCriteriaPlugin(
 
 type InitializeDataFn = (
   underlaySource: UnderlaySource,
-  config: CriteriaConfig,
+  config: CommonSelectorConfig,
   dataEntry?: DataEntry
 ) => string;
 
 type SearchFn = (
   underlaySource: UnderlaySource,
-  config: CriteriaConfig,
+  config: CommonSelectorConfig,
   query: string
 ) => Promise<DataEntry[]>;
 
@@ -323,25 +300,25 @@ export type SearchResponse = {
 
 export function createCriteria(
   underlaySource: UnderlaySource,
-  config: CriteriaConfig,
+  config: CommonSelectorConfig,
   dataEntry?: DataEntry
-): tanagraUI.UICriteria {
-  const entry = getCriteriaEntry(config.type);
+): Criteria {
+  const entry = getCriteriaEntry(config.plugin);
   return {
     id: generateId(),
-    type: config.type,
+    type: config.plugin,
     data: entry.initializeData(underlaySource, config, dataEntry),
     config: config,
   };
 }
 
 export function getCriteriaPlugin(
-  criteria: tanagraUI.UICriteria,
+  criteria: Criteria,
   entity?: string
 ): CriteriaPlugin<string> {
   return new (getCriteriaEntry(criteria.type).constructor)(
     criteria.id,
-    criteria.config as CriteriaConfig,
+    criteria.config,
     criteria.data,
     entity
   );
@@ -358,7 +335,7 @@ function getCriteriaEntry(type: string): RegistryEntry {
 interface CriteriaPluginConstructor {
   new (
     id: string,
-    config: CriteriaConfig,
+    config: CommonSelectorConfig,
     data: string,
     entity?: string
   ): CriteriaPlugin<string>;

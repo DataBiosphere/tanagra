@@ -1,0 +1,41 @@
+{
+  "columns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Genotyping platform"
+    },
+    {
+      "key": "id",
+      "widthDouble": 100,
+      "title": "Id"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up count"
+    }
+  ],
+  "hierarchyColumns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Genotyping platform"
+    },
+    {
+      "key": "id",
+      "widthDouble": 100,
+      "title": "Id"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "genotypingPerson"
+    }
+  ]
+}

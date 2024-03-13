@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-resp-rate",
+  "displayName": "Resp Rate",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Vitals",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "respRate.json",
+  "modifiers": null
+}

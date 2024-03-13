@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service.export.impl;
 
+import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
+
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.export.DataExport;
@@ -47,10 +49,18 @@ public class VwbFileImport implements DataExport {
   @Override
   public ExportResult run(ExportRequest request) {
     // Write the data export files to GCS.
+    String cohortRef =
+        simplifyStringForName(
+                request.getCohorts().get(0).getDisplayName()
+                    + "_"
+                    + request.getCohorts().get(0).getId())
+            + (request.getCohorts().size() > 1
+                ? "plus" + (request.getCohorts().size() - 1) + "more"
+                : "");
     Map<String, String> entityToGcsUrl =
-        request.writeEntityDataToGcs("tanagra_${entity}_" + Instant.now() + "_*.csv");
+        request.writeEntityDataToGcs("${entity}_cohort" + cohortRef + "_${random}");
     Map<Cohort, String> cohortToGcsUrl =
-        request.writeAnnotationDataToGcs("tanagra_${cohort}_" + Instant.now() + "_*.csv");
+        request.writeAnnotationDataToGcs("annotations_cohort${cohort}_${random}");
     List<String> unsignedUrls = new ArrayList<>();
     unsignedUrls.addAll(entityToGcsUrl.values());
     unsignedUrls.addAll(cohortToGcsUrl.values());

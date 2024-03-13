@@ -1,18 +1,18 @@
 import { defaultGroup, defaultSection } from "cohort";
+import { Cohort, Criteria, GroupSectionFilter } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { useUnderlay } from "hooks";
+import { useUnderlaySource } from "data/underlaySourceContext";
 import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortURL, BaseParams } from "router";
 import useSWR, { useSWRConfig } from "swr";
-import * as tanagraUI from "tanagra-ui";
-import { getCriteriaPlugin, getCriteriaTitle, upgradeCriteria } from "./cohort";
+import { getCriteriaPlugin, getCriteriaTitle } from "./cohort";
 
 type CohortState = {
-  past: tanagraUI.UICohort[];
-  present: tanagraUI.UICohort;
-  future: tanagraUI.UICohort[];
+  past: Cohort[];
+  present: Cohort;
+  future: Cohort[];
 
   saving: boolean;
   showSnackbar: (message: string) => void;
@@ -22,10 +22,7 @@ type CohortContextData = {
   state: CohortState | null;
   updateState: (update: (state: CohortState) => void) => void;
   updatePresent: (
-    update: (
-      present: tanagraUI.UICohort,
-      showSnackbar: (message: string) => void
-    ) => void
+    update: (present: Cohort, showSnackbar: (message: string) => void) => void
   ) => void;
 };
 
@@ -40,8 +37,8 @@ export function useCohortContext() {
 }
 
 export function useNewCohortContext(showSnackbar: (message: string) => void) {
-  const underlay = useUnderlay();
   const studySource = useStudySource();
+  const underlaySource = useUnderlaySource();
   const { studyId, cohortId } =
     useParams<{ studyId: string; cohortId: string }>();
 
@@ -59,15 +56,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
     cohortId,
   };
   const status = useSWR(key, async () => {
-    const cohort = await studySource.getCohort(studyId, cohortId);
-    for (const gs of cohort.groupSections) {
-      for (const g of gs.groups) {
-        for (const c of g.criteria) {
-          upgradeCriteria(c, underlay.uiConfiguration.criteriaConfigs);
-        }
-      }
-    }
-    return cohort;
+    return await studySource.getCohort(studyId, underlaySource, cohortId);
   });
 
   useEffect(
@@ -122,7 +111,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
       },
       updatePresent: async (
         update: (
-          present: tanagraUI.UICohort,
+          present: Cohort,
           showSnackbar: (message: string) => void
         ) => void
       ) => {
@@ -185,7 +174,7 @@ export function cohortUndoRedo(params: BaseParams, context: CohortContextData) {
 export function insertCohortCriteria(
   context: CohortContextData,
   sectionId: string,
-  criteria: tanagraUI.UICriteria
+  criteria: Criteria
 ) {
   const group = defaultGroup(criteria);
 
@@ -217,7 +206,7 @@ export function insertCohortCriteriaModifier(
   context: CohortContextData,
   sectionId: string,
   groupId: string,
-  criteria: tanagraUI.UICriteria
+  criteria: Criteria
 ) {
   context.updatePresent((present) => {
     const section = present.groupSections.find(
@@ -340,7 +329,7 @@ export function deleteCohortGroup(
 
 export function insertCohortGroupSection(
   context: CohortContextData,
-  criteria?: tanagraUI.UICriteria
+  criteria?: Criteria
 ) {
   context.updatePresent((present) => {
     present.groupSections.push(defaultSection(criteria));
@@ -376,7 +365,7 @@ export function updateCohortGroupSection(
   context: CohortContextData,
   sectionId: string,
   name?: string,
-  filter?: tanagraUI.UIGroupSectionFilter
+  filter?: GroupSectionFilter
 ) {
   context.updatePresent((present) => {
     const section = present.groupSections.find(
