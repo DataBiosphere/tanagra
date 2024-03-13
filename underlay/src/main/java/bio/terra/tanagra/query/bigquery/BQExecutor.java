@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery;
 
+import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
+
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
@@ -14,21 +16,21 @@ import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.QueryParameterValue;
+import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
-import java.time.Instant;
+import java.math.BigInteger;
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BQExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BQExecutor.class);
-  private static final String TEMPORARY_TABLE_BASE_NAME = "exporttemptable";
+  private static final String TEMPORARY_TABLE_BASE_NAME = "export";
 
-  private static final Random RANDOM = new Random();
   private final String queryProjectId;
   private final String datasetLocation;
 
@@ -95,20 +97,23 @@ public class BQExecutor {
 
   public String export(
       SqlQueryRequest queryRequest,
+      String fileNamePrefix,
       String exportProjectId,
       List<String> exportDatasetIds,
       List<String> exportBucketNames) {
     LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
     // Create a temporary table with the results of the query.
-    final String tempTableName =
+    final int bqMaxTableNameLength = 1024;
+    String tempTableName =
         TEMPORARY_TABLE_BASE_NAME
-            + '_'
-            + Instant.now().getEpochSecond()
-            + '_'
-            + Instant.now().getNano()
-            + '_'
-            + RANDOM.nextInt();
+            + "_"
+            + simplifyStringForName(UUID.randomUUID().toString())
+            + "_"
+            + simplifyStringForName(fileNamePrefix);
+    if (tempTableName.length() > bqMaxTableNameLength) {
+      tempTableName = tempTableName.substring(0, bqMaxTableNameLength);
+    }
     String exportDatasetId =
         getBigQueryService()
             .findDatasetForExportTempTable(exportProjectId, exportDatasetIds, datasetLocation);
@@ -124,18 +129,26 @@ public class BQExecutor {
             sqlParam ->
                 queryConfig.addNamedParameter(
                     sqlParam.getKey(), toQueryParameterValue(sqlParam.getValue())));
-    getBigQueryService().createTableFromQuery(queryConfig.build());
+    Table tempTable = getBigQueryService().createTableFromQuery(queryConfig.build());
     LOGGER.info(
         "Temporary table created for export: {}.{}.{}",
         exportProjectId,
         exportDatasetId,
         tempTableName);
+    if (BigInteger.ZERO.equals(tempTable.getNumRows())) {
+      LOGGER.info(
+          "Temporary table has no rows, skipping export: {}.{}.{}",
+          exportProjectId,
+          exportDatasetId,
+          tempTableName);
+      return null;
+    }
 
     // Export the temporary table to a compressed file.
     String bucketName =
         getCloudStorageService()
             .findBucketForBigQueryExport(exportProjectId, exportBucketNames, datasetLocation);
-    String gcsUrl = String.format("gs://%s/%s.gzip", bucketName, tempTableName);
+    String gcsUrl = String.format("gs://%s/%s.csv.gzip", bucketName, fileNamePrefix);
     LOGGER.info("Exporting temporary table to GCS file: {}", gcsUrl);
     Job exportJob = getBigQueryService().exportTableToGcs(tempTableId, gcsUrl, "GZIP", "CSV");
     if (exportJob == null) {
