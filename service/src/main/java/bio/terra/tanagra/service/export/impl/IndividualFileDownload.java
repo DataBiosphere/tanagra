@@ -45,18 +45,22 @@ public class IndividualFileDownload implements DataExport {
 
   @Override
   public ExportResult run(ExportRequest request) {
+    String studyUnderlayRef =
+        simplifyStringForName(request.getStudy().getId() + "_" + request.getUnderlay().getName());
     String cohortRef =
         simplifyStringForName(
                 request.getCohorts().get(0).getDisplayName()
                     + "_"
                     + request.getCohorts().get(0).getId())
             + (request.getCohorts().size() > 1
-                ? "plus" + (request.getCohorts().size() - 1) + "more"
+                ? "_plus" + (request.getCohorts().size() - 1) + "more"
                 : "");
     Map<String, String> entityToGcsUrl =
-        request.writeEntityDataToGcs("${entity}_cohort" + cohortRef + "_${random}");
+        request.writeEntityDataToGcs(
+            "${entity}_cohort" + cohortRef + "_" + studyUnderlayRef + "_${random}");
     Map<Cohort, String> cohortToGcsUrl =
-        request.writeAnnotationDataToGcs("annotations_cohort${cohort}_${random}");
+        request.writeAnnotationDataToGcs(
+            "annotations_cohort${cohort}" + "_" + studyUnderlayRef + "_${random}");
 
     Map<String, String> outputParams = new HashMap<>();
     entityToGcsUrl.entrySet().stream()
