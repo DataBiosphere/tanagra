@@ -432,6 +432,32 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/counts":
+    parameters:
+      - $ref: "#/components/parameters/StudyId"
+      - $ref: "#/components/parameters/CohortId"
+    post:
+      summary: Run a count query for a cohort
+      operationId: queryCohortCounts
+      tags: [Cohorts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CohortCountQuery"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceCountList"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews":
     parameters:
       - $ref: "#/components/parameters/StudyId"
@@ -809,6 +835,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ExportModelList"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/underlays/{underlayName}/entities/{entity}/exportPreview":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayName"
+      - $ref: "#/components/parameters/EntityName"
+    post:
+      summary: List entity instances to preview the export
+      operationId: previewEntityExport
+      tags: [Export]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportPreviewRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceListResult"
         404:
           $ref: "#/components/responses/NotFound"
         500:
@@ -1387,6 +1439,26 @@ components:
               description: Related entity name
             id:
               $ref: "#/components/schemas/Literal"
+
+    CohortCountQuery:
+      type: object
+      description: Count primary entity instances for a cohort filter
+      properties:
+        criteriaGroupSectionId:
+          type: string
+        criteriaGroupId:
+          type: string
+        attributes:
+          description: |
+            Attributes to group by. One count will be returned for each possible combination of attribute values 
+            (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
+          type: array
+          items:
+            type: string
+        pageSize:
+          $ref: "#/components/schemas/PageSize"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
 
     ReviewQuery:
       type: object
@@ -2408,6 +2480,25 @@ components:
         round-trip:
           type: string
 
+    ExportPreviewRequest:
+      type: object
+      properties:
+        study:
+          type: string
+          nullable: false
+        cohorts:
+          description: List of cohort ids
+          type: array
+          items:
+            type: string
+        conceptSets:
+          description: List of concept set ids
+          type: array
+          items:
+            type: string
+        limit:
+          type: integer
+
     ExportRequest:
       type: object
       properties:
@@ -2428,6 +2519,11 @@ components:
           nullable: false
         cohorts:
           description: List of cohort ids
+          type: array
+          items:
+            type: string
+        conceptSets:
+          description: List of concept set ids
           type: array
           items:
             type: string
