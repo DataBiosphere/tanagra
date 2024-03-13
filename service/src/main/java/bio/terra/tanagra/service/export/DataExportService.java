@@ -17,11 +17,12 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
+import bio.terra.tanagra.utils.NameUtils;
+import bio.terra.tanagra.utils.RandomNumberGenerator;
 import bio.terra.tanagra.utils.threadpool.Job;
 import bio.terra.tanagra.utils.threadpool.JobResult;
 import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;
 import com.google.cloud.storage.BlobId;
-import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +42,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataExportService {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportService.class);
-  private static final String SIMPLIFY_TO_NAME_REGEX = "[^a-zA-Z0-9_]";
 
   private final FeatureConfiguration featureConfiguration;
   private final ExportConfiguration.Shared shared;
@@ -52,9 +52,11 @@ public class DataExportService {
   private final CohortService cohortService;
   private final ReviewService reviewService;
   private final ActivityLogService activityLogService;
+  private final RandomNumberGenerator randomNumberGenerator;
   private GoogleCloudStorage storageService;
 
   @Autowired
+  @SuppressWarnings("checkstyle:ParameterNumber")
   public DataExportService(
       FeatureConfiguration featureConfiguration,
       ExportConfiguration exportConfiguration,
@@ -62,7 +64,8 @@ public class DataExportService {
       StudyService studyService,
       CohortService cohortService,
       ReviewService reviewService,
-      ActivityLogService activityLogService) {
+      ActivityLogService activityLogService,
+      RandomNumberGenerator randomNumberGenerator) {
     this.featureConfiguration = featureConfiguration;
     this.shared = exportConfiguration.getShared();
     for (PerModel perModelConfig : exportConfiguration.getModels()) {
@@ -83,6 +86,7 @@ public class DataExportService {
     this.cohortService = cohortService;
     this.reviewService = reviewService;
     this.activityLogService = activityLogService;
+    this.randomNumberGenerator = randomNumberGenerator;
   }
 
   /** Return a map of model name -> (display name, implementation class instance). */
@@ -197,13 +201,19 @@ public class DataExportService {
         listQueryRequests.stream()
             .map(
                 listQueryRequest -> {
-                  String wildcardFilename =
-                      getFileName(
-                          fileNameTemplate, "entity", listQueryRequest.getEntity().getName());
+                  // Build a map of substitution strings for the filename template.
+                  Map<String, String> substitutions =
+                      Map.of(
+                          "entity",
+                          listQueryRequest.getEntity().getName(),
+                          "random",
+                          Instant.now().getEpochSecond() + "_" + randomNumberGenerator.getNext());
+                  String substitutedFilename =
+                      StringSubstitutor.replace(fileNameTemplate, substitutions);
                   return new ExportQueryRequest(
                       listQueryRequest,
                       listQueryRequest.getEntity().getName(),
-                      wildcardFilename,
+                      substitutedFilename,
                       shared.getGcpProjectId(),
                       shared.getBqDatasetIds(),
                       shared.getGcsBucketNames());
@@ -268,9 +278,12 @@ public class DataExportService {
     exportQueryResults.stream()
         .forEach(
             // TODO: Pass out any error information also, once that's included in the OpenAPI spec.
-            exportQueryResult ->
+            exportQueryResult -> {
+              if (exportQueryResult.getFilePath() != null) {
                 entityToUrlMap.put(
-                    exportQueryResult.getFileDisplayName(), exportQueryResult.getFilePath()));
+                    exportQueryResult.getFileDisplayName(), exportQueryResult.getFilePath());
+              }
+            });
     return entityToUrlMap;
   }
 
@@ -291,28 +304,22 @@ public class DataExportService {
             cohort -> {
               String fileContents = reviewService.buildCsvStringForAnnotationValues(study, cohort);
               if (fileContents != null) {
-                String cohortIdAndName =
-                    simplifyStringForName(cohort.getDisplayName() + "_" + cohort.getId());
-                String fileName = getFileName(fileNameTemplate, "cohort", cohortIdAndName);
+                String fileName =
+                    StringSubstitutor.replace(
+                        fileNameTemplate,
+                        Map.of(
+                            "cohort",
+                            NameUtils.simplifyStringForName(
+                                cohort.getDisplayName() + "_" + cohort.getId()),
+                            "random",
+                            Instant.now().getEpochSecond()
+                                + "_"
+                                + randomNumberGenerator.getNext()));
                 BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
                 cohortToGcsUrl.put(cohort, blobId.toGsUtilUri());
               }
             });
     return cohortToGcsUrl;
-  }
-
-  /** Return the rendered filename with substitutions. */
-  private String getFileName(String template, String substituteFor, String substituteWith) {
-    if (!template.contains("${" + substituteFor + "}")) {
-      throw new IllegalArgumentException(
-          "GCS filename template must contain a substitution for ${"
-              + substituteFor
-              + "}: "
-              + template);
-    }
-    Map<String, String> params =
-        ImmutableMap.<String, String>builder().put(substituteFor, substituteWith).build();
-    return StringSubstitutor.replace(template, params);
   }
 
   private GoogleCloudStorage getStorageService() {
@@ -321,9 +328,5 @@ public class DataExportService {
           GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcpProjectId());
     }
     return storageService;
-  }
-
-  public static String simplifyStringForName(String str) {
-    return str.replaceAll(SIMPLIFY_TO_NAME_REGEX, "");
   }
 }
