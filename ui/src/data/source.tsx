@@ -3,7 +3,6 @@ import { getReasonPhrase } from "http-status-codes";
 import * as keyProto from "proto/criteriaselector/key";
 import * as valueProto from "proto/criteriaselector/value";
 import * as tanagra from "tanagra-api";
-import * as tanagraUI from "tanagra-ui";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
@@ -24,7 +23,7 @@ import {
   isTextFilter,
   isUnaryFilter,
 } from "./filter";
-import { CohortReview, DataEntry, DataKey, DataValue } from "./types";
+import { ComparisonOperator, DataEntry, DataKey, DataValue } from "./types";
 
 export type EntityNode = {
   data: DataEntry;
@@ -146,16 +145,20 @@ export type FeatureSetOutput = {
   excludedAttributes: string[];
 };
 
-export type FeatureSet = {
+export type FeatureSetMetadata = {
   id: string;
   name: string;
   underlayName: string;
   lastModified: Date;
+};
 
-  criteria: tanagraUI.UICriteria[];
+type FeatureSetOptional = {
+  criteria: Criteria[];
   predefinedCriteria: string[];
   output: FeatureSetOutput[];
 };
+
+export type FeatureSet = FeatureSetMetadata & FeatureSetOptional;
 
 export type EntityGroupData = {
   id: string;
@@ -166,12 +169,81 @@ export type EntityGroupData = {
   selectionEntity: tanagraUnderlay.SZEntity;
 };
 
+export type CohortReview = {
+  id: string;
+  displayName: string;
+  description?: string;
+  size: number;
+  cohort: Cohort;
+  created: Date;
+  createdBy: string;
+  lastModified: Date;
+};
+
+export type CohortMetadata = {
+  id: string;
+  name: string;
+  underlayName: string;
+  lastModified: Date;
+};
+
+export type Cohort = CohortMetadata & {
+  groupSections: GroupSection[];
+};
+
+export type GroupSection = {
+  id: string;
+  name?: string;
+  filter: GroupSectionFilter;
+  groups: Group[];
+};
+
+export enum GroupSectionFilterKind {
+  Any = "ANY",
+  All = "ALL",
+}
+
+export type GroupSectionFilter = {
+  kind: GroupSectionFilterKind;
+  excluded: boolean;
+};
+
+export type Group = {
+  id: string;
+  entity: string;
+  criteria: Criteria[];
+};
+
+export type CommonSelectorConfig = {
+  displayName: string;
+  name: string;
+  plugin: string;
+  pluginConfig: string;
+};
+
+export type Criteria = {
+  id: string;
+  type: string;
+  data: string;
+  config: CommonSelectorConfig;
+};
+
+export type ConceptSet = {
+  id: string;
+  underlayName: string;
+  criteria: Criteria;
+};
+
 export interface UnderlaySource {
   underlay: Underlay;
 
   lookupEntityGroup(entityGroupId: string): EntityGroupData;
   lookupEntity(entityId: string): tanagraUnderlay.SZEntity;
+  lookupCriteriaSelector(id: string): tanagraUnderlay.SZCriteriaSelector;
+  lookupModifierSelector(id: string, modifierId: string): CommonSelectorConfig;
   primaryEntity(): tanagraUnderlay.SZEntity;
+
+  createPredefinedCriteria(id: string): Criteria;
 
   searchEntityGroup(
     requestedAttributes: string[],
@@ -221,12 +293,16 @@ export interface UnderlaySource {
 }
 
 export interface StudySource {
-  listCohortReviews(studyId: string, cohortId: string): Promise<CohortReview[]>;
+  listCohortReviews(
+    studyId: string,
+    underlaySource: UnderlaySource,
+    cohortId: string
+  ): Promise<CohortReview[]>;
 
   createCohortReview(
     studyId: string,
     underlaySource: UnderlaySource,
-    cohort: tanagraUI.UICohort,
+    cohort: Cohort,
     displayName: string,
     size: number
   ): Promise<CohortReview>;
@@ -235,6 +311,7 @@ export interface StudySource {
 
   renameCohortReview(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohortId: string,
     reviewId: string,
     displayName: string
@@ -242,6 +319,7 @@ export interface StudySource {
 
   getCohortReview(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohortId: string,
     reviewId: string
   ): Promise<CohortReview>;
@@ -262,35 +340,59 @@ export interface StudySource {
 
   deleteStudy(studyId: string): void;
 
-  // TODO(tjennison): Use internal types for cohorts and related objects instead
-  // of V1 types from the service definition.
-  getCohort(
+  getCohortMetadata(
     studyId: string,
     cohortId: string,
     cohortRevisionId?: string
-  ): Promise<tanagraUI.UICohort>;
+  ): Promise<CohortMetadata>;
 
-  listCohorts(studyId: string): Promise<tanagraUI.UICohort[]>;
+  getCohort(
+    studyId: string,
+    underlaySource: UnderlaySource,
+    cohortId: string,
+    cohortRevisionId?: string
+  ): Promise<Cohort>;
+
+  listCohortMetadata(studyId: string): Promise<CohortMetadata[]>;
+
+  listCohorts(
+    studyId: string,
+    underlaySource: UnderlaySource
+  ): Promise<Cohort[]>;
 
   createCohort(
     underlayName: string,
     studyId: string,
     displayName?: string
-  ): Promise<tanagraUI.UICohort>;
+  ): Promise<CohortMetadata>;
 
-  updateCohort(studyId: string, cohort: tanagraUI.UICohort): void;
+  updateCohort(studyId: string, cohort: Cohort): void;
 
   deleteCohort(studyId: string, cohortId: string): void;
 
-  getFeatureSet(studyId: string, featureSetId: string): Promise<FeatureSet>;
+  getFeatureSetMetadata(
+    studyId: string,
+    featureSetId: string
+  ): Promise<FeatureSetMetadata>;
 
-  listFeatureSets(studyId: string): Promise<FeatureSet[]>;
+  getFeatureSet(
+    studyId: string,
+    underlaySource: UnderlaySource,
+    featureSetId: string
+  ): Promise<FeatureSet>;
+
+  listFeatureSetMetadata(studyId: string): Promise<FeatureSetMetadata[]>;
+
+  listFeatureSets(
+    studyId: string,
+    underlaySource: UnderlaySource
+  ): Promise<FeatureSet[]>;
 
   createFeatureSet(
     underlayName: string,
     studyId: string,
     name: string
-  ): Promise<FeatureSet>;
+  ): Promise<FeatureSetMetadata>;
 
   updateFeatureSet(studyId: string, featureSet: FeatureSet): void;
 
@@ -412,6 +514,45 @@ export class BackendUnderlaySource implements UnderlaySource {
       throw new Error(`Unknown entity ${entityId}.`);
     }
     return entity;
+  }
+
+  lookupCriteriaSelector(id: string): tanagraUnderlay.SZCriteriaSelector {
+    const selector = this.underlay.criteriaSelectors.find((e) => e.name === id);
+    if (!selector) {
+      throw new Error(`Unknown criteria selector ${id}.`);
+    }
+    return selector;
+  }
+
+  createPredefinedCriteria(id: string): Criteria {
+    const pc = this.underlay.prepackagedDataFeatures.find((e) => e.name === id);
+    if (!pc) {
+      throw new Error(`Unknown prepackaged data feature ${id}.`);
+    }
+    const selector = this.lookupCriteriaSelector(pc.criteriaSelector);
+
+    return {
+      id: id,
+      type: selector.plugin,
+      data: pc.pluginData,
+      config: selector,
+    };
+  }
+
+  lookupModifierSelector(
+    id: string,
+    modifierId?: string
+  ): CommonSelectorConfig {
+    const selector = this.underlay.criteriaSelectors.find((e) => e.name === id);
+    if (!selector) {
+      throw new Error(`Unknown criteria selector ${id}.`);
+    }
+
+    const modifier = selector.modifiers.find((m) => m.name === modifierId);
+    if (!modifier) {
+      throw new Error(`Unknown modifier ${modifierId} on selector ${id}.`);
+    }
+    return modifier;
   }
 
   primaryEntity(): tanagraUnderlay.SZEntity {
@@ -855,19 +996,20 @@ export class BackendStudySource implements StudySource {
 
   public async listCohortReviews(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohortId: string
   ): Promise<CohortReview[]> {
     return parseAPIError(
       this.reviewsApi
         .listReviews({ studyId, cohortId })
-        .then((res) => res.map((r) => fromAPICohortReview(r)))
+        .then((res) => res.map((r) => fromAPICohortReview(r, underlaySource)))
     );
   }
 
   public createCohortReview(
     studyId: string,
     underlaySource: UnderlaySource,
-    cohort: tanagraUI.UICohort,
+    cohort: Cohort,
     displayName: string,
     size: number
   ): Promise<CohortReview> {
@@ -886,7 +1028,7 @@ export class BackendStudySource implements StudySource {
               ) ?? {},
           },
         })
-        .then((r) => fromAPICohortReview(r))
+        .then((r) => fromAPICohortReview(r, underlaySource))
     );
   }
 
@@ -902,6 +1044,7 @@ export class BackendStudySource implements StudySource {
 
   public async renameCohortReview(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohortId: string,
     reviewId: string,
     displayName: string
@@ -916,19 +1059,20 @@ export class BackendStudySource implements StudySource {
             displayName,
           },
         })
-        .then((r) => fromAPICohortReview(r))
+        .then((r) => fromAPICohortReview(r, underlaySource))
     );
   }
 
   public async getCohortReview(
     studyId: string,
+    underlaySource: UnderlaySource,
     cohortId: string,
     reviewId: string
   ): Promise<CohortReview> {
     return parseAPIError(
       this.reviewsApi
         .getReview({ studyId, cohortId, reviewId })
-        .then((r) => fromAPICohortReview(r))
+        .then((r) => fromAPICohortReview(r, underlaySource))
     );
   }
 
@@ -997,23 +1141,47 @@ export class BackendStudySource implements StudySource {
     );
   }
 
-  public async getCohort(
+  public async getCohortMetadata(
     studyId: string,
     cohortId: string,
     cohortRevisionId?: string
-  ): Promise<tanagraUI.UICohort> {
+  ): Promise<CohortMetadata> {
     return parseAPIError(
       this.cohortsApi
         .getCohort({ studyId, cohortId, cohortRevisionId })
-        .then((c) => fromAPICohort(c))
+        .then((c) => fromAPICohortMetadata(c))
     );
   }
 
-  public listCohorts(studyId: string): Promise<tanagraUI.UICohort[]> {
+  public async getCohort(
+    studyId: string,
+    underlaySource: UnderlaySource,
+    cohortId: string,
+    cohortRevisionId?: string
+  ): Promise<Cohort> {
+    return parseAPIError(
+      this.cohortsApi
+        .getCohort({ studyId, cohortId, cohortRevisionId })
+        .then((c) => fromAPICohort(c, underlaySource))
+    );
+  }
+
+  public listCohortMetadata(studyId: string): Promise<CohortMetadata[]> {
     return parseAPIError(
       this.cohortsApi
         .listCohorts({ studyId })
-        .then((res) => res.map((c) => fromAPICohort(c)))
+        .then((res) => res.map((c) => fromAPICohortMetadata(c)))
+    );
+  }
+
+  public listCohorts(
+    studyId: string,
+    underlaySource: UnderlaySource
+  ): Promise<Cohort[]> {
+    return parseAPIError(
+      this.cohortsApi
+        .listCohorts({ studyId })
+        .then((res) => res.map((c) => fromAPICohort(c, underlaySource)))
     );
   }
 
@@ -1021,7 +1189,7 @@ export class BackendStudySource implements StudySource {
     underlayName: string,
     studyId: string,
     displayName?: string
-  ): Promise<tanagraUI.UICohort> {
+  ): Promise<CohortMetadata> {
     return parseAPIError(
       this.cohortsApi
         .createCohort({
@@ -1032,11 +1200,11 @@ export class BackendStudySource implements StudySource {
               displayName ?? `Untitled cohort ${new Date().toLocaleString()}`,
           },
         })
-        .then((c) => fromAPICohort(c))
+        .then((c) => fromAPICohortMetadata(c))
     );
   }
 
-  public async updateCohort(studyId: string, cohort: tanagraUI.UICohort) {
+  public async updateCohort(studyId: string, cohort: Cohort) {
     await parseAPIError(
       this.cohortsApi.updateCohort({
         studyId,
@@ -1060,22 +1228,47 @@ export class BackendStudySource implements StudySource {
     );
   }
 
+  public async getFeatureSetMetadata(
+    studyId: string,
+    featureSetId: string
+  ): Promise<FeatureSetMetadata> {
+    return parseAPIError(
+      this.conceptSetsApi
+        .getConceptSet({ studyId, conceptSetId: featureSetId })
+        .then((cs) => fromAPIFeatureSetMetadata(cs))
+    );
+  }
+
   public async getFeatureSet(
     studyId: string,
+    underlaySource: UnderlaySource,
     featureSetId: string
   ): Promise<FeatureSet> {
     return parseAPIError(
       this.conceptSetsApi
         .getConceptSet({ studyId, conceptSetId: featureSetId })
-        .then((cs) => fromAPIFeatureSet(cs))
+        .then((cs) => fromAPIFeatureSet(cs, underlaySource))
     );
   }
 
-  public async listFeatureSets(studyId: string): Promise<FeatureSet[]> {
+  public async listFeatureSetMetadata(
+    studyId: string
+  ): Promise<FeatureSetMetadata[]> {
     return parseAPIError(
       this.conceptSetsApi
         .listConceptSets({ studyId })
-        .then((res) => res.map((cs) => fromAPIFeatureSet(cs)))
+        .then((res) => res.map((cs) => fromAPIFeatureSetMetadata(cs)))
+    );
+  }
+
+  public async listFeatureSets(
+    studyId: string,
+    underlaySource: UnderlaySource
+  ): Promise<FeatureSet[]> {
+    return parseAPIError(
+      this.conceptSetsApi
+        .listConceptSets({ studyId })
+        .then((res) => res.map((cs) => fromAPIFeatureSet(cs, underlaySource)))
     );
   }
 
@@ -1083,7 +1276,7 @@ export class BackendStudySource implements StudySource {
     underlayName: string,
     studyId: string,
     displayName: string
-  ): Promise<FeatureSet> {
+  ): Promise<FeatureSetMetadata> {
     return parseAPIError(
       this.conceptSetsApi
         .createConceptSet({
@@ -1093,7 +1286,7 @@ export class BackendStudySource implements StudySource {
             displayName,
           },
         })
-        .then((cs) => fromAPIFeatureSet(cs))
+        .then((cs) => fromAPIFeatureSetMetadata(cs))
     );
   }
 
@@ -1106,11 +1299,12 @@ export class BackendStudySource implements StudySource {
           displayName: featureSet.name,
           criteria: [
             ...featureSet.criteria.map((c) => toAPICriteria(c)),
-            ...featureSet.predefinedCriteria.map((c) => ({
-              id: c,
+            ...featureSet.predefinedCriteria.map((id) => ({
+              id: id,
               displayName: "",
               pluginName: "",
-              predefinedId: c,
+              predefinedId: id,
+              selectorOrModifierName: "",
               selectionData: "",
               uiConfig: "",
               tags: {},
@@ -1680,19 +1874,43 @@ function normalizeRequestedAttributes(
   return [...new Set(a)];
 }
 
-function fromAPICohort(cohort: tanagra.Cohort): tanagraUI.UICohort {
+function fromAPICohortMetadata(cohort: tanagra.Cohort): CohortMetadata {
+  return fromAPICohortInternal(cohort);
+}
+
+function fromAPICohort(
+  cohort: tanagra.Cohort,
+  underlaySource: UnderlaySource
+): Cohort {
+  return fromAPICohortInternal(cohort, underlaySource) as Cohort;
+}
+
+type CohortInternal = CohortMetadata & {
+  groupSections?: GroupSection[];
+};
+
+function fromAPICohortInternal(
+  cohort: tanagra.Cohort,
+  underlaySource?: UnderlaySource
+): CohortInternal {
   return {
     id: cohort.id,
     name: cohort.displayName,
     underlayName: cohort.underlayName,
     lastModified: cohort.lastModified,
-    groupSections: fromAPICriteriaGroupSections(cohort.criteriaGroupSections),
+    groupSections: underlaySource
+      ? fromAPICriteriaGroupSections(
+          underlaySource,
+          cohort.criteriaGroupSections
+        )
+      : undefined,
   };
 }
 
 function fromAPICriteriaGroupSections(
+  underlaySource: UnderlaySource,
   sections?: tanagra.CriteriaGroupSection[]
-): tanagraUI.UIGroupSection[] {
+): GroupSection[] {
   if (!sections?.length) {
     return [defaultSection()];
   }
@@ -1703,55 +1921,107 @@ function fromAPICriteriaGroupSections(
     filter: {
       kind:
         section.operator === tanagra.CriteriaGroupSectionOperatorEnum.And
-          ? tanagraUI.UIGroupSectionFilterKindEnum.All
-          : tanagraUI.UIGroupSectionFilterKindEnum.Any,
+          ? GroupSectionFilterKind.All
+          : GroupSectionFilterKind.Any,
       excluded: section.excluded,
     },
     groups: section.criteriaGroups.map((group) => ({
       id: group.id,
       entity: group.entity,
-      criteria: group.criteria.map((criteria) => fromAPICriteria(criteria)),
+      criteria: group.criteria.map((criteria, i) =>
+        fromAPICriteria(
+          criteria,
+          underlaySource,
+          i > 0 ? criteriaSelectorName(group.criteria[0]) : undefined
+        )
+      ),
     })),
   }));
 }
 
-function fromAPICriteria(criteria: tanagra.Criteria): tanagraUI.UICriteria {
+function fromAPICriteria(
+  criteria: tanagra.Criteria,
+  underlaySource: UnderlaySource,
+  primarySelectorId?: string
+): Criteria {
   return {
     id: criteria.id,
     type: criteria.pluginName,
     data: criteria.selectionData,
-    config: JSON.parse(criteria.uiConfig),
+    config: primarySelectorId
+      ? underlaySource.lookupModifierSelector(
+          primarySelectorId,
+          criteriaSelectorName(criteria)
+        )
+      : underlaySource.lookupCriteriaSelector(criteriaSelectorName(criteria)),
   };
 }
 
-function fromAPIFeatureSet(conceptSet: tanagra.ConceptSet): FeatureSet {
-  return {
-    id: conceptSet.id,
-    underlayName: conceptSet.underlayName,
-    name: conceptSet.displayName,
-    lastModified: conceptSet.lastModified,
+function criteriaSelectorName(criteria: tanagra.Criteria): string {
+  if (criteria.selectorOrModifierName) {
+    return criteria.selectorOrModifierName;
+  }
 
-    criteria: conceptSet.criteria
-      .filter((c) => !c.predefinedId)
-      .map((c) => fromAPICriteria(c)),
-    predefinedCriteria: conceptSet.criteria
-      .map((c) => c.predefinedId)
-      .filter(isValid),
-    output: conceptSet.entityOutputs.map((eo) => ({
-      occurrence: eo.entity,
-      excludedAttributes: eo.excludeAttributes ?? [],
-    })),
-  };
+  // Parse deprecated CriteriaConfig to get the plugin/selector name.
+  const config = JSON.parse(criteria.uiConfig);
+  return config.id;
+}
+
+function fromAPIFeatureSetMetadata(
+  conceptSet: tanagra.ConceptSet
+): FeatureSetMetadata {
+  const [m] = fromAPIFeatureSetInternal(conceptSet);
+  return m;
+}
+
+function fromAPIFeatureSet(
+  conceptSet: tanagra.ConceptSet,
+  underlaySource: UnderlaySource
+): FeatureSet {
+  const [m, opt] = fromAPIFeatureSetInternal(conceptSet, underlaySource);
+  if (!opt) {
+    throw new Error("Optional feature set fields undefined.");
+  }
+  return { ...m, ...opt };
+}
+
+function fromAPIFeatureSetInternal(
+  conceptSet: tanagra.ConceptSet,
+  underlaySource?: UnderlaySource
+): [FeatureSetMetadata, FeatureSetOptional | undefined] {
+  return [
+    {
+      id: conceptSet.id,
+      underlayName: conceptSet.underlayName,
+      name: conceptSet.displayName,
+      lastModified: conceptSet.lastModified,
+    },
+
+    underlaySource
+      ? {
+          criteria: conceptSet.criteria
+            .filter((c) => !c.predefinedId)
+            .map((c) => fromAPICriteria(c, underlaySource)),
+          predefinedCriteria: conceptSet.criteria
+            .map((c) => c.predefinedId)
+            .filter(isValid),
+          output: conceptSet.entityOutputs.map((eo) => ({
+            occurrence: eo.entity,
+            excludedAttributes: eo.excludeAttributes ?? [],
+          })),
+        }
+      : undefined,
+  ];
 }
 
 function toAPICriteriaGroupSections(
-  groupSections: tanagraUI.UIGroupSection[]
+  groupSections: GroupSection[]
 ): tanagra.CriteriaGroupSection[] {
   return groupSections.map((section) => ({
     id: section.id,
     displayName: section.name ?? "",
     operator:
-      section.filter.kind === tanagraUI.UIGroupSectionFilterKindEnum.All
+      section.filter.kind === GroupSectionFilterKind.All
         ? tanagra.CriteriaGroupSectionOperatorEnum.And
         : tanagra.CriteriaGroupSectionOperatorEnum.Or,
     excluded: section.filter.excluded,
@@ -1764,25 +2034,29 @@ function toAPICriteriaGroupSections(
   }));
 }
 
-function toAPICriteria(criteria: tanagraUI.UICriteria): tanagra.Criteria {
+function toAPICriteria(criteria: Criteria): tanagra.Criteria {
   return {
     id: criteria.id,
     displayName: "",
     tags: {},
     pluginName: criteria.type,
+    selectorOrModifierName: criteria.config.name,
     selectionData: criteria.data,
-    uiConfig: JSON.stringify(criteria.config),
+    uiConfig: criteria.config.pluginConfig,
   };
 }
 
-function fromAPICohortReview(review: tanagra.Review): CohortReview {
+function fromAPICohortReview(
+  review: tanagra.Review,
+  underlaySource: UnderlaySource
+): CohortReview {
   if (!review.cohort) {
     throw new Error(`Undefined cohort for review "${review.displayName}".`);
   }
 
   return {
     ...review,
-    cohort: fromAPICohort(review.cohort),
+    cohort: fromAPICohort(review.cohort, underlaySource),
   };
 }
 
@@ -1870,14 +2144,14 @@ function fromAPIDisplayHint(hint?: tanagra.DisplayHint): HintData {
 }
 
 function toAPIBinaryOperator(
-  operator: tanagraUI.UIComparisonOperator
+  operator: ComparisonOperator
 ): tanagra.BinaryOperator {
   switch (operator) {
-    case tanagraUI.UIComparisonOperator.Equal:
+    case ComparisonOperator.Equal:
       return tanagra.BinaryOperator.Equals;
-    case tanagraUI.UIComparisonOperator.GreaterThanEqual:
+    case ComparisonOperator.GreaterThanEqual:
       return tanagra.BinaryOperator.GreaterThanOrEqual;
-    case tanagraUI.UIComparisonOperator.LessThanEqual:
+    case ComparisonOperator.LessThanEqual:
       return tanagra.BinaryOperator.LessThanOrEqual;
   }
 

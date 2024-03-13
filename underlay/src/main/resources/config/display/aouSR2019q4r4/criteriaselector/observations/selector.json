@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-observations",
+  "displayName": "Observation",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Domains",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "observations.json",
+  "modifiers": null
+}

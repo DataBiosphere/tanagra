@@ -6,57 +6,53 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import { FilterType } from "data/filter";
+import { CommonSelectorConfig } from "data/source";
+import { ComparisonOperator } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import GridLayout from "layout/gridLayout";
+import * as configProto from "proto/criteriaselector/configschema/unhinted_value";
 import * as dataProto from "proto/criteriaselector/dataschema/unhinted_value";
 import React, { useCallback, useMemo, useState } from "react";
-import * as tanagraUI from "tanagra-ui";
-import { CriteriaConfig } from "underlaysSlice";
 import { base64ToBytes, bytesToBase64 } from "util/base64";
 
-interface Config extends CriteriaConfig {
-  groupByCount?: boolean;
-  attribute: string;
-}
-
 interface Data {
-  operator: tanagraUI.UIComparisonOperator;
+  operator: ComparisonOperator;
   min: number;
   max: number;
 }
 
 function rangeFromData(data: Data) {
-  if (data.operator === tanagraUI.UIComparisonOperator.Equal) {
+  if (data.operator === ComparisonOperator.Equal) {
     return { min: data.min, max: data.min };
   }
 
-  if (data.operator === tanagraUI.UIComparisonOperator.Between) {
+  if (data.operator === ComparisonOperator.Between) {
     return { min: data.min, max: data.max };
   }
 
   return {
     min:
-      data.operator === tanagraUI.UIComparisonOperator.LessThanEqual
+      data.operator === ComparisonOperator.LessThanEqual
         ? Number.MIN_SAFE_INTEGER
         : data.min,
     max:
-      data.operator === tanagraUI.UIComparisonOperator.GreaterThanEqual
+      data.operator === ComparisonOperator.GreaterThanEqual
         ? Number.MAX_SAFE_INTEGER
         : data.min,
   };
 }
 
 const operatorTitles = {
-  [tanagraUI.UIComparisonOperator.Equal]: "Equals",
-  [tanagraUI.UIComparisonOperator.LessThanEqual]: "Less than or equals",
-  [tanagraUI.UIComparisonOperator.GreaterThanEqual]: "Greater than or equals",
-  [tanagraUI.UIComparisonOperator.Between]: "Between",
+  [ComparisonOperator.Equal]: "Equals",
+  [ComparisonOperator.LessThanEqual]: "Less than or equals",
+  [ComparisonOperator.GreaterThanEqual]: "Greater than or equals",
+  [ComparisonOperator.Between]: "Between",
 };
 
 @registerCriteriaPlugin("unhinted-value", () => {
   return encodeData({
-    operator: tanagraUI.UIComparisonOperator.GreaterThanEqual,
+    operator: ComparisonOperator.GreaterThanEqual,
     min: 1,
     max: 10,
   });
@@ -64,15 +60,17 @@ const operatorTitles = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
-  private config: Config;
+  private selector: CommonSelectorConfig;
+  private config: configProto.UnhintedValue;
 
   constructor(
     public id: string,
-    config: CriteriaConfig,
+    selector: CommonSelectorConfig,
     data: string,
     private entity?: string
   ) {
-    this.config = config as Config;
+    this.selector = selector;
+    this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
     } catch (e) {
@@ -96,7 +94,7 @@ class _ implements CriteriaPlugin<string> {
     const decodedData = decodeData(this.data);
 
     let title = `${operatorTitles[decodedData.operator]} ${decodedData.min}`;
-    if (decodedData.operator === tanagraUI.UIComparisonOperator.Between) {
+    if (decodedData.operator === ComparisonOperator.Between) {
       title = `${operatorTitles[decodedData.operator]} ${decodedData.min} and ${
         decodedData.max
       }`;
@@ -143,7 +141,7 @@ class _ implements CriteriaPlugin<string> {
 type UnhintedValueInlineProps = {
   groupId: string;
   criteriaId: string;
-  config: Config;
+  config: configProto.UnhintedValue;
   data: string;
   entity?: string;
 };
@@ -201,12 +199,10 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
   };
 
   const operatorOptions = [
-    tanagraUI.UIComparisonOperator.Equal,
-    tanagraUI.UIComparisonOperator.LessThanEqual,
-    tanagraUI.UIComparisonOperator.GreaterThanEqual,
-    ...(!props.config.groupByCount
-      ? [tanagraUI.UIComparisonOperator.Between]
-      : []),
+    ComparisonOperator.Equal,
+    ComparisonOperator.LessThanEqual,
+    ComparisonOperator.GreaterThanEqual,
+    ...(!props.config.groupByCount ? [ComparisonOperator.Between] : []),
   ];
 
   const onSelectOperator = (event: SelectChangeEvent<string>) => {
@@ -215,7 +211,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
     } = event;
     updateCriteria(
       produce(decodedData, (data) => {
-        data.operator = sel as tanagraUI.UIComparisonOperator;
+        data.operator = sel as ComparisonOperator;
       })
     );
   };
@@ -250,7 +246,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
             type: "number",
           }}
         />
-        {decodedData.operator === tanagraUI.UIComparisonOperator.Between ? (
+        {decodedData.operator === ComparisonOperator.Between ? (
           <GridLayout cols rowAlign="middle" height="auto">
             <Typography variant="body1">&nbsp;and&nbsp;</Typography>
             <Input
@@ -271,19 +267,19 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
 
 function decodeComparisonOperator(
   operator: dataProto.UnhintedValue_ComparisonOperator
-): tanagraUI.UIComparisonOperator {
+): ComparisonOperator {
   switch (operator) {
     case dataProto.UnhintedValue_ComparisonOperator.COMPARISON_OPERATOR_UNKNOWN:
     case dataProto.UnhintedValue_ComparisonOperator.COMPARISON_OPERATOR_EQUAL:
-      return tanagraUI.UIComparisonOperator.Equal;
+      return ComparisonOperator.Equal;
     case dataProto.UnhintedValue_ComparisonOperator.COMPARISON_OPERATOR_BETWEEN:
-      return tanagraUI.UIComparisonOperator.Between;
+      return ComparisonOperator.Between;
     case dataProto.UnhintedValue_ComparisonOperator
       .COMPARISON_OPERATOR_LESS_THAN_EQUAL:
-      return tanagraUI.UIComparisonOperator.LessThanEqual;
+      return ComparisonOperator.LessThanEqual;
     case dataProto.UnhintedValue_ComparisonOperator
       .COMPARISON_OPERATOR_GREATER_THAN_EQUAL:
-      return tanagraUI.UIComparisonOperator.GreaterThanEqual;
+      return ComparisonOperator.GreaterThanEqual;
   }
   throw new Error(`Unknown comparison operator value ${operator}.`);
 }
@@ -298,19 +294,19 @@ function decodeData(data: string): Data {
 }
 
 function encodeComparisonOperator(
-  operator: tanagraUI.UIComparisonOperator
+  operator: ComparisonOperator
 ): dataProto.UnhintedValue_ComparisonOperator {
   switch (operator) {
-    case tanagraUI.UIComparisonOperator.Equal:
+    case ComparisonOperator.Equal:
       return dataProto.UnhintedValue_ComparisonOperator
         .COMPARISON_OPERATOR_EQUAL;
-    case tanagraUI.UIComparisonOperator.Between:
+    case ComparisonOperator.Between:
       return dataProto.UnhintedValue_ComparisonOperator
         .COMPARISON_OPERATOR_BETWEEN;
-    case tanagraUI.UIComparisonOperator.LessThanEqual:
+    case ComparisonOperator.LessThanEqual:
       return dataProto.UnhintedValue_ComparisonOperator
         .COMPARISON_OPERATOR_LESS_THAN_EQUAL;
-    case tanagraUI.UIComparisonOperator.GreaterThanEqual:
+    case ComparisonOperator.GreaterThanEqual:
       return dataProto.UnhintedValue_ComparisonOperator
         .COMPARISON_OPERATOR_GREATER_THAN_EQUAL;
   }
@@ -324,4 +320,10 @@ function encodeData(data: Data): string {
     max: data.max,
   };
   return bytesToBase64(dataProto.UnhintedValue.encode(message).finish());
+}
+
+function decodeConfig(
+  selector: CommonSelectorConfig
+): configProto.UnhintedValue {
+  return configProto.UnhintedValue.fromJSON(JSON.parse(selector.pluginConfig));
 }

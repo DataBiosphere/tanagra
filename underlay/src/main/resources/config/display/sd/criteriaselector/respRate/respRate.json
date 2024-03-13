@@ -1,0 +1,10 @@
+{
+  "entity": "respiratoryRate",
+  "valueConfigs": [
+    {
+      "attribute": "value_numeric",
+      "title": "Resp rate in br/min",
+      "unit": "br/min"
+    }
+  ]
+}

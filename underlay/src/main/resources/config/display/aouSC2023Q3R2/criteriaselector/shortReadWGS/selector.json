@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-short-read-wgs",
+  "displayName": "Short Read WGS",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Genomics",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "shortReadWGS.json",
+  "modifiers": null
+}

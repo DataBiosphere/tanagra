@@ -14,7 +14,7 @@ export default function NewCriteria() {
 
   return (
     <CriteriaHolder
-      title={`Adding "${criteria.config.title}" criteria to ${name}`}
+      title={`Adding "${criteria.config.displayName}" criteria to ${name}`}
       plugin={getCriteriaPlugin(criteria)}
       exitAction={() =>
         navigate(absoluteCohortURL(params, cohort.id, section.id, criteria.id))

@@ -33,7 +33,6 @@ type Artifact = {
   type: ArtifactType;
   name: string;
   id: string;
-  cohortGroupSectionId: string;
 };
 
 const columns = [
@@ -60,24 +59,22 @@ export function StudyOverview() {
 
   const listArtifacts = useCallback(async () => {
     return await Promise.all([
-      studySource.listCohorts(studyId).then((res) =>
+      studySource.listCohortMetadata(studyId).then((res) =>
         res
           .filter((c) => c.underlayName === underlay.name)
           .map((c) => ({
             type: ArtifactType.Cohort,
             name: c.name,
             id: c.id,
-            cohortGroupSectionId: c.groupSections[0].id,
           }))
       ),
-      studySource.listFeatureSets(studyId).then((res) =>
+      studySource.listFeatureSetMetadata(studyId).then((res) =>
         res
           .filter((fs) => fs.underlayName === underlay.name)
           .map((fs) => ({
             type: ArtifactType.FeatureSet,
             name: fs.name,
             id: fs.id,
-            cohortGroupSectionId: "",
           }))
       ),
     ]).then((res) => res.flat());

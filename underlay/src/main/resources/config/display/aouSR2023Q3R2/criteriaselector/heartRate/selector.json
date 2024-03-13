@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-heart-rate",
+  "displayName": "Heart Rate",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Physical Measurements",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "heartRate.json",
+  "modifiers": null
+}

@@ -1,0 +1,28 @@
+{
+  "name": "tanagra-procedures",
+  "displayName": "Procedure",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Domains",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "procedures.json",
+  "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    },
+    {
+      "name": "dateGroupByCount",
+      "displayName": "Occurrence count",
+      "plugin": "unhinted-value",
+      "pluginConfigFile": "dateGroupByCount.json"
+    }
+  ]
+}

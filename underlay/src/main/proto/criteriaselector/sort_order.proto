@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package tanagra;
+
+option go_package = "github.com/DataBiosphere/tanagra/tanagrapb";
+
+message SortOrder {
+  string attribute = 1;
+
+  enum Direction {
+    SORT_ORDER_DIRECTION_UNKNOWN = 0;
+    SORT_ORDER_DIRECTION_ASCENDING = 1;
+    SORT_ORDER_DIRECTION_DESCENDING = 2;
+  }
+  Direction direction = 2;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "_zipcode_socioeconomic_id",
+  "displayName": "Zip Code Socioeconomic Status Data",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "zipcodeSocioeconomicId.json"
+}

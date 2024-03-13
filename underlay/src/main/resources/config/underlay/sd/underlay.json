@@ -82,6 +82,37 @@
     "omop/icd10pcsPerson",
     "sd/phewasPerson"
   ],
+  "criteriaSelectors": [
+    "sd/ethnicity",
+    "sd/gender",
+    "sd/race",
+    "sd/age",
+    "sd/bioVU",
+    "sd/bioVUPlasma",
+    "sd/genotyping",
+    "sd/measurement",
+    "sd/documents",
+    "sd/conditions",
+    "sd/phewas",
+    "sd/cpt4",
+    "sd/icd9CM",
+    "sd/icd9Proc",
+    "sd/icd10CM",
+    "sd/icd10PCS",
+    "sd/procedures",
+    "sd/observations",
+    "sd/drugs",
+    "sd/bmi",
+    "sd/bloodPressure",
+    "sd/height",
+    "sd/weight",
+    "sd/pulse",
+    "sd/respRate",
+    "sd/outputUnfiltered"
+  ],
+  "prepackagedDataFeatures": [
+    "sd/_demographics"
+  ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",
     "description": "Dataset Updated August 31, 2023",

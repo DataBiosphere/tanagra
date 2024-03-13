@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-has-ehr-data",
+  "displayName": "Has EHR Data",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Domains",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "hasEHRData.json",
+  "modifiers": null
+}

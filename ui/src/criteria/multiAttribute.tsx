@@ -4,27 +4,20 @@ import {
   decodeValueData,
   encodeValueData,
   generateValueDataFilter,
-  ValueConfig,
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
 import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
-import { UnderlaySource } from "data/source";
+import { CommonSelectorConfig, UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
 import produce from "immer";
+import * as configProto from "proto/criteriaselector/configschema/multi_attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/multi_attribute";
 import { useCallback, useMemo } from "react";
-import { CriteriaConfig } from "underlaysSlice";
 import { base64ToBytes, bytesToBase64 } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 import { isValid } from "util/valid";
-
-export interface Config extends CriteriaConfig {
-  entity: string;
-  singleValue?: boolean;
-  valueConfigs: ValueConfig[];
-}
 
 export interface Data {
   valueData: ValueData[];
@@ -38,7 +31,7 @@ export interface Data {
   "multiAttribute",
   (
     underlaySource: UnderlaySource,
-    c: CriteriaConfig,
+    c: CommonSelectorConfig,
     dataEntry?: DataEntry
   ) => {
     const valueData: ValueData[] = [];
@@ -60,10 +53,12 @@ export interface Data {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
-  private config: Config;
+  private selector: CommonSelectorConfig;
+  private config: configProto.MultiAttribute;
 
-  constructor(public id: string, config: CriteriaConfig, data: string) {
-    this.config = config as Config;
+  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+    this.selector = selector;
+    this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
     } catch (e) {
@@ -165,7 +160,7 @@ type MultiAttributeInlineProps = {
   groupId: string;
   criteriaId: string;
   data: string;
-  config: Config;
+  config: configProto.MultiAttribute;
 };
 
 function MultiAttributeInline(props: MultiAttributeInlineProps) {
@@ -202,10 +197,10 @@ function MultiAttributeInline(props: MultiAttributeInlineProps) {
 
 async function search(
   underlaySource: UnderlaySource,
-  c: CriteriaConfig,
+  c: CommonSelectorConfig,
   query: string
 ): Promise<DataEntry[]> {
-  const config = c as Config;
+  const config = decodeConfig(c);
 
   const allHintData = await underlaySource.getAllHintData(config.entity);
 
@@ -251,4 +246,10 @@ function encodeData(data: Data): string {
     valueData: data.valueData.map((vd) => encodeValueData(vd)),
   };
   return bytesToBase64(dataProto.MultiAttribute.encode(message).finish());
+}
+
+function decodeConfig(
+  selector: CommonSelectorConfig
+): configProto.MultiAttribute {
+  return configProto.MultiAttribute.fromJSON(JSON.parse(selector.pluginConfig));
 }
