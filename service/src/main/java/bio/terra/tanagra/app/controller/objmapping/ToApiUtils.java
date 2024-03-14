@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller.objmapping;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.query.count.CountInstance;
+import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
@@ -15,6 +16,7 @@ import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
 import bio.terra.tanagra.generated.model.ApiDataType;
 import bio.terra.tanagra.generated.model.ApiInstanceCount;
+import bio.terra.tanagra.generated.model.ApiInstanceCountList;
 import bio.terra.tanagra.generated.model.ApiLiteral;
 import bio.terra.tanagra.generated.model.ApiLiteralValueUnion;
 import bio.terra.tanagra.generated.model.ApiProperties;
@@ -29,6 +31,7 @@ import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -144,6 +147,19 @@ public final class ToApiUtils {
         .selectionData(criteria.getSelectionData())
         .uiConfig(criteria.getUiConfig())
         .tags(criteria.getTags());
+  }
+
+  public static ApiInstanceCountList toApiObject(CountQueryResult countQueryResult) {
+    return new ApiInstanceCountList()
+        .instanceCounts(
+            countQueryResult.getCountInstances().stream()
+                .map(ToApiUtils::toApiObject)
+                .collect(Collectors.toList()))
+        .sql(SqlFormatter.format(countQueryResult.getSql()))
+        .pageMarker(
+            countQueryResult.getPageMarker() == null
+                ? null
+                : countQueryResult.getPageMarker().serialize());
   }
 
   public static ApiInstanceCount toApiObject(CountInstance countInstance) {

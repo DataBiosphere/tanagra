@@ -1,6 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.core;
 
-import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.exception.InvalidQueryException;
@@ -46,14 +46,15 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
 
   @Override
   public CFOutputUnfiltered.OutputUnfiltered deserializeConfig() {
-    return deserializeFromJson(
+    return deserializeFromJsonOrProtoBytes(
             criteriaSelector.getPluginConfig(), CFOutputUnfiltered.OutputUnfiltered.newBuilder())
         .build();
   }
 
   @Override
   public DTOutputUnfiltered.OutputUnfiltered deserializeData(String serialized) {
-    return deserializeFromJson(serialized, DTOutputUnfiltered.OutputUnfiltered.newBuilder())
+    return deserializeFromJsonOrProtoBytes(
+            serialized, DTOutputUnfiltered.OutputUnfiltered.newBuilder())
         .build();
   }
 }

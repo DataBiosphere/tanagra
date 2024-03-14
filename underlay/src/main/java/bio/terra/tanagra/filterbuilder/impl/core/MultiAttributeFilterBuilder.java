@@ -1,6 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.core;
 
-import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -112,14 +112,15 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
 
   @Override
   public CFMultiAttribute.MultiAttribute deserializeConfig() {
-    return deserializeFromJson(
+    return deserializeFromJsonOrProtoBytes(
             criteriaSelector.getPluginConfig(), CFMultiAttribute.MultiAttribute.newBuilder())
         .build();
   }
 
   @Override
   public DTMultiAttribute.MultiAttribute deserializeData(String serialized) {
-    return deserializeFromJson(serialized, DTMultiAttribute.MultiAttribute.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, DTMultiAttribute.MultiAttribute.newBuilder())
+        .build();
   }
 
   private static DTAttribute.Attribute convertToAttrDataSchema(

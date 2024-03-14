@@ -1,6 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.sd;
 
-import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -123,12 +123,13 @@ public class BioVUFilterBuilder extends FilterBuilder {
 
   @Override
   public CFBioVU.BioVU deserializeConfig() {
-    return deserializeFromJson(criteriaSelector.getPluginConfig(), CFBioVU.BioVU.newBuilder())
+    return deserializeFromJsonOrProtoBytes(
+            criteriaSelector.getPluginConfig(), CFBioVU.BioVU.newBuilder())
         .build();
   }
 
   @Override
   public DTBioVU.BioVU deserializeData(String serialized) {
-    return deserializeFromJson(serialized, DTBioVU.BioVU.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, DTBioVU.BioVU.newBuilder()).build();
   }
 }

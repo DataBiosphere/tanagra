@@ -1,7 +1,7 @@
 package bio.terra.tanagra.filterbuilder.impl.core.utils;
 
 import static bio.terra.tanagra.filterbuilder.SchemaUtils.toLiteral;
-import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -88,10 +88,10 @@ public final class AttributeSchemaUtils {
   }
 
   public static CFAttribute.Attribute deserializeConfig(String serialized) {
-    return deserializeFromJson(serialized, CFAttribute.Attribute.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, CFAttribute.Attribute.newBuilder()).build();
   }
 
   public static DTAttribute.Attribute deserializeData(String serialized) {
-    return deserializeFromJson(serialized, DTAttribute.Attribute.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, DTAttribute.Attribute.newBuilder()).build();
   }
 }

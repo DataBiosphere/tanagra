@@ -1,6 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.core;
 
-import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -201,13 +201,14 @@ public class TextSearchFilterBuilder extends FilterBuilder {
 
   @Override
   public CFTextSearch.TextSearch deserializeConfig() {
-    return deserializeFromJson(
+    return deserializeFromJsonOrProtoBytes(
             criteriaSelector.getPluginConfig(), CFTextSearch.TextSearch.newBuilder())
         .build();
   }
 
   @Override
   public DTTextSearch.TextSearch deserializeData(String serialized) {
-    return deserializeFromJson(serialized, DTTextSearch.TextSearch.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, DTTextSearch.TextSearch.newBuilder())
+        .build();
   }
 }

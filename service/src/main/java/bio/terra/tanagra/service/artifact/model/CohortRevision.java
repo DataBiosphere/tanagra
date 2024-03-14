@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import java.time.OffsetDateTime;
@@ -60,6 +61,13 @@ public class CohortRevision {
 
   public List<CriteriaGroupSection> getSections() {
     return Collections.unmodifiableList(sections);
+  }
+
+  public CriteriaGroupSection getSection(String id) {
+    return sections.stream()
+        .filter(section -> id.equals(section.getId()))
+        .findFirst()
+        .orElseThrow(() -> new NotFoundException("Criteria group section not found for id: " + id));
   }
 
   public int getVersion() {
@@ -245,6 +253,13 @@ public class CohortRevision {
 
     public List<CriteriaGroup> getCriteriaGroups() {
       return Collections.unmodifiableList(criteriaGroups);
+    }
+
+    public CriteriaGroup getCriteriaGroup(String id) {
+      return criteriaGroups.stream()
+          .filter(group -> id.equals(group.getId()))
+          .findFirst()
+          .orElseThrow(() -> new NotFoundException("Criteria group not found for id: " + id));
     }
 
     public BooleanAndOrFilter.LogicalOperator getOperator() {
