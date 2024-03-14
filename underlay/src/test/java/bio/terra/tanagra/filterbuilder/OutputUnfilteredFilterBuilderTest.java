@@ -6,13 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.filterbuilder.impl.core.OutputUnfilteredFilterBuilder;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFOutputUnfiltered;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTOutputUnfiltered;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
+import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,8 +32,8 @@ public class OutputUnfilteredFilterBuilderTest {
 
   @Test
   void cohortFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().addOutputUnfilteredEntities("person").build();
+    CFOutputUnfiltered.OutputUnfiltered config =
+        CFOutputUnfiltered.OutputUnfiltered.newBuilder().addEntities("person").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "demographics",
@@ -50,8 +52,8 @@ public class OutputUnfilteredFilterBuilderTest {
 
   @Test
   void singleEntityDataFeatureFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().addOutputUnfilteredEntities("person").build();
+    CFOutputUnfiltered.OutputUnfiltered config =
+        CFOutputUnfiltered.OutputUnfiltered.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "demographics",
@@ -64,7 +66,12 @@ public class OutputUnfilteredFilterBuilderTest {
     OutputUnfilteredFilterBuilder filterBuilder =
         new OutputUnfilteredFilterBuilder(criteriaSelector);
 
-    List<EntityOutput> dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of());
+    DTOutputUnfiltered.OutputUnfiltered data =
+        DTOutputUnfiltered.OutputUnfiltered.newBuilder().addEntities("person").build();
+    SelectionData selectionData = new SelectionData(null, serializeToJson(data));
+
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
     assertEquals(1, dataFeatureOutputs.size());
     EntityOutput expectedDataFeatureOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
     assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
@@ -72,11 +79,8 @@ public class OutputUnfilteredFilterBuilderTest {
 
   @Test
   void multipleEntityDataFeatureFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder()
-            .addOutputUnfilteredEntities("conditionOccurrence")
-            .addOutputUnfilteredEntities("procedureOccurrence")
-            .build();
+    CFOutputUnfiltered.OutputUnfiltered config =
+        CFOutputUnfiltered.OutputUnfiltered.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "conditionsAndProcedures",
@@ -89,7 +93,15 @@ public class OutputUnfilteredFilterBuilderTest {
     OutputUnfilteredFilterBuilder filterBuilder =
         new OutputUnfilteredFilterBuilder(criteriaSelector);
 
-    List<EntityOutput> dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of());
+    DTOutputUnfiltered.OutputUnfiltered data =
+        DTOutputUnfiltered.OutputUnfiltered.newBuilder()
+            .addEntities("conditionOccurrence")
+            .addEntities("procedureOccurrence")
+            .build();
+    SelectionData selectionData = new SelectionData(null, serializeToJson(data));
+
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
     assertEquals(2, dataFeatureOutputs.size());
     EntityOutput expectedDataFeatureOutput1 =
         EntityOutput.unfiltered(underlay.getEntity("conditionOccurrence"));

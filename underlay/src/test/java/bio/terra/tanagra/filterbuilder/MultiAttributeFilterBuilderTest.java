@@ -15,7 +15,9 @@ import bio.terra.tanagra.filterbuilder.impl.core.MultiAttributeFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass.ValueData;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFMultiAttribute;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTMultiAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
@@ -44,10 +46,8 @@ public class MultiAttributeFilterBuilderTest {
 
   @Test
   void noModifiersCohortFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder()
-            .setEntityGroupMultiAttr("bloodPressurePerson")
-            .build();
+    CFMultiAttribute.MultiAttribute config =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -137,19 +137,17 @@ public class MultiAttributeFilterBuilderTest {
 
   @Test
   void withAttrModifiersCohortFilter() {
-    CFPlaceholder.Placeholder mainConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .setEntityGroupMultiAttr("bloodPressurePerson")
-            .build();
-    CFPlaceholder.Placeholder ageAtOccurrenceConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
+    CFMultiAttribute.MultiAttribute mainConfig =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
-    CFPlaceholder.Placeholder visitTypeConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
@@ -282,18 +280,10 @@ public class MultiAttributeFilterBuilderTest {
 
   @Test
   void withGroupByModifierCohortFilter() {
-    CFPlaceholder.Placeholder mainConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .setEntityGroupMultiAttr("bloodPressurePerson")
-            .build();
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "bloodPressure",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("date")
-                    .build())
-            .build();
+    CFMultiAttribute.MultiAttribute mainConfig =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -399,30 +389,22 @@ public class MultiAttributeFilterBuilderTest {
 
   @Test
   void withAttrAndGroupByModifiersCohortFilter() {
-    CFPlaceholder.Placeholder mainConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .setEntityGroupMultiAttr("bloodPressurePerson")
-            .build();
-    CFPlaceholder.Placeholder ageAtOccurrenceConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
+    CFMultiAttribute.MultiAttribute mainConfig =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
-    CFPlaceholder.Placeholder visitTypeConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "bloodPressure",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("date")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -571,10 +553,8 @@ public class MultiAttributeFilterBuilderTest {
 
   @Test
   void noModifiersDataFeatureFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder()
-            .setEntityGroupMultiAttr("bloodPressurePerson")
-            .build();
+    CFMultiAttribute.MultiAttribute config =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",

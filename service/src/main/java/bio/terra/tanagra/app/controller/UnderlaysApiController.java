@@ -239,8 +239,7 @@ public class UnderlaysApiController implements UnderlaysApi {
               entity,
               relatedEntity,
               FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
-              UnderlayService.getRelationship(underlay.getEntityGroups(), entity, relatedEntity)
-                  .getLeft(),
+              underlay.getRelationship(entity, relatedEntity).getLeft(),
               false);
     }
     HintQueryResult hintQueryResult = underlay.getQueryRunner().run(hintQueryRequest);

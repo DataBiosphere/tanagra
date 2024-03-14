@@ -12,7 +12,7 @@ import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.filterbuilder.impl.core.PrimaryEntityFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
@@ -38,8 +38,8 @@ public class PrimaryEntityFilterBuilderTest {
 
   @Test
   void enumValCohortFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("gender").build();
+    CFAttribute.Attribute config =
+        CFAttribute.Attribute.newBuilder().setAttribute("gender").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "gender",
@@ -101,8 +101,7 @@ public class PrimaryEntityFilterBuilderTest {
 
   @Test
   void numericRangeCohortFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("age").build();
+    CFAttribute.Attribute config = CFAttribute.Attribute.newBuilder().setAttribute("age").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "age",
@@ -133,8 +132,8 @@ public class PrimaryEntityFilterBuilderTest {
 
   @Test
   void dataFeatureFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("gender").build();
+    CFAttribute.Attribute config =
+        CFAttribute.Attribute.newBuilder().setAttribute("gender").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "gender",

@@ -13,7 +13,7 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.filterbuilder.impl.sd.BioVUFilterBuilder;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFBioVU;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTBioVU;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
@@ -39,7 +39,7 @@ public class BioVUFilterBuilderTest {
 
   @Test
   void sampleFilterOnlyCohortFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFBioVU.BioVU config = CFBioVU.BioVU.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "biovu",
@@ -105,7 +105,7 @@ public class BioVUFilterBuilderTest {
 
   @Test
   void excludeCompromisedOnlyCohortFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFBioVU.BioVU config = CFBioVU.BioVU.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "biovu",
@@ -134,7 +134,7 @@ public class BioVUFilterBuilderTest {
 
   @Test
   void excludeInternalOnlyCohortFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFBioVU.BioVU config = CFBioVU.BioVU.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "biovu",
@@ -163,8 +163,7 @@ public class BioVUFilterBuilderTest {
 
   @Test
   void hasPlasmaOnlyCohortFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().setPlasmaFilter(true).build();
+    CFBioVU.BioVU config = CFBioVU.BioVU.newBuilder().setPlasmaFilter(true).build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "biovu",
@@ -192,8 +191,7 @@ public class BioVUFilterBuilderTest {
 
   @Test
   void allFlagsCohortFilter() {
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().setPlasmaFilter(true).build();
+    CFBioVU.BioVU config = CFBioVU.BioVU.newBuilder().setPlasmaFilter(true).build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "biovu",
@@ -259,7 +257,7 @@ public class BioVUFilterBuilderTest {
 
   @Test
   void noFlagsCohortFilter() {
-    CFPlaceholder.Placeholder config = CFPlaceholder.Placeholder.newBuilder().build();
+    CFBioVU.BioVU config = CFBioVU.BioVU.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "biovu",

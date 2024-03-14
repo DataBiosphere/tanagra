@@ -10,17 +10,20 @@ import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFMultiAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTMultiAttribute;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class MultiAttributeFilterBuilder extends FilterBuilder {
   public MultiAttributeFilterBuilder(CriteriaSelector criteriaSelector) {
@@ -34,9 +37,11 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // Pull the entity group from the config.
-    CFPlaceholder.Placeholder multiAttrConfig = deserializeConfig();
-    GroupItems groupItems =
-        (GroupItems) underlay.getEntityGroup(multiAttrConfig.getEntityGroupMultiAttr());
+    CFMultiAttribute.MultiAttribute multiAttrConfig = deserializeConfig();
+    Pair<EntityGroup, Relationship> entityGroup =
+        underlay.getRelationship(
+            underlay.getEntity(multiAttrConfig.getEntity()), underlay.getPrimaryEntity());
+    GroupItems groupItems = (GroupItems) entityGroup.getLeft();
     Entity notPrimaryEntity =
         groupItems.getGroupEntity().isPrimary()
             ? groupItems.getItemsEntity()
@@ -72,9 +77,11 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
         deserializeData(selectionData.get(0).getPluginData());
 
     // Pull the entity group from the config.
-    CFPlaceholder.Placeholder multiAttrConfig = deserializeConfig();
-    GroupItems groupItems =
-        (GroupItems) underlay.getEntityGroup(multiAttrConfig.getEntityGroupMultiAttr());
+    CFMultiAttribute.MultiAttribute multiAttrConfig = deserializeConfig();
+    Pair<EntityGroup, Relationship> entityGroup =
+        underlay.getRelationship(
+            underlay.getEntity(multiAttrConfig.getEntity()), underlay.getPrimaryEntity());
+    GroupItems groupItems = (GroupItems) entityGroup.getLeft();
     Entity notPrimaryEntity =
         groupItems.getGroupEntity().isPrimary()
             ? groupItems.getItemsEntity()
@@ -104,9 +111,9 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public CFPlaceholder.Placeholder deserializeConfig() {
+  public CFMultiAttribute.MultiAttribute deserializeConfig() {
     return deserializeFromJson(
-            criteriaSelector.getPluginConfig(), CFPlaceholder.Placeholder.newBuilder())
+            criteriaSelector.getPluginConfig(), CFMultiAttribute.MultiAttribute.newBuilder())
         .build();
   }
 

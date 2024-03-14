@@ -7,20 +7,15 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.entitymodel.Relationship;
-import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import com.google.common.collect.ImmutableMap;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -80,21 +75,6 @@ public class UnderlayService {
   public void cacheEntityLevelHints(
       String underlayName, String entityName, HintQueryResult hintQueryResult) {
     underlayCache.get(underlayName).putEntityLevelHints(entityName, hintQueryResult);
-  }
-
-  public static Pair<EntityGroup, Relationship> getRelationship(
-      Collection<EntityGroup> entityGroups, Entity entity1, Entity entity2) {
-    for (EntityGroup entityGroup : entityGroups) {
-      Optional<Relationship> relationship =
-          entityGroup.getRelationships().stream()
-              .filter(r -> r.matchesEntities(entity1, entity2))
-              .findAny();
-      if (relationship.isPresent()) {
-        return Pair.of(entityGroup, relationship.get());
-      }
-    }
-    throw new NotFoundException(
-        "Relationship not found for entities: " + entity1.getName() + ", " + entity2.getName());
   }
 
   private static class CachedUnderlay {

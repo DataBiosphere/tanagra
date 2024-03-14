@@ -12,7 +12,8 @@ import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.GroupByCountSchemaUtils;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.Underlay;
@@ -170,7 +171,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
             modifiersSelectionData,
             criteriaOccurrence.getOccurrenceEntities());
 
-    Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
+    Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
             GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
     if (groupByModifierConfigAndData.isEmpty()) {
@@ -187,7 +188,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     // Build the group by filter information.
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
         GroupByCountSchemaUtils.getGroupByAttributesPerOccurrenceEntity(
-            underlay, groupByModifierConfigAndData);
+            underlay, groupByModifierConfigAndData, criteriaOccurrence.getOccurrenceEntities());
     DTUnhintedValue.UnhintedValue groupByModifierData =
         groupByModifierConfigAndData.get().getRight();
     return new PrimaryWithCriteriaFilter(
@@ -221,9 +222,9 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public CFPlaceholder.Placeholder deserializeConfig() {
+  public CFEntityGroup.EntityGroup deserializeConfig() {
     return deserializeFromJson(
-            criteriaSelector.getPluginConfig(), CFPlaceholder.Placeholder.newBuilder())
+            criteriaSelector.getPluginConfig(), CFEntityGroup.EntityGroup.newBuilder())
         .build();
   }
 

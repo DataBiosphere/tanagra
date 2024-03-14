@@ -6,7 +6,8 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFOutputUnfiltered;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTOutputUnfiltered;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
@@ -26,24 +27,33 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
   @Override
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
-    CFPlaceholder.Placeholder config = deserializeConfig();
+    if (selectionData.size() > 1) {
+      throw new InvalidQueryException("Modifiers are not supported for data features");
+    }
+    DTOutputUnfiltered.OutputUnfiltered outputUnfilteredSelectionData =
+        deserializeData(selectionData.get(0).getPluginData());
     List<EntityOutput> entityOutputs = new ArrayList<>();
-    config.getOutputUnfilteredEntitiesList().stream()
+    outputUnfilteredSelectionData.getEntitiesList().stream()
         .forEach(
             outputEntityName ->
-                entityOutputs.add(EntityOutput.unfiltered(underlay.getEntity(outputEntityName))));
+                entityOutputs.add(
+                    EntityOutput.unfiltered(
+                        outputEntityName.isEmpty()
+                            ? underlay.getPrimaryEntity()
+                            : underlay.getEntity(outputEntityName))));
     return entityOutputs;
   }
 
   @Override
-  public CFPlaceholder.Placeholder deserializeConfig() {
+  public CFOutputUnfiltered.OutputUnfiltered deserializeConfig() {
     return deserializeFromJson(
-            criteriaSelector.getPluginConfig(), CFPlaceholder.Placeholder.newBuilder())
+            criteriaSelector.getPluginConfig(), CFOutputUnfiltered.OutputUnfiltered.newBuilder())
         .build();
   }
 
   @Override
-  public Object deserializeData(String serialized) {
-    throw new InvalidQueryException("This filter builder does not support plugin data");
+  public DTOutputUnfiltered.OutputUnfiltered deserializeData(String serialized) {
+    return deserializeFromJson(serialized, DTOutputUnfiltered.OutputUnfiltered.newBuilder())
+        .build();
   }
 }

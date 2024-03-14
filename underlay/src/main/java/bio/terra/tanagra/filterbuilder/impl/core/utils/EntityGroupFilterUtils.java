@@ -11,7 +11,8 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.Underlay;
@@ -71,7 +72,7 @@ public final class EntityGroupFilterUtils {
     AttributeSchemaUtils.getModifiers(criteriaSelector, modifiersSelectionData).stream()
         .forEach(
             configAndData -> {
-              CFPlaceholder.Placeholder modifierConfig = configAndData.getLeft();
+              CFAttribute.Attribute modifierConfig = configAndData.getLeft();
               DTAttribute.Attribute modifierData = configAndData.getRight();
 
               // Add a separate filter for each occurrence entity.
@@ -130,7 +131,7 @@ public final class EntityGroupFilterUtils {
               BooleanAndOrFilter.LogicalOperator.AND, allFiltersNotPrimaryEntity);
     }
 
-    Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
+    Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
             GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
     if (groupByModifierConfigAndData.isEmpty()) {
@@ -148,7 +149,7 @@ public final class EntityGroupFilterUtils {
     // Build the group by filter information.
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
         GroupByCountSchemaUtils.getGroupByAttributesPerOccurrenceEntity(
-            underlay, groupByModifierConfigAndData);
+            underlay, groupByModifierConfigAndData, List.of(notPrimaryEntity));
     List<Attribute> groupByAttributes =
         groupByAttributesPerOccurrenceEntity.containsKey(notPrimaryEntity)
             ? groupByAttributesPerOccurrenceEntity.get(notPrimaryEntity)

@@ -11,7 +11,7 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFBioVU;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTBioVU;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
@@ -38,7 +38,7 @@ public class BioVUFilterBuilder extends FilterBuilder {
     DTBioVU.BioVU bioVuSelectionData = deserializeData(selectionData.get(0).getPluginData());
 
     // Pull the plasma flag from the config.
-    CFPlaceholder.Placeholder bioVuConfig = deserializeConfig();
+    CFBioVU.BioVU bioVuConfig = deserializeConfig();
 
     // Build the attribute filters on the primary entity.
     List<EntityFilter> filtersOnPrimaryEntity = new ArrayList<>();
@@ -122,9 +122,8 @@ public class BioVUFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public CFPlaceholder.Placeholder deserializeConfig() {
-    return deserializeFromJson(
-            criteriaSelector.getPluginConfig(), CFPlaceholder.Placeholder.newBuilder())
+  public CFBioVU.BioVU deserializeConfig() {
+    return deserializeFromJson(criteriaSelector.getPluginConfig(), CFBioVU.BioVU.newBuilder())
         .build();
   }
 

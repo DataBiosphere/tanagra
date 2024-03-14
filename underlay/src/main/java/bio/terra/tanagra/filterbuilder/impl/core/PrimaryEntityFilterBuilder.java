@@ -5,7 +5,7 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
@@ -22,7 +22,7 @@ public class PrimaryEntityFilterBuilder extends FilterBuilder {
     if (selectionData.size() != 1) {
       throw new InvalidConfigException("Primary entity filter builder does not support modifiers.");
     }
-    CFPlaceholder.Placeholder config = deserializeConfig();
+    CFAttribute.Attribute config = deserializeConfig();
     DTAttribute.Attribute data = deserializeData(selectionData.get(0).getPluginData());
     return AttributeSchemaUtils.buildForEntity(
         underlay,
@@ -38,7 +38,7 @@ public class PrimaryEntityFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public CFPlaceholder.Placeholder deserializeConfig() {
+  public CFAttribute.Attribute deserializeConfig() {
     return AttributeSchemaUtils.deserializeConfig(criteriaSelector.getPluginConfig());
   }
 

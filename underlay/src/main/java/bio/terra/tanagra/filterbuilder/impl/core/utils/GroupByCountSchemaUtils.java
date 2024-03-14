@@ -4,7 +4,7 @@ import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
 
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -16,21 +16,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class GroupByCountSchemaUtils {
   private GroupByCountSchemaUtils() {}
 
-  public static CFPlaceholder.Placeholder deserializeConfig(String serialized) {
-    return deserializeFromJson(serialized, CFPlaceholder.Placeholder.newBuilder()).build();
+  public static CFUnhintedValue.UnhintedValue deserializeConfig(String serialized) {
+    return deserializeFromJson(serialized, CFUnhintedValue.UnhintedValue.newBuilder()).build();
   }
 
   public static DTUnhintedValue.UnhintedValue deserializeData(String serialized) {
     return deserializeFromJson(serialized, DTUnhintedValue.UnhintedValue.newBuilder()).build();
   }
 
-  public static Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
+  public static Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
       getModifier(CriteriaSelector criteriaSelector, List<SelectionData> selectionData) {
     Optional<SelectionData> groupByCountSelectionData =
         selectionData.stream()
@@ -46,7 +45,7 @@ public final class GroupByCountSchemaUtils {
     if (groupByCountSelectionData.isEmpty()) {
       return Optional.empty();
     }
-    CFPlaceholder.Placeholder groupByModifierConfig =
+    CFUnhintedValue.UnhintedValue groupByModifierConfig =
         deserializeConfig(
             criteriaSelector
                 .getModifier(groupByCountSelectionData.get().getModifierName())
@@ -58,22 +57,21 @@ public final class GroupByCountSchemaUtils {
 
   public static Map<Entity, List<Attribute>> getGroupByAttributesPerOccurrenceEntity(
       Underlay underlay,
-      Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
-          groupByModifierConfigAndData) {
-    CFPlaceholder.Placeholder groupByModifierConfig = groupByModifierConfigAndData.get().getLeft();
+      Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
+          groupByModifierConfigAndData,
+      List<Entity> occurrenceEntities) {
+    CFUnhintedValue.UnhintedValue groupByModifierConfig =
+        groupByModifierConfigAndData.get().getLeft();
 
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
-    if (!groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().isEmpty()) {
-      groupByModifierConfig.getGroupByAttributesPerOccurrenceEntityMap().entrySet().stream()
+    if (groupByModifierConfig.getAttribute() != null
+        && !groupByModifierConfig.getAttribute().isEmpty()) {
+      String attributeName = groupByModifierConfig.getAttribute();
+      occurrenceEntities.stream()
           .forEach(
-              entry -> {
-                Entity occurrenceEntity = underlay.getEntity(entry.getKey());
-                List<Attribute> groupByAttributes =
-                    entry.getValue().getAttributeList().stream()
-                        .map(attrName -> occurrenceEntity.getAttribute(attrName))
-                        .collect(Collectors.toList());
-                groupByAttributesPerOccurrenceEntity.put(occurrenceEntity, groupByAttributes);
-              });
+              occurrenceEntity ->
+                  groupByAttributesPerOccurrenceEntity.put(
+                      occurrenceEntity, List.of(occurrenceEntity.getAttribute(attributeName))));
     }
     return groupByAttributesPerOccurrenceEntity;
   }

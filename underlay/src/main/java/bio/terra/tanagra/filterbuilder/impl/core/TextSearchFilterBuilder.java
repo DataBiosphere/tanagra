@@ -12,13 +12,16 @@ import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.GroupByCountSchemaUtils;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFTextSearch;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTTextSearch;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
@@ -41,9 +44,11 @@ public class TextSearchFilterBuilder extends FilterBuilder {
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // Pull the entity group, text search attribute from the config.
-    CFPlaceholder.Placeholder textSearchConfig = deserializeConfig();
-    CriteriaOccurrence criteriaOccurrence =
-        (CriteriaOccurrence) underlay.getEntityGroup(textSearchConfig.getEntityGroup());
+    CFTextSearch.TextSearch textSearchConfig = deserializeConfig();
+    Pair<EntityGroup, Relationship> entityGroup =
+        underlay.getRelationship(
+            underlay.getEntity(textSearchConfig.getEntity()), underlay.getPrimaryEntity());
+    CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup.getLeft();
     String textSearchAttrName =
         textSearchConfig.getSearchAttribute() == null
                 || textSearchConfig.getSearchAttribute().isEmpty()
@@ -96,7 +101,7 @@ public class TextSearchFilterBuilder extends FilterBuilder {
               });
     }
 
-    Optional<Pair<CFPlaceholder.Placeholder, DTUnhintedValue.UnhintedValue>>
+    Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
             GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
     if (groupByModifierConfigAndData.isEmpty()) {
@@ -113,7 +118,7 @@ public class TextSearchFilterBuilder extends FilterBuilder {
     // Build the group by filter information.
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
         GroupByCountSchemaUtils.getGroupByAttributesPerOccurrenceEntity(
-            underlay, groupByModifierConfigAndData);
+            underlay, groupByModifierConfigAndData, criteriaOccurrence.getOccurrenceEntities());
     DTUnhintedValue.UnhintedValue groupByModifierData =
         groupByModifierConfigAndData.get().getRight();
     return new PrimaryWithCriteriaFilter(
@@ -136,9 +141,11 @@ public class TextSearchFilterBuilder extends FilterBuilder {
         deserializeData(selectionData.get(0).getPluginData());
 
     // Pull the entity group, text search attribute from the config.
-    CFPlaceholder.Placeholder textSearchConfig = deserializeConfig();
-    CriteriaOccurrence criteriaOccurrence =
-        (CriteriaOccurrence) underlay.getEntityGroup(textSearchConfig.getEntityGroup());
+    CFTextSearch.TextSearch textSearchConfig = deserializeConfig();
+    Pair<EntityGroup, Relationship> entityGroup =
+        underlay.getRelationship(
+            underlay.getEntity(textSearchConfig.getEntity()), underlay.getPrimaryEntity());
+    CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup.getLeft();
     String textSearchAttrName =
         textSearchConfig.getSearchAttribute() == null
                 || textSearchConfig.getSearchAttribute().isEmpty()
@@ -193,9 +200,9 @@ public class TextSearchFilterBuilder extends FilterBuilder {
   }
 
   @Override
-  public CFPlaceholder.Placeholder deserializeConfig() {
+  public CFTextSearch.TextSearch deserializeConfig() {
     return deserializeFromJson(
-            criteriaSelector.getPluginConfig(), CFPlaceholder.Placeholder.newBuilder())
+            criteriaSelector.getPluginConfig(), CFTextSearch.TextSearch.newBuilder())
         .build();
   }
 

@@ -30,9 +30,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
@@ -130,6 +132,20 @@ public final class Underlay {
         .filter(eg -> name.equals(eg.getName()))
         .findFirst()
         .orElseThrow(() -> new NotFoundException("Entity group not found: " + name));
+  }
+
+  public Pair<EntityGroup, Relationship> getRelationship(Entity entity1, Entity entity2) {
+    for (EntityGroup entityGroup : entityGroups) {
+      Optional<Relationship> relationship =
+          entityGroup.getRelationships().stream()
+              .filter(r -> r.matchesEntities(entity1, entity2))
+              .findAny();
+      if (relationship.isPresent()) {
+        return Pair.of(entityGroup, relationship.get());
+      }
+    }
+    throw new NotFoundException(
+        "Relationship not found for entities: " + entity1.getName() + ", " + entity2.getName());
   }
 
   public QueryRunner getQueryRunner() {

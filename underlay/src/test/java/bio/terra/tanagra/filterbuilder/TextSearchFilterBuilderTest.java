@@ -16,7 +16,9 @@ import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.filterbuilder.impl.core.TextSearchFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFPlaceholder;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFTextSearch;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTTextSearch;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
@@ -48,8 +50,7 @@ public class TextSearchFilterBuilderTest {
   @Test
   void textOnlyCohortFilter() {
     // Text query, no attribute.
-    CFPlaceholder.Placeholder config =
-        CFPlaceholder.Placeholder.newBuilder().setEntityGroup("notePerson").build();
+    CFTextSearch.TextSearch config = CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
@@ -89,10 +90,7 @@ public class TextSearchFilterBuilderTest {
 
     // Text query, with attribute.
     config =
-        CFPlaceholder.Placeholder.newBuilder()
-            .setEntityGroup("notePerson")
-            .setSearchAttribute("title")
-            .build();
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").setSearchAttribute("title").build();
     criteriaSelector =
         new CriteriaSelector(
             "note_withAttribute",
@@ -129,8 +127,8 @@ public class TextSearchFilterBuilderTest {
 
   @Test
   void criteriaOnlyCohortFilter() {
-    CFPlaceholder.Placeholder configNoAttr =
-        CFPlaceholder.Placeholder.newBuilder().setEntityGroup("notePerson").build();
+    CFTextSearch.TextSearch configNoAttr =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelectorNoAttr =
         new CriteriaSelector(
             "note_noAttribute",
@@ -294,20 +292,20 @@ public class TextSearchFilterBuilderTest {
 
   @Test
   void criteriaWithAttrModifiersCohortFilter() {
-    CFPlaceholder.Placeholder ageAtOccurrenceConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
-    CFPlaceholder.Placeholder visitTypeConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
-    CFPlaceholder.Placeholder textSearchConfig =
-        CFPlaceholder.Placeholder.newBuilder().setEntityGroup("notePerson").build();
+    CFTextSearch.TextSearch textSearchConfig =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
@@ -419,21 +417,15 @@ public class TextSearchFilterBuilderTest {
 
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "noteOccurrence",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("start_date")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder textSearchConfig =
-        CFPlaceholder.Placeholder.newBuilder().setEntityGroup("notePerson").build();
+    CFTextSearch.TextSearch textSearchConfig =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
@@ -487,33 +479,27 @@ public class TextSearchFilterBuilderTest {
 
   @Test
   void criteriaWithAttrAndGroupByModifiersCohortFilter() {
-    CFPlaceholder.Placeholder ageAtOccurrenceConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("age_at_occurrence").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
-    CFPlaceholder.Placeholder visitTypeConfig =
-        CFPlaceholder.Placeholder.newBuilder().setAttribute("visit_type").build();
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
-    CFPlaceholder.Placeholder groupByConfig =
-        CFPlaceholder.Placeholder.newBuilder()
-            .putGroupByAttributesPerOccurrenceEntity(
-                "noteOccurrence",
-                CFPlaceholder.Placeholder.GroupByAttributes.newBuilder()
-                    .addAttribute("start_date")
-                    .build())
-            .build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFPlaceholder.Placeholder textSearchConfig =
-        CFPlaceholder.Placeholder.newBuilder().setEntityGroup("notePerson").build();
+    CFTextSearch.TextSearch textSearchConfig =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
@@ -621,8 +607,8 @@ public class TextSearchFilterBuilderTest {
 
   @Test
   void singleOccurrenceDataFeatureFilter() {
-    CFPlaceholder.Placeholder configNoAttr =
-        CFPlaceholder.Placeholder.newBuilder().setEntityGroup("notePerson").build();
+    CFTextSearch.TextSearch configNoAttr =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelectorNoAttr =
         new CriteriaSelector(
             "note_noAttribute",
@@ -634,11 +620,8 @@ public class TextSearchFilterBuilderTest {
             List.of());
     TextSearchFilterBuilder filterBuilderNoAttr =
         new TextSearchFilterBuilder(criteriaSelectorNoAttr);
-    CFPlaceholder.Placeholder configWithAttr =
-        CFPlaceholder.Placeholder.newBuilder()
-            .setEntityGroup("notePerson")
-            .setSearchAttribute("title")
-            .build();
+    CFTextSearch.TextSearch configWithAttr =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").setSearchAttribute("title").build();
     CriteriaSelector criteriaSelectorWithAttr =
         new CriteriaSelector(
             "note_withAttribute",
