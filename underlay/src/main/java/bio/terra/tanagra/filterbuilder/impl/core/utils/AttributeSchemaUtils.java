@@ -106,6 +106,8 @@ public final class AttributeSchemaUtils {
 
   private static DTAttribute.Attribute convertToAttrDataSchema(
       ValueDataOuterClass.ValueData valueData) {
+    // Convert the value_data schema into the attribute plugin data schema, so we can share
+    // processing code.
     DTAttribute.Attribute.Builder attrData = DTAttribute.Attribute.newBuilder();
     valueData.getSelectedList().stream()
         .forEach(
