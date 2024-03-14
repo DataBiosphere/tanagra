@@ -45,7 +45,8 @@ public class FilterBuilderService {
         criteriaGroup.getCriteria().stream()
             .map(
                 criteria ->
-                    new SelectionData(criteria.getPluginName(), criteria.getSelectionData()))
+                    new SelectionData(
+                        criteria.getSelectorOrModifierName(), criteria.getSelectionData()))
             .collect(Collectors.toList());
 
     Underlay underlay = underlayService.getUnderlay(underlayName);

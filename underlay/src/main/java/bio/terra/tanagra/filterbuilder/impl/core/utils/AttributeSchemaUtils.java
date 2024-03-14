@@ -10,6 +10,7 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
+import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.Underlay;
@@ -25,6 +26,14 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public final class AttributeSchemaUtils {
   private AttributeSchemaUtils() {}
+
+  public static EntityFilter buildForEntity(
+      Underlay underlay,
+      Entity entity,
+      Attribute attribute,
+      ValueDataOuterClass.ValueData valueData) {
+    return buildForEntity(underlay, entity, attribute, convertToAttrDataSchema(valueData));
+  }
 
   public static EntityFilter buildForEntity(
       Underlay underlay, Entity entity, Attribute attribute, DTAttribute.Attribute data) {
@@ -93,5 +102,22 @@ public final class AttributeSchemaUtils {
 
   public static DTAttribute.Attribute deserializeData(String serialized) {
     return deserializeFromJsonOrProtoBytes(serialized, DTAttribute.Attribute.newBuilder()).build();
+  }
+
+  private static DTAttribute.Attribute convertToAttrDataSchema(
+      ValueDataOuterClass.ValueData valueData) {
+    DTAttribute.Attribute.Builder attrData = DTAttribute.Attribute.newBuilder();
+    valueData.getSelectedList().stream()
+        .forEach(
+            valueDataSelection -> {
+              DTAttribute.Attribute.Selection attrSelection =
+                  DTAttribute.Attribute.Selection.newBuilder()
+                      .setValue(valueDataSelection.getValue())
+                      .setName(valueDataSelection.getName())
+                      .build();
+              attrData.addSelected(attrSelection);
+            });
+    attrData.addDataRanges(valueData.getRange());
+    return attrData.build();
   }
 }
