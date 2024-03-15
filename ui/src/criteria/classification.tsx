@@ -602,6 +602,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 defaultExpanded={searchState?.hierarchy}
                 highlightId={searchState?.highlightId}
                 expandable
+                reserveExpansionSpacing={!!searchState?.hierarchy}
                 rowCustomization={(
                   id: TreeGridId,
                   rowData: TreeGridRowData
