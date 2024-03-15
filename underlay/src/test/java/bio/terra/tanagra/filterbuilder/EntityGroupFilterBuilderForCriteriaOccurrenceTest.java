@@ -17,6 +17,7 @@ import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.filterbuilder.impl.core.EntityGroupFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass.Key;
+import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass.ValueData;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
@@ -365,7 +366,114 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
   }
 
   @Test
-  void criteriaWithAttrAndGroupByModifiersCohortFilter() {
+  void criteriaWithInstanceLevelModifierCohortFilter() {
+    CFEntityGroup.EntityGroup measurementConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "measurement",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(measurementConfig),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Enum attribute.
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
+                    .setName("Glucose [Mass/volume] in Serum or Plasma")
+                    .setEntityGroup("measurementLoincPerson")
+                    .build())
+            .setValueData(
+                ValueData.newBuilder()
+                    .setAttribute("value_enum")
+                    .addSelected(
+                        ValueData.Selection.newBuilder()
+                            .setValue(Value.newBuilder().setInt64Value(45_884_084L).build())
+                            .setName("Positive")
+                            .build()))
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("measurement", serializeToJson(entityGroupData));
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(underlay, List.of(entityGroupSelectionData));
+    assertNotNull(cohortFilter);
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("measurementLoinc"),
+            underlay.getEntity("measurementLoinc").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3_004_501L));
+    EntityFilter expectedInstanceLevelSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("measurementOccurrence"),
+            underlay.getEntity("measurementOccurrence").getAttribute("value_enum"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(45_884_084L));
+    EntityFilter expectedCohortFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("measurementLoincPerson"),
+            expectedCriteriaSubFilter,
+            Map.of(
+                underlay.getEntity("measurementOccurrence"),
+                List.of(expectedInstanceLevelSubFilter)),
+            null,
+            null,
+            null);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Numeric attribute.
+    entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
+                    .setName("Glucose [Mass/volume] in Serum or Plasma")
+                    .setEntityGroup("measurementLoincPerson")
+                    .build())
+            .setValueData(
+                ValueData.newBuilder()
+                    .setAttribute("value_numeric")
+                    .setRange(DataRange.newBuilder().setMin(0.0).setMax(250.0).build()))
+            .build();
+    entityGroupSelectionData = new SelectionData("measurement", serializeToJson(entityGroupData));
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(entityGroupSelectionData));
+    assertNotNull(cohortFilter);
+    expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("measurementLoinc"),
+            underlay.getEntity("measurementLoinc").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3_004_501L));
+    expectedInstanceLevelSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("measurementOccurrence"),
+            underlay.getEntity("measurementOccurrence").getAttribute("value_numeric"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(0.0), Literal.forDouble(250.0)));
+    expectedCohortFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("measurementLoincPerson"),
+            expectedCriteriaSubFilter,
+            Map.of(
+                underlay.getEntity("measurementOccurrence"),
+                List.of(expectedInstanceLevelSubFilter)),
+            null,
+            null,
+            null);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
+  void criteriaWithAttrAndInstanceLevelAndGroupByModifiersCohortFilter() {
     CFAttribute.Attribute ageAtOccurrenceConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
@@ -379,7 +487,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -388,7 +496,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
     CFEntityGroup.EntityGroup conditionConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
-            "condition",
+            "measurement",
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -426,13 +534,17 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
         DTEntityGroup.EntityGroup.newBuilder()
             .addSelected(
                 DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
-                    .setName("Type 2 diabetes mellitus")
-                    .setEntityGroup("conditionPerson")
+                    .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
+                    .setName("Glucose [Mass/volume] in Serum or Plasma")
+                    .setEntityGroup("measurementLoincPerson")
                     .build())
+            .setValueData(
+                ValueData.newBuilder()
+                    .setAttribute("value_numeric")
+                    .setRange(DataRange.newBuilder().setMin(0.0).setMax(250.0).build()))
             .build();
     SelectionData entityGroupSelectionData =
-        new SelectionData("condition", serializeToJson(entityGroupData));
+        new SelectionData("measurement", serializeToJson(entityGroupData));
     EntityFilter cohortFilter =
         filterBuilder.buildForCohort(
             underlay,
@@ -445,34 +557,44 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
     EntityFilter expectedCriteriaSubFilter =
         new HierarchyHasAncestorFilter(
             underlay,
-            underlay.getEntity("condition"),
-            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
-            Literal.forInt64(201_826L));
+            underlay.getEntity("measurementLoinc"),
+            underlay.getEntity("measurementLoinc").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3_004_501L));
     EntityFilter expectedAgeAtOccurrenceSubFilter =
         new AttributeFilter(
             underlay,
-            underlay.getEntity("conditionOccurrence"),
-            underlay.getEntity("conditionOccurrence").getAttribute("age_at_occurrence"),
+            underlay.getEntity("measurementOccurrence"),
+            underlay.getEntity("measurementOccurrence").getAttribute("age_at_occurrence"),
             NaryOperator.BETWEEN,
             List.of(Literal.forDouble(45.0), Literal.forDouble(65.0)));
     EntityFilter expectedVisitTypeSubFilter =
         new AttributeFilter(
             underlay,
-            underlay.getEntity("conditionOccurrence"),
-            underlay.getEntity("conditionOccurrence").getAttribute("visit_type"),
+            underlay.getEntity("measurementOccurrence"),
+            underlay.getEntity("measurementOccurrence").getAttribute("visit_type"),
             BinaryOperator.EQUALS,
             Literal.forInt64(9_202L));
+    EntityFilter expectedInstanceLevelSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("measurementOccurrence"),
+            underlay.getEntity("measurementOccurrence").getAttribute("value_numeric"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(0.0), Literal.forDouble(250.0)));
     EntityFilter expectedCohortFilter =
         new PrimaryWithCriteriaFilter(
             underlay,
-            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            (CriteriaOccurrence) underlay.getEntityGroup("measurementLoincPerson"),
             expectedCriteriaSubFilter,
             Map.of(
-                underlay.getEntity("conditionOccurrence"),
-                List.of(expectedAgeAtOccurrenceSubFilter, expectedVisitTypeSubFilter)),
+                underlay.getEntity("measurementOccurrence"),
+                List.of(
+                    expectedAgeAtOccurrenceSubFilter,
+                    expectedVisitTypeSubFilter,
+                    expectedInstanceLevelSubFilter)),
             Map.of(
-                underlay.getEntity("conditionOccurrence"),
-                List.of(underlay.getEntity("conditionOccurrence").getAttribute("start_date"))),
+                underlay.getEntity("measurementOccurrence"),
+                List.of(underlay.getEntity("measurementOccurrence").getAttribute("date"))),
             BinaryOperator.GREATER_THAN_OR_EQUAL,
             2);
     assertEquals(expectedCohortFilter, cohortFilter);

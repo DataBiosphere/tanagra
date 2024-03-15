@@ -1,15 +1,24 @@
 package bio.terra.tanagra.service;
 
 import bio.terra.common.exception.NotFoundException;
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.query.PageMarker;
+import bio.terra.tanagra.api.query.count.CountQueryRequest;
+import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +84,48 @@ public class UnderlayService {
   public void cacheEntityLevelHints(
       String underlayName, String entityName, HintQueryResult hintQueryResult) {
     underlayCache.get(underlayName).putEntityLevelHints(entityName, hintQueryResult);
+  }
+
+  public CountQueryResult runCountQuery(
+      Underlay underlay,
+      Entity entity,
+      List<String> groupByAttributeNames,
+      EntityFilter entityFilter,
+      PageMarker pageMarker,
+      Integer pageSize) {
+    // Get the entity level hints, either via query or from the cache.
+    Optional<HintQueryResult> entityLevelHintsCached =
+        getEntityLevelHints(underlay.getName(), entity.getName());
+    HintQueryResult entityLevelHints;
+    if (entityLevelHintsCached.isPresent()) {
+      entityLevelHints = entityLevelHintsCached.get();
+    } else {
+      HintQueryRequest hintQueryRequest =
+          new HintQueryRequest(underlay, entity, null, null, null, false);
+      entityLevelHints = underlay.getQueryRunner().run(hintQueryRequest);
+      cacheEntityLevelHints(underlay.getName(), entity.getName(), entityLevelHints);
+    }
+
+    // Build the attribute fields for select and group by.
+    List<ValueDisplayField> attributeFields = new ArrayList<>();
+    groupByAttributeNames.stream()
+        .forEach(
+            attributeName ->
+                attributeFields.add(
+                    new AttributeField(
+                        underlay, entity, entity.getAttribute(attributeName), false, false)));
+
+    CountQueryRequest countQueryRequest =
+        new CountQueryRequest(
+            underlay,
+            entity,
+            attributeFields,
+            entityFilter,
+            pageMarker,
+            pageSize,
+            entityLevelHints,
+            false);
+    return underlay.getQueryRunner().run(countQueryRequest);
   }
 
   private static class CachedUnderlay {

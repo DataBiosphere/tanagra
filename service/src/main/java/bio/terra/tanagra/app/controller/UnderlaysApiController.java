@@ -14,7 +14,6 @@ import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
-import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
@@ -60,7 +59,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -159,62 +157,25 @@ public class UnderlaysApiController implements UnderlaysApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_COUNTS),
         ResourceId.forUnderlay(underlayName));
-    Underlay underlay = underlayService.getUnderlay(underlayName);
-    Entity entity = underlay.getEntity(entityName);
-
-    // Get the entity level hints, either via query or from the cache.
-    Optional<HintQueryResult> entityLevelHintsCached =
-        underlayService.getEntityLevelHints(underlayName, entityName);
-    HintQueryResult entityLevelHints;
-    if (entityLevelHintsCached.isPresent()) {
-      entityLevelHints = entityLevelHintsCached.get();
-    } else {
-      HintQueryRequest hintQueryRequest =
-          new HintQueryRequest(underlay, entity, null, null, null, false);
-      entityLevelHints = underlay.getQueryRunner().run(hintQueryRequest);
-      underlayService.cacheEntityLevelHints(underlayName, entityName, entityLevelHints);
-    }
-
-    // Build the attribute fields for select and group by.
-    List<ValueDisplayField> attributeFields = new ArrayList<>();
-    if (body.getAttributes() != null) {
-      body.getAttributes().stream()
-          .forEach(
-              attributeName ->
-                  attributeFields.add(
-                      FromApiUtils.buildAttributeField(underlay, entity, attributeName, false)));
-    }
 
     // Build the entity filter.
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    Entity entity = underlay.getEntity(entityName);
     EntityFilter filter =
         body.getFilter() == null
             ? null
             : FromApiUtils.fromApiObject(body.getFilter(), entity, underlay);
 
-    CountQueryRequest countQueryRequest =
-        new CountQueryRequest(
+    // Run the count query and map the results back to API objects.
+    CountQueryResult countQueryResult =
+        underlayService.runCountQuery(
             underlay,
             entity,
-            attributeFields,
+            body.getAttributes() == null ? List.of() : body.getAttributes(),
             filter,
             PageMarker.deserialize(body.getPageMarker()),
-            body.getPageSize(),
-            entityLevelHints,
-            false);
-
-    // Run the count query and map the results back to API objects.
-    CountQueryResult countQueryResult = underlay.getQueryRunner().run(countQueryRequest);
-    return ResponseEntity.ok(
-        new ApiInstanceCountList()
-            .instanceCounts(
-                countQueryResult.getCountInstances().stream()
-                    .map(ToApiUtils::toApiObject)
-                    .collect(Collectors.toList()))
-            .sql(SqlFormatter.format(countQueryResult.getSql()))
-            .pageMarker(
-                countQueryResult.getPageMarker() == null
-                    ? null
-                    : countQueryResult.getPageMarker().serialize()));
+            body.getPageSize());
+    return ResponseEntity.ok(ToApiUtils.toApiObject(countQueryResult));
   }
 
   @Override

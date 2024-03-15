@@ -22,7 +22,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FilterBuilderService {
   private final UnderlayService underlayService;
 
@@ -37,18 +39,18 @@ public class FilterBuilderService {
       return null;
     }
 
-    // TODO: Replace plugin name with criteria selector name, once we're storing that.
-    String criteriaSelectorOrModifierName = criteriaGroup.getCriteria().get(0).getPluginName();
+    String criteriaSelectorName = criteriaGroup.getCriteria().get(0).getSelectorOrModifierName();
     List<SelectionData> selectionData =
         criteriaGroup.getCriteria().stream()
             .map(
                 criteria ->
-                    new SelectionData(criteria.getPluginName(), criteria.getSelectionData()))
+                    new SelectionData(
+                        criteria.getSelectorOrModifierName(), criteria.getSelectionData()))
             .collect(Collectors.toList());
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
     FilterBuilder filterBuilder =
-        underlay.getCriteriaSelector(criteriaSelectorOrModifierName).getFilterBuilder();
+        underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
     return filterBuilder.buildForCohort(underlay, selectionData);
   }
 
@@ -125,24 +127,17 @@ public class FilterBuilderService {
               }
               conceptSet.getCriteria().stream()
                   .forEach(
-                      criteriaSelectorData -> {
-                        // TODO: Replace plugin name with criteria selector name, once we're storing
-                        // that.
-                        String criteriaSelectorOrModifierName =
-                            criteriaSelectorData.getPluginName();
+                      criteria -> {
+                        String criteriaSelectorName = criteria.getSelectorOrModifierName();
                         FilterBuilder filterBuilder =
-                            underlay
-                                .getCriteriaSelector(criteriaSelectorOrModifierName)
-                                .getFilterBuilder();
+                            underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
 
                         // Generate the entity outputs for each concept set criteria.
                         List<SelectionData> selectionData =
-                            criteriaSelectorData.getSelectionData() == null
-                                    || criteriaSelectorData.getSelectionData().isEmpty()
+                            criteria.getSelectionData() == null
+                                    || criteria.getSelectionData().isEmpty()
                                 ? List.of()
-                                : List.of(
-                                    new SelectionData(
-                                        null, criteriaSelectorData.getSelectionData()));
+                                : List.of(new SelectionData(null, criteria.getSelectionData()));
                         List<EntityOutput> entityOutputs =
                             filterBuilder.buildForDataFeature(underlay, selectionData);
 

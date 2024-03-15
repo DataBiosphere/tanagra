@@ -1,6 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.core;
 
-import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -10,6 +10,7 @@ import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
+import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.GroupByCountSchemaUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
@@ -65,6 +66,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
                           underlay,
                           (CriteriaOccurrence) entityGroup,
                           selectedIds,
+                          entityGroupSelectionData,
                           modifiersSelectionData));
                   break;
                 case GROUP_ITEMS:
@@ -157,6 +159,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
       Underlay underlay,
       CriteriaOccurrence criteriaOccurrence,
       List<Literal> selectedIds,
+      DTEntityGroup.EntityGroup entityGroupSelectionData,
       List<SelectionData> modifiersSelectionData) {
     // Build the criteria sub-filter.
     EntityFilter criteriaSubFilter =
@@ -170,6 +173,29 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
             criteriaSelector,
             modifiersSelectionData,
             criteriaOccurrence.getOccurrenceEntities());
+
+    // Build the instance-level modifier filters.
+    if (entityGroupSelectionData.hasValueData()) {
+      if (criteriaOccurrence.getOccurrenceEntities().size() > 1) {
+        throw new InvalidQueryException(
+            "Instance-level modifiers are not supported for entity groups with multiple occurrence entities: "
+                + criteriaOccurrence.getName());
+      }
+      Entity occurrenceEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
+
+      EntityFilter attrFilter =
+          AttributeSchemaUtils.buildForEntity(
+              underlay,
+              occurrenceEntity,
+              occurrenceEntity.getAttribute(entityGroupSelectionData.getValueData().getAttribute()),
+              entityGroupSelectionData.getValueData());
+      List<EntityFilter> subFilters =
+          subFiltersPerOccurrenceEntity.containsKey(occurrenceEntity)
+              ? subFiltersPerOccurrenceEntity.get(occurrenceEntity)
+              : new ArrayList<>();
+      subFilters.add(attrFilter);
+      subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFilters);
+    }
 
     Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
@@ -223,13 +249,14 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
 
   @Override
   public CFEntityGroup.EntityGroup deserializeConfig() {
-    return deserializeFromJson(
+    return deserializeFromJsonOrProtoBytes(
             criteriaSelector.getPluginConfig(), CFEntityGroup.EntityGroup.newBuilder())
         .build();
   }
 
   @Override
   public DTEntityGroup.EntityGroup deserializeData(String serialized) {
-    return deserializeFromJson(serialized, DTEntityGroup.EntityGroup.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, DTEntityGroup.EntityGroup.newBuilder())
+        .build();
   }
 }

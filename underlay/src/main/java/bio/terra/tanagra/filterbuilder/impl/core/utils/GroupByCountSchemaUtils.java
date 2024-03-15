@@ -1,6 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.core.utils;
 
-import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJson;
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.exception.SystemException;
@@ -22,11 +22,13 @@ public final class GroupByCountSchemaUtils {
   private GroupByCountSchemaUtils() {}
 
   public static CFUnhintedValue.UnhintedValue deserializeConfig(String serialized) {
-    return deserializeFromJson(serialized, CFUnhintedValue.UnhintedValue.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, CFUnhintedValue.UnhintedValue.newBuilder())
+        .build();
   }
 
   public static DTUnhintedValue.UnhintedValue deserializeData(String serialized) {
-    return deserializeFromJson(serialized, DTUnhintedValue.UnhintedValue.newBuilder()).build();
+    return deserializeFromJsonOrProtoBytes(serialized, DTUnhintedValue.UnhintedValue.newBuilder())
+        .build();
   }
 
   public static Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
