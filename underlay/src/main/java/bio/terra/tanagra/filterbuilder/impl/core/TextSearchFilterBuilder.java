@@ -137,8 +137,6 @@ public class TextSearchFilterBuilder extends FilterBuilder {
     if (selectionData.size() > 1) {
       throw new InvalidQueryException("Modifiers are not supported for data features");
     }
-    DTTextSearch.TextSearch textSearchSelectionData =
-        deserializeData(selectionData.get(0).getPluginData());
 
     // Pull the entity group, text search attribute from the config.
     CFTextSearch.TextSearch textSearchConfig = deserializeConfig();
@@ -152,46 +150,51 @@ public class TextSearchFilterBuilder extends FilterBuilder {
             ? null
             : textSearchConfig.getSearchAttribute();
 
-    // Pull the criteria ids and text query from the selection data.
-    List<Literal> criteriaIds =
-        textSearchSelectionData.getCategoriesList().stream()
-            .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
-            .collect(Collectors.toList());
-    String textQuery = textSearchSelectionData.getQuery();
-
     // Create an output for each of the occurrence entities.
     Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
         .forEach(occurrenceEntity -> filtersPerEntity.put(occurrenceEntity, new ArrayList<>()));
 
-    // Build the criteria filters on each of the occurrence entities.
-    if (!criteriaIds.isEmpty()) {
-      EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
-          underlay, criteriaOccurrence, criteriaIds, filtersPerEntity);
-    }
+    if (!selectionData.isEmpty()) {
+      DTTextSearch.TextSearch textSearchSelectionData =
+          deserializeData(selectionData.get(0).getPluginData());
 
-    // Build the text search filter on each of the occurrence entities.
-    if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
-      criteriaOccurrence.getOccurrenceEntities().stream()
-          .forEach(
-              occurrenceEntity -> {
-                List<EntityFilter> subFilters =
-                    filtersPerEntity.containsKey(occurrenceEntity)
-                        ? filtersPerEntity.get(occurrenceEntity)
-                        : new ArrayList<>();
-                Attribute textSearchAttr =
-                    textSearchAttrName == null
-                        ? null
-                        : occurrenceEntity.getAttribute(textSearchAttrName);
-                subFilters.add(
-                    new TextSearchFilter(
-                        underlay,
-                        occurrenceEntity,
-                        TextSearchFilter.TextSearchOperator.EXACT_MATCH,
-                        textQuery,
-                        textSearchAttr));
-                filtersPerEntity.put(occurrenceEntity, subFilters);
-              });
+      // Pull the criteria ids and text query from the selection data.
+      List<Literal> criteriaIds =
+          textSearchSelectionData.getCategoriesList().stream()
+              .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
+              .collect(Collectors.toList());
+      String textQuery = textSearchSelectionData.getQuery();
+
+      // Build the criteria filters on each of the occurrence entities.
+      if (!criteriaIds.isEmpty()) {
+        EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
+            underlay, criteriaOccurrence, criteriaIds, filtersPerEntity);
+      }
+
+      // Build the text search filter on each of the occurrence entities.
+      if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
+        criteriaOccurrence.getOccurrenceEntities().stream()
+            .forEach(
+                occurrenceEntity -> {
+                  List<EntityFilter> subFilters =
+                      filtersPerEntity.containsKey(occurrenceEntity)
+                          ? filtersPerEntity.get(occurrenceEntity)
+                          : new ArrayList<>();
+                  Attribute textSearchAttr =
+                      textSearchAttrName == null
+                          ? null
+                          : occurrenceEntity.getAttribute(textSearchAttrName);
+                  subFilters.add(
+                      new TextSearchFilter(
+                          underlay,
+                          occurrenceEntity,
+                          TextSearchFilter.TextSearchOperator.EXACT_MATCH,
+                          textQuery,
+                          textSearchAttr));
+                  filtersPerEntity.put(occurrenceEntity, subFilters);
+                });
+      }
     }
 
     // If there are multiple filters for a single entity, OR them together.

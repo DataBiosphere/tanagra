@@ -66,8 +66,6 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
     if (selectionData.size() > 1) {
       throw new InvalidQueryException("Modifiers are not supported for data features");
     }
-    DTMultiAttribute.MultiAttribute multiAttrSelectionData =
-        deserializeData(selectionData.get(0).getPluginData());
 
     // Pull the entity group from the config.
     CFMultiAttribute.MultiAttribute multiAttrConfig = deserializeConfig();
@@ -80,17 +78,22 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
             ? groupItems.getItemsEntity()
             : groupItems.getGroupEntity();
 
-    // Build the attribute filters on the not-primary entity.
     List<EntityFilter> subFiltersNotPrimaryEntity = new ArrayList<>();
-    multiAttrSelectionData.getValueDataList().stream()
-        .forEach(
-            valueData ->
-                subFiltersNotPrimaryEntity.add(
-                    AttributeSchemaUtils.buildForEntity(
-                        underlay,
-                        notPrimaryEntity,
-                        notPrimaryEntity.getAttribute(valueData.getAttribute()),
-                        valueData)));
+    if (!selectionData.isEmpty()) {
+      DTMultiAttribute.MultiAttribute multiAttrSelectionData =
+          deserializeData(selectionData.get(0).getPluginData());
+
+      // Build the attribute filters on the not-primary entity.
+      multiAttrSelectionData.getValueDataList().stream()
+          .forEach(
+              valueData ->
+                  subFiltersNotPrimaryEntity.add(
+                      AttributeSchemaUtils.buildForEntity(
+                          underlay,
+                          notPrimaryEntity,
+                          notPrimaryEntity.getAttribute(valueData.getAttribute()),
+                          valueData)));
+    }
 
     // Output the not primary entity.
     return EntityGroupFilterUtils.mergeFiltersForDataFeature(
