@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -56,6 +57,21 @@ public class ConceptSet {
 
   public Map<String, List<String>> getExcludeOutputAttributesPerEntity() {
     return excludeOutputAttributesPerEntity;
+  }
+
+  public boolean containsExcludeOutputAttributes(Entity entity) {
+    return excludeOutputAttributesPerEntity.containsKey(entity.getName())
+        || (entity.isPrimary() && excludeOutputAttributesPerEntity.containsKey(""));
+  }
+
+  public List<String> getExcludeOutputAttributes(Entity entity) {
+    if (excludeOutputAttributesPerEntity.containsKey(entity.getName())) {
+      return excludeOutputAttributesPerEntity.get(entity.getName());
+    } else if (entity.isPrimary() && excludeOutputAttributesPerEntity.containsKey("")) {
+      return excludeOutputAttributesPerEntity.get("");
+    } else {
+      return null;
+    }
   }
 
   public OffsetDateTime getCreated() {

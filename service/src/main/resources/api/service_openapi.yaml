@@ -840,7 +840,7 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/underlays/{underlayName}/entities/{entity}/exportPreview":
+  "/v2/underlays/{underlayName}/entities/{entityName}/exportPreview":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
       - $ref: "#/components/parameters/EntityName"
@@ -2500,6 +2500,7 @@ components:
             type: string
         limit:
           type: integer
+          default: 50
       required:
         - study
 

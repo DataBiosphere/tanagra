@@ -5,20 +5,12 @@ import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.HierarchyIsMemberField;
-import bio.terra.tanagra.api.field.HierarchyIsRootField;
-import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
-import bio.terra.tanagra.api.field.HierarchyPathField;
-import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
-import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.api.query.list.ListInstance;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.ValueDisplay;
@@ -36,16 +28,12 @@ import bio.terra.tanagra.generated.model.ApiDisplayHintNumericRange;
 import bio.terra.tanagra.generated.model.ApiEntity;
 import bio.terra.tanagra.generated.model.ApiEntityList;
 import bio.terra.tanagra.generated.model.ApiHintQuery;
-import bio.terra.tanagra.generated.model.ApiInstance;
 import bio.terra.tanagra.generated.model.ApiInstanceCountList;
-import bio.terra.tanagra.generated.model.ApiInstanceHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiInstanceListResult;
-import bio.terra.tanagra.generated.model.ApiInstanceRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiUnderlay;
 import bio.terra.tanagra.generated.model.ApiUnderlaySerializedConfiguration;
 import bio.terra.tanagra.generated.model.ApiUnderlaySummaryList;
-import bio.terra.tanagra.generated.model.ApiValueDisplay;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -55,10 +43,7 @@ import bio.terra.tanagra.underlay.ClientConfig;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -137,17 +122,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
     // Run the list query and map the results back to API objects.
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
-    return ResponseEntity.ok(
-        new ApiInstanceListResult()
-            .instances(
-                listQueryResult.getListInstances().stream()
-                    .map(listInstance -> toApiObject(listInstance))
-                    .collect(Collectors.toList()))
-            .sql(SqlFormatter.format(listQueryResult.getSqlNoParams()))
-            .pageMarker(
-                listQueryResult.getPageMarker() == null
-                    ? null
-                    : listQueryResult.getPageMarker().serialize()));
+    return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
   }
 
   @Override
@@ -231,64 +206,6 @@ public class UnderlaysApiController implements UnderlaysApi {
             entity.getAttributes().stream()
                 .map(a -> ToApiUtils.toApiObject(a))
                 .collect(Collectors.toList()));
-  }
-
-  private static ApiInstance toApiObject(ListInstance listInstance) {
-    Map<String, ApiValueDisplay> attributes = new HashMap<>();
-    Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets = new HashMap<>();
-    List<ApiInstanceRelationshipFields> relationshipFieldSets = new ArrayList<>();
-    listInstance.getEntityFieldValues().entrySet().stream()
-        .forEach(
-            fieldValuePair -> {
-              ValueDisplayField field = fieldValuePair.getKey();
-              ValueDisplay value = fieldValuePair.getValue();
-
-              if (field instanceof AttributeField) {
-                attributes.put(
-                    ((AttributeField) field).getAttribute().getName(),
-                    ToApiUtils.toApiObject(value));
-              } else if (field instanceof HierarchyPathField) {
-                getHierarchyFieldSet(
-                        hierarchyFieldSets, ((HierarchyPathField) field).getHierarchy().getName())
-                    .setPath(value.getValue().getStringVal());
-              } else if (field instanceof HierarchyNumChildrenField) {
-                getHierarchyFieldSet(
-                        hierarchyFieldSets,
-                        ((HierarchyNumChildrenField) field).getHierarchy().getName())
-                    .setNumChildren(Math.toIntExact(value.getValue().getInt64Val()));
-              } else if (field instanceof HierarchyIsRootField) {
-                getHierarchyFieldSet(
-                        hierarchyFieldSets, ((HierarchyIsRootField) field).getHierarchy().getName())
-                    .setIsRoot(value.getValue().getBooleanVal());
-              } else if (field instanceof HierarchyIsMemberField) {
-                getHierarchyFieldSet(
-                        hierarchyFieldSets,
-                        ((HierarchyIsMemberField) field).getHierarchy().getName())
-                    .setIsMember(value.getValue().getBooleanVal());
-              } else if (field instanceof RelatedEntityIdCountField) {
-                RelatedEntityIdCountField countField = (RelatedEntityIdCountField) field;
-                relationshipFieldSets.add(
-                    new ApiInstanceRelationshipFields()
-                        .relatedEntity(countField.getCountedEntity().getName())
-                        .hierarchy(
-                            countField.getHierarchy() == null
-                                ? null
-                                : countField.getHierarchy().getName())
-                        .count(Math.toIntExact(value.getValue().getInt64Val())));
-              }
-            });
-    return new ApiInstance()
-        .attributes(attributes)
-        .hierarchyFields(hierarchyFieldSets.values().stream().collect(Collectors.toList()))
-        .relationshipFields(relationshipFieldSets);
-  }
-
-  private static ApiInstanceHierarchyFields getHierarchyFieldSet(
-      Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets, String hierarchyName) {
-    if (!hierarchyFieldSets.containsKey(hierarchyName)) {
-      hierarchyFieldSets.put(hierarchyName, new ApiInstanceHierarchyFields());
-    }
-    return hierarchyFieldSets.get(hierarchyName);
   }
 
   private ApiDisplayHint toApiObject(HintInstance hintInstance) {

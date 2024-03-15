@@ -1,25 +1,40 @@
 package bio.terra.tanagra.filterbuilder;
 
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 
 public final class EntityOutput {
   private final Entity entity;
   private final @Nullable EntityFilter dataFeatureFilter;
+  private final List<Attribute> attributes;
 
-  private EntityOutput(Entity entity, @Nullable EntityFilter dataFeatureFilter) {
+  private EntityOutput(
+      Entity entity, @Nullable EntityFilter dataFeatureFilter, List<Attribute> attributes) {
     this.entity = entity;
     this.dataFeatureFilter = dataFeatureFilter;
+    this.attributes = attributes;
   }
 
   public static EntityOutput filtered(Entity entity, EntityFilter entityFilter) {
-    return new EntityOutput(entity, entityFilter);
+    return new EntityOutput(entity, entityFilter, entity.getAttributes());
+  }
+
+  public static EntityOutput filtered(
+      Entity entity, EntityFilter entityFilter, List<Attribute> attributes) {
+    return new EntityOutput(entity, entityFilter, attributes);
   }
 
   public static EntityOutput unfiltered(Entity entity) {
-    return new EntityOutput(entity, null);
+    return new EntityOutput(entity, null, entity.getAttributes());
+  }
+
+  public static EntityOutput unfiltered(Entity entity, List<Attribute> attributes) {
+    return new EntityOutput(entity, null, attributes);
   }
 
   public Entity getEntity() {
@@ -35,6 +50,10 @@ public final class EntityOutput {
     return dataFeatureFilter;
   }
 
+  public List<Attribute> getAttributes() {
+    return ImmutableList.copyOf(attributes);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -44,11 +63,13 @@ public final class EntityOutput {
       return false;
     }
     EntityOutput that = (EntityOutput) o;
-    return entity.equals(that.entity) && Objects.equals(dataFeatureFilter, that.dataFeatureFilter);
+    return entity.equals(that.entity)
+        && Objects.equals(dataFeatureFilter, that.dataFeatureFilter)
+        && attributes.equals(that.attributes);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(entity, dataFeatureFilter);
+    return Objects.hash(entity, dataFeatureFilter, attributes);
   }
 }
