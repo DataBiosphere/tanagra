@@ -85,7 +85,7 @@ function generateGroupSectionFilter(
       }
 
       const groupByCountFilters = plugins
-        .map((p) => p.groupByCountFilter?.())
+        .map((p) => p.groupByCountFilter?.(entity))
         .filter(isValid);
       if (groupByCountFilters.length > 1) {
         throw new Error(
@@ -150,7 +150,7 @@ export interface CriteriaPlugin<DataType> {
     occurrenceId: string,
     underlaySource: UnderlaySource
   ) => Filter | null;
-  groupByCountFilter?: () => GroupByCount | null;
+  groupByCountFilter?: (occurrenceId: string) => GroupByCount | null;
   filterEntityIds: (underlaySource: UnderlaySource) => string[];
   outputEntityIds?: () => string[];
 }

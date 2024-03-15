@@ -1,4 +1,11 @@
 {
   "groupByCount": true,
-  "attribute": "start_date"
+  "attributes": {
+    "ingredientOccurrence": {
+      "values": [
+        "start_date",
+        "ingredient"
+      ]
+    }
+  }
 }

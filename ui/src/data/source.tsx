@@ -1646,7 +1646,7 @@ function generateFilter(
           entity: filter.entityId,
           subfilter: subfilter,
           groupByCountAttributes: filter.groupByCount
-            ? [filter.groupByCount.attribute]
+            ? filter.groupByCount.attributes
             : [],
           groupByCountOperator: filter.groupByCount
             ? toAPIBinaryOperator(filter.groupByCount.operator)

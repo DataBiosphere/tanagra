@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class GroupByCountSchemaUtils {
@@ -66,14 +67,16 @@ public final class GroupByCountSchemaUtils {
         groupByModifierConfigAndData.get().getLeft();
 
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
-    if (groupByModifierConfig.getAttribute() != null
-        && !groupByModifierConfig.getAttribute().isEmpty()) {
-      String attributeName = groupByModifierConfig.getAttribute();
+    if (groupByModifierConfig.getAttributesMap() != null) {
       occurrenceEntities.stream()
           .forEach(
               occurrenceEntity ->
                   groupByAttributesPerOccurrenceEntity.put(
-                      occurrenceEntity, List.of(occurrenceEntity.getAttribute(attributeName))));
+                      occurrenceEntity,
+                      groupByModifierConfig.getAttributesMap().get(occurrenceEntity.getName())
+                          .getValuesList().stream()
+                          .map(attributeName -> occurrenceEntity.getAttribute(attributeName))
+                          .collect(Collectors.toList())));
     }
     return groupByAttributesPerOccurrenceEntity;
   }

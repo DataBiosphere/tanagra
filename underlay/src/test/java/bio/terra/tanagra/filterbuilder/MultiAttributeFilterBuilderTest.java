@@ -283,7 +283,11 @@ public class MultiAttributeFilterBuilderTest {
     CFMultiAttribute.MultiAttribute mainConfig =
         CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "bloodPressure",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("date").build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -404,7 +408,11 @@ public class MultiAttributeFilterBuilderTest {
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "bloodPressure",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("date").build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",

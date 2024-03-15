@@ -1,4 +1,11 @@
 {
   "groupByCount": true,
-  "attribute": "start_date"
+  "attributes": {
+    "conditionOccurrence": {
+      "values": [
+        "start_date",
+        "condition"
+      ]
+    }
+  }
 }

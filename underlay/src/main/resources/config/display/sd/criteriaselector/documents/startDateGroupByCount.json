@@ -1,4 +1,10 @@
 {
   "groupByCount": true,
-  "attribute": "start_date"
+  "attributes": {
+    "noteOccurrence": {
+      "values": [
+        "start_date"
+      ]
+    }
+  }
 }
