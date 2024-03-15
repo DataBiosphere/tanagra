@@ -110,12 +110,12 @@
         "plugin": {
           "entity": "observationOccurrence",
           "columns": [
-            {
-              "key": "observation",
-              "width": "100%",
-              "title": "Observation name"
-            },
-            { "key": "date", "width": 200, "title": "Date" }
+            { "key": "date", "width": "15%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "standard_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "observation", "width": "15%", "title": "Observation Name", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "15%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
           ]
         }
       },
@@ -148,22 +148,6 @@
             { "key": "value_enum", "width": 160, "title": "Categorical value" },
             { "key": "value_numeric", "width": 160, "title": "Numeric value" },
             { "key": "unit", "width": 160, "title": "Unit" }
-          ]
-        }
-      },
-      {
-        "type": "entityTable",
-        "id": "observation",
-        "title": "Observations",
-        "plugin": {
-          "entity": "observationOccurrence",
-          "columns": [
-            { "key": "date", "width": "15%", "title": "Date", "sortable": true, "filterable": true },
-            { "key": "standard_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
-            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
-            { "key": "observation", "width": "15%", "title": "Observation Name", "sortable": true, "filterable": true },
-            { "key": "age_at_occurrence", "width": "15%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
-            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
           ]
         }
       }
