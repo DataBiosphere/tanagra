@@ -303,7 +303,13 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "conditionOccurrence",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder()
+                    .addValues("start_date")
+                    .build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -487,7 +493,11 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "measurementOccurrence",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("date").build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",

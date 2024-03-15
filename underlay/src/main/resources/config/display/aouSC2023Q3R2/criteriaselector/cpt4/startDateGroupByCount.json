@@ -1,4 +1,29 @@
 {
   "groupByCount": true,
-  "attribute": "start_date"
+  "attributes": {
+    "observationOccurrence": {
+      "values": [
+        "start_date",
+        "source_criteria_id"
+      ]
+    },
+    "procedureOccurrence": {
+      "values": [
+        "start_date",
+        "source_criteria_id"
+      ]
+    },
+    "measurementOccurrence": {
+      "values": [
+        "start_date",
+        "source_criteria_id"
+      ]
+    },
+    "ingredientOccurrence": {
+      "values": [
+        "start_date",
+        "source_criteria_id"
+      ]
+    }
+  }
 }

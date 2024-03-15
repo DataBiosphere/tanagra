@@ -418,7 +418,13 @@ public class TextSearchFilterBuilderTest {
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "noteOccurrence",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder()
+                    .addValues("start_date")
+                    .build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -492,7 +498,13 @@ public class TextSearchFilterBuilderTest {
         new CriteriaSelector.Modifier(
             "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("start_date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "noteOccurrence",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder()
+                    .addValues("start_date")
+                    .build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",

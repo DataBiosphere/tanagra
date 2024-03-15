@@ -2,7 +2,7 @@
   "name": "outputUnfiltered",
   "displayName": "outputUnfiltered",
   "isEnabledForCohorts": false,
-  "isEnabledForDataFeatureSets": true,
+  "isEnabledForDataFeatureSets": false,
   "display": {
     "category": "",
     "tags": null
