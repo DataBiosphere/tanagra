@@ -252,7 +252,11 @@ public class EntityGroupFilterBuilderForGroupTest {
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("name").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "genotyping",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("name").build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -319,7 +323,11 @@ public class EntityGroupFilterBuilderForGroupTest {
         new CriteriaSelector.Modifier(
             "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("name").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "genotyping",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("name").build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",

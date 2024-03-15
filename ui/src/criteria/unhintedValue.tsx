@@ -5,7 +5,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
-import { FilterType } from "data/filter";
+import { FilterType, makeArrayFilter } from "data/filter";
 import { CommonSelectorConfig } from "data/source";
 import { ComparisonOperator } from "data/types";
 import { useUpdateCriteria } from "hooks";
@@ -105,36 +105,46 @@ class _ implements CriteriaPlugin<string> {
     };
   }
 
-  generateFilter() {
+  generateFilter(occurrenceId: string) {
     const decodedData = decodeData(this.data);
 
     if (this.config.groupByCount) {
       return null;
     }
 
-    return {
-      type: FilterType.Attribute,
-      attribute: this.config.attribute,
-      ranges: [rangeFromData(decodedData)],
-    };
+    const attributes = this.config.attributes[occurrenceId];
+    if (!attributes || !attributes.values.length) {
+      throw new Error(`No attributes found for occurrence: ${occurrenceId}`);
+    }
+
+    return makeArrayFilter(
+      {},
+      attributes.values.map((a) => ({
+        type: FilterType.Attribute,
+        attribute: a,
+        ranges: [rangeFromData(decodedData)],
+      }))
+    );
   }
 
-  groupByCountFilter() {
+  groupByCountFilter(occurrenceId: string) {
     const decodedData = decodeData(this.data);
 
     if (!this.config.groupByCount) {
       return null;
     }
 
+    const attributes = this.config.attributes[occurrenceId];
+
     return {
-      attribute: this.config.attribute,
+      attributes: attributes?.values ?? [],
       operator: decodedData.operator,
       value: decodedData.min,
     };
   }
 
   filterEntityIds() {
-    return [this.config.attribute ?? ""];
+    return Object.keys(this.config.attributes);
   }
 }
 

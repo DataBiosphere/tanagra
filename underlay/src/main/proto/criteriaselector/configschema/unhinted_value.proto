@@ -7,6 +7,13 @@ option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
 option java_outer_classname = "CFUnhintedValue";
 
 message UnhintedValue {
+  reserved 2;
+  reserved "attribute";
+
   bool group_by_count = 1;
-  string attribute = 2;
+
+  message AttributeList {
+    repeated string values = 1;
+  }
+  map<string, AttributeList> attributes = 3;
 }

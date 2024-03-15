@@ -45,7 +45,7 @@ export enum ComparisonOperator {
 }
 
 export type GroupByCount = {
-  attribute: string;
+  attributes: string[];
   operator: ComparisonOperator;
   value: number;
 };

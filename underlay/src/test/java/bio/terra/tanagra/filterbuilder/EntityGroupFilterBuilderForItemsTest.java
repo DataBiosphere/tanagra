@@ -101,7 +101,11 @@ public class EntityGroupFilterBuilderForItemsTest {
   @Test
   void criteriaWithGroupByModifierCohortFilter() {
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "bloodPressure",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("date").build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
@@ -160,7 +164,11 @@ public class EntityGroupFilterBuilderForItemsTest {
         new CriteriaSelector.Modifier(
             "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
-        CFUnhintedValue.UnhintedValue.newBuilder().setAttribute("date").build();
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "bloodPressure",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("date").build())
+            .build();
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",

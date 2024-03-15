@@ -1,4 +1,11 @@
 {
   "groupByCount": true,
-  "attribute": "date"
+  "attributes": {
+    "observationOccurrence": {
+      "values": [
+        "date",
+        "observation"
+      ]
+    }
+  }
 }
