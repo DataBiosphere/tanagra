@@ -34,9 +34,10 @@ import {
   GroupSection,
   GroupSectionFilterKind,
 } from "data/source";
+import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { DemographicCharts } from "demographicCharts";
-import { useCohort, useCohortGroupSectionAndGroup } from "hooks";
+import { useCohort, useCohortGroupSectionAndGroup, useStudyId } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback, useMemo } from "react";
@@ -202,6 +203,8 @@ function ParticipantsGroupSection(props: {
   groupSection: GroupSection;
   sectionIndex: number;
 }) {
+  const studyId = useStudyId();
+  const studySource = useStudySource();
   const underlaySource = useUnderlaySource();
   const cohort = useCohort();
   const context = useCohortContext();
@@ -209,6 +212,11 @@ function ParticipantsGroupSection(props: {
   const { group } = useCohortGroupSectionAndGroup();
 
   const fetchSectionCount = useCallback(async () => {
+    if (process.env.REACT_APP_BACKEND_FILTERS) {
+      return (
+        await studySource.cohortCount(studyId, cohort.id, props.groupSection.id)
+      )[0].count;
+    }
     const cohortForFilter: Cohort = {
       ...cohort,
       groupSections: [props.groupSection],
@@ -216,15 +224,15 @@ function ParticipantsGroupSection(props: {
 
     const filter = generateCohortFilter(underlaySource, cohortForFilter);
     return (await underlaySource.filterCount(filter))[0].count;
-  }, [cohort.underlayName, props.sectionIndex, props.groupSection]);
+  }, [studyId, cohort.id, cohort.underlayName, props.groupSection]);
 
   const sectionCountState = useSWRImmutable(
     {
       component: "Overview",
+      studyId,
       cohortId: cohort.id,
-      cohortName: cohort.name,
       underlayName: cohort.underlayName,
-      groupSections: props.groupSection,
+      groupSection: props.groupSection,
     },
     fetchSectionCount
   );
@@ -402,6 +410,8 @@ function ParticipantsGroup(props: {
   groupSection: GroupSection;
   group: Group;
 }) {
+  const studyId = useStudyId();
+  const studySource = useStudySource();
   const underlaySource = useUnderlaySource();
   const cohort = useCohort();
   const navigate = useNavigate();
@@ -409,6 +419,16 @@ function ParticipantsGroup(props: {
   const { groupId } = useParams<{ groupId: string }>();
 
   const fetchGroupCount = useCallback(async () => {
+    if (process.env.REACT_APP_BACKEND_FILTERS) {
+      return (
+        await studySource.cohortCount(
+          studyId,
+          cohort.id,
+          props.groupSection.id,
+          props.group.id
+        )
+      )[0].count;
+    }
     const cohortForFilter: Cohort = {
       ...cohort,
       groupSections: [
@@ -422,15 +442,21 @@ function ParticipantsGroup(props: {
 
     const filter = generateCohortFilter(underlaySource, cohortForFilter);
     return (await underlaySource.filterCount(filter))[0].count;
-  }, [cohort.underlayName, props.group]);
+  }, [
+    studyId,
+    cohort.id,
+    cohort.underlayName,
+    props.groupSection,
+    props.group,
+  ]);
 
   const groupCountState = useSWRImmutable(
     {
       component: "Overview",
+      studyId,
       cohortId: cohort.id,
-      cohortName: cohort.name,
       underlayName: cohort.underlayName,
-      criteria: props.group,
+      group: props.group,
     },
     fetchGroupCount
   );

@@ -370,6 +370,14 @@ export interface StudySource {
 
   deleteCohort(studyId: string, cohortId: string): void;
 
+  cohortCount(
+    studyId: string,
+    cohortId: string,
+    groupSectionId?: string,
+    groupId?: string,
+    groupByAttributes?: string[]
+  ): Promise<FilterCountValue[]>;
+
   getFeatureSetMetadata(
     studyId: string,
     featureSetId: string
@@ -1226,6 +1234,51 @@ export class BackendStudySource implements StudySource {
         cohortId,
       })
     );
+  }
+
+  async cohortCount(
+    studyId: string,
+    cohortId: string,
+    groupSectionId?: string,
+    groupId?: string,
+    groupByAttributes?: string[]
+  ): Promise<FilterCountValue[]> {
+    let pageMarker: string | undefined;
+    const instanceCounts: tanagra.InstanceCount[] = [];
+
+    while (true) {
+      const data = await parseAPIError(
+        this.cohortsApi.queryCohortCounts({
+          studyId,
+          cohortId,
+          cohortCountQuery: {
+            attributes: groupByAttributes,
+            criteriaGroupSectionId: groupSectionId,
+            criteriaGroupId: groupId,
+            pageMarker,
+          },
+        })
+      );
+
+      pageMarker = data.pageMarker;
+      instanceCounts.push(...(data.instanceCounts ?? []));
+
+      if (!pageMarker?.length) {
+        break;
+      }
+    }
+
+    if (!instanceCounts.length) {
+      throw new Error("Count API returned no counts.");
+    }
+
+    return instanceCounts.map((count) => {
+      const value: FilterCountValue = {
+        count: count.count ?? 0,
+      };
+      processAttributes(value, count.attributes);
+      return value;
+    });
   }
 
   public async getFeatureSetMetadata(
