@@ -6,8 +6,9 @@ import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { Cohort, FilterCountValue } from "data/source";
+import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
-import { useUnderlay } from "hooks";
+import { useStudyId, useUnderlay } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -144,6 +145,8 @@ export function DemographicCharts({
 }: DemographicChartsProps) {
   const underlay = useUnderlay();
   const underlaySource = useUnderlaySource();
+  const studyId = useStudyId();
+  const studySource = useStudySource();
 
   const generatePropertyString = (
     property: ChartConfigProperty,
@@ -176,10 +179,18 @@ export function DemographicCharts({
     const groupByAttributes =
       underlay.uiConfiguration.demographicChartConfigs.groupByAttributes;
 
-    const demographicData = await underlaySource.filterCount(
-      generateCohortFilter(underlaySource, cohort),
-      groupByAttributes
-    );
+    const demographicData = process.env.REACT_APP_BACKEND_FILTERS
+      ? await studySource.cohortCount(
+          studyId,
+          cohort.id,
+          undefined,
+          undefined,
+          groupByAttributes
+        )
+      : await underlaySource.filterCount(
+          generateCohortFilter(underlaySource, cohort),
+          groupByAttributes
+        );
 
     const chartConfigs =
       underlay.uiConfiguration.demographicChartConfigs.chartConfigs;
