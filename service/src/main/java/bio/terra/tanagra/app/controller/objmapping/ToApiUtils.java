@@ -1,9 +1,16 @@
 package bio.terra.tanagra.app.controller.objmapping;
 
 import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.HierarchyIsMemberField;
+import bio.terra.tanagra.api.field.HierarchyIsRootField;
+import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
+import bio.terra.tanagra.api.field.HierarchyPathField;
+import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.list.ListInstance;
+import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
@@ -15,8 +22,12 @@ import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
 import bio.terra.tanagra.generated.model.ApiDataType;
+import bio.terra.tanagra.generated.model.ApiInstance;
 import bio.terra.tanagra.generated.model.ApiInstanceCount;
 import bio.terra.tanagra.generated.model.ApiInstanceCountList;
+import bio.terra.tanagra.generated.model.ApiInstanceHierarchyFields;
+import bio.terra.tanagra.generated.model.ApiInstanceListResult;
+import bio.terra.tanagra.generated.model.ApiInstanceRelationshipFields;
 import bio.terra.tanagra.generated.model.ApiLiteral;
 import bio.terra.tanagra.generated.model.ApiLiteralValueUnion;
 import bio.terra.tanagra.generated.model.ApiProperties;
@@ -32,7 +43,9 @@ import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.utils.SqlFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -147,6 +160,77 @@ public final class ToApiUtils {
         .selectionData(criteria.getSelectionData())
         .uiConfig(criteria.getUiConfig())
         .tags(criteria.getTags());
+  }
+
+  public static ApiInstanceListResult toApiObject(ListQueryResult listQueryResult) {
+    return new ApiInstanceListResult()
+        .instances(
+            listQueryResult.getListInstances().stream()
+                .map(listInstance -> toApiObject(listInstance))
+                .collect(Collectors.toList()))
+        .sql(SqlFormatter.format(listQueryResult.getSqlNoParams()))
+        .pageMarker(
+            listQueryResult.getPageMarker() == null
+                ? null
+                : listQueryResult.getPageMarker().serialize());
+  }
+
+  private static ApiInstance toApiObject(ListInstance listInstance) {
+    Map<String, ApiValueDisplay> attributes = new HashMap<>();
+    Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets = new HashMap<>();
+    List<ApiInstanceRelationshipFields> relationshipFieldSets = new ArrayList<>();
+    listInstance.getEntityFieldValues().entrySet().stream()
+        .forEach(
+            fieldValuePair -> {
+              ValueDisplayField field = fieldValuePair.getKey();
+              ValueDisplay value = fieldValuePair.getValue();
+
+              if (field instanceof AttributeField) {
+                attributes.put(
+                    ((AttributeField) field).getAttribute().getName(),
+                    ToApiUtils.toApiObject(value));
+              } else if (field instanceof HierarchyPathField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets, ((HierarchyPathField) field).getHierarchy().getName())
+                    .setPath(value.getValue().getStringVal());
+              } else if (field instanceof HierarchyNumChildrenField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets,
+                        ((HierarchyNumChildrenField) field).getHierarchy().getName())
+                    .setNumChildren(Math.toIntExact(value.getValue().getInt64Val()));
+              } else if (field instanceof HierarchyIsRootField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets, ((HierarchyIsRootField) field).getHierarchy().getName())
+                    .setIsRoot(value.getValue().getBooleanVal());
+              } else if (field instanceof HierarchyIsMemberField) {
+                getHierarchyFieldSet(
+                        hierarchyFieldSets,
+                        ((HierarchyIsMemberField) field).getHierarchy().getName())
+                    .setIsMember(value.getValue().getBooleanVal());
+              } else if (field instanceof RelatedEntityIdCountField) {
+                RelatedEntityIdCountField countField = (RelatedEntityIdCountField) field;
+                relationshipFieldSets.add(
+                    new ApiInstanceRelationshipFields()
+                        .relatedEntity(countField.getCountedEntity().getName())
+                        .hierarchy(
+                            countField.getHierarchy() == null
+                                ? null
+                                : countField.getHierarchy().getName())
+                        .count(Math.toIntExact(value.getValue().getInt64Val())));
+              }
+            });
+    return new ApiInstance()
+        .attributes(attributes)
+        .hierarchyFields(hierarchyFieldSets.values().stream().collect(Collectors.toList()))
+        .relationshipFields(relationshipFieldSets);
+  }
+
+  private static ApiInstanceHierarchyFields getHierarchyFieldSet(
+      Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets, String hierarchyName) {
+    if (!hierarchyFieldSets.containsKey(hierarchyName)) {
+      hierarchyFieldSets.put(hierarchyName, new ApiInstanceHierarchyFields());
+    }
+    return hierarchyFieldSets.get(hierarchyName);
   }
 
   public static ApiInstanceCountList toApiObject(CountQueryResult countQueryResult) {

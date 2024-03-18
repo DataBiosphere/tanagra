@@ -11,21 +11,28 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FilterBuilderService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FilterBuilderService.class);
   private final UnderlayService underlayService;
 
   @Autowired
@@ -117,46 +124,99 @@ public class FilterBuilderService {
             });
     Underlay underlay = underlayService.getUnderlay(underlayName);
 
-    // Build a list of output entities and the filters on them from the data feature sets.
-    Map<Entity, List<EntityFilter>> outputEntitiesAndDataFeatureFilters = new HashMap<>();
+    // Build a list of output entities, the filters on them, and the attributes to include from the
+    // data feature sets.
+    Map<Entity, Pair<List<EntityFilter>, Set<Attribute>>> outputEntitiesAndFiltersAndAttributes =
+        new HashMap<>();
     conceptSets.stream()
         .forEach(
             conceptSet -> {
               if (conceptSet.getCriteria().isEmpty()) {
+                LOGGER.debug("Concept set has no criteria: {}", conceptSet.getId());
                 return;
               }
               conceptSet.getCriteria().stream()
                   .forEach(
                       criteria -> {
-                        String criteriaSelectorName = criteria.getSelectorOrModifierName();
-                        FilterBuilder filterBuilder =
-                            underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
+                        String criteriaSelectorName;
+                        List<SelectionData> selectionData;
+                        if (criteria.getPredefinedId() != null
+                            && !criteria.getPredefinedId().isEmpty()) {
+                          LOGGER.debug(
+                              "Concept set contains prepackaged criteria: {}",
+                              criteria.getPredefinedId());
+                          // This is a prepackaged data feature.
+                          // The criteria selector and plugin data are specified in the prepackaged
+                          // data feature definition.
+                          PrepackagedCriteria prepackagedCriteria =
+                              underlay.getPrepackagedDataFeature(criteria.getPredefinedId());
+                          criteriaSelectorName = prepackagedCriteria.getCriteriaSelector();
+                          selectionData =
+                              prepackagedCriteria.hasSelectionData()
+                                  ? List.of(prepackagedCriteria.getSelectionData())
+                                  : List.of();
+                        } else {
+                          // This is Not a prepackaged data feature.
+                          // The criteria selector and plugin data are specified on the criteria
+                          // itself.
+                          criteriaSelectorName = criteria.getSelectorOrModifierName();
+                          selectionData =
+                              criteria.getSelectionData() == null
+                                      || criteria.getSelectionData().isEmpty()
+                                  ? List.of()
+                                  : List.of(new SelectionData(null, criteria.getSelectionData()));
+                        }
 
                         // Generate the entity outputs for each concept set criteria.
-                        List<SelectionData> selectionData =
-                            criteria.getSelectionData() == null
-                                    || criteria.getSelectionData().isEmpty()
-                                ? List.of()
-                                : List.of(new SelectionData(null, criteria.getSelectionData()));
+                        FilterBuilder filterBuilder =
+                            underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
                         List<EntityOutput> entityOutputs =
                             filterBuilder.buildForDataFeature(underlay, selectionData);
 
-                        // Break apart the entity outputs into entity-filter[] pairs, so we can
-                        // combine filters for the same entity across concept set criteria.
                         entityOutputs.stream()
                             .forEach(
                                 entityOutput -> {
+                                  LOGGER.debug(
+                                      "Entity output for export: {}",
+                                      entityOutput.getEntity().getName());
+                                  // Break apart the entity outputs into entity-filter[] pairs, so
+                                  // we can combine filters for the same entity across concept sets
+                                  // and criteria.
                                   List<EntityFilter> entityFilters =
-                                      outputEntitiesAndDataFeatureFilters.containsKey(
+                                      outputEntitiesAndFiltersAndAttributes.containsKey(
                                               entityOutput.getEntity())
-                                          ? outputEntitiesAndDataFeatureFilters.get(
-                                              entityOutput.getEntity())
+                                          ? outputEntitiesAndFiltersAndAttributes
+                                              .get(entityOutput.getEntity())
+                                              .getLeft()
                                           : new ArrayList<>();
                                   if (entityOutput.hasDataFeatureFilter()) {
                                     entityFilters.add(entityOutput.getDataFeatureFilter());
                                   }
-                                  outputEntitiesAndDataFeatureFilters.put(
-                                      entityOutput.getEntity(), entityFilters);
+
+                                  // Add to the list of attributes to include for this entity.
+                                  List<String> excludeAttrNames =
+                                      conceptSet.containsExcludeOutputAttributes(
+                                              entityOutput.getEntity())
+                                          ? conceptSet.getExcludeOutputAttributes(
+                                              entityOutput.getEntity())
+                                          : List.of();
+
+                                  Set<Attribute> includeAttributes =
+                                      outputEntitiesAndFiltersAndAttributes.containsKey(
+                                              entityOutput.getEntity())
+                                          ? outputEntitiesAndFiltersAndAttributes
+                                              .get(entityOutput.getEntity())
+                                              .getRight()
+                                          : new HashSet<>();
+                                  entityOutput.getEntity().getAttributes().stream()
+                                      .filter(
+                                          attribute ->
+                                              !excludeAttrNames.contains(attribute.getName()))
+                                      .forEach(attribute -> includeAttributes.add(attribute));
+
+                                  outputEntitiesAndFiltersAndAttributes.put(
+                                      entityOutput.getEntity(),
+                                      Pair.of(entityFilters, includeAttributes));
                                 });
                       });
             });
@@ -167,20 +227,23 @@ public class FilterBuilderService {
     // hypertension, output entity condition_occurrence filtered on condition diabetes or
     // hypertension
     List<EntityOutput> entityOutputs = new ArrayList<>();
-    outputEntitiesAndDataFeatureFilters.entrySet().stream()
+    outputEntitiesAndFiltersAndAttributes.entrySet().stream()
         .forEach(
             entry -> {
               Entity outputEntity = entry.getKey();
-              List<EntityFilter> filters = entry.getValue();
+              List<EntityFilter> filters = entry.getValue().getLeft();
+              List<Attribute> includeAttributes = new ArrayList<>(entry.getValue().getRight());
               if (filters.isEmpty()) {
-                entityOutputs.add(EntityOutput.unfiltered(outputEntity));
+                entityOutputs.add(EntityOutput.unfiltered(outputEntity, includeAttributes));
               } else if (filters.size() == 1) {
-                entityOutputs.add(EntityOutput.filtered(outputEntity, filters.get(0)));
+                entityOutputs.add(
+                    EntityOutput.filtered(outputEntity, filters.get(0), includeAttributes));
               } else {
                 entityOutputs.add(
                     EntityOutput.filtered(
                         outputEntity,
-                        new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters)));
+                        new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters),
+                        includeAttributes));
               }
             });
     return entityOutputs;
@@ -240,37 +303,46 @@ public class FilterBuilderService {
               }
 
               if (combinedCohortFilter != null) {
-                // Find the relationship between this output entity and the primary entity.
-                Pair<EntityGroup, Relationship> outputToPrimary =
-                    underlay.getRelationship(outputEntity, underlay.getPrimaryEntity());
+                if (outputEntity.equals(underlay.getPrimaryEntity())) {
+                  outputEntitySubFilters.add(combinedCohortFilter);
+                } else {
+                  // Find the relationship between this output entity and the primary entity.
+                  Pair<EntityGroup, Relationship> outputToPrimary =
+                      underlay.getRelationship(outputEntity, underlay.getPrimaryEntity());
 
-                // Build a single relationship filter per output entity that has the combined cohort
-                // filter as the primary entity sub-filter.
-                outputEntitySubFilters.add(
-                    new RelationshipFilter(
-                        underlay,
-                        outputToPrimary.getLeft(),
-                        outputEntity,
-                        outputToPrimary.getRight(),
-                        combinedCohortFilter,
-                        null,
-                        null,
-                        null));
+                  // Build a single relationship filter per output entity that has the combined
+                  // cohort filter as the primary entity sub-filter.
+                  outputEntitySubFilters.add(
+                      new RelationshipFilter(
+                          underlay,
+                          outputToPrimary.getLeft(),
+                          outputEntity,
+                          outputToPrimary.getRight(),
+                          combinedCohortFilter,
+                          null,
+                          null,
+                          null));
+                }
               }
 
               // Build a single filter per output entity with the combined cohort and data feature
               // filters.
               if (outputEntitySubFilters.isEmpty()) {
-                entityOutputs.add(EntityOutput.unfiltered(outputEntity));
+                entityOutputs.add(
+                    EntityOutput.unfiltered(outputEntity, dataFeatureOutput.getAttributes()));
               } else if (outputEntitySubFilters.size() == 1) {
                 entityOutputs.add(
-                    EntityOutput.filtered(outputEntity, outputEntitySubFilters.get(0)));
+                    EntityOutput.filtered(
+                        outputEntity,
+                        outputEntitySubFilters.get(0),
+                        dataFeatureOutput.getAttributes()));
               } else {
                 entityOutputs.add(
                     EntityOutput.filtered(
                         outputEntity,
                         new BooleanAndOrFilter(
-                            BooleanAndOrFilter.LogicalOperator.AND, outputEntitySubFilters)));
+                            BooleanAndOrFilter.LogicalOperator.AND, outputEntitySubFilters),
+                        dataFeatureOutput.getAttributes()));
               }
             });
     return entityOutputs;

@@ -179,6 +179,13 @@ public final class Underlay {
     return prepackagedDataFeatures;
   }
 
+  public PrepackagedCriteria getPrepackagedDataFeature(String name) {
+    return prepackagedDataFeatures.stream()
+        .filter(pdf -> name.equals(pdf.getName()))
+        .findFirst()
+        .orElseThrow(() -> new NotFoundException("Prepackaged data feature not found: " + name));
+  }
+
   public String getUiConfig() {
     return uiConfig;
   }
