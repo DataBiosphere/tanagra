@@ -98,6 +98,7 @@ export type TreeGridProps = {
   rowHeight?: number | string;
   padding?: number | string;
   expandable?: boolean;
+  reserveExpansionSpacing?: boolean;
 
   sortOrders?: TreeGridSortOrder[];
   onSort?: (orders: TreeGridSortOrder[]) => void;
@@ -483,6 +484,10 @@ function renderChildren(
               }}
               sx={{
                 visibility: !expandable ? "hidden" : undefined,
+                display:
+                  !expandable && !props.reserveExpansionSpacing
+                    ? "none"
+                    : undefined,
               }}
             >
               <ItemIcon state={childState} />
