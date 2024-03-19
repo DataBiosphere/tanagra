@@ -100,7 +100,8 @@ public class BQExecutor {
       String fileNamePrefix,
       String exportProjectId,
       List<String> exportDatasetIds,
-      List<String> exportBucketNames) {
+      List<String> exportBucketNames,
+      boolean generateSignedUrl) {
     LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
     // Create a temporary table with the results of the query.
@@ -157,7 +158,13 @@ public class BQExecutor {
       throw new SystemException("BigQuery extract job failed: " + exportJob.getStatus().getError());
     }
     LOGGER.info("Export of temporary table completed: {}", exportJob.getStatus().getState());
-    return gcsUrl;
+
+    if (!generateSignedUrl) {
+      return gcsUrl;
+    }
+
+    // Generate a signed URL to the file.
+    return getCloudStorageService().createSignedUrl(gcsUrl);
   }
 
   private static QueryParameterValue toQueryParameterValue(Literal literal) {

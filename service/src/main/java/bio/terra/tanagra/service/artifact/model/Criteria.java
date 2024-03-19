@@ -172,7 +172,7 @@ public class Criteria {
     }
     Criteria criteria = (Criteria) o;
     return id.equals(criteria.id)
-        && displayName.equals(criteria.displayName)
+        && Objects.equals(displayName, criteria.displayName)
         && pluginName.equals(criteria.pluginName)
         && pluginVersion == criteria.pluginVersion
         && Objects.equals(predefinedId, criteria.predefinedId)

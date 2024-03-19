@@ -1,9 +1,8 @@
 package bio.terra.tanagra.utils.threadpool;
 
 import bio.terra.tanagra.exception.SystemException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -20,17 +19,17 @@ public final class ThreadPoolUtils {
 
   private ThreadPoolUtils() {}
 
-  public static <T> Set<JobResult<T>> runInParallel(int numThreads, Set<Job<T>> jobs) {
+  public static <R, T> Map<R, JobResult<T>> runInParallel(int numThreads, Set<Job<R, T>> jobs) {
     // Create a thread pool with a fixed number of threads.
     ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(numThreads);
     LOGGER.info("Created pool with {} threads", numThreads);
 
     // Kick off each job in a separate thread.
-    List<Future<JobResult<T>>> jobFutures = new ArrayList<>();
-    for (Job<T> job : jobs) {
+    Map<R, Future<JobResult<T>>> jobFutures = new HashMap<>();
+    for (Job<R, T> job : jobs) {
       LOGGER.info("Kicking off thread for job: {}", job.getJobId());
       Future<JobResult<T>> jobFuture = threadPool.submit(job);
-      jobFutures.add(jobFuture);
+      jobFutures.put(job.getJobInfo(), jobFuture);
     }
 
     try {
@@ -38,10 +37,10 @@ public final class ThreadPoolUtils {
       shutdownThreadPool(threadPool, MAX_TIME_PER_JOB_MIN, TimeUnit.MINUTES);
 
       // Compile the results.
-      Set<JobResult<T>> jobResults = new HashSet<>();
-      for (Future<JobResult<T>> jobFuture : jobFutures) {
-        JobResult<T> jobResult = jobFuture.get();
-        jobResults.add(jobResult);
+      Map<R, JobResult<T>> jobResults = new HashMap<>();
+      for (Map.Entry<R, Future<JobResult<T>>> jobInfoAndFuture : jobFutures.entrySet()) {
+        JobResult<T> jobResult = jobInfoAndFuture.getValue().get();
+        jobResults.put(jobInfoAndFuture.getKey(), jobResult);
       }
       return jobResults;
     } catch (InterruptedException | ExecutionException intEx) {

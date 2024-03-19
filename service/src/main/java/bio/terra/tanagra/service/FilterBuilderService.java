@@ -108,6 +108,17 @@ public class FilterBuilderService {
             BooleanAndOrFilter.LogicalOperator.AND, criteriaGroupSectionFilters);
   }
 
+  public EntityFilter buildFilterForCohortRevisions(
+      String underlayName, List<CohortRevision> cohortRevisions) {
+    List<EntityFilter> cohortRevisionFilters =
+        cohortRevisions.stream()
+            .map(cohortRevision -> buildFilterForCohortRevision(underlayName, cohortRevision))
+            .collect(Collectors.toList());
+    return cohortRevisionFilters.size() == 1
+        ? cohortRevisionFilters.get(0)
+        : new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortRevisionFilters);
+  }
+
   public List<EntityOutput> buildOutputsForConceptSets(List<ConceptSet> conceptSets) {
     // All data feature sets must be for the same underlay.
     String underlayName = conceptSets.get(0).getUnderlay();

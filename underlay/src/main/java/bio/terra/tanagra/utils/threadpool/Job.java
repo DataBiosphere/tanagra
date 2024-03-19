@@ -5,18 +5,24 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Job<T> implements Callable<JobResult<T>> {
+public class Job<R, T> implements Callable<JobResult<T>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(Job.class);
   private final String jobId;
+  private final R jobInfo;
   private final Supplier<T> jobFn;
 
-  public Job(String jobId, Supplier<T> jobFn) {
+  public Job(String jobId, R jobInfo, Supplier<T> jobFn) {
     this.jobId = jobId;
+    this.jobInfo = jobInfo;
     this.jobFn = jobFn;
   }
 
   public String getJobId() {
     return jobId;
+  }
+
+  public R getJobInfo() {
+    return jobInfo;
   }
 
   @Override

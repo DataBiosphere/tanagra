@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
+import bio.terra.tanagra.service.FilterBuilderService;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -19,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ public class CohortService {
   private final FeatureConfiguration featureConfiguration;
   private final UnderlayService underlayService;
   private final StudyService studyService;
+  private final FilterBuilderService filterBuilderService;
   private final ActivityLogService activityLogService;
 
   @Autowired
@@ -40,11 +43,13 @@ public class CohortService {
       FeatureConfiguration featureConfiguration,
       UnderlayService underlayService,
       StudyService studyService,
+      FilterBuilderService filterBuilderService,
       ActivityLogService activityLogService) {
     this.cohortDao = cohortDao;
     this.featureConfiguration = featureConfiguration;
     this.underlayService = underlayService;
     this.studyService = studyService;
+    this.filterBuilderService = filterBuilderService;
     this.activityLogService = activityLogService;
   }
 
@@ -132,11 +137,18 @@ public class CohortService {
   }
 
   /** @return the id of the frozen revision just created */
-  public String createNextRevision(
-      String studyId, String cohortId, String userEmail, EntityFilter entityFilter) {
+  public String createNextRevision(String studyId, String cohortId, String userEmail) {
     Long recordsCount =
-        entityFilter == null ? null : getRecordsCount(studyId, cohortId, entityFilter);
+        featureConfiguration.isBackendFiltersEnabled() ? getRecordsCount(studyId, cohortId) : null;
     return cohortDao.createNextRevision(cohortId, null, userEmail, recordsCount);
+  }
+
+  public long getRecordsCount(String studyId, String cohortId) {
+    Cohort cohort = getCohort(studyId, cohortId);
+    EntityFilter entityFilter =
+        filterBuilderService.buildFilterForCohortRevision(
+            cohort.getUnderlay(), cohort.getMostRecentRevision());
+    return getRecordsCount(getCohort(studyId, cohortId).getUnderlay(), entityFilter);
   }
 
   public long getRecordsCount(String studyId, String cohortId, EntityFilter entityFilter) {
@@ -144,7 +156,7 @@ public class CohortService {
   }
 
   /** Build a count query of all primary entity instance ids in the cohort. */
-  public long getRecordsCount(String underlayName, EntityFilter entityFilter) {
+  private long getRecordsCount(String underlayName, @NotNull EntityFilter entityFilter) {
     Underlay underlay = underlayService.getUnderlay(underlayName);
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(

@@ -2,12 +2,15 @@ package bio.terra.tanagra.service.export.impl;
 
 import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
 
-import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.export.DataExport;
+import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.DeploymentConfig;
+import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class IndividualFileDownload implements DataExport {
@@ -44,7 +47,8 @@ public class IndividualFileDownload implements DataExport {
   }
 
   @Override
-  public ExportResult run(ExportRequest request) {
+  public ExportResult run(ExportRequest request, DataExportHelper helper) {
+    // Export the entity and annotation data to GCS.
     String studyUnderlayRef =
         simplifyStringForName(request.getStudy().getId() + "_" + request.getUnderlay().getName());
     String cohortRef =
@@ -55,31 +59,35 @@ public class IndividualFileDownload implements DataExport {
             + (request.getCohorts().size() > 1
                 ? "_plus" + (request.getCohorts().size() - 1) + "more"
                 : "");
-    Map<String, String> entityToGcsUrl =
-        request.writeEntityDataToGcs(
+    List<ExportFileResult> entityExportFileResults =
+        helper.writeEntityDataToGcs(
             "${entity}_cohort" + cohortRef + "_" + studyUnderlayRef + "_${random}");
-    Map<Cohort, String> cohortToGcsUrl =
-        request.writeAnnotationDataToGcs(
+    List<ExportFileResult> annotationExportFileResults =
+        helper.writeAnnotationDataToGcs(
             "annotations_cohort${cohort}" + "_" + studyUnderlayRef + "_${random}");
+    List<ExportFileResult> allExportFileResults = new ArrayList<>();
+    allExportFileResults.addAll(entityExportFileResults);
+    allExportFileResults.addAll(annotationExportFileResults);
 
+    // TODO: Skip populating these output parameters once the UI is processing the file results
+    // directly.
     Map<String, String> outputParams = new HashMap<>();
-    entityToGcsUrl.entrySet().stream()
+    entityExportFileResults.stream()
         .forEach(
-            entry ->
+            exportFileResult ->
                 outputParams.put(
-                    ENTITY_OUTPUT_KEY_PREFIX + entry.getKey(),
-                    request.getGoogleCloudStorage().createSignedUrl(entry.getValue())));
-    cohortToGcsUrl.entrySet().stream()
+                    ENTITY_OUTPUT_KEY_PREFIX + exportFileResult.getEntity().getName(),
+                    exportFileResult.getFileUrl()));
+    annotationExportFileResults.stream()
         .forEach(
-            entry -> {
-              String cohortName = entry.getKey().getDisplayName();
+            exportFileResult -> {
+              String cohortName = exportFileResult.getCohort().getDisplayName();
               if (cohortName == null || cohortName.isEmpty()) {
-                cohortName = entry.getKey().getId();
+                cohortName = exportFileResult.getCohort().getId();
               }
               outputParams.put(
-                  COHORT_OUTPUT_KEY_PREFIX + cohortName,
-                  request.getGoogleCloudStorage().createSignedUrl(entry.getValue()));
+                  COHORT_OUTPUT_KEY_PREFIX + cohortName, exportFileResult.getFileUrl());
             });
-    return ExportResult.forOutputParams(outputParams, ExportResult.Status.COMPLETE);
+    return ExportResult.forOutputParams(outputParams, allExportFileResults);
   }
 }

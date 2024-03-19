@@ -44,5 +44,5 @@ public interface DataExport {
     return Collections.emptyMap();
   }
 
-  ExportResult run(ExportRequest request);
+  ExportResult run(ExportRequest request, DataExportHelper helper);
 }
