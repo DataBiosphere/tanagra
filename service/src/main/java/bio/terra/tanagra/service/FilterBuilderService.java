@@ -120,9 +120,13 @@ public class FilterBuilderService {
                 cohortRevisionFilters.add(entityFilter);
               }
             });
-    return cohortRevisionFilters.size() == 1
-        ? cohortRevisionFilters.get(0)
-        : new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortRevisionFilters);
+    if (cohortRevisionFilters.isEmpty()) {
+      return null;
+    } else if (cohortRevisionFilters.size() == 1) {
+      return cohortRevisionFilters.get(0);
+    } else {
+      return new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortRevisionFilters);
+    }
   }
 
   public List<EntityOutput> buildOutputsForConceptSets(List<ConceptSet> conceptSets) {
@@ -284,26 +288,10 @@ public class FilterBuilderService {
 
     // Build a single filter on the primary entity by OR-ing all the individual cohort filters
     // together.
-    List<EntityFilter> cohortFilters = new ArrayList<>();
-    cohorts.stream()
-        .forEach(
-            cohort -> {
-              EntityFilter cohortFilter =
-                  buildFilterForCohortRevision(
-                      cohort.getUnderlay(), cohort.getMostRecentRevision());
-              if (cohortFilter != null) {
-                cohortFilters.add(cohortFilter);
-              }
-            });
-    EntityFilter combinedCohortFilter;
-    if (cohortFilters.isEmpty()) {
-      combinedCohortFilter = null;
-    } else if (cohortFilters.size() == 1) {
-      combinedCohortFilter = cohortFilters.get(0);
-    } else {
-      combinedCohortFilter =
-          new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortFilters);
-    }
+    EntityFilter combinedCohortFilter =
+        buildFilterForCohortRevisions(
+            underlayName,
+            cohorts.stream().map(Cohort::getMostRecentRevision).collect(Collectors.toList()));
 
     // Build a combined filter per output entity from all the data feature sets.
     List<EntityOutput> dataFeatureOutputs = buildOutputsForConceptSets(conceptSets);

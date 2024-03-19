@@ -263,7 +263,7 @@ public class ActivityLogServiceTest {
                             .cohortRevisionId(cohort1.getMostRecentRevision().getId())
                             .build())
                     .exportModel(exportModel)
-                    .recordsCount(1_292_861L) // 12_861L)
+                    .recordsCount(1_292_861L)
                     .build()));
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.

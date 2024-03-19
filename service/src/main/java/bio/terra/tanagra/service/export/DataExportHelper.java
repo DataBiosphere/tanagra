@@ -317,12 +317,7 @@ public class DataExportHelper {
                         exportRequest.getStudy(), cohort);
                 if (fileContents == null) {
                   exportFileResults.add(
-                      ExportFileResult.forAnnotationData(
-                          null,
-                          null,
-                          cohort,
-                          ExportError.forMessage(
-                              "There are no annotations for this cohort", false)));
+                      ExportFileResult.forAnnotationData(null, null, cohort, null));
                 } else {
                   String fileName =
                       StringSubstitutor.replace(
