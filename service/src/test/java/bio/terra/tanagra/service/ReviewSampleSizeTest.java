@@ -1,7 +1,6 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION;
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_PROCEDURE;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_GENDER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -76,9 +75,7 @@ public class ReviewSampleSizeTest {
                 .displayName("cohort 2")
                 .description("first cohort"),
             userEmail,
-            List.of(
-                CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
-                CRITERIA_GROUP_SECTION_PROCEDURE));
+            List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort1 {} at {}", cohort1.getId(), cohort1.getCreated());
   }
@@ -99,8 +96,8 @@ public class ReviewSampleSizeTest {
         cohortService.getRandomSample(
             study1.getId(),
             cohort1.getId(),
-            getCohortFilter(),
-            ListQueryRequest.DEFAULT_PAGE_SIZE - 1);
+            ListQueryRequest.DEFAULT_PAGE_SIZE - 1,
+            getCohortFilter());
     assertEquals(ListQueryRequest.DEFAULT_PAGE_SIZE - 1, randomSample.size());
   }
 
@@ -110,8 +107,8 @@ public class ReviewSampleSizeTest {
         cohortService.getRandomSample(
             study1.getId(),
             cohort1.getId(),
-            getCohortFilter(),
-            ListQueryRequest.DEFAULT_PAGE_SIZE * 2 + 1);
+            ListQueryRequest.DEFAULT_PAGE_SIZE * 2 + 1,
+            getCohortFilter());
     assertEquals(ListQueryRequest.DEFAULT_PAGE_SIZE * 2 + 1, randomSample.size());
   }
 

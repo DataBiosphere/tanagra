@@ -198,8 +198,10 @@ public class ExportApiController implements ExportApi {
                         apiQuery.getQuery(), underlay.getEntity(apiQuery.getEntity()), underlay))
             .collect(Collectors.toList());
     EntityFilter primaryEntityFilter =
-        FromApiUtils.fromApiObject(
-            body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName));
+        body.getPrimaryEntityFilter() == null
+            ? null
+            : FromApiUtils.fromApiObject(
+                body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName));
 
     ExportRequest exportRequest =
         new ExportRequest(

@@ -110,10 +110,16 @@ public class FilterBuilderService {
 
   public EntityFilter buildFilterForCohortRevisions(
       String underlayName, List<CohortRevision> cohortRevisions) {
-    List<EntityFilter> cohortRevisionFilters =
-        cohortRevisions.stream()
-            .map(cohortRevision -> buildFilterForCohortRevision(underlayName, cohortRevision))
-            .collect(Collectors.toList());
+    List<EntityFilter> cohortRevisionFilters = new ArrayList<>();
+    cohortRevisions.stream()
+        .forEach(
+            cohortRevision -> {
+              EntityFilter entityFilter =
+                  buildFilterForCohortRevision(underlayName, cohortRevision);
+              if (entityFilter != null) {
+                cohortRevisionFilters.add(entityFilter);
+              }
+            });
     return cohortRevisionFilters.size() == 1
         ? cohortRevisionFilters.get(0)
         : new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortRevisionFilters);

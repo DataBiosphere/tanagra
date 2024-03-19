@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,25 +137,22 @@ public class CohortService {
 
   /** @return the id of the frozen revision just created */
   public String createNextRevision(String studyId, String cohortId, String userEmail) {
-    Long recordsCount =
-        featureConfiguration.isBackendFiltersEnabled() ? getRecordsCount(studyId, cohortId) : null;
+    Long recordsCount;
+    if (featureConfiguration.isBackendFiltersEnabled()) {
+      Cohort cohort = getCohort(studyId, cohortId);
+      recordsCount =
+          getRecordsCount(
+              cohort.getUnderlay(),
+              filterBuilderService.buildFilterForCohortRevision(
+                  cohort.getUnderlay(), cohort.getMostRecentRevision()));
+    } else {
+      recordsCount = null;
+    }
     return cohortDao.createNextRevision(cohortId, null, userEmail, recordsCount);
   }
 
-  public long getRecordsCount(String studyId, String cohortId) {
-    Cohort cohort = getCohort(studyId, cohortId);
-    EntityFilter entityFilter =
-        filterBuilderService.buildFilterForCohortRevision(
-            cohort.getUnderlay(), cohort.getMostRecentRevision());
-    return getRecordsCount(getCohort(studyId, cohortId).getUnderlay(), entityFilter);
-  }
-
-  public long getRecordsCount(String studyId, String cohortId, EntityFilter entityFilter) {
-    return getRecordsCount(getCohort(studyId, cohortId).getUnderlay(), entityFilter);
-  }
-
   /** Build a count query of all primary entity instance ids in the cohort. */
-  private long getRecordsCount(String underlayName, @NotNull EntityFilter entityFilter) {
+  public long getRecordsCount(String underlayName, EntityFilter entityFilter) {
     Underlay underlay = underlayService.getUnderlay(underlayName);
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
@@ -179,9 +175,16 @@ public class CohortService {
 
   /** Build a query of a random sample of primary entity instance ids in the cohort. */
   public List<Long> getRandomSample(
-      String studyId, String cohortId, EntityFilter entityFilter, int sampleSize) {
+      String studyId, String cohortId, int sampleSize, EntityFilter entityFilter) {
     Cohort cohort = getCohort(studyId, cohortId);
     Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+
+    // Build the cohort filter for the primary entity.
+    EntityFilter primaryEntityFilter =
+        featureConfiguration.isBackendFiltersEnabled()
+            ? filterBuilderService.buildFilterForCohortRevision(
+                cohort.getUnderlay(), cohort.getMostRecentRevision())
+            : entityFilter;
 
     // Build a query of a random sample of primary entity instance ids in the cohort.
     AttributeField idAttributeField =
@@ -196,7 +199,7 @@ public class CohortService {
             underlay,
             underlay.getPrimaryEntity(),
             List.of(idAttributeField),
-            entityFilter,
+            primaryEntityFilter,
             List.of(ListQueryRequest.OrderBy.random()),
             sampleSize,
             null,
