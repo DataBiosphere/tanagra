@@ -172,7 +172,11 @@ public class ExportApiController implements ExportApi {
           Permissions.forActions(COHORT, READ),
           ResourceId.forCohort(body.getStudy(), cohortId));
     }
-    for (String conceptSetId : body.getConceptSets()) {
+    List<String> conceptSetIds = new ArrayList<>();
+    if (body.getConceptSets() != null) {
+      conceptSetIds.addAll(body.getConceptSets());
+    }
+    for (String conceptSetId : conceptSetIds) {
       accessControlService.throwIfUnauthorized(
           SpringAuthentication.getCurrentUser(),
           Permissions.forActions(CONCEPT_SET, READ),
@@ -186,7 +190,7 @@ public class ExportApiController implements ExportApi {
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
             .collect(Collectors.toList());
     List<ConceptSet> conceptSets =
-        body.getConceptSets().stream()
+        conceptSetIds.stream()
             .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
             .collect(Collectors.toList());
 
