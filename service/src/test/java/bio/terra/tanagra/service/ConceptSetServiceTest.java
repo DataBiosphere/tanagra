@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaValues.CONDITION_EQ_DIABETES;
-import static bio.terra.tanagra.service.CriteriaValues.ETHNICITY_EQ_JAPANESE;
+import static bio.terra.tanagra.service.CriteriaValues.CONDITION_EQ_TYPE_2_DIABETES;
+import static bio.terra.tanagra.service.CriteriaValues.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
 import static bio.terra.tanagra.service.CriteriaValues.GENDER_EQ_WOMAN;
 import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -132,7 +132,7 @@ public class ConceptSetServiceTest {
             updatedByEmail,
             displayName2,
             description2,
-            List.of(CONDITION_EQ_DIABETES.getValue()),
+            List.of(CONDITION_EQ_TYPE_2_DIABETES.getValue()),
             Map.of(outputEntity, outputAttributes));
     assertNotNull(updatedConceptSet);
     LOGGER.info(
@@ -145,7 +145,7 @@ public class ConceptSetServiceTest {
     assertEquals(updatedByEmail, updatedConceptSet.getLastModifiedBy());
     assertTrue(updatedConceptSet.getLastModified().isAfter(updatedConceptSet.getCreated()));
     assertEquals(1, updatedConceptSet.getCriteria().size());
-    assertTrue(updatedConceptSet.getCriteria().contains(CONDITION_EQ_DIABETES.getValue()));
+    assertTrue(updatedConceptSet.getCriteria().contains(CONDITION_EQ_TYPE_2_DIABETES.getValue()));
     assertEquals(1, updatedConceptSet.getExcludeOutputAttributesPerEntity().keySet().size());
     assertEquals(
         outputAttributes.stream().sorted().collect(Collectors.toList()),
@@ -183,9 +183,9 @@ public class ConceptSetServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("concept set 1")
                 .description("first concept set")
-                .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue()))
+                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of(ETHNICITY_EQ_JAPANESE.getKey(), PERSON_ATTRIBUTES)),
+                    Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), PERSON_ATTRIBUTES)),
             userEmail);
     assertNotNull(conceptSet1);
     LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());

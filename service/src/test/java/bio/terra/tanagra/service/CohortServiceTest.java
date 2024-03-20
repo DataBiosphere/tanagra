@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_1;
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_PROCEDURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -260,14 +260,17 @@ public class CohortServiceTest {
             userEmail,
             null,
             null,
-            List.of(CRITERIA_GROUP_SECTION_1, CRITERIA_GROUP_SECTION_2));
+            List.of(
+                CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
+                CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(updatedCohort1);
     LOGGER.info(
         "Updated cohort {} at {}", updatedCohort1.getId(), updatedCohort1.getLastModified());
     assertTrue(updatedCohort1.getLastModified().isAfter(updatedCohort1.getCreated()));
     assertEquals(2, updatedCohort1.getMostRecentRevision().getSections().size());
     assertEquals(
-        List.of(CRITERIA_GROUP_SECTION_1, CRITERIA_GROUP_SECTION_2),
+        List.of(
+            CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION, CRITERIA_GROUP_SECTION_PROCEDURE),
         updatedCohort1.getMostRecentRevision().getSections());
 
     // Create cohort2 with criteria.
@@ -279,11 +282,12 @@ public class CohortServiceTest {
                 .displayName("cohort 2")
                 .description("second cohort"),
             userEmail,
-            List.of(CRITERIA_GROUP_SECTION_2));
+            List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
     assertEquals(1, cohort2.getMostRecentRevision().getSections().size());
-    assertEquals(List.of(CRITERIA_GROUP_SECTION_2), cohort2.getMostRecentRevision().getSections());
+    assertEquals(
+        List.of(CRITERIA_GROUP_SECTION_PROCEDURE), cohort2.getMostRecentRevision().getSections());
 
     // Update cohort2 criteria only.
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the last modified and created timestamps differ.
@@ -294,13 +298,14 @@ public class CohortServiceTest {
             userEmail,
             null,
             null,
-            List.of(CRITERIA_GROUP_SECTION_1));
+            List.of(CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION));
     assertNotNull(updatedCohort2);
     LOGGER.info(
         "Updated cohort {} at {}", updatedCohort2.getId(), updatedCohort2.getLastModified());
     assertTrue(updatedCohort2.getLastModified().isAfter(updatedCohort2.getCreated()));
     assertEquals(1, updatedCohort2.getMostRecentRevision().getSections().size());
     assertEquals(
-        List.of(CRITERIA_GROUP_SECTION_1), updatedCohort2.getMostRecentRevision().getSections());
+        List.of(CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION),
+        updatedCohort2.getMostRecentRevision().getSections());
   }
 }

@@ -2,7 +2,9 @@ package bio.terra.tanagra.service.export.impl;
 
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.export.DataExport;
+import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.DeploymentConfig;
+import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.utils.FileUtils;
@@ -49,7 +51,7 @@ public class IpynbFileDownload implements DataExport {
   }
 
   @Override
-  public ExportResult run(ExportRequest request) {
+  public ExportResult run(ExportRequest request, DataExportHelper helper) {
     // Read in the ipynb template file.
     String ipynbTemplate;
     try {
@@ -62,10 +64,9 @@ public class IpynbFileDownload implements DataExport {
 
     // Generate the SQL for the primary entity and escape it to substitute into a notebook cell (=
     // JSON property).
-    Map<String, String> entityToSql = request.generateSqlQueries();
-    String primaryEntitySql =
-        SqlFormatter.format(entityToSql.get(request.getUnderlay().getPrimaryEntity()));
-    String primaryEntitySqlEscaped = StringEscapeUtils.escapeJson(primaryEntitySql);
+    String primaryEntitySql = helper.generateSqlForPrimaryEntity(List.of(), false);
+    String primaryEntitySqlFormattedAndEscaped =
+        StringEscapeUtils.escapeJson(SqlFormatter.format(primaryEntitySql));
 
     // Make substitutions in the template file contents.
     String studyIdAndName =
@@ -78,22 +79,23 @@ public class IpynbFileDownload implements DataExport {
             .put("underlayName", request.getUnderlay().getDisplayName())
             .put("studyName", studyIdAndName)
             .put("timestamp", Instant.now().toString())
-            .put("entityName", request.getUnderlay().getPrimaryEntity())
-            .put("formattedSql", primaryEntitySqlEscaped)
+            .put("entityName", request.getUnderlay().getPrimaryEntity().getName())
+            .put("formattedSql", primaryEntitySqlFormattedAndEscaped)
             .build();
     String fileContents = StringSubstitutor.replace(ipynbTemplate, params);
 
     // Write the ipynb file to GCS. Just pick the first bucket name.
+    String fileName = "tanagra_export_" + Instant.now() + ".ipynb";
     BlobId blobId =
-        request
-            .getGoogleCloudStorage()
-            .writeFile(
-                gcsBucketNames.get(0), "tanagra_export_" + Instant.now() + ".ipynb", fileContents);
+        helper.getStorageService().writeFile(gcsBucketNames.get(0), fileName, fileContents);
 
     // Generate a signed URL for the ipynb file.
-    String ipynbSignedUrl = request.getGoogleCloudStorage().createSignedUrl(blobId.toGsUtilUri());
+    String ipynbSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
 
-    return ExportResult.forOutputParams(
-        Map.of(IPYNB_FILE_KEY, ipynbSignedUrl), ExportResult.Status.COMPLETE);
+    // TODO: Skip populating this output parameter once the UI is processing the file result
+    // directly.
+    Map<String, String> outputParams = Map.of(IPYNB_FILE_KEY, ipynbSignedUrl);
+    ExportFileResult exportFileResult = ExportFileResult.forFile(fileName, ipynbSignedUrl, null);
+    return ExportResult.forOutputParams(outputParams, List.of(exportFileResult));
   }
 }

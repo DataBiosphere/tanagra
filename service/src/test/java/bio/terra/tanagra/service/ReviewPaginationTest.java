@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_GENDER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -66,7 +66,7 @@ public class ReviewPaginationTest {
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME),
             userEmail,
-            List.of(CRITERIA_GROUP_SECTION_3));
+            List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 

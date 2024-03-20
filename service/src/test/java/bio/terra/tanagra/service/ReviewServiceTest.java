@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_1;
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_PROCEDURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -70,7 +70,9 @@ public class ReviewServiceTest {
                 .displayName("cohort 2")
                 .description("first cohort"),
             userEmail,
-            List.of(CRITERIA_GROUP_SECTION_1, CRITERIA_GROUP_SECTION_2));
+            List.of(
+                CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
+                CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -83,7 +85,7 @@ public class ReviewServiceTest {
                 .displayName("cohort 2")
                 .description("second cohort"),
             userEmail,
-            List.of(CRITERIA_GROUP_SECTION_2));
+            List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
   }

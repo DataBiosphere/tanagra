@@ -1,59 +1,43 @@
 package bio.terra.tanagra.service.export;
 
+import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.export.ExportQueryRequest;
-import bio.terra.tanagra.api.query.export.ExportQueryResult;
+import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
-import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
+import bio.terra.tanagra.filterbuilder.EntityOutput;
+import bio.terra.tanagra.service.FilterBuilderService;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
-import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
-import bio.terra.tanagra.service.artifact.model.Study;
-import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.utils.GoogleCloudStorage;
-import bio.terra.tanagra.utils.NameUtils;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.utils.RandomNumberGenerator;
-import bio.terra.tanagra.utils.threadpool.Job;
-import bio.terra.tanagra.utils.threadpool.JobResult;
-import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;
-import com.google.cloud.storage.BlobId;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.text.StringSubstitutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataExportService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DataExportService.class);
-
   private final FeatureConfiguration featureConfiguration;
   private final ExportConfiguration.Shared shared;
   private final Map<String, DataExport> modelToImpl = new HashMap<>();
   private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
   private final UnderlayService underlayService;
-  private final StudyService studyService;
+  private final FilterBuilderService filterBuilderService;
   private final CohortService cohortService;
   private final ReviewService reviewService;
   private final ActivityLogService activityLogService;
   private final RandomNumberGenerator randomNumberGenerator;
-  private GoogleCloudStorage storageService;
 
   @Autowired
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -61,7 +45,7 @@ public class DataExportService {
       FeatureConfiguration featureConfiguration,
       ExportConfiguration exportConfiguration,
       UnderlayService underlayService,
-      StudyService studyService,
+      FilterBuilderService filterBuilderService,
       CohortService cohortService,
       ReviewService reviewService,
       ActivityLogService activityLogService,
@@ -82,7 +66,7 @@ public class DataExportService {
       this.modelToConfig.put(modelName, perModelConfig);
     }
     this.underlayService = underlayService;
-    this.studyService = studyService;
+    this.filterBuilderService = filterBuilderService;
     this.cohortService = cohortService;
     this.reviewService = reviewService;
     this.activityLogService = activityLogService;
@@ -107,226 +91,92 @@ public class DataExportService {
   }
 
   public ExportResult run(
-      String studyId,
-      List<String> cohortIds,
-      ExportRequest.Builder request,
-      List<ListQueryRequest> listQueryRequests,
-      EntityFilter allCohortsEntityFilter,
-      String userEmail) {
-    // Make the current cohort revision un-editable, and create the next version.
+      ExportRequest request,
+      List<ListQueryRequest> frontendListQueryRequests,
+      EntityFilter frontendPrimaryEntityFilter) {
+    // Make the current cohort revisions un-editable, and create the next version.
     Map<String, String> cohortToRevisionIdMap = new HashMap<>();
-    cohortIds.stream()
+    request.getCohorts().stream()
         .forEach(
-            cohortId -> {
+            cohort -> {
               String revisionId =
-                  cohortService.createNextRevision(studyId, cohortId, userEmail, null);
-              cohortToRevisionIdMap.put(cohortId, revisionId);
+                  cohortService.createNextRevision(
+                      request.getStudy().getId(), cohort.getId(), request.getUserEmail());
+              cohortToRevisionIdMap.put(cohort.getId(), revisionId);
             });
 
-    // Populate the study, cohort, and underlay API objects in the request.
-    Study study = studyService.getStudy(studyId);
-    List<Cohort> cohorts =
-        cohortIds.stream()
-            .map(cohortId -> cohortService.getCohort(studyId, cohortId))
-            .collect(Collectors.toList());
-    Underlay underlay = underlayService.getUnderlay(cohorts.get(0).getUnderlay());
-    request
-        .underlay(ToApiUtils.toApiObject(underlay))
-        .study(ToApiUtils.toApiObject(study))
-        .cohorts(
-            cohorts.stream()
-                .map(cohort -> ToApiUtils.toApiObject(cohort))
-                .collect(Collectors.toList()));
-
-    // Populate the function pointers for generating SQL query strings and writing GCS files.
-    // Instead of executing these functions here and passing the outputs to the implementation
-    // class, we just pass the function pointers to allow for lazy execution, or no execution at
-    // all.
-    // e.g. To export an ipynb file with the SQL queries embedded in it, there's no need to write
-    // anything to GCS.
-    if (!listQueryRequests.isEmpty()) {
-      request.generateSqlQueriesFn(() -> generateSqlQueries(listQueryRequests));
-      request.writeEntityDataToGcsFn(
-          fileNameTemplate -> writeEntityDataToGcs(fileNameTemplate, listQueryRequests));
+    // Build the helper object that implementation classes can use. This object contains utility
+    // methods on the specific cohorts and concept sets specified in the request.
+    List<EntityOutput> entityOutputs;
+    EntityFilter primaryEntityFilter;
+    if (featureConfiguration.isBackendFiltersEnabled()) {
+      entityOutputs =
+          filterBuilderService.buildOutputsForExport(
+              request.getCohorts(), request.getConceptSets());
+      primaryEntityFilter =
+          filterBuilderService.buildFilterForCohortRevisions(
+              request.getUnderlay().getName(),
+              request.getCohorts().stream()
+                  .map(Cohort::getMostRecentRevision)
+                  .collect(Collectors.toList()));
+    } else {
+      entityOutputs =
+          frontendListQueryRequests.stream()
+              .map(
+                  listQueryRequest -> {
+                    List<Attribute> attributes = new ArrayList<>();
+                    listQueryRequest.getSelectFields().stream()
+                        .filter(selectField -> selectField instanceof AttributeField)
+                        .forEach(
+                            selectField ->
+                                attributes.add(((AttributeField) selectField).getAttribute()));
+                    if (listQueryRequest.getFilter() == null) {
+                      return EntityOutput.unfiltered(listQueryRequest.getEntity(), attributes);
+                    } else {
+                      return EntityOutput.filtered(
+                          listQueryRequest.getEntity(), listQueryRequest.getFilter(), attributes);
+                    }
+                  })
+              .collect(Collectors.toList());
+      primaryEntityFilter = frontendPrimaryEntityFilter;
     }
-    if (request.isIncludeAnnotations()) {
-      request.writeAnnotationDataToGcsFn(
-          fileNameTemplate -> writeAnnotationDataToGcs(fileNameTemplate, study, cohorts));
-    }
-    request.getGoogleCloudStorageFn(() -> getStorageService());
+    DataExportHelper helper =
+        new DataExportHelper(
+            featureConfiguration.getMaxChildThreads(),
+            shared,
+            randomNumberGenerator,
+            reviewService,
+            request,
+            entityOutputs,
+            primaryEntityFilter);
 
     // Get the implementation class instance for the requested data export model.
     DataExport impl = modelToImpl.get(request.getModel());
-    ExportResult result = impl.run(request.build());
+    ExportResult exportResult;
+    try {
+      exportResult = impl.run(request, helper);
+    } catch (Exception ex) {
+      exportResult = ExportResult.forError(ExportError.forException(ex));
+    }
 
     // Calculate the number of primary entity instances that were included in this export request.
-    // TODO: Remove the null handling here once the UI is passing the primary entity filter to the
-    // export endpoint.
-    long allCohortsCount;
-    if (allCohortsEntityFilter == null) {
-      allCohortsCount = -1;
-      LOGGER.error(
-          "allCohortsEntityFilter is null. This should only happen temporarily while the UI is not yet passing the filter to the API.");
-    } else {
-      allCohortsCount = cohortService.getRecordsCount(underlay.getName(), allCohortsEntityFilter);
-    }
+    CountQueryResult countQueryResult =
+        underlayService.runCountQuery(
+            request.getUnderlay(),
+            request.getUnderlay().getPrimaryEntity(),
+            List.of(),
+            primaryEntityFilter,
+            null,
+            null);
+    long numInstances = countQueryResult.getCountInstances().get(0).getCount();
+
+    // Log the export.
     activityLogService.logExport(
-        request.getModel(), allCohortsCount, userEmail, studyId, cohortToRevisionIdMap);
-    return result;
-  }
-
-  /** Generate the entity instance SQL queries. */
-  private static Map<String, String> generateSqlQueries(List<ListQueryRequest> listQueryRequests) {
-    return listQueryRequests.stream()
-        .collect(
-            Collectors.toMap(
-                qr -> qr.getEntity().getName(),
-                qr -> {
-                  ListQueryRequest dryRunQueryRequest = qr.cloneAndSetDryRun();
-                  return qr.getUnderlay().getQueryRunner().run(dryRunQueryRequest).getSqlNoParams();
-                }));
-  }
-
-  /**
-   * Execute the entity instance queries and write the results to a GCS file.
-   *
-   * @param fileNameTemplate Template string for the GCS filenames. It must contain a single
-   *     wildcard character * and at least one reference to the entity name ${entity}.
-   * @return map of entity name -> GCS full path (e.g. gs://bucket/filename.csv)
-   */
-  private Map<String, String> writeEntityDataToGcs(
-      String fileNameTemplate, List<ListQueryRequest> listQueryRequests) {
-    // Build set of export requests.
-    List<ExportQueryRequest> exportQueryRequests =
-        listQueryRequests.stream()
-            .map(
-                listQueryRequest -> {
-                  // Build a map of substitution strings for the filename template.
-                  Map<String, String> substitutions =
-                      Map.of(
-                          "entity",
-                          listQueryRequest.getEntity().getName(),
-                          "random",
-                          Instant.now().getEpochSecond() + "_" + randomNumberGenerator.getNext());
-                  String substitutedFilename =
-                      StringSubstitutor.replace(fileNameTemplate, substitutions);
-                  return new ExportQueryRequest(
-                      listQueryRequest,
-                      listQueryRequest.getEntity().getName(),
-                      substitutedFilename,
-                      shared.getGcpProjectId(),
-                      shared.getBqDatasetIds(),
-                      shared.getGcsBucketNames());
-                })
-            .collect(Collectors.toList());
-
-    List<ExportQueryResult> exportQueryResults = new ArrayList<>();
-    if (!featureConfiguration.hasMaxChildThreads()
-        || featureConfiguration.getMaxChildThreads() > 1) {
-      // Build set of export jobs.
-      Set<Job<ExportQueryResult>> exportJobs = new HashSet<>();
-      exportQueryRequests.stream()
-          .forEach(
-              exportQueryRequest ->
-                  exportJobs.add(
-                      new Job<>(
-                          exportQueryRequest.getListQueryRequest().getEntity().getName()
-                              + '_'
-                              + Instant.now().toEpochMilli(),
-                          () ->
-                              exportQueryRequest
-                                  .getListQueryRequest()
-                                  .getUnderlay()
-                                  .getQueryRunner()
-                                  .run(exportQueryRequest))));
-      // Kick off jobs in parallel.
-      int threadPoolSize =
-          featureConfiguration.hasMaxChildThreads()
-              ? Math.min(listQueryRequests.size(), featureConfiguration.getMaxChildThreads())
-              : listQueryRequests.size();
-      LOGGER.info(
-          "Running export requests in parallel, with a thread pool size of {}", threadPoolSize);
-      Set<JobResult<ExportQueryResult>> exportJobResults =
-          ThreadPoolUtils.runInParallel(threadPoolSize, exportJobs);
-      exportJobResults.stream()
-          .forEach(
-              exportJobResult -> {
-                if (exportJobResult != null
-                    && JobResult.Status.COMPLETED.equals(exportJobResult.getJobStatus())
-                    && exportJobResult.getJobOutput() != null) {
-                  exportQueryResults.add(exportJobResult.getJobOutput());
-                }
-              });
-    } else {
-      // Kick off jobs in serial.
-      LOGGER.info("Running export requests in serial");
-      exportQueryRequests.stream()
-          .forEach(
-              exportQueryRequest -> {
-                ExportQueryResult exportQueryResult =
-                    exportQueryRequest
-                        .getListQueryRequest()
-                        .getUnderlay()
-                        .getQueryRunner()
-                        .run(exportQueryRequest);
-                exportQueryResults.add(exportQueryResult);
-              });
-    }
-
-    // Compile the results.
-    Map<String, String> entityToUrlMap = new HashMap<>();
-    exportQueryResults.stream()
-        .forEach(
-            // TODO: Pass out any error information also, once that's included in the OpenAPI spec.
-            exportQueryResult -> {
-              if (exportQueryResult.getFilePath() != null) {
-                entityToUrlMap.put(
-                    exportQueryResult.getFileDisplayName(), exportQueryResult.getFilePath());
-              }
-            });
-    return entityToUrlMap;
-  }
-
-  /**
-   * For each cohort, execute the annotation query and write the results to a GCS file.
-   *
-   * @param fileNameTemplate Template string for the GCS filenames. It must contain at least one
-   *     reference to the cohort id ${cohort}.
-   * @return map of cohort id -> GCS full path (e.g. gs://bucket/filename.csv)
-   */
-  private Map<Cohort, String> writeAnnotationDataToGcs(
-      String fileNameTemplate, Study study, List<Cohort> cohorts) {
-    // Just pick the first GCS bucket name.
-    String bucketName = shared.getGcsBucketNames().get(0);
-    Map<Cohort, String> cohortToGcsUrl = new HashMap<>();
-    cohorts.stream()
-        .forEach(
-            cohort -> {
-              String fileContents = reviewService.buildCsvStringForAnnotationValues(study, cohort);
-              if (fileContents != null) {
-                String fileName =
-                    StringSubstitutor.replace(
-                        fileNameTemplate,
-                        Map.of(
-                            "cohort",
-                            NameUtils.simplifyStringForName(
-                                cohort.getDisplayName() + "_" + cohort.getId()),
-                            "random",
-                            Instant.now().getEpochSecond()
-                                + "_"
-                                + randomNumberGenerator.getNext()));
-                BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
-                cohortToGcsUrl.put(cohort, blobId.toGsUtilUri());
-              }
-            });
-    return cohortToGcsUrl;
-  }
-
-  private GoogleCloudStorage getStorageService() {
-    if (storageService == null) {
-      storageService =
-          GoogleCloudStorage.forApplicationDefaultCredentials(shared.getGcpProjectId());
-    }
-    return storageService;
+        request.getModel(),
+        numInstances,
+        request.getUserEmail(),
+        request.getStudy().getId(),
+        cohortToRevisionIdMap);
+    return exportResult;
   }
 }

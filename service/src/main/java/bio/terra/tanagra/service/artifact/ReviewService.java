@@ -95,8 +95,10 @@ public class ReviewService {
           "Review size " + reviewBuilder.getSize() + " exceeds maximum allowed " + MAX_REVIEW_SIZE);
     }
     List<Long> randomSampleQueryResult =
-        cohortService.getRandomSample(studyId, cohortId, entityFilter, reviewBuilder.getSize());
-    long cohortRecordsCount = cohortService.getRecordsCount(studyId, cohortId, entityFilter);
+        cohortService.getRandomSample(studyId, cohortId, reviewBuilder.getSize(), entityFilter);
+    long cohortRecordsCount =
+        cohortService.getRecordsCount(
+            cohortService.getCohort(studyId, cohortId).getUnderlay(), entityFilter);
     LOGGER.info("Created review with {} primary entity ids", randomSampleQueryResult.size());
     return createReviewHelper(
         studyId, cohortId, reviewBuilder, userEmail, randomSampleQueryResult, cohortRecordsCount);

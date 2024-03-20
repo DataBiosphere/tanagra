@@ -10,6 +10,7 @@ public class ExportQueryRequest {
   private final String gcsProjectId;
   private final List<String> availableBqDatasetIds;
   private final List<String> availableGcsBucketNames;
+  private final boolean generateSignedUrl;
 
   public ExportQueryRequest(
       ListQueryRequest listQueryRequest,
@@ -17,13 +18,15 @@ public class ExportQueryRequest {
       String fileNamePrefix,
       String gcsProjectId,
       List<String> availableBqDatasetIds,
-      List<String> availableGcsBucketNames) {
+      List<String> availableGcsBucketNames,
+      boolean generateSignedUrl) {
     this.listQueryRequest = listQueryRequest;
     this.fileDisplayName = fileDisplayName;
     this.fileNamePrefix = fileNamePrefix;
     this.gcsProjectId = gcsProjectId;
     this.availableBqDatasetIds = availableBqDatasetIds;
     this.availableGcsBucketNames = availableGcsBucketNames;
+    this.generateSignedUrl = generateSignedUrl;
   }
 
   public ListQueryRequest getListQueryRequest() {
@@ -48,5 +51,9 @@ public class ExportQueryRequest {
 
   public List<String> getAvailableGcsBucketNames() {
     return availableGcsBucketNames;
+  }
+
+  public boolean isGenerateSignedUrl() {
+    return generateSignedUrl;
   }
 }

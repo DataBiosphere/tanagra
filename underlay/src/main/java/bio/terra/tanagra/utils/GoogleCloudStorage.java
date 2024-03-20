@@ -135,15 +135,18 @@ public final class GoogleCloudStorage {
     return fileContents.toString();
   }
 
-  public static String readGzipFileContentsFromUrl(String signedUrl) throws IOException {
+  public static String readGzipFileContentsFromUrl(String signedUrl, int maxLinesToRead)
+      throws IOException {
     try (GZIPInputStream gzipInputStream =
             new GZIPInputStream(new URL(signedUrl).openConnection().getInputStream());
         InputStreamReader inputStreamReader = new InputStreamReader(gzipInputStream, "UTF-8");
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
       StringBuffer fileContents = new StringBuffer();
       String inputLine;
-      while ((inputLine = bufferedReader.readLine()) != null) {
+      int numLinesRead = 0;
+      while ((inputLine = bufferedReader.readLine()) != null && numLinesRead < maxLinesToRead) {
         fileContents.append(inputLine).append(System.lineSeparator());
+        numLinesRead++;
       }
       return fileContents.toString();
     }

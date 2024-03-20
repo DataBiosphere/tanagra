@@ -1,8 +1,8 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_1;
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_2;
-import static bio.terra.tanagra.service.CriteriaValues.ETHNICITY_EQ_JAPANESE;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_PROCEDURE;
+import static bio.terra.tanagra.service.CriteriaValues.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
 import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -92,7 +92,9 @@ public class BaseAccessControlTest {
                 .displayName("cohort 2")
                 .description("first cohort"),
             "abc@123.com",
-            List.of(CRITERIA_GROUP_SECTION_1, CRITERIA_GROUP_SECTION_2));
+            List.of(
+                CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
+                CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -104,7 +106,7 @@ public class BaseAccessControlTest {
                 .displayName("cohort 2")
                 .description("second cohort"),
             "def@123.com",
-            List.of(CRITERIA_GROUP_SECTION_2));
+            List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
 
@@ -116,9 +118,9 @@ public class BaseAccessControlTest {
                 .underlay(CMS_SYNPUF)
                 .displayName("concept set 1")
                 .description("first concept set")
-                .criteria(List.of(ETHNICITY_EQ_JAPANESE.getValue()))
+                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of(ETHNICITY_EQ_JAPANESE.getKey(), List.of("gender"))),
+                    Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), List.of("gender"))),
             "abc@123.com");
     assertNotNull(conceptSet1);
     LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());

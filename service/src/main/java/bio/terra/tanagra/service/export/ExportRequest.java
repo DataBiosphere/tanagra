@@ -1,47 +1,45 @@
 package bio.terra.tanagra.service.export;
 
-import bio.terra.tanagra.generated.model.ApiCohort;
-import bio.terra.tanagra.generated.model.ApiStudy;
-import bio.terra.tanagra.generated.model.ApiUnderlaySummary;
 import bio.terra.tanagra.service.artifact.model.Cohort;
-import bio.terra.tanagra.utils.GoogleCloudStorage;
-import java.util.ArrayList;
+import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.Study;
+import bio.terra.tanagra.underlay.Underlay;
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class ExportRequest {
   private final String model;
   private final Map<String, String> inputs;
   private final String redirectBackUrl;
   private final boolean includeAnnotations;
-  private final ApiUnderlaySummary underlay;
-  private final ApiStudy study;
-  private final List<ApiCohort> cohorts;
-  private final Supplier<Map<String, String>> generateSqlQueriesFn;
-  private final Function<String, Map<String, String>> writeEntityDataToGcsFn;
-  private final Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn;
-  private final Supplier<GoogleCloudStorage> getGoogleCloudStorageFn;
+  private final String userEmail;
+  private final Underlay underlay;
+  private final Study study;
+  private final ImmutableList<Cohort> cohorts;
+  private final ImmutableList<ConceptSet> conceptSets;
 
-  private ExportRequest(Builder builder) {
-    this.model = builder.model;
-    this.inputs = builder.inputs;
-    this.redirectBackUrl = builder.redirectBackUrl;
-    this.includeAnnotations = builder.includeAnnotations;
-    this.underlay = builder.underlay;
-    this.study = builder.study;
-    this.cohorts = builder.cohorts;
-    this.generateSqlQueriesFn = builder.generateSqlQueriesFn;
-    this.writeEntityDataToGcsFn = builder.writeEntityDataToGcsFn;
-    this.writeAnnotationDataToGcsFn = builder.writeAnnotationDataToGcsFn;
-    this.getGoogleCloudStorageFn = builder.getGoogleCloudStorageFn;
-  }
-
-  public static Builder builder() {
-    return new Builder();
+  @SuppressWarnings("checkstyle:ParameterNumber")
+  public ExportRequest(
+      String model,
+      Map<String, String> inputs,
+      String redirectBackUrl,
+      boolean includeAnnotations,
+      String userEmail,
+      Underlay underlay,
+      Study study,
+      List<Cohort> cohorts,
+      List<ConceptSet> conceptSets) {
+    this.model = model;
+    this.inputs = inputs;
+    this.redirectBackUrl = redirectBackUrl;
+    this.includeAnnotations = includeAnnotations;
+    this.userEmail = userEmail;
+    this.underlay = underlay;
+    this.study = study;
+    this.cohorts = ImmutableList.copyOf(cohorts);
+    this.conceptSets = ImmutableList.copyOf(conceptSets);
   }
 
   public String getModel() {
@@ -56,137 +54,27 @@ public class ExportRequest {
     return redirectBackUrl;
   }
 
-  public boolean includeAnnotations() {
+  public boolean isIncludeAnnotations() {
     return includeAnnotations;
   }
 
-  public ApiUnderlaySummary getUnderlay() {
+  public String getUserEmail() {
+    return userEmail;
+  }
+
+  public Underlay getUnderlay() {
     return underlay;
   }
 
-  public ApiStudy getStudy() {
+  public Study getStudy() {
     return study;
   }
 
-  public List<ApiCohort> getCohorts() {
-    return Collections.unmodifiableList(cohorts);
+  public ImmutableList<Cohort> getCohorts() {
+    return cohorts;
   }
 
-  public Map<String, String> generateSqlQueries() {
-    return generateSqlQueriesFn == null ? Collections.emptyMap() : generateSqlQueriesFn.get();
-  }
-
-  public Map<String, String> writeEntityDataToGcs(String fileNameTemplate) {
-    return writeEntityDataToGcsFn == null
-        ? Collections.emptyMap()
-        : writeEntityDataToGcsFn.apply(fileNameTemplate);
-  }
-
-  public Map<Cohort, String> writeAnnotationDataToGcs(String fileNameTemplate) {
-    return writeAnnotationDataToGcsFn == null
-        ? Collections.emptyMap()
-        : writeAnnotationDataToGcsFn.apply(fileNameTemplate);
-  }
-
-  public GoogleCloudStorage getGoogleCloudStorage() {
-    return getGoogleCloudStorageFn.get();
-  }
-
-  public static class Builder {
-    private String model;
-    private Map<String, String> inputs;
-    private String redirectBackUrl;
-    private boolean includeAnnotations;
-    private ApiUnderlaySummary underlay;
-    private ApiStudy study;
-    private List<ApiCohort> cohorts;
-    private Supplier<Map<String, String>> generateSqlQueriesFn;
-    private Function<String, Map<String, String>> writeEntityDataToGcsFn;
-    private Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn;
-
-    private Supplier<GoogleCloudStorage> getGoogleCloudStorageFn;
-
-    public Builder model(String model) {
-      this.model = model;
-      return this;
-    }
-
-    public Builder inputs(Map<String, String> inputs) {
-      this.inputs = inputs;
-      return this;
-    }
-
-    public Builder redirectBackUrl(String redirectBackUrl) {
-      this.redirectBackUrl = redirectBackUrl;
-      return this;
-    }
-
-    public Builder includeAnnotations(boolean includeAnnotations) {
-      this.includeAnnotations = includeAnnotations;
-      return this;
-    }
-
-    public Builder underlay(ApiUnderlaySummary underlay) {
-      this.underlay = underlay;
-      return this;
-    }
-
-    public Builder study(ApiStudy study) {
-      this.study = study;
-      return this;
-    }
-
-    public Builder cohorts(List<ApiCohort> cohorts) {
-      this.cohorts = cohorts;
-      return this;
-    }
-
-    public Builder generateSqlQueriesFn(Supplier<Map<String, String>> generateSqlQueriesFn) {
-      this.generateSqlQueriesFn = generateSqlQueriesFn;
-      return this;
-    }
-
-    public Builder writeEntityDataToGcsFn(
-        Function<String, Map<String, String>> writeEntityDataToGcsFn) {
-      this.writeEntityDataToGcsFn = writeEntityDataToGcsFn;
-      return this;
-    }
-
-    public Builder writeAnnotationDataToGcsFn(
-        Function<String, Map<Cohort, String>> writeAnnotationDataToGcsFn) {
-      this.writeAnnotationDataToGcsFn = writeAnnotationDataToGcsFn;
-      return this;
-    }
-
-    public Builder getGoogleCloudStorageFn(Supplier<GoogleCloudStorage> getGoogleCloudStorageFn) {
-      this.getGoogleCloudStorageFn = getGoogleCloudStorageFn;
-      return this;
-    }
-
-    public ExportRequest build() {
-      if (inputs == null) {
-        inputs = new HashMap<>();
-      }
-      if (cohorts == null) {
-        cohorts = new ArrayList<>();
-      }
-      return new ExportRequest(this);
-    }
-
-    public String getModel() {
-      return model;
-    }
-
-    public ApiStudy getStudy() {
-      return study;
-    }
-
-    public List<ApiCohort> getCohorts() {
-      return Collections.unmodifiableList(cohorts);
-    }
-
-    public boolean isIncludeAnnotations() {
-      return includeAnnotations;
-    }
+  public ImmutableList<ConceptSet> getConceptSets() {
+    return conceptSets;
   }
 }

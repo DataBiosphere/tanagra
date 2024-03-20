@@ -8,6 +8,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
@@ -29,8 +30,10 @@ import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
@@ -49,6 +52,7 @@ import org.springframework.stereotype.Controller;
 public class ExportApiController implements ExportApi {
   private final AccessControlService accessControlService;
   private final DataExportService dataExportService;
+  private final StudyService studyService;
   private final CohortService cohortService;
   private final ConceptSetService conceptSetService;
   private final UnderlayService underlayService;
@@ -58,12 +62,14 @@ public class ExportApiController implements ExportApi {
   public ExportApiController(
       AccessControlService accessControlService,
       DataExportService dataExportService,
+      StudyService studyService,
       CohortService cohortService,
       ConceptSetService conceptSetService,
       UnderlayService underlayService,
       FilterBuilderService filterBuilderService) {
     this.accessControlService = accessControlService;
     this.dataExportService = dataExportService;
+    this.studyService = studyService;
     this.cohortService = cohortService;
     this.conceptSetService = conceptSetService;
     this.underlayService = underlayService;
@@ -160,20 +166,34 @@ public class ExportApiController implements ExportApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
         ResourceId.forUnderlay(underlayName));
-    String studyId = body.getStudy();
     for (String cohortId : body.getCohorts()) {
       accessControlService.throwIfUnauthorized(
           SpringAuthentication.getCurrentUser(),
           Permissions.forActions(COHORT, READ),
-          ResourceId.forCohort(studyId, cohortId));
+          ResourceId.forCohort(body.getStudy(), cohortId));
     }
-    ExportRequest.Builder request =
-        ExportRequest.builder()
-            .model(body.getExportModel())
-            .inputs(body.getInputs())
-            .redirectBackUrl(body.getRedirectBackUrl())
-            .includeAnnotations(body.isIncludeAnnotations());
+    List<String> conceptSetIds = new ArrayList<>();
+    if (body.getConceptSets() != null) {
+      conceptSetIds.addAll(body.getConceptSets());
+    }
+    for (String conceptSetId : conceptSetIds) {
+      accessControlService.throwIfUnauthorized(
+          SpringAuthentication.getCurrentUser(),
+          Permissions.forActions(CONCEPT_SET, READ),
+          ResourceId.forConceptSet(body.getStudy(), conceptSetId));
+    }
+
     Underlay underlay = underlayService.getUnderlay(underlayName);
+    Study study = studyService.getStudy(body.getStudy());
+    List<Cohort> cohorts =
+        body.getCohorts().stream()
+            .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
+            .collect(Collectors.toList());
+    List<ConceptSet> conceptSets =
+        conceptSetIds.stream()
+            .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
+            .collect(Collectors.toList());
+
     List<ListQueryRequest> listQueryRequests =
         body.getInstanceQuerys().stream()
             .map(
@@ -181,20 +201,26 @@ public class ExportApiController implements ExportApi {
                     FromApiUtils.fromApiObject(
                         apiQuery.getQuery(), underlay.getEntity(apiQuery.getEntity()), underlay))
             .collect(Collectors.toList());
-    ExportResult result =
-        dataExportService.run(
-            studyId,
-            body.getCohorts(),
-            request,
-            listQueryRequests,
-            // TODO: Remove the null handling here once the UI is passing the primary entity filter
-            // to the export endpoint.
-            body.getPrimaryEntityFilter() == null
-                ? null
-                : FromApiUtils.fromApiObject(
-                    body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName)),
-            SpringAuthentication.getCurrentUser().getEmail());
-    return ResponseEntity.ok(toApiObject(result));
+    EntityFilter primaryEntityFilter =
+        body.getPrimaryEntityFilter() == null
+            ? null
+            : FromApiUtils.fromApiObject(
+                body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName));
+
+    ExportRequest exportRequest =
+        new ExportRequest(
+            body.getExportModel(),
+            body.getInputs(),
+            body.getRedirectBackUrl(),
+            body.isIncludeAnnotations(),
+            SpringAuthentication.getCurrentUser().getEmail(),
+            underlay,
+            study,
+            cohorts,
+            conceptSets);
+    ExportResult exportResult =
+        dataExportService.run(exportRequest, listQueryRequests, primaryEntityFilter);
+    return ResponseEntity.ok(toApiObject(exportResult));
   }
 
   private ApiExportModel toApiObject(String implName, String displayName, DataExport dataExport) {

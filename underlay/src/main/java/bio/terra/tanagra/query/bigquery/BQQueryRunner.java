@@ -373,14 +373,15 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     SqlQueryRequest sqlQueryRequest = buildListQuerySql(exportQueryRequest.getListQueryRequest());
 
-    // Execute the SQL query.
+    // Execute the SQL query and export the results to GCS.
     String exportFilePath =
         bigQueryExecutor.export(
             sqlQueryRequest,
             exportQueryRequest.getFileNamePrefix(),
             exportQueryRequest.getGcsProjectId(),
             exportQueryRequest.getAvailableBqDatasetIds(),
-            exportQueryRequest.getAvailableGcsBucketNames());
+            exportQueryRequest.getAvailableGcsBucketNames(),
+            exportQueryRequest.isGenerateSignedUrl());
 
     return new ExportQueryResult(exportQueryRequest.getFileDisplayName(), exportFilePath);
   }

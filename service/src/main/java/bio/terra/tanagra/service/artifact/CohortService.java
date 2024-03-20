@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
+import bio.terra.tanagra.service.FilterBuilderService;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -32,6 +33,7 @@ public class CohortService {
   private final FeatureConfiguration featureConfiguration;
   private final UnderlayService underlayService;
   private final StudyService studyService;
+  private final FilterBuilderService filterBuilderService;
   private final ActivityLogService activityLogService;
 
   @Autowired
@@ -40,11 +42,13 @@ public class CohortService {
       FeatureConfiguration featureConfiguration,
       UnderlayService underlayService,
       StudyService studyService,
+      FilterBuilderService filterBuilderService,
       ActivityLogService activityLogService) {
     this.cohortDao = cohortDao;
     this.featureConfiguration = featureConfiguration;
     this.underlayService = underlayService;
     this.studyService = studyService;
+    this.filterBuilderService = filterBuilderService;
     this.activityLogService = activityLogService;
   }
 
@@ -132,15 +136,19 @@ public class CohortService {
   }
 
   /** @return the id of the frozen revision just created */
-  public String createNextRevision(
-      String studyId, String cohortId, String userEmail, EntityFilter entityFilter) {
-    Long recordsCount =
-        entityFilter == null ? null : getRecordsCount(studyId, cohortId, entityFilter);
+  public String createNextRevision(String studyId, String cohortId, String userEmail) {
+    Long recordsCount;
+    if (featureConfiguration.isBackendFiltersEnabled()) {
+      Cohort cohort = getCohort(studyId, cohortId);
+      recordsCount =
+          getRecordsCount(
+              cohort.getUnderlay(),
+              filterBuilderService.buildFilterForCohortRevision(
+                  cohort.getUnderlay(), cohort.getMostRecentRevision()));
+    } else {
+      recordsCount = null;
+    }
     return cohortDao.createNextRevision(cohortId, null, userEmail, recordsCount);
-  }
-
-  public long getRecordsCount(String studyId, String cohortId, EntityFilter entityFilter) {
-    return getRecordsCount(getCohort(studyId, cohortId).getUnderlay(), entityFilter);
   }
 
   /** Build a count query of all primary entity instance ids in the cohort. */
@@ -167,9 +175,16 @@ public class CohortService {
 
   /** Build a query of a random sample of primary entity instance ids in the cohort. */
   public List<Long> getRandomSample(
-      String studyId, String cohortId, EntityFilter entityFilter, int sampleSize) {
+      String studyId, String cohortId, int sampleSize, EntityFilter entityFilter) {
     Cohort cohort = getCohort(studyId, cohortId);
     Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+
+    // Build the cohort filter for the primary entity.
+    EntityFilter primaryEntityFilter =
+        featureConfiguration.isBackendFiltersEnabled()
+            ? filterBuilderService.buildFilterForCohortRevision(
+                cohort.getUnderlay(), cohort.getMostRecentRevision())
+            : entityFilter;
 
     // Build a query of a random sample of primary entity instance ids in the cohort.
     AttributeField idAttributeField =
@@ -184,7 +199,7 @@ public class CohortService {
             underlay,
             underlay.getPrimaryEntity(),
             List.of(idAttributeField),
-            entityFilter,
+            primaryEntityFilter,
             List.of(ListQueryRequest.OrderBy.random()),
             sampleSize,
             null,
