@@ -1,5 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.core;
 
+import static bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils.IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY;
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -185,7 +186,9 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
             criteriaOccurrence.getOccurrenceEntities());
 
     // Build the instance-level modifier filters.
-    if (entityGroupSelectionData.hasValueData()) {
+    if (entityGroupSelectionData.hasValueData()
+        && !IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY.equalsIgnoreCase(
+            entityGroupSelectionData.getValueData().getAttribute())) {
       if (criteriaOccurrence.getOccurrenceEntities().size() > 1) {
         throw new InvalidQueryException(
             "Instance-level modifiers are not supported for entity groups with multiple occurrence entities: "

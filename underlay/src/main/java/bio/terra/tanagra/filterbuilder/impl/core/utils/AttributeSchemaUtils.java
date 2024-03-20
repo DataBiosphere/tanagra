@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class AttributeSchemaUtils {
+  public static final String IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY = "t_any";
+
   private AttributeSchemaUtils() {}
 
   public static EntityFilter buildForEntity(
