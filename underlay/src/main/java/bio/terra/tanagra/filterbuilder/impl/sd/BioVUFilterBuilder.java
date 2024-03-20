@@ -36,6 +36,9 @@ public class BioVUFilterBuilder extends FilterBuilder {
       throw new InvalidQueryException("Modifiers are not supported for the biovu plugin");
     }
     DTBioVU.BioVU bioVuSelectionData = deserializeData(selectionData.get(0).getPluginData());
+    if (bioVuSelectionData == null) {
+      return null;
+    }
 
     // Pull the plasma flag from the config.
     CFBioVU.BioVU bioVuConfig = deserializeConfig();
@@ -130,6 +133,8 @@ public class BioVUFilterBuilder extends FilterBuilder {
 
   @Override
   public DTBioVU.BioVU deserializeData(String serialized) {
-    return deserializeFromJsonOrProtoBytes(serialized, DTBioVU.BioVU.newBuilder()).build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(serialized, DTBioVU.BioVU.newBuilder()).build();
   }
 }

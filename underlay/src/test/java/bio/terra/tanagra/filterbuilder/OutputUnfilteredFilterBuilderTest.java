@@ -110,4 +110,32 @@ public class OutputUnfilteredFilterBuilderTest {
     assertTrue(dataFeatureOutputs.contains(expectedDataFeatureOutput1));
     assertTrue(dataFeatureOutputs.contains(expectedDataFeatureOutput2));
   }
+
+  @Test
+  void emptyCriteriaDataFeatureFilter() {
+    CFOutputUnfiltered.OutputUnfiltered config =
+        CFOutputUnfiltered.OutputUnfiltered.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "demographics",
+            false,
+            true,
+            "core.OutputUnfilteredFilterBuilder",
+            SZCorePlugin.OUTPUT_UNFILTERED.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    OutputUnfilteredFilterBuilder filterBuilder =
+        new OutputUnfilteredFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("demographics", null);
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertTrue(dataFeatureOutputs.isEmpty());
+
+    // Empty string selection data.
+    selectionData = new SelectionData("demographics", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertTrue(dataFeatureOutputs.isEmpty());
+  }
 }

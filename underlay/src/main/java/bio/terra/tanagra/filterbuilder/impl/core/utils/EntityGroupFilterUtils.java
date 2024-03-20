@@ -83,13 +83,16 @@ public final class EntityGroupFilterUtils {
                             subFiltersPerOccurrenceEntity.containsKey(occurrenceEntity)
                                 ? subFiltersPerOccurrenceEntity.get(occurrenceEntity)
                                 : new ArrayList<>();
-                        subFilters.add(
+                        EntityFilter modifierSubFilter =
                             AttributeSchemaUtils.buildForEntity(
                                 underlay,
                                 occurrenceEntity,
                                 occurrenceEntity.getAttribute(modifierConfig.getAttribute()),
-                                modifierData));
-                        subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFilters);
+                                modifierData);
+                        if (modifierSubFilter != null) {
+                          subFilters.add(modifierSubFilter);
+                          subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFilters);
+                        }
                       });
             });
     return subFiltersPerOccurrenceEntity;
@@ -134,7 +137,8 @@ public final class EntityGroupFilterUtils {
     Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
             GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
-    if (groupByModifierConfigAndData.isEmpty()) {
+    if (groupByModifierConfigAndData.isEmpty()
+        || groupByModifierConfigAndData.get().getRight() == null) {
       if (groupItems.getGroupEntity().isPrimary()) {
         // e.g. vitals, person=group / height=items
         return new GroupHasItemsFilter(

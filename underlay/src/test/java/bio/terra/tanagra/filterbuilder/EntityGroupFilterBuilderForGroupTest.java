@@ -3,6 +3,8 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -404,6 +406,161 @@ public class EntityGroupFilterBuilderForGroupTest {
   }
 
   @Test
+  void emptyCriteriaCohortFilter() {
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "genotyping",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("genotyping", null);
+    EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty string selection data.
+    selectionData = new SelectionData("genotyping", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+  }
+
+  @Test
+  void emptyAttrModifierCohortFilter() {
+    CFAttribute.Attribute nameConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("name").build();
+    CriteriaSelector.Modifier nameModifier =
+        new CriteriaSelector.Modifier(
+            "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
+    CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "genotyping",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(genotypingConfig),
+            List.of(nameModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(3L).build())
+                    .setName("Illumina OMNI-Quad")
+                    .setEntityGroup("genotypingPerson")
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("genotyping", serializeToJson(entityGroupData));
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("genotyping"),
+            underlay.getEntity("genotyping").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3L));
+    EntityFilter expectedCohortFilter =
+        new ItemInGroupFilter(
+            underlay,
+            (GroupItems) underlay.getEntityGroup("genotypingPerson"),
+            expectedCriteriaSubFilter,
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData nameSelectionData = new SelectionData("name", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, nameSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    nameSelectionData = new SelectionData("name", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, nameSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
+  void emptyGroupByModifierCohortFilter() {
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "genotyping",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("name").build())
+            .build();
+    CriteriaSelector.Modifier groupByModifier =
+        new CriteriaSelector.Modifier(
+            "group_by_count",
+            SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
+            serializeToJson(groupByConfig));
+    CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "genotyping",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(genotypingConfig),
+            List.of(groupByModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(3L).build())
+                    .setName("Illumina OMNI-Quad")
+                    .setEntityGroup("genotypingPerson")
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("genotyping", serializeToJson(entityGroupData));
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("genotyping"),
+            underlay.getEntity("genotyping").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3L));
+    EntityFilter expectedCohortFilter =
+        new ItemInGroupFilter(
+            underlay,
+            (GroupItems) underlay.getEntityGroup("genotypingPerson"),
+            expectedCriteriaSubFilter,
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData groupBySelectionData = new SelectionData("group_by_count", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    groupBySelectionData = new SelectionData("group_by_count", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
   void criteriaOnlyDataFeatureFilter() {
     CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
@@ -515,5 +672,31 @@ public class EntityGroupFilterBuilderForGroupTest {
             underlay.getEntity("procedureOccurrence"), expectedDataFeatureFilter2);
     assertEquals(
         List.of(expectedDataFeatureOutput1, expectedDataFeatureOutput2), dataFeatureOutputs);
+  }
+
+  @Test
+  void emptyCriteriaDataFeatureFilter() {
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "genotyping",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("genotyping", null);
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertTrue(dataFeatureOutputs.isEmpty());
+
+    // Empty string selection data.
+    selectionData = new SelectionData("genotyping", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertTrue(dataFeatureOutputs.isEmpty());
   }
 }

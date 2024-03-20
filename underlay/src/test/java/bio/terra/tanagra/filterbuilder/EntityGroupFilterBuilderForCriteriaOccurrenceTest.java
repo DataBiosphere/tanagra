@@ -3,6 +3,7 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
@@ -611,6 +612,169 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
   }
 
   @Test
+  void emptyCriteriaCohortFilter() {
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "condition",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("condition", null);
+    EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty string selection data.
+    selectionData = new SelectionData("condition", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+  }
+
+  @Test
+  void emptyAttrModifierCohortFilter() {
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
+    CriteriaSelector.Modifier ageAtOccurrenceModifier =
+        new CriteriaSelector.Modifier(
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "condition",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of(ageAtOccurrenceModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
+                    .setName("Type 2 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("condition", serializeToJson(entityGroupData));
+
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("condition"),
+            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
+    EntityFilter expectedCohortFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            expectedCriteriaSubFilter,
+            Map.of(),
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData ageAtOccurrenceSelectionData = new SelectionData("age_at_occurrence", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, ageAtOccurrenceSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    ageAtOccurrenceSelectionData = new SelectionData("age_at_occurrence", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, ageAtOccurrenceSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
+  void emptyGroupByModifierCohortFilter() {
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "conditionOccurrence",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder()
+                    .addValues("start_date")
+                    .build())
+            .build();
+    CriteriaSelector.Modifier groupByModifier =
+        new CriteriaSelector.Modifier(
+            "group_by_count",
+            SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
+            serializeToJson(groupByConfig));
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "condition",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of(groupByModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
+                    .setName("Type 2 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("condition", serializeToJson(entityGroupData));
+
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("condition"),
+            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
+    EntityFilter expectedCohortFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            expectedCriteriaSubFilter,
+            Map.of(),
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData groupBySelectionData = new SelectionData("group_by_count", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    groupBySelectionData = new SelectionData("group_by_count", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(entityGroupSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
   void criteriaOnlySingleOccurrenceDataFeatureFilter() {
     CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
@@ -881,5 +1045,31 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                         .filter(entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))
                         .findAny()
                         .isPresent()));
+  }
+
+  @Test
+  void emptyCriteriaDataFeatureFilter() {
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "condition",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("condition", null);
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertTrue(dataFeatureOutputs.isEmpty());
+
+    // Empty string selection data.
+    selectionData = new SelectionData("condition", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertTrue(dataFeatureOutputs.isEmpty());
   }
 }

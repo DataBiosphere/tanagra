@@ -33,6 +33,10 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
     DTMultiAttribute.MultiAttribute multiAttrSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
+    if (multiAttrSelectionData == null) {
+      // Empty selection data = null filter for a cohort.
+      return null;
+    }
 
     // Pull the entity group from the config.
     CFMultiAttribute.MultiAttribute multiAttrConfig = deserializeConfig();
@@ -78,21 +82,23 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
             ? groupItems.getItemsEntity()
             : groupItems.getGroupEntity();
 
+    // Empty selection data = not-primary entity with no filter.
     List<EntityFilter> subFiltersNotPrimaryEntity = new ArrayList<>();
     if (!selectionData.isEmpty()) {
       DTMultiAttribute.MultiAttribute multiAttrSelectionData =
           deserializeData(selectionData.get(0).getPluginData());
-
-      // Build the attribute filters on the not-primary entity.
-      multiAttrSelectionData.getValueDataList().stream()
-          .forEach(
-              valueData ->
-                  subFiltersNotPrimaryEntity.add(
-                      AttributeSchemaUtils.buildForEntity(
-                          underlay,
-                          notPrimaryEntity,
-                          notPrimaryEntity.getAttribute(valueData.getAttribute()),
-                          valueData)));
+      if (multiAttrSelectionData != null) {
+        // Build the attribute filters on the not-primary entity.
+        multiAttrSelectionData.getValueDataList().stream()
+            .forEach(
+                valueData ->
+                    subFiltersNotPrimaryEntity.add(
+                        AttributeSchemaUtils.buildForEntity(
+                            underlay,
+                            notPrimaryEntity,
+                            notPrimaryEntity.getAttribute(valueData.getAttribute()),
+                            valueData)));
+      }
     }
 
     // Output the not primary entity.
@@ -110,7 +116,9 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
 
   @Override
   public DTMultiAttribute.MultiAttribute deserializeData(String serialized) {
-    return deserializeFromJsonOrProtoBytes(serialized, DTMultiAttribute.MultiAttribute.newBuilder())
-        .build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(serialized, DTMultiAttribute.MultiAttribute.newBuilder())
+            .build();
   }
 }

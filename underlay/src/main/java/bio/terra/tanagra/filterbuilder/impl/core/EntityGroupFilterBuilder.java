@@ -47,6 +47,10 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     DTEntityGroup.EntityGroup entityGroupSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
+    if (entityGroupSelectionData == null) {
+      // Empty selection data = null filter for a cohort.
+      return null;
+    }
 
     // We want to build one filter per entity group, not one filter per selected id.
     Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
@@ -93,6 +97,12 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     }
     DTEntityGroup.EntityGroup entityGroupSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
+    if (entityGroupSelectionData == null) {
+      // Empty selection data = no entity outputs.
+      // The entity groups are passed in the data, not the config, so we can't output all occurrence
+      // entities with null filters.
+      return List.of();
+    }
 
     // We want to build filters per entity group, not per selected id.
     Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
@@ -200,7 +210,8 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
             GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
-    if (groupByModifierConfigAndData.isEmpty()) {
+    if (groupByModifierConfigAndData.isEmpty()
+        || groupByModifierConfigAndData.get().getRight() == null) {
       return new PrimaryWithCriteriaFilter(
           underlay,
           criteriaOccurrence,
@@ -256,7 +267,9 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
 
   @Override
   public DTEntityGroup.EntityGroup deserializeData(String serialized) {
-    return deserializeFromJsonOrProtoBytes(serialized, DTEntityGroup.EntityGroup.newBuilder())
-        .build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(serialized, DTEntityGroup.EntityGroup.newBuilder())
+            .build();
   }
 }
