@@ -17,6 +17,8 @@ import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.generated.controller.ExportApi;
+import bio.terra.tanagra.generated.model.ApiEntityOutputPreview;
+import bio.terra.tanagra.generated.model.ApiEntityOutputPreviewList;
 import bio.terra.tanagra.generated.model.ApiExportModel;
 import bio.terra.tanagra.generated.model.ApiExportModelList;
 import bio.terra.tanagra.generated.model.ApiExportPreviewRequest;
@@ -39,6 +41,7 @@ import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -157,6 +160,43 @@ public class ExportApiController implements ExportApi {
             false);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
+  }
+
+  @Override
+  public ResponseEntity<ApiEntityOutputPreviewList> previewEntityOutputs(
+      String underlayName, ApiExportPreviewRequest body) {
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
+        ResourceId.forUnderlay(underlayName));
+    for (String conceptSetId : body.getConceptSets()) {
+      accessControlService.throwIfUnauthorized(
+          SpringAuthentication.getCurrentUser(),
+          Permissions.forActions(CONCEPT_SET, READ),
+          ResourceId.forConceptSet(body.getStudy(), conceptSetId));
+    }
+
+    // Build the entity outputs.
+    List<ConceptSet> conceptSets =
+        body.getConceptSets().stream()
+            .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
+            .collect(Collectors.toList());
+    List<EntityOutput> entityOutputs = filterBuilderService.buildOutputsForConceptSets(conceptSets);
+
+    ApiEntityOutputPreviewList apiEntityOutputs = new ApiEntityOutputPreviewList();
+    entityOutputs.stream()
+        .forEach(
+            entityOutput -> {
+              ApiEntityOutputPreview apiEntityOutput =
+                  new ApiEntityOutputPreview()
+                      .entity(entityOutput.getEntity().getName())
+                      .includedAttributes(
+                          entityOutput.getAttributes().stream()
+                              .map(Attribute::getName)
+                              .collect(Collectors.toList()));
+              apiEntityOutputs.addEntityOutputsItem(apiEntityOutput);
+            });
+    return ResponseEntity.ok(apiEntityOutputs);
   }
 
   @Override
