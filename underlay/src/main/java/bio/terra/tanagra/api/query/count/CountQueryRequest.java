@@ -18,9 +18,9 @@ public class CountQueryRequest {
   private final Underlay underlay;
   private final Entity entity;
   private final ImmutableList<ValueDisplayField> groupByFields;
-  private final EntityFilter filter;
-  private final PageMarker pageMarker;
-  private final Integer pageSize;
+  private final @Nullable EntityFilter filter;
+  private final @Nullable PageMarker pageMarker;
+  private final @Nullable Integer pageSize;
   private final @Nullable HintQueryResult entityLevelHints;
   private final boolean isDryRun;
 
@@ -29,9 +29,9 @@ public class CountQueryRequest {
       Underlay underlay,
       Entity entity,
       List<ValueDisplayField> groupByFields,
-      EntityFilter filter,
-      PageMarker pageMarker,
-      Integer pageSize,
+      @Nullable EntityFilter filter,
+      @Nullable PageMarker pageMarker,
+      @Nullable Integer pageSize,
       @Nullable HintQueryResult entityLevelHints,
       boolean isDryRun) {
     this.underlay = underlay;
@@ -56,15 +56,15 @@ public class CountQueryRequest {
     return groupByFields;
   }
 
-  public EntityFilter getFilter() {
+  public @Nullable EntityFilter getFilter() {
     return filter;
   }
 
-  public PageMarker getPageMarker() {
+  public @Nullable PageMarker getPageMarker() {
     return pageMarker;
   }
 
-  public Integer getPageSize() {
+  public @Nullable Integer getPageSize() {
     return pageSize;
   }
 

@@ -94,11 +94,12 @@ public class ReviewsApiController implements ReviewsApi {
         Permissions.forActions(COHORT, CREATE_REVIEW),
         ResourceId.forCohort(studyId, cohortId));
 
-    // TODO: Remove the entity filter from here once we store it for the cohort.
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
     EntityFilter entityFilter =
-        FromApiUtils.fromApiObject(
-            body.getFilter(), underlayService.getUnderlay(cohort.getUnderlay()));
+        body.getFilter() == null
+            ? null
+            : FromApiUtils.fromApiObject(
+                body.getFilter(), underlayService.getUnderlay(cohort.getUnderlay()));
 
     Review createdReview =
         reviewService.createReview(

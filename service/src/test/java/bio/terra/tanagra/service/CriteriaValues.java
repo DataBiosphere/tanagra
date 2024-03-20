@@ -1,60 +1,116 @@
 package bio.terra.tanagra.service;
 
+import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
+
+import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass;
+import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.service.artifact.model.Criteria;
-import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class CriteriaValues {
   private CriteriaValues() {}
 
-  // TODO: Replace the pluginName, selectionData, and uiConfig values with actual values from the
-  // UI.
+  public static final Pair<String, Criteria> DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE =
+      Pair.of(
+          "person",
+          Criteria.builder()
+              .predefinedId("_demographics")
+              .pluginName("ouptutUnfiltered")
+              .pluginVersion(0)
+              .selectionData("")
+              .uiConfig("")
+              .build());
+
   public static final Pair<String, Criteria> GENDER_EQ_WOMAN =
       Pair.of(
           "person",
           Criteria.builder()
-              .displayName("women")
-              .pluginName("demographic")
-              .pluginVersion(2)
-              .selectionData("{gender:'F'}")
-              .uiConfig("{entity:'person', attribute:'gender'}")
+              .selectorOrModifierName("tanagra-gender")
+              .pluginName("attribute")
+              .pluginVersion(0)
+              .selectionData(
+                  serializeToJson(
+                      DTAttribute.Attribute.newBuilder()
+                          .addSelected(
+                              DTAttribute.Attribute.Selection.newBuilder()
+                                  .setValue(
+                                      ValueOuterClass.Value.newBuilder()
+                                          .setInt64Value(8_532L)
+                                          .build())
+                                  .setName("Female")
+                                  .build())
+                          .build()))
+              .uiConfig("")
               .tags(Map.of("0", "tag1", "1", "tag2", "2", "tag3"))
               .build());
 
-  public static final Pair<String, Criteria> ETHNICITY_EQ_JAPANESE =
+  public static final Pair<String, Criteria> ETHNICITY_EQ_HISPANIC_OR_LATINO =
       Pair.of(
           "person",
           Criteria.builder()
-              .displayName("japanese")
-              .pluginName("demographic")
+              .selectorOrModifierName("tanagra-ethnicity")
+              .pluginName("attribute")
               .pluginVersion(4)
-              .selectionData("{ethnicity:'jpn'}")
-              .uiConfig("{entity:'person', attribute:'ethnicity'}")
+              .selectionData(
+                  serializeToJson(
+                      DTAttribute.Attribute.newBuilder()
+                          .addSelected(
+                              DTAttribute.Attribute.Selection.newBuilder()
+                                  .setValue(
+                                      ValueOuterClass.Value.newBuilder()
+                                          .setInt64Value(38_003_563L)
+                                          .build())
+                                  .setName("Hispanic or Latino")
+                                  .build())
+                          .build()))
+              .uiConfig("")
               .tags(Map.of("1", "tag1"))
               .build());
 
-  public static final Pair<String, Criteria> CONDITION_EQ_DIABETES =
+  public static final Pair<String, Criteria> CONDITION_EQ_TYPE_2_DIABETES =
       Pair.of(
           "condition",
           Criteria.builder()
-              .displayName("diabetes")
-              .pluginName("condition")
+              .selectorOrModifierName("tanagra-conditions")
+              .pluginName("entityGroup")
               .pluginVersion(0)
-              .selectionData("{condition:445645}")
-              .uiConfig("{entity:'condition', attribute:'id'}")
-              .tags(Collections.emptyMap())
+              .selectionData(
+                  serializeToJson(
+                      DTEntityGroup.EntityGroup.newBuilder()
+                          .addSelected(
+                              DTEntityGroup.EntityGroup.Selection.newBuilder()
+                                  .setKey(
+                                      KeyOuterClass.Key.newBuilder().setInt64Key(201_826L).build())
+                                  .setName("Type 2 diabetes mellitus")
+                                  .setEntityGroup("conditionPerson")
+                                  .build())
+                          .build()))
+              .uiConfig("")
+              .tags(Map.of())
               .build());
 
   public static final Pair<String, Criteria> PROCEDURE_EQ_AMPUTATION =
       Pair.of(
           "procedure",
           Criteria.builder()
-              .displayName("amputation")
-              .pluginName("procedure")
+              .selectorOrModifierName("tanagra-procedures")
+              .pluginName("entityGroup")
               .pluginVersion(11)
-              .selectionData("{procedure:234523}")
-              .uiConfig("{entity:'procedure', attribute:'id'}")
+              .selectionData(
+                  serializeToJson(
+                      DTEntityGroup.EntityGroup.newBuilder()
+                          .addSelected(
+                              DTEntityGroup.EntityGroup.Selection.newBuilder()
+                                  .setKey(
+                                      KeyOuterClass.Key.newBuilder().setInt64Key(234_523L).build())
+                                  .setName("Amputation")
+                                  .setEntityGroup("procedurePerson")
+                                  .build())
+                          .build()))
+              .uiConfig("")
               .tags(Map.of("0", "tag4", "2", "tag5"))
               .build());
 }

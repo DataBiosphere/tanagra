@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_DEMOGRAPHICS;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_GENDER;
+import static bio.terra.tanagra.service.CriteriaValues.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,19 +18,23 @@ import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.CohortService;
+import bio.terra.tanagra.service.artifact.ConceptSetService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.ActivityLogResource;
 import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +63,7 @@ public class ActivityLogServiceTest {
   private static final String USER_EMAIL_2 = "def@123.com";
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
+  @Autowired private ConceptSetService conceptSetService;
   @Autowired private CohortService cohortService;
   @Autowired private ReviewService reviewService;
   @Autowired private DataExportService dataExportService;
@@ -111,13 +118,24 @@ public class ActivityLogServiceTest {
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
+    // CREATE_CONCEPT_SET
+    ConceptSet conceptSet1 =
+        conceptSetService.createConceptSet(
+            study1.getId(),
+            ConceptSet.builder()
+                .underlay(UNDERLAY_NAME)
+                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue())),
+            USER_EMAIL_1);
+    assertNotNull(conceptSet1);
+    LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
+
     // CREATE_COHORT
     Cohort cohort1 =
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME),
             USER_EMAIL_1,
-            List.of(CRITERIA_GROUP_SECTION_3));
+            List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -193,30 +211,43 @@ public class ActivityLogServiceTest {
     // Select all attributes.
     List<ValueDisplayField> selectFields = new ArrayList<>();
     primaryEntity.getAttributes().stream()
+        .sorted(Comparator.comparing(Attribute::getName))
         .forEach(
             attribute ->
                 selectFields.add(
                     new AttributeField(underlay, primaryEntity, attribute, false, false)));
-    ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
-            underlay, primaryEntity, selectFields, null, null, 5, null, null, false);
     EntityFilter primaryEntityFilter =
         new AttributeFilter(
             underlay,
             primaryEntity,
-            primaryEntity.getAttribute("year_of_birth"),
-            BinaryOperator.GREATER_THAN_OR_EQUAL,
-            Literal.forInt64(1980L));
-    String exportModel = "IPYNB_FILE_DOWNLOAD";
-    ExportRequest.Builder exportRequest = ExportRequest.builder().model(exportModel);
-    ExportResult exportResult =
-        dataExportService.run(
-            study1.getId(),
-            List.of(cohort1.getId()),
-            exportRequest,
-            List.of(listQueryRequest),
+            primaryEntity.getAttribute("gender"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(8_532L));
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            primaryEntity,
+            selectFields,
             primaryEntityFilter,
-            USER_EMAIL_2);
+            null,
+            null,
+            null,
+            null,
+            false);
+    String exportModel = "IPYNB_FILE_DOWNLOAD";
+    ExportRequest exportRequest =
+        new ExportRequest(
+            exportModel,
+            Map.of(),
+            null,
+            false,
+            USER_EMAIL_2,
+            underlayService.getUnderlay(UNDERLAY_NAME),
+            study1,
+            List.of(cohort1),
+            List.of(conceptSet1));
+    ExportResult exportResult =
+        dataExportService.run(exportRequest, List.of(listQueryRequest), primaryEntityFilter);
     assertNotNull(exportResult);
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
@@ -232,7 +263,7 @@ public class ActivityLogServiceTest {
                             .cohortRevisionId(cohort1.getMostRecentRevision().getId())
                             .build())
                     .exportModel(exportModel)
-                    .recordsCount(12_861L)
+                    .recordsCount(1_292_861L)
                     .build()));
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
@@ -328,7 +359,7 @@ public class ActivityLogServiceTest {
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME),
             USER_EMAIL_1,
-            List.of(CRITERIA_GROUP_SECTION_3));
+            List.of(CRITERIA_GROUP_SECTION_DEMOGRAPHICS));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 

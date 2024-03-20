@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_3;
+import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_GENDER;
+import static bio.terra.tanagra.service.CriteriaValues.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
 import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,10 +22,12 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
+import bio.terra.tanagra.service.artifact.ConceptSetService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
@@ -35,6 +38,7 @@ import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +46,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,28 +79,41 @@ public class DataExportServiceTest {
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
+  @Autowired private ConceptSetService conceptSetService;
   @Autowired private AnnotationService annotationService;
   @Autowired private ReviewService reviewService;
   @Autowired private DataExportService dataExportService;
 
   private Study study1;
   private Cohort cohort1;
+  private ConceptSet conceptSet1;
 
   @BeforeEach
   void createAnnotationValues() {
-    // Build a study, cohort, review, and annotation data.
+    // Build a study, concept set, cohort, review, and annotation data.
     String userEmail = "abc@123.com";
 
     study1 = studyService.createStudy(Study.builder(), userEmail);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
+    conceptSet1 =
+        conceptSetService.createConceptSet(
+            study1.getId(),
+            ConceptSet.builder()
+                .underlay(UNDERLAY_NAME)
+                .displayName("First Concept Set")
+                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight())),
+            userEmail);
+    assertNotNull(conceptSet1);
+    LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
+
     cohort1 =
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME).displayName("First Cohort"),
             userEmail,
-            List.of(CRITERIA_GROUP_SECTION_3));
+            List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -222,16 +240,20 @@ public class DataExportServiceTest {
 
   @Test
   void individualFileDownload() throws IOException {
-    ExportRequest.Builder exportRequest =
-        ExportRequest.builder().model("INDIVIDUAL_FILE_DOWNLOAD").includeAnnotations(true);
+    ExportRequest exportRequest =
+        new ExportRequest(
+            "INDIVIDUAL_FILE_DOWNLOAD",
+            Map.of(),
+            null,
+            true,
+            "abc@123.com",
+            underlayService.getUnderlay(UNDERLAY_NAME),
+            study1,
+            List.of(cohort1),
+            List.of(conceptSet1));
     ExportResult exportResult =
         dataExportService.run(
-            study1.getId(),
-            List.of(cohort1.getId()),
-            exportRequest,
-            List.of(buildListQueryRequest()),
-            buildPrimaryEntityFilter(),
-            "abc@123.com");
+            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertNull(exportResult.getRedirectAwayUrl());
@@ -244,12 +266,12 @@ public class DataExportServiceTest {
             .get("Data:" + underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
     assertNotNull(signedUrl);
     LOGGER.info("Entity instances signed URL: {}", signedUrl);
-    String fileContents = GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl);
-    assertFalse(fileContents.isEmpty());
+    String fileContents = GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl, 6);
     LOGGER.info("Entity instances fileContents: {}", fileContents);
+    assertFalse(fileContents.isEmpty());
     String fileContentsFirstLine = fileContents.split(System.lineSeparator())[0];
     assertEquals(
-        "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        "age,ethnicity,T_DISP_ethnicity,gender,T_DISP_gender,id,person_source_value,race,T_DISP_race,year_of_birth",
         fileContentsFirstLine);
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
@@ -267,19 +289,20 @@ public class DataExportServiceTest {
   @Test
   void vwbFileImport() throws IOException, URISyntaxException {
     String redirectBackUrl = "https://tanagra-test.api.verily.com";
-    ExportRequest.Builder exportRequest =
-        ExportRequest.builder()
-            .model("VWB_FILE_IMPORT_DEVEL")
-            .redirectBackUrl(redirectBackUrl)
-            .includeAnnotations(true);
+    ExportRequest exportRequest =
+        new ExportRequest(
+            "VWB_FILE_IMPORT_DEVEL",
+            Map.of(),
+            redirectBackUrl,
+            true,
+            "abc@123.com",
+            underlayService.getUnderlay(UNDERLAY_NAME),
+            study1,
+            List.of(cohort1),
+            List.of(conceptSet1));
     ExportResult exportResult =
         dataExportService.run(
-            study1.getId(),
-            List.of(cohort1.getId()),
-            exportRequest,
-            List.of(buildListQueryRequest()),
-            buildPrimaryEntityFilter(),
-            "abc@123.com");
+            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertTrue(exportResult.getOutputs().isEmpty());
@@ -323,27 +346,32 @@ public class DataExportServiceTest {
 
     String entityInstancesFileContents =
         annotationsFileContents.equals(fileContents1)
-            ? GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl2)
-            : GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl1);
+            ? GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl2, 6)
+            : GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl1, 6);
     LOGGER.info("Entity instances fileContents: {}", entityInstancesFileContents);
     String fileContentsFirstLine = entityInstancesFileContents.split(System.lineSeparator())[0];
     assertEquals(
-        "id,year_of_birth,age,person_source_value,gender,T_DISP_gender,race,T_DISP_race,ethnicity,T_DISP_ethnicity",
+        "age,ethnicity,T_DISP_ethnicity,gender,T_DISP_gender,id,person_source_value,race,T_DISP_race,year_of_birth",
         fileContentsFirstLine);
     assertEquals(6, entityInstancesFileContents.split("\n").length); // 5 instances + header row
   }
 
   @Test
   void ipynbFileDownload() throws IOException {
-    ExportRequest.Builder exportRequest = ExportRequest.builder().model("IPYNB_FILE_DOWNLOAD");
+    ExportRequest exportRequest =
+        new ExportRequest(
+            "IPYNB_FILE_DOWNLOAD",
+            Map.of(),
+            null,
+            false,
+            "abc@123.com",
+            underlayService.getUnderlay(UNDERLAY_NAME),
+            study1,
+            List.of(cohort1),
+            List.of(conceptSet1));
     ExportResult exportResult =
         dataExportService.run(
-            study1.getId(),
-            List.of(cohort1.getId()),
-            exportRequest,
-            List.of(buildListQueryRequest()),
-            buildPrimaryEntityFilter(),
-            "abc@123.com");
+            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
     assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
     assertNull(exportResult.getRedirectAwayUrl());
@@ -369,6 +397,7 @@ public class DataExportServiceTest {
     // Select all attributes.
     List<ValueDisplayField> selectFields =
         primaryEntity.getAttributes().stream()
+            .sorted(Comparator.comparing(Attribute::getName))
             .map(attribute -> new AttributeField(underlay, primaryEntity, attribute, false, false))
             .collect(Collectors.toList());
     return new ListQueryRequest(
@@ -381,8 +410,8 @@ public class DataExportServiceTest {
     return new AttributeFilter(
         underlay,
         primaryEntity,
-        primaryEntity.getAttribute("year_of_birth"),
+        primaryEntity.getAttribute("gender"),
         BinaryOperator.EQUALS,
-        Literal.forInt64(11L));
+        Literal.forInt64(8_532L));
   }
 }
