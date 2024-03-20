@@ -866,6 +866,31 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/underlays/{underlayName}/entityOutputsPreview":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayName"
+    post:
+      summary: Preview the entity outputs that will be exported
+      operationId: previewEntityOutputs
+      tags: [Export]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportPreviewRequest"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntityOutputPreviewList"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/underlays/{underlayName}/export":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
@@ -2503,6 +2528,31 @@ components:
           default: 50
       required:
         - study
+
+    EntityOutputPreview:
+      type: object
+      properties:
+        entity:
+          description: Entity name
+          type: string
+        includedAttributes:
+          type: array
+          description: Names of attributes included in the output
+          items:
+            type: string
+      required:
+        - entity
+        - includedAttributes
+
+    EntityOutputPreviewList:
+      type: object
+      properties:
+        entityOutputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntityOutputPreview"
+      required:
+        - entityOutputs
 
     ExportRequest:
       type: object
