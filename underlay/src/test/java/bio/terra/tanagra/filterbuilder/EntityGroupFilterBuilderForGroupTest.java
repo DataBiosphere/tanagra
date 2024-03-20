@@ -4,7 +4,6 @@ import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -676,7 +675,13 @@ public class EntityGroupFilterBuilderForGroupTest {
 
   @Test
   void emptyCriteriaDataFeatureFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup config =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("genotypingPerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
@@ -687,16 +692,19 @@ public class EntityGroupFilterBuilderForGroupTest {
             serializeToJson(config),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+    EntityOutput expectedEntityOutput = EntityOutput.unfiltered(underlay.getEntity("genotyping"));
 
     // Null selection data.
     SelectionData selectionData = new SelectionData("genotyping", null);
     List<EntityOutput> dataFeatureOutputs =
         filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
-    assertTrue(dataFeatureOutputs.isEmpty());
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
 
     // Empty string selection data.
     selectionData = new SelectionData("genotyping", "");
     dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
-    assertTrue(dataFeatureOutputs.isEmpty());
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
   }
 }

@@ -30,9 +30,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
@@ -99,53 +102,78 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     DTEntityGroup.EntityGroup entityGroupSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
     if (entityGroupSelectionData == null) {
-      // Empty selection data = no entity outputs.
-      // The entity groups are passed in the data, not the config, so we can't output all occurrence
-      // entities with null filters.
-      return List.of();
+      // Empty selection data = output all occurrence entities with null filters.
+      // Use the list of all possible entity groups in the config.
+      CFEntityGroup.EntityGroup entityGroupConfig = deserializeConfig();
+      Set<Entity> outputEntities = new HashSet<>();
+      entityGroupConfig.getClassificationEntityGroupsList().stream()
+          .forEach(
+              classificationEntityGroup -> {
+                EntityGroup entityGroup =
+                    underlay.getEntityGroup(classificationEntityGroup.getId());
+                switch (entityGroup.getType()) {
+                  case CRITERIA_OCCURRENCE:
+                    CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
+                    outputEntities.addAll(criteriaOccurrence.getOccurrenceEntities());
+                    break;
+                  case GROUP_ITEMS:
+                    GroupItems groupItems = (GroupItems) entityGroup;
+                    outputEntities.add(
+                        groupItems.getItemsEntity().isPrimary()
+                            ? groupItems.getGroupEntity()
+                            : groupItems.getItemsEntity());
+                    break;
+                  default:
+                    throw new SystemException(
+                        "Unsupported entity group type: " + entityGroup.getType());
+                }
+              });
+      return outputEntities.stream()
+          .map(outputEntity -> EntityOutput.unfiltered(outputEntity))
+          .collect(Collectors.toList());
+    } else {
+      // We want to build filters per entity group, not per selected id.
+      Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
+          selectedIdsPerEntityGroup(underlay, entityGroupSelectionData);
+
+      Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
+      selectedIdsPerEntityGroup.entrySet().stream()
+          .forEach(
+              entry -> {
+                EntityGroup entityGroup = entry.getKey();
+                List<Literal> selectedIds = entry.getValue();
+                switch (entityGroup.getType()) {
+                  case CRITERIA_OCCURRENCE:
+                    EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
+                        underlay, (CriteriaOccurrence) entityGroup, selectedIds, filtersPerEntity);
+                    break;
+                  case GROUP_ITEMS:
+                    GroupItems groupItems = (GroupItems) entityGroup;
+                    Entity notPrimaryEntity =
+                        groupItems.getGroupEntity().isPrimary()
+                            ? groupItems.getItemsEntity()
+                            : groupItems.getGroupEntity();
+                    List<EntityFilter> notPrimaryEntityFilters =
+                        filtersPerEntity.containsKey(notPrimaryEntity)
+                            ? filtersPerEntity.get(notPrimaryEntity)
+                            : new ArrayList<>();
+                    if (!selectedIds.isEmpty()) {
+                      notPrimaryEntityFilters.add(
+                          EntityGroupFilterUtils.buildIdSubFilter(
+                              underlay, notPrimaryEntity, selectedIds));
+                    }
+                    filtersPerEntity.put(notPrimaryEntity, notPrimaryEntityFilters);
+                    break;
+                  default:
+                    throw new SystemException(
+                        "Unsupported entity group type: " + entityGroup.getType());
+                }
+              });
+
+      // If there are multiple filters for a single entity, OR them together.
+      return EntityGroupFilterUtils.mergeFiltersForDataFeature(
+          filtersPerEntity, BooleanAndOrFilter.LogicalOperator.OR);
     }
-
-    // We want to build filters per entity group, not per selected id.
-    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
-        selectedIdsPerEntityGroup(underlay, entityGroupSelectionData);
-
-    Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
-    selectedIdsPerEntityGroup.entrySet().stream()
-        .forEach(
-            entry -> {
-              EntityGroup entityGroup = entry.getKey();
-              List<Literal> selectedIds = entry.getValue();
-              switch (entityGroup.getType()) {
-                case CRITERIA_OCCURRENCE:
-                  EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
-                      underlay, (CriteriaOccurrence) entityGroup, selectedIds, filtersPerEntity);
-                  break;
-                case GROUP_ITEMS:
-                  GroupItems groupItems = (GroupItems) entityGroup;
-                  Entity notPrimaryEntity =
-                      groupItems.getGroupEntity().isPrimary()
-                          ? groupItems.getItemsEntity()
-                          : groupItems.getGroupEntity();
-                  List<EntityFilter> notPrimaryEntityFilters =
-                      filtersPerEntity.containsKey(notPrimaryEntity)
-                          ? filtersPerEntity.get(notPrimaryEntity)
-                          : new ArrayList<>();
-                  if (!selectedIds.isEmpty()) {
-                    notPrimaryEntityFilters.add(
-                        EntityGroupFilterUtils.buildIdSubFilter(
-                            underlay, notPrimaryEntity, selectedIds));
-                  }
-                  filtersPerEntity.put(notPrimaryEntity, notPrimaryEntityFilters);
-                  break;
-                default:
-                  throw new SystemException(
-                      "Unsupported entity group type: " + entityGroup.getType());
-              }
-            });
-
-    // If there are multiple filters for a single entity, OR them together.
-    return EntityGroupFilterUtils.mergeFiltersForDataFeature(
-        filtersPerEntity, BooleanAndOrFilter.LogicalOperator.OR);
   }
 
   private Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup(

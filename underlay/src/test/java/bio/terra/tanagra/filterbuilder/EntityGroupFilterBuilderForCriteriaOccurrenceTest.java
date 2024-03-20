@@ -1049,10 +1049,16 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void emptyCriteriaDataFeatureFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup config =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("icd9procPerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
-            "condition",
+            "icd9proc",
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -1060,16 +1066,24 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             serializeToJson(config),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+    EntityOutput expectedEntityOutput1 =
+        EntityOutput.unfiltered(underlay.getEntity("ingredientOccurrence"));
+    EntityOutput expectedEntityOutput2 =
+        EntityOutput.unfiltered(underlay.getEntity("procedureOccurrence"));
 
     // Null selection data.
-    SelectionData selectionData = new SelectionData("condition", null);
+    SelectionData selectionData = new SelectionData("icd9proc", null);
     List<EntityOutput> dataFeatureOutputs =
         filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
-    assertTrue(dataFeatureOutputs.isEmpty());
+    assertEquals(2, dataFeatureOutputs.size());
+    assertTrue(dataFeatureOutputs.contains(expectedEntityOutput1));
+    assertTrue(dataFeatureOutputs.contains(expectedEntityOutput2));
 
     // Empty string selection data.
-    selectionData = new SelectionData("condition", "");
+    selectionData = new SelectionData("icd9proc", "");
     dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
-    assertTrue(dataFeatureOutputs.isEmpty());
+    assertEquals(2, dataFeatureOutputs.size());
+    assertTrue(dataFeatureOutputs.contains(expectedEntityOutput1));
+    assertTrue(dataFeatureOutputs.contains(expectedEntityOutput2));
   }
 }
