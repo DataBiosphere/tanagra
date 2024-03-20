@@ -42,6 +42,10 @@ public class TextSearchFilterBuilder extends FilterBuilder {
     DTTextSearch.TextSearch textSearchSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
+    if (textSearchSelectionData == null) {
+      // Empty selection data = null filter for a cohort.
+      return null;
+    }
 
     // Pull the entity group, text search attribute from the config.
     CFTextSearch.TextSearch textSearchConfig = deserializeConfig();
@@ -104,7 +108,8 @@ public class TextSearchFilterBuilder extends FilterBuilder {
     Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
         groupByModifierConfigAndData =
             GroupByCountSchemaUtils.getModifier(criteriaSelector, modifiersSelectionData);
-    if (groupByModifierConfigAndData.isEmpty()) {
+    if (groupByModifierConfigAndData.isEmpty()
+        || groupByModifierConfigAndData.get().getRight() == null) {
       return new PrimaryWithCriteriaFilter(
           underlay,
           criteriaOccurrence,
@@ -155,45 +160,47 @@ public class TextSearchFilterBuilder extends FilterBuilder {
     criteriaOccurrence.getOccurrenceEntities().stream()
         .forEach(occurrenceEntity -> filtersPerEntity.put(occurrenceEntity, new ArrayList<>()));
 
+    // Empty selection data = occurrence entities with no filter.
     if (!selectionData.isEmpty()) {
       DTTextSearch.TextSearch textSearchSelectionData =
           deserializeData(selectionData.get(0).getPluginData());
+      if (textSearchSelectionData != null) {
+        // Pull the criteria ids and text query from the selection data.
+        List<Literal> criteriaIds =
+            textSearchSelectionData.getCategoriesList().stream()
+                .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
+                .collect(Collectors.toList());
+        String textQuery = textSearchSelectionData.getQuery();
 
-      // Pull the criteria ids and text query from the selection data.
-      List<Literal> criteriaIds =
-          textSearchSelectionData.getCategoriesList().stream()
-              .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
-              .collect(Collectors.toList());
-      String textQuery = textSearchSelectionData.getQuery();
+        // Build the criteria filters on each of the occurrence entities.
+        if (!criteriaIds.isEmpty()) {
+          EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
+              underlay, criteriaOccurrence, criteriaIds, filtersPerEntity);
+        }
 
-      // Build the criteria filters on each of the occurrence entities.
-      if (!criteriaIds.isEmpty()) {
-        EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
-            underlay, criteriaOccurrence, criteriaIds, filtersPerEntity);
-      }
-
-      // Build the text search filter on each of the occurrence entities.
-      if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
-        criteriaOccurrence.getOccurrenceEntities().stream()
-            .forEach(
-                occurrenceEntity -> {
-                  List<EntityFilter> subFilters =
-                      filtersPerEntity.containsKey(occurrenceEntity)
-                          ? filtersPerEntity.get(occurrenceEntity)
-                          : new ArrayList<>();
-                  Attribute textSearchAttr =
-                      textSearchAttrName == null
-                          ? null
-                          : occurrenceEntity.getAttribute(textSearchAttrName);
-                  subFilters.add(
-                      new TextSearchFilter(
-                          underlay,
-                          occurrenceEntity,
-                          TextSearchFilter.TextSearchOperator.EXACT_MATCH,
-                          textQuery,
-                          textSearchAttr));
-                  filtersPerEntity.put(occurrenceEntity, subFilters);
-                });
+        // Build the text search filter on each of the occurrence entities.
+        if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
+          criteriaOccurrence.getOccurrenceEntities().stream()
+              .forEach(
+                  occurrenceEntity -> {
+                    List<EntityFilter> subFilters =
+                        filtersPerEntity.containsKey(occurrenceEntity)
+                            ? filtersPerEntity.get(occurrenceEntity)
+                            : new ArrayList<>();
+                    Attribute textSearchAttr =
+                        textSearchAttrName == null
+                            ? null
+                            : occurrenceEntity.getAttribute(textSearchAttrName);
+                    subFilters.add(
+                        new TextSearchFilter(
+                            underlay,
+                            occurrenceEntity,
+                            TextSearchFilter.TextSearchOperator.EXACT_MATCH,
+                            textQuery,
+                            textSearchAttr));
+                    filtersPerEntity.put(occurrenceEntity, subFilters);
+                  });
+        }
       }
     }
 
@@ -211,7 +218,8 @@ public class TextSearchFilterBuilder extends FilterBuilder {
 
   @Override
   public DTTextSearch.TextSearch deserializeData(String serialized) {
-    return deserializeFromJsonOrProtoBytes(serialized, DTTextSearch.TextSearch.newBuilder())
-        .build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(serialized, DTTextSearch.TextSearch.newBuilder()).build();
   }
 }

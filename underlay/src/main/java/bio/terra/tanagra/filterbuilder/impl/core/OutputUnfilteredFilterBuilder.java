@@ -32,6 +32,10 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
     }
     DTOutputUnfiltered.OutputUnfiltered outputUnfilteredSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
+    if (outputUnfilteredSelectionData == null) {
+      // Empty selection data = no entity outputs.
+      return List.of();
+    }
     List<EntityOutput> entityOutputs = new ArrayList<>();
     outputUnfilteredSelectionData.getEntitiesList().stream()
         .forEach(
@@ -53,8 +57,10 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
 
   @Override
   public DTOutputUnfiltered.OutputUnfiltered deserializeData(String serialized) {
-    return deserializeFromJsonOrProtoBytes(
-            serialized, DTOutputUnfiltered.OutputUnfiltered.newBuilder())
-        .build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(
+                serialized, DTOutputUnfiltered.OutputUnfiltered.newBuilder())
+            .build();
   }
 }

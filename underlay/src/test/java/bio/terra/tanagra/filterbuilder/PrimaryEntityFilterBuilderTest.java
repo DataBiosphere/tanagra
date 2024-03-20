@@ -3,6 +3,7 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -131,6 +132,57 @@ public class PrimaryEntityFilterBuilderTest {
   }
 
   @Test
+  void emptyEnumValCohortFilter() {
+    CFAttribute.Attribute config =
+        CFAttribute.Attribute.newBuilder().setAttribute("gender").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "gender",
+            true,
+            true,
+            "core.PrimaryEntityFilterBuilder",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    PrimaryEntityFilterBuilder filterBuilder = new PrimaryEntityFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("gender", null);
+    EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty string selection data.
+    selectionData = new SelectionData("gender", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+  }
+
+  @Test
+  void emptyNumericRangeCohortFilter() {
+    CFAttribute.Attribute config = CFAttribute.Attribute.newBuilder().setAttribute("age").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "age",
+            true,
+            false,
+            "core.PrimaryEntityFilterBuilder",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    PrimaryEntityFilterBuilder filterBuilder = new PrimaryEntityFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("gender", null);
+    EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty string selection data.
+    selectionData = new SelectionData("gender", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+  }
+
+  @Test
   void dataFeatureFilter() {
     CFAttribute.Attribute config =
         CFAttribute.Attribute.newBuilder().setAttribute("gender").build();
@@ -149,5 +201,35 @@ public class PrimaryEntityFilterBuilderTest {
     assertEquals(1, dataFeatureOutputs.size());
     EntityOutput expectedDataFeatureOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
     assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+  }
+
+  @Test
+  void emptySelectionDataFeatureFilter() {
+    CFAttribute.Attribute config =
+        CFAttribute.Attribute.newBuilder().setAttribute("gender").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "gender",
+            true,
+            true,
+            "core.PrimaryEntityFilterBuilder",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    PrimaryEntityFilterBuilder filterBuilder = new PrimaryEntityFilterBuilder(criteriaSelector);
+    EntityOutput expectedEntityOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("gender", null);
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
+
+    // Empty string selection data.
+    selectionData = new SelectionData("gender", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
   }
 }

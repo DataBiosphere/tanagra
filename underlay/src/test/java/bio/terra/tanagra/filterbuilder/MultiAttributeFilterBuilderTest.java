@@ -3,6 +3,7 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -560,6 +561,166 @@ public class MultiAttributeFilterBuilderTest {
   }
 
   @Test
+  void emptySelectionCohortFilter() {
+    CFMultiAttribute.MultiAttribute config =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "bloodPressure",
+            true,
+            true,
+            "core.MultiAttributeFilterBuilder",
+            SZCorePlugin.MULTI_ATTRIBUTE.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    MultiAttributeFilterBuilder filterBuilder = new MultiAttributeFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("bloodPressure", null);
+    EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty string selection data.
+    selectionData = new SelectionData("bloodPressure", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+  }
+
+  @Test
+  void emptyAttrModifierCohortFilter() {
+    CFMultiAttribute.MultiAttribute mainConfig =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
+    CriteriaSelector.Modifier ageAtOccurrenceModifier =
+        new CriteriaSelector.Modifier(
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "bloodPressure",
+            true,
+            true,
+            "core.MultiAttributeFilterBuilder",
+            SZCorePlugin.MULTI_ATTRIBUTE.getIdInConfig(),
+            serializeToJson(mainConfig),
+            List.of(ageAtOccurrenceModifier));
+    MultiAttributeFilterBuilder filterBuilder = new MultiAttributeFilterBuilder(criteriaSelector);
+
+    DTMultiAttribute.MultiAttribute data =
+        DTMultiAttribute.MultiAttribute.newBuilder()
+            .addValueData(
+                ValueData.newBuilder()
+                    .setAttribute("systolic")
+                    .setRange(DataRange.newBuilder().setMin(100).setMax(120).build())
+                    .build())
+            .build();
+    SelectionData multiAttrSelectionData =
+        new SelectionData("bloodPressure", serializeToJson(data));
+    EntityFilter itemsSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("bloodPressure"),
+            underlay.getEntity("bloodPressure").getAttribute("systolic"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(100.0), Literal.forDouble(120.0)));
+    EntityFilter expectedCohortFilter =
+        new GroupHasItemsFilter(
+            underlay,
+            (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
+            itemsSubFilter,
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData ageAtOccurrenceSelectionData = new SelectionData("age_at_occurrence", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(multiAttrSelectionData, ageAtOccurrenceSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    ageAtOccurrenceSelectionData = new SelectionData("age_at_occurrence", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(multiAttrSelectionData, ageAtOccurrenceSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
+  void emptyGroupByModifierCohortFilter() {
+    CFMultiAttribute.MultiAttribute mainConfig =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "bloodPressure",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder().addValues("date").build())
+            .build();
+    CriteriaSelector.Modifier groupByModifier =
+        new CriteriaSelector.Modifier(
+            "group_by_count",
+            SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
+            serializeToJson(groupByConfig));
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "bloodPressure",
+            true,
+            true,
+            "core.MultiAttributeFilterBuilder",
+            SZCorePlugin.MULTI_ATTRIBUTE.getIdInConfig(),
+            serializeToJson(mainConfig),
+            List.of(groupByModifier));
+    MultiAttributeFilterBuilder filterBuilder = new MultiAttributeFilterBuilder(criteriaSelector);
+
+    DTMultiAttribute.MultiAttribute data =
+        DTMultiAttribute.MultiAttribute.newBuilder()
+            .addValueData(
+                ValueData.newBuilder()
+                    .setAttribute("systolic")
+                    .setRange(DataRange.newBuilder().setMin(100).setMax(120).build())
+                    .build())
+            .build();
+    SelectionData multiAttrSelectionData =
+        new SelectionData("bloodPressure", serializeToJson(data));
+    EntityFilter itemsSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("bloodPressure"),
+            underlay.getEntity("bloodPressure").getAttribute("systolic"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(100.0), Literal.forDouble(120.0)));
+    EntityFilter expectedCohortFilter =
+        new GroupHasItemsFilter(
+            underlay,
+            (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
+            itemsSubFilter,
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData groupBySelectionData = new SelectionData("group_by_count", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(multiAttrSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    groupBySelectionData = new SelectionData("group_by_count", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(multiAttrSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
   void noModifiersDataFeatureFilter() {
     CFMultiAttribute.MultiAttribute config =
         CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
@@ -645,5 +806,36 @@ public class MultiAttributeFilterBuilderTest {
     assertEquals(
         dataFeatureOutputs.get(0),
         EntityOutput.filtered(underlay.getEntity("bloodPressure"), expectedDataFeatureFilter));
+  }
+
+  @Test
+  void emptySelectionDataFeatureFilter() {
+    CFMultiAttribute.MultiAttribute config =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "bloodPressure",
+            true,
+            true,
+            "core.MultiAttributeFilterBuilder",
+            SZCorePlugin.MULTI_ATTRIBUTE.getIdInConfig(),
+            serializeToJson(config),
+            List.of());
+    MultiAttributeFilterBuilder filterBuilder = new MultiAttributeFilterBuilder(criteriaSelector);
+    EntityOutput expectedEntityOutput =
+        EntityOutput.unfiltered(underlay.getEntity("bloodPressure"));
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("bloodPressure", null);
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
+
+    // Empty string selection data.
+    selectionData = new SelectionData("bloodPressure", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
   }
 }

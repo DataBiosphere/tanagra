@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class AttributeSchemaUtils {
+  public static final String IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY = "t_any";
+
   private AttributeSchemaUtils() {}
 
   public static EntityFilter buildForEntity(
@@ -37,6 +39,9 @@ public final class AttributeSchemaUtils {
 
   public static EntityFilter buildForEntity(
       Underlay underlay, Entity entity, Attribute attribute, DTAttribute.Attribute data) {
+    if (data == null) {
+      return null;
+    }
     if (!data.getSelectedList().isEmpty()) {
       // Enum value filter.
       return data.getSelectedCount() == 1
@@ -101,7 +106,9 @@ public final class AttributeSchemaUtils {
   }
 
   public static DTAttribute.Attribute deserializeData(String serialized) {
-    return deserializeFromJsonOrProtoBytes(serialized, DTAttribute.Attribute.newBuilder()).build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(serialized, DTAttribute.Attribute.newBuilder()).build();
   }
 
   private static DTAttribute.Attribute convertToAttrDataSchema(

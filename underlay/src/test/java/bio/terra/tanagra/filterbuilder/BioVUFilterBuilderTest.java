@@ -274,4 +274,29 @@ public class BioVUFilterBuilderTest {
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNull(cohortFilter);
   }
+
+  @Test
+  void emptySelectionCohortFilter() {
+    CFBioVU.BioVU config = CFBioVU.BioVU.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "biovu",
+            true,
+            false,
+            "sd.BioVUFilterBuilder",
+            PLUGIN_ID_IN_CONFIG,
+            serializeToJson(config),
+            List.of());
+    BioVUFilterBuilder filterBuilder = new BioVUFilterBuilder(criteriaSelector);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("biovu", null);
+    EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty string selection data.
+    selectionData = new SelectionData("biovu", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+  }
 }

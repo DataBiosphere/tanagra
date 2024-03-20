@@ -23,13 +23,17 @@ public final class GroupByCountSchemaUtils {
   private GroupByCountSchemaUtils() {}
 
   public static CFUnhintedValue.UnhintedValue deserializeConfig(String serialized) {
-    return deserializeFromJsonOrProtoBytes(serialized, CFUnhintedValue.UnhintedValue.newBuilder())
-        .build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(serialized, CFUnhintedValue.UnhintedValue.newBuilder())
+            .build();
   }
 
   public static DTUnhintedValue.UnhintedValue deserializeData(String serialized) {
-    return deserializeFromJsonOrProtoBytes(serialized, DTUnhintedValue.UnhintedValue.newBuilder())
-        .build();
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(serialized, DTUnhintedValue.UnhintedValue.newBuilder())
+            .build();
   }
 
   public static Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>

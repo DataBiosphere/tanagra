@@ -3,6 +3,7 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -618,6 +619,170 @@ public class TextSearchFilterBuilderTest {
   }
 
   @Test
+  void emptyCriteriaCohortFilter() {
+    CFTextSearch.TextSearch configNoAttr =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
+    CriteriaSelector criteriaSelectorNoAttr =
+        new CriteriaSelector(
+            "note_noAttribute",
+            true,
+            true,
+            "core.TextSearchFilterBuilder",
+            SZCorePlugin.TEXT_SEARCH.getIdInConfig(),
+            serializeToJson(configNoAttr),
+            List.of());
+    TextSearchFilterBuilder filterBuilder = new TextSearchFilterBuilder(criteriaSelectorNoAttr);
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("note_noAttribute", null);
+    EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty string selection data.
+    selectionData = new SelectionData("note_noAttribute", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+  }
+
+  @Test
+  void emptyAttrModifierCohortFilter() {
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
+    CriteriaSelector.Modifier ageAtOccurrenceModifier =
+        new CriteriaSelector.Modifier(
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
+    CFTextSearch.TextSearch textSearchConfig =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "note_noAttribute",
+            true,
+            true,
+            "core.TextSearchFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(textSearchConfig),
+            List.of(ageAtOccurrenceModifier));
+    TextSearchFilterBuilder filterBuilder = new TextSearchFilterBuilder(criteriaSelector);
+
+    DTTextSearch.TextSearch textSearchData =
+        DTTextSearch.TextSearch.newBuilder()
+            .addCategories(
+                DTTextSearch.TextSearch.Selection.newBuilder()
+                    .setValue(ValueOuterClass.Value.newBuilder().setInt64Value(44_814_644L).build())
+                    .setName("Nursing report")
+                    .build())
+            .build();
+    SelectionData textSearchSelectionData =
+        new SelectionData("note_noAttribute", serializeToJson(textSearchData));
+
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("notePerson");
+    Entity occurrenceEntity = underlay.getEntity("noteOccurrence");
+    EntityFilter expectedCohortFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            new AttributeFilter(
+                underlay,
+                criteriaOccurrence.getCriteriaEntity(),
+                occurrenceEntity.getIdAttribute(),
+                BinaryOperator.EQUALS,
+                Literal.forInt64(44_814_644L)),
+            null,
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData ageAtOccurrenceSelectionData = new SelectionData("age_at_occurrence", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(textSearchSelectionData, ageAtOccurrenceSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    ageAtOccurrenceSelectionData = new SelectionData("age_at_occurrence", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(textSearchSelectionData, ageAtOccurrenceSelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
+  void emptyGroupByModifierCohortFilter() {
+    CFUnhintedValue.UnhintedValue groupByConfig =
+        CFUnhintedValue.UnhintedValue.newBuilder()
+            .putAttributes(
+                "noteOccurrence",
+                CFUnhintedValue.UnhintedValue.AttributeList.newBuilder()
+                    .addValues("start_date")
+                    .build())
+            .build();
+    CriteriaSelector.Modifier groupByModifier =
+        new CriteriaSelector.Modifier(
+            "group_by_count",
+            SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
+            serializeToJson(groupByConfig));
+    CFTextSearch.TextSearch textSearchConfig =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "note_noAttribute",
+            true,
+            true,
+            "core.TextSearchFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(textSearchConfig),
+            List.of(groupByModifier));
+    TextSearchFilterBuilder filterBuilder = new TextSearchFilterBuilder(criteriaSelector);
+
+    DTTextSearch.TextSearch textSearchData =
+        DTTextSearch.TextSearch.newBuilder().setQuery("ambulance").build();
+    SelectionData textSearchSelectionData =
+        new SelectionData("note_noAttribute", serializeToJson(textSearchData));
+
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("notePerson");
+    Entity occurrenceEntity = underlay.getEntity("noteOccurrence");
+    EntityFilter expectedTextSearchSubFilter =
+        new TextSearchFilter(
+            underlay,
+            occurrenceEntity,
+            TextSearchFilter.TextSearchOperator.EXACT_MATCH,
+            "ambulance",
+            null);
+    EntityFilter expectedCohortFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            criteriaOccurrence,
+            null,
+            Map.of(occurrenceEntity, List.of(expectedTextSearchSubFilter)),
+            null,
+            null,
+            null);
+
+    // Null selection data.
+    SelectionData groupBySelectionData = new SelectionData("group_by_count", null);
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(textSearchSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Empty string selection data.
+    groupBySelectionData = new SelectionData("group_by_count", "");
+    cohortFilter =
+        filterBuilder.buildForCohort(
+            underlay, List.of(textSearchSelectionData, groupBySelectionData));
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
   void singleOccurrenceDataFeatureFilter() {
     CFTextSearch.TextSearch configNoAttr =
         CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
@@ -747,5 +912,36 @@ public class TextSearchFilterBuilderTest {
     assertEquals(
         List.of(EntityOutput.filtered(occurrenceEntity, expectedDataFeatureFilter)),
         dataFeatureOutputs);
+  }
+
+  @Test
+  void emptySelectionDataFeatureFilter() {
+    CFTextSearch.TextSearch configWithAttr =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").setSearchAttribute("title").build();
+    CriteriaSelector criteriaSelectorWithAttr =
+        new CriteriaSelector(
+            "note_withAttribute",
+            true,
+            true,
+            "core.TextSearchFilterBuilder",
+            SZCorePlugin.TEXT_SEARCH.getIdInConfig(),
+            serializeToJson(configWithAttr),
+            List.of());
+    TextSearchFilterBuilder filterBuilder = new TextSearchFilterBuilder(criteriaSelectorWithAttr);
+    EntityOutput expectedEntityOutput =
+        EntityOutput.unfiltered(underlay.getEntity("noteOccurrence"));
+
+    // Null selection data.
+    SelectionData selectionData = new SelectionData("note_withAttribute", null);
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
+
+    // Empty string selection data.
+    selectionData = new SelectionData("note_withAttribute", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
   }
 }
