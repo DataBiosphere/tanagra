@@ -37,6 +37,7 @@ public class BioVUFilterBuilder extends FilterBuilder {
     }
     DTBioVU.BioVU bioVuSelectionData = deserializeData(selectionData.get(0).getPluginData());
     if (bioVuSelectionData == null) {
+      // Empty selection data = null filter for a cohort.
       return null;
     }
 
