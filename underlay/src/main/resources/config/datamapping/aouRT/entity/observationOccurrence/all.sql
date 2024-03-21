@@ -3,6 +3,8 @@ SELECT
   o.person_id,
   o.observation_concept_id,
   oc.concept_name AS observation_concept_name,
+  oc.concept_code AS standard_code,
+  oc.vocabulary_id AS standard_vocabulary,
   o.observation_date,
   o.value_as_string,
   o.value_as_concept_id,
