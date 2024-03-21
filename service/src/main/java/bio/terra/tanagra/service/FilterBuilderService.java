@@ -311,16 +311,16 @@ public class FilterBuilderService {
     // Build a combined filter per output entity from all the data feature sets.
     List<EntityOutput> dataFeatureOutputs = buildOutputsForConceptSets(conceptSets);
 
+    // If there's no cohort filter, just return the entity output from the concept sets.
+    if (combinedCohortFilter == null) {
+      return dataFeatureOutputs;
+    }
+
     Underlay underlay = underlayService.getUnderlay(underlayName);
     return dataFeatureOutputs.stream()
         .map(
             dataFeatureOutput -> {
               Entity outputEntity = dataFeatureOutput.getEntity();
-
-              // If there's no cohort filter, just return the entity output from the concept sets.
-              if (combinedCohortFilter == null) {
-                return dataFeatureOutput;
-              }
 
               // If the output entity is the primary entity, just add the cohort filter.
               if (outputEntity.isPrimary()) {
