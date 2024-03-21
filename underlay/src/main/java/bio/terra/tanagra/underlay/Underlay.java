@@ -26,6 +26,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -139,7 +140,10 @@ public final class Underlay {
       Optional<Relationship> relationship =
           entityGroup.getRelationships().stream()
               .filter(r -> r.matchesEntities(entity1, entity2))
-              .findAny();
+              .sorted(
+                  Comparator.comparing(
+                      r -> r.getEntityA().getName() + ',' + r.getEntityB().getName()))
+              .findFirst();
       if (relationship.isPresent()) {
         return Pair.of(entityGroup, relationship.get());
       }

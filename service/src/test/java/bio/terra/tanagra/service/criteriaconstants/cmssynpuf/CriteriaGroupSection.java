@@ -1,16 +1,16 @@
-package bio.terra.tanagra.service;
+package bio.terra.tanagra.service.criteriaconstants.cmssynpuf;
 
-import static bio.terra.tanagra.service.CriteriaValues.CONDITION_EQ_TYPE_2_DIABETES;
-import static bio.terra.tanagra.service.CriteriaValues.ETHNICITY_EQ_HISPANIC_OR_LATINO;
-import static bio.terra.tanagra.service.CriteriaValues.GENDER_EQ_WOMAN;
-import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.CONDITION_EQ_TYPE_2_DIABETES;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.ETHNICITY_EQ_HISPANIC_OR_LATINO;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.GENDER_EQ_WOMAN;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.PROCEDURE_EQ_AMPUTATION;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import java.util.List;
 
-public final class CriteriaGroupSectionValues {
-  private CriteriaGroupSectionValues() {}
+public final class CriteriaGroupSection {
+  private CriteriaGroupSection() {}
 
   public static final CohortRevision.CriteriaGroup CRITERIA_GROUP_GENDER =
       CohortRevision.CriteriaGroup.builder()

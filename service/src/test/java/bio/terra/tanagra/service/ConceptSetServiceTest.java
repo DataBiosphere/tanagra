@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaValues.CONDITION_EQ_TYPE_2_DIABETES;
-import static bio.terra.tanagra.service.CriteriaValues.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
-import static bio.terra.tanagra.service.CriteriaValues.GENDER_EQ_WOMAN;
-import static bio.terra.tanagra.service.CriteriaValues.PROCEDURE_EQ_AMPUTATION;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.CONDITION_EQ_TYPE_2_DIABETES;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.GENDER_EQ_WOMAN;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.PROCEDURE_EQ_AMPUTATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
