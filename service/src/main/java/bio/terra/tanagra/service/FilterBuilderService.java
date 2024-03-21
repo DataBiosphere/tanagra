@@ -3,8 +3,11 @@ package bio.terra.tanagra.service;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
+import bio.terra.tanagra.api.filter.ItemInGroupFilter;
+import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.exception.InvalidQueryException;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.service.artifact.model.Cohort;
@@ -13,8 +16,9 @@ import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.entitymodel.Relationship;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
@@ -130,6 +134,11 @@ public class FilterBuilderService {
   }
 
   public List<EntityOutput> buildOutputsForConceptSets(List<ConceptSet> conceptSets) {
+    // No concept sets = no entity outputs.
+    if (conceptSets.isEmpty()) {
+      return List.of();
+    }
+
     // All data feature sets must be for the same underlay.
     String underlayName = conceptSets.get(0).getUnderlay();
     conceptSets.stream()
@@ -272,8 +281,14 @@ public class FilterBuilderService {
 
   public List<EntityOutput> buildOutputsForExport(
       List<Cohort> cohorts, List<ConceptSet> conceptSets) {
+    // No cohorts and no concept sets = no entity outputs.
+    if (cohorts.isEmpty() && conceptSets.isEmpty()) {
+      return List.of();
+    }
+    String underlayName =
+        cohorts.isEmpty() ? conceptSets.get(0).getUnderlay() : cohorts.get(0).getUnderlay();
+
     // All cohorts must be for the same underlay.
-    String underlayName = cohorts.get(0).getUnderlay();
     cohorts.stream()
         .forEach(
             cohort -> {
@@ -297,59 +312,73 @@ public class FilterBuilderService {
     List<EntityOutput> dataFeatureOutputs = buildOutputsForConceptSets(conceptSets);
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
-    List<EntityOutput> entityOutputs = new ArrayList<>();
-    dataFeatureOutputs.stream()
-        .forEach(
+    return dataFeatureOutputs.stream()
+        .map(
             dataFeatureOutput -> {
               Entity outputEntity = dataFeatureOutput.getEntity();
-              List<EntityFilter> outputEntitySubFilters = new ArrayList<>();
-              if (dataFeatureOutput.hasDataFeatureFilter()) {
-                outputEntitySubFilters.add(dataFeatureOutput.getDataFeatureFilter());
+
+              // If there's no cohort filter, just return the entity output from the concept sets.
+              if (combinedCohortFilter == null) {
+                return dataFeatureOutput;
               }
 
-              if (combinedCohortFilter != null) {
-                if (outputEntity.equals(underlay.getPrimaryEntity())) {
-                  outputEntitySubFilters.add(combinedCohortFilter);
-                } else {
-                  // Find the relationship between this output entity and the primary entity.
-                  Pair<EntityGroup, Relationship> outputToPrimary =
-                      underlay.getRelationship(outputEntity, underlay.getPrimaryEntity());
+              // If the output entity is the primary entity, just add the cohort filter.
+              if (outputEntity.isPrimary()) {
+                return EntityOutput.filtered(
+                    outputEntity, combinedCohortFilter, dataFeatureOutput.getAttributes());
+              }
 
-                  // Build a single relationship filter per output entity that has the combined
-                  // cohort filter as the primary entity sub-filter.
-                  outputEntitySubFilters.add(
-                      new RelationshipFilter(
+              // Find the relationship between this output entity and the primary entity.
+              EntityGroup outputToPrimaryEntityGroup =
+                  underlay.getRelationship(outputEntity, underlay.getPrimaryEntity()).getLeft();
+
+              // Build a single relationship filter per output entity that has the combined cohort
+              // filter as the primary entity sub-filter.
+              switch (outputToPrimaryEntityGroup.getType()) {
+                case CRITERIA_OCCURRENCE:
+                  return EntityOutput.filtered(
+                      outputEntity,
+                      new OccurrenceForPrimaryFilter(
                           underlay,
-                          outputToPrimary.getLeft(),
+                          (CriteriaOccurrence) outputToPrimaryEntityGroup,
                           outputEntity,
-                          outputToPrimary.getRight(),
                           combinedCohortFilter,
-                          null,
-                          null,
-                          null));
-                }
-              }
-
-              // Build a single filter per output entity with the combined cohort and data feature
-              // filters.
-              if (outputEntitySubFilters.isEmpty()) {
-                entityOutputs.add(
-                    EntityOutput.unfiltered(outputEntity, dataFeatureOutput.getAttributes()));
-              } else if (outputEntitySubFilters.size() == 1) {
-                entityOutputs.add(
-                    EntityOutput.filtered(
+                          dataFeatureOutput.getDataFeatureFilter()),
+                      dataFeatureOutput.getAttributes());
+                case GROUP_ITEMS:
+                  GroupItems groupItems = (GroupItems) outputToPrimaryEntityGroup;
+                  EntityFilter occurrenceForPrimaryFilter;
+                  if (groupItems.getGroupEntity().isPrimary()) {
+                    occurrenceForPrimaryFilter =
+                        new ItemInGroupFilter(
+                            underlay, groupItems, combinedCohortFilter, null, null, null);
+                  } else {
+                    occurrenceForPrimaryFilter =
+                        new GroupHasItemsFilter(
+                            underlay, groupItems, combinedCohortFilter, null, null, null);
+                  }
+                  // Build a single filter per output entity with the combined cohort and data
+                  // feature filters.
+                  if (!dataFeatureOutput.hasDataFeatureFilter()) {
+                    return EntityOutput.filtered(
                         outputEntity,
-                        outputEntitySubFilters.get(0),
-                        dataFeatureOutput.getAttributes()));
-              } else {
-                entityOutputs.add(
-                    EntityOutput.filtered(
+                        occurrenceForPrimaryFilter,
+                        dataFeatureOutput.getAttributes());
+                  } else {
+                    return EntityOutput.filtered(
                         outputEntity,
                         new BooleanAndOrFilter(
-                            BooleanAndOrFilter.LogicalOperator.AND, outputEntitySubFilters),
-                        dataFeatureOutput.getAttributes()));
+                            BooleanAndOrFilter.LogicalOperator.AND,
+                            List.of(
+                                dataFeatureOutput.getDataFeatureFilter(),
+                                occurrenceForPrimaryFilter)),
+                        dataFeatureOutput.getAttributes());
+                  }
+                default:
+                  throw new SystemException(
+                      "Unsupported entity group type: " + outputToPrimaryEntityGroup.getType());
               }
-            });
-    return entityOutputs;
+            })
+        .collect(Collectors.toList());
   }
 }

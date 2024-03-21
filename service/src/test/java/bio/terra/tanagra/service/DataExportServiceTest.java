@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.service.CriteriaGroupSectionValues.CRITERIA_GROUP_SECTION_GENDER;
-import static bio.terra.tanagra.service.CriteriaValues.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_GENDER;
 import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
