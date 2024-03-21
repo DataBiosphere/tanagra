@@ -1829,6 +1829,8 @@ components:
             $ref: "#/components/schemas/Instance"
         pageMarker:
           $ref: "#/components/schemas/PageMarker"
+        numRowsAcrossAllPages:
+          $ref: "#/components/schemas/NumRowsAcrossAllPages"
 
     InstanceCount:
       type: object
@@ -1855,6 +1857,8 @@ components:
             $ref: "#/components/schemas/InstanceCount"
         pageMarker:
           $ref: "#/components/schemas/PageMarker"
+        numRowsAcrossAllPages:
+          $ref: "#/components/schemas/NumRowsAcrossAllPages"
 
     DisplayHint:
       type: object
@@ -2765,6 +2769,9 @@ components:
 
     PageMarker:
       type: string
+
+    NumRowsAcrossAllPages:
+      type: integer
 
     BinaryOperator:
       type: string
