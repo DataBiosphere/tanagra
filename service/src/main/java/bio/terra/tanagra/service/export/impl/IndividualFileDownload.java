@@ -73,14 +73,18 @@ public class IndividualFileDownload implements DataExport {
     // directly.
     Map<String, String> outputParams = new HashMap<>();
     entityExportFileResults.stream()
-        .filter(exportFileResult -> exportFileResult.isSuccessful())
+        .filter(
+            exportFileResult -> exportFileResult.isSuccessful() && exportFileResult.hasFileUrl())
         .forEach(
             exportFileResult ->
                 outputParams.put(
                     ENTITY_OUTPUT_KEY_PREFIX + exportFileResult.getEntity().getName(),
                     exportFileResult.getFileUrl()));
     annotationExportFileResults.stream()
-        .filter(annotationExportFileResult -> annotationExportFileResult.isSuccessful())
+        .filter(
+            annotationExportFileResult ->
+                annotationExportFileResult.isSuccessful()
+                    && annotationExportFileResult.hasFileUrl())
         .forEach(
             exportFileResult -> {
               String cohortName = exportFileResult.getCohort().getDisplayName();

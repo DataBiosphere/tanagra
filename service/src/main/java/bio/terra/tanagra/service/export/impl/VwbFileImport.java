@@ -70,7 +70,8 @@ public class VwbFileImport implements DataExport {
     // Build a TSV-string from the sorted list of rows, prefixed with the format header.
     StringBuilder fileContents = new StringBuilder(FILE_FORMAT_SPECIFIER + "\n");
     allExportFileResults.stream()
-        .filter(exportFileResult -> exportFileResult.isSuccessful())
+        .filter(
+            exportFileResult -> exportFileResult.isSuccessful() && exportFileResult.hasFileUrl())
         .map(ExportFileResult::getFileUrl)
         .sorted()
         .forEach(tsvRow -> fileContents.append(tsvRow + "\n"));

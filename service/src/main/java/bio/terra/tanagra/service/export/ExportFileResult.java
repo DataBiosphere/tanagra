@@ -73,6 +73,10 @@ public final class ExportFileResult {
     return fileUrl;
   }
 
+  public boolean hasFileUrl() {
+    return fileUrl != null;
+  }
+
   public String getMessage() {
     return message;
   }
