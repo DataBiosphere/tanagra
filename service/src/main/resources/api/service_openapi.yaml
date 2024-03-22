@@ -2626,6 +2626,7 @@ components:
           items:
             $ref: "#/components/schemas/ExportLinkResult"
         error:
+          description: Error message if this export failed outside of individual link generation
           type: string
       required:
         - status
@@ -2640,6 +2641,11 @@ components:
         url:
           type: string
         tags:
+          description: |
+            Ordered list of tags that indicate how this link result should be displayed to the user.
+            The first tag is the top-level section, the second tag is a sub-section, etc.
+            e.g. ["Annotations", "Cohort 123"] means this link result will be displayed in the Annotations
+            section, Cohort 123 sub-section.
           type: array
           items:
             type: string
@@ -2647,6 +2653,7 @@ components:
           description: Optional message (e.g. "No entity data. File not generated.").
           type: string
         error:
+          description: Error message if generating this link result failed.
           type: string
       required:
         - tags
