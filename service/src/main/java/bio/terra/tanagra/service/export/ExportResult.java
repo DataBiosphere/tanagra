@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.export;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,7 +13,7 @@ public final class ExportResult {
     FAILED
   }
 
-  private final ImmutableMap<String, String> outputs;
+  private final Map<String, String> outputs;
   private final @Nullable String redirectAwayUrl;
   private final Status status;
   private final @Nullable ExportError error;
@@ -25,7 +25,7 @@ public final class ExportResult {
       Status status,
       @Nullable ExportError error,
       @Nullable List<ExportFileResult> fileResults) {
-    this.outputs = outputs == null ? ImmutableMap.of() : ImmutableMap.copyOf(outputs);
+    this.outputs = outputs == null ? Map.of() : outputs;
     this.redirectAwayUrl = redirectAwayUrl;
     this.status = status;
     this.error = error;
@@ -46,8 +46,8 @@ public final class ExportResult {
     return new ExportResult(Map.of(), null, Status.FAILED, error, null);
   }
 
-  public ImmutableMap<String, String> getOutputs() {
-    return outputs;
+  public Map<String, String> getOutputs() {
+    return Collections.unmodifiableMap(outputs);
   }
 
   public @Nullable String getRedirectAwayUrl() {
