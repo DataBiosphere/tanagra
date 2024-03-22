@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public class ExportRequest {
   private final String model;
@@ -23,7 +24,7 @@ public class ExportRequest {
   @SuppressWarnings("checkstyle:ParameterNumber")
   public ExportRequest(
       String model,
-      Map<String, String> inputs,
+      @Nullable Map<String, String> inputs,
       String redirectBackUrl,
       boolean includeAnnotations,
       String userEmail,
@@ -32,7 +33,7 @@ public class ExportRequest {
       List<Cohort> cohorts,
       List<ConceptSet> conceptSets) {
     this.model = model;
-    this.inputs = inputs;
+    this.inputs = inputs == null ? Map.of() : inputs;
     this.redirectBackUrl = redirectBackUrl;
     this.includeAnnotations = includeAnnotations;
     this.userEmail = userEmail;

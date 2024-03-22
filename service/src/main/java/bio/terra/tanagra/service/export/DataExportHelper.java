@@ -238,40 +238,36 @@ public class DataExportHelper {
               exportJobResult -> {
                 ExportQueryRequest exportQueryRequest = exportJobResult.getKey();
                 JobResult<ExportQueryResult> jobResult = exportJobResult.getValue();
-                if (jobResult == null) {
+                if (jobResult == null || jobResult.isExceptionWasThrown()) {
                   exportFileResults.add(
                       ExportFileResult.forEntityData(
                           null,
                           null,
                           exportQueryRequest.getListQueryRequest().getEntity(),
+                          null,
                           ExportError.forMessage(
-                              "Export job did not complete or timed out", true)));
-                } else {
-                  ExportError exportError;
-                  if (JobResult.Status.FAILED.equals(jobResult.getJobStatus())) {
-                    exportError =
-                        ExportError.forException(
-                            jobResult.getExceptionMessage(),
-                            jobResult.getExceptionStackTrace(),
-                            jobResult.isJobForceTerminated());
-                  } else if (jobResult.getJobOutput() != null
-                      && jobResult.getJobOutput().getFilePath() == null) {
-                    exportError =
-                        ExportError.forMessage(
-                            "Export query returned zero rows. No file generated.", false);
-                  } else {
-                    exportError = null;
-                  }
+                              "Export job did not complete or timed out", false)));
+                } else if (jobResult.getJobOutput() == null) {
                   exportFileResults.add(
                       ExportFileResult.forEntityData(
-                          jobResult.getJobOutput() == null
-                              ? null
-                              : jobResult.getJobOutput().getFileDisplayName(),
-                          jobResult.getJobOutput() == null
-                              ? null
-                              : jobResult.getJobOutput().getFilePath(),
+                          null,
+                          null,
                           exportQueryRequest.getListQueryRequest().getEntity(),
-                          exportError));
+                          null,
+                          ExportError.forException(
+                              jobResult.getExceptionMessage(),
+                              jobResult.getExceptionStackTrace(),
+                              jobResult.isJobForceTerminated())));
+                } else {
+                  exportFileResults.add(
+                      ExportFileResult.forEntityData(
+                          jobResult.getJobOutput().getFileDisplayName(),
+                          jobResult.getJobOutput().getFilePath(),
+                          exportQueryRequest.getListQueryRequest().getEntity(),
+                          jobResult.getJobOutput().getFilePath() == null
+                              ? "Export query returned zero rows. No file generated."
+                              : null,
+                          null));
                 }
               });
     } else {
@@ -293,15 +289,16 @@ public class DataExportHelper {
                           exportQueryResult.getFilePath(),
                           exportQueryRequest.getListQueryRequest().getEntity(),
                           exportQueryResult.getFilePath() == null
-                              ? ExportError.forMessage(
-                                  "Export query returned zero rows. No file generated.", false)
-                              : null));
+                              ? "Export query returned zero rows. No file generated."
+                              : null,
+                          null));
                 } catch (Exception ex) {
                   exportFileResults.add(
                       ExportFileResult.forEntityData(
                           null,
                           null,
                           exportQueryRequest.getListQueryRequest().getEntity(),
+                          null,
                           ExportError.forException(ex)));
                 }
               });
@@ -334,8 +331,8 @@ public class DataExportHelper {
                           null,
                           null,
                           cohort,
-                          ExportError.forMessage(
-                              "Cohort has no annotation data. No file generated.", false)));
+                          "Cohort has no annotation data. No file generated.",
+                          null));
                 } else {
                   String fileName =
                       StringSubstitutor.replace(
@@ -351,12 +348,12 @@ public class DataExportHelper {
                   BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
                   String gcsUrl = getStorageService().createSignedUrl(blobId.toGsUtilUri());
                   exportFileResults.add(
-                      ExportFileResult.forAnnotationData(fileName, gcsUrl, cohort, null));
+                      ExportFileResult.forAnnotationData(fileName, gcsUrl, cohort, null, null));
                 }
               } catch (Exception ex) {
                 exportFileResults.add(
                     ExportFileResult.forAnnotationData(
-                        null, null, cohort, ExportError.forException(ex)));
+                        null, null, cohort, null, ExportError.forException(ex)));
               }
             });
     return exportFileResults;

@@ -274,7 +274,7 @@ public class ExportApiController implements ExportApi {
 
   private ApiExportResult toApiObject(ExportResult exportResult) {
     return new ApiExportResult()
-        .status(ApiExportResult.StatusEnum.valueOf(exportResult.getStatus().name()))
+        .isSuccessful(exportResult.isSuccessful())
         .outputs(exportResult.getOutputs())
         .redirectAwayUrl(exportResult.getRedirectAwayUrl());
   }

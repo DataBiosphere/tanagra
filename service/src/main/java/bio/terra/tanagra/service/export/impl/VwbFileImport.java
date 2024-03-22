@@ -84,7 +84,7 @@ public class VwbFileImport implements DataExport {
 
     // Generate a signed URL for the TSV file.
     String tsvSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
-    allExportFileResults.add(ExportFileResult.forFile(fileName, tsvSignedUrl, null));
+    allExportFileResults.add(ExportFileResult.forFile(fileName, tsvSignedUrl, null, null));
 
     // Generate the redirect URL to VWB.
     Map<String, String> urlParams =

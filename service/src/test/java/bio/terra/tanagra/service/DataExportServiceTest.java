@@ -280,7 +280,7 @@ public class DataExportServiceTest {
         dataExportService.run(
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
-    assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
+    assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
     assertEquals(2, exportResult.getOutputs().size());
 
@@ -329,7 +329,7 @@ public class DataExportServiceTest {
         dataExportService.run(
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
-    assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
+    assertTrue(exportResult.isSuccessful());
     assertTrue(exportResult.getOutputs().isEmpty());
     LOGGER.info("redirect away url: {}", exportResult.getRedirectAwayUrl());
 
@@ -398,7 +398,7 @@ public class DataExportServiceTest {
         dataExportService.run(
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
-    assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
+    assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
     assertEquals(1, exportResult.getOutputs().size());
 
@@ -439,7 +439,7 @@ public class DataExportServiceTest {
   }
 
   @Test
-  void fileLevelErrors() {
+  void fileLevelMessageForNoData() {
     ExportRequest exportRequest =
         new ExportRequest(
             "INDIVIDUAL_FILE_DOWNLOAD",
@@ -455,7 +455,7 @@ public class DataExportServiceTest {
         dataExportService.run(
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
-    assertFalse(exportResult.isSuccessful());
+    assertTrue(exportResult.isSuccessful());
     assertEquals(4, exportResult.getFileResults().size());
 
     Optional<ExportFileResult> conditionOccurrenceFileResult =
@@ -468,6 +468,7 @@ public class DataExportServiceTest {
             .findFirst();
     assertTrue(conditionOccurrenceFileResult.isPresent());
     assertTrue(conditionOccurrenceFileResult.get().isSuccessful());
+    assertNotNull(conditionOccurrenceFileResult.get().getFileUrl());
 
     Optional<ExportFileResult> observationOccurrenceFileResult =
         exportResult.getFileResults().stream()
@@ -478,13 +479,13 @@ public class DataExportServiceTest {
                             .equalsIgnoreCase(exportFileResult.getEntity().getName()))
             .findFirst();
     assertTrue(observationOccurrenceFileResult.isPresent());
-    assertFalse(observationOccurrenceFileResult.get().isSuccessful());
+    assertTrue(observationOccurrenceFileResult.get().isSuccessful());
     assertTrue(
         observationOccurrenceFileResult
             .get()
-            .getError()
             .getMessage()
             .contains("Export query returned zero rows. No file generated."));
+    assertNull(observationOccurrenceFileResult.get().getFileUrl());
 
     Optional<ExportFileResult> procedureOccurrenceFileResult =
         exportResult.getFileResults().stream()
@@ -495,13 +496,13 @@ public class DataExportServiceTest {
                             .equalsIgnoreCase(exportFileResult.getEntity().getName()))
             .findFirst();
     assertTrue(procedureOccurrenceFileResult.isPresent());
-    assertFalse(procedureOccurrenceFileResult.get().isSuccessful());
+    assertTrue(procedureOccurrenceFileResult.get().isSuccessful());
     assertTrue(
         procedureOccurrenceFileResult
             .get()
-            .getError()
             .getMessage()
             .contains("Export query returned zero rows. No file generated."));
+    assertNull(procedureOccurrenceFileResult.get().getFileUrl());
 
     Optional<ExportFileResult> annotationsFileResult =
         exportResult.getFileResults().stream()
@@ -511,13 +512,13 @@ public class DataExportServiceTest {
                         && cohort2.equals(exportFileResult.getCohort()))
             .findFirst();
     assertTrue(annotationsFileResult.isPresent());
-    assertFalse(annotationsFileResult.get().isSuccessful());
+    assertTrue(annotationsFileResult.get().isSuccessful());
     assertTrue(
         annotationsFileResult
             .get()
-            .getError()
             .getMessage()
             .contains("Cohort has no annotation data. No file generated."));
+    assertNull(annotationsFileResult.get().getFileUrl());
   }
 
   private ListQueryRequest buildListQueryRequest() {

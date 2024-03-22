@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 public final class ExportFileResult {
   private final String fileDisplayName;
   private final String fileUrl;
+  private final String message;
   private final @Nullable ExportError error;
   private final Entity entity;
   private final Cohort cohort;
@@ -14,29 +15,42 @@ public final class ExportFileResult {
   private ExportFileResult(
       String fileDisplayName,
       String fileUrl,
+      String message,
       @Nullable ExportError error,
       Entity entity,
       Cohort cohort) {
     this.fileDisplayName = fileDisplayName;
     this.fileUrl = fileUrl;
+    this.message = message;
     this.error = error;
     this.entity = entity;
     this.cohort = cohort;
   }
 
   public static ExportFileResult forAnnotationData(
-      String fileDisplayName, String fileUrl, Cohort cohort, @Nullable ExportError error) {
-    return new ExportFileResult(fileDisplayName, fileUrl, error, null, cohort);
+      String fileDisplayName,
+      String fileUrl,
+      Cohort cohort,
+      @Nullable String message,
+      @Nullable ExportError error) {
+    return new ExportFileResult(fileDisplayName, fileUrl, message, error, null, cohort);
   }
 
   public static ExportFileResult forEntityData(
-      String fileDisplayName, String fileUrl, Entity entity, @Nullable ExportError error) {
-    return new ExportFileResult(fileDisplayName, fileUrl, error, entity, null);
+      String fileDisplayName,
+      String fileUrl,
+      Entity entity,
+      @Nullable String message,
+      @Nullable ExportError error) {
+    return new ExportFileResult(fileDisplayName, fileUrl, message, error, entity, null);
   }
 
   public static ExportFileResult forFile(
-      String fileDisplayName, String fileUrl, @Nullable ExportError error) {
-    return new ExportFileResult(fileDisplayName, fileUrl, error, null, null);
+      String fileDisplayName,
+      String fileUrl,
+      @Nullable String message,
+      @Nullable ExportError error) {
+    return new ExportFileResult(fileDisplayName, fileUrl, message, error, null, null);
   }
 
   public boolean isSuccessful() {
@@ -57,6 +71,10 @@ public final class ExportFileResult {
 
   public String getFileUrl() {
     return fileUrl;
+  }
+
+  public String getMessage() {
+    return message;
   }
 
   public @Nullable ExportError getError() {

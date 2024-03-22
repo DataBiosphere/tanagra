@@ -107,7 +107,8 @@ public class IpynbFileDownload implements DataExport {
     // TODO: Skip populating this output parameter once the UI is processing the file result
     // directly.
     Map<String, String> outputParams = Map.of(IPYNB_FILE_KEY, ipynbSignedUrl);
-    ExportFileResult exportFileResult = ExportFileResult.forFile(fileName, ipynbSignedUrl, null);
+    ExportFileResult exportFileResult =
+        ExportFileResult.forFile(fileName, ipynbSignedUrl, null, null);
     return ExportResult.forOutputParams(outputParams, List.of(exportFileResult));
   }
 }

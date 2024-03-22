@@ -2610,9 +2610,8 @@ components:
     ExportResult:
       type: object
       properties:
-        status:
-          type: string
-          enum: ["RUNNING", "COMPLETE"]
+        isSuccessful:
+          type: boolean
         redirectAwayUrl:
           type: string
           nullable: true
