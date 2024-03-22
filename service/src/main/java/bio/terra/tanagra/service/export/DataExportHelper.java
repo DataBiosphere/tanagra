@@ -238,7 +238,7 @@ public class DataExportHelper {
               exportJobResult -> {
                 ExportQueryRequest exportQueryRequest = exportJobResult.getKey();
                 JobResult<ExportQueryResult> jobResult = exportJobResult.getValue();
-                if (jobResult == null || jobResult.isExceptionWasThrown()) {
+                if (jobResult == null) {
                   exportFileResults.add(
                       ExportFileResult.forEntityData(
                           null,
