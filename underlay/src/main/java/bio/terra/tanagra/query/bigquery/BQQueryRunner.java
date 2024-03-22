@@ -74,7 +74,8 @@ public class BQQueryRunner implements QueryRunner {
         sqlQueryRequest.getSql(),
         sqlQueryResult.getSqlNoParams(),
         listInstances,
-        sqlQueryResult.getNextPageMarker());
+        sqlQueryResult.getNextPageMarker(),
+        sqlQueryResult.getTotalNumRows());
   }
 
   @VisibleForTesting
@@ -250,7 +251,11 @@ public class BQQueryRunner implements QueryRunner {
               countInstances.add(new CountInstance(count, fieldValues));
             });
 
-    return new CountQueryResult(sql.toString(), countInstances, sqlQueryResult.getNextPageMarker());
+    return new CountQueryResult(
+        sql.toString(),
+        countInstances,
+        sqlQueryResult.getNextPageMarker(),
+        sqlQueryResult.getTotalNumRows());
   }
 
   @Override

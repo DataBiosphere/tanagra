@@ -172,7 +172,8 @@ public final class ToApiUtils {
         .pageMarker(
             listQueryResult.getPageMarker() == null
                 ? null
-                : listQueryResult.getPageMarker().serialize());
+                : listQueryResult.getPageMarker().serialize())
+        .numRowsAcrossAllPages(Math.toIntExact(listQueryResult.getNumRowsAcrossAllPages()));
   }
 
   private static ApiInstance toApiObject(ListInstance listInstance) {
@@ -243,7 +244,8 @@ public final class ToApiUtils {
         .pageMarker(
             countQueryResult.getPageMarker() == null
                 ? null
-                : countQueryResult.getPageMarker().serialize());
+                : countQueryResult.getPageMarker().serialize())
+        .numRowsAcrossAllPages(Math.toIntExact(countQueryResult.getNumRowsAcrossAllPages()));
   }
 
   public static ApiInstanceCount toApiObject(CountInstance countInstance) {
