@@ -212,6 +212,10 @@ function ParticipantsGroupSection(props: {
   const { group } = useCohortGroupSectionAndGroup();
 
   const fetchSectionCount = useCallback(async () => {
+    if (!props.groupSection.groups.length) {
+      return -1;
+    }
+
     if (process.env.REACT_APP_BACKEND_FILTERS) {
       return (
         await studySource.cohortCount(studyId, cohort.id, props.groupSection.id)
@@ -314,7 +318,9 @@ function ParticipantsGroupSection(props: {
           </Typography>
           <Loading status={sectionCountState} size="small">
             <Typography variant="body1" color="text.muted">
-              {sectionCountState.data?.toLocaleString()}
+              {(sectionCountState.data ?? -1) < 0
+                ? "-"
+                : sectionCountState.data?.toLocaleString()}
             </Typography>
           </Loading>
         </GridLayout>
