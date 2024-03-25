@@ -62,9 +62,25 @@ public class VwbFileImport implements DataExport {
     List<ExportFileResult> annotationExportFileResults =
         helper.writeAnnotationDataToGcs(
             "annotations_cohort${cohort}" + "_" + studyUnderlayRef + "_${random}");
+
+    // Build a combined list of all output files.
     List<ExportFileResult> allExportFileResults = new ArrayList<>();
-    allExportFileResults.addAll(entityExportFileResults);
-    allExportFileResults.addAll(annotationExportFileResults);
+    // Set the tags for each file result, and suppress empty files.
+    entityExportFileResults.stream()
+        .filter(ExportFileResult::hasFileUrl)
+        .forEach(
+            exportFileResult -> {
+              exportFileResult.addTags(List.of("Data", exportFileResult.getEntity().getName()));
+              allExportFileResults.add(exportFileResult);
+            });
+    annotationExportFileResults.stream()
+        .filter(ExportFileResult::hasFileUrl)
+        .forEach(
+            exportFileResult -> {
+              exportFileResult.addTags(
+                  List.of("Annotations", exportFileResult.getCohort().getDisplayName()));
+              allExportFileResults.add(exportFileResult);
+            });
 
     // Build a list of the signed URLs, sorted lexicographically.
     // Build a TSV-string from the sorted list of rows, prefixed with the format header.
@@ -85,7 +101,10 @@ public class VwbFileImport implements DataExport {
 
     // Generate a signed URL for the TSV file.
     String tsvSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
-    allExportFileResults.add(ExportFileResult.forFile(fileName, tsvSignedUrl, null, null));
+    ExportFileResult tsvExportFileResult =
+        ExportFileResult.forFile(fileName, tsvSignedUrl, null, null);
+    tsvExportFileResult.addTags(List.of("URL List"));
+    allExportFileResults.add(tsvExportFileResult);
 
     // Generate the redirect URL to VWB.
     Map<String, String> urlParams =

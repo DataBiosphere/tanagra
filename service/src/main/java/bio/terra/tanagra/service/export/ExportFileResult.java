@@ -2,6 +2,9 @@ package bio.terra.tanagra.service.export;
 
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 
 public final class ExportFileResult {
@@ -11,6 +14,7 @@ public final class ExportFileResult {
   private final @Nullable ExportError error;
   private final Entity entity;
   private final Cohort cohort;
+  private final List<String> tags = new ArrayList<>();
 
   private ExportFileResult(
       String fileDisplayName,
@@ -91,5 +95,13 @@ public final class ExportFileResult {
 
   public Cohort getCohort() {
     return cohort;
+  }
+
+  public void addTags(List<String> newTags) {
+    tags.addAll(newTags);
+  }
+
+  public ImmutableList<String> getTags() {
+    return ImmutableList.copyOf(tags);
   }
 }
