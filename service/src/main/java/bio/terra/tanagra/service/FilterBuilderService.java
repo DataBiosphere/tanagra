@@ -1,11 +1,15 @@
 package bio.terra.tanagra.service;
 
+import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
 import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
+import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
@@ -16,6 +20,7 @@ import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
@@ -380,5 +385,32 @@ public class FilterBuilderService {
               }
             })
         .collect(Collectors.toList());
+  }
+
+  public EntityFilter buildFilterForPrimaryEntityId(
+      String underlayName, String outputEntityName, Literal primaryEntityId) {
+    // Find the relationship between the output and primary entities.
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    Entity outputEntity = underlay.getEntity(outputEntityName);
+    Pair<EntityGroup, Relationship> outputToPrimary =
+        underlay.getRelationship(outputEntity, underlay.getPrimaryEntity());
+
+    // Build a filter on the output entity.
+    AttributeFilter primaryIdFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            primaryEntityId);
+    return new RelationshipFilter(
+        underlay,
+        outputToPrimary.getLeft(),
+        outputEntity,
+        outputToPrimary.getRight(),
+        primaryIdFilter,
+        null,
+        null,
+        null);
   }
 }

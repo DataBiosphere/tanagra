@@ -152,15 +152,20 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/underlays/{underlayName}/entities/{entityName}/instances/{primaryEntityId}":
+  "/v2/underlays/{underlayName}/entities/{entityName}/instancesForPrimaryEntity":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
       - $ref: "#/components/parameters/EntityName"
-      - $ref: "#/components/parameters/PrimaryEntityInstanceId"
-    get:
+    post:
       summary: List output entity instances for a single primary entity id
-      operationId: listOutputInstancesForPrimaryEntityInstance
+      operationId: listInstancesForPrimaryEntity
       tags: [Underlays]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryFilterOnPrimaryEntity"
       responses:
         200:
           description: OK
@@ -1450,6 +1455,39 @@ components:
           $ref: "#/components/schemas/PageSize"
         pageMarker:
           $ref: "#/components/schemas/PageMarker"
+
+    QueryFilterOnPrimaryEntity:
+      type: object
+      description: Query for entity instances filtered for a single primary entity id
+      properties:
+        includeAttributes:
+          description: |
+            Attributes to include in the returned instances.
+            Empty array means to include all attributes.
+          type: array
+          items:
+            type: string
+        orderBys:
+          type: array
+          description: Attributes and direction to order the results by
+          items:
+            type: object
+            description: Attribute field and the direction
+            properties:
+              attribute:
+                type: string
+              direction:
+                $ref: "#/components/schemas/OrderByDirection"
+        primaryEntityId:
+          $ref: "#/components/schemas/Literal"
+        pageSize:
+          $ref: "#/components/schemas/PageSize"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
+      required:
+        - includeAttributes
+        - orderBys
+        - primaryEntityId
 
     CountQuery:
       type: object

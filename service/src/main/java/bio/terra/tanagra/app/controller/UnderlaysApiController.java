@@ -5,6 +5,8 @@ import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
@@ -13,6 +15,8 @@ import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
@@ -31,9 +35,11 @@ import bio.terra.tanagra.generated.model.ApiHintQuery;
 import bio.terra.tanagra.generated.model.ApiInstanceCountList;
 import bio.terra.tanagra.generated.model.ApiInstanceListResult;
 import bio.terra.tanagra.generated.model.ApiQuery;
+import bio.terra.tanagra.generated.model.ApiQueryFilterOnPrimaryEntity;
 import bio.terra.tanagra.generated.model.ApiUnderlay;
 import bio.terra.tanagra.generated.model.ApiUnderlaySerializedConfiguration;
 import bio.terra.tanagra.generated.model.ApiUnderlaySummaryList;
+import bio.terra.tanagra.service.FilterBuilderService;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -41,6 +47,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ClientConfig;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.List;
@@ -52,12 +59,16 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class UnderlaysApiController implements UnderlaysApi {
   private final UnderlayService underlayService;
+  private final FilterBuilderService filterBuilderService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public UnderlaysApiController(
-      UnderlayService underlayService, AccessControlService accessControlService) {
+      UnderlayService underlayService,
+      FilterBuilderService filterBuilderService,
+      AccessControlService accessControlService) {
     this.underlayService = underlayService;
+    this.filterBuilderService = filterBuilderService;
     this.accessControlService = accessControlService;
   }
 
@@ -121,6 +132,62 @@ public class UnderlaysApiController implements UnderlaysApi {
         FromApiUtils.fromApiObject(body, underlay.getEntity(entityName), underlay);
 
     // Run the list query and map the results back to API objects.
+    ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
+    return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
+  }
+
+  @Override
+  public ResponseEntity<ApiInstanceListResult> listInstancesForPrimaryEntity(
+      String underlayName, String entityName, ApiQueryFilterOnPrimaryEntity body) {
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
+        ResourceId.forUnderlay(underlayName));
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+
+    // Build the attribute fields to select.
+    Entity outputEntity = underlay.getEntity(entityName);
+    List<ValueDisplayField> selectFields =
+        outputEntity.getAttributes().stream()
+            .filter(
+                attribute ->
+                    body.getIncludeAttributes().isEmpty()
+                        || body.getIncludeAttributes().contains(attribute.getName()))
+            .map(attribute -> new AttributeField(underlay, outputEntity, attribute, false, false))
+            .collect(Collectors.toList());
+
+    // Build the filter on the output entity.
+    Literal primaryEntityId = FromApiUtils.fromApiObject(body.getPrimaryEntityId());
+    EntityFilter outputEntityFilter =
+        filterBuilderService.buildFilterForPrimaryEntityId(
+            underlayName, entityName, primaryEntityId);
+
+    // Build the order by fields.
+    List<ListQueryRequest.OrderBy> orderByFields =
+        body.getOrderBys().stream()
+            .map(
+                orderByField -> {
+                  Attribute attribute = outputEntity.getAttribute(orderByField.getAttribute());
+                  ValueDisplayField valueDisplayField =
+                      new AttributeField(underlay, outputEntity, attribute, false, false);
+                  OrderByDirection direction =
+                      OrderByDirection.valueOf(orderByField.getDirection().name());
+                  return new ListQueryRequest.OrderBy(valueDisplayField, direction);
+                })
+            .collect(Collectors.toList());
+
+    // Run the list query and map the results back to API objects.
+    ListQueryRequest listQueryRequest =
+        new ListQueryRequest(
+            underlay,
+            outputEntity,
+            selectFields,
+            outputEntityFilter,
+            orderByFields,
+            null,
+            PageMarker.deserialize(body.getPageMarker()),
+            body.getPageSize(),
+            false);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
   }
