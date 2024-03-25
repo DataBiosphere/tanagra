@@ -1,6 +1,8 @@
 package bio.terra.tanagra.service;
 
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.ICD9CM_EQ_DIABETES;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_AGE;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_GENDER;
 import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -35,6 +37,7 @@ import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
+import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.underlay.Underlay;
@@ -86,7 +89,9 @@ public class DataExportServiceTest {
 
   private Study study1;
   private Cohort cohort1;
+  private Cohort cohort2;
   private ConceptSet conceptSet1;
+  private ConceptSet conceptSet2;
 
   @BeforeEach
   void createAnnotationValues() {
@@ -108,6 +113,17 @@ public class DataExportServiceTest {
     assertNotNull(conceptSet1);
     LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
 
+    conceptSet2 =
+        conceptSetService.createConceptSet(
+            study1.getId(),
+            ConceptSet.builder()
+                .underlay(UNDERLAY_NAME)
+                .displayName("Second Concept Set")
+                .criteria(List.of(ICD9CM_EQ_DIABETES.getRight())),
+            userEmail);
+    assertNotNull(conceptSet2);
+    LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
+
     cohort1 =
         cohortService.createCohort(
             study1.getId(),
@@ -116,6 +132,15 @@ public class DataExportServiceTest {
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
+
+    cohort2 =
+        cohortService.createCohort(
+            study1.getId(),
+            Cohort.builder().underlay(UNDERLAY_NAME).displayName("Second Cohort"),
+            userEmail,
+            List.of(CRITERIA_GROUP_SECTION_GENDER, CRITERIA_GROUP_SECTION_AGE));
+    assertNotNull(cohort2);
+    LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
 
     AnnotationKey annotationKey1 =
         annotationService.createAnnotationKey(
@@ -255,7 +280,7 @@ public class DataExportServiceTest {
         dataExportService.run(
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
-    assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
+    assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
     assertEquals(2, exportResult.getOutputs().size());
 
@@ -304,7 +329,7 @@ public class DataExportServiceTest {
         dataExportService.run(
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
-    assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
+    assertTrue(exportResult.isSuccessful());
     assertTrue(exportResult.getOutputs().isEmpty());
     LOGGER.info("redirect away url: {}", exportResult.getRedirectAwayUrl());
 
@@ -373,7 +398,7 @@ public class DataExportServiceTest {
         dataExportService.run(
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
-    assertEquals(ExportResult.Status.COMPLETE, exportResult.getStatus());
+    assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
     assertEquals(1, exportResult.getOutputs().size());
 
@@ -388,6 +413,112 @@ public class DataExportServiceTest {
     assertTrue(fileContents.split("\n").length >= 36); // Length of notebook template file = 36.
     assertDoesNotThrow(
         () -> new ObjectMapper().readTree(fileContents)); // Notebook file is valid json.
+  }
+
+  @Test
+  void exportLevelError() {
+    ExportRequest exportRequest =
+        new ExportRequest(
+            "IPYNB_FILE_DOWNLOAD",
+            Map.of("IPYNB_TEMPLATE_FILE_GCS_URL", "gs://invalid-bucket/invalid-file.ipynb"),
+            null,
+            false,
+            "abc@123.com",
+            underlayService.getUnderlay(UNDERLAY_NAME),
+            study1,
+            List.of(cohort1),
+            List.of(conceptSet1));
+    ExportResult exportResult =
+        dataExportService.run(
+            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    assertNotNull(exportResult);
+    assertFalse(exportResult.isSuccessful());
+    assertNotNull(exportResult.getError());
+    assertFalse(exportResult.getError().isTimeout());
+    assertTrue(exportResult.getError().getMessage().contains("Template ipynb file not found"));
+  }
+
+  @Test
+  void fileLevelMessageForNoData() {
+    ExportRequest exportRequest =
+        new ExportRequest(
+            "INDIVIDUAL_FILE_DOWNLOAD",
+            Map.of(),
+            null,
+            true,
+            "abc@123.com",
+            underlayService.getUnderlay(UNDERLAY_NAME),
+            study1,
+            List.of(cohort2),
+            List.of(conceptSet2));
+    ExportResult exportResult =
+        dataExportService.run(
+            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    assertNotNull(exportResult);
+    assertTrue(exportResult.isSuccessful());
+    assertEquals(4, exportResult.getFileResults().size());
+
+    Optional<ExportFileResult> conditionOccurrenceFileResult =
+        exportResult.getFileResults().stream()
+            .filter(
+                exportFileResult ->
+                    exportFileResult.getEntity() != null
+                        && "conditionOccurrence"
+                            .equalsIgnoreCase(exportFileResult.getEntity().getName()))
+            .findFirst();
+    assertTrue(conditionOccurrenceFileResult.isPresent());
+    assertTrue(conditionOccurrenceFileResult.get().isSuccessful());
+    assertNotNull(conditionOccurrenceFileResult.get().getFileUrl());
+
+    Optional<ExportFileResult> observationOccurrenceFileResult =
+        exportResult.getFileResults().stream()
+            .filter(
+                exportFileResult ->
+                    exportFileResult.getEntity() != null
+                        && "observationOccurrence"
+                            .equalsIgnoreCase(exportFileResult.getEntity().getName()))
+            .findFirst();
+    assertTrue(observationOccurrenceFileResult.isPresent());
+    assertTrue(observationOccurrenceFileResult.get().isSuccessful());
+    assertTrue(
+        observationOccurrenceFileResult
+            .get()
+            .getMessage()
+            .contains("Export query returned zero rows. No file generated."));
+    assertNull(observationOccurrenceFileResult.get().getFileUrl());
+
+    Optional<ExportFileResult> procedureOccurrenceFileResult =
+        exportResult.getFileResults().stream()
+            .filter(
+                exportFileResult ->
+                    exportFileResult.getEntity() != null
+                        && "procedureOccurrence"
+                            .equalsIgnoreCase(exportFileResult.getEntity().getName()))
+            .findFirst();
+    assertTrue(procedureOccurrenceFileResult.isPresent());
+    assertTrue(procedureOccurrenceFileResult.get().isSuccessful());
+    assertTrue(
+        procedureOccurrenceFileResult
+            .get()
+            .getMessage()
+            .contains("Export query returned zero rows. No file generated."));
+    assertNull(procedureOccurrenceFileResult.get().getFileUrl());
+
+    Optional<ExportFileResult> annotationsFileResult =
+        exportResult.getFileResults().stream()
+            .filter(
+                exportFileResult ->
+                    exportFileResult.getCohort() != null
+                        && cohort2.equals(exportFileResult.getCohort()))
+            .findFirst();
+    assertTrue(annotationsFileResult.isPresent());
+    assertTrue(annotationsFileResult.get().isSuccessful());
+    assertTrue(
+        annotationsFileResult
+            .get()
+            .getMessage()
+            .contains("Cohort has no annotation data. No file generated."));
+    assertNull(annotationsFileResult.get().getFileUrl());
   }
 
   private ListQueryRequest buildListQueryRequest() {
