@@ -157,7 +157,7 @@ paths:
       - $ref: "#/components/parameters/UnderlayName"
       - $ref: "#/components/parameters/EntityName"
     post:
-      summary: List output entity instances for a single primary entity id
+      summary: List entity instances filtered for a single primary entity id
       operationId: listInstancesForPrimaryEntity
       tags: [Underlays]
       requestBody:

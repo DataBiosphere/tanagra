@@ -50,6 +50,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,7 +152,8 @@ public class UnderlaysApiController implements UnderlaysApi {
         outputEntity.getAttributes().stream()
             .filter(
                 attribute ->
-                    body.getIncludeAttributes().isEmpty()
+                    body.getIncludeAttributes() == null
+                        || body.getIncludeAttributes().isEmpty()
                         || body.getIncludeAttributes().contains(attribute.getName()))
             .map(attribute -> new AttributeField(underlay, outputEntity, attribute, false, false))
             .collect(Collectors.toList());
@@ -163,18 +165,19 @@ public class UnderlaysApiController implements UnderlaysApi {
             underlayName, entityName, primaryEntityId);
 
     // Build the order by fields.
-    List<ListQueryRequest.OrderBy> orderByFields =
-        body.getOrderBys().stream()
-            .map(
-                orderByField -> {
-                  Attribute attribute = outputEntity.getAttribute(orderByField.getAttribute());
-                  ValueDisplayField valueDisplayField =
-                      new AttributeField(underlay, outputEntity, attribute, false, false);
-                  OrderByDirection direction =
-                      OrderByDirection.valueOf(orderByField.getDirection().name());
-                  return new ListQueryRequest.OrderBy(valueDisplayField, direction);
-                })
-            .collect(Collectors.toList());
+    List<ListQueryRequest.OrderBy> orderByFields = new ArrayList<>();
+    if (body.getOrderBys() != null) {
+      body.getOrderBys().stream()
+          .forEach(
+              orderByField -> {
+                Attribute attribute = outputEntity.getAttribute(orderByField.getAttribute());
+                ValueDisplayField valueDisplayField =
+                    new AttributeField(underlay, outputEntity, attribute, false, false);
+                OrderByDirection direction =
+                    OrderByDirection.valueOf(orderByField.getDirection().name());
+                orderByFields.add(new ListQueryRequest.OrderBy(valueDisplayField, direction));
+              });
+    }
 
     // Run the list query and map the results back to API objects.
     ListQueryRequest listQueryRequest =
