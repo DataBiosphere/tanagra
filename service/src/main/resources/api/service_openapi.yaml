@@ -2612,7 +2612,7 @@ components:
       properties:
         status:
           type: string
-          enum: ["COMPLETE", "FAILED"]
+          enum: ["SUCCEEDED", "FAILED"]
         redirectAwayUrl:
           type: string
         outputs:

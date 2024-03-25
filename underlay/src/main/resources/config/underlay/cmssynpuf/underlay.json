@@ -49,7 +49,8 @@
     "cmssynpuf/gender",
     "cmssynpuf/race",
     "cmssynpuf/age",
-    "cmssynpuf/outputUnfiltered"
+    "cmssynpuf/outputUnfiltered",
+    "omop/icd9CM"
   ],
   "prepackagedDataFeatures": [
     "cmssynpuf/_demographics"
