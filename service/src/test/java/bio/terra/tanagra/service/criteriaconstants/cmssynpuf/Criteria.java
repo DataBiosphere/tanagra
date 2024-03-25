@@ -2,6 +2,7 @@ package bio.terra.tanagra.service.criteriaconstants.cmssynpuf;
 
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 
+import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
@@ -48,6 +49,24 @@ public final class Criteria {
                   .tags(Map.of("0", "tag1", "1", "tag2", "2", "tag3"))
                   .build());
 
+  public static final Pair<String, bio.terra.tanagra.service.artifact.model.Criteria> AGE_90_TO_92 =
+      Pair.of(
+          "person",
+          bio.terra.tanagra.service.artifact.model.Criteria.builder()
+              .selectorOrModifierName("tanagra-age")
+              .pluginName("attribute")
+              .pluginVersion(0)
+              .selectionData(
+                  serializeToJson(
+                      DTAttribute.Attribute.newBuilder()
+                          .addDataRanges(
+                              DataRangeOuterClass.DataRange.newBuilder()
+                                  .setMin(90.0)
+                                  .setMax(92.0)
+                                  .build())
+                          .build()))
+              .uiConfig("")
+              .build());
   public static final Pair<String, bio.terra.tanagra.service.artifact.model.Criteria>
       ETHNICITY_EQ_HISPANIC_OR_LATINO =
           Pair.of(
@@ -119,5 +138,29 @@ public final class Criteria {
                               .build()))
                   .uiConfig("")
                   .tags(Map.of("0", "tag4", "2", "tag5"))
+                  .build());
+
+  public static final Pair<String, bio.terra.tanagra.service.artifact.model.Criteria>
+      ICD9CM_EQ_DIABETES =
+          Pair.of(
+              "icd9cm",
+              bio.terra.tanagra.service.artifact.model.Criteria.builder()
+                  .selectorOrModifierName("tanagra-icd9cm")
+                  .pluginName("entityGroup")
+                  .pluginVersion(0)
+                  .selectionData(
+                      serializeToJson(
+                          DTEntityGroup.EntityGroup.newBuilder()
+                              .addSelected(
+                                  DTEntityGroup.EntityGroup.Selection.newBuilder()
+                                      .setKey(
+                                          KeyOuterClass.Key.newBuilder()
+                                              .setInt64Key(44_833_365L)
+                                              .build())
+                                      .setName("Diabetes mellitus")
+                                      .setEntityGroup("icd9cmPerson")
+                                      .build())
+                              .build()))
+                  .uiConfig("")
                   .build());
 }

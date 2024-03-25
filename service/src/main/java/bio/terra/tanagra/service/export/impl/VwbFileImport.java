@@ -70,6 +70,8 @@ public class VwbFileImport implements DataExport {
     // Build a TSV-string from the sorted list of rows, prefixed with the format header.
     StringBuilder fileContents = new StringBuilder(FILE_FORMAT_SPECIFIER + "\n");
     allExportFileResults.stream()
+        .filter(
+            exportFileResult -> exportFileResult.isSuccessful() && exportFileResult.hasFileUrl())
         .map(ExportFileResult::getFileUrl)
         .sorted()
         .forEach(tsvRow -> fileContents.append(tsvRow + "\n"));
@@ -83,7 +85,7 @@ public class VwbFileImport implements DataExport {
 
     // Generate a signed URL for the TSV file.
     String tsvSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
-    allExportFileResults.add(ExportFileResult.forFile(fileName, tsvSignedUrl, null));
+    allExportFileResults.add(ExportFileResult.forFile(fileName, tsvSignedUrl, null, null));
 
     // Generate the redirect URL to VWB.
     Map<String, String> urlParams =
