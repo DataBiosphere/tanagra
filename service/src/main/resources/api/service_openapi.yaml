@@ -152,6 +152,27 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/underlays/{underlayName}/entities/{entityName}/instances/{primaryEntityId}":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayName"
+      - $ref: "#/components/parameters/EntityName"
+      - $ref: "#/components/parameters/PrimaryEntityInstanceId"
+    get:
+      summary: List output entity instances for a single primary entity id
+      operationId: listOutputInstancesForPrimaryEntityInstance
+      tags: [Underlays]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceListResult"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/underlays/{underlayName}/entities/{entityName}/counts":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
