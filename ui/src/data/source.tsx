@@ -1980,7 +1980,7 @@ function fromAPICriteriaGroupSections(
     },
     groups: section.criteriaGroups.map((group) => ({
       id: group.id,
-      entity: group.entity,
+      entity: "",
       criteria: group.criteria.map((criteria, i) =>
         fromAPICriteria(
           criteria,
