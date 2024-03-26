@@ -19,6 +19,7 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSectio
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_EMPTY;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_GENDER_AND_CONDITION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,6 +30,7 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
+import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.app.Main;
@@ -233,6 +235,34 @@ public class FilterBuilderServiceTest {
     assertTrue(entityOutputs.contains(expectedOutput1));
     assertTrue(entityOutputs.contains(expectedOutput2));
     assertTrue(entityOutputs.contains(expectedOutput3));
+  }
+
+  @Test
+  void primaryEntityId() {
+    EntityFilter filterOnPrimaryEntityId =
+        filterBuilderService.buildFilterForPrimaryEntityId(
+            UNDERLAY_NAME, "conditionOccurrence", Literal.forInt64(123L));
+    assertNotNull(filterOnPrimaryEntityId);
+
+    AttributeFilter expectedPrimaryEntitySubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getIdAttribute(),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(123L));
+    RelationshipFilter expectedOutputEntityFilter =
+        new RelationshipFilter(
+            underlay,
+            underlay.getEntityGroup("icd10cmPerson"),
+            underlay.getEntity("conditionOccurrence"),
+            ((CriteriaOccurrence) underlay.getEntityGroup("icd10cmPerson"))
+                .getOccurrencePrimaryRelationship("conditionOccurrence"),
+            expectedPrimaryEntitySubFilter,
+            null,
+            null,
+            null);
+    assertEquals(expectedOutputEntityFilter, filterOnPrimaryEntityId);
   }
 
   private EntityFilter genderEqWomanCohortFilter() {
