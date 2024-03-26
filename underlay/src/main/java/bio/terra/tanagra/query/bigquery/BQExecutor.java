@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,8 @@ public class BQExecutor {
     }
   }
 
-  public String export(
+  /** @return pair of strings: GCS URL, file name */
+  public Pair<String, String> export(
       SqlQueryRequest queryRequest,
       String fileNamePrefix,
       String exportProjectId,
@@ -149,7 +151,8 @@ public class BQExecutor {
     String bucketName =
         getCloudStorageService()
             .findBucketForBigQueryExport(exportProjectId, exportBucketNames, datasetLocation);
-    String gcsUrl = String.format("gs://%s/%s.csv.gzip", bucketName, fileNamePrefix);
+    String fileName = fileNamePrefix + ".csv.gzip";
+    String gcsUrl = String.format("gs://%s/%s", bucketName, fileName);
     LOGGER.info("Exporting temporary table to GCS file: {}", gcsUrl);
     Job exportJob = getBigQueryService().exportTableToGcs(tempTableId, gcsUrl, "GZIP", "CSV");
     if (exportJob == null) {
@@ -160,11 +163,11 @@ public class BQExecutor {
     LOGGER.info("Export of temporary table completed: {}", exportJob.getStatus().getState());
 
     if (!generateSignedUrl) {
-      return gcsUrl;
+      return Pair.of(gcsUrl, fileName);
     }
 
     // Generate a signed URL to the file.
-    return getCloudStorageService().createSignedUrl(gcsUrl);
+    return Pair.of(getCloudStorageService().createSignedUrl(gcsUrl), fileName);
   }
 
   private static QueryParameterValue toQueryParameterValue(Literal literal) {

@@ -65,9 +65,25 @@ public class IndividualFileDownload implements DataExport {
     List<ExportFileResult> annotationExportFileResults =
         helper.writeAnnotationDataToGcs(
             "annotations_cohort${cohort}" + "_" + studyUnderlayRef + "_${random}");
+
+    // Build a combined list of all output files.
     List<ExportFileResult> allExportFileResults = new ArrayList<>();
-    allExportFileResults.addAll(entityExportFileResults);
-    allExportFileResults.addAll(annotationExportFileResults);
+    // Set the tags for each file result, and suppress empty files.
+    entityExportFileResults.stream()
+        .filter(ExportFileResult::hasFileUrl)
+        .forEach(
+            exportFileResult -> {
+              exportFileResult.addTags(List.of("Data", exportFileResult.getEntity().getName()));
+              allExportFileResults.add(exportFileResult);
+            });
+    annotationExportFileResults.stream()
+        .filter(ExportFileResult::hasFileUrl)
+        .forEach(
+            exportFileResult -> {
+              exportFileResult.addTags(
+                  List.of("Annotations", exportFileResult.getCohort().getDisplayName()));
+              allExportFileResults.add(exportFileResult);
+            });
 
     // TODO: Skip populating these output parameters once the UI is processing the file results
     // directly.
@@ -94,6 +110,7 @@ public class IndividualFileDownload implements DataExport {
               outputParams.put(
                   COHORT_OUTPUT_KEY_PREFIX + cohortName, exportFileResult.getFileUrl());
             });
+
     return ExportResult.forOutputParams(outputParams, allExportFileResults);
   }
 }

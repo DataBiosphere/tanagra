@@ -19,6 +19,7 @@ import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.generated.controller.ExportApi;
 import bio.terra.tanagra.generated.model.ApiEntityOutputPreview;
 import bio.terra.tanagra.generated.model.ApiEntityOutputPreviewList;
+import bio.terra.tanagra.generated.model.ApiExportLinkResult;
 import bio.terra.tanagra.generated.model.ApiExportModel;
 import bio.terra.tanagra.generated.model.ApiExportModelList;
 import bio.terra.tanagra.generated.model.ApiExportPreviewRequest;
@@ -38,6 +39,7 @@ import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportService;
+import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import bio.terra.tanagra.underlay.Underlay;
@@ -263,7 +265,8 @@ public class ExportApiController implements ExportApi {
     return ResponseEntity.ok(toApiObject(exportResult));
   }
 
-  private ApiExportModel toApiObject(String implName, String displayName, DataExport dataExport) {
+  private static ApiExportModel toApiObject(
+      String implName, String displayName, DataExport dataExport) {
     return new ApiExportModel()
         .name(implName)
         .displayName(displayName)
@@ -272,13 +275,27 @@ public class ExportApiController implements ExportApi {
         .outputs(dataExport.describeOutputs());
   }
 
-  private ApiExportResult toApiObject(ExportResult exportResult) {
+  private static ApiExportResult toApiObject(ExportResult exportResult) {
     return new ApiExportResult()
         .status(
             exportResult.isSuccessful()
                 ? ApiExportResult.StatusEnum.SUCCEEDED
                 : ApiExportResult.StatusEnum.FAILED)
         .outputs(exportResult.getOutputs())
+        .links(
+            exportResult.getFileResults().stream()
+                .map(ExportApiController::toApiObject)
+                .collect(Collectors.toList()))
         .redirectAwayUrl(exportResult.getRedirectAwayUrl());
+  }
+
+  private static ApiExportLinkResult toApiObject(ExportFileResult exportFileResult) {
+    return new ApiExportLinkResult()
+        .displayName(exportFileResult.getFileDisplayName())
+        .url(exportFileResult.getFileUrl())
+        .tags(exportFileResult.getTags())
+        .message(exportFileResult.getMessage())
+        .error(
+            exportFileResult.getError() == null ? null : exportFileResult.getError().getMessage());
   }
 }

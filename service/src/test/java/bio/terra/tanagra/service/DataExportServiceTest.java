@@ -4,7 +4,6 @@ import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.DEM
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.ICD9CM_EQ_DIABETES;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_AGE;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_GENDER;
-import static bio.terra.tanagra.service.export.impl.IpynbFileDownload.IPYNB_FILE_KEY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -282,13 +281,20 @@ public class DataExportServiceTest {
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
-    assertEquals(2, exportResult.getOutputs().size());
+    assertEquals(2, exportResult.getFileResults().size());
 
-    // Validate the entity instances file.
-    String signedUrl =
-        exportResult
-            .getOutputs()
-            .get("Data:" + underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName());
+    // Validate the entity instances file + tags.
+    Optional<ExportFileResult> entityInstancesFileResult =
+        exportResult.getFileResults().stream()
+            .filter(exportFileResult -> exportFileResult.isEntityData())
+            .findFirst();
+    assertTrue(entityInstancesFileResult.isPresent());
+    assertTrue(entityInstancesFileResult.get().isSuccessful());
+    assertTrue(entityInstancesFileResult.get().getFileDisplayName().endsWith(".csv.gzip"));
+    assertEquals(
+        List.of("Data", underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName()),
+        entityInstancesFileResult.get().getTags());
+    String signedUrl = entityInstancesFileResult.get().getFileUrl();
     assertNotNull(signedUrl);
     LOGGER.info("Entity instances signed URL: {}", signedUrl);
     String fileContents = GoogleCloudStorage.readGzipFileContentsFromUrl(signedUrl, 6);
@@ -300,8 +306,18 @@ public class DataExportServiceTest {
         fileContentsFirstLine);
     assertEquals(6, fileContents.split("\n").length); // 5 instances + header row
 
-    // Validate the annotations file.
-    signedUrl = exportResult.getOutputs().get("Annotations:" + cohort1.getDisplayName());
+    // Validate the annotations file + tags.
+    Optional<ExportFileResult> annotationsFileResult =
+        exportResult.getFileResults().stream()
+            .filter(exportFileResult -> exportFileResult.isAnnotationData())
+            .findFirst();
+    assertTrue(annotationsFileResult.isPresent());
+    assertTrue(annotationsFileResult.get().isSuccessful());
+    assertTrue(annotationsFileResult.get().getFileDisplayName().endsWith(".csv"));
+    assertEquals(
+        List.of("Annotations", annotationsFileResult.get().getCohort().getDisplayName()),
+        annotationsFileResult.get().getTags());
+    signedUrl = annotationsFileResult.get().getFileUrl();
     assertNotNull(signedUrl);
     LOGGER.info("Annotations signed URL: {}", signedUrl);
     fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
@@ -330,8 +346,40 @@ public class DataExportServiceTest {
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
-    assertTrue(exportResult.getOutputs().isEmpty());
     LOGGER.info("redirect away url: {}", exportResult.getRedirectAwayUrl());
+
+    // Validate the file result objects.
+    assertEquals(3, exportResult.getFileResults().size());
+    Optional<ExportFileResult> entityDataFileResult =
+        exportResult.getFileResults().stream().filter(ExportFileResult::isEntityData).findFirst();
+    assertTrue(entityDataFileResult.isPresent());
+    assertTrue(entityDataFileResult.get().isSuccessful());
+    assertTrue(entityDataFileResult.get().getFileDisplayName().endsWith(".csv.gzip"));
+    assertEquals(
+        List.of("Data", underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName()),
+        entityDataFileResult.get().getTags());
+
+    Optional<ExportFileResult> annotationsFileResult =
+        exportResult.getFileResults().stream()
+            .filter(ExportFileResult::isAnnotationData)
+            .findFirst();
+    assertTrue(annotationsFileResult.isPresent());
+    assertTrue(annotationsFileResult.get().isSuccessful());
+    assertTrue(annotationsFileResult.get().getFileDisplayName().endsWith(".csv"));
+    assertEquals(
+        List.of("Annotations", annotationsFileResult.get().getCohort().getDisplayName()),
+        annotationsFileResult.get().getTags());
+
+    Optional<ExportFileResult> tsvFileResult =
+        exportResult.getFileResults().stream()
+            .filter(
+                exportFileResult ->
+                    !exportFileResult.isEntityData() && !exportFileResult.isAnnotationData())
+            .findFirst();
+    assertTrue(tsvFileResult.isPresent());
+    assertTrue(tsvFileResult.get().isSuccessful());
+    assertTrue(tsvFileResult.get().getFileDisplayName().endsWith(".tsv"));
+    assertEquals(List.of("URL List"), tsvFileResult.get().getTags());
 
     // Parse the redirect away URL into component parts.
     URL url = new URL(exportResult.getRedirectAwayUrl());
@@ -400,10 +448,18 @@ public class DataExportServiceTest {
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
-    assertEquals(1, exportResult.getOutputs().size());
+
+    // Validate the file result objects.
+    assertEquals(1, exportResult.getFileResults().size());
+    ExportFileResult ipynbFileResult = exportResult.getFileResults().get(0);
+    assertTrue(ipynbFileResult.isSuccessful());
+    assertFalse(ipynbFileResult.isEntityData());
+    assertFalse(ipynbFileResult.isAnnotationData());
+    assertTrue(ipynbFileResult.getFileDisplayName().endsWith(".ipynb"));
+    assertEquals(List.of("Notebook File"), ipynbFileResult.getTags());
 
     // Validate the ipynb file.
-    String signedUrl = exportResult.getOutputs().get(IPYNB_FILE_KEY);
+    String signedUrl = ipynbFileResult.getFileUrl();
     assertNotNull(signedUrl);
     LOGGER.info("ipynb file signed URL: {}", signedUrl);
     String fileContents = GoogleCloudStorage.readFileContentsFromUrl(signedUrl);
@@ -456,7 +512,7 @@ public class DataExportServiceTest {
             exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
-    assertEquals(4, exportResult.getFileResults().size());
+    assertEquals(1, exportResult.getFileResults().size());
 
     Optional<ExportFileResult> conditionOccurrenceFileResult =
         exportResult.getFileResults().stream()
@@ -469,6 +525,7 @@ public class DataExportServiceTest {
     assertTrue(conditionOccurrenceFileResult.isPresent());
     assertTrue(conditionOccurrenceFileResult.get().isSuccessful());
     assertNotNull(conditionOccurrenceFileResult.get().getFileUrl());
+    assertTrue(conditionOccurrenceFileResult.get().getFileDisplayName().endsWith(".csv.gzip"));
 
     Optional<ExportFileResult> observationOccurrenceFileResult =
         exportResult.getFileResults().stream()
@@ -478,14 +535,7 @@ public class DataExportServiceTest {
                         && "observationOccurrence"
                             .equalsIgnoreCase(exportFileResult.getEntity().getName()))
             .findFirst();
-    assertTrue(observationOccurrenceFileResult.isPresent());
-    assertTrue(observationOccurrenceFileResult.get().isSuccessful());
-    assertTrue(
-        observationOccurrenceFileResult
-            .get()
-            .getMessage()
-            .contains("Export query returned zero rows. No file generated."));
-    assertNull(observationOccurrenceFileResult.get().getFileUrl());
+    assertFalse(observationOccurrenceFileResult.isPresent());
 
     Optional<ExportFileResult> procedureOccurrenceFileResult =
         exportResult.getFileResults().stream()
@@ -495,14 +545,7 @@ public class DataExportServiceTest {
                         && "procedureOccurrence"
                             .equalsIgnoreCase(exportFileResult.getEntity().getName()))
             .findFirst();
-    assertTrue(procedureOccurrenceFileResult.isPresent());
-    assertTrue(procedureOccurrenceFileResult.get().isSuccessful());
-    assertTrue(
-        procedureOccurrenceFileResult
-            .get()
-            .getMessage()
-            .contains("Export query returned zero rows. No file generated."));
-    assertNull(procedureOccurrenceFileResult.get().getFileUrl());
+    assertFalse(procedureOccurrenceFileResult.isPresent());
 
     Optional<ExportFileResult> annotationsFileResult =
         exportResult.getFileResults().stream()
@@ -511,14 +554,7 @@ public class DataExportServiceTest {
                     exportFileResult.getCohort() != null
                         && cohort2.equals(exportFileResult.getCohort()))
             .findFirst();
-    assertTrue(annotationsFileResult.isPresent());
-    assertTrue(annotationsFileResult.get().isSuccessful());
-    assertTrue(
-        annotationsFileResult
-            .get()
-            .getMessage()
-            .contains("Cohort has no annotation data. No file generated."));
-    assertNull(annotationsFileResult.get().getFileUrl());
+    assertFalse(annotationsFileResult.isPresent());
   }
 
   private ListQueryRequest buildListQueryRequest() {
