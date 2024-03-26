@@ -8,6 +8,7 @@ import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 public class RelationshipFilter extends EntityFilter {
@@ -104,5 +105,39 @@ public class RelationshipFilter extends EntityFilter {
 
   public boolean isForeignKeyOnFilterTable() {
     return relationship.isForeignKeyAttribute(filterEntity);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    RelationshipFilter that = (RelationshipFilter) o;
+    return underlay.equals(that.underlay)
+        && entityGroup.equals(that.entityGroup)
+        && selectEntity.equals(that.selectEntity)
+        && filterEntity.equals(that.filterEntity)
+        && relationship.equals(that.relationship)
+        && Objects.equals(subFilter, that.subFilter)
+        && Objects.equals(groupByCountAttributes, that.groupByCountAttributes)
+        && groupByCountOperator == that.groupByCountOperator
+        && Objects.equals(groupByCountValue, that.groupByCountValue);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        underlay,
+        entityGroup,
+        selectEntity,
+        filterEntity,
+        relationship,
+        subFilter,
+        groupByCountAttributes,
+        groupByCountOperator,
+        groupByCountValue);
   }
 }
