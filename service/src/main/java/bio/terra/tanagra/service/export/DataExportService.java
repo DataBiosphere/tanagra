@@ -73,7 +73,10 @@ public class DataExportService {
     this.randomNumberGenerator = randomNumberGenerator;
   }
 
-  /** Return a map of model name -> (display name, implementation class instance). */
+  /**
+   * @return List of models, each of which includes the unique name, implementation class instance,
+   *     and per-model config.
+   */
   public List<DataExportModel> getModels(String underlay) {
     // TODO: Allow configuring the list of implementations per underlay.
     return nameToModel.values().stream().collect(Collectors.toList());
