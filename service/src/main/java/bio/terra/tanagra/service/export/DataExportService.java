@@ -20,18 +20,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataExportService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DataExportService.class);
   private final FeatureConfiguration featureConfiguration;
   private final ExportConfiguration.Shared shared;
-  private final Map<String, DataExport> modelToImpl = new HashMap<>();
-  private final Map<String, ExportConfiguration.PerModel> modelToConfig = new HashMap<>();
+  private final Map<String, DataExportModel> nameToModel = new HashMap<>();
   private final UnderlayService underlayService;
   private final FilterBuilderService filterBuilderService;
   private final CohortService cohortService;
@@ -62,8 +62,8 @@ public class DataExportService {
       if (modelName == null || modelName.isEmpty()) {
         modelName = perModelConfig.getType().name();
       }
-      this.modelToImpl.put(modelName, dataExportImplInstance);
-      this.modelToConfig.put(modelName, perModelConfig);
+      this.nameToModel.put(
+          modelName, new DataExportModel(modelName, dataExportImplInstance, perModelConfig));
     }
     this.underlayService = underlayService;
     this.filterBuilderService = filterBuilderService;
@@ -73,21 +73,13 @@ public class DataExportService {
     this.randomNumberGenerator = randomNumberGenerator;
   }
 
-  /** Return a map of model name -> (display name, implementation class instance). */
-  public Map<String, Pair<String, DataExport>> getModels(String underlay) {
+  /**
+   * @return List of models, each of which includes the unique name, implementation class instance,
+   *     and per-model config.
+   */
+  public List<DataExportModel> getModels(String underlay) {
     // TODO: Allow configuring the list of implementations per underlay.
-    return modelToImpl.keySet().stream()
-        .collect(
-            Collectors.toMap(
-                Function.identity(),
-                implName -> {
-                  DataExport impl = modelToImpl.get(implName);
-                  String displayName = modelToConfig.get(implName).getDisplayName();
-                  if (displayName == null || displayName.isEmpty()) {
-                    displayName = impl.getDefaultDisplayName();
-                  }
-                  return Pair.of(displayName, impl);
-                }));
+    return nameToModel.values().stream().collect(Collectors.toList());
   }
 
   public ExportResult run(
@@ -150,16 +142,7 @@ public class DataExportService {
             entityOutputs,
             primaryEntityFilter);
 
-    // Get the implementation class instance for the requested data export model.
-    DataExport impl = modelToImpl.get(request.getModel());
-    ExportResult exportResult;
-    try {
-      exportResult = impl.run(request, helper);
-    } catch (Exception ex) {
-      exportResult = ExportResult.forError(ExportError.forException(ex));
-    }
-
-    // Calculate the number of primary entity instances that were included in this export request.
+    // Calculate the number of primary entity instances that are included in this export request.
     CountQueryResult countQueryResult =
         underlayService.runCountQuery(
             request.getUnderlay(),
@@ -168,12 +151,35 @@ public class DataExportService {
             primaryEntityFilter,
             null,
             null);
-    long numInstances = countQueryResult.getCountInstances().get(0).getCount();
+    long numPrimaryEntityInstances = countQueryResult.getCountInstances().get(0).getCount();
+    LOGGER.info("Exporting {} primary entity instances", numPrimaryEntityInstances);
+
+    // Enforce the maximum primary entity cap, if defined.
+    DataExportModel model = nameToModel.get(request.getModel());
+    if (model.getConfig().hasNumPrimaryEntityCap()
+        && numPrimaryEntityInstances > model.getConfig().getNumPrimaryEntityCap()) {
+      return ExportResult.forError(
+          ExportError.forMessage(
+              "Maximum number of primary entity instances ("
+                  + model.getConfig().getNumPrimaryEntityCap()
+                  + ") allowed for this model exceeded: "
+                  + numPrimaryEntityInstances,
+              false));
+    }
+
+    // Get the implementation class instance for the requested data export model.
+    DataExport impl = model.getImpl();
+    ExportResult exportResult;
+    try {
+      exportResult = impl.run(request, helper);
+    } catch (Exception ex) {
+      exportResult = ExportResult.forError(ExportError.forException(ex));
+    }
 
     // Log the export.
     activityLogService.logExport(
         request.getModel(),
-        numInstances,
+        numPrimaryEntityInstances,
         request.getUserEmail(),
         request.getStudy().getId(),
         cohortToRevisionIdMap);

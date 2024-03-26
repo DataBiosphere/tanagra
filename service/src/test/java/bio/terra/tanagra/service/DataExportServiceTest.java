@@ -35,6 +35,7 @@ import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
 import bio.terra.tanagra.service.export.DataExport;
+import bio.terra.tanagra.service.export.DataExportModel;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
@@ -53,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -211,21 +211,21 @@ public class DataExportServiceTest {
 
   @Test
   void listEntityModels() {
-    Map<String, Pair<String, DataExport>> models = dataExportService.getModels(UNDERLAY_NAME);
-    assertEquals(3, models.size());
+    List<DataExportModel> models = dataExportService.getModels(UNDERLAY_NAME);
+    assertEquals(4, models.size());
 
     // Check the INDIVIDUAL_FILE_DOWNLOAD export option.
-    Optional<Map.Entry<String, Pair<String, DataExport>>> individualFileDownload =
-        models.entrySet().stream()
+    Optional<DataExportModel> individualFileDownload =
+        models.stream()
             .filter(
                 m ->
-                    DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.equals(
-                        m.getValue().getValue().getType()))
+                    DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.equals(m.getImpl().getType())
+                        && !m.getConfig().hasNumPrimaryEntityCap())
             .findFirst();
     assertTrue(individualFileDownload.isPresent());
-    String modelName = individualFileDownload.get().getKey();
-    String displayName = individualFileDownload.get().getValue().getKey();
-    DataExport impl = individualFileDownload.get().getValue().getValue();
+    String modelName = individualFileDownload.get().getName();
+    String displayName = individualFileDownload.get().getDisplayName();
+    DataExport impl = individualFileDownload.get().getImpl();
     assertEquals(
         DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.name(),
         modelName); // Default model name is type enum value.
@@ -233,33 +233,78 @@ public class DataExportServiceTest {
     assertNotNull(impl);
 
     // Check the IPYNB_FILE_DOWNLOAD export option.
-    Optional<Map.Entry<String, Pair<String, DataExport>>> ipynbFileDownload =
-        models.entrySet().stream()
-            .filter(
-                m -> DataExport.Type.IPYNB_FILE_DOWNLOAD.equals(m.getValue().getValue().getType()))
+    Optional<DataExportModel> ipynbFileDownload =
+        models.stream()
+            .filter(m -> DataExport.Type.IPYNB_FILE_DOWNLOAD.equals(m.getImpl().getType()))
             .findFirst();
     assertTrue(ipynbFileDownload.isPresent());
-    modelName = ipynbFileDownload.get().getKey();
-    displayName = ipynbFileDownload.get().getValue().getKey();
-    impl = ipynbFileDownload.get().getValue().getValue();
+    modelName = ipynbFileDownload.get().getName();
+    displayName = ipynbFileDownload.get().getDisplayName();
+    impl = ipynbFileDownload.get().getImpl();
     assertEquals(
         DataExport.Type.IPYNB_FILE_DOWNLOAD.name(),
         modelName); // Default model name is type enum value.
+    assertFalse(ipynbFileDownload.get().getConfig().hasNumPrimaryEntityCap());
     assertEquals(impl.getDefaultDisplayName(), displayName);
     assertNotNull(impl);
 
     // Check the VWB_FILE_IMPORT export option.
-    Optional<Map.Entry<String, Pair<String, DataExport>>> vwbFileImport =
-        models.entrySet().stream()
-            .filter(m -> DataExport.Type.VWB_FILE_IMPORT.equals(m.getValue().getValue().getType()))
+    Optional<DataExportModel> vwbFileImport =
+        models.stream()
+            .filter(m -> DataExport.Type.VWB_FILE_IMPORT.equals(m.getImpl().getType()))
             .findFirst();
     assertTrue(vwbFileImport.isPresent());
-    modelName = vwbFileImport.get().getKey();
-    displayName = vwbFileImport.get().getValue().getKey();
-    impl = vwbFileImport.get().getValue().getValue();
+    modelName = vwbFileImport.get().getName();
+    displayName = vwbFileImport.get().getDisplayName();
+    impl = vwbFileImport.get().getImpl();
     assertEquals("VWB_FILE_IMPORT_DEVEL", modelName); // Overridden model name.
     assertEquals("Import to VWB (devel)", displayName); // Overridden display name.
+    assertFalse(vwbFileImport.get().getConfig().hasNumPrimaryEntityCap());
     assertNotNull(impl);
+
+    // Check the INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP export option.
+    Optional<DataExportModel> individualFileDownloadWithCap =
+        models.stream()
+            .filter(
+                m ->
+                    DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.equals(m.getImpl().getType())
+                        && m.getConfig().hasNumPrimaryEntityCap())
+            .findFirst();
+    assertTrue(individualFileDownloadWithCap.isPresent());
+    modelName = individualFileDownloadWithCap.get().getName();
+    displayName = individualFileDownloadWithCap.get().getDisplayName();
+    impl = individualFileDownloadWithCap.get().getImpl();
+    assertEquals("INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP", modelName); // Overridden model name.
+    assertEquals("Individual file download with cap=5", displayName); // Overridden display name.
+    assertEquals(5, individualFileDownloadWithCap.get().getConfig().getNumPrimaryEntityCap());
+    assertNotNull(impl);
+  }
+
+  @Test
+  void numPrimaryEntityInstancesCap() {
+    ExportRequest exportRequest =
+        new ExportRequest(
+            "INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP",
+            Map.of(),
+            null,
+            true,
+            "abc@123.com",
+            underlayService.getUnderlay(UNDERLAY_NAME),
+            study1,
+            List.of(cohort1),
+            List.of(conceptSet1));
+    ExportResult exportResult =
+        dataExportService.run(
+            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    assertNotNull(exportResult);
+    assertFalse(exportResult.isSuccessful());
+    assertNotNull(exportResult.getError());
+    assertFalse(exportResult.getError().isTimeout());
+    assertTrue(
+        exportResult
+            .getError()
+            .getMessage()
+            .startsWith("Maximum number of primary entity instances"));
   }
 
   @Test

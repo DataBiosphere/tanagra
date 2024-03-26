@@ -37,7 +37,7 @@ import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Study;
-import bio.terra.tanagra.service.export.DataExport;
+import bio.terra.tanagra.service.export.DataExportModel;
 import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
@@ -46,9 +46,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -88,13 +86,9 @@ public class ExportApiController implements ExportApi {
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     // Get a map of implementation name -> (display name, class instance).
-    Map<String, Pair<String, DataExport>> exportImpls = dataExportService.getModels(underlayName);
+    List<DataExportModel> exportModels = dataExportService.getModels(underlayName);
     ApiExportModelList apiExportImpls = new ApiExportModelList();
-    exportImpls.entrySet().stream()
-        .forEach(
-            ei ->
-                apiExportImpls.add(
-                    toApiObject(ei.getKey(), ei.getValue().getKey(), ei.getValue().getValue())));
+    exportModels.stream().forEach(em -> apiExportImpls.add(toApiObject(em)));
     return ResponseEntity.ok(apiExportImpls);
   }
 
@@ -265,14 +259,14 @@ public class ExportApiController implements ExportApi {
     return ResponseEntity.ok(toApiObject(exportResult));
   }
 
-  private static ApiExportModel toApiObject(
-      String implName, String displayName, DataExport dataExport) {
+  private static ApiExportModel toApiObject(DataExportModel exportModel) {
     return new ApiExportModel()
-        .name(implName)
-        .displayName(displayName)
-        .description(dataExport.getDescription())
-        .inputs(dataExport.describeInputs())
-        .outputs(dataExport.describeOutputs());
+        .name(exportModel.getName())
+        .displayName(exportModel.getDisplayName())
+        .description(exportModel.getImpl().getDescription())
+        .numPrimaryEntityCap(exportModel.getConfig().getNumPrimaryEntityCap())
+        .inputs(exportModel.getImpl().describeInputs())
+        .outputs(exportModel.getImpl().describeOutputs());
   }
 
   private static ApiExportResult toApiObject(ExportResult exportResult) {
@@ -286,7 +280,8 @@ public class ExportApiController implements ExportApi {
             exportResult.getFileResults().stream()
                 .map(ExportApiController::toApiObject)
                 .collect(Collectors.toList()))
-        .redirectAwayUrl(exportResult.getRedirectAwayUrl());
+        .redirectAwayUrl(exportResult.getRedirectAwayUrl())
+        .error(exportResult.getError() == null ? null : exportResult.getError().getMessage());
   }
 
   private static ApiExportLinkResult toApiObject(ExportFileResult exportFileResult) {

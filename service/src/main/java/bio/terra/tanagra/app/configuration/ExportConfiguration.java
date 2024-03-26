@@ -49,6 +49,7 @@ public class ExportConfiguration {
       LOGGER.info("Export: models[{}] display-name: {}", i, m.getDisplayName());
       LOGGER.info("Export: models[{}] type: {}", i, m.getType());
       LOGGER.info("Export: models[{}] redirect-away-url: {}", i, m.getRedirectAwayUrl());
+      LOGGER.info("Export: models[{}] num-primary-entity-cap: {}", i, m.getNumPrimaryEntityCap());
       LOGGER.info(
           "Export: models[{}] params: {}",
           i,
@@ -130,7 +131,7 @@ public class ExportConfiguration {
                 + "(e.g. export to workbench parameterized with the dev environment URL, and another parameterized "
                 + "with the test environment URL).",
         environmentVariable =
-            "TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you will have 0 and 1 env vars.)",
+            "TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)",
         optional = true,
         exampleValue = "VWB_FILE_IMPORT_TO_DEV")
     private String name;
@@ -145,7 +146,7 @@ public class ExportConfiguration {
                 + "(e.g. export to workbench parameterized with the dev environment URL, and another parameterized "
                 + "with the test environment URL).",
         environmentVariable =
-            "TANAGRA_EXPORT_MODELS_0_DISPLAY_NAME (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+            "TANAGRA_EXPORT_MODELS_0_DISPLAY_NAME (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)",
         optional = true,
         exampleValue = "Export File to Workbench (dev instance)")
     private String displayName;
@@ -153,11 +154,11 @@ public class ExportConfiguration {
     @AnnotatedField(
         name = "tanagra.export.models.type",
         markdown =
-            "Pointer to the access control model Java class. Currently this must be one of the enum values in the"
+            "Pointer to the data export model Java class. Currently this must be one of the enum values in the"
                 + "`bio.terra.tanagra.service.export.DataExport.Type` Java class. In the future, "
                 + "it will support arbitrary class names",
         environmentVariable =
-            "TANAGRA_EXPORT_MODELS_0_TYPE (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+            "TANAGRA_EXPORT_MODELS_0_TYPE (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)",
         optional = true,
         exampleValue = "IPYNB_FILE_DOWNLOAD")
     private DataExport.Type type;
@@ -170,11 +171,26 @@ public class ExportConfiguration {
                 + "to CSV files in GCS and then redirect to a workbench URL, passing the URL to the CSV files so "
                 + "the workbench can import them somewhere.",
         environmentVariable =
-            "TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)",
+            "TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)",
         optional = true,
         exampleValue =
             "https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra")
     private String redirectAwayUrl;
+
+    @AnnotatedField(
+        name = "tanagra.export.models.numPrimaryEntityCap",
+        markdown =
+            "Maximum number of primary entity instances to allow exporting (e.g. number of persons <= 10k). "
+                + "This is useful when you want to limit the amount of data a user can export "
+                + "e.g. to keep file sizes reasonable. The limit is inclusive, so 10k means <=10k is allowed. "
+                + "Note that this limit applies to the union of all selected cohorts, not each cohort individually. "
+                + "When unset, there is no default cap. This export model will always run, regardless of how many "
+                + "primary entity instances are included in the selected cohorts.",
+        environmentVariable =
+            "TANAGRA_EXPORT_MODELS_0_NUM_PRIMARY_ENTITY_CAP (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)",
+        optional = true,
+        exampleValue = "10000")
+    private String numPrimaryEntityCap;
 
     @AnnotatedField(
         name = "tanagra.export.models.params",
@@ -183,8 +199,8 @@ public class ExportConfiguration {
                 + "model beyond just the redirect URL. e.g. A description for a generated notebook file.",
         environmentVariable =
             "TANAGRA_EXPORT_MODELS_0_PARAMS_0 (Note the first 0 is the list index of the export models, so "
-                + "if you have 2 models, you may have 0 and 1 env vars. The second 0 is the list index of "
-                + "the parameters, so if you have 2 parameters, you will need 0 and 1 env vars.)",
+                + "if you have 2 models, you'd have 0 and 1 env vars. The second 0 is the list index of "
+                + "the parameters, so if you have 2 parameters, you'd need 0 and 1 env vars.)",
         optional = true,
         exampleValue = "Notebook file generated for Workbench v35")
     private List<String> params;
@@ -205,6 +221,20 @@ public class ExportConfiguration {
       return redirectAwayUrl;
     }
 
+    public Integer getNumPrimaryEntityCap() {
+      try {
+        return numPrimaryEntityCap == null ? null : Integer.parseInt(numPrimaryEntityCap);
+      } catch (NumberFormatException nfEx) {
+        // Don't throw an exception here, which would prevent the service from starting up.
+        LOGGER.warn("Invalid num primary entity cap: {}", numPrimaryEntityCap);
+        return null;
+      }
+    }
+
+    public boolean hasNumPrimaryEntityCap() {
+      return getNumPrimaryEntityCap() != null;
+    }
+
     public List<String> getParams() {
       return params == null ? Collections.emptyList() : Collections.unmodifiableList(params);
     }
@@ -223,6 +253,10 @@ public class ExportConfiguration {
 
     public void setRedirectAwayUrl(String redirectAwayUrl) {
       this.redirectAwayUrl = redirectAwayUrl;
+    }
+
+    public void setNumPrimaryEntityCap(String numPrimaryEntityCap) {
+      this.numPrimaryEntityCap = numPrimaryEntityCap;
     }
 
     public void setParams(List<String> params) {

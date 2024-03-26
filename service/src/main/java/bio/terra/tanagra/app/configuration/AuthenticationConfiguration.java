@@ -114,7 +114,7 @@ public class AuthenticationConfiguration {
 
   public long getGcpProjectNumber() {
     try {
-      return Long.parseLong(gcpProjectNumber);
+      return gcpProjectNumber == null ? Long.MIN_VALUE : Long.parseLong(gcpProjectNumber);
     } catch (NumberFormatException nfEx) {
       // Don't throw an exception here, which would prevent the service from starting up.
       LOGGER.warn("Invalid GCP project number: {}", gcpProjectNumber);
@@ -128,7 +128,7 @@ public class AuthenticationConfiguration {
 
   public long getGkeBackendServiceId() {
     try {
-      return Long.parseLong(gkeBackendServiceId);
+      return gkeBackendServiceId == null ? Long.MIN_VALUE : Long.parseLong(gkeBackendServiceId);
     } catch (NumberFormatException nfEx) {
       // Don't throw an exception here, which would prevent the service from starting up.
       LOGGER.warn("Invalid GCP project number: {}", gkeBackendServiceId);
