@@ -2730,6 +2730,9 @@ components:
         description:
           type: string
           nullable: true
+        numPrimaryEntityCap:
+          description: Maximum number of primary entity instances, across all selected cohorts, that this model can export.
+          type: integer
         inputs:
           description: Map of input parameter names to descriptions
           type: object

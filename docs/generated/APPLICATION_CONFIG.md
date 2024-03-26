@@ -207,7 +207,7 @@ Configure the export options for each model.
 
 Displayed name of the export model. This is for display only and will be shown in the export dialog when the user initiates an export. Defaults to the display name provided by the export model. It's useful to override the default if you have more than one instance of the same model (e.g. export to workbench parameterized with the dev environment URL, and another parameterized with the test environment URL).
 
-*Environment variable:* `TANAGRA_EXPORT_MODELS_0_DISPLAY_NAME (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)`
+*Environment variable:* `TANAGRA_EXPORT_MODELS_0_DISPLAY_NAME (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
 *Example value:* `Export File to Workbench (dev instance)`
 
@@ -216,16 +216,25 @@ Displayed name of the export model. This is for display only and will be shown i
 
 Name of the export model. This must be unique across all models for a given deployment. Defaults to the name of the export model. It's useful to override the default if you have more than one instance of the same model (e.g. export to workbench parameterized with the dev environment URL, and another parameterized with the test environment URL).
 
-*Environment variable:* `TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you will have 0 and 1 env vars.)`
+*Environment variable:* `TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
 *Example value:* `VWB_FILE_IMPORT_TO_DEV`
+
+### tanagra.export.models.numPrimaryEntityCap
+**optional** String
+
+Maximum number of primary entity instances to allow exporting (e.g. number of persons <= 10k). This is useful when you want to limit the amount of data a user can export e.g. to keep file sizes reasonable. The limit is inclusive, so 10k means <=10k is allowed. Note that this limit applies to the union of all selected cohorts, not each cohort individually. When unset, there is no default cap. This export model will always run, regardless of how many primary entity instances are included in the selected cohorts.
+
+*Environment variable:* `TANAGRA_EXPORT_MODELS_0_NUM_PRIMARY_ENTITY_CAP (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
+
+*Example value:* `10000`
 
 ### tanagra.export.models.params
 **optional** List [ String ]
 
 Map of parameters to pass to the export model. This is useful when you want to parameterize a model beyond just the redirect URL. e.g. A description for a generated notebook file.
 
-*Environment variable:* `TANAGRA_EXPORT_MODELS_0_PARAMS_0 (Note the first 0 is the list index of the export models, so if you have 2 models, you may have 0 and 1 env vars. The second 0 is the list index of the parameters, so if you have 2 parameters, you will need 0 and 1 env vars.)`
+*Environment variable:* `TANAGRA_EXPORT_MODELS_0_PARAMS_0 (Note the first 0 is the list index of the export models, so if you have 2 models, you'd have 0 and 1 env vars. The second 0 is the list index of the parameters, so if you have 2 parameters, you'd need 0 and 1 env vars.)`
 
 *Example value:* `Notebook file generated for Workbench v35`
 
@@ -234,16 +243,16 @@ Map of parameters to pass to the export model. This is useful when you want to p
 
 URL to redirect the user to once the Tanagra export model has run. This is useful when you want to import a file to another site. e.g. Write the exported data to CSV files in GCS and then redirect to a workbench URL, passing the URL to the CSV files so the workbench can import them somewhere.
 
-*Environment variable:* `TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)`
+*Environment variable:* `TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
 *Example value:* `https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra`
 
 ### tanagra.export.models.type
 **optional** Type
 
-Pointer to the access control model Java class. Currently this must be one of the enum values in the`bio.terra.tanagra.service.export.DataExport.Type` Java class. In the future, it will support arbitrary class names
+Pointer to the data export model Java class. Currently this must be one of the enum values in the`bio.terra.tanagra.service.export.DataExport.Type` Java class. In the future, it will support arbitrary class names
 
-*Environment variable:* `TANAGRA_EXPORT_MODELS_0_TYPE (Note 0 is the list index, so if you have 2 models, you may have 0 and 1 env vars.)`
+*Environment variable:* `TANAGRA_EXPORT_MODELS_0_TYPE (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
 *Example value:* `IPYNB_FILE_DOWNLOAD`
 

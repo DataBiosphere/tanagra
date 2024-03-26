@@ -72,7 +72,9 @@ public class FeatureConfiguration {
 
   public Integer getMaxChildThreads() {
     try {
-      return Integer.parseInt(maxChildThreads);
+      return maxChildThreads == null || maxChildThreads.isEmpty()
+          ? null
+          : Integer.parseInt(maxChildThreads);
     } catch (NumberFormatException nfEx) {
       // Don't throw an exception here, which would prevent the service from starting up.
       LOGGER.warn("Invalid max child threads: {}", maxChildThreads);
