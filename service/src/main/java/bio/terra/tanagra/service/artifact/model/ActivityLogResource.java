@@ -70,6 +70,19 @@ public class ActivityLogResource {
     return reviewDisplayName;
   }
 
+  public String getLogStr() {
+    switch (type) {
+      case STUDY:
+        return "study-" + studyId;
+      case COHORT:
+        return "cohort-" + cohortId;
+      case REVIEW:
+        return "review-" + reviewId;
+      default:
+        return "unknown type " + type;
+    }
+  }
+
   public static Builder builder() {
     return new Builder();
   }

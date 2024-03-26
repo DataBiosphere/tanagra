@@ -13,11 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ActivityLogService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ActivityLogService.class);
   private final ActivityLogDao activityLogDao;
   private final FeatureConfiguration featureConfiguration;
   private final VersionConfiguration versionConfiguration;
@@ -133,6 +136,17 @@ public class ActivityLogService {
               .versionBuild(versionConfiguration.getBuild())
               .resources(resources)
               .build());
+
+      String resourcesLogStr =
+          resources.stream().map(ActivityLogResource::getLogStr).collect(Collectors.joining(","));
+      LOGGER.info(
+          "Created activity log: userEmail={}, type={}, versionGitTag={}, versionGitHash={}, versionBuild={}, resources={}",
+          userEmail,
+          type.name(),
+          versionConfiguration.getGitTag(),
+          versionConfiguration.getGitHash(),
+          versionConfiguration.getBuild(),
+          resourcesLogStr);
     }
   }
 
