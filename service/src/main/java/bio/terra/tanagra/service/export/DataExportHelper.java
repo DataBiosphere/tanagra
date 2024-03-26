@@ -310,7 +310,7 @@ public class DataExportHelper {
    * @param fileNameTemplate String substitution template for the filename. Must include ${cohort}
    *     and ${random} placeholders (e.g. annotations_cohort${cohort}_${random}).
    * @return List of annotation file outputs, including the full GCS path (e.g.
-   *     gs://bucket/filename.csv.gzip).
+   *     gs://bucket/filename.csv).
    */
   public List<ExportFileResult> writeAnnotationDataToGcs(String fileNameTemplate) {
     // Just pick the first GCS bucket name.
@@ -345,6 +345,9 @@ public class DataExportHelper {
                               Instant.now().getEpochSecond()
                                   + "_"
                                   + randomNumberGenerator.getNext()));
+                  if (!fileName.endsWith(".csv")) {
+                    fileName += ".csv";
+                  }
                   BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
                   String gcsUrl = getStorageService().createSignedUrl(blobId.toGsUtilUri());
                   exportFileResults.add(

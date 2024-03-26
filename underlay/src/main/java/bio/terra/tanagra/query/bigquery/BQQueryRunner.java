@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class BQQueryRunner implements QueryRunner {
   private final BQExecutor bigQueryExecutor;
@@ -379,7 +380,7 @@ public class BQQueryRunner implements QueryRunner {
     SqlQueryRequest sqlQueryRequest = buildListQuerySql(exportQueryRequest.getListQueryRequest());
 
     // Execute the SQL query and export the results to GCS.
-    String exportFilePath =
+    Pair<String, String> exportFileUrlAndFileName =
         bigQueryExecutor.export(
             sqlQueryRequest,
             exportQueryRequest.getFileNamePrefix(),
@@ -388,6 +389,7 @@ public class BQQueryRunner implements QueryRunner {
             exportQueryRequest.getAvailableGcsBucketNames(),
             exportQueryRequest.isGenerateSignedUrl());
 
-    return new ExportQueryResult(exportQueryRequest.getFileDisplayName(), exportFilePath);
+    return new ExportQueryResult(
+        exportFileUrlAndFileName.getRight(), exportFileUrlAndFileName.getLeft());
   }
 }

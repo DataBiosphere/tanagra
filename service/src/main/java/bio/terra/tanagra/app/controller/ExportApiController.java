@@ -295,6 +295,7 @@ public class ExportApiController implements ExportApi {
         .url(exportFileResult.getFileUrl())
         .tags(exportFileResult.getTags())
         .message(exportFileResult.getMessage())
-        .error(exportFileResult.getError().getMessage());
+        .error(
+            exportFileResult.getError() == null ? null : exportFileResult.getError().getMessage());
   }
 }

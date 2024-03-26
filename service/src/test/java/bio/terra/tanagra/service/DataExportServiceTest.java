@@ -289,6 +289,8 @@ public class DataExportServiceTest {
             .filter(exportFileResult -> exportFileResult.isEntityData())
             .findFirst();
     assertTrue(entityInstancesFileResult.isPresent());
+    assertTrue(entityInstancesFileResult.get().isSuccessful());
+    assertTrue(entityInstancesFileResult.get().getFileDisplayName().endsWith(".csv.gzip"));
     assertEquals(
         List.of("Data", underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName()),
         entityInstancesFileResult.get().getTags());
@@ -310,6 +312,8 @@ public class DataExportServiceTest {
             .filter(exportFileResult -> exportFileResult.isAnnotationData())
             .findFirst();
     assertTrue(annotationsFileResult.isPresent());
+    assertTrue(annotationsFileResult.get().isSuccessful());
+    assertTrue(annotationsFileResult.get().getFileDisplayName().endsWith(".csv"));
     assertEquals(
         List.of("Annotations", annotationsFileResult.get().getCohort().getDisplayName()),
         annotationsFileResult.get().getTags());
@@ -350,18 +354,22 @@ public class DataExportServiceTest {
         exportResult.getFileResults().stream().filter(ExportFileResult::isEntityData).findFirst();
     assertTrue(entityDataFileResult.isPresent());
     assertTrue(entityDataFileResult.get().isSuccessful());
+    assertTrue(entityDataFileResult.get().getFileDisplayName().endsWith(".csv.gzip"));
     assertEquals(
         List.of("Data", underlayService.getUnderlay(UNDERLAY_NAME).getPrimaryEntity().getName()),
         entityDataFileResult.get().getTags());
+
     Optional<ExportFileResult> annotationsFileResult =
         exportResult.getFileResults().stream()
             .filter(ExportFileResult::isAnnotationData)
             .findFirst();
     assertTrue(annotationsFileResult.isPresent());
     assertTrue(annotationsFileResult.get().isSuccessful());
+    assertTrue(annotationsFileResult.get().getFileDisplayName().endsWith(".csv"));
     assertEquals(
         List.of("Annotations", annotationsFileResult.get().getCohort().getDisplayName()),
         annotationsFileResult.get().getTags());
+
     Optional<ExportFileResult> tsvFileResult =
         exportResult.getFileResults().stream()
             .filter(
@@ -370,6 +378,7 @@ public class DataExportServiceTest {
             .findFirst();
     assertTrue(tsvFileResult.isPresent());
     assertTrue(tsvFileResult.get().isSuccessful());
+    assertTrue(tsvFileResult.get().getFileDisplayName().endsWith(".tsv"));
     assertEquals(List.of("URL List"), tsvFileResult.get().getTags());
 
     // Parse the redirect away URL into component parts.
@@ -446,6 +455,7 @@ public class DataExportServiceTest {
     assertTrue(ipynbFileResult.isSuccessful());
     assertFalse(ipynbFileResult.isEntityData());
     assertFalse(ipynbFileResult.isAnnotationData());
+    assertTrue(ipynbFileResult.getFileDisplayName().endsWith(".ipynb"));
     assertEquals(List.of("Notebook File"), ipynbFileResult.getTags());
 
     // Validate the ipynb file.
@@ -515,6 +525,7 @@ public class DataExportServiceTest {
     assertTrue(conditionOccurrenceFileResult.isPresent());
     assertTrue(conditionOccurrenceFileResult.get().isSuccessful());
     assertNotNull(conditionOccurrenceFileResult.get().getFileUrl());
+    assertTrue(conditionOccurrenceFileResult.get().getFileDisplayName().endsWith(".csv.gzip"));
 
     Optional<ExportFileResult> observationOccurrenceFileResult =
         exportResult.getFileResults().stream()
