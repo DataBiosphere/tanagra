@@ -52,10 +52,11 @@ deployment properties.
 
 ## Manage releases
 Tanagra supports multiple deployments, all with different release cadences.
-Each deployment needs to manage which release it's on, in a separate downstream GitHub repository.
+See more [details about the codebase versioning and release process](./docs/VERSIONING_AND_RELEASES.md), 
+and how you can manage the version for a specific deployment.
 
 Use this [tool to diff two release tags](./docs/DIFF_RELEASES.md), when you're planning on bumping a deployment to a 
-newer version of the mainstream code.
+newer version of this codebase.
 
 
 ## Contribute to the codebase
@@ -85,6 +86,7 @@ Set up a new deployment
 * [Deployment Config Properties](./docs/generated/APPLICATION_CONFIG.md)
 
 Manage releases
+* [Versioning and Releases](./docs/VERSIONING_AND_RELEASES.md)
 * [Diff Releases](./docs/DIFF_RELEASES.md)
 
 Contribute to the codebase
