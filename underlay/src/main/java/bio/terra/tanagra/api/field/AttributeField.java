@@ -10,19 +10,13 @@ public class AttributeField extends ValueDisplayField {
   private final Entity entity;
   private final Attribute attribute;
   private final boolean excludeDisplay;
-  private final boolean isSource;
 
   public AttributeField(
-      Underlay underlay,
-      Entity entity,
-      Attribute attribute,
-      boolean excludeDisplay,
-      boolean isSource) {
+      Underlay underlay, Entity entity, Attribute attribute, boolean excludeDisplay) {
     this.underlay = underlay;
     this.entity = entity;
     this.attribute = attribute;
     this.excludeDisplay = excludeDisplay;
-    this.isSource = isSource;
   }
 
   public Underlay getUnderlay() {
@@ -44,9 +38,5 @@ public class AttributeField extends ValueDisplayField {
 
   public boolean isExcludeDisplay() {
     return excludeDisplay;
-  }
-
-  public boolean isSource() {
-    return isSource;
   }
 }

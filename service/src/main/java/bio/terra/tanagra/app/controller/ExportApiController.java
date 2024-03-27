@@ -140,11 +140,11 @@ public class ExportApiController implements ExportApi {
             attribute ->
                 attributeFields.add(
                     new AttributeField(
-                        underlay, previewEntityOutput.getEntity(), attribute, false, false)));
+                        underlay, previewEntityOutput.getEntity(), attribute, false)));
 
     // Run the list query and map the results back to API objects.
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             previewEntityOutput.getEntity(),
             attributeFields,
@@ -152,8 +152,7 @@ public class ExportApiController implements ExportApi {
             null,
             null,
             null,
-            body.getLimit(),
-            false);
+            body.getLimit());
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
   }

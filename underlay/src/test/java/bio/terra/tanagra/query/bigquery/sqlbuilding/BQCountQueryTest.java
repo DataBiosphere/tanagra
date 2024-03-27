@@ -25,7 +25,7 @@ public class BQCountQueryTest extends BQRunnerTest {
             BinaryOperator.NOT_EQUALS,
             Literal.forInt64(8_207L));
     AttributeField groupByAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(
@@ -46,7 +46,7 @@ public class BQCountQueryTest extends BQRunnerTest {
   void noFilter() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField groupByAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(
@@ -72,7 +72,7 @@ public class BQCountQueryTest extends BQRunnerTest {
   void groupByRuntimeCalculatedField() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField groupByAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("age"), false);
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(
@@ -87,7 +87,7 @@ public class BQCountQueryTest extends BQRunnerTest {
   void groupByValueDisplayAttribute() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField groupByAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(

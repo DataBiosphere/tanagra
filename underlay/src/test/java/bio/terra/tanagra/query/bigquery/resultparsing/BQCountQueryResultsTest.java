@@ -33,13 +33,13 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
   void attributeField() {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     AttributeField valueDisplayAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
     AttributeField valueDisplayAttributeWithoutDisplay =
-        new AttributeField(underlay, entity, entity.getAttribute("race"), true, false);
+        new AttributeField(underlay, entity, entity.getAttribute("race"), true);
     AttributeField runtimeCalculatedAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("age"), false);
 
     List<ValueDisplayField> groupBys =
         List.of(

@@ -27,15 +27,15 @@ public class BQFieldTest extends BQRunnerTest {
   void attributeField() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     AttributeField valueDisplayAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
     AttributeField valueDisplayAttributeWithoutDisplay =
-        new AttributeField(underlay, entity, entity.getAttribute("race"), true, false);
+        new AttributeField(underlay, entity, entity.getAttribute("race"), true);
     AttributeField runtimeCalculatedAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("age"), false);
     AttributeField idAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
 
     List<ValueDisplayField> selectAttributes =
         List.of(
@@ -52,8 +52,8 @@ public class BQFieldTest extends BQRunnerTest {
     int limit = 35;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, limit, null, null, true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, limit));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeField", listQueryResult.getSql(), table);
@@ -68,8 +68,8 @@ public class BQFieldTest extends BQRunnerTest {
     List<OrderBy> orderBys = List.of(new OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("entityIdCountField", listQueryResult.getSql(), table);
@@ -97,8 +97,8 @@ public class BQFieldTest extends BQRunnerTest {
         List.of(new OrderBy(hierarchyNumChildrenField, OrderByDirection.DESCENDING));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyFields", listQueryResult.getSql(), table);
@@ -124,16 +124,8 @@ public class BQFieldTest extends BQRunnerTest {
             new OrderBy(relatedEntityIdCountFieldWithHier, OrderByDirection.ASCENDING));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                countForEntity,
-                selectAttributes,
-                null,
-                orderBys,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, countForEntity, selectAttributes, null, orderBys, null));
 
     BQTable table =
         underlay.getIndexSchema().getEntityMain(countForEntity.getName()).getTablePointer();

@@ -23,8 +23,9 @@ public class ListQueryRequest {
   private final @Nullable PageMarker pageMarker;
   private final Integer pageSize;
   private final boolean isDryRun;
+  private final boolean isAgainstSourceData;
 
-  @SuppressWarnings("checkstyle:ParameterNumber")
+  @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
   public ListQueryRequest(
       Underlay underlay,
       Entity entity,
@@ -34,7 +35,8 @@ public class ListQueryRequest {
       @Nullable Integer limit,
       @Nullable PageMarker pageMarker,
       @Nullable Integer pageSize,
-      boolean isDryRun) {
+      boolean isDryRun,
+      boolean isAgainstSourceData) {
     this.underlay = underlay;
     this.entity = entity;
     this.selectFields =
@@ -45,6 +47,50 @@ public class ListQueryRequest {
     this.pageMarker = pageMarker;
     this.pageSize = (pageMarker == null && pageSize == null) ? DEFAULT_PAGE_SIZE : pageSize;
     this.isDryRun = isDryRun;
+    this.isAgainstSourceData = isAgainstSourceData;
+  }
+
+  @SuppressWarnings("checkstyle:ParameterNumber")
+  public static ListQueryRequest againstIndexData(
+      Underlay underlay,
+      Entity entity,
+      List<ValueDisplayField> selectFields,
+      @Nullable EntityFilter filter,
+      @Nullable List<OrderBy> orderBys,
+      @Nullable Integer limit,
+      @Nullable PageMarker pageMarker,
+      @Nullable Integer pageSize) {
+    return new ListQueryRequest(
+        underlay,
+        entity,
+        selectFields,
+        filter,
+        orderBys,
+        limit,
+        pageMarker,
+        pageSize,
+        false,
+        false);
+  }
+
+  public static ListQueryRequest dryRunAgainstIndexData(
+      Underlay underlay,
+      Entity entity,
+      List<ValueDisplayField> selectFields,
+      @Nullable EntityFilter filter,
+      @Nullable List<OrderBy> orderBys,
+      @Nullable Integer limit) {
+    return new ListQueryRequest(
+        underlay, entity, selectFields, filter, orderBys, limit, null, null, true, false);
+  }
+
+  public static ListQueryRequest dryRunAgainstSourceData(
+      Underlay underlay,
+      Entity entity,
+      List<ValueDisplayField> selectFields,
+      @Nullable EntityFilter filter) {
+    return new ListQueryRequest(
+        underlay, entity, selectFields, filter, null, null, null, null, true, true);
   }
 
   public Underlay getUnderlay() {
@@ -83,9 +129,8 @@ public class ListQueryRequest {
     return isDryRun;
   }
 
-  public ListQueryRequest cloneAndSetDryRun() {
-    return new ListQueryRequest(
-        underlay, entity, selectFields, filter, orderBys, limit, pageMarker, pageSize, true);
+  public boolean isAgainstSourceData() {
+    return isAgainstSourceData;
   }
 
   public static class OrderBy {

@@ -38,9 +38,9 @@ public class BQListQueryPaginationTest {
 
     // Select and order by the id attribute.
     AttributeField idAttributeField =
-        new AttributeField(underlay, primaryEntity, primaryEntity.getIdAttribute(), false, false);
+        new AttributeField(underlay, primaryEntity, primaryEntity.getIdAttribute(), false);
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             primaryEntity,
             List.of(idAttributeField),
@@ -48,8 +48,7 @@ public class BQListQueryPaginationTest {
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             null,
-            null,
-            false);
+            null);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
 
     assertNotNull(listQueryResult.getSql());
@@ -63,9 +62,9 @@ public class BQListQueryPaginationTest {
 
     // Select and order by the id attribute.
     AttributeField idAttributeField =
-        new AttributeField(underlay, primaryEntity, primaryEntity.getIdAttribute(), false, false);
+        new AttributeField(underlay, primaryEntity, primaryEntity.getIdAttribute(), false);
     ListQueryRequest listQueryRequest1 =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             primaryEntity,
             List.of(idAttributeField),
@@ -73,8 +72,7 @@ public class BQListQueryPaginationTest {
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             null,
-            3,
-            false);
+            3);
 
     // First query request gets the first page of results.
     ListQueryResult listQueryResult1 = underlay.getQueryRunner().run(listQueryRequest1);
@@ -86,7 +84,7 @@ public class BQListQueryPaginationTest {
 
     // Second query request gets the second and final page of results.
     ListQueryRequest listQueryRequest2 =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             primaryEntity,
             List.of(idAttributeField),
@@ -94,8 +92,7 @@ public class BQListQueryPaginationTest {
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             listQueryResult1.getPageMarker(),
-            7,
-            false);
+            7);
     ListQueryResult listQueryResult2 = underlay.getQueryRunner().run(listQueryRequest2);
 
     assertNotNull(listQueryResult2.getSql());

@@ -113,7 +113,7 @@ public class UnderlayService {
             attributeName ->
                 attributeFields.add(
                     new AttributeField(
-                        underlay, entity, entity.getAttribute(attributeName), false, false)));
+                        underlay, entity, entity.getAttribute(attributeName), false)));
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(

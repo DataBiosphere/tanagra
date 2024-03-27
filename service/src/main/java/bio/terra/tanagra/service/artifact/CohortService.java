@@ -192,10 +192,9 @@ public class CohortService {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getIdAttribute(),
-            false,
             false);
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             underlay.getPrimaryEntity(),
             List.of(idAttributeField),
@@ -206,8 +205,7 @@ public class CohortService {
             // BQ does not allow paginating through a query that is ordered randomly, unless we
             // manually persist the results in a temp table (i.e. BQ does not cache the query
             // results in an anonymous dataset for us).
-            sampleSize,
-            false);
+            sampleSize);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     LOGGER.debug("RANDOM SAMPLE primary entity instance ids: {}", listQueryResult.getSql());
     return listQueryResult.getListInstances().stream()

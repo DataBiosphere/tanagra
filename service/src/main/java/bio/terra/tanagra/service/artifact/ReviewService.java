@@ -305,10 +305,9 @@ public class ReviewService {
     reviewQueryRequest.getAttributes().stream()
         .forEach(
             attribute ->
-                attributeFields.add(
-                    new AttributeField(underlay, primaryEntity, attribute, false, false)));
+                attributeFields.add(new AttributeField(underlay, primaryEntity, attribute, false)));
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             primaryEntity,
             attributeFields,
@@ -316,8 +315,7 @@ public class ReviewService {
             null,
             null,
             null,
-            MAX_REVIEW_SIZE,
-            false);
+            MAX_REVIEW_SIZE);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     List<ListInstance> listInstances = new ArrayList<>();
     listQueryResult.getListInstances().stream()
@@ -326,7 +324,7 @@ public class ReviewService {
       // Using the MAX_REVIEW_SIZE as the page size should mean we get all results back in a single
       // page, but that's not guaranteed, so paginate here just in case.
       listQueryRequest =
-          new ListQueryRequest(
+          ListQueryRequest.againstIndexData(
               underlay,
               primaryEntity,
               attributeFields,
@@ -334,8 +332,7 @@ public class ReviewService {
               null,
               null,
               listQueryResult.getPageMarker(),
-              MAX_REVIEW_SIZE,
-              false);
+              MAX_REVIEW_SIZE);
       listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
       listQueryResult.getListInstances().stream()
           .forEach(listInstance -> listInstances.add(listInstance));
@@ -428,8 +425,7 @@ public class ReviewService {
         groupByAttributeNames.stream()
             .map(
                 attrName ->
-                    new AttributeField(
-                        underlay, entity, entity.getAttribute(attrName), true, false))
+                    new AttributeField(underlay, entity, entity.getAttribute(attrName), true))
             .collect(Collectors.toList());
 
     EntityFilter entityFilter =
