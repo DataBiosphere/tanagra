@@ -13,7 +13,6 @@ import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
-import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -202,12 +201,6 @@ public class CohortsApiController implements CohortsApi {
     return CohortRevision.CriteriaGroup.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
-        .entity(apiObj.getEntity())
-        .groupByCountOperator(
-            apiObj.getGroupByCountOperator() == null
-                ? null
-                : BinaryOperator.valueOf(apiObj.getGroupByCountOperator().name()))
-        .groupByCountValue(apiObj.getGroupByCountValue())
         .criteria(
             apiObj.getCriteria().stream()
                 .map(FromApiUtils::fromApiObject)

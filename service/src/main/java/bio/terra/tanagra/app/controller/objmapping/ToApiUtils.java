@@ -16,7 +16,6 @@ import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.generated.model.ApiAnnotationValue;
 import bio.terra.tanagra.generated.model.ApiAttribute;
-import bio.terra.tanagra.generated.model.ApiBinaryOperator;
 import bio.terra.tanagra.generated.model.ApiCohort;
 import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
@@ -137,12 +136,6 @@ public final class ToApiUtils {
     return new ApiCriteriaGroup()
         .id(criteriaGroup.getId())
         .displayName(criteriaGroup.getDisplayName())
-        .entity(criteriaGroup.getEntity())
-        .groupByCountOperator(
-            criteriaGroup.getGroupByCountOperator() == null
-                ? null
-                : ApiBinaryOperator.valueOf(criteriaGroup.getGroupByCountOperator().name()))
-        .groupByCountValue(criteriaGroup.getGroupByCountValue())
         .criteria(
             criteriaGroup.getCriteria().stream()
                 .map(criteria -> toApiObject(criteria))

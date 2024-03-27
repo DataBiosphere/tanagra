@@ -2,7 +2,6 @@ package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.shared.BinaryOperator;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -344,23 +343,11 @@ public class CohortRevision {
     private final String id;
     private final String displayName;
     private final List<Criteria> criteria;
-    private final String entity;
-    private final @Nullable BinaryOperator groupByCountOperator;
-    private final int groupByCountValue;
 
-    private CriteriaGroup(
-        String id,
-        String displayName,
-        List<Criteria> criteria,
-        String entity,
-        BinaryOperator groupByCountOperator,
-        int groupByCountValue) {
+    private CriteriaGroup(String id, String displayName, List<Criteria> criteria) {
       this.id = id;
       this.displayName = displayName;
       this.criteria = criteria;
-      this.entity = entity;
-      this.groupByCountOperator = groupByCountOperator;
-      this.groupByCountValue = groupByCountValue;
     }
 
     public static Builder builder() {
@@ -379,25 +366,10 @@ public class CohortRevision {
       return Collections.unmodifiableList(criteria);
     }
 
-    public String getEntity() {
-      return entity;
-    }
-
-    public BinaryOperator getGroupByCountOperator() {
-      return groupByCountOperator;
-    }
-
-    public int getGroupByCountValue() {
-      return groupByCountValue;
-    }
-
     public static class Builder {
       private String id;
       private String displayName;
       private List<Criteria> criteria = new ArrayList<>();
-      private String entity;
-      private BinaryOperator groupByCountOperator;
-      private int groupByCountValue;
 
       public Builder id(String id) {
         this.id = id;
@@ -414,27 +386,11 @@ public class CohortRevision {
         return this;
       }
 
-      public Builder entity(String entity) {
-        this.entity = entity;
-        return this;
-      }
-
-      public Builder groupByCountOperator(BinaryOperator groupByCountOperator) {
-        this.groupByCountOperator = groupByCountOperator;
-        return this;
-      }
-
-      public Builder groupByCountValue(Integer groupByCountValue) {
-        this.groupByCountValue = groupByCountValue == null ? 0 : groupByCountValue;
-        return this;
-      }
-
       public CriteriaGroup build() {
         if (id == null) {
           id = RandomStringUtils.randomAlphanumeric(10);
         }
-        return new CriteriaGroup(
-            id, displayName, criteria, entity, groupByCountOperator, groupByCountValue);
+        return new CriteriaGroup(id, displayName, criteria);
       }
 
       public String getId() {
@@ -455,18 +411,14 @@ public class CohortRevision {
         return false;
       }
       CriteriaGroup that = (CriteriaGroup) o;
-      return groupByCountValue == that.groupByCountValue
-          && id.equals(that.id)
+      return id.equals(that.id)
           && displayName.equals(that.displayName)
-          && criteria.equals(that.criteria)
-          && entity.equals(that.entity)
-          && groupByCountOperator == that.groupByCountOperator;
+          && criteria.equals(that.criteria);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(
-          id, displayName, criteria, entity, groupByCountOperator, groupByCountValue);
+      return Objects.hash(id, displayName, criteria);
     }
   }
 }
