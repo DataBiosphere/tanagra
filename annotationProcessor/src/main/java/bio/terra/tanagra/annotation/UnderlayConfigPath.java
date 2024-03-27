@@ -1,14 +1,18 @@
 package bio.terra.tanagra.annotation;
 
+import bio.terra.tanagra.underlay.serialization.SZAttribute;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
+import bio.terra.tanagra.underlay.serialization.SZDataType;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay.serialization.SZHierarchy;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
+import bio.terra.tanagra.underlay.serialization.SZTextSearch;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.util.List;
 
@@ -31,10 +35,11 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZUnderlay.class,
           SZUnderlay.Metadata.class,
           SZEntity.class,
-          SZEntity.Attribute.class,
-          SZEntity.Hierarchy.class,
-          SZEntity.TextSearch.class,
-          SZEntity.DataType.class,
+          SZAttribute.class,
+          SZAttribute.SourceQuery.class,
+          SZHierarchy.class,
+          SZTextSearch.class,
+          SZDataType.class,
           SZGroupItems.class,
           SZCriteriaOccurrence.class,
           SZCriteriaOccurrence.OccurrenceEntity.class,

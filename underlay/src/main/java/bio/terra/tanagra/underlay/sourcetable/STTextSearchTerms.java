@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.underlay.ColumnSchema;
-import bio.terra.tanagra.underlay.serialization.SZEntity;
+import bio.terra.tanagra.underlay.serialization.SZTextSearch;
 import com.google.common.collect.ImmutableList;
 
 public class STTextSearchTerms extends SourceTable {
@@ -12,7 +12,7 @@ public class STTextSearchTerms extends SourceTable {
   private final ColumnSchema idColumnSchema;
   private final ColumnSchema textColumnSchema;
 
-  public STTextSearchTerms(BQTable bqTable, String entity, SZEntity.TextSearch szTextSearch) {
+  public STTextSearchTerms(BQTable bqTable, String entity, SZTextSearch szTextSearch) {
     super(bqTable);
     this.entity = entity;
     this.idColumnSchema = new ColumnSchema(szTextSearch.idFieldName, DataType.INT64);

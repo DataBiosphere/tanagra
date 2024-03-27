@@ -6,8 +6,9 @@ import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.serialization.SZAttribute;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
-import bio.terra.tanagra.underlay.serialization.SZEntity;
+import bio.terra.tanagra.underlay.serialization.SZHierarchy;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +25,8 @@ public final class ITEntityMain extends IndexTable {
       NameHelper namer,
       SZBigQuery.IndexData bigQueryConfig,
       String entity,
-      List<SZEntity.Attribute> szAttributes,
-      Set<SZEntity.Hierarchy> szHierarchies,
+      List<SZAttribute> szAttributes,
+      Set<SZHierarchy> szHierarchies,
       boolean hasTextSearch,
       Set<String> entityGroupsWithCounts) {
     super(namer, bigQueryConfig);

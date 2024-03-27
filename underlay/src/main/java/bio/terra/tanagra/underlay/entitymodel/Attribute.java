@@ -11,6 +11,7 @@ public final class Attribute {
   private final String runtimeSqlFunctionWrapper;
   private final DataType runtimeDataType;
   private final boolean isComputeDisplayHint;
+  private final SourceQuery sourceQuery;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   public Attribute(
@@ -20,7 +21,8 @@ public final class Attribute {
       boolean isId,
       String runtimeSqlFunctionWrapper,
       DataType runtimeDataType,
-      boolean isComputeDisplayHint) {
+      boolean isComputeDisplayHint,
+      SourceQuery sourceQuery) {
     this.name = name;
     this.dataType = dataType;
     this.isValueDisplay = isValueDisplay;
@@ -28,6 +30,7 @@ public final class Attribute {
     this.runtimeSqlFunctionWrapper = runtimeSqlFunctionWrapper;
     this.runtimeDataType = runtimeDataType;
     this.isComputeDisplayHint = isComputeDisplayHint && !isId;
+    this.sourceQuery = sourceQuery;
   }
 
   public String getName() {
@@ -66,6 +69,14 @@ public final class Attribute {
     return isComputeDisplayHint;
   }
 
+  public boolean hasSourceQuery() {
+    return sourceQuery != null;
+  }
+
+  public SourceQuery getSourceQuery() {
+    return sourceQuery;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -81,7 +92,8 @@ public final class Attribute {
         && name.equals(attribute.name)
         && dataType == attribute.dataType
         && Objects.equals(runtimeSqlFunctionWrapper, attribute.runtimeSqlFunctionWrapper)
-        && runtimeDataType == attribute.runtimeDataType;
+        && runtimeDataType == attribute.runtimeDataType
+        && Objects.equals(sourceQuery, attribute.sourceQuery);
   }
 
   @Override
@@ -93,6 +105,48 @@ public final class Attribute {
         isId,
         runtimeSqlFunctionWrapper,
         runtimeDataType,
-        isComputeDisplayHint);
+        isComputeDisplayHint,
+        sourceQuery);
+  }
+
+  public static class SourceQuery {
+    private final String valueFieldName;
+
+    private final String displayFieldTable;
+
+    private final String displayFieldName;
+
+    private final String displayFieldTableJoinFieldName;
+
+    public SourceQuery(
+        String valueFieldName,
+        String displayFieldTable,
+        String displayFieldName,
+        String displayFieldTableJoinFieldName) {
+      this.valueFieldName = valueFieldName;
+      this.displayFieldTable = displayFieldTable;
+      this.displayFieldName = displayFieldName;
+      this.displayFieldTableJoinFieldName = displayFieldTableJoinFieldName;
+    }
+
+    public String getValueFieldName() {
+      return valueFieldName;
+    }
+
+    public String getDisplayFieldTable() {
+      return displayFieldTable;
+    }
+
+    public String getDisplayFieldName() {
+      return displayFieldName;
+    }
+
+    public String getDisplayFieldTableJoinFieldName() {
+      return displayFieldTableJoinFieldName;
+    }
+
+    public boolean hasJoin() {
+      return displayFieldTable != null && !displayFieldTable.isEmpty();
+    }
   }
 }

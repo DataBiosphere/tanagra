@@ -5,6 +5,7 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
+import bio.terra.tanagra.underlay.serialization.SZDataType;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
@@ -59,7 +60,7 @@ public final class ConfigReader {
   private final Map<Pair<String, String>, String> prepackagedCriteriaPluginConfigCache =
       new HashMap<>();
   private String underlay;
-  private ImmutableMap<String, String> sqlSubstitutions;
+  private ImmutableMap<String, String> sqlSubstitutions = ImmutableMap.of();
   private final boolean useResourcesInputStream;
   private final @Nullable Path topLevelProjectDir;
 
@@ -88,7 +89,23 @@ public final class ConfigReader {
 
   public SZEntity readEntity(String entityPath) {
     if (!szEntityCache.containsKey(entityPath)) {
-      szEntityCache.put(entityPath, deserializeEntity(entityPath));
+      SZEntity szEntity = deserializeEntity(entityPath);
+      if (szEntity.sourceQueryTableName != null) {
+        szEntity.sourceQueryTableName =
+            StringSubstitutor.replace(szEntity.sourceQueryTableName, sqlSubstitutions);
+        szEntity.attributes.stream()
+            .filter(
+                szAttribute ->
+                    szAttribute.sourceQuery != null
+                        && szAttribute.sourceQuery.displayFieldTable != null)
+            .forEach(
+                szAttribute -> {
+                  szAttribute.sourceQuery.displayFieldTable =
+                      StringSubstitutor.replace(
+                          szAttribute.sourceQuery.displayFieldTable, sqlSubstitutions);
+                });
+      }
+      szEntityCache.put(entityPath, szEntity);
     }
     return szEntityCache.get(entityPath);
   }
@@ -381,7 +398,7 @@ public final class ConfigReader {
     return Pair.of(underlay, entityOrGroup);
   }
 
-  public static DataType deserializeDataType(@Nullable SZEntity.DataType szDataType) {
+  public static DataType deserializeDataType(@Nullable SZDataType szDataType) {
     return szDataType == null ? null : DataType.valueOf(szDataType.name());
   }
 }

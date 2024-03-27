@@ -3,7 +3,7 @@ package bio.terra.tanagra.underlay.sourcetable;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
-import bio.terra.tanagra.underlay.serialization.SZEntity;
+import bio.terra.tanagra.underlay.serialization.SZHierarchy;
 import com.google.common.collect.ImmutableList;
 
 public class STHierarchyRootFilter extends SourceTable {
@@ -11,7 +11,7 @@ public class STHierarchyRootFilter extends SourceTable {
   private final String hierarchy;
   private final ColumnSchema idColumnSchema;
 
-  public STHierarchyRootFilter(BQTable bqTable, String entity, SZEntity.Hierarchy szHierarchy) {
+  public STHierarchyRootFilter(BQTable bqTable, String entity, SZHierarchy szHierarchy) {
     super(bqTable);
     this.entity = entity;
     this.hierarchy = szHierarchy.name;
