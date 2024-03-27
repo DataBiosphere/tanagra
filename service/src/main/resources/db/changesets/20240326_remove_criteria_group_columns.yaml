@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove_criteria_group_columns
+      author: marikomedlock
+      dbms: postgresql,mariadb,mysql
+      changes:
+        - dropColumn:
+            tableName: criteria_group
+            columnName: entity
+        - dropColumn:
+            tableName: criteria_group
+            columnName: group_by_count_operator
+        - dropColumn:
+            tableName: criteria_group
+            columnName: group_by_count_value

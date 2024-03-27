@@ -5,7 +5,6 @@ import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -84,7 +83,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria group.
   private static final String CRITERIA_GROUP_SELECT_SQL =
-      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value FROM criteria_group";
+      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name FROM criteria_group";
   private static final RowMapper<Pair<List<String>, CohortRevision.CriteriaGroup.Builder>>
       CRITERIA_GROUP_ROW_MAPPER =
           (rs, rowNum) ->
@@ -94,13 +93,7 @@ public class CohortDao {
                       rs.getString("cohort_revision_id")),
                   CohortRevision.CriteriaGroup.builder()
                       .id(rs.getString("id"))
-                      .displayName(rs.getString("display_name"))
-                      .entity(rs.getString("entity"))
-                      .groupByCountOperator(
-                          rs.getString("group_by_count_operator") == null
-                              ? null
-                              : BinaryOperator.valueOf(rs.getString("group_by_count_operator")))
-                      .groupByCountValue(rs.getInt("group_by_count_value")));
+                      .displayName(rs.getString("display_name")));
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
@@ -605,13 +598,6 @@ public class CohortDao {
                 .addValue("criteria_group_section_id", cgs.getId())
                 .addValue("id", cg.getId())
                 .addValue("display_name", cg.getDisplayName())
-                .addValue("entity", cg.getEntity())
-                .addValue(
-                    "group_by_count_operator",
-                    cg.getGroupByCountOperator() == null
-                        ? null
-                        : cg.getGroupByCountOperator().name())
-                .addValue("group_by_count_value", cg.getGroupByCountValue())
                 .addValue("list_index", cgListIndex));
 
         for (int cListIndex = 0; cListIndex < cg.getCriteria().size(); cListIndex++) {
@@ -656,8 +642,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, entity, group_by_count_operator, group_by_count_value, list_index) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :entity, :group_by_count_operator, :group_by_count_value, :list_index)";
+        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, list_index) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :list_index)";
     LOGGER.debug("CREATE criteria_group: {}", sql);
     rowsAffected =
         Arrays.stream(
