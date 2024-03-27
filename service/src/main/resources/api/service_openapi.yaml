@@ -2301,21 +2301,10 @@ components:
           description: Set of criteria in the group
           items:
             $ref: "#/components/schemas/Criteria"
-        entity:
-          description: Entity referenced by the criteria
-          type: string
-        groupByCountOperator:
-          description: Operator to use for the optional group by count modifier
-          $ref: "#/components/schemas/BinaryOperator"
-        groupByCountValue:
-          type: integer
-          description: Value to use for the optional group by count modifier
-          nullable: true
       required:
         - id
         - displayName
         - criteria
-        - entity
 
     Criteria:
       type: object
@@ -2340,12 +2329,9 @@ components:
           type: string
           description: Name of the selector or modifier used by this config
         selectionData:
-          type: string # JSON formatted
+          type: string # Protobuf formatted
           description: Serialized plugin-specific representation of the user's selection
         uiConfig:
-          # TODO: Remove this uiConfig property from the service API once we fully support UI plugins, because it
-          # should be identical to the static config stored in the underlay. For now, we save it separately for
-          # each criteria so we can handle schema changes in the UI code instead of in plugin-specific backend code.
           type: string # JSON formatted
           description: Serialized plugin-specific UI configuration for the criteria
         tags:
