@@ -167,7 +167,10 @@ export function getCriteriaTitle<DataType>(
 ) {
   const p = plugin ?? getCriteriaPlugin(criteria);
   const title = p.displayDetails().title;
-  return criteria.config.displayName + (title.length > 0 ? `: ${title}` : "");
+  return (
+    (criteria.predefinedDisplayName ?? criteria.config.displayName) +
+    (title.length > 0 ? `: ${title}` : "")
+  );
 }
 
 export function getCriteriaTitleFull<DataType>(
@@ -177,7 +180,10 @@ export function getCriteriaTitleFull<DataType>(
   const p = plugin ?? getCriteriaPlugin(criteria);
   const details = p.displayDetails();
   const title = details.additionalText?.join(", ") || details.title;
-  return criteria.config.displayName + (title.length > 0 ? `: ${title}` : "");
+  return (
+    (criteria.predefinedDisplayName ?? criteria.config.displayName) +
+    (title.length > 0 ? `: ${title}` : "")
+  );
 }
 
 export function searchCriteria(

@@ -33,7 +33,13 @@ import Loading from "components/loading";
 import { Tabs as TanagraTabs } from "components/tabs";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, makeArrayFilter } from "data/filter";
-import { Cohort, ExportModel, ExportResultLink, FeatureSet } from "data/source";
+import {
+  Cohort,
+  ExportModel,
+  ExportResultLink,
+  FeatureSet,
+  ListDataResponse,
+} from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useStudyId, useUnderlay } from "hooks";
@@ -343,6 +349,7 @@ type PreviewProps = {
 function Preview(props: PreviewProps) {
   const underlay = useUnderlay();
   const underlaySource = useUnderlaySource();
+  const studyId = useStudyId();
 
   const filteredCohorts = useMemo(
     () =>
@@ -369,58 +376,91 @@ function Preview(props: PreviewProps) {
     [props.featureSets, props.selectedFeatureSets]
   );
 
-  const occurrenceFilters = useMemo(() => {
-    const occurrenceLists = filteredFeatureSets.map((fs) => {
-      const ol = getOccurrenceList(
-        underlaySource,
-        new Set(fs.criteria.map((c) => c.id).concat(fs.predefinedCriteria)),
-        fs.criteria
-      );
-
-      ol.forEach((of) => {
-        const output = fs.output.find((o) => o.occurrence === of.id);
-        if (!output) {
-          return;
-        }
-
-        of.attributes = of.attributes.filter(
-          (a) => output.excludedAttributes.indexOf(a) < 0
+  const occurrenceFiltersState = useSWR(
+    {
+      type: "occurrenceFilters",
+      featureSets: filteredFeatureSets,
+    },
+    async () => {
+      const occurrenceLists = filteredFeatureSets.map((fs) => {
+        const ol = getOccurrenceList(
+          underlaySource,
+          new Set(fs.criteria.map((c) => c.id).concat(fs.predefinedCriteria)),
+          fs.criteria
         );
-      });
-      return ol;
-    });
 
-    const merged: OccurrenceFilters[] = [];
-    occurrenceLists.forEach((ol) => {
-      ol.forEach((of) => {
-        const cur = merged.find((f) => f.id === of.id);
-        if (!cur) {
+        ol.forEach((of) => {
+          const output = fs.output.find((o) => o.occurrence === of.id);
+          if (!output) {
+            return;
+          }
+
+          of.attributes = of.attributes.filter(
+            (a) => output.excludedAttributes.indexOf(a) < 0
+          );
+        });
+        return ol;
+      });
+
+      const merged: OccurrenceFilters[] = [];
+      occurrenceLists.forEach((ol) => {
+        ol.forEach((of) => {
+          const cur = merged.find((f) => f.id === of.id);
+          if (!cur) {
+            merged.push(of);
+            return;
+          }
+
+          cur.attributes = Array.from(
+            new Set(cur.attributes.concat(of.attributes))
+          );
+          cur.filters = cur.filters.concat(of.filters);
+          cur.sourceCriteria = cur.sourceCriteria.concat(of.sourceCriteria);
+        });
+      });
+
+      if (process.env.REACT_APP_BACKEND_FILTERS) {
+        // TODO(tjennison): Remove merging behavior once switch is made to
+        // backend filter generation and filters are no longer needed.
+        const previewEntities = await underlaySource.exportPreviewEntities(
+          underlay.name,
+          studyId,
+          filteredCohorts.map((c) => c.id),
+          filteredFeatureSets.map((fs) => fs.id)
+        );
+        const frontendOccurrenceFilters = [...merged];
+        merged.length = 0;
+
+        frontendOccurrenceFilters.forEach((of) => {
+          const pe = previewEntities.find(
+            (pe) => pe.id === underlaySource.lookupEntity(of.id).name
+          );
+          if (!pe) {
+            return;
+          }
+
+          of.attributes = pe.attributes;
+          // TODO(tjennison): Update source criteria.
           merged.push(of);
-          return;
-        }
+        });
+      }
 
-        cur.attributes = Array.from(
-          new Set(cur.attributes.concat(of.attributes))
-        );
-        cur.filters = cur.filters.concat(of.filters);
-        cur.sourceCriteria = cur.sourceCriteria.concat(of.sourceCriteria);
-      });
-    });
-
-    return merged;
-  }, [filteredFeatureSets]);
+      return merged;
+    }
+  );
 
   const [exportDialog, showExportDialog] = useExportDialog({
-    cohorts: filteredCohorts,
+    cohorts: filteredCohorts.map((c) => c.id),
     cohortsFilter: cohortsFilter,
-    occurrenceFilters: occurrenceFilters,
+    featureSets: filteredFeatureSets.map((fs) => fs.id),
+    occurrenceFilters: occurrenceFiltersState.data ?? [],
   });
 
   const empty =
     props.selectedCohorts.size === 0 || props.selectedFeatureSets.size === 0;
 
   return (
-    <GridBox>
+    <Loading status={occurrenceFiltersState}>
       <TanagraTabs
         configs={[
           {
@@ -429,7 +469,9 @@ function Preview(props: PreviewProps) {
             render: () => (
               <PreviewSummary
                 cohorts={filteredCohorts}
-                occurrenceFilters={occurrenceFilters}
+                cohortsFilter={cohortsFilter}
+                featureSets={filteredFeatureSets.map((fs) => fs.id)}
+                occurrenceFilters={occurrenceFiltersState.data ?? []}
                 empty={empty}
               />
             ),
@@ -439,8 +481,10 @@ function Preview(props: PreviewProps) {
             title: "Data",
             render: () => (
               <PreviewTable
+                cohorts={filteredCohorts.map((c) => c.id)}
                 cohortsFilter={cohortsFilter}
-                occurrenceFilters={occurrenceFilters}
+                featureSets={filteredFeatureSets.map((fs) => fs.id)}
+                occurrenceFilters={occurrenceFiltersState.data ?? []}
                 empty={empty}
               />
             ),
@@ -471,7 +515,7 @@ function Preview(props: PreviewProps) {
         }
       />
       {exportDialog}
-    </GridBox>
+    </Loading>
   );
 }
 
@@ -482,13 +526,17 @@ type PreviewTabData = {
 };
 
 type PreviewTableProps = {
+  cohorts: string[];
   cohortsFilter: Filter | null;
+  featureSets: string[];
   occurrenceFilters: OccurrenceFilters[];
   empty: boolean;
 };
 
 function PreviewTable(props: PreviewTableProps) {
   const underlaySource = useUnderlaySource();
+  const underlay = useUnderlay();
+  const studyId = useStudyId();
 
   const [tab, setTab] = useState(0);
   const [queriesMode, setQueriesMode] = useState<boolean | null>(false);
@@ -502,16 +550,27 @@ function PreviewTable(props: PreviewTableProps) {
     async () => {
       return Promise.all(
         props.occurrenceFilters.map(async (filters) => {
-          if (!props.cohortsFilter) {
-            throw new Error("No selected cohort contain any criteria.");
-          }
+          let res: ListDataResponse | undefined;
+          if (process.env.REACT_APP_BACKEND_FILTERS) {
+            res = await underlaySource.exportPreview(
+              underlay.name,
+              filters.id,
+              studyId,
+              props.cohorts,
+              props.featureSets
+            );
+          } else {
+            if (!props.cohortsFilter) {
+              throw new Error("No selected cohort contain any criteria.");
+            }
 
-          const res = await underlaySource.listData(
-            filters.attributes,
-            filters.id,
-            props.cohortsFilter,
-            makeArrayFilter({ min: 1 }, filters.filters)
-          );
+            res = await underlaySource.listData(
+              filters.attributes,
+              filters.id,
+              props.cohortsFilter,
+              makeArrayFilter({ min: 1 }, filters.filters)
+            );
+          }
 
           const data: TreeGridData = {
             root: { data: {}, children: [] },
@@ -552,27 +611,32 @@ function PreviewTable(props: PreviewTableProps) {
           <GridLayout cols>
             <GridLayout
               rows
-              colAlign="center"
+              spacing={1}
               sx={{ borderRight: 1, borderColor: "divider" }}
             >
-              <ToggleButtonGroup
-                value={queriesMode}
-                exclusive
-                onChange={onQueriesModeChange}
-              >
-                <ToggleButton value={false}>Tables</ToggleButton>
-                <ToggleButton value={true}>Queries</ToggleButton>
-              </ToggleButtonGroup>
-              <Tabs
-                orientation="vertical"
-                value={tab}
-                onChange={onTabChange}
-                sx={{ flexGrow: 1 }}
-              >
-                {tabDataState.data?.map((data) => (
-                  <Tab key={data.name} label={data.name} />
-                ))}
-              </Tabs>
+              <GridLayout rows colAlign="center" sx={{ px: 1 }}>
+                <ToggleButtonGroup
+                  value={queriesMode}
+                  exclusive
+                  onChange={onQueriesModeChange}
+                  sx={{ width: "auto" }}
+                >
+                  <ToggleButton value={false}>Tables</ToggleButton>
+                  <ToggleButton value={true}>Queries</ToggleButton>
+                </ToggleButtonGroup>
+              </GridLayout>
+              <GridLayout rows colAlign="right">
+                <Tabs
+                  orientation="vertical"
+                  value={tab}
+                  onChange={onTabChange}
+                  sx={{ flexGrow: 1 }}
+                >
+                  {tabDataState.data?.map((data) => (
+                    <Tab key={data.name} label={data.name} />
+                  ))}
+                </Tabs>
+              </GridLayout>
             </GridLayout>
             <GridBox>
               {queriesMode ? (
@@ -625,6 +689,8 @@ function PreviewTable(props: PreviewTableProps) {
 
 type PreviewSummaryProps = {
   cohorts: Cohort[];
+  cohortsFilter: Filter | null;
+  featureSets: string[];
   occurrenceFilters: OccurrenceFilters[];
   empty: boolean;
 };
@@ -650,21 +716,22 @@ function PreviewSummary(props: PreviewSummaryProps) {
               </Paper>
             ))}
           </GridLayout>
-          <GridLayout rows spacing={1}>
+          <GridLayout rows spacing={1} height="auto">
             <Typography variant="body1em">
               Here are the {props.occurrenceFilters.length} tables you get in
               your export
             </Typography>
             {props.occurrenceFilters.map((filters) => (
-              <Paper
+              <GridBox
                 key={filters.id}
                 sx={{
                   p: 1,
                   backgroundColor: (theme) => theme.palette.background.default,
+                  borderRadius: (theme) => `${theme.shape.borderRadius}px`,
                 }}
               >
                 <OccurrenceFiltersSummary filters={filters} />
-              </Paper>
+              </GridBox>
             ))}
           </GridLayout>
         </GridLayout>
@@ -681,8 +748,9 @@ function PreviewSummary(props: PreviewSummaryProps) {
 }
 
 type ExportDialogProps = {
-  cohorts: Cohort[];
+  cohorts: string[];
   cohortsFilter: Filter | null;
+  featureSets: string[];
   occurrenceFilters: OccurrenceFilters[];
 };
 
@@ -748,6 +816,7 @@ function ExportDialog(
       modelId: model?.id,
       cohorts: props.cohorts,
       cohortsFilter: props.cohortsFilter,
+      featureSets: props.featureSets,
       occurrenceFilters: props.occurrenceFilters,
     },
     async (key) => {
@@ -765,7 +834,8 @@ function ExportDialog(
         studyId,
         key.modelId,
         RETURN_URL_PLACEHOLDER,
-        key.cohorts.map((c) => c.id),
+        key.cohorts,
+        key.featureSets,
         key.occurrenceFilters.map((filters) => ({
           requestedAttributes: filters.attributes,
           entityId: filters.id,
