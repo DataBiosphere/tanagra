@@ -21,7 +21,6 @@ import {
 } from "cohortReview/reviewHooks";
 import Loading from "components/loading";
 import { Tabs } from "components/tabs";
-import { FilterType } from "data/filter";
 import { Annotation, AnnotationType, ReviewInstance } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { DataEntry, DataValue, stringifyDataValue } from "data/types";
@@ -135,19 +134,13 @@ export function CohortReview() {
       pagePlugins.forEach((p) => entityIds.push(...p.entities));
 
       const res = await Promise.all(
-        entityIds.map((id) => {
-          return underlaySource.listData(
+        entityIds.map((id) =>
+          underlaySource.listDataForPrimaryEntity(
             underlaySource.listAttributes(id),
             id,
-            {
-              type: FilterType.Attribute,
-              attribute: "id",
-              values: [instance?.data?.[primaryKey]],
-            },
-            null,
-            0
-          );
-        })
+            instance?.data?.[primaryKey]
+          )
+        )
       );
 
       const rows: { [x: string]: DataEntry[] } = {};

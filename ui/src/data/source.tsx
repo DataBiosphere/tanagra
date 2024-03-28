@@ -131,6 +131,11 @@ export type ExportRequestEntity = {
   conceptSet: Filter | null;
 };
 
+export type ExportPreviewEntity = {
+  id: string;
+  attributes: string[];
+};
+
 export type ExportResultLink = {
   tags: string[];
   displayName: string;
@@ -236,6 +241,7 @@ export type Criteria = {
   type: string;
   data: string;
   config: CommonSelectorConfig;
+  predefinedDisplayName?: string;
 };
 
 export type ConceptSet = {
@@ -272,6 +278,12 @@ export interface UnderlaySource {
     limit?: number
   ): Promise<ListDataResponse>;
 
+  listDataForPrimaryEntity(
+    requestedAttributes: string[],
+    entityId: string,
+    primaryEntityId: DataValue
+  ): Promise<ListDataResponse>;
+
   getHintData(
     occurrenceID: string,
     attributeID: string,
@@ -292,12 +304,28 @@ export interface UnderlaySource {
 
   listExportModels(underlayName: string): Promise<ExportModel[]>;
 
+  exportPreviewEntities(
+    underlayName: string,
+    studyId: string,
+    cohorts: string[],
+    featureSets: string[]
+  ): Promise<ExportPreviewEntity[]>;
+
+  exportPreview(
+    underlayName: string,
+    entityId: string,
+    studyId: string,
+    cohorts: string[],
+    featureSets: string[]
+  ): Promise<ListDataResponse>;
+
   export(
     underlayName: string,
     studyId: string,
     modelId: string,
     returnURL: string,
-    cohortIds: string[],
+    cohorts: string[],
+    conceptSets: string[],
     entities: ExportRequestEntity[]
   ): Promise<ExportResult>;
 }
@@ -554,6 +582,7 @@ export class BackendUnderlaySource implements UnderlaySource {
       type: selector.plugin,
       data: pc.pluginData,
       config: selector,
+      predefinedDisplayName: pc.displayName,
     };
   }
 
@@ -656,6 +685,52 @@ export class BackendUnderlaySource implements UnderlaySource {
             limit,
             pageMarker
           ),
+        })
+      );
+
+      data.push(
+        ...(res.instances?.map((instance) =>
+          makeDataEntry(entity.idAttribute, instance.attributes)
+        ) ?? [])
+      );
+
+      sql = res.sql;
+      pageMarker = res.pageMarker;
+      if (!pageMarker?.length || !res.instances?.length) {
+        break;
+      }
+    }
+    return {
+      data: data,
+      sql: sql ?? "",
+    };
+  }
+
+  async listDataForPrimaryEntity(
+    requestedAttributes: string[],
+    entityId: string,
+    primaryEntityId: DataValue
+  ): Promise<ListDataResponse> {
+    const entity = this.lookupEntity(entityId);
+    const ra = normalizeRequestedAttributes(
+      requestedAttributes,
+      entity.idAttribute
+    );
+
+    let pageMarker: string | undefined;
+    let sql: string | undefined;
+    const data: DataEntry[] = [];
+    while (true) {
+      const res = await parseAPIError(
+        this.underlaysApi.listInstancesForPrimaryEntity({
+          entityName: entity.name,
+          underlayName: this.underlay.name,
+          queryFilterOnPrimaryEntity: {
+            includeAttributes: ra,
+            orderBys: [],
+            primaryEntityId: literalFromDataValue(primaryEntityId),
+            pageMarker,
+          },
         })
       );
 
@@ -791,12 +866,68 @@ export class BackendUnderlaySource implements UnderlaySource {
     );
   }
 
+  public async exportPreviewEntities(
+    underlayName: string,
+    studyId: string,
+    cohorts: string[],
+    featureSets: string[]
+  ): Promise<ExportPreviewEntity[]> {
+    return await parseAPIError(
+      this.exportApi
+        .previewEntityOutputs({
+          underlayName,
+          exportPreviewRequest: {
+            study: studyId,
+            cohorts,
+            conceptSets: featureSets,
+          },
+        })
+        .then((res) =>
+          res.entityOutputs.map((o) => ({
+            id: o.entity,
+            attributes: o.includedAttributes,
+          }))
+        )
+    );
+  }
+
+  public async exportPreview(
+    underlayName: string,
+    entityId: string,
+    studyId: string,
+    cohorts: string[],
+    featureSets: string[]
+  ): Promise<ListDataResponse> {
+    const entity = this.lookupEntity(entityId);
+
+    return await parseAPIError(
+      this.exportApi
+        .previewEntityExport({
+          underlayName,
+          entityName: entity.name,
+          exportPreviewRequest: {
+            study: studyId,
+            cohorts,
+            conceptSets: featureSets,
+          },
+        })
+        .then((res) => ({
+          data:
+            res.instances?.map((instance) =>
+              makeDataEntry(entity.idAttribute, instance.attributes)
+            ) ?? [],
+          sql: res.sql ?? "",
+        }))
+    );
+  }
+
   public async export(
     underlayName: string,
     studyId: string,
     modelId: string,
     returnURL: string,
-    cohortIds: string[],
+    cohorts: string[],
+    conceptSets: string[],
     entities: ExportRequestEntity[]
   ): Promise<ExportResult> {
     return await parseAPIError(
@@ -808,7 +939,8 @@ export class BackendUnderlaySource implements UnderlaySource {
             exportModel: modelId,
             redirectBackUrl: returnURL,
             includeAnnotations: true,
-            cohorts: cohortIds,
+            cohorts,
+            conceptSets,
             instanceQuerys: entities.map((e) => ({
               entity: this.lookupEntity(e.entityId).name,
               query: this.makeQuery(
