@@ -182,6 +182,7 @@ export type SZSourceQuery = {
   displayFieldName?: string;
   displayFieldTable?: string;
   displayFieldTableJoinFieldName?: string;
+  isSuppressed?: boolean;
   valueFieldName?: string;
 };
 

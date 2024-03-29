@@ -975,6 +975,15 @@ This is required if the #szsourcequerydisplayfieldtable is specified.
 
 *Example value:* `concept_id`
 
+### SZSourceQuery.isSuppressed
+**optional** boolean
+
+True if this attribute doesn't map to a specific field in the source table.
+
+*Default value:* `false`
+
+*Example value:* `condition_concept_id`
+
 ### SZSourceQuery.valueFieldName
 **optional** String
 
