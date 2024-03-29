@@ -982,8 +982,6 @@ True if this attribute doesn't map to a specific field in the source table.
 
 *Default value:* `false`
 
-*Example value:* `condition_concept_id`
-
 ### SZSourceQuery.valueFieldName
 **optional** String
 

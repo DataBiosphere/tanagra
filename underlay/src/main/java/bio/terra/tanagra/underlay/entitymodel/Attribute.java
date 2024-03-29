@@ -107,6 +107,7 @@ public final class Attribute {
 
   public static class SourceQuery {
     private final boolean isSuppressed;
+
     private final String valueFieldName;
 
     private final String displayFieldTable;

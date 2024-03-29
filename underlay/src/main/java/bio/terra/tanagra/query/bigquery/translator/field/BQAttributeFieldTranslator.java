@@ -60,7 +60,7 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
     boolean hasDisplayField;
     if (attributeField.isAgainstSourceDataset()) {
       SqlField valueField = SqlField.of(attribute.getSourceQuery().getValueFieldName());
-      valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias());
+      valueSqlQueryField = SqlQueryField.of(valueField);
       hasDisplayField = attribute.getSourceQuery().hasDisplayField();
     } else {
       SqlField valueField = indexTable.getAttributeValueField(attribute.getName());
@@ -90,11 +90,9 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
   }
 
   private String getValueFieldAlias() {
-    return attributeField.isAgainstSourceDataset()
-        ? null
-        : indexTable
-            .getAttributeValueField(attributeField.getAttribute().getName())
-            .getColumnName();
+    return indexTable
+        .getAttributeValueField(attributeField.getAttribute().getName())
+        .getColumnName();
   }
 
   private String getDisplayFieldAlias() {

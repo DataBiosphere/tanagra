@@ -26,7 +26,7 @@ public class ListQueryRequest {
   private final boolean isAgainstSourceData;
 
   @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
-  public ListQueryRequest(
+  private ListQueryRequest(
       Underlay underlay,
       Entity entity,
       List<ValueDisplayField> selectFields,

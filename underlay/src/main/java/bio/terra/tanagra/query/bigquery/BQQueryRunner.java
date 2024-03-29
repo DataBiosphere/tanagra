@@ -167,9 +167,6 @@ public class BQQueryRunner implements QueryRunner {
       throw new InvalidConfigException(
           "Entity " + listQueryRequest.getEntity().getName() + " does not support source queries");
     }
-    if (listQueryRequest.getSelectFields().isEmpty()) {
-      throw new InvalidQueryException("List query must include at least one select field");
-    }
     listQueryRequest.getSelectFields().stream()
         .forEach(
             selectField -> {
@@ -246,6 +243,9 @@ public class BQQueryRunner implements QueryRunner {
                 }
               }
             });
+    if (selectFields.isEmpty()) {
+      throw new InvalidQueryException("List query must include at least one select field");
+    }
     AttributeField sourceIdAttrField = AttributeField.againstSourceDataset(indexIdAttributeField);
     SqlQueryField sourceIdAttrSqlField =
         bqTranslator.translator(sourceIdAttrField).buildSqlFieldsForListSelect().get(0);
