@@ -180,7 +180,6 @@ public class BQQueryRunner implements QueryRunner {
     // Select only the id attribute, which we need to JOIN to the source table.
     // SELECT id FROM [index table] WHERE [filter]
     StringBuilder sql = new StringBuilder(50);
-    SqlParams sqlParams = new SqlParams();
     BQApiTranslator bqTranslator = new BQApiTranslator();
     AttributeField indexIdAttributeField =
         new AttributeField(
@@ -228,7 +227,7 @@ public class BQQueryRunner implements QueryRunner {
 
                   StringBuilder joinSql = new StringBuilder();
                   joinSql
-                      .append(" JOIN ")
+                      .append(" LEFT JOIN ")
                       .append(fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
                       .append(" AS ")
                       .append(joinTableAlias)
@@ -267,7 +266,7 @@ public class BQQueryRunner implements QueryRunner {
         .append(')');
     return new SqlQueryRequest(
         sql.toString(),
-        sqlParams,
+        indexDataSqlRequest.getSqlParams(),
         listQueryRequest.getPageMarker(),
         listQueryRequest.getPageSize(),
         listQueryRequest.isDryRun());

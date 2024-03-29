@@ -10,7 +10,7 @@
         st.ethnicity_concept_id AS T_DISP_ethnicityNoDisplayJoin      
     FROM
         ${person} AS st      
-    JOIN
+    LEFT JOIN
         ${concept} AS dt0              
             ON dt0.concept_id = st.gender_concept_id      
     WHERE
