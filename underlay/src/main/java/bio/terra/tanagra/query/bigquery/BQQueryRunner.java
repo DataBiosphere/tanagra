@@ -17,11 +17,14 @@ import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.QueryRunner;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
+import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
+import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.query.sql.SqlQueryRequest;
 import bio.terra.tanagra.query.sql.SqlQueryResult;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -46,7 +49,10 @@ public class BQQueryRunner implements QueryRunner {
   @Override
   public ListQueryResult run(ListQueryRequest listQueryRequest) {
     // Build the SQL query.
-    SqlQueryRequest sqlQueryRequest = buildListQuerySql(listQueryRequest);
+    SqlQueryRequest sqlQueryRequest =
+        listQueryRequest.isAgainstSourceData()
+            ? buildListQuerySqlAgainstSourceData(listQueryRequest)
+            : buildListQuerySqlAgainstIndexData(listQueryRequest);
 
     // Execute the SQL query.
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
@@ -80,7 +86,7 @@ public class BQQueryRunner implements QueryRunner {
   }
 
   @VisibleForTesting
-  public SqlQueryRequest buildListQuerySql(ListQueryRequest listQueryRequest) {
+  public SqlQueryRequest buildListQuerySqlAgainstIndexData(ListQueryRequest listQueryRequest) {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
@@ -151,6 +157,126 @@ public class BQQueryRunner implements QueryRunner {
         listQueryRequest.getPageMarker(),
         listQueryRequest.getPageSize(),
         listQueryRequest.isDryRun());
+  }
+
+  @VisibleForTesting
+  public SqlQueryRequest buildListQuerySqlAgainstSourceData(ListQueryRequest listQueryRequest) {
+    // Make sure the entity is enabled for source queries, and all the selected fields are
+    // attributes.
+    if (!listQueryRequest.getEntity().supportsSourceQueries()) {
+      throw new InvalidConfigException(
+          "Entity " + listQueryRequest.getEntity().getName() + " does not support source queries");
+    }
+    if (listQueryRequest.getSelectFields().isEmpty()) {
+      throw new InvalidQueryException("List query must include at least one select field");
+    }
+    listQueryRequest.getSelectFields().stream()
+        .forEach(
+            selectField -> {
+              if (!(selectField instanceof AttributeField)) {
+                throw new InvalidQueryException(
+                    "Only attribute fields can be selected in a query against the source data");
+              }
+            });
+
+    // Build the inner SQL query against the index data first.
+    // Select only the id attribute, which we need to JOIN to the source table.
+    // SELECT id FROM [index table] WHERE [filter]
+    StringBuilder sql = new StringBuilder(50);
+    SqlParams sqlParams = new SqlParams();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
+    AttributeField indexIdAttributeField =
+        new AttributeField(
+            listQueryRequest.getUnderlay(),
+            listQueryRequest.getEntity(),
+            listQueryRequest.getEntity().getIdAttribute(),
+            true);
+    ListQueryRequest indexDataQueryRequest =
+        ListQueryRequest.dryRunAgainstIndexData(
+            listQueryRequest.getUnderlay(),
+            listQueryRequest.getEntity(),
+            List.of(indexIdAttributeField),
+            listQueryRequest.getFilter(),
+            null,
+            null);
+    SqlQueryRequest indexDataSqlRequest = buildListQuerySqlAgainstIndexData(indexDataQueryRequest);
+
+    // Now build the outer SQL query against the source data.
+    final String sourceTableAlias = "st";
+    List<String> selectFields = new ArrayList<>();
+    List<String> displayTableJoins = new ArrayList<>();
+    listQueryRequest.getSelectFields().stream()
+        .forEach(
+            valueDisplayField -> {
+              AttributeField attrFieldAgainstSourceData =
+                  AttributeField.againstSourceDataset((AttributeField) valueDisplayField);
+              Attribute.SourceQuery attrSourcePointer =
+                  attrFieldAgainstSourceData.getAttribute().getSourceQuery();
+              if (attrSourcePointer.isSuppressed()) {
+                return;
+              }
+
+              List<SqlQueryField> valueAndDisplayFields =
+                  bqTranslator.translator(attrFieldAgainstSourceData).buildSqlFieldsForListSelect();
+              SqlQueryField valueSqlField = valueAndDisplayFields.get(0);
+              selectFields.add(valueSqlField.renderForSelect(sourceTableAlias));
+
+              if (valueAndDisplayFields.size() > 1) {
+                SqlQueryField displaySqlField = valueAndDisplayFields.get(1);
+                if (attrSourcePointer.hasDisplayFieldTableJoin()) {
+                  SqlQueryField displayTableJoinField =
+                      SqlQueryField.of(
+                          SqlField.of(attrSourcePointer.getDisplayFieldTableJoinFieldName()));
+                  String joinTableAlias = "dt" + displayTableJoins.size();
+
+                  StringBuilder joinSql = new StringBuilder();
+                  joinSql
+                      .append(" JOIN ")
+                      .append(fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
+                      .append(" AS ")
+                      .append(joinTableAlias)
+                      .append(" ON ")
+                      .append(displayTableJoinField.renderForSelect(joinTableAlias))
+                      .append(" = ")
+                      .append(valueSqlField.renderForSelect(sourceTableAlias));
+                  displayTableJoins.add(joinSql.toString());
+                  selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
+                } else {
+                  selectFields.add(displaySqlField.renderForSelect(sourceTableAlias));
+                }
+              }
+            });
+    AttributeField sourceIdAttrField = AttributeField.againstSourceDataset(indexIdAttributeField);
+    SqlQueryField sourceIdAttrSqlField =
+        bqTranslator.translator(sourceIdAttrField).buildSqlFieldsForListSelect().get(0);
+
+    // SELECT [select fields] FROM [source table]
+    // JOIN [display table] ON [display join field]
+    // WHERE [source id field] IN [inner query against index data]
+    sql.append("SELECT ")
+        .append(selectFields.stream().collect(Collectors.joining(", ")))
+        .append(" FROM ")
+        .append(fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render())
+        .append(" AS ")
+        .append(sourceTableAlias)
+        .append(displayTableJoins.stream().collect(Collectors.joining()))
+        .append(" WHERE ")
+        .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
+        .append(" IN (")
+        .append(indexDataSqlRequest.getSql())
+        .append(')');
+    return new SqlQueryRequest(
+        sql.toString(),
+        sqlParams,
+        listQueryRequest.getPageMarker(),
+        listQueryRequest.getPageSize(),
+        listQueryRequest.isDryRun());
+  }
+
+  @VisibleForTesting
+  public static BQTable fromFullTablePath(String fullTablePath) {
+    String[] bqDatasetParsed = fullTablePath.split("\\.");
+    return new BQTable(bqDatasetParsed[0], bqDatasetParsed[1], bqDatasetParsed[2]);
   }
 
   @Override
@@ -377,7 +503,8 @@ public class BQQueryRunner implements QueryRunner {
   @Override
   public ExportQueryResult run(ExportQueryRequest exportQueryRequest) {
     // Build the SQL query.
-    SqlQueryRequest sqlQueryRequest = buildListQuerySql(exportQueryRequest.getListQueryRequest());
+    SqlQueryRequest sqlQueryRequest =
+        buildListQuerySqlAgainstIndexData(exportQueryRequest.getListQueryRequest());
 
     // Execute the SQL query and export the results to GCS.
     Pair<String, String> exportFileUrlAndFileName =

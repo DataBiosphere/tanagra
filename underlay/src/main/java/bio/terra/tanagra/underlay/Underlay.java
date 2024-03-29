@@ -333,9 +333,21 @@ public final class Underlay {
                 szAttribute -> {
                   Attribute.SourceQuery sourceQuery =
                       szAttribute.sourceQuery == null
-                          ? null
+                          ? new Attribute.SourceQuery(
+                              false,
+                              szAttribute.valueFieldName == null
+                                  ? szAttribute.name
+                                  : szAttribute.valueFieldName,
+                              null,
+                              null,
+                              null)
                           : new Attribute.SourceQuery(
-                              szAttribute.sourceQuery.valueFieldName,
+                              szAttribute.sourceQuery.isSuppressed,
+                              szAttribute.sourceQuery.valueFieldName == null
+                                  ? (szAttribute.valueFieldName == null
+                                      ? szAttribute.name
+                                      : szAttribute.valueFieldName)
+                                  : szAttribute.sourceQuery.valueFieldName,
                               szAttribute.sourceQuery.displayFieldTable,
                               szAttribute.sourceQuery.displayFieldName,
                               szAttribute.sourceQuery.displayFieldTableJoinFieldName);

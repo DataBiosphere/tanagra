@@ -166,7 +166,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 BinaryOperator.EQUALS,
                 Literal.forInt64(44_814_644L)),
             Map.of(),
@@ -196,7 +196,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 BinaryOperator.EQUALS,
                 Literal.forInt64(44_814_644L)),
             Map.of(
@@ -238,7 +238,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 NaryOperator.IN,
                 List.of(Literal.forInt64(44_814_644L), Literal.forInt64(44_814_638L))),
             Map.of(),
@@ -273,7 +273,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 NaryOperator.IN,
                 List.of(Literal.forInt64(44_814_644L), Literal.forInt64(44_814_638L))),
             Map.of(
@@ -357,7 +357,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 BinaryOperator.EQUALS,
                 Literal.forInt64(44_814_644L)),
             Map.of(occurrenceEntity, List.of(expectedAgeAtOccurrenceSubFilter)),
@@ -603,7 +603,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 BinaryOperator.EQUALS,
                 Literal.forInt64(44_814_644L)),
             Map.of(
@@ -679,7 +679,6 @@ public class TextSearchFilterBuilderTest {
 
     CriteriaOccurrence criteriaOccurrence =
         (CriteriaOccurrence) underlay.getEntityGroup("notePerson");
-    Entity occurrenceEntity = underlay.getEntity("noteOccurrence");
     EntityFilter expectedCohortFilter =
         new PrimaryWithCriteriaFilter(
             underlay,
@@ -687,7 +686,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 BinaryOperator.EQUALS,
                 Literal.forInt64(44_814_644L)),
             null,
@@ -861,7 +860,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 BinaryOperator.EQUALS,
                 Literal.forInt64(44_814_644L)));
     assertEquals(
@@ -895,7 +894,7 @@ public class TextSearchFilterBuilderTest {
             new AttributeFilter(
                 underlay,
                 criteriaOccurrence.getCriteriaEntity(),
-                occurrenceEntity.getIdAttribute(),
+                criteriaOccurrence.getCriteriaEntity().getIdAttribute(),
                 NaryOperator.IN,
                 List.of(Literal.forInt64(44_814_644L), Literal.forInt64(44_814_638L))));
     EntityFilter expectedTextSearchFilter =

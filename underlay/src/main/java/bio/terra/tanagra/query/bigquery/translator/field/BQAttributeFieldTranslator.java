@@ -55,17 +55,29 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
   private List<SqlQueryField> buildSqlFields(
       boolean includeValueField, boolean includeDisplayField) {
     Attribute attribute = attributeField.getAttribute();
-    SqlField valueField = indexTable.getAttributeValueField(attribute.getName());
-    if (attribute.hasRuntimeSqlFunctionWrapper()) {
-      valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
-    }
 
-    SqlQueryField valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias());
-    if (attribute.isSimple() || attributeField.isExcludeDisplay()) {
+    SqlQueryField valueSqlQueryField;
+    boolean hasDisplayField;
+    if (attributeField.isAgainstSourceDataset()) {
+      SqlField valueField = SqlField.of(attribute.getSourceQuery().getValueFieldName());
+      valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias());
+      hasDisplayField = attribute.getSourceQuery().hasDisplayField();
+    } else {
+      SqlField valueField = indexTable.getAttributeValueField(attribute.getName());
+      if (attribute.hasRuntimeSqlFunctionWrapper()) {
+        valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
+      }
+      valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias());
+      hasDisplayField = !attribute.isSimple();
+    }
+    if (!hasDisplayField || attributeField.isExcludeDisplay()) {
       return List.of(valueSqlQueryField);
     }
 
-    SqlField displayField = indexTable.getAttributeDisplayField(attribute.getName());
+    SqlField displayField =
+        attributeField.isAgainstSourceDataset()
+            ? SqlField.of(attribute.getSourceQuery().getDisplayFieldName())
+            : indexTable.getAttributeDisplayField(attribute.getName());
     SqlQueryField displaySqlQueryField = SqlQueryField.of(displayField, getDisplayFieldAlias());
     List<SqlQueryField> sqlQueryFields = new ArrayList<>();
     if (includeValueField) {
@@ -78,9 +90,11 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
   }
 
   private String getValueFieldAlias() {
-    return indexTable
-        .getAttributeValueField(attributeField.getAttribute().getName())
-        .getColumnName();
+    return attributeField.isAgainstSourceDataset()
+        ? null
+        : indexTable
+            .getAttributeValueField(attributeField.getAttribute().getName())
+            .getColumnName();
   }
 
   private String getDisplayFieldAlias() {

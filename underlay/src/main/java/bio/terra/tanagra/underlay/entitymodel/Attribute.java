@@ -69,10 +69,6 @@ public final class Attribute {
     return isComputeDisplayHint;
   }
 
-  public boolean hasSourceQuery() {
-    return sourceQuery != null;
-  }
-
   public SourceQuery getSourceQuery() {
     return sourceQuery;
   }
@@ -110,6 +106,7 @@ public final class Attribute {
   }
 
   public static class SourceQuery {
+    private final boolean isSuppressed;
     private final String valueFieldName;
 
     private final String displayFieldTable;
@@ -119,14 +116,20 @@ public final class Attribute {
     private final String displayFieldTableJoinFieldName;
 
     public SourceQuery(
+        boolean isSuppressed,
         String valueFieldName,
         String displayFieldTable,
         String displayFieldName,
         String displayFieldTableJoinFieldName) {
+      this.isSuppressed = isSuppressed;
       this.valueFieldName = valueFieldName;
       this.displayFieldTable = displayFieldTable;
       this.displayFieldName = displayFieldName;
       this.displayFieldTableJoinFieldName = displayFieldTableJoinFieldName;
+    }
+
+    public boolean isSuppressed() {
+      return isSuppressed;
     }
 
     public String getValueFieldName() {
@@ -141,12 +144,42 @@ public final class Attribute {
       return displayFieldName;
     }
 
+    public boolean hasDisplayField() {
+      return displayFieldName != null;
+    }
+
     public String getDisplayFieldTableJoinFieldName() {
       return displayFieldTableJoinFieldName;
     }
 
-    public boolean hasJoin() {
+    public boolean hasDisplayFieldTableJoin() {
       return displayFieldTable != null && !displayFieldTable.isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      SourceQuery that = (SourceQuery) o;
+      return isSuppressed == that.isSuppressed
+          && valueFieldName.equals(that.valueFieldName)
+          && Objects.equals(displayFieldTable, that.displayFieldTable)
+          && Objects.equals(displayFieldName, that.displayFieldName)
+          && Objects.equals(displayFieldTableJoinFieldName, that.displayFieldTableJoinFieldName);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(
+          isSuppressed,
+          valueFieldName,
+          displayFieldTable,
+          displayFieldName,
+          displayFieldTableJoinFieldName);
     }
   }
 }

@@ -112,4 +112,8 @@ public final class Entity {
   public String getSourceQueryTableName() {
     return sourceQueryTableName;
   }
+
+  public boolean supportsSourceQueries() {
+    return sourceQueryTableName != null;
+  }
 }

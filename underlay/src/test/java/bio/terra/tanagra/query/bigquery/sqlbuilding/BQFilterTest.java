@@ -524,7 +524,7 @@ public class BQFilterTest extends BQRunnerTest {
             pulsePerson.getGroupEntity().getIdAttribute(),
             false);
     SqlQueryRequest sqlQueryRequest =
-        bqQueryRunner.buildListQuerySql(
+        bqQueryRunner.buildListQuerySqlAgainstIndexData(
             ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 pulsePerson.getGroupEntity(),
@@ -1102,7 +1102,7 @@ public class BQFilterTest extends BQRunnerTest {
         new AttributeField(
             underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false);
     SqlQueryRequest sqlQueryRequest =
-        bqQueryRunner.buildListQuerySql(
+        bqQueryRunner.buildListQuerySqlAgainstIndexData(
             ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
@@ -2069,7 +2069,7 @@ public class BQFilterTest extends BQRunnerTest {
             groupItems.getGroupEntity().getIdAttribute(),
             false);
     SqlQueryRequest sqlQueryRequest =
-        bqQueryRunner.buildListQuerySql(
+        bqQueryRunner.buildListQuerySqlAgainstIndexData(
             ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getGroupEntity(),

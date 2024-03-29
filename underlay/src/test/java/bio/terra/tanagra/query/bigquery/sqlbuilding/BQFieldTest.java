@@ -14,6 +14,7 @@ import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
@@ -57,6 +58,72 @@ public class BQFieldTest extends BQRunnerTest {
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeField", listQueryResult.getSql(), table);
+  }
+
+  @Test
+  void attributeFieldAgainstSourceData() throws IOException {
+    Entity entity = underlay.getPrimaryEntity();
+    AttributeField simpleAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
+    AttributeField valueDisplayAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
+    AttributeField valueDisplayAttributeWithoutDisplay =
+        new AttributeField(underlay, entity, entity.getAttribute("race"), true);
+    AttributeField runtimeCalculatedAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("age"), false);
+    AttributeField idAttribute =
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
+
+    // We don't have an example of a suppressed attribute, yet.
+    // So create an artificially suppressed attribute just for this test.
+    Attribute genderAttribute = entity.getAttribute("gender");
+    AttributeField suppressedAttribute =
+        new AttributeField(
+            underlay,
+            entity,
+            new Attribute(
+                "genderSuppressed",
+                genderAttribute.getDataType(),
+                genderAttribute.isValueDisplay(),
+                genderAttribute.isId(),
+                genderAttribute.getRuntimeSqlFunctionWrapper(),
+                genderAttribute.getRuntimeDataType(),
+                genderAttribute.isComputeDisplayHint(),
+                new Attribute.SourceQuery(
+                    true,
+                    genderAttribute.getSourceQuery().getValueFieldName(),
+                    genderAttribute.getSourceQuery().getDisplayFieldTable(),
+                    genderAttribute.getSourceQuery().getDisplayFieldName(),
+                    genderAttribute.getSourceQuery().getDisplayFieldTableJoinFieldName())),
+            false);
+
+    List<ValueDisplayField> selectAttributes =
+        List.of(
+            simpleAttribute,
+            valueDisplayAttribute,
+            valueDisplayAttributeWithoutDisplay,
+            runtimeCalculatedAttribute,
+            idAttribute,
+            suppressedAttribute);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstSourceData(underlay, entity, selectAttributes, null));
+
+    String[] bqDatasetParsed = entity.getSourceQueryTableName().split("\\.");
+    BQTable sourceTable = new BQTable(bqDatasetParsed[0], bqDatasetParsed[1], bqDatasetParsed[2]);
+    String[] displayBqDatasetParsed =
+        entity.getAttribute("gender").getSourceQuery().getDisplayFieldTable().split("\\.");
+    BQTable displayJoinTable =
+        new BQTable(
+            displayBqDatasetParsed[0], displayBqDatasetParsed[1], displayBqDatasetParsed[2]);
+    BQTable indexTable =
+        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "attributeFieldAgainstSourceData",
+        listQueryResult.getSql(),
+        sourceTable,
+        displayJoinTable,
+        indexTable);
   }
 
   @Test

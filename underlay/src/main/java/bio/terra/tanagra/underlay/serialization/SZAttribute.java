@@ -128,6 +128,14 @@ public class SZAttribute {
               + "(e.g. as part of a notebook file).")
   public static class SourceQuery {
     @AnnotatedField(
+        name = "SZSourceQuery.isSuppressed",
+        markdown = "True if this attribute doesn't map to a specific field in the source table.",
+        exampleValue = "condition_concept_id",
+        optional = true,
+        defaultValue = "false")
+    public boolean isSuppressed;
+
+    @AnnotatedField(
         name = "SZSourceQuery.valueFieldName",
         markdown =
             "Name of the field to use for the attribute value in the source dataset table "
