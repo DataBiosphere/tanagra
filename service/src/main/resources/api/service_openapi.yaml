@@ -1085,12 +1085,12 @@ components:
     Limit:
       name: limit
       in: query
-      description: The maximum number of items to return. Default 15
+      description: The maximum number of items to return. Defaults to 50.
       required: false
       schema:
         type: integer
         minimum: 1
-        default: 15
+        default: 50
 
     StudyFilterDisplayName:
       name: displayName
