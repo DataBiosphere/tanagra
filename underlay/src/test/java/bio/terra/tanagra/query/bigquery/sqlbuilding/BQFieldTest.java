@@ -8,10 +8,14 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryRequest.OrderBy;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.UnaryOperator;
+import bio.terra.tanagra.query.bigquery.BQQueryRunner;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -74,8 +78,31 @@ public class BQFieldTest extends BQRunnerTest {
     AttributeField idAttribute =
         new AttributeField(underlay, entity, entity.getIdAttribute(), false);
 
+    // We don't have an example of an attribute with the display field in the same table, yet.
+    // So create an artificial attribute just for this test.
+    Attribute ethnicityAttribute = entity.getAttribute("ethnicity");
+    AttributeField noDisplayJoinAttribute =
+        new AttributeField(
+            underlay,
+            entity,
+            new Attribute(
+                "ethnicityNoDisplayJoin",
+                ethnicityAttribute.getDataType(),
+                ethnicityAttribute.isValueDisplay(),
+                ethnicityAttribute.isId(),
+                ethnicityAttribute.getRuntimeSqlFunctionWrapper(),
+                ethnicityAttribute.getRuntimeDataType(),
+                ethnicityAttribute.isComputeDisplayHint(),
+                new Attribute.SourceQuery(
+                    ethnicityAttribute.getSourceQuery().isSuppressed(),
+                    "person_source_value",
+                    null,
+                    "ethnicity_concept_id",
+                    null)),
+            false);
+
     // We don't have an example of a suppressed attribute, yet.
-    // So create an artificially suppressed attribute just for this test.
+    // So create an artificial attribute just for this test.
     Attribute genderAttribute = entity.getAttribute("gender");
     AttributeField suppressedAttribute =
         new AttributeField(
@@ -104,18 +131,22 @@ public class BQFieldTest extends BQRunnerTest {
             valueDisplayAttributeWithoutDisplay,
             runtimeCalculatedAttribute,
             idAttribute,
-            suppressedAttribute);
+            suppressedAttribute,
+            noDisplayJoinAttribute);
+    EntityFilter filter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            entity.getAttribute("person_source_value"),
+            UnaryOperator.IS_NOT_NULL);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            ListQueryRequest.dryRunAgainstSourceData(underlay, entity, selectAttributes, null));
+            ListQueryRequest.dryRunAgainstSourceData(underlay, entity, selectAttributes, filter));
 
-    String[] bqDatasetParsed = entity.getSourceQueryTableName().split("\\.");
-    BQTable sourceTable = new BQTable(bqDatasetParsed[0], bqDatasetParsed[1], bqDatasetParsed[2]);
-    String[] displayBqDatasetParsed =
-        entity.getAttribute("gender").getSourceQuery().getDisplayFieldTable().split("\\.");
+    BQTable sourceTable = BQQueryRunner.fromFullTablePath(entity.getSourceQueryTableName());
     BQTable displayJoinTable =
-        new BQTable(
-            displayBqDatasetParsed[0], displayBqDatasetParsed[1], displayBqDatasetParsed[2]);
+        BQQueryRunner.fromFullTablePath(
+            entity.getAttribute("gender").getSourceQuery().getDisplayFieldTable());
     BQTable indexTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(

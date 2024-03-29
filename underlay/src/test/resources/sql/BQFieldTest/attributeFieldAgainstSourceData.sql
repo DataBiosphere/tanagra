@@ -5,7 +5,9 @@
         dt0.concept_name AS T_DISP_gender,
         st.race_concept_id,
         st.birth_datetime,
-        st.person_id      
+        st.person_id,
+        st.person_source_value,
+        st.ethnicity_concept_id AS T_DISP_ethnicityNoDisplayJoin      
     FROM
         ${person} AS st      
     JOIN
@@ -16,5 +18,7 @@
             SELECT
                 id              
             FROM
-                ${ENT_person}         
+                ${ENT_person}              
+            WHERE
+                person_source_value IS NOT NULL         
         )
