@@ -511,6 +511,9 @@ public class DataExportServiceTest {
     assertFalse(fileContents.isEmpty());
     LOGGER.info("ipynb fileContents: {}", fileContents);
     assertTrue(fileContents.contains("# This query was generated for"));
+    assertTrue(
+        fileContents.contains(
+            "bigquery-public-data.cms_synthetic_patient_data_omop")); // Source BQ dataset.
     assertTrue(fileContents.split("\n").length >= 36); // Length of notebook template file = 36.
     assertDoesNotThrow(
         () -> new ObjectMapper().readTree(fileContents)); // Notebook file is valid json.
