@@ -5,6 +5,7 @@ import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryRequest;
 import bio.terra.tanagra.query.sql.SqlQueryResult;
 import bio.terra.tanagra.query.sql.SqlRowResult;
@@ -22,6 +23,9 @@ import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
@@ -168,6 +172,34 @@ public class BQExecutor {
 
     // Generate a signed URL to the file.
     return Pair.of(getCloudStorageService().createSignedUrl(gcsUrl), fileName);
+  }
+
+  public static String replaceFunctionsThatPreventCaching(
+      String sql, SqlParams sqlParams, Instant queryInstant) {
+    String modifiedSql = sql;
+
+    final String currentTimestamp = "CURRENT_TIMESTAMP";
+    final String currentTimestampParens = currentTimestamp + "()";
+    if (sql.contains(currentTimestamp)) {
+      String paramName =
+          sqlParams.addParam(
+              "currentTimestamp", Literal.forTimestamp(Timestamp.from(queryInstant)));
+      modifiedSql =
+          sql.replace(currentTimestampParens, '@' + paramName)
+              .replace(currentTimestamp, '@' + paramName);
+    }
+
+    final String currentDate = "CURRENT_DATE";
+    final String currentDateParens = currentDate + "()";
+    if (sql.contains(currentDate)) {
+      String paramName =
+          sqlParams.addParam(
+              "currentDate",
+              Literal.forDate(DateTimeFormatter.ofPattern("yyyy-mm-dd").format(queryInstant)));
+      modifiedSql =
+          sql.replace(currentDateParens, '@' + paramName).replace(currentDate, '@' + paramName);
+    }
+    return modifiedSql;
   }
 
   private static QueryParameterValue toQueryParameterValue(Literal literal) {

@@ -3,6 +3,7 @@ package bio.terra.tanagra.query.bigquery;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.EntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
@@ -32,6 +33,7 @@ import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import com.google.common.annotations.VisibleForTesting;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,10 +51,14 @@ public class BQQueryRunner implements QueryRunner {
   @Override
   public ListQueryResult run(ListQueryRequest listQueryRequest) {
     // Build the SQL query.
+    Instant queryInstant =
+        listQueryRequest.getPageMarker() == null
+            ? Instant.now()
+            : listQueryRequest.getPageMarker().getInstant();
     SqlQueryRequest sqlQueryRequest =
         listQueryRequest.isAgainstSourceData()
             ? buildListQuerySqlAgainstSourceData(listQueryRequest)
-            : buildListQuerySqlAgainstIndexData(listQueryRequest);
+            : buildListQuerySqlAgainstIndexData(listQueryRequest, queryInstant);
 
     // Execute the SQL query.
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
@@ -77,16 +83,25 @@ public class BQQueryRunner implements QueryRunner {
               listInstances.add(new ListInstance(fieldValues));
             });
 
+    PageMarker nextPageMarker =
+        sqlQueryResult.getNextPageMarker() == null
+            ? null
+            : sqlQueryResult.getNextPageMarker().instant(queryInstant);
     return new ListQueryResult(
         sqlQueryRequest.getSql(),
         sqlQueryResult.getSqlNoParams(),
         listInstances,
-        sqlQueryResult.getNextPageMarker(),
+        nextPageMarker,
         sqlQueryResult.getTotalNumRows());
   }
 
-  @VisibleForTesting
   public SqlQueryRequest buildListQuerySqlAgainstIndexData(ListQueryRequest listQueryRequest) {
+    return buildListQuerySqlAgainstIndexData(listQueryRequest, Instant.now());
+  }
+
+  @VisibleForTesting
+  public SqlQueryRequest buildListQuerySqlAgainstIndexData(
+      ListQueryRequest listQueryRequest, Instant queryInstant) {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
@@ -151,8 +166,13 @@ public class BQQueryRunner implements QueryRunner {
     if (listQueryRequest.getLimit() != null) {
       sql.append(" LIMIT ").append(listQueryRequest.getLimit());
     }
+
+    // Swap out any un-cacheable functions with SQL parameters.
+    String sqlWithOnlyCacheableFunctions =
+        BQExecutor.replaceFunctionsThatPreventCaching(sql.toString(), sqlParams, queryInstant);
+
     return new SqlQueryRequest(
-        sql.toString(),
+        sqlWithOnlyCacheableFunctions,
         sqlParams,
         listQueryRequest.getPageMarker(),
         listQueryRequest.getPageSize(),
@@ -195,7 +215,13 @@ public class BQQueryRunner implements QueryRunner {
             listQueryRequest.getFilter(),
             null,
             null);
-    SqlQueryRequest indexDataSqlRequest = buildListQuerySqlAgainstIndexData(indexDataQueryRequest);
+    Instant queryInstant =
+        listQueryRequest.getPageMarker() == null
+            ? Instant.now()
+            : listQueryRequest.getPageMarker().getInstant();
+    SqlQueryRequest indexDataSqlRequest =
+        buildListQuerySqlAgainstIndexData(indexDataQueryRequest, queryInstant);
+    SqlParams sqlParams = indexDataSqlRequest.getSqlParams();
 
     // Now build the outer SQL query against the source data.
     final String sourceTableAlias = "st";
@@ -266,7 +292,7 @@ public class BQQueryRunner implements QueryRunner {
         .append(')');
     return new SqlQueryRequest(
         sql.toString(),
-        indexDataSqlRequest.getSqlParams(),
+        sqlParams,
         listQueryRequest.getPageMarker(),
         listQueryRequest.getPageSize(),
         listQueryRequest.isDryRun());
@@ -329,10 +355,18 @@ public class BQQueryRunner implements QueryRunner {
       sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
     }
 
+    // Swap out any un-cacheable functions with SQL parameters.
+    Instant queryInstant =
+        countQueryRequest.getPageMarker() == null
+            ? Instant.now()
+            : countQueryRequest.getPageMarker().getInstant();
+    String sqlWithOnlyCacheableFunctions =
+        BQExecutor.replaceFunctionsThatPreventCaching(sql.toString(), sqlParams, queryInstant);
+
     // Execute the SQL query.
     SqlQueryRequest sqlQueryRequest =
         new SqlQueryRequest(
-            sql.toString(),
+            sqlWithOnlyCacheableFunctions,
             sqlParams,
             countQueryRequest.getPageMarker(),
             countQueryRequest.getPageSize(),
@@ -380,7 +414,9 @@ public class BQQueryRunner implements QueryRunner {
     return new CountQueryResult(
         sql.toString(),
         countInstances,
-        sqlQueryResult.getNextPageMarker(),
+        sqlQueryResult.getNextPageMarker() == null
+            ? null
+            : sqlQueryResult.getNextPageMarker().instant(queryInstant),
         sqlQueryResult.getTotalNumRows());
   }
 
