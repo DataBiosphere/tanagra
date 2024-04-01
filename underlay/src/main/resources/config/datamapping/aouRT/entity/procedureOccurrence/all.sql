@@ -3,6 +3,8 @@ SELECT
   po.person_id,
   po.procedure_concept_id,
   pc.concept_name AS procedure_concept_name,
+  pc.concept_code AS standard_code,
+  pc.vocabulary_id AS standard_vocabulary,
   po.procedure_date,
   po.procedure_source_value,
   po.procedure_source_concept_id,
