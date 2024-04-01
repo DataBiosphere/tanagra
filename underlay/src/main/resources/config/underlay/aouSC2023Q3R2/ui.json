@@ -98,8 +98,12 @@
         "plugin": {
           "entity": "procedureOccurrence",
           "columns": [
-            { "key": "procedure", "width": "100%", "title": "Procedure name" },
-            { "key": "date", "width": 200, "title": "Date" }
+            { "key": "date", "width": "100%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "standard_code", "width": 200, "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": 200, "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "procedure", "width": 200, "title": "Procedure Name", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": 200, "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": 200, "title": "Visit Type", "sortable": true, "filterable": true }
           ]
         }
       },
