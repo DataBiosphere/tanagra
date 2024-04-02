@@ -11,7 +11,7 @@ plugins {
     id "net.linguica.maven-settings" version "0.5"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
 group = "bio.terra"
 version = gradle.tanagraVersion
@@ -52,7 +52,7 @@ dependencyManagement {
     }
     dependencies {
         dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
-        dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
+        dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.41"
     }
 }
 

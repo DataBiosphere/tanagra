@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +26,13 @@ import org.slf4j.LoggerFactory;
 public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 
-  private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private static JsonMapper jsonMapper = JsonMapper.builder().findAndAddModules().build();
 
   private JacksonMapper() {}
 
-  /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
+  /** Getter for the singleton instance of the default Jackson {@link JsonMapper} instance. */
   private static ObjectMapper getMapper() {
-    return objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+    return jsonMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
   }
 
   /**
@@ -46,11 +47,12 @@ public final class JacksonMapper {
     }
 
     // create a copy of the default mapper and enable any Jackson features specified
-    ObjectMapper objectMapperWithFeatures = getMapper().copy();
+    JsonMapper.Builder objectMapperWithFeatures =
+        JsonMapper.builder().findAndAddModules().enable(JsonParser.Feature.ALLOW_COMMENTS);
     for (MapperFeature mapperFeature : mapperFeatures) {
       objectMapperWithFeatures.enable(mapperFeature);
     }
-    return objectMapperWithFeatures;
+    return objectMapperWithFeatures.build();
   }
 
   /**
@@ -90,10 +92,7 @@ public final class JacksonMapper {
     // Use Jackson to map the file contents to an instance of the specified class.
     ObjectMapper objectMapper = getMapper(mapperFeatures);
 
-    // Enable any Jackson features specified.
-    mapperFeatures.stream().forEach(mf -> objectMapper.enable(mf));
-    deserializationFeatures.stream()
-        .forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
+    deserializationFeatures.forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
 
     try (inputStream) {
       return objectMapper.readValue(inputStream, javaObjectClass);
