@@ -4,6 +4,8 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "procedure_occurrence_id" },
     { "name": "person_id", "dataType": "INT64" },
+    { "name": "standard_code", "dataType": "STRING"},
+    { "name": "standard_vocabulary", "dataType": "STRING"},
     { "name": "procedure", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "procedure_concept_name" },
     { "name": "date", "dataType": "DATE", "valueFieldName": "procedure_date" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "procedure_source_value" },
