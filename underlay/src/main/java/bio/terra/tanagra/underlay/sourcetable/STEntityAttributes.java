@@ -5,7 +5,7 @@ import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
-import bio.terra.tanagra.underlay.serialization.SZEntity;
+import bio.terra.tanagra.underlay.serialization.SZAttribute;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class STEntityAttributes extends SourceTable {
   private final ImmutableMap<String, ColumnSchema> attributeValueColumnSchemas;
   private final ImmutableMap<String, ColumnSchema> attributeDisplayColumnSchemas;
 
-  public STEntityAttributes(BQTable bqTable, String entity, List<SZEntity.Attribute> szAttributes) {
+  public STEntityAttributes(BQTable bqTable, String entity, List<SZAttribute> szAttributes) {
     super(bqTable);
     this.entity = entity;
 

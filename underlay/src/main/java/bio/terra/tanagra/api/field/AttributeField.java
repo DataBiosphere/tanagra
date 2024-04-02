@@ -10,19 +10,33 @@ public class AttributeField extends ValueDisplayField {
   private final Entity entity;
   private final Attribute attribute;
   private final boolean excludeDisplay;
-  private final boolean isSource;
+  private final boolean isAgainstSourceDataset;
 
-  public AttributeField(
+  private AttributeField(
       Underlay underlay,
       Entity entity,
       Attribute attribute,
       boolean excludeDisplay,
-      boolean isSource) {
+      boolean isAgainstSourceDataset) {
     this.underlay = underlay;
     this.entity = entity;
     this.attribute = attribute;
     this.excludeDisplay = excludeDisplay;
-    this.isSource = isSource;
+    this.isAgainstSourceDataset = isAgainstSourceDataset;
+  }
+
+  public AttributeField(
+      Underlay underlay, Entity entity, Attribute attribute, boolean excludeDisplay) {
+    this(underlay, entity, attribute, excludeDisplay, false);
+  }
+
+  public static AttributeField againstSourceDataset(AttributeField attributeField) {
+    return new AttributeField(
+        attributeField.getUnderlay(),
+        attributeField.getEntity(),
+        attributeField.getAttribute(),
+        attributeField.isExcludeDisplay(),
+        true);
   }
 
   public Underlay getUnderlay() {
@@ -46,7 +60,7 @@ public class AttributeField extends ValueDisplayField {
     return excludeDisplay;
   }
 
-  public boolean isSource() {
-    return isSource;
+  public boolean isAgainstSourceDataset() {
+    return isAgainstSourceDataset;
   }
 }

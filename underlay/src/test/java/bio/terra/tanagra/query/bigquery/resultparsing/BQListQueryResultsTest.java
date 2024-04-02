@@ -30,15 +30,15 @@ public class BQListQueryResultsTest extends BQRunnerTest {
   void attributeField() {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     AttributeField valueDisplayAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
     AttributeField valueDisplayAttributeWithoutDisplay =
-        new AttributeField(underlay, entity, entity.getAttribute("race"), true, false);
+        new AttributeField(underlay, entity, entity.getAttribute("race"), true);
     AttributeField runtimeCalculatedAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("age"), false);
     AttributeField idAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
 
     List<ValueDisplayField> selectAttributes =
         List.of(
@@ -51,8 +51,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     int limit = 5;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, limit, null, null, false));
+            ListQueryRequest.againstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, limit, null, null));
 
     // Make sure we got the right number of results back.
     assertEquals(limit, listQueryResult.getListInstances().size());
@@ -105,8 +105,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     int limit = 11;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, limit, null, null, false));
+            ListQueryRequest.againstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, limit, null, null));
 
     // Make sure we got the right number of results back.
     assertEquals(1, listQueryResult.getListInstances().size());
@@ -147,8 +147,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     int limit = 9;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, limit, null, null, false));
+            ListQueryRequest.againstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, limit, null, null));
 
     // Make sure we got the right number of results back.
     assertEquals(limit, listQueryResult.getListInstances().size());
@@ -209,16 +209,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     int limit = 14;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                countForEntity,
-                selectAttributes,
-                null,
-                orderBys,
-                limit,
-                null,
-                null,
-                false));
+            ListQueryRequest.againstIndexData(
+                underlay, countForEntity, selectAttributes, null, orderBys, limit, null, null));
 
     // Make sure we got the right number of results back.
     assertEquals(limit, listQueryResult.getListInstances().size());

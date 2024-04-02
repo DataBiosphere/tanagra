@@ -25,6 +25,7 @@ This documentation is generated from annotations in the configuration classes.
 * [SZPrimaryRelationship](#szprimaryrelationship)
 * [SZService](#szservice)
 * [SZSourceData](#szsourcedata)
+* [SZSourceQuery](#szsourcequery)
 * [SZTextSearch](#sztextsearch)
 * [SZUnderlay](#szunderlay)
 
@@ -92,6 +93,13 @@ If the [runtime SQL wrapper](#szattributeruntimesqlfunctionwrapper) is set, this
 SQL function to apply at runtime (i.e. when running the query), instead of at indexing time. Useful for attributes we expect to be updated dynamically (e.g. a person's age).
 
 For a simple function call that just wraps the column (e.g. `UPPER(column)`), you can specify just the function name (e.g. `UPPER`). For a more complicated function call, put `${fieldSql}` where the column name should be substituted (e.g. `CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)`).
+
+### SZAttribute.sourceQuery
+**optional** [SZSourceQuery](#szsourcequery)
+
+How to generate a query against the source data that includes this attribute.
+
+If unspecified and exporting queries against the source data is supported for this entity is enabled (i.e. #szentitysourcequerytablename is specified), we assume the field name in the source table (#szentitysourcequerytablename) corresponding to this attribute is the same as the #szattributevaluefieldname.
 
 ### SZAttribute.valueFieldName
 **optional** String
@@ -467,7 +475,7 @@ File must be in the same directory as the entity file. Name includes file extens
 *Example value:* `all.sql`
 
 ### SZEntity.attributes
-**required** List [ SZEntity$Attribute ]
+**required** List [ SZAttribute ]
 
 List of all the entity attributes.
 
@@ -486,7 +494,7 @@ Display name for the entity.
 Unlike the entity [name](#szentityname), it may include spaces and special characters.
 
 ### SZEntity.hierarchies
-**optional** Set [ SZEntity$Hierarchy ]
+**optional** Set [ SZHierarchy ]
 
 List of hierarchies.
 
@@ -516,6 +524,17 @@ List of attributes to optimize for group by queries.
 The typical use case for this is to optimize cohort breakdown queries on the primary entity. For example, to optimize breakdowns by age, race, gender, specify those attributes here. Order matters.
 
 You can currently specify a maximum of four attributes, because we implement this using BigQuery clustering which has this [limitation](https://cloud.google.com/bigquery/docs/clustered-tables#limitations).
+
+### SZEntity.sourceQueryTableName
+**optional** String
+
+Full name of the table to use when exporting a query against the source data.
+
+SQL substitutions are supported in this table name.
+
+If unspecified, exporting a query against the source data is unsupported.
+
+*Example value:* `${omopDataset}.condition_occurrence`
 
 ### SZEntity.textSearch
 **optional** [SZTextSearch](#sztextsearch)
@@ -915,6 +934,62 @@ Key-value map of substitutions to make in the input SQL files.
 Wherever the keys appear in the input SQL files wrapped in braces and preceded by a dollar sign, they will be substituted by the values before running the queries. For example, [key] `omopDataset` -> [value] `bigquery-public-data.cms_synthetic_patient_data_omop` means `${omopDataset}` in any of the input SQL files will be replaced by `bigquery-public-data.cms_synthetic_patient_data_omop`.
 
 Keys may not include spaces or special characters, only letters and numbers. This is simple string substitution logic and does not handle more complicated cases, such as nested substitutions.
+
+
+
+## SZSourceQuery
+Information to generate a SQL query against the source dataset for a given attribute.
+
+This query isn't actually run by the service, only generated as an export option (e.g. as part of a notebook file).
+
+### SZSourceQuery.displayFieldName
+**optional** String
+
+Name of the field to use for the attribute display in the source dataset.
+
+If unspecified, exporting a query with this attribute against the source data will not include a separate display field.
+
+The table can optionally be specified in #szsourcequerydisplayfieldtable.
+
+*Example value:* `concept_name`
+
+### SZSourceQuery.displayFieldTable
+**optional** String
+
+Full name of the table to JOIN with the main table (#szentitysourcequerytablename) to get the attribute display field in the source dataset.
+
+SQL substitutions are supported in this table name.
+
+If unspecified, and #szsourcequerydisplayfieldname is specified, then we assume that the source display field is also in the main table, same as the source value field.
+
+The #szsourcequerydisplayfieldtablejoinfieldname is required if this property is specified.
+
+*Example value:* `${omopDataset}.concept`
+
+### SZSourceQuery.displayFieldTableJoinFieldName
+**optional** String
+
+Name of the field in the display table (#szsourcequerydisplayfieldtable) that is used to JOIN to the main table (#szentitysourcequerytablename) using the source value field (#szsourcequeryvaluefieldname).
+
+This is required if the #szsourcequerydisplayfieldtable is specified.
+
+*Example value:* `concept_id`
+
+### SZSourceQuery.isSuppressed
+**optional** boolean
+
+True if this attribute doesn't map to a specific field in the source table.
+
+*Default value:* `false`
+
+### SZSourceQuery.valueFieldName
+**optional** String
+
+Name of the field to use for the attribute value in the source dataset table (#szentitysourcequerytablename).
+
+If unspecified, we assume the field name in the source table (#szentitysourcequerytablename) corresponding to this attribute is the same as the #szattributevaluefieldname.
+
+*Example value:* `condition_concept_id`
 
 
 

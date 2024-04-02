@@ -76,7 +76,7 @@ public class IpynbFileDownload implements DataExport {
 
     // Generate the SQL for the primary entity and escape it to substitute into a notebook cell (=
     // JSON property).
-    String primaryEntitySql = helper.generateSqlForPrimaryEntity(List.of(), false);
+    String primaryEntitySql = helper.generateSqlForPrimaryEntity(List.of(), true);
     String primaryEntitySqlFormattedAndEscaped =
         StringEscapeUtils.escapeJson(SqlFormatter.format(primaryEntitySql));
 

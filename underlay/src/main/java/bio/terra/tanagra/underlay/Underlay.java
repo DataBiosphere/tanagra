@@ -330,15 +330,37 @@ public final class Underlay {
     List<Attribute> attributes =
         szEntity.attributes.stream()
             .map(
-                szAttribute ->
-                    new Attribute(
-                        szAttribute.name,
-                        ConfigReader.deserializeDataType(szAttribute.dataType),
-                        szAttribute.displayFieldName != null,
-                        szAttribute.name.equals(szEntity.idAttribute),
-                        szAttribute.runtimeSqlFunctionWrapper,
-                        ConfigReader.deserializeDataType(szAttribute.runtimeDataType),
-                        szAttribute.isComputeDisplayHint))
+                szAttribute -> {
+                  Attribute.SourceQuery sourceQuery =
+                      szAttribute.sourceQuery == null
+                          ? new Attribute.SourceQuery(
+                              false,
+                              szAttribute.valueFieldName == null
+                                  ? szAttribute.name
+                                  : szAttribute.valueFieldName,
+                              null,
+                              null,
+                              null)
+                          : new Attribute.SourceQuery(
+                              szAttribute.sourceQuery.isSuppressed,
+                              szAttribute.sourceQuery.valueFieldName == null
+                                  ? (szAttribute.valueFieldName == null
+                                      ? szAttribute.name
+                                      : szAttribute.valueFieldName)
+                                  : szAttribute.sourceQuery.valueFieldName,
+                              szAttribute.sourceQuery.displayFieldTable,
+                              szAttribute.sourceQuery.displayFieldName,
+                              szAttribute.sourceQuery.displayFieldTableJoinFieldName);
+                  return new Attribute(
+                      szAttribute.name,
+                      ConfigReader.deserializeDataType(szAttribute.dataType),
+                      szAttribute.displayFieldName != null,
+                      szAttribute.name.equals(szEntity.idAttribute),
+                      szAttribute.runtimeSqlFunctionWrapper,
+                      ConfigReader.deserializeDataType(szAttribute.runtimeDataType),
+                      szAttribute.isComputeDisplayHint,
+                      sourceQuery);
+                })
             .collect(Collectors.toList());
 
     List<Attribute> optimizeGroupByAttributes = new ArrayList<>();
@@ -380,7 +402,8 @@ public final class Underlay {
         hierarchies,
         optimizeGroupByAttributes,
         szEntity.textSearch != null,
-        optimizeTextSearchAttributes);
+        optimizeTextSearchAttributes,
+        szEntity.sourceQueryTableName);
   }
 
   private static GroupItems fromConfigGroupItems(SZGroupItems szGroupItems, List<Entity> entities) {

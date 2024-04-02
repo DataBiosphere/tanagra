@@ -214,8 +214,7 @@ public class ActivityLogServiceTest {
         .sorted(Comparator.comparing(Attribute::getName))
         .forEach(
             attribute ->
-                selectFields.add(
-                    new AttributeField(underlay, primaryEntity, attribute, false, false)));
+                selectFields.add(new AttributeField(underlay, primaryEntity, attribute, false)));
     EntityFilter primaryEntityFilter =
         new AttributeFilter(
             underlay,
@@ -224,16 +223,8 @@ public class ActivityLogServiceTest {
             BinaryOperator.EQUALS,
             Literal.forInt64(8_532L));
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
-            underlay,
-            primaryEntity,
-            selectFields,
-            primaryEntityFilter,
-            null,
-            null,
-            null,
-            null,
-            false);
+        ListQueryRequest.againstIndexData(
+            underlay, primaryEntity, selectFields, primaryEntityFilter, null, null, null, null);
     String exportModel = "IPYNB_FILE_DOWNLOAD";
     ExportRequest exportRequest =
         new ExportRequest(

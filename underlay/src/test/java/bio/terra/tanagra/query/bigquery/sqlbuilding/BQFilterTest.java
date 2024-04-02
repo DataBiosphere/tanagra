@@ -53,19 +53,11 @@ public class BQFilterTest extends BQRunnerTest {
     AttributeFilter attributeFilter =
         new AttributeFilter(underlay, entity, attribute, UnaryOperator.IS_NOT_NULL);
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeFilterUnary", listQueryResult.getSql(), table);
 
@@ -76,16 +68,8 @@ public class BQFilterTest extends BQRunnerTest {
             underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
     assertSqlMatchesWithTableNameOnly("attributeFilterBinary", listQueryResult.getSql(), table);
 
     // Filter with n-ary operator IN.
@@ -99,16 +83,8 @@ public class BQFilterTest extends BQRunnerTest {
             List.of(Literal.forInt64(18L), Literal.forInt64(19L), Literal.forInt64(20L)));
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
     assertSqlMatchesWithTableNameOnly("attributeFilterNaryIn", listQueryResult.getSql(), table);
 
     // Filter with n-ary operator BETWEEN.
@@ -122,16 +98,8 @@ public class BQFilterTest extends BQRunnerTest {
             List.of(Literal.forInt64(45L), Literal.forInt64(65L)));
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
     assertSqlMatchesWithTableNameOnly(
         "attributeFilterNaryBetween", listQueryResult.getSql(), table);
   }
@@ -150,19 +118,11 @@ public class BQFilterTest extends BQRunnerTest {
         new BooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND, List.of(attributeFilter, textSearchFilter));
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                booleanAndOrFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), booleanAndOrFilter, null, null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanAndOrFilter", listQueryResult.getSql(), table);
   }
@@ -176,19 +136,11 @@ public class BQFilterTest extends BQRunnerTest {
             underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forInt64(1_956L));
     BooleanNotFilter booleanNotFilter = new BooleanNotFilter(attributeFilter);
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                booleanNotFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), booleanNotFilter, null, null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("booleanNotFilter", listQueryResult.getSql(), table);
   }
@@ -203,19 +155,16 @@ public class BQFilterTest extends BQRunnerTest {
             entity.getHierarchy(Hierarchy.DEFAULT_NAME),
             Literal.forInt64(201_826L));
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 entity,
                 List.of(simpleAttribute),
                 hierarchyHasAncestorFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     BQTable ancestorDescendantTable =
@@ -237,16 +186,13 @@ public class BQFilterTest extends BQRunnerTest {
             List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 entity,
                 List.of(simpleAttribute),
                 hierarchyHasAncestorFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "hierarchyHasAncestorFilterIn",
         listQueryResult.getSql(),
@@ -264,19 +210,11 @@ public class BQFilterTest extends BQRunnerTest {
             entity.getHierarchy(Hierarchy.DEFAULT_NAME),
             Literal.forInt64(201_826L));
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                hierarchyHasParentFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), hierarchyHasParentFilter, null, null));
     BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     BQTable childParentTable =
@@ -298,16 +236,8 @@ public class BQFilterTest extends BQRunnerTest {
             List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                hierarchyHasParentFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), hierarchyHasParentFilter, null, null));
     assertSqlMatchesWithTableNameOnly(
         "hierarchyHasParentFilterIn", listQueryResult.getSql(), entityMainTable, childParentTable);
   }
@@ -318,19 +248,11 @@ public class BQFilterTest extends BQRunnerTest {
     HierarchyIsMemberFilter hierarchyIsMemberFilter =
         new HierarchyIsMemberFilter(underlay, entity, entity.getHierarchy(Hierarchy.DEFAULT_NAME));
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                hierarchyIsMemberFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), hierarchyIsMemberFilter, null, null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsMemberFilter", listQueryResult.getSql(), table);
   }
@@ -341,19 +263,11 @@ public class BQFilterTest extends BQRunnerTest {
     HierarchyIsRootFilter hierarchyIsRootFilter =
         new HierarchyIsRootFilter(underlay, entity, entity.getHierarchy(Hierarchy.DEFAULT_NAME));
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                hierarchyIsRootFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), hierarchyIsRootFilter, null, null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyIsRootFilter", listQueryResult.getSql(), table);
   }
@@ -385,19 +299,16 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     AttributeField simpleAttribute =
         new AttributeField(
-            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     BQTable primaryTable =
@@ -431,16 +342,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKSelectNotIdFilter",
         listQueryResult.getSql(),
@@ -460,16 +368,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKSelectNullFilter",
         listQueryResult.getSql(),
@@ -507,20 +412,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttribute("year_of_birth"),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     BQTable primaryTable =
@@ -553,16 +454,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKFilterNotIdFilter",
         listQueryResult.getSql(),
@@ -582,16 +480,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKFilterNullFilterWithoutRollupCount",
         listQueryResult.getSql(),
@@ -627,20 +522,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             pulsePerson.getGroupEntity(),
             pulsePerson.getGroupEntity().getIdAttribute(),
-            false,
             false);
     SqlQueryRequest sqlQueryRequest =
-        bqQueryRunner.buildListQuerySql(
-            new ListQueryRequest(
+        bqQueryRunner.buildListQuerySqlAgainstIndexData(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 pulsePerson.getGroupEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     primaryTable =
         underlay
             .getIndexSchema()
@@ -679,20 +570,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getItemsEntity(),
             groupItems.getItemsEntity().getAttribute("name"),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable groupTable =
         underlay
             .getIndexSchema()
@@ -738,16 +625,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNotIdFilter",
         listQueryResult.getSql(),
@@ -768,16 +652,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNullFilterWithoutRollupCount",
         listQueryResult.getSql(),
@@ -791,7 +672,6 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getGroupEntity(),
             groupItems.getItemsEntity().getAttribute("name"),
-            false,
             false);
     relationshipFilter =
         new RelationshipFilter(
@@ -805,16 +685,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getGroupEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNullFilterWithRollupCount",
         listQueryResult.getSql(),
@@ -854,20 +731,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttribute("year_of_birth"),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     BQTable primaryTable =
@@ -902,16 +775,13 @@ public class BQFilterTest extends BQRunnerTest {
             1);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKFilterNotIdFilterWithGroupBy",
         listQueryResult.getSql(),
@@ -933,16 +803,13 @@ public class BQFilterTest extends BQRunnerTest {
             14);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterFKFilterNullFilterWithGroupBy",
         listQueryResult.getSql(),
@@ -977,20 +844,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getItemsEntity(),
             groupItems.getItemsEntity().getAttribute("name"),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable groupTable =
         underlay
             .getIndexSchema()
@@ -1036,16 +899,13 @@ public class BQFilterTest extends BQRunnerTest {
             1);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNotIdFilterWithGroupBy",
         listQueryResult.getSql(),
@@ -1066,16 +926,13 @@ public class BQFilterTest extends BQRunnerTest {
             1);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterIntTableNullFilterWithGroupBy",
         listQueryResult.getSql(),
@@ -1120,19 +977,16 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     AttributeField simpleAttribute =
         new AttributeField(
-            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 occurrenceFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
@@ -1176,19 +1030,16 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     AttributeField simpleAttribute =
         new AttributeField(
-            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 occurrenceFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     BQTable intermediateTable =
@@ -1249,19 +1100,16 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     AttributeField simpleAttribute =
         new AttributeField(
-            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false, false);
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("start_date"), false);
     SqlQueryRequest sqlQueryRequest =
-        bqQueryRunner.buildListQuerySql(
-            new ListQueryRequest(
+        bqQueryRunner.buildListQuerySqlAgainstIndexData(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 occurrenceFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     BQTable itemsTable =
@@ -1311,19 +1159,16 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     AttributeField simpleAttribute =
         new AttributeField(
-            underlay, occurrenceEntity, occurrenceEntity.getAttribute("person_id"), false, false);
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("person_id"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     BQTable criteriaTable =
@@ -1376,19 +1221,16 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     AttributeField simpleAttribute =
         new AttributeField(
-            underlay, occurrenceEntity, occurrenceEntity.getAttribute("person_id"), false, false);
+            underlay, occurrenceEntity, occurrenceEntity.getAttribute("person_id"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 occurrenceEntity,
                 List.of(simpleAttribute),
                 relationshipFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     BQTable occurrenceTable =
         underlay.getIndexSchema().getEntityMain(occurrenceEntity.getName()).getTablePointer();
     BQTable criteriaTable =
@@ -1421,19 +1263,11 @@ public class BQFilterTest extends BQRunnerTest {
         new TextSearchFilter(
             underlay, entity, TextSearchFilter.TextSearchOperator.EXACT_MATCH, "diabetes", null);
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("name"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                textSearchFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), textSearchFilter, null, null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("textSearchFilterIndex", listQueryResult.getSql(), table);
 
@@ -1446,16 +1280,8 @@ public class BQFilterTest extends BQRunnerTest {
             entity.getAttribute("name"));
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                textSearchFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), textSearchFilter, null, null));
     assertSqlMatchesWithTableNameOnly("textSearchFilterAttribute", listQueryResult.getSql(), table);
   }
 
@@ -1479,20 +1305,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getIdAttribute(),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
@@ -1554,16 +1376,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "primaryWithCriteriaFilterSingleOccAttributeSubfilter",
         listQueryResult.getSql(),
@@ -1591,20 +1410,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getIdAttribute(),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
@@ -1670,16 +1485,13 @@ public class BQFilterTest extends BQRunnerTest {
             null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "primaryWithCriteriaFilterMultipleOccAttributeSubfilter",
         listQueryResult.getSql(),
@@ -1713,20 +1525,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getIdAttribute(),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
@@ -1791,16 +1599,13 @@ public class BQFilterTest extends BQRunnerTest {
             4);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "primaryWithCriteriaFilterGroupBySingleOccAttributeSubfilter",
         listQueryResult.getSql(),
@@ -1850,20 +1655,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getIdAttribute(),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
@@ -1930,16 +1731,13 @@ public class BQFilterTest extends BQRunnerTest {
             14);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 underlay.getPrimaryEntity(),
                 List.of(simpleAttribute),
                 primaryWithCriteriaFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "primaryWithCriteriaFilterGroupByMultipleOccAttributeSubfilter",
         listQueryResult.getSql(),
@@ -1978,19 +1776,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay, criteriaOccurrence, conditionOccurrence, personFilter, null);
     AttributeField simpleAttribute =
         new AttributeField(
-            underlay, conditionOccurrence, conditionOccurrence.getIdAttribute(), false, false);
+            underlay, conditionOccurrence, conditionOccurrence.getIdAttribute(), false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 conditionOccurrence,
                 List.of(simpleAttribute),
                 occurrenceForPrimaryFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
@@ -2031,16 +1826,13 @@ public class BQFilterTest extends BQRunnerTest {
             underlay, criteriaOccurrence, conditionOccurrence, null, conditionFilter);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 conditionOccurrence,
                 List.of(simpleAttribute),
                 occurrenceForPrimaryFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "occurrenceForPrimaryFilterWithCriteriaSubFilterOnly",
         listQueryResult.getSql(),
@@ -2052,16 +1844,13 @@ public class BQFilterTest extends BQRunnerTest {
             underlay, criteriaOccurrence, conditionOccurrence, personFilter, conditionFilter);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 conditionOccurrence,
                 List.of(simpleAttribute),
                 occurrenceForPrimaryFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "occurrenceForPrimaryFilterWithBothSubFilters",
         listQueryResult.getSql(),
@@ -2075,16 +1864,13 @@ public class BQFilterTest extends BQRunnerTest {
         InvalidQueryException.class,
         () ->
             bqQueryRunner.run(
-                new ListQueryRequest(
+                ListQueryRequest.dryRunAgainstIndexData(
                     underlay,
                     conditionOccurrence,
                     List.of(simpleAttribute),
                     invalidOccurrenceForPrimaryFilter,
                     null,
-                    null,
-                    null,
-                    null,
-                    true)));
+                    null)));
   }
 
   @Test
@@ -2099,20 +1885,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getItemsEntity(),
             groupItems.getItemsEntity().getAttribute("name"),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 itemInGroupFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     BQTable groupEntityTable =
         underlay
@@ -2151,16 +1933,13 @@ public class BQFilterTest extends BQRunnerTest {
         new ItemInGroupFilter(underlay, groupItems, groupSubFilter, null, null, null);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 itemInGroupFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "itemInGroupWithSubFilterIntTable",
         listQueryResult.getSql(),
@@ -2173,16 +1952,13 @@ public class BQFilterTest extends BQRunnerTest {
         new ItemInGroupFilter(underlay, groupItems, null, null, BinaryOperator.GREATER_THAN, 2);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 itemInGroupFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "itemInGroupWithGroupByNoSubFilterIntTable",
         listQueryResult.getSql(),
@@ -2208,16 +1984,13 @@ public class BQFilterTest extends BQRunnerTest {
             2);
     listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getItemsEntity(),
                 List.of(simpleAttribute),
                 itemInGroupFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
     assertSqlMatchesWithTableNameOnly(
         "itemInGroupWithGroupByAttributeWithSubFilterIntTable",
         listQueryResult.getSql(),
@@ -2237,20 +2010,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getAttribute("name"),
-            false,
             false);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getGroupEntity(),
                 List.of(simpleAttribute),
                 groupHasItemsFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     BQTable groupEntityTable =
         underlay
@@ -2298,20 +2067,16 @@ public class BQFilterTest extends BQRunnerTest {
             underlay,
             groupItems.getGroupEntity(),
             groupItems.getGroupEntity().getIdAttribute(),
-            false,
             false);
     SqlQueryRequest sqlQueryRequest =
-        bqQueryRunner.buildListQuerySql(
-            new ListQueryRequest(
+        bqQueryRunner.buildListQuerySqlAgainstIndexData(
+            ListQueryRequest.dryRunAgainstIndexData(
                 underlay,
                 groupItems.getGroupEntity(),
                 List.of(simpleAttribute),
                 groupHasItemsFilter,
                 null,
-                null,
-                null,
-                null,
-                true));
+                null));
 
     groupEntityTable =
         underlay

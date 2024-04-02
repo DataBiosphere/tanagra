@@ -86,26 +86,25 @@ public class DataExportHelper {
                                   exportRequest.getUnderlay(),
                                   entityOutput.getEntity(),
                                   attribute,
-                                  false,
-                                  isAgainstSourceDataset))
+                                  false))
                       .collect(Collectors.toList());
 
               ListQueryRequest listQueryRequest =
-                  new ListQueryRequest(
-                      exportRequest.getUnderlay(),
-                      entityOutput.getEntity(),
-                      selectFields,
-                      entityOutput.getDataFeatureFilter(),
-                      null,
-                      null,
-                      null,
-                      null,
-                      true);
+                  isAgainstSourceDataset
+                      ? ListQueryRequest.dryRunAgainstSourceData(
+                          exportRequest.getUnderlay(),
+                          entityOutput.getEntity(),
+                          selectFields,
+                          entityOutput.getDataFeatureFilter())
+                      : ListQueryRequest.dryRunAgainstIndexData(
+                          exportRequest.getUnderlay(),
+                          entityOutput.getEntity(),
+                          selectFields,
+                          entityOutput.getDataFeatureFilter(),
+                          null,
+                          null);
               ListQueryResult listQueryResult =
-                  exportRequest
-                      .getUnderlay()
-                      .getQueryRunner()
-                      .run(listQueryRequest.cloneAndSetDryRun());
+                  exportRequest.getUnderlay().getQueryRunner().run(listQueryRequest);
               sqlPerEntity.put(entityOutput.getEntity(), listQueryResult.getSqlNoParams());
             });
     return sqlPerEntity;
@@ -130,19 +129,21 @@ public class DataExportHelper {
                         exportRequest.getUnderlay(),
                         exportRequest.getUnderlay().getPrimaryEntity(),
                         attribute,
-                        false,
-                        isAgainstSourceDataset)));
+                        false)));
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
-            exportRequest.getUnderlay(),
-            exportRequest.getUnderlay().getPrimaryEntity(),
-            selectedAttributeFields,
-            primaryEntityFilter,
-            null,
-            null,
-            null,
-            null,
-            true);
+        isAgainstSourceDataset
+            ? ListQueryRequest.dryRunAgainstSourceData(
+                exportRequest.getUnderlay(),
+                exportRequest.getUnderlay().getPrimaryEntity(),
+                selectedAttributeFields,
+                primaryEntityFilter)
+            : ListQueryRequest.dryRunAgainstIndexData(
+                exportRequest.getUnderlay(),
+                exportRequest.getUnderlay().getPrimaryEntity(),
+                selectedAttributeFields,
+                primaryEntityFilter,
+                null,
+                null);
     ListQueryResult listQueryResult =
         exportRequest.getUnderlay().getQueryRunner().run(listQueryRequest);
     return listQueryResult.getSqlNoParams();
@@ -170,11 +171,10 @@ public class DataExportHelper {
                                       exportRequest.getUnderlay(),
                                       entityOutput.getEntity(),
                                       attribute,
-                                      false,
                                       false))
                           .collect(Collectors.toList());
                   ListQueryRequest listQueryRequest =
-                      new ListQueryRequest(
+                      ListQueryRequest.againstIndexData(
                           exportRequest.getUnderlay(),
                           entityOutput.getEntity(),
                           selectFields,
@@ -182,8 +182,7 @@ public class DataExportHelper {
                           null,
                           null,
                           null,
-                          null,
-                          false);
+                          null);
 
                   // Build a map of substitution strings for the filename template.
                   Map<String, String> substitutions =

@@ -7,6 +7,7 @@ export type SZAttribute = {
   name: string;
   runtimeDataType?: SZDataType;
   runtimeSqlFunctionWrapper?: string;
+  sourceQuery?: SZSourceQuery;
   valueFieldName?: string;
 };
 
@@ -93,6 +94,7 @@ export type SZEntity = {
   idAttribute: string;
   name: string;
   optimizeGroupByAttributes?: string[];
+  sourceQueryTableName?: string;
   textSearch?: SZTextSearch;
 };
 
@@ -174,6 +176,14 @@ export type SZSourceData = {
   datasetId: string;
   projectId: string;
   sqlSubstitutions?: { [key: string]: string };
+};
+
+export type SZSourceQuery = {
+  displayFieldName?: string;
+  displayFieldTable?: string;
+  displayFieldTableJoinFieldName?: string;
+  isSuppressed?: boolean;
+  valueFieldName?: string;
 };
 
 export type SZTextSearch = {

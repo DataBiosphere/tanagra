@@ -46,6 +46,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -140,11 +141,11 @@ public class ExportApiController implements ExportApi {
             attribute ->
                 attributeFields.add(
                     new AttributeField(
-                        underlay, previewEntityOutput.getEntity(), attribute, false, false)));
+                        underlay, previewEntityOutput.getEntity(), attribute, false)));
 
     // Run the list query and map the results back to API objects.
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             previewEntityOutput.getEntity(),
             attributeFields,
@@ -152,8 +153,7 @@ public class ExportApiController implements ExportApi {
             null,
             null,
             null,
-            body.getLimit(),
-            false);
+            body.getLimit());
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
   }
@@ -237,11 +237,22 @@ public class ExportApiController implements ExportApi {
                     FromApiUtils.fromApiObject(
                         apiQuery.getQuery(), underlay.getEntity(apiQuery.getEntity()), underlay))
             .collect(Collectors.toList());
-    EntityFilter primaryEntityFilter =
-        body.getPrimaryEntityFilter() == null
-            ? null
-            : FromApiUtils.fromApiObject(
-                body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName));
+    EntityFilter primaryEntityFilter;
+    if (body.getPrimaryEntityFilter() != null) {
+      primaryEntityFilter =
+          FromApiUtils.fromApiObject(
+              body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName));
+    } else {
+      Optional<ListQueryRequest> primaryEntityListQueryRequest =
+          listQueryRequests.stream()
+              .filter(listQueryRequest -> listQueryRequest.getEntity().isPrimary())
+              .findFirst();
+      if (primaryEntityListQueryRequest.isPresent()) {
+        primaryEntityFilter = primaryEntityListQueryRequest.get().getFilter();
+      } else {
+        primaryEntityFilter = null;
+      }
+    }
 
     ExportRequest exportRequest =
         new ExportRequest(

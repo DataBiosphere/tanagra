@@ -8,12 +8,17 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryRequest.OrderBy;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.UnaryOperator;
+import bio.terra.tanagra.query.bigquery.BQQueryRunner;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
@@ -27,15 +32,15 @@ public class BQFieldTest extends BQRunnerTest {
   void attributeField() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
     AttributeField valueDisplayAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("gender"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
     AttributeField valueDisplayAttributeWithoutDisplay =
-        new AttributeField(underlay, entity, entity.getAttribute("race"), true, false);
+        new AttributeField(underlay, entity, entity.getAttribute("race"), true);
     AttributeField runtimeCalculatedAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("age"), false, false);
+        new AttributeField(underlay, entity, entity.getAttribute("age"), false);
     AttributeField idAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
 
     List<ValueDisplayField> selectAttributes =
         List.of(
@@ -52,11 +57,104 @@ public class BQFieldTest extends BQRunnerTest {
     int limit = 35;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, limit, null, null, true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, limit));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("attributeField", listQueryResult.getSql(), table);
+  }
+
+  @Test
+  void attributeFieldAgainstSourceData() throws IOException {
+    Entity entity = underlay.getPrimaryEntity();
+    AttributeField simpleAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
+    AttributeField valueDisplayAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
+    AttributeField valueDisplayAttributeWithoutDisplay =
+        new AttributeField(underlay, entity, entity.getAttribute("race"), true);
+    AttributeField runtimeCalculatedAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("age"), false);
+    AttributeField idAttribute =
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
+
+    // We don't have an example of an attribute with the display field in the same table, yet.
+    // So create an artificial attribute just for this test.
+    Attribute ethnicityAttribute = entity.getAttribute("ethnicity");
+    AttributeField noDisplayJoinAttribute =
+        new AttributeField(
+            underlay,
+            entity,
+            new Attribute(
+                "ethnicityNoDisplayJoin",
+                ethnicityAttribute.getDataType(),
+                ethnicityAttribute.isValueDisplay(),
+                ethnicityAttribute.isId(),
+                ethnicityAttribute.getRuntimeSqlFunctionWrapper(),
+                ethnicityAttribute.getRuntimeDataType(),
+                ethnicityAttribute.isComputeDisplayHint(),
+                new Attribute.SourceQuery(
+                    ethnicityAttribute.getSourceQuery().isSuppressed(),
+                    "person_source_value",
+                    null,
+                    "ethnicity_concept_id",
+                    null)),
+            false);
+
+    // We don't have an example of a suppressed attribute, yet.
+    // So create an artificial attribute just for this test.
+    Attribute genderAttribute = entity.getAttribute("gender");
+    AttributeField suppressedAttribute =
+        new AttributeField(
+            underlay,
+            entity,
+            new Attribute(
+                "genderSuppressed",
+                genderAttribute.getDataType(),
+                genderAttribute.isValueDisplay(),
+                genderAttribute.isId(),
+                genderAttribute.getRuntimeSqlFunctionWrapper(),
+                genderAttribute.getRuntimeDataType(),
+                genderAttribute.isComputeDisplayHint(),
+                new Attribute.SourceQuery(
+                    true,
+                    genderAttribute.getSourceQuery().getValueFieldName(),
+                    genderAttribute.getSourceQuery().getDisplayFieldTable(),
+                    genderAttribute.getSourceQuery().getDisplayFieldName(),
+                    genderAttribute.getSourceQuery().getDisplayFieldTableJoinFieldName())),
+            false);
+
+    List<ValueDisplayField> selectAttributes =
+        List.of(
+            simpleAttribute,
+            valueDisplayAttribute,
+            valueDisplayAttributeWithoutDisplay,
+            runtimeCalculatedAttribute,
+            idAttribute,
+            suppressedAttribute,
+            noDisplayJoinAttribute);
+    EntityFilter filter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            entity.getAttribute("person_source_value"),
+            UnaryOperator.IS_NOT_NULL);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstSourceData(underlay, entity, selectAttributes, filter));
+
+    BQTable sourceTable = BQQueryRunner.fromFullTablePath(entity.getSourceQueryTableName());
+    BQTable displayJoinTable =
+        BQQueryRunner.fromFullTablePath(
+            entity.getAttribute("gender").getSourceQuery().getDisplayFieldTable());
+    BQTable indexTable =
+        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "attributeFieldAgainstSourceData",
+        listQueryResult.getSql(),
+        sourceTable,
+        displayJoinTable,
+        indexTable);
   }
 
   @Test
@@ -68,8 +166,8 @@ public class BQFieldTest extends BQRunnerTest {
     List<OrderBy> orderBys = List.of(new OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("entityIdCountField", listQueryResult.getSql(), table);
@@ -97,8 +195,8 @@ public class BQFieldTest extends BQRunnerTest {
         List.of(new OrderBy(hierarchyNumChildrenField, OrderByDirection.DESCENDING));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay, entity, selectAttributes, null, orderBys, null, null, null, true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, selectAttributes, null, orderBys, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("hierarchyFields", listQueryResult.getSql(), table);
@@ -124,16 +222,8 @@ public class BQFieldTest extends BQRunnerTest {
             new OrderBy(relatedEntityIdCountFieldWithHier, OrderByDirection.ASCENDING));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                countForEntity,
-                selectAttributes,
-                null,
-                orderBys,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, countForEntity, selectAttributes, null, orderBys, null));
 
     BQTable table =
         underlay.getIndexSchema().getEntityMain(countForEntity.getName()).getTablePointer();

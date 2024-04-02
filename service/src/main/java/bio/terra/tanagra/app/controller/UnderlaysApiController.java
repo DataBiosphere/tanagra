@@ -155,7 +155,7 @@ public class UnderlaysApiController implements UnderlaysApi {
                     body.getIncludeAttributes() == null
                         || body.getIncludeAttributes().isEmpty()
                         || body.getIncludeAttributes().contains(attribute.getName()))
-            .map(attribute -> new AttributeField(underlay, outputEntity, attribute, false, false))
+            .map(attribute -> new AttributeField(underlay, outputEntity, attribute, false))
             .collect(Collectors.toList());
 
     // Build the filter on the output entity.
@@ -172,7 +172,7 @@ public class UnderlaysApiController implements UnderlaysApi {
               orderByField -> {
                 Attribute attribute = outputEntity.getAttribute(orderByField.getAttribute());
                 ValueDisplayField valueDisplayField =
-                    new AttributeField(underlay, outputEntity, attribute, false, false);
+                    new AttributeField(underlay, outputEntity, attribute, false);
                 OrderByDirection direction =
                     OrderByDirection.valueOf(orderByField.getDirection().name());
                 orderByFields.add(new ListQueryRequest.OrderBy(valueDisplayField, direction));
@@ -181,7 +181,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
     // Run the list query and map the results back to API objects.
     ListQueryRequest listQueryRequest =
-        new ListQueryRequest(
+        ListQueryRequest.againstIndexData(
             underlay,
             outputEntity,
             selectFields,
@@ -189,8 +189,7 @@ public class UnderlaysApiController implements UnderlaysApi {
             orderByFields,
             null,
             PageMarker.deserialize(body.getPageMarker()),
-            body.getPageSize(),
-            false);
+            body.getPageSize());
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
   }

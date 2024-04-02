@@ -35,7 +35,7 @@ public class BQRemoveParamsTest extends BQRunnerTest {
   void int64RemoveParam() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
     AttributeFilter attributeFilter =
         new AttributeFilter(
             underlay,
@@ -45,16 +45,8 @@ public class BQRemoveParamsTest extends BQRunnerTest {
             Literal.forInt64(25L));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("int64", listQueryResult.getSqlNoParams(), table);
@@ -64,7 +56,7 @@ public class BQRemoveParamsTest extends BQRunnerTest {
   void float64RemoveParam() throws IOException {
     Entity entity = underlay.getEntity("measurementOccurrence");
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
     AttributeFilter attributeFilter =
         new AttributeFilter(
             underlay,
@@ -74,16 +66,8 @@ public class BQRemoveParamsTest extends BQRunnerTest {
             Literal.forDouble(26.54));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("float64", listQueryResult.getSqlNoParams(), table);
@@ -93,7 +77,7 @@ public class BQRemoveParamsTest extends BQRunnerTest {
   void stringRemoveParam() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
     AttributeFilter attributeFilter =
         new AttributeFilter(
             underlay,
@@ -103,16 +87,8 @@ public class BQRemoveParamsTest extends BQRunnerTest {
             Literal.forString("id12345"));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("string", listQueryResult.getSqlNoParams(), table);
@@ -131,7 +107,7 @@ public class BQRemoveParamsTest extends BQRunnerTest {
 
     Entity entity = underlay.getEntity("conditionOccurrence");
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
     AttributeFilter attributeFilter =
         new AttributeFilter(
             underlay,
@@ -141,16 +117,8 @@ public class BQRemoveParamsTest extends BQRunnerTest {
             Literal.forDate(Date.valueOf("2024-01-24")));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("date", listQueryResult.getSqlNoParams(), table);
@@ -160,7 +128,7 @@ public class BQRemoveParamsTest extends BQRunnerTest {
   void timestampRemoveParam() throws IOException {
     Entity entity = underlay.getEntity("conditionOccurrence");
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
     AttributeFilter attributeFilter =
         new AttributeFilter(
             underlay,
@@ -170,16 +138,8 @@ public class BQRemoveParamsTest extends BQRunnerTest {
             Literal.forTimestamp(Timestamp.valueOf("2024-01-24 11:54:32")));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                attributeFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
 
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("timestamp", listQueryResult.getSqlNoParams(), table);
@@ -189,7 +149,7 @@ public class BQRemoveParamsTest extends BQRunnerTest {
   void overlappingParams() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
     AttributeField simpleAttribute =
-        new AttributeField(underlay, entity, entity.getIdAttribute(), false, false);
+        new AttributeField(underlay, entity, entity.getIdAttribute(), false);
     List<EntityFilter> attributeFilters = new ArrayList<>();
     for (int i = 0; i < 11; i++) {
       attributeFilters.add(
@@ -204,16 +164,8 @@ public class BQRemoveParamsTest extends BQRunnerTest {
         new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, attributeFilters);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
-            new ListQueryRequest(
-                underlay,
-                entity,
-                List.of(simpleAttribute),
-                booleanAndOrFilter,
-                null,
-                null,
-                null,
-                null,
-                true));
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), booleanAndOrFilter, null, null));
 
     assertTrue(listQueryResult.getSql().contains("val1"));
     assertTrue(listQueryResult.getSql().contains("val10"));

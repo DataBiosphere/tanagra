@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
@@ -89,5 +90,16 @@ public class ConfigReaderTest {
         Underlay.fromConfig(verilyCmssynpuf.bigQuery, szCmssynpuf, ConfigReader.fromJarResources());
     assertNotNull(cmssynpuf);
     assertEquals("cmssynpuf", cmssynpuf.getName());
+
+    Entity person = cmssynpuf.getPrimaryEntity();
+    assertEquals(
+        "bigquery-public-data.cms_synthetic_patient_data_omop.person",
+        person.getSourceQueryTableName());
+    Attribute gender = person.getAttribute("gender");
+    assertNotNull(gender.getSourceQuery());
+    assertEquals(
+        "bigquery-public-data.cms_synthetic_patient_data_omop.concept",
+        gender.getSourceQuery().getDisplayFieldTable());
+    assertEquals("concept_id", gender.getSourceQuery().getDisplayFieldTableJoinFieldName());
   }
 }

@@ -16,8 +16,9 @@ public final class Entity {
   private final ImmutableList<Attribute> optimizeGroupByAttributes;
   private final boolean hasTextSearch;
   private final ImmutableList<Attribute> optimizeTextSearchAttributes;
+  private final String sourceQueryTableName;
 
-  @SuppressWarnings("checkstyle:ParameterNumber")
+  @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
   public Entity(
       String name,
       String displayName,
@@ -27,7 +28,8 @@ public final class Entity {
       List<Hierarchy> hierarchies,
       List<Attribute> optimizeGroupByAttributes,
       boolean hasTextSearch,
-      List<Attribute> optimizeTextSearchAttributes) {
+      List<Attribute> optimizeTextSearchAttributes,
+      String sourceQueryTableName) {
     this.name = name;
     this.displayName = displayName;
     this.description = description;
@@ -37,6 +39,7 @@ public final class Entity {
     this.optimizeGroupByAttributes = ImmutableList.copyOf(optimizeGroupByAttributes);
     this.hasTextSearch = hasTextSearch;
     this.optimizeTextSearchAttributes = ImmutableList.copyOf(optimizeTextSearchAttributes);
+    this.sourceQueryTableName = sourceQueryTableName;
   }
 
   public String getName() {
@@ -104,5 +107,13 @@ public final class Entity {
 
   public ImmutableList<Attribute> getOptimizeTextSearchAttributes() {
     return optimizeTextSearchAttributes;
+  }
+
+  public String getSourceQueryTableName() {
+    return sourceQueryTableName;
+  }
+
+  public boolean supportsSourceQueries() {
+    return sourceQueryTableName != null;
   }
 }

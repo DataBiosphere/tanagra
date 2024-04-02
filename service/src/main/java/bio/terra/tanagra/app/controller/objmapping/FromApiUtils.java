@@ -404,7 +404,7 @@ public final class FromApiUtils {
               });
     }
 
-    return new ListQueryRequest(
+    return ListQueryRequest.againstIndexData(
         underlay,
         entity,
         selectFields,
@@ -412,14 +412,12 @@ public final class FromApiUtils {
         orderByFields,
         apiObj.getLimit(),
         PageMarker.deserialize(apiObj.getPageMarker()),
-        apiObj.getPageSize(),
-        false);
+        apiObj.getPageSize());
   }
 
   public static AttributeField buildAttributeField(
       Underlay underlay, Entity entity, String attributeName, boolean excludeDisplay) {
-    return new AttributeField(
-        underlay, entity, entity.getAttribute(attributeName), excludeDisplay, false);
+    return new AttributeField(underlay, entity, entity.getAttribute(attributeName), excludeDisplay);
   }
 
   private static Set<ValueDisplayField> buildHierarchyFields(
