@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,9 @@ public final class JacksonMapper {
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
   private static ObjectMapper getMapper() {
-    return objectMapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+    return objectMapper
+        .enable(JsonParser.Feature.ALLOW_COMMENTS)
+        .registerModule(new JavaTimeModule());
   }
 
   /**

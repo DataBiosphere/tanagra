@@ -60,14 +60,17 @@ public class BQListQueryPaginationTest {
   void withPagination() {
     Entity primaryEntity = underlay.getPrimaryEntity();
 
-    // Select and order by the id attribute.
+    // Select the age attribute, which includes a current timestamp reference.
+    // Order by the id attribute.
+    AttributeField ageAttributeField =
+        new AttributeField(underlay, primaryEntity, primaryEntity.getAttribute("age"), false);
     AttributeField idAttributeField =
         new AttributeField(underlay, primaryEntity, primaryEntity.getIdAttribute(), false);
     ListQueryRequest listQueryRequest1 =
         ListQueryRequest.againstIndexData(
             underlay,
             primaryEntity,
-            List.of(idAttributeField),
+            List.of(ageAttributeField),
             null,
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
@@ -81,13 +84,14 @@ public class BQListQueryPaginationTest {
     assertEquals(3, listQueryResult1.getListInstances().size());
     assertNotNull(listQueryResult1.getPageMarker());
     assertNotNull(listQueryResult1.getPageMarker().getPageToken());
+    assertNotNull(listQueryResult1.getPageMarker().getInstant());
 
     // Second query request gets the second and final page of results.
     ListQueryRequest listQueryRequest2 =
         ListQueryRequest.againstIndexData(
             underlay,
             primaryEntity,
-            List.of(idAttributeField),
+            List.of(ageAttributeField),
             null,
             List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,

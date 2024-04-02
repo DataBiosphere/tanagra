@@ -42,8 +42,4 @@ public class SqlQueryRequest {
   public boolean isDryRun() {
     return isDryRun;
   }
-
-  public SqlQueryRequest cloneAndSetSql(String newSql) {
-    return new SqlQueryRequest(newSql, sqlParams, pageMarker, pageSize, isDryRun);
-  }
 }

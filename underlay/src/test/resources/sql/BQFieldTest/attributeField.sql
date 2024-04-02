@@ -4,7 +4,7 @@
         gender,
         T_DISP_gender,
         race,
-        CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(),
+        CAST(FLOOR(TIMESTAMP_DIFF(@currentTimestamp0,
         age,
         DAY) / 365.25) AS INT64) AS age      
     FROM

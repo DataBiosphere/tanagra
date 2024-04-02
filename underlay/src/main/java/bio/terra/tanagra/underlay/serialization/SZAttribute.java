@@ -52,7 +52,13 @@ public class SZAttribute {
               + "For a simple function call that just wraps the column (e.g. `UPPER(column)`), "
               + "you can specify just the function name (e.g. `UPPER`). For a more complicated "
               + "function call, put `${fieldSql}` where the column name should be substituted "
-              + "(e.g. `CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)`).",
+              + "(e.g. `CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)`).\n\n"
+              + "Note that BigQuery disallows query caching and pagination for [certain non-deterministic functions]"
+              + "(https://cloud.google.com/bigquery/docs/cached-results#cache-exceptions). This negatively impacts "
+              + "query performance and prevents certain application behaviors that we want to support. "
+              + "So we workaround this for certain functions (CURRENT_DATE and CURRENT_TIMESTAMP) commonly used in "
+              + "runtime SQL wrappers by replacing the function with the current date/timestamp literal at runtime. "
+              + "You can include these functions normally in this property; the replacement will happen automatically.",
       optional = true)
   public String runtimeSqlFunctionWrapper;
 
