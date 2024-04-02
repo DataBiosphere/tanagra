@@ -57,15 +57,25 @@ Users specify the size of the random sample at review creation time.
 
 A review is always a "materialized" sample of a cohort, and the backend stores it that way (e.g. as a list of person ids).
 
-## Annotation (Key)
+## Annotation
 An annotation (key) is a type of comment users can add to a particular primary entity instance in a review
-(e.g. "Notes", "Review Status"). Annotation keys are user-defined at the cohort level. They can be used across all 
-reviews for the cohort. At export time, users can export all annotation keys and associated values for all reviews
-for a given cohort.
+(e.g. "Notes", "Review Status"). Annotation keys are defined for the cohort.
 
 ![Annotations overview page screenshot](./images/annotations_overview_page_screenshot.png "Annotations Overview Page")
 
+Annotation values are defined for a particular primary entity instance as part of the review workflow.
+
 ![Annotation value screenshot](./images/annotation_values_screenshot.png "Annotation Value")
+
+While we track which review an annotation value was added in, we expect users to primarily be interested in the most 
+recent annotation value for each primary entity instance.
+e.g. A user creates a review for cohort 123 and sets "Review Status" for person 456 to "Needs Review". Then they 
+create a second review, also for cohort 123 and that also includes person 456, and update the "Review Status" to "Reviewed".
+
+For this reason, on the single primary entity instance (e.g. person) review page, we show the most recent annotation 
+value for that instance, regardless of whether it was added in the currently selected review or a previous one for the 
+same cohort. Similarly, in the export workflow, we allow exporting all annotation keys and the most recent value for 
+each primary entity instance, per selected cohort.
 
 ## Activity log
 Most user actions are included in the deployment logs (i.e. written to `stdout`, captured in deployment logs).
