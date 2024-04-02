@@ -5,23 +5,23 @@ Our goal is to make it easy to set up a new dataset for exploring with little or
 so everything we've built is configuration-driven.
 
 
-## Overview
+## Project overview
 The project has three main pieces: **indexer**, **service**, **UI**.
-All three pieces are highly interconnected and are not intended to be used or deployed separately,
-so everything lives in this single GitHub repository.
+All three pieces are highly interconnected and are not intended to be used or deployed separately.
+Everything lives in this single GitHub repository.
 
 The **indexer** takes the source dataset and produces a logical copy that's better suited to the types
 of queries the UI needs to run. It denormalizes some data, precomputes some things, and reorganizes
 tables. The goal is not to meet some query benchmark, only to have the UI not time out.
 
-The **service** processes queries for the UI and manages the application database, which stores user-managed
-artifacts like cohorts and data feature sets.
+The **service** processes queries for the UI and manages the application database, which stores [user-managed
+artifacts](./docs/SERVICE_ARTIFACTS.md) like cohorts and data feature sets.
 
 The **UI** includes the cohort builder, data feature set builder, export, and cohort review interfaces.
 
 
 ## Configure a new dataset
-Tanagra supports data patterns, instead of specific SQL schemas.
+Tanagra supports data patterns, rather than specific SQL schemas.
 Check the list of [currently supported patterns](./docs/DATA_PATTERNS.md) to see how they map to your dataset.
 
 Tanagra defines a [custom object model](./docs/ENTITY_MODEL.md) on top of the underlying relational data.
@@ -69,6 +69,9 @@ locally on your machine.
 
 ## All documentation links
 These are all linked in the sections above. This is just in list format if you already know what you're looking for.
+
+Project overview
+* [Service Artifacts](./docs/SERVICE_ARTIFACTS.md)
 
 Configure a new dataset
 * [Data Patterns](./docs/DATA_PATTERNS.md)
