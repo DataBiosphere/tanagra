@@ -51,4 +51,12 @@ public final class ProtobufUtils {
       throw new InvalidConfigException("Error serializing to JSON", ipbEx);
     }
   }
+
+  public static <T extends Message> String serializeToPrettyJson(T message) {
+    try {
+      return JsonFormat.printer().print(message);
+    } catch (InvalidProtocolBufferException ipbEx) {
+      throw new InvalidConfigException("Error serializing to pretty JSON", ipbEx);
+    }
+  }
 }

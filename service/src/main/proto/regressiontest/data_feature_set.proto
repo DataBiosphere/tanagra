@@ -8,10 +8,9 @@ option java_outer_classname = "RTDataFeatureSet";
 import "regressiontest/criteria.proto";
 
 message DataFeatureSet {
-  string underlay = 1;
-  string display_name = 2;
-  repeated Criteria criteria = 3;
-  repeated EntityOutput entity_outputs = 4;
+  string display_name = 1;
+  repeated Criteria criteria = 2;
+  repeated EntityOutput entity_outputs = 3;
 }
 
 message EntityOutput {

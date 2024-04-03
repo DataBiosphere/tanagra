@@ -173,6 +173,7 @@ public class DataExportService {
     try {
       exportResult = impl.run(request, helper);
     } catch (Exception ex) {
+      LOGGER.error("Error running data export model", ex);
       exportResult = ExportResult.forError(ExportError.forException(ex));
     }
 

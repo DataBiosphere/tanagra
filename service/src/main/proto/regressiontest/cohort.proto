@@ -8,7 +8,6 @@ option java_outer_classname = "RTCohort";
 import "regressiontest/criteria.proto";
 
 message Cohort {
-  string underlay = 1;
-  string display_name = 2;
-  repeated CriteriaGroupSection criteria_group_sections = 3;
+  string display_name = 1;
+  repeated CriteriaGroupSection criteria_group_sections = 2;
 }

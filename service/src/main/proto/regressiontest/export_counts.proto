@@ -9,9 +9,10 @@ import "regressiontest/cohort.proto";
 import "regressiontest/data_feature_set.proto";
 
 message ExportCounts {
-  repeated Cohort cohorts = 1;
-  repeated DataFeatureSet data_feature_sets = 2;
-  repeated EntityOutputCount entity_output_counts = 3;
+  string underlay = 1;
+  repeated Cohort cohorts = 2;
+  repeated DataFeatureSet data_feature_sets = 3;
+  repeated EntityOutputCount entity_output_counts = 4;
 }
 
 message EntityOutputCount {

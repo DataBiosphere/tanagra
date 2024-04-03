@@ -6,11 +6,11 @@ option java_package = "bio.terra.tanagra.proto.regressiontest";
 option java_outer_classname = "RTCriteria";
 
 message Criteria {
-  string predefined_id = 1;
-  string selector_or_modifier_name = 2;
-  string selection_data = 3; // JSON formatted
-  int32 plugin_version = 4;
-  string plugin_config = 5; // JSON formatted
+  optional string predefined_id = 1;
+  optional string selector_or_modifier_name = 2;
+  optional string selection_data = 3; // Protobuf formatted
+  optional int32 plugin_version = 4;
+  optional string plugin_config = 5; // JSON formatted
 }
 
 message CriteriaGroup {
