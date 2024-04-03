@@ -169,6 +169,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
             entry -> {
               String entityName = entry.getKey();
               Long totalNumRows = entry.getValue();
+              LOGGER.info("entity={}, actual count={}", entityName, totalNumRows);
               assertEquals(expectedTotalNumRowsPerEntity.get(entityName), totalNumRows);
             });
   }

@@ -1,12 +1,12 @@
 {
   "underlay": "cmssynpuf",
   "cohorts": [{
-    "displayName": "women 40-65",
+    "displayName": "men 50-65",
     "criteriaGroupSections": [{
       "criteriaGroups": [{
         "criteria": [{
           "selectorOrModifierName": "tanagra-gender",
-          "selectionData": "Cg0KAxDUQhIGRkVNQUxF",
+          "selectionData": "CgsKAxC7QhIETUFMRQ\u003d\u003d",
           "pluginVersion": 0,
           "pluginConfig": "{\n  \"attribute\": \"gender\"\n}",
           "pluginName": "attribute"
@@ -17,7 +17,7 @@
       "criteriaGroups": [{
         "criteria": [{
           "selectorOrModifierName": "tanagra-age",
-          "selectionData": "EhwKCG5EWTVJNWpREQAAAAAAAERAGQAAAAAAQFBA",
+          "selectionData": "EhwKCDdNVFkwaDdaEQAAAAAAAElAGQAAAAAAQFBA",
           "pluginVersion": 0,
           "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
           "pluginName": "attribute"
@@ -35,6 +35,6 @@
   }],
   "entityOutputCounts": [{
     "entity": "person",
-    "numRows": "73519"
+    "numRows": "66396"
   }]
 }
