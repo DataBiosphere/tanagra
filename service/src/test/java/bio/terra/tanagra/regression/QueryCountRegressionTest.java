@@ -29,6 +29,7 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.ProtobufUtils;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -92,6 +93,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
   @MethodSource("getTestFilePaths")
   void countsMatch(Path filePath) throws IOException {
     // Read in the exported regression file and deserialize from JSON.
+    LOGGER.info("Testing regression file: {}", filePath.getFileName());
     String fileContents = FileUtils.readStringFromFile(FileUtils.getFileStream(filePath));
     RTExportCounts.ExportCounts rtExportCounts =
         ProtobufUtils.deserializeFromJsonOrProtoBytes(
@@ -99,6 +101,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
             .build();
 
     // Create cohorts and data feature sets.
+    LOGGER.info("Testing against underlay: {}", rtExportCounts.getUnderlay());
     Underlay underlay = underlayService.getUnderlay(rtExportCounts.getUnderlay());
     List<Cohort> cohorts = new ArrayList<>();
     rtExportCounts.getCohortsList().stream()
@@ -170,6 +173,46 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
             });
   }
 
+  @SuppressWarnings("PMD.UnusedPrivateMethod")
+  private static Stream<String> getTestFilePaths() throws FileNotFoundException {
+    String queryCountRegressionTestDirs = System.getProperty("QUERY_COUNT_REGRESSION_TEST_DIRS");
+    String gradleProjectDir = System.getProperty("GRADLE_PROJECT_DIR");
+    LOGGER.info("QUERY_COUNT_REGRESSION_TEST_DIRS = {}", queryCountRegressionTestDirs);
+    LOGGER.info("GRADLE_PROJECT_DIR = {}", gradleProjectDir);
+
+    List<Path> regressionTestDirs = new ArrayList<>();
+    if (queryCountRegressionTestDirs != null && !queryCountRegressionTestDirs.isEmpty()) {
+      List.of(queryCountRegressionTestDirs.split(",")).stream()
+          .forEach(dirName -> regressionTestDirs.add(Path.of(dirName)));
+    } else {
+      Path regressionParentDir =
+          Path.of(gradleProjectDir).resolve("src/test/resources/regression/");
+      UNDERLAYS_TESTED_BY_DEFAULT.stream()
+          .forEach(
+              underlayName -> regressionTestDirs.add(regressionParentDir.resolve(underlayName)));
+    }
+
+    List<String> regressionTestFiles = new ArrayList<>();
+    regressionTestDirs.stream()
+        .forEach(
+            regressionTestDir -> {
+              LOGGER.info(
+                  "Searching directory for regression test files: {}",
+                  regressionTestDir.toAbsolutePath());
+              File[] testFiles = regressionTestDir.toFile().listFiles();
+              if (testFiles != null && testFiles.length > 0) {
+                List.of(testFiles).stream()
+                    .forEach(
+                        testFile ->
+                            regressionTestFiles.add(testFile.toPath().toAbsolutePath().toString()));
+              }
+            });
+    if (regressionTestFiles.isEmpty()) {
+      throw new FileNotFoundException("No regression test files found");
+    }
+    return regressionTestFiles.stream();
+  }
+
   private static Map<String, Long> fromRegressionTestObj(
       List<RTExportCounts.EntityOutputCount> rtObj) {
     Map<String, Long> totalNumRowsPerEntity = new HashMap<>();
@@ -233,34 +276,5 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
         .uiConfig(rtObj.getPluginConfig())
         .pluginName(rtObj.getPluginName())
         .build();
-  }
-
-  @SuppressWarnings("PMD.UnusedPrivateMethod")
-  private static Stream<Path> getTestFilePaths() {
-    List<Path> regressionTestDirs = new ArrayList<>();
-    String specifiedDirs = System.getProperty("QUERY_COUNT_REGRESSION_TEST_DIRS");
-    if (specifiedDirs != null && !specifiedDirs.isEmpty()) {
-      List.of(specifiedDirs.split(",")).stream()
-          .forEach(dirName -> regressionTestDirs.add(Path.of(dirName)));
-    } else {
-      String gradleProjectDir = System.getProperty("GRADLE_PROJECT_DIR");
-      Path regressionParentDir =
-          Path.of(gradleProjectDir).resolve("src/test/resources/regression/");
-      UNDERLAYS_TESTED_BY_DEFAULT.stream()
-          .forEach(
-              underlayName -> regressionTestDirs.add(regressionParentDir.resolve(underlayName)));
-    }
-
-    List<Path> regressionTestFiles = new ArrayList<>();
-    regressionTestDirs.stream()
-        .forEach(
-            regressionTestDir -> {
-              File[] testFiles = regressionTestDir.toFile().listFiles();
-              if (testFiles.length > 0) {
-                List.of(testFiles).stream()
-                    .forEach(testFile -> regressionTestFiles.add(testFile.toPath()));
-              }
-            });
-    return regressionTestFiles.stream();
   }
 }
