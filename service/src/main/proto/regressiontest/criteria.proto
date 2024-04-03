@@ -11,6 +11,7 @@ message Criteria {
   optional string selection_data = 3; // Protobuf formatted
   optional int32 plugin_version = 4;
   optional string plugin_config = 5; // JSON formatted
+  string plugin_name = 6;
 }
 
 message CriteriaGroup {

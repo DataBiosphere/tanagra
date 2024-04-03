@@ -82,8 +82,7 @@ public class RegressionTest implements DataExport {
                 + (request.getConceptSets().size() > 1
                     ? "_plus" + (request.getConceptSets().size() - 1) + "more"
                     : "");
-    String fileName =
-        "regression_test_cohort" + cohortRef + "_datafeatureset" + dataFeatureSetRef + ".json";
+    String fileName = "cohort" + cohortRef + "_datafeatureset" + dataFeatureSetRef + ".json";
     String fileContents = ProtobufUtils.serializeToPrettyJson(exportCounts.build());
     BlobId blobId =
         helper.getStorageService().writeFile(gcsBucketNames.get(0), fileName, fileContents);
@@ -173,9 +172,10 @@ public class RegressionTest implements DataExport {
   }
 
   private static RTCriteria.Criteria toRegressionTestObj(Criteria criteria) {
-    RTCriteria.Criteria.Builder builder = RTCriteria.Criteria.newBuilder();
+    RTCriteria.Criteria.Builder builder =
+        RTCriteria.Criteria.newBuilder().setPluginName(criteria.getPluginName());
     if (criteria.getPredefinedId() != null) {
-      builder.setPluginConfig(criteria.getPredefinedId());
+      builder.setPredefinedId(criteria.getPredefinedId());
     } else {
       builder
           .setSelectorOrModifierName(criteria.getSelectorOrModifierName())

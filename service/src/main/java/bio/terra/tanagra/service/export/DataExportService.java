@@ -16,6 +16,7 @@ import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.utils.RandomNumberGenerator;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,48 +100,8 @@ public class DataExportService {
 
     // Build the helper object that implementation classes can use. This object contains utility
     // methods on the specific cohorts and concept sets specified in the request.
-    List<EntityOutput> entityOutputs;
-    EntityFilter primaryEntityFilter;
-    if (featureConfiguration.isBackendFiltersEnabled()) {
-      entityOutputs =
-          filterBuilderService.buildOutputsForExport(
-              request.getCohorts(), request.getConceptSets());
-      primaryEntityFilter =
-          filterBuilderService.buildFilterForCohortRevisions(
-              request.getUnderlay().getName(),
-              request.getCohorts().stream()
-                  .map(Cohort::getMostRecentRevision)
-                  .collect(Collectors.toList()));
-    } else {
-      entityOutputs =
-          frontendListQueryRequests.stream()
-              .map(
-                  listQueryRequest -> {
-                    List<Attribute> attributes = new ArrayList<>();
-                    listQueryRequest.getSelectFields().stream()
-                        .filter(selectField -> selectField instanceof AttributeField)
-                        .forEach(
-                            selectField ->
-                                attributes.add(((AttributeField) selectField).getAttribute()));
-                    if (listQueryRequest.getFilter() == null) {
-                      return EntityOutput.unfiltered(listQueryRequest.getEntity(), attributes);
-                    } else {
-                      return EntityOutput.filtered(
-                          listQueryRequest.getEntity(), listQueryRequest.getFilter(), attributes);
-                    }
-                  })
-              .collect(Collectors.toList());
-      primaryEntityFilter = frontendPrimaryEntityFilter;
-    }
     DataExportHelper helper =
-        new DataExportHelper(
-            featureConfiguration.getMaxChildThreads(),
-            shared,
-            randomNumberGenerator,
-            reviewService,
-            request,
-            entityOutputs,
-            primaryEntityFilter);
+        buildHelper(request, frontendListQueryRequests, frontendPrimaryEntityFilter);
 
     // Calculate the number of primary entity instances that are included in this export request.
     CountQueryResult countQueryResult =
@@ -148,7 +109,7 @@ public class DataExportService {
             request.getUnderlay(),
             request.getUnderlay().getPrimaryEntity(),
             List.of(),
-            primaryEntityFilter,
+            helper.getPrimaryEntityFilter(),
             null,
             null);
     long numPrimaryEntityInstances = countQueryResult.getCountInstances().get(0).getCount();
@@ -185,5 +146,55 @@ public class DataExportService {
         request.getStudy().getId(),
         cohortToRevisionIdMap);
     return exportResult;
+  }
+
+  @VisibleForTesting
+  public DataExportHelper buildHelper(
+      ExportRequest request,
+      List<ListQueryRequest> frontendListQueryRequests,
+      EntityFilter frontendPrimaryEntityFilter) {
+    // Build the helper object that implementation classes can use. This object contains utility
+    // methods on the specific cohorts and concept sets specified in the request.
+    List<EntityOutput> entityOutputs;
+    EntityFilter primaryEntityFilter;
+    if (featureConfiguration.isBackendFiltersEnabled()) {
+      entityOutputs =
+          filterBuilderService.buildOutputsForExport(
+              request.getCohorts(), request.getConceptSets());
+      primaryEntityFilter =
+          filterBuilderService.buildFilterForCohortRevisions(
+              request.getUnderlay().getName(),
+              request.getCohorts().stream()
+                  .map(Cohort::getMostRecentRevision)
+                  .collect(Collectors.toList()));
+    } else {
+      entityOutputs =
+          frontendListQueryRequests.stream()
+              .map(
+                  listQueryRequest -> {
+                    List<Attribute> attributes = new ArrayList<>();
+                    listQueryRequest.getSelectFields().stream()
+                        .filter(selectField -> selectField instanceof AttributeField)
+                        .forEach(
+                            selectField ->
+                                attributes.add(((AttributeField) selectField).getAttribute()));
+                    if (listQueryRequest.getFilter() == null) {
+                      return EntityOutput.unfiltered(listQueryRequest.getEntity(), attributes);
+                    } else {
+                      return EntityOutput.filtered(
+                          listQueryRequest.getEntity(), listQueryRequest.getFilter(), attributes);
+                    }
+                  })
+              .collect(Collectors.toList());
+      primaryEntityFilter = frontendPrimaryEntityFilter;
+    }
+    return new DataExportHelper(
+        featureConfiguration.getMaxChildThreads(),
+        shared,
+        randomNumberGenerator,
+        reviewService,
+        request,
+        entityOutputs,
+        primaryEntityFilter);
   }
 }

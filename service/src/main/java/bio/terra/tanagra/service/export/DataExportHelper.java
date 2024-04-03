@@ -489,4 +489,8 @@ public class DataExportHelper {
       throw new SystemException("Error encoding URL param: " + param, ueEx);
     }
   }
+
+  public EntityFilter getPrimaryEntityFilter() {
+    return primaryEntityFilter;
+  }
 }
