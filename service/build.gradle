@@ -137,12 +137,20 @@ protobuf {
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform() {
+        excludeTags "regression-test"
+    }
 }
 
 task noCloudAccessRequiredTests(type: Test) {
     useJUnitPlatform {
         excludeTags "requires-cloud-access"
+    }
+}
+
+task regressionTests(type: Test) {
+    useJUnitPlatform {
+        includeTags "regression-test"
     }
 }
 

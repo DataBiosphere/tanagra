@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -54,6 +55,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 @ActiveProfiles("test")
+@Tag("requires-cloud-access")
+@Tag("regression-test")
 public class QueryCountRegressionTest extends BaseSpringUnitTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryCountRegressionTest.class);
   private static final List<String> UNDERLAYS_TESTED_BY_DEFAULT =
@@ -253,8 +256,10 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
         .forEach(
             regressionTestDir -> {
               File[] testFiles = regressionTestDir.toFile().listFiles();
-              List.of(testFiles).stream()
-                  .forEach(testFile -> regressionTestFiles.add(testFile.toPath()));
+              if (testFiles.length > 0) {
+                List.of(testFiles).stream()
+                    .forEach(testFile -> regressionTestFiles.add(testFile.toPath()));
+              }
             });
     return regressionTestFiles.stream();
   }
