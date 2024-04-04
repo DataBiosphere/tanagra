@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package tanagra.regressiontest;
+
+option java_package = "bio.terra.tanagra.proto.regressiontest";
+option java_outer_classname = "RTCriteria";
+
+message Criteria {
+  optional string predefined_id = 1;
+  optional string selector_or_modifier_name = 2;
+  optional string selection_data = 3; // Protobuf formatted
+  optional int32 plugin_version = 4;
+  optional string plugin_config = 5; // JSON formatted
+  string plugin_name = 6;
+}
+
+message CriteriaGroup {
+  repeated Criteria criteria = 1;
+}
+
+message CriteriaGroupSection {
+  repeated CriteriaGroup criteria_groups = 1;
+  BooleanLogicOperator operator = 2;
+  bool is_excluded = 3;
+}
+
+enum BooleanLogicOperator {
+  AND = 0;
+  OR = 1;
+}

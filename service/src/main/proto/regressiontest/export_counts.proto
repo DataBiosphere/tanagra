@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package tanagra.regressiontest;
+
+option java_package = "bio.terra.tanagra.proto.regressiontest";
+option java_outer_classname = "RTExportCounts";
+
+import "regressiontest/cohort.proto";
+import "regressiontest/data_feature_set.proto";
+
+message ExportCounts {
+  string underlay = 1;
+  repeated Cohort cohorts = 2;
+  repeated DataFeatureSet data_feature_sets = 3;
+  repeated EntityOutputCount entity_output_counts = 4;
+}
+
+message EntityOutputCount {
+  string entity = 1;
+  int64 num_rows = 2;
+}

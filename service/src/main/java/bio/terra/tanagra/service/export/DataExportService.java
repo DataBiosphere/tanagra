@@ -16,6 +16,7 @@ import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.utils.RandomNumberGenerator;
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,6 +100,61 @@ public class DataExportService {
 
     // Build the helper object that implementation classes can use. This object contains utility
     // methods on the specific cohorts and concept sets specified in the request.
+    DataExportHelper helper =
+        buildHelper(request, frontendListQueryRequests, frontendPrimaryEntityFilter);
+
+    // Calculate the number of primary entity instances that are included in this export request.
+    CountQueryResult countQueryResult =
+        underlayService.runCountQuery(
+            request.getUnderlay(),
+            request.getUnderlay().getPrimaryEntity(),
+            List.of(),
+            helper.getPrimaryEntityFilter(),
+            null,
+            null);
+    long numPrimaryEntityInstances = countQueryResult.getCountInstances().get(0).getCount();
+    LOGGER.info("Exporting {} primary entity instances", numPrimaryEntityInstances);
+
+    // Enforce the maximum primary entity cap, if defined.
+    DataExportModel model = nameToModel.get(request.getModel());
+    if (model.getConfig().hasNumPrimaryEntityCap()
+        && numPrimaryEntityInstances > model.getConfig().getNumPrimaryEntityCap()) {
+      return ExportResult.forError(
+          ExportError.forMessage(
+              "Maximum number of primary entity instances ("
+                  + model.getConfig().getNumPrimaryEntityCap()
+                  + ") allowed for this model exceeded: "
+                  + numPrimaryEntityInstances,
+              false));
+    }
+
+    // Get the implementation class instance for the requested data export model.
+    DataExport impl = model.getImpl();
+    ExportResult exportResult;
+    try {
+      exportResult = impl.run(request, helper);
+    } catch (Exception ex) {
+      LOGGER.error("Error running data export model", ex);
+      exportResult = ExportResult.forError(ExportError.forException(ex));
+    }
+
+    // Log the export.
+    activityLogService.logExport(
+        request.getModel(),
+        numPrimaryEntityInstances,
+        request.getUserEmail(),
+        request.getStudy().getId(),
+        cohortToRevisionIdMap);
+    return exportResult;
+  }
+
+  @VisibleForTesting
+  public DataExportHelper buildHelper(
+      ExportRequest request,
+      List<ListQueryRequest> frontendListQueryRequests,
+      EntityFilter frontendPrimaryEntityFilter) {
+    // Build the helper object that implementation classes can use. This object contains utility
+    // methods on the specific cohorts and concept sets specified in the request.
     List<EntityOutput> entityOutputs;
     EntityFilter primaryEntityFilter;
     if (featureConfiguration.isBackendFiltersEnabled()) {
@@ -132,57 +188,13 @@ public class DataExportService {
               .collect(Collectors.toList());
       primaryEntityFilter = frontendPrimaryEntityFilter;
     }
-    DataExportHelper helper =
-        new DataExportHelper(
-            featureConfiguration.getMaxChildThreads(),
-            shared,
-            randomNumberGenerator,
-            reviewService,
-            request,
-            entityOutputs,
-            primaryEntityFilter);
-
-    // Calculate the number of primary entity instances that are included in this export request.
-    CountQueryResult countQueryResult =
-        underlayService.runCountQuery(
-            request.getUnderlay(),
-            request.getUnderlay().getPrimaryEntity(),
-            List.of(),
-            primaryEntityFilter,
-            null,
-            null);
-    long numPrimaryEntityInstances = countQueryResult.getCountInstances().get(0).getCount();
-    LOGGER.info("Exporting {} primary entity instances", numPrimaryEntityInstances);
-
-    // Enforce the maximum primary entity cap, if defined.
-    DataExportModel model = nameToModel.get(request.getModel());
-    if (model.getConfig().hasNumPrimaryEntityCap()
-        && numPrimaryEntityInstances > model.getConfig().getNumPrimaryEntityCap()) {
-      return ExportResult.forError(
-          ExportError.forMessage(
-              "Maximum number of primary entity instances ("
-                  + model.getConfig().getNumPrimaryEntityCap()
-                  + ") allowed for this model exceeded: "
-                  + numPrimaryEntityInstances,
-              false));
-    }
-
-    // Get the implementation class instance for the requested data export model.
-    DataExport impl = model.getImpl();
-    ExportResult exportResult;
-    try {
-      exportResult = impl.run(request, helper);
-    } catch (Exception ex) {
-      exportResult = ExportResult.forError(ExportError.forException(ex));
-    }
-
-    // Log the export.
-    activityLogService.logExport(
-        request.getModel(),
-        numPrimaryEntityInstances,
-        request.getUserEmail(),
-        request.getStudy().getId(),
-        cohortToRevisionIdMap);
-    return exportResult;
+    return new DataExportHelper(
+        featureConfiguration.getMaxChildThreads(),
+        shared,
+        randomNumberGenerator,
+        reviewService,
+        request,
+        entityOutputs,
+        primaryEntityFilter);
   }
 }

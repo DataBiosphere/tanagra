@@ -72,7 +72,7 @@ task noCloudAccessRequiredTests(type: Test) {
 
 tasks.withType(Test) {
     // These System properties are used for the generated SQL strings to compare against during tests.
-    // See bio.terra.tanagra.aousynthetic.GeneratedSqlUtils for how they are used.
+    // See bio.terra.tanagra.testing.GeneratedSqlUtils for how they are used.
     systemProperty("GRADLE_PROJECT_DIR", projectDir)
     if (project.findProperty("generateSqlFiles")) {
         systemProperty("GENERATE_SQL_FILES", "true")

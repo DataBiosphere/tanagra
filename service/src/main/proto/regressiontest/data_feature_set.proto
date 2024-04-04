@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package tanagra.regressiontest;
+
+option java_package = "bio.terra.tanagra.proto.regressiontest";
+option java_outer_classname = "RTDataFeatureSet";
+
+import "regressiontest/criteria.proto";
+
+message DataFeatureSet {
+  string display_name = 1;
+  repeated Criteria criteria = 2;
+  repeated EntityOutput entity_outputs = 3;
+}
+
+message EntityOutput {
+  string entity = 1;
+  repeated string included_attributes = 2;
+}

@@ -9,6 +9,7 @@ plugins {
     id "org.springframework.boot" version "2.5.1"
     id "org.barfuin.gradle.taskinfo" version "1.1.1"
     id "net.linguica.maven-settings" version "0.5"
+    id "com.google.protobuf" version "0.9.4"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -119,8 +120,26 @@ dependencies {
     implementation group: "org.json", name: "json", version: "20230227"
 }
 
+protobuf {
+    // Configure the protoc executable
+    protoc {
+        // This executable is downloaded from Maven.
+        // The version here must match the Google Cloud libraries BOM specified in the buildSrc Gradle sub-project.
+        // https://cloud.google.com/java/docs/bom
+        // This com.google.protobuf plugin does not yet support using a BOM.
+        // https://github.com/google/protobuf-gradle-plugin/issues/412
+        // So we have to manually keep this version in sync, by referencing the BOM dashboard.
+        // https://storage.googleapis.com/cloud-opensource-java-dashboard/com.google.cloud/libraries-bom/index.html
+        artifact = "com.google.protobuf:protoc:3.23.2"
+    }
+    // By default, the proto plugin generates Java classes in the build/classes/ directory.
+    // generatedFilesBaseDir = "$projectDir/src/generated"
+}
+
 test {
-    useJUnitPlatform()
+    useJUnitPlatform() {
+        excludeTags "regression-test"
+    }
 }
 
 task noCloudAccessRequiredTests(type: Test) {
@@ -129,12 +148,24 @@ task noCloudAccessRequiredTests(type: Test) {
     }
 }
 
+task regressionTests(type: Test) {
+    useJUnitPlatform {
+        includeTags "regression-test"
+    }
+}
+
 tasks.withType(Test) {
     // These System properties are used for the generated SQL strings to compare against during tests.
-    // See bio.terra.tanagra.aousynthetic.GeneratedSqlUtils for how they are used.
+    // See bio.terra.tanagra.testing.GeneratedSqlUtils for how they are used.
     systemProperty("GRADLE_PROJECT_DIR", projectDir)
     if (project.findProperty("generateSqlFiles")) {
         systemProperty("GENERATE_SQL_FILES", "true")
+    }
+
+    // This System property is used to point at the directories that contain exported count regression test files.
+    // See bio.terra.tanagra.regression.QueryCountRegressionTest for how it's used.
+    if (project.findProperty("queryCountRegressionTestDirs")) {
+        systemProperty("QUERY_COUNT_REGRESSION_TEST_DIRS", project.findProperty("queryCountRegressionTestDirs"))
     }
 }
 

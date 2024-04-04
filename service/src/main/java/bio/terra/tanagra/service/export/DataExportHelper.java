@@ -149,6 +149,118 @@ public class DataExportHelper {
     return listQueryResult.getSqlNoParams();
   }
 
+  /** @return Map of output entity name -> total number of rows. */
+  public Map<String, Long> getTotalNumRowsOfEntityData() {
+    // Build set of list query requests with very small page size.
+    List<ListQueryRequest> listQueryRequests =
+        entityOutputs.stream()
+            .map(
+                entityOutput -> {
+                  List<ValueDisplayField> selectFields =
+                      entityOutput.getAttributes().stream()
+                          .sorted(Comparator.comparing(Attribute::getName))
+                          .map(
+                              attribute ->
+                                  new AttributeField(
+                                      exportRequest.getUnderlay(),
+                                      entityOutput.getEntity(),
+                                      attribute,
+                                      false))
+                          .collect(Collectors.toList());
+                  return ListQueryRequest.againstIndexData(
+                      exportRequest.getUnderlay(),
+                      entityOutput.getEntity(),
+                      selectFields,
+                      entityOutput.getDataFeatureFilter(),
+                      null,
+                      null,
+                      null,
+                      1);
+                })
+            .collect(Collectors.toList());
+
+    Map<String, Long> totalNumRows = new HashMap<>();
+    if (maxChildThreads == null || maxChildThreads > 1) {
+      // Build set of list query jobs.
+      Set<Job<ListQueryRequest, ListQueryResult>> listQueryJobs = new HashSet<>();
+      listQueryRequests.stream()
+          .forEach(
+              listQueryRequest ->
+                  listQueryJobs.add(
+                      new Job<>(
+                          listQueryRequest.getEntity().getName()
+                              + '_'
+                              + Instant.now().toEpochMilli(),
+                          listQueryRequest,
+                          () ->
+                              listQueryRequest
+                                  .getUnderlay()
+                                  .getQueryRunner()
+                                  .run(listQueryRequest))));
+      // Kick off jobs in parallel.
+      int threadPoolSize =
+          maxChildThreads == null
+              ? listQueryRequests.size()
+              : Math.min(listQueryRequests.size(), maxChildThreads);
+      LOGGER.info(
+          "Running list query requests in parallel, with a thread pool size of {}", threadPoolSize);
+      Map<ListQueryRequest, JobResult<ListQueryResult>> listQueryJobResults =
+          ThreadPoolUtils.runInParallel(threadPoolSize, listQueryJobs);
+      listQueryJobResults.entrySet().stream()
+          .forEach(
+              listQueryJobResult -> {
+                ListQueryRequest listQueryRequest = listQueryJobResult.getKey();
+                JobResult<ListQueryResult> jobResult = listQueryJobResult.getValue();
+                if (jobResult == null) {
+                  LOGGER.error(
+                      "List query did not complete or timed out: entity={}",
+                      listQueryRequest.getEntity().getName());
+                  throw new SystemException(
+                      "List query did not complete or timed out: entity="
+                          + listQueryRequest.getEntity().getName());
+                } else if (jobResult.getJobOutput() == null) {
+                  LOGGER.error(
+                      "List query threw an exception: entity={}, {}",
+                      listQueryRequest.getEntity().getName(),
+                      jobResult.getExceptionMessage());
+                  throw new SystemException(
+                      "List query threw an exception: entity="
+                          + listQueryRequest.getEntity().getName()
+                          + ", "
+                          + jobResult.getExceptionMessage());
+                } else {
+                  totalNumRows.put(
+                      listQueryRequest.getEntity().getName(),
+                      jobResult.getJobOutput().getNumRowsAcrossAllPages());
+                }
+              });
+    } else {
+      // Kick off jobs in serial.
+      LOGGER.info("Running list query requests in serial");
+      listQueryRequests.stream()
+          .forEach(
+              listQueryRequest -> {
+                try {
+                  ListQueryResult listQueryResult =
+                      listQueryRequest.getUnderlay().getQueryRunner().run(listQueryRequest);
+                  totalNumRows.put(
+                      listQueryRequest.getEntity().getName(),
+                      listQueryResult.getNumRowsAcrossAllPages());
+                } catch (Exception ex) {
+                  LOGGER.error(
+                      "List query threw an exception: entity={}",
+                      listQueryRequest.getEntity().getName(),
+                      ex);
+                  throw new SystemException(
+                      "List query threw an exception: entity="
+                          + listQueryRequest.getEntity().getName(),
+                      ex);
+                }
+              });
+    }
+    return totalNumRows;
+  }
+
   /**
    * @param fileNameTemplate String substitution template for the filename. Must include ${entity}
    *     and ${random} placeholders (e.g. ${entity}_cohort_${random}).
@@ -376,5 +488,9 @@ public class DataExportHelper {
     } catch (UnsupportedEncodingException ueEx) {
       throw new SystemException("Error encoding URL param: " + param, ueEx);
     }
+  }
+
+  public EntityFilter getPrimaryEntityFilter() {
+    return primaryEntityFilter;
   }
 }

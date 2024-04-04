@@ -43,6 +43,8 @@ tanagra:
         display-name: Individual file download with cap=10k
         type: INDIVIDUAL_FILE_DOWNLOAD
         num-primary-entity-cap: 10000
+      -
+        type: REGRESSION_TEST
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG
