@@ -210,7 +210,7 @@
         "plugin": {
           "entity": "noteOccurrence",
           "title": "title",
-          "subtitles": ["note", "date"],
+          "subtitles": ["note", "start_date"],
           "text": "note_text",
           "categoryAttribute": "note",
           "sortOrder": {
