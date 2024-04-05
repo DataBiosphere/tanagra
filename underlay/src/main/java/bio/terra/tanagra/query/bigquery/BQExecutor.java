@@ -148,7 +148,7 @@ public class BQExecutor {
           exportProjectId,
           exportDatasetId,
           tempTableName);
-      return null;
+      return Pair.of(null, null);
     }
 
     // Export the temporary table to a compressed file.
