@@ -8,7 +8,11 @@ function generateName(type) {
 describe("Basic tests", () => {
   it("Export", () => {
     const cohort1 = "export1";
-    cy.createCohortFromSearchThenAddAnnotationData(cohort1, "Red color", "tanagra-conditions");
+    cy.createCohortFromSearchThenAddAnnotationData(
+      cohort1,
+      "Red color",
+      "tanagra-conditions"
+    );
 
     const cohort2 = "export2";
     cy.createCohortFromSearchThenAddAnnotationData(cohort2, "Papule of skin");
@@ -43,9 +47,8 @@ describe("Basic tests", () => {
 
     cy.iframe().find("button:Contains(Export)").click();
 
-    cy.iframe().find(".MuiSelect-select:Contains(Import to VWB)").click();
-    cy.iframe().find("li:Contains(Download individual files)").click();
-    cy.iframe().find("button:Contains(Export)").last().click();
+    cy.iframe().find("span:Contains(Download individual files)").click();
+    cy.iframe().find("button:Contains(Export dataset)").last().click();
 
     cy.iframe().find(`a:Contains(${cohort1})`, { timeout: 20000 });
     cy.iframe().find(`a:Contains(${cohort2})`);

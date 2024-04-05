@@ -1,4 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import DownloadIcon from "@mui/icons-material/Download";
 import InfoIcon from "@mui/icons-material/Info";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -6,11 +8,12 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import FormControl from "@mui/material/FormControl";
 import Link from "@mui/material/Link";
-import MenuItem from "@mui/material/MenuItem";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import Paper from "@mui/material/Paper";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Radio from "@mui/material/Radio";
+import RadioGroup, { useRadioGroup } from "@mui/material/RadioGroup";
+import { SelectChangeEvent } from "@mui/material/Select";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
 import ToggleButton from "@mui/material/ToggleButton";
@@ -30,7 +33,7 @@ import Loading from "components/loading";
 import { Tabs as TanagraTabs } from "components/tabs";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, makeArrayFilter } from "data/filter";
-import { Cohort, ExportModel, FeatureSet } from "data/source";
+import { Cohort, ExportModel, ExportResultLink, FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useStudyId, useUnderlay } from "hooks";
@@ -51,6 +54,7 @@ import {
 import { StudyName } from "studyName";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
+import useSWRMutation from "swr/mutation";
 import { useImmer } from "use-immer";
 import { useNavigate } from "util/searchState";
 import { isValid } from "util/valid";
@@ -693,6 +697,14 @@ function useExportDialog(props: ExportDialogProps): [ReactNode, () => void] {
   ];
 }
 
+enum ExportDialogStage {
+  MODEL_SELECT,
+  EXPORTING,
+  LINKS,
+  REDIRECT_ERRORS,
+  REDIRECT,
+}
+
 function ExportDialog(
   props: ExportDialogProps & { open: boolean; hide: () => void }
 ) {
@@ -701,10 +713,8 @@ function ExportDialog(
   const studyId = useStudyId();
   const params = useBaseParams();
 
-  const [selId, setSelId] = useState<string | undefined>(undefined);
-  const [exporting, setExporting] = useState(false);
-  const [instance, setInstance] = useState(0);
-  const [output, setOutput] = useState<ReactNode>(null);
+  const [stage, setStage] = useState(ExportDialogStage.MODEL_SELECT);
+  const [modelId, setModelId] = useState<string>("");
 
   const exportModelsState = useSWRImmutable<ExportModel[]>(
     {
@@ -720,175 +730,312 @@ function ExportDialog(
     const {
       target: { value: sel },
     } = event;
-    setSelId(sel);
+    setModelId(sel);
   };
 
   const model =
-    exportModelsState.data?.find((m) => m.id === selId) ??
+    exportModelsState.data?.find((m) => m.id === modelId) ??
     exportModelsState.data?.[0];
 
-  const onExport = async (startInstance: number) => {
-    if (!model) {
-      throw new Error("No export method selected.");
-    }
+  // There seems to be an issue with the way useSWRMutation captures the
+  // function that prevents it from updating when state changes, even if the
+  // function is contained in a useCallback. Pass the data through the key
+  // instead.
+  const exportState = useSWRMutation(
+    {
+      type: "export",
+      underlayName: underlay.name,
+      modelId: model?.id,
+      cohorts: props.cohorts,
+      cohortsFilter: props.cohortsFilter,
+      occurrenceFilters: props.occurrenceFilters,
+    },
+    async (key) => {
+      if (!key.modelId) {
+        throw new Error("Export models not loaded.");
+      }
 
-    const cohortsFilter = props.cohortsFilter;
-    if (!cohortsFilter) {
-      throw new Error("All selected cohorts are empty.");
-    }
+      const cohortsFilter = key.cohortsFilter;
+      if (!cohortsFilter) {
+        throw new Error("All selected cohorts are empty.");
+      }
 
-    setExporting(true);
-    setOutput(null);
+      const res = await underlaySource.export(
+        underlay.name,
+        studyId,
+        key.modelId,
+        RETURN_URL_PLACEHOLDER,
+        key.cohorts.map((c) => c.id),
+        key.occurrenceFilters.map((filters) => ({
+          requestedAttributes: filters.attributes,
+          entityId: filters.id,
+          cohort: cohortsFilter,
+          conceptSet: makeArrayFilter({ min: 1 }, filters.filters),
+        }))
+      );
 
-    const result = await underlaySource.export(
-      underlay.name,
-      studyId,
-      model.id,
-      RETURN_URL_PLACEHOLDER,
-      props.cohorts.map((c) => c.id),
-      props.occurrenceFilters.map((filters) => ({
-        requestedAttributes: filters.attributes,
-        entityId: filters.id,
-        cohort: cohortsFilter,
-        conceptSet: makeArrayFilter({ min: 1 }, filters.filters),
-      }))
-    );
-
-    if (instance === startInstance) {
-      if (result.redirectURL) {
-        setOutput(<CenteredContent progress text="Redirecting..." />);
-        setExporting(false);
-
-        redirect(result.redirectURL, absoluteExportURL(params));
-      } else {
-        const artifactLists: {
-          section: string;
-          name: string;
-          url: string;
-        }[][] = [];
-
-        for (const key in result.outputs) {
-          const parts = key.split(/:(.*)/s);
-          if (parts.length != 3) {
-            throw new Error(`Invalid output key ${key}.`);
-          }
-
-          const artifact = {
-            section: parts[0],
-            name: parts[1],
-            url: result.outputs[key],
-          };
-          const list = artifactLists.find(
-            (list) => list[0].section === artifact.section
-          );
-          if (list) {
-            list.push(artifact);
-          } else {
-            artifactLists.push([artifact]);
-          }
-        }
-
-        artifactLists.sort((a, b) => a[0].section.localeCompare(b[0].section));
-
-        // TODO(tjennison): Remove fallback for looking up cohort ids once the
-        // backend plugin returns them.
-        setOutput(
-          <GridLayout rows spacing={1} height="auto">
-            {artifactLists.map((list) => (
-              <GridLayout key={list[0].section} rows spacing={1} height="auto">
-                {list[0].section ? (
-                  <Typography variant="body1em">{list[0].section}</Typography>
-                ) : null}
-                <GridLayout rows height="auto">
-                  {list.map((artifact) => (
-                    <Link
-                      href={artifact.url}
-                      variant="body1"
-                      key={artifact.name}
-                    >
-                      {props.cohorts.find((c) => c.id === artifact.name)
-                        ?.name ?? artifact.name}
-                    </Link>
-                  ))}
-                </GridLayout>
-              </GridLayout>
-            ))}
-          </GridLayout>
+      if (res.redirectURL) {
+        const errors = res.links.reduce(
+          (cur, link) => cur || !!link.error,
+          false
         );
-        setExporting(false);
+        setStage(
+          errors
+            ? ExportDialogStage.REDIRECT_ERRORS
+            : ExportDialogStage.REDIRECT
+        );
+
+        if (!errors) {
+          redirect(res.redirectURL, absoluteExportURL(params));
+        }
+      } else {
+        setStage(ExportDialogStage.LINKS);
+
+        const download = (url: string) => {
+          const tempLink = document.createElement("a");
+          tempLink.setAttribute("href", url);
+          tempLink.click();
+          tempLink.remove();
+        };
+
+        for (let i = 0; i < res.links.length; i++) {
+          const url = res.links[i].url;
+          if (!url) {
+            continue;
+          }
+          setTimeout(() => download(url), i * 300);
+        }
+      }
+
+      return res;
+    }
+  );
+
+  const orderedLinks = useMemo(() => {
+    if (!exportState.data) {
+      return [];
+    }
+
+    const orderedLinks: ExportResultLink[][] = [];
+    for (const link of exportState.data.links) {
+      const list = orderedLinks.find(
+        (list) => list[0].tags[0] === link.tags[0]
+      );
+      if (list) {
+        list.push(link);
+      } else {
+        orderedLinks.push([link]);
       }
     }
+
+    orderedLinks.sort((a, b) => a[0].tags[0].localeCompare(b[0].tags[0]));
+    return orderedLinks;
+  }, [exportState.data]);
+
+  if (!props.open) {
+    return null;
+  }
+
+  const renderLink = (link: ExportResultLink, stage: ExportDialogStage) => {
+    const row = !link.error ? (
+      <GridLayout cols spacing={0.5} rowAlign="middle" height="auto">
+        {stage === ExportDialogStage.LINKS ? (
+          <DownloadIcon sx={{ display: "flex" }} />
+        ) : (
+          <CheckCircleIcon
+            sx={{
+              display: "flex",
+              color: (theme) => theme.palette.success.dark,
+            }}
+          />
+        )}
+        <Typography variant="body2">{link.displayName}</Typography>
+      </GridLayout>
+    ) : (
+      <GridLayout cols spacing={0.5} rowAlign="middle" height="auto">
+        <Tooltip title={link.error}>
+          <InfoIcon
+            sx={{ display: "flex", color: (theme) => theme.palette.error.dark }}
+          />
+        </Tooltip>
+        <Typography variant="body2" sx={{ color: "#00000099" }}>
+          {link.error}
+        </Typography>
+      </GridLayout>
+    );
+
+    if (!link.error && stage === ExportDialogStage.LINKS) {
+      return (
+        <Link href={link.url} key={link.displayName}>
+          {row}
+        </Link>
+      );
+    }
+    return row;
   };
 
   return (
     <Dialog
       fullWidth
-      maxWidth="sm"
+      maxWidth="md"
       aria-labelledby="export-dialog-title"
       open={props.open}
       onClose={(event: object, reason: string) => {
         if (reason !== "backdropClick") {
           props.hide();
+          setStage(ExportDialogStage.MODEL_SELECT);
         }
       }}
     >
-      <DialogTitle id="export-dialog-title">Export method</DialogTitle>
+      <DialogTitle id="export-dialog-title">
+        {!model || stage === ExportDialogStage.MODEL_SELECT
+          ? "Exporting dataset"
+          : model.displayName}
+      </DialogTitle>
       <DialogContent>
-        <Loading status={exportModelsState}>
-          <GridLayout rows spacing={2} height="auto" sx={{ pt: "2px" }}>
-            <Select
-              value={model?.id}
-              input={<OutlinedInput />}
-              disabled={exporting}
-              onChange={onSelectModel}
-            >
-              {exportModelsState.data?.map((m) => (
-                <MenuItem key={m.id} value={m.id}>
-                  {m.displayName}
-                </MenuItem>
-              ))}
-            </Select>
-            {model ? (
-              <GridLayout rows spacing={2}>
-                <Typography variant="body2em">Description</Typography>
-                <Typography variant="body2">{model.description}</Typography>
-                <GridLayout colAlign="right" height="auto">
-                  <Button
-                    variant="contained"
-                    disabled={exporting}
-                    onClick={() => {
-                      setInstance(instance + 1);
-                      onExport(instance);
-                    }}
-                  >
-                    Export
-                  </Button>
+        {stage === ExportDialogStage.MODEL_SELECT ? (
+          <Loading status={exportModelsState}>
+            <FormControl>
+              <RadioGroup
+                value={model?.id ?? ""}
+                onChange={onSelectModel}
+                sx={{
+                  gap: 1,
+                }}
+              >
+                {exportModelsState.data?.map((m) => (
+                  <ModelRadio
+                    key={m.id}
+                    model={m}
+                    select={() => setModelId(m.id)}
+                  />
+                ))}
+              </RadioGroup>
+            </FormControl>
+          </Loading>
+        ) : null}
+        {stage === ExportDialogStage.EXPORTING ? (
+          <GridBox sx={{ minHeight: 100 }}>
+            <Loading
+              status={exportState}
+              showProgressOnMutate
+              disableReloadButton
+            />
+          </GridBox>
+        ) : null}
+        {stage === ExportDialogStage.LINKS ||
+        stage === ExportDialogStage.REDIRECT_ERRORS ? (
+          <GridLayout rows spacing={1} height="auto">
+            <Typography variant="body1">
+              {stage === ExportDialogStage.LINKS
+                ? "Click on the filenames to download if they do not start automatically"
+                : "There were errors exporting one or more files"}
+            </Typography>
+            {orderedLinks.map((list) => (
+              <GridLayout key={list[0].tags[0]} rows spacing={1} height="auto">
+                {list[0].tags[0] ? (
+                  <Typography variant="body1">{list[0].tags[0]}</Typography>
+                ) : null}
+                <GridLayout rows height="auto">
+                  {list.map((link) => renderLink(link, stage))}
                 </GridLayout>
-                <GridBox sx={{ minHeight: 200 }}>
-                  {exporting ? (
-                    <CenteredContent progress text="Exporting..." />
-                  ) : (
-                    output ?? (
-                      <CenteredContent text="Choose an export method and click 'Export'" />
-                    )
-                  )}
-                </GridBox>
               </GridLayout>
-            ) : null}
+            ))}
           </GridLayout>
-        </Loading>
+        ) : null}
+        {stage === ExportDialogStage.REDIRECT ? (
+          <GridBox sx={{ minHeight: 100 }}>
+            <CenteredContent progress text="Redirecting..." />
+          </GridBox>
+        ) : null}
       </DialogContent>
       <DialogActions>
         <Button
           onClick={() => {
             props.hide();
-            setExporting(false);
+            setStage(ExportDialogStage.MODEL_SELECT);
           }}
         >
-          Close
+          {stage === ExportDialogStage.MODEL_SELECT ? "Cancel" : "Close"}
         </Button>
+        {stage === ExportDialogStage.MODEL_SELECT ? (
+          <Button
+            variant="contained"
+            onClick={() => {
+              setStage(ExportDialogStage.EXPORTING);
+              exportState.trigger();
+            }}
+          >
+            Export dataset
+          </Button>
+        ) : null}
+        {stage === ExportDialogStage.REDIRECT_ERRORS ? (
+          <Button
+            variant="contained"
+            onClick={() => {
+              setStage(ExportDialogStage.REDIRECT);
+              if (exportState.data?.redirectURL) {
+                redirect(
+                  exportState.data.redirectURL,
+                  absoluteExportURL(params)
+                );
+              }
+            }}
+          >
+            Continue
+          </Button>
+        ) : null}
       </DialogActions>
     </Dialog>
+  );
+}
+
+type ModelRadioProps = {
+  model: ExportModel;
+  select: () => void;
+};
+
+function ModelRadio(props: ModelRadioProps) {
+  const radioGroup = useRadioGroup();
+  const checked = radioGroup?.value === props.model.id;
+
+  return (
+    <GridBox
+      sx={{
+        height: "auto",
+        "&:hover": {
+          cursor: "pointer",
+        },
+      }}
+      onClick={() => props.select()}
+    >
+      <GridLayout
+        rows={2}
+        rowAlign="middle"
+        cols={2}
+        height="auto"
+        sx={{
+          borderStyle: "solid",
+          borderWidth: "1px",
+          borderColor: (theme) =>
+            checked ? theme.palette.primary.main : "transparent",
+          borderRadius: (theme) => `${theme.shape.borderRadius}px`,
+        }}
+      >
+        <Radio value={props.model.id} />
+        <Typography variant="body1em">{props.model.displayName}</Typography>
+        <GridBox />
+        <Typography
+          variant="body2"
+          sx={{
+            overflowWrap: "break-word",
+            wordBreak: "normal",
+          }}
+        >
+          {props.model.description}
+        </Typography>
+      </GridLayout>
+    </GridBox>
   );
 }
 

@@ -131,9 +131,17 @@ export type ExportRequestEntity = {
   conceptSet: Filter | null;
 };
 
+export type ExportResultLink = {
+  tags: string[];
+  displayName: string;
+  url?: string;
+  error?: string;
+  message?: string;
+};
+
 export type ExportResult = {
   redirectURL?: string | null;
-  outputs: { [key: string]: string };
+  links: ExportResultLink[];
 };
 
 export type User = {
@@ -815,10 +823,22 @@ export class BackendUnderlaySource implements UnderlaySource {
             })),
           },
         })
-        .then((res) => ({
-          redirectURL: res.redirectAwayUrl,
-          outputs: res.outputs ?? {},
-        }))
+        .then((res) => {
+          if (res.error) {
+            throw new Error(res.error);
+          }
+
+          return {
+            redirectURL: res.redirectAwayUrl,
+            links: (res.links ?? []).map((link) => ({
+              tags: link.tags,
+              displayName: link.displayName ?? "Untitled",
+              url: link.url,
+              error: link.error,
+              message: link.message,
+            })),
+          };
+        })
     );
   }
 
