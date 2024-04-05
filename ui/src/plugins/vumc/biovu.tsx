@@ -121,20 +121,19 @@ class _ implements CriteriaPlugin<string> {
 
   displayDetails() {
     const decodedData = decodeData(this.data);
+    let title = this.config.plasmaFilter
+      ? PLASMA
+      : sampleFilterDescriptions[decodedData.sampleFilter];
 
-    const additionalText: string[] = [];
     if (decodedData.excludeCompromised) {
-      additionalText.push(EXCLUDE_COMPROMISED);
+      title += `, ${EXCLUDE_COMPROMISED}`;
     }
     if (decodedData.excludeInternal) {
-      additionalText.push(EXCLUDE_INTERNAL);
+      title += `, ${EXCLUDE_INTERNAL}`;
     }
 
     return {
-      title: this.config.plasmaFilter
-        ? PLASMA
-        : sampleFilterDescriptions[decodedData.sampleFilter],
-      additionalText: additionalText,
+      title: title,
     };
   }
 
