@@ -67,14 +67,16 @@ public class VwbFileImport implements DataExport {
     List<ExportFileResult> allExportFileResults = new ArrayList<>();
     // Set the tags for each file result, and suppress empty files.
     entityExportFileResults.stream()
-        .filter(ExportFileResult::hasFileUrl)
+        .filter(
+            exportFileResult -> exportFileResult.hasFileUrl() || !exportFileResult.isSuccessful())
         .forEach(
             exportFileResult -> {
               exportFileResult.addTags(List.of("Data", exportFileResult.getEntity().getName()));
               allExportFileResults.add(exportFileResult);
             });
     annotationExportFileResults.stream()
-        .filter(ExportFileResult::hasFileUrl)
+        .filter(
+            exportFileResult -> exportFileResult.hasFileUrl() || !exportFileResult.isSuccessful())
         .forEach(
             exportFileResult -> {
               exportFileResult.addTags(
