@@ -762,11 +762,7 @@ export class BackendUnderlaySource implements UnderlaySource {
       }
     }
 
-    if (!instanceCounts.length) {
-      throw new Error("Count API returned no counts.");
-    }
-
-    return instanceCounts.map((count) => {
+    return (instanceCounts ?? []).map((count) => {
       const value: FilterCountValue = {
         count: count.count ?? 0,
       };
@@ -1288,11 +1284,7 @@ export class BackendStudySource implements StudySource {
       }
     }
 
-    if (!instanceCounts.length) {
-      throw new Error("Count API returned no counts.");
-    }
-
-    return instanceCounts.map((count) => {
+    return (instanceCounts ?? []).map((count) => {
       const value: FilterCountValue = {
         count: count.count ?? 0,
       };
