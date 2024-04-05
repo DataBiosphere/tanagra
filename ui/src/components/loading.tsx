@@ -19,6 +19,7 @@ type Props = {
   status?: Status;
   children?: React.ReactNode;
   showProgressOnMutate?: boolean;
+  disableReloadButton?: boolean;
 };
 
 export default function Loading(props: Props) {
@@ -58,7 +59,14 @@ export default function Loading(props: Props) {
 
   return (
     <Box sx={props.size !== "small" ? { px: 4, py: 2 } : {}}>
-      {showStatus(theme, visible, isLoading, props.status, props.size)}
+      {showStatus(
+        theme,
+        visible,
+        isLoading,
+        props.status,
+        props.size,
+        props.disableReloadButton
+      )}
     </Box>
   );
 }
@@ -68,7 +76,8 @@ function showStatus(
   visible: boolean,
   isLoading?: boolean,
   status?: Status,
-  size?: string
+  size?: string,
+  disableReloadButton?: boolean
 ): ReactNode {
   if (status?.error && !status?.isLoading) {
     const errorMessage = status.error.message
@@ -90,15 +99,17 @@ function showStatus(
         <Typography paragraph sx={{ textAlign: "center" }}>
           {errorMessage}
         </Typography>
-        <div>
-          <Button
-            onClick={() => status?.mutate?.()}
-            variant="contained"
-            sx={{ display: "block", m: "auto" }}
-          >
-            Reload
-          </Button>
-        </div>
+        {!disableReloadButton ? (
+          <div>
+            <Button
+              onClick={() => status?.mutate?.()}
+              variant="contained"
+              sx={{ display: "block", m: "auto" }}
+            >
+              Reload
+            </Button>
+          </div>
+        ) : null}
       </>
     );
   }
