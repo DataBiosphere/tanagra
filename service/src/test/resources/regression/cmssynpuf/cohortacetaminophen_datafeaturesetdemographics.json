@@ -1,0 +1,29 @@
+{
+  "underlay": "cmssynpuf",
+  "cohorts": [{
+    "displayName": "acetaminophen",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-drugs",
+          "selectionData": "CicKBBDD10QSDUFjZXRhbWlub3BoZW4aEGluZ3JlZGllbnRQZXJzb24SCQoFdF9hbnkiAA\u003d\u003d",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"ingredientPerson\"\n    }\n  ],\n  \"groupingEntityGroups\": [\n    {\n      \"id\": \"brandIngredient\",\n      \"sortOrder\": {\n        \"attribute\": \"name\",\n        \"direction\": \"SORT_ORDER_DIRECTION_ASCENDING\"\n      }\n    }\n  ]\n}",
+          "pluginName": "entityGroup"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "1100649"
+  }]
+}

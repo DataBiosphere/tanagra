@@ -64,8 +64,9 @@ jobs:
         env:
           TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
       - name: Gradle Run Regression Tests Only
-        run: ./gradlew service:regressionTests --info --scan
+        run: ./gradlew service:regressionTests -PregressionTestUnderlays=cmssynpuf,aouSR2019q4r4 --info --scan
         env:
           DBMS: postgresql
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+          TANAGRA_UNDERLAY_FILES: cmssynpuf_broad,aouSR2019q4r4_broad

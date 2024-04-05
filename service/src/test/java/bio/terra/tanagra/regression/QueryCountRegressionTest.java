@@ -60,9 +60,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("regression-test")
 public class QueryCountRegressionTest extends BaseSpringUnitTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryCountRegressionTest.class);
-  private static final List<String> UNDERLAYS_TESTED_BY_DEFAULT =
-      List.of("cmssynpuf", "aouSR2019q4r4");
-
   @Autowired private FeatureConfiguration featureConfiguration;
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
@@ -176,21 +173,27 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
 
   @SuppressWarnings("PMD.UnusedPrivateMethod")
   private static Stream<String> getTestFilePaths() throws FileNotFoundException {
-    String queryCountRegressionTestDirs = System.getProperty("QUERY_COUNT_REGRESSION_TEST_DIRS");
+    String regressionTestDirsParam = System.getProperty("REGRESSION_TEST_DIRS");
+    String regressionTestUnderlaysParam = System.getProperty("REGRESSION_TEST_UNDERLAYS");
     String gradleProjectDir = System.getProperty("GRADLE_PROJECT_DIR");
-    LOGGER.info("QUERY_COUNT_REGRESSION_TEST_DIRS = {}", queryCountRegressionTestDirs);
+    LOGGER.info("REGRESSION_TEST_DIRS = {}", regressionTestDirsParam);
+    LOGGER.info("REGRESSION_TEST_UNDERLAYS = {}", regressionTestUnderlaysParam);
     LOGGER.info("GRADLE_PROJECT_DIR = {}", gradleProjectDir);
 
     List<Path> regressionTestDirs = new ArrayList<>();
-    if (queryCountRegressionTestDirs != null && !queryCountRegressionTestDirs.isEmpty()) {
-      List.of(queryCountRegressionTestDirs.split(",")).stream()
+    if (regressionTestDirsParam != null && !regressionTestDirsParam.isEmpty()) {
+      List.of(regressionTestDirsParam.split(",")).stream()
           .forEach(dirName -> regressionTestDirs.add(Path.of(dirName)));
-    } else {
+    } else if (regressionTestUnderlaysParam != null && !regressionTestUnderlaysParam.isEmpty()) {
+      List<String> underlaySubDirs = List.of(regressionTestUnderlaysParam.split(","));
       Path regressionParentDir =
           Path.of(gradleProjectDir).resolve("src/test/resources/regression/");
-      UNDERLAYS_TESTED_BY_DEFAULT.stream()
+      underlaySubDirs.stream()
           .forEach(
               underlayName -> regressionTestDirs.add(regressionParentDir.resolve(underlayName)));
+    } else {
+      throw new IllegalArgumentException(
+          "No test directories or underlays specified. Use Gradle properties: -PregressionTestDirs for a directory, -PregressionTestUnderlays for an underlay-specific directory in the service/test/resources/regression sub-directory.");
     }
 
     List<String> regressionTestFiles = new ArrayList<>();
@@ -209,7 +212,11 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
               }
             });
     if (regressionTestFiles.isEmpty()) {
-      throw new FileNotFoundException("No regression test files found");
+      throw new FileNotFoundException(
+          "No regression test files found: "
+              + regressionTestDirs.stream()
+                  .map(path -> path.toAbsolutePath().toString())
+                  .collect(Collectors.joining(",")));
     }
     return regressionTestFiles.stream();
   }

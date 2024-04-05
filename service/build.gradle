@@ -164,8 +164,11 @@ tasks.withType(Test) {
 
     // This System property is used to point at the directories that contain exported count regression test files.
     // See bio.terra.tanagra.regression.QueryCountRegressionTest for how it's used.
-    if (project.findProperty("queryCountRegressionTestDirs")) {
-        systemProperty("QUERY_COUNT_REGRESSION_TEST_DIRS", project.findProperty("queryCountRegressionTestDirs"))
+    if (project.findProperty("regressionTestDirs")) {
+        systemProperty("REGRESSION_TEST_DIRS", project.findProperty("regressionTestDirs"))
+    }
+    if (project.findProperty("regressionTestUnderlays")) {
+        systemProperty("REGRESSION_TEST_UNDERLAYS", project.findProperty("regressionTestUnderlays"))
     }
 }
 

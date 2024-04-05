@@ -1,0 +1,61 @@
+name: Run Regression Tests
+on:
+  pull_request:
+    branches: [ '**' ]
+  workflow_dispatch:
+    inputs:
+      underlays:
+        description: 'Comma-separated list of underlays to test (e.g. cmssynpuf,aouSR2019q4r4)'
+        required: true
+        default: cmssynpuf,aouSR2019q4r4
+env:
+  DEFAULT_UNDERLAYS: cmssynpuf,aouSR2019q4r4
+  TANAGRA_UNDERLAY_FILES: cmssynpuf_verily,aouSR2019q4r4_verily
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13.1
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Set up AdoptOpenJDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: 'temurin'
+      - name: Initialize Postgres DB
+        env:
+          PGPASSWORD: postgres
+        run: psql -h 127.0.0.1 -U postgres -f ./tanagra/service/local-dev/local-postgres-init.sql
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+      - name: Gradle Run Regression Tests Only
+        run: |
+          mkdir -p rendered/
+          echo "$GHA_SA_KEY" > rendered/gha_sa_key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/rendered/gha_sa_key.json
+          ./tanagra/gradlew -p tanagra service:regressionTests -PregressionTestUnderlays="${UNDERLAYS:-$DEFAULT_UNDERLAYS}" --info --scan
+        env:
+          DBMS: postgresql
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHA_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          UNDERLAYS: ${{ github.event.inputs.underlays }}
