@@ -49,6 +49,8 @@ Either reuse an existing export implementation, or add your own.
 Check the full [application configuration documentation](./docs/generated/APPLICATION_CONFIG.md) to lookup specific 
 deployment properties.
 
+Once your deployment is up and running, create a [regression test](./docs/REGRESSION_TESTING.md) suite to detect 
+unexpected changes due to config or underlying data changes and run it regularly.
 
 ## Manage releases
 Tanagra supports multiple deployments, all with different release cadences.
@@ -87,6 +89,7 @@ Set up a new deployment
 * [VUMC Admin Service](./docs/VUMC_ADMIN_SERVICE.md)
 * [Data Export](./docs/DATA_EXPORT.md)
 * [Deployment Config Properties](./docs/generated/APPLICATION_CONFIG.md)
+* [Regression Testing](./docs/REGRESSION_TESTING.md)
 
 Manage releases
 * [Versioning and Releases](./docs/VERSIONING_AND_RELEASES.md)
