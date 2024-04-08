@@ -87,7 +87,7 @@ export TANAGRA_EXPORT_MODELS_0_TYPE=INDIVIDUAL_FILE_DOWNLOAD
 
 
 ## Data export implementations
-So far, there are 2 data export implementations in the `bio.terra.tanagra.service.export.impl` package.
+So far, there are 4 data export implementations in the `bio.terra.tanagra.service.export.impl` package.
 
 ### Individual file download
 Download individual files for each query result and cohort annotation data. The implementation writes these files
@@ -124,4 +124,34 @@ tanagra:
         displayName: Import to VWB (devel)
         type: VWB_FILE_IMPORT
         redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
+```
+
+### Ipynb file download
+Download a notebook file (`.ipynb` format) with an embedded SQL query for all primary entity instances (e.g. all `person`s)
+in the selected cohorts. The implementation writes this file to a GCS bucket and generates a signed URL for it.
+```
+tanagra:
+  export:
+    shared:
+      gcs-bucket-project-id: broad-tanagra-dev
+      gcs-bucket-names: broad-tanagra-dev-bq-export
+    models:
+      -
+        type: IPYNB_FILE_DOWNLOAD
+```
+
+### Regression test file download
+Download a regression test file (`.json` format) with the definitions of all selected cohorts and data feature sets,
+and the total number of rows that would be generated for each output table. The implementation writes this file to a 
+GCS bucket and generates a signed URL for it. Read about the [regression testing framework](./REGRESSION_TESTING.md) 
+for more information.
+```
+tanagra:
+  export:
+    shared:
+      gcs-bucket-project-id: broad-tanagra-dev
+      gcs-bucket-names: broad-tanagra-dev-bq-export
+    models:
+      -
+        type: REGRESSION_TEST
 ```
