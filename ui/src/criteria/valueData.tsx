@@ -1,3 +1,5 @@
+import Chip from "@mui/material/Chip";
+import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -229,7 +231,6 @@ export function ValueDataEdit(props: ValueDataEditProps) {
       <GridLayout
         cols={!!props.singleValue ? true : undefined}
         rows={!props.singleValue ? true : undefined}
-        spacing={2}
         height="auto"
       >
         {!!props.valueData.length && props.singleValue ? (
@@ -260,7 +261,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
             </Select>
           </FormControl>
         ) : null}
-        {selectedConfigs.map((c) => {
+        {selectedConfigs.map((c, i) => {
           let component: ReactNode = null;
           if (c.hintData.enumHintOptions) {
             component = (
@@ -292,17 +293,18 @@ export function ValueDataEdit(props: ValueDataEditProps) {
           }
 
           return (
-            <GridLayout
-              key={c.valueData.attribute}
-              cols
-              rowAlign="middle"
-              spacing={3}
-              height="auto"
-            >
-              {!!c.valueConfig.title ? (
-                <Typography variant="body1">{c.valueConfig.title}</Typography>
+            <GridLayout key={c.valueData.attribute} rows height="auto">
+              {i !== 0 ? (
+                <Divider variant="middle">
+                  <Chip label="AND" />
+                </Divider>
               ) : null}
-              {component}
+              <GridLayout cols rowAlign="middle" spacing={3} height="auto">
+                {!!c.valueConfig.title ? (
+                  <Typography variant="body1">{c.valueConfig.title}</Typography>
+                ) : null}
+                {component}
+              </GridLayout>
             </GridLayout>
           );
         })}
