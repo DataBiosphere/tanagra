@@ -10,6 +10,7 @@ section below.
 
 ## Indexer Environment
 An indexer environment is a GCP project configured with the items below.
+![Indexer Environment Diagram](./images/indexer_environment_diagram.png "Indexer Environment Diagram")
 
 - These APIs [enabled](https://cloud.google.com/endpoints/docs/openapi/enable-api).
 Some of these may be enabled by default in your project.
@@ -59,12 +60,14 @@ with the **"runner"** credentials above.
 
 ## Service Deployment
 A service deployment lives in a GCP project configured with the items below.
+![Service Deployment Diagram](./images/service_deployment_diagram.png "Service Deployment Diagram")
 
 - Java service packaged as a runnable JAR file, deployed either in 
     [GKE](https://cloud.google.com/kubernetes-engine/docs/quickstarts/deploy-app-container-image#deploying_to_gke) or 
     [AppEngine](https://cloud.google.com/eclipse/docs/deploy-flex-jar#deploy_a_jar_or_war_file).
 - CloudSQL database, either [PostGres](https://cloud.google.com/sql/docs/postgres) (recommended) or 
     [MySQL](https://cloud.google.com/sql/docs/mysql).
+- BigQuery dataset for temporary tables, one per index dataset location.
 - GCS bucket for export files, one per index dataset location.
     - [Update the CORS configuration](https://cloud.google.com/storage/docs/using-cors#command-line) with any URLs that 
    will need to read exported files. e.g. If there is an export model that writes a file and redirects to another URL 
@@ -87,6 +90,8 @@ A service deployment lives in a GCP project configured with the items below.
       includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.dataViewer).
     - Create BigQuery jobs. `roles/bigquery.jobUser` granted at the project-level (on the service GCP project)
       includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.jobUser).
+    - Create tables in the temporary tables BigQuery dataset. `roles/bigquery.dataEditor` granted at the dataset-level 
+      (on the temporary tables dataset) includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.dataEditor).
     - Read and write files to the export bucket(s). `roles/storage.objectAdmin` granted at the bucket-level includes the
       [required permissions](https://cloud.google.com/storage/docs/access-control/iam-roles#standard-roles).
     - Generate signed URLs for export files. `roles/iam.serviceAccountTokenCreator` granted at the service account-level
@@ -111,6 +116,8 @@ Each service deployment is a single Java application. You can configure this Jav
 with environment variables. All application properties are documented [here](./generated/APPLICATION_CONFIG.md).
 In particular:
 
+- Set the temporary tables BigQuery dataset(s) above as the [shared export](./generated/APPLICATION_CONFIG.md#export-shared) 
+datasets.
 - Set the GCS bucket(s) above as the [shared export](./generated/APPLICATION_CONFIG.md#export-shared) buckets.
 - Set the [application DB properties](./generated/APPLICATION_CONFIG.md#application-database) with the CloudSQL 
 information.
