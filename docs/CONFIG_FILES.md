@@ -1,12 +1,3 @@
-- [Config Files](#config-files)
-  * [Data Mapping](#data-mapping)
-    + [Underlay](#underlay)
-    + [Entity](#entity)
-    + [Entity Group](#entity-group)
-  * [Runtime](#data-mapping)
-    + [Indexer](#indexer)
-    + [Service](#service)
-
 # Config Files
 **The mapping from the source data** to Tanagra's [entity model](ENTITY_MODEL.md) along with the location of the 
 underlying BigQuery datasets can all be configured. We separate the data mapping configuration from the runtime 
