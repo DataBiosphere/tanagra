@@ -29,6 +29,10 @@ public final class ExportResult {
     return new ExportResult(outputs, null, null, fileResults);
   }
 
+  public static ExportResult forFileResults(List<ExportFileResult> fileResults) {
+    return new ExportResult(Map.of(), null, null, fileResults);
+  }
+
   public static ExportResult forRedirectUrl(
       String redirectAwayUrl, List<ExportFileResult> fileResults) {
     return new ExportResult(Map.of(), redirectAwayUrl, null, fileResults);

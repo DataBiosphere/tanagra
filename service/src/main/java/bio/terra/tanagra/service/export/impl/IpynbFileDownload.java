@@ -43,11 +43,6 @@ public class IpynbFileDownload implements DataExport {
   }
 
   @Override
-  public Map<String, String> describeOutputs() {
-    return Map.of(IPYNB_FILE_KEY, "URL to ipynb file");
-  }
-
-  @Override
   public void initialize(DeploymentConfig deploymentConfig) {
     gcsBucketNames = deploymentConfig.getShared().getGcsBucketNames();
   }
@@ -104,13 +99,9 @@ public class IpynbFileDownload implements DataExport {
     // Generate a signed URL for the ipynb file.
     String ipynbSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
 
-    // TODO: Skip populating this output parameter once the UI is processing the file result
-    // directly.
-    Map<String, String> outputParams = Map.of(IPYNB_FILE_KEY, ipynbSignedUrl);
-
     ExportFileResult exportFileResult =
         ExportFileResult.forFile(fileName, ipynbSignedUrl, null, null);
     exportFileResult.addTags(List.of("Notebook File"));
-    return ExportResult.forOutputParams(outputParams, List.of(exportFileResult));
+    return ExportResult.forFileResults(List.of(exportFileResult));
   }
 }

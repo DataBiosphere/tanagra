@@ -9,14 +9,9 @@ import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class IndividualFileDownload implements DataExport {
-
-  private static final String ENTITY_OUTPUT_KEY_PREFIX = "Data:";
-  private static final String COHORT_OUTPUT_KEY_PREFIX = "Annotations:";
 
   @Override
   public Type getType() {
@@ -31,13 +26,6 @@ public class IndividualFileDownload implements DataExport {
   @Override
   public String getDescription() {
     return "List of file URLs. Each URL points to a single file with either query results or annotation data.";
-  }
-
-  @Override
-  public Map<String, String> describeOutputs() {
-    return Map.of(
-        ENTITY_OUTPUT_KEY_PREFIX + "*", "URL to query results",
-        COHORT_OUTPUT_KEY_PREFIX + "*", "URL to annotation data for a cohort");
   }
 
   @Override
@@ -87,32 +75,6 @@ public class IndividualFileDownload implements DataExport {
               allExportFileResults.add(exportFileResult);
             });
 
-    // TODO: Skip populating these output parameters once the UI is processing the file results
-    // directly.
-    Map<String, String> outputParams = new HashMap<>();
-    entityExportFileResults.stream()
-        .filter(
-            exportFileResult -> exportFileResult.isSuccessful() && exportFileResult.hasFileUrl())
-        .forEach(
-            exportFileResult ->
-                outputParams.put(
-                    ENTITY_OUTPUT_KEY_PREFIX + exportFileResult.getEntity().getName(),
-                    exportFileResult.getFileUrl()));
-    annotationExportFileResults.stream()
-        .filter(
-            annotationExportFileResult ->
-                annotationExportFileResult.isSuccessful()
-                    && annotationExportFileResult.hasFileUrl())
-        .forEach(
-            exportFileResult -> {
-              String cohortName = exportFileResult.getCohort().getDisplayName();
-              if (cohortName == null || cohortName.isEmpty()) {
-                cohortName = exportFileResult.getCohort().getId();
-              }
-              outputParams.put(
-                  COHORT_OUTPUT_KEY_PREFIX + cohortName, exportFileResult.getFileUrl());
-            });
-
-    return ExportResult.forOutputParams(outputParams, allExportFileResults);
+    return ExportResult.forFileResults(allExportFileResults);
   }
 }
