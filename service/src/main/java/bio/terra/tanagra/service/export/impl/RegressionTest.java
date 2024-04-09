@@ -90,14 +90,10 @@ public class RegressionTest implements DataExport {
     // Generate a signed URL for the JSON file.
     String jsonSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
 
-    // TODO: Skip populating this output parameter once the UI is processing the file result
-    // directly.
-    Map<String, String> outputParams = Map.of("Regression Test File:" + fileName, jsonSignedUrl);
-
     ExportFileResult exportFileResult =
         ExportFileResult.forFile(fileName, jsonSignedUrl, null, null);
     exportFileResult.addTags(List.of("Regression Test File"));
-    return ExportResult.forOutputParams(outputParams, List.of(exportFileResult));
+    return ExportResult.forFileResults(List.of(exportFileResult));
   }
 
   private static RTExportCounts.EntityOutputCount toRegressionTestObj(
