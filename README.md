@@ -62,11 +62,11 @@ newer version of this codebase.
 
 
 ## Contribute to the codebase
+Check the [guidelines for developers](./docs/DEVELOPER_INFO.md), including instructions for getting things running
+locally on your machine.
+
 See an [overview of the codebase structure](./docs/CODEBASE_OVERVIEW.md),
 and information [specifically about the UI](./docs/UI.md).
-
-Check the [guidelines for developers](./docs/CONTRIBUTING.md), including instructions for getting things running 
-locally on your machine.
 
 
 ## All documentation links
@@ -96,9 +96,9 @@ Manage releases
 * [Diff Releases](./docs/DIFF_RELEASES.md)
 
 Contribute to the codebase
+* [Developer Information](./docs/DEVELOPER_INFO.md)
 * [Codebase Overview](./docs/CODEBASE_OVERVIEW.md)
 * [UI](./docs/UI.md)
-* [Contribute Code](./docs/CONTRIBUTING.md)
 
 
 ## Codebase test status

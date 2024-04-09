@@ -1,23 +1,3 @@
-- [Indexing](#indexing)
-  * [Running Indexing Jobs](#running-indexing-jobs)
-    + [Setup Credentials](#setup-credentials)
-      + [Default Application Credentials](#default-application-credentials)
-      + [gcloud Credentials](#gcloud-credentials)
-    + [Create Index Dataset](#create-index-dataset)
-    + [Build Code](#build-code)
-    + [Run Jobs](#run-jobs)
-      + [Available Commands](#available-commands)
-      + [Dry Run](#dry-run)
-      + [All Jobs](#all-jobs)
-      + [Jobs for Entity/Group](#jobs-for-entitygroup)
-  * [Troubleshooting](#troubleshooting)
-    + [Concurrency](#concurrency)
-    + [Re-Run Jobs](#re-run-jobs)
-    + [Run dataflow locally](#run-dataflow-locally)
-    + [Filter On One Person](#filter-on-one-person)
-  * [OMOP Example](#omop-example)
-
-
 # Indexing
 Tanagra can query the source data directly, but **for improved performance, Tanagra generates indexed tables and queries 
 them instead**. The indexer config specifies where Tanagra can write generated index tables.
