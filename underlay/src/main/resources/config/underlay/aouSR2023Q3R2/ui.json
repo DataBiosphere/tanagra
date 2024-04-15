@@ -143,15 +143,13 @@
         "plugin": {
           "entity": "measurementOccurrence",
           "columns": [
-            {
-              "key": "measurement",
-              "width": "100%",
-              "title": "Lab/measurement name"
-            },
-            { "key": "date", "width": 200, "title": "Date" },
-            { "key": "value_enum", "width": 160, "title": "Categorical value" },
-            { "key": "value_numeric", "width": 160, "title": "Numeric value" },
-            { "key": "unit", "width": 160, "title": "Unit" }
+            { "key": "date", "width": "15%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "measurement", "width": "25%", "title": "Lab/measurement Name", "sortable": true, "filterable": true },
+            { "key": "value_enum", "width": "15%", "title": "Categorical value", "sortable": true, "filterable": true },
+            { "key": "value_numeric", "width": "10%", "title": "Numeric value", "sortable": true, "filterable": true },
+            { "key": "unit", "width": "10%", "title": "Unit", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "10%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
           ]
         }
       }
