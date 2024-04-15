@@ -2329,7 +2329,7 @@ components:
           type: string
           description: Name of the selector or modifier used by this config
         selectionData:
-          type: string # Protobuf formatted
+          type: string # JSON formatted, previously base64 Protobuf formatted
           description: Serialized plugin-specific representation of the user's selection
         uiConfig:
           type: string # JSON formatted

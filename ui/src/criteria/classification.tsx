@@ -53,7 +53,7 @@ import * as sortOrderProto from "proto/criteriaselector/sort_order";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { useImmer } from "use-immer";
-import { base64ToBytes, bytesToBase64 } from "util/base64";
+import { base64ToBytes } from "util/base64";
 import { useLocalSearchState } from "util/searchState";
 import emptyImage from "../images/empty.svg";
 
@@ -124,11 +124,7 @@ class _ implements CriteriaPlugin<string> {
   constructor(public id: string, selector: CommonSelectorConfig, data: string) {
     this.selector = selector;
     this.config = decodeConfig(selector);
-    try {
-      this.data = encodeData(JSON.parse(data));
-    } catch (e) {
-      this.data = data;
-    }
+    this.data = data;
   }
 
   renderEdit(
@@ -1006,7 +1002,11 @@ function isDataEqual(data1: Data, data2: Data) {
 }
 
 function decodeData(data: string): Data {
-  const message = dataProto.EntityGroup.decode(base64ToBytes(data));
+  const message =
+    data[0] === "{"
+      ? dataProto.EntityGroup.fromJSON(JSON.parse(data))
+      : dataProto.EntityGroup.decode(base64ToBytes(data));
+
   return {
     selected:
       message.selected?.map((s) => ({
@@ -1027,7 +1027,7 @@ function encodeData(data: Data): string {
     })),
     valueData: encodeValueData(data.valueData),
   };
-  return bytesToBase64(dataProto.EntityGroup.encode(message).finish());
+  return JSON.stringify(dataProto.EntityGroup.toJSON(message));
 }
 
 const DEFAULT_SORT_ORDER = {
