@@ -168,8 +168,7 @@ export function StudyOverview() {
   const newFeatureSet = async () => {
     const featureSet = await studySource.createFeatureSet(
       underlay.name,
-      studyId,
-      `Untitled feature set ${new Date().toLocaleString()}`
+      studyId
     );
     navigate(absoluteFeatureSetURL(params, featureSet.id).substring(1));
   };

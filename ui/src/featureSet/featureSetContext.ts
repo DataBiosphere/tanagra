@@ -189,11 +189,18 @@ export function featureSetUndoRedo(
 
 export function insertFeatureSetCriteria(
   context: FeatureSetContextData,
-  criteria: Criteria
+  criteria: Criteria | Criteria[]
 ) {
   context.updatePresent((present, showSnackbar) => {
-    present.criteria.push(criteria);
-    showSnackbar(`"${getCriteriaTitle(criteria)}" added`);
+    const criteriaList = Array.isArray(criteria) ? criteria : [criteria];
+    present.criteria.push(...criteriaList);
+
+    let title = `${criteriaList.length} criteria`;
+    if (criteriaList.length === 1) {
+      title = `"${getCriteriaTitle(criteriaList[0])}"`;
+    }
+
+    showSnackbar(`${title} added`);
   });
 }
 

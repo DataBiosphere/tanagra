@@ -39,7 +39,13 @@ import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback, useMemo } from "react";
-import { cohortURL, featureSetURL, newCriteriaURL } from "router";
+import {
+  addCohortCriteriaURL,
+  addFeatureSetCriteriaURL,
+  cohortURL,
+  featureSetURL,
+  newCriteriaURL,
+} from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { safeRegExp } from "util/safeRegExp";
@@ -124,6 +130,7 @@ type AddCriteriaOption = {
   cohort?: boolean;
   conceptSet?: boolean;
   selector?: tanagraUnderlay.SZCriteriaSelector;
+  fn?: () => void;
 };
 
 type AddCriteriaProps = {
@@ -174,6 +181,30 @@ function AddCriteria(props: AddCriteriaProps) {
           .renderEdit,
       })
     );
+
+    options.push({
+      name: "tAddFeatureSet",
+      title: "Add feature set criteria",
+      category: "Other",
+      tags: [],
+      cohort: true,
+      showMore: false,
+      fn: () => {
+        navigate(addFeatureSetCriteriaURL());
+      },
+    });
+
+    options.push({
+      name: "tAddCohort",
+      title: "Add cohort criteria",
+      category: "Other",
+      tags: [],
+      conceptSet: true,
+      showMore: false,
+      fn: () => {
+        navigate(addCohortCriteriaURL());
+      },
+    });
 
     return options;
   }, [props.onInsertPredefinedCriteria, selectors, predefinedCriteria]);
@@ -273,7 +304,9 @@ function AddCriteria(props: AddCriteriaProps) {
 
   const onClick = useCallback(
     (option: AddCriteriaOption, dataEntry?: DataEntry) => {
-      if (option.selector) {
+      if (option.fn) {
+        option.fn();
+      } else if (option.selector) {
         const criteria = createCriteria(
           underlaySource,
           option.selector,

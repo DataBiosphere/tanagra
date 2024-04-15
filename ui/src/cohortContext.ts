@@ -7,7 +7,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortURL, BaseParams } from "router";
 import useSWR, { useSWRConfig } from "swr";
-import { getCriteriaPlugin, getCriteriaTitle } from "./cohort";
+import { getCriteriaTitle } from "./cohort";
 
 type CohortState = {
   past: Cohort[];
@@ -174,9 +174,11 @@ export function cohortUndoRedo(params: BaseParams, context: CohortContextData) {
 export function insertCohortCriteria(
   context: CohortContextData,
   sectionId: string,
-  criteria: Criteria
+  criteria: Criteria | Criteria[]
 ) {
-  const group = defaultGroup(criteria);
+  const groups = (Array.isArray(criteria) ? criteria : [criteria]).map((c) =>
+    defaultGroup(c)
+  );
 
   context.updatePresent((present, showSnackbar) => {
     const sectionIndex = present.groupSections.findIndex(
@@ -191,15 +193,17 @@ export function insertCohortCriteria(
     }
 
     const section = present.groupSections[sectionIndex];
-    section.groups.push(group);
+    section.groups.push(...groups);
 
-    const plugin = getCriteriaPlugin(criteria);
-    const title = getCriteriaTitle(criteria, plugin);
+    let title = `${groups.length} criteria`;
+    if (groups.length === 1) {
+      title = `"${getCriteriaTitle(groups[0].criteria[0])}"`;
+    }
 
-    showSnackbar(`"${title}" added to group ${sectionIndex + 1}`);
+    showSnackbar(`${title} added to group ${sectionIndex + 1}`);
   });
 
-  return group;
+  return groups[0];
 }
 
 export function insertCohortCriteriaModifier(
