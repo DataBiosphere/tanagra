@@ -107,7 +107,7 @@ function generateGroupSectionFilter(
 }
 
 export function sectionName(section: GroupSection, index: number) {
-  return section.name || "Group " + String(index + 1);
+  return section.name || "group " + String(index + 1);
 }
 
 export function defaultSection(criteria?: Criteria): GroupSection {

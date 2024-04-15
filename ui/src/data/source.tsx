@@ -227,6 +227,8 @@ export type CommonSelectorConfig = {
   name: string;
   plugin: string;
   pluginConfig: string;
+  isEnabledForCohorts?: boolean;
+  isEnabledForDataFeatureSets?: boolean;
 };
 
 export type Criteria = {
@@ -407,7 +409,7 @@ export interface StudySource {
   createFeatureSet(
     underlayName: string,
     studyId: string,
-    name: string
+    name?: string
   ): Promise<FeatureSetMetadata>;
 
   updateFeatureSet(studyId: string, featureSet: FeatureSet): void;
@@ -1340,7 +1342,7 @@ export class BackendStudySource implements StudySource {
   public async createFeatureSet(
     underlayName: string,
     studyId: string,
-    displayName: string
+    displayName?: string
   ): Promise<FeatureSetMetadata> {
     return parseAPIError(
       this.conceptSetsApi
@@ -1348,7 +1350,9 @@ export class BackendStudySource implements StudySource {
           studyId,
           conceptSetCreateInfo: {
             underlayName,
-            displayName,
+            displayName:
+              displayName ??
+              `Untitled feature set ${new Date().toLocaleString()}`,
           },
         })
         .then((cs) => fromAPIFeatureSetMetadata(cs))

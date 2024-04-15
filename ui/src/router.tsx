@@ -1,5 +1,6 @@
 import Button from "@mui/material/Button";
 import { CohortRevision } from "activityLog/cohortRevision";
+import { AddCohort } from "addCohort";
 import { AddCohortCriteria, AddFeatureSetCriteria } from "addCriteria";
 import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
@@ -8,6 +9,7 @@ import { StudySourceContextRoot } from "data/studySourceContext";
 import { UnderlaySourceContextRoot } from "data/underlaySourceContext";
 import Edit from "edit";
 import { Export } from "export";
+import { AddFeatureSet } from "featureSet/addFeatureSet";
 import { FeatureSet } from "featureSet/featureSet";
 import { FeatureSetEdit } from "featureSet/featureSetEdit";
 import FeatureSetRoot from "featureSet/featureSetRoot";
@@ -64,6 +66,10 @@ export function createAppRouter() {
                           path: ":configId",
                           element: <NewCriteria />,
                         },
+                        {
+                          path: "tAddFeatureSet",
+                          element: <AddFeatureSet />,
+                        },
                       ],
                     },
                     {
@@ -107,6 +113,10 @@ export function createAppRouter() {
                         {
                           path: ":configId",
                           element: <NewFeatureSet />,
+                        },
+                        {
+                          path: "tAddCohort",
+                          element: <AddCohort />,
                         },
                       ],
                     },
@@ -307,6 +317,14 @@ export function absoluteFeatureSetURL(
   featureSetId: string
 ) {
   return absolutePrefix(params) + featureSetURL(featureSetId);
+}
+
+export function addFeatureSetCriteriaURL() {
+  return "tAddFeatureSet";
+}
+
+export function addCohortCriteriaURL() {
+  return "tAddCohort";
 }
 
 export function absoluteExportURL(params: BaseParams) {
