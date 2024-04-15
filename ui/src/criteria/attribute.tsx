@@ -23,7 +23,7 @@ import * as configProto from "proto/criteriaselector/configschema/attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/attribute";
 import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
-import { base64ToBytes, bytesToBase64 } from "util/base64";
+import { base64ToBytes } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 
 type Selection = {
@@ -69,11 +69,7 @@ class _ implements CriteriaPlugin<string> {
   ) {
     this.selector = selector;
     this.config = decodeConfig(selector);
-    try {
-      this.data = encodeData(JSON.parse(data));
-    } catch (e) {
-      this.data = data;
-    }
+    this.data = data;
   }
 
   renderInline(groupId: string) {
@@ -397,7 +393,11 @@ async function search(
 }
 
 function decodeData(data: string): Data {
-  const message = dataProto.Attribute.decode(base64ToBytes(data));
+  const message =
+    data[0] === "{"
+      ? dataProto.Attribute.fromJSON(JSON.parse(data))
+      : dataProto.Attribute.decode(base64ToBytes(data));
+
   return {
     selected:
       message.selected?.map((s) => ({
@@ -427,7 +427,7 @@ function encodeData(data: Data): string {
         max: r.max,
       })) ?? [],
   };
-  return bytesToBase64(dataProto.Attribute.encode(message).finish());
+  return JSON.stringify(dataProto.Attribute.toJSON(message));
 }
 
 function decodeConfig(selector: CommonSelectorConfig): configProto.Attribute {

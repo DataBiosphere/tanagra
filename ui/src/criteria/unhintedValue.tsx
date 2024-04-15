@@ -14,7 +14,7 @@ import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/unhinted_value";
 import * as dataProto from "proto/criteriaselector/dataschema/unhinted_value";
 import React, { useCallback, useMemo, useState } from "react";
-import { base64ToBytes, bytesToBase64 } from "util/base64";
+import { base64ToBytes } from "util/base64";
 
 interface Data {
   operator: ComparisonOperator;
@@ -297,7 +297,11 @@ function decodeComparisonOperator(
 }
 
 function decodeData(data: string): Data {
-  const message = dataProto.UnhintedValue.decode(base64ToBytes(data));
+  const message =
+    data[0] === "{"
+      ? dataProto.UnhintedValue.fromJSON(JSON.parse(data))
+      : dataProto.UnhintedValue.decode(base64ToBytes(data));
+
   return {
     operator: decodeComparisonOperator(message.operator),
     min: message.min,
@@ -331,7 +335,7 @@ function encodeData(data: Data): string {
     min: data.min,
     max: data.max,
   };
-  return bytesToBase64(dataProto.UnhintedValue.encode(message).finish());
+  return JSON.stringify(dataProto.UnhintedValue.toJSON(message));
 }
 
 function decodeConfig(

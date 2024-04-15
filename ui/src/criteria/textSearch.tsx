@@ -23,7 +23,7 @@ import * as configProto from "proto/criteriaselector/configschema/text_search";
 import * as dataProto from "proto/criteriaselector/dataschema/text_search";
 import { useCallback, useMemo, useRef } from "react";
 import useSWRImmutable from "swr/immutable";
-import { base64ToBytes, bytesToBase64 } from "util/base64";
+import { base64ToBytes } from "util/base64";
 import { isValid } from "util/valid";
 
 type Selection = {
@@ -276,7 +276,11 @@ function TextSearchInline(props: TextSearchInlineProps) {
 }
 
 function decodeData(data: string): Data {
-  const message = dataProto.TextSearch.decode(base64ToBytes(data));
+  const message =
+    data[0] === "{"
+      ? dataProto.TextSearch.fromJSON(JSON.parse(data))
+      : dataProto.TextSearch.decode(base64ToBytes(data));
+
   return {
     categories:
       message.categories?.map((s) => ({
@@ -296,7 +300,7 @@ function encodeData(data: Data): string {
       })) ?? [],
     query: data.query,
   };
-  return bytesToBase64(dataProto.TextSearch.encode(message).finish());
+  return JSON.stringify(dataProto.TextSearch.toJSON(message));
 }
 
 function decodeConfig(selector: CommonSelectorConfig): configProto.TextSearch {
