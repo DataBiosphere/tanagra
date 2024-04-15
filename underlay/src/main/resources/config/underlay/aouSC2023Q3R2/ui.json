@@ -130,9 +130,12 @@
         "plugin": {
           "entity": "ingredientOccurrence",
           "columns": [
-            { "key": "ingredient", "width": "100%", "title": "Drug name" },
-            { "key": "start_date", "width": 200, "title": "Start date" },
-            { "key": "end_date", "width": 200, "title": "End date" }
+            { "key": "start_date", "width": "100%", "title": "Date", "filterable": true },
+            { "key": "standard_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "ingredient", "width": 200, "title": "Drug Name", "filterable": true },
+            { "key": "age_at_occurrence", "width": 200, "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": 200, "title": "Visit Type", "sortable": true, "filterable": true }
           ]
         }
       },
