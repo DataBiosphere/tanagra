@@ -252,6 +252,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
           size="medium"
           onChange={handleMinInputChange}
           onBlur={handleMinInputBlur}
+          onClick={(e) => e.stopPropagation()}
           inputProps={{
             type: "number",
           }}
@@ -264,6 +265,7 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
               size="medium"
               onChange={handleMaxInputChange}
               onBlur={handleMaxInputBlur}
+              onClick={(e) => e.stopPropagation()}
               inputProps={{
                 type: "number",
               }}
