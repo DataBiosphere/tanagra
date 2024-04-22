@@ -1,0 +1,20 @@
+{
+  "underlay": "emerge",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "vumc-emerge-dev",
+      "datasetId": "emerge_20230831",
+      "sqlSubstitutions": {
+        "omopDataset": "vumc-emerge-dev.emerge_20230831",
+        "staticTablesDataset": "vumc-emerge-dev.static_20230831"
+      }
+    },
+    "indexData": {
+      "projectId": "vumc-emerge-dev",
+      "datasetId": "indexed_emerge_20230831"
+    },
+    "queryProjectId": "vumc-emerge-dev",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}
