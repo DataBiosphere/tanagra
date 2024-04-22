@@ -40,6 +40,7 @@ import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.filter.EntityOutputAndAttributedCriteria;
+import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
