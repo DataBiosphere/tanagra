@@ -17,6 +17,8 @@ import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.filter.EntityOutputAndAttributedCriteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -138,7 +140,8 @@ public class FilterBuilderService {
     }
   }
 
-  public List<EntityOutput> buildOutputsForConceptSets(List<ConceptSet> conceptSets) {
+  public List<EntityOutputAndAttributedCriteria> buildOutputsForConceptSets(
+      List<ConceptSet> conceptSets) {
     // No concept sets = no entity outputs.
     if (conceptSets.isEmpty()) {
       return List.of();
@@ -162,6 +165,9 @@ public class FilterBuilderService {
     // Build a list of output entities, the filters on them, and the attributes to include from the
     // data feature sets.
     Map<Entity, Pair<List<EntityFilter>, Set<Attribute>>> outputEntitiesAndFiltersAndAttributes =
+        new HashMap<>();
+    // Keep track of the specific criteria that each output entity is attributed to.
+    Map<Entity, List<Pair<ConceptSet, Criteria>>> outputEntitiesAndAttributedCriteria =
         new HashMap<>();
     conceptSets.stream()
         .forEach(
@@ -252,6 +258,17 @@ public class FilterBuilderService {
                                   outputEntitiesAndFiltersAndAttributes.put(
                                       entityOutput.getEntity(),
                                       Pair.of(entityFilters, includeAttributes));
+
+                                  // Add to the list of criteria to attribute to this entity.
+                                  List<Pair<ConceptSet, Criteria>> attributedCriteria =
+                                      outputEntitiesAndAttributedCriteria.containsKey(
+                                              entityOutput.getEntity())
+                                          ? outputEntitiesAndAttributedCriteria.get(
+                                              entityOutput.getEntity())
+                                          : new ArrayList<>();
+                                  attributedCriteria.add(Pair.of(conceptSet, criteria));
+                                  outputEntitiesAndAttributedCriteria.put(
+                                      entityOutput.getEntity(), attributedCriteria);
                                 });
                       });
             });
@@ -261,25 +278,29 @@ public class FilterBuilderService {
     // e.g. data feature set 1 = condition diabetes, data feature set 2 = condition
     // hypertension, output entity condition_occurrence filtered on condition diabetes or
     // hypertension
-    List<EntityOutput> entityOutputs = new ArrayList<>();
+    List<EntityOutputAndAttributedCriteria> entityOutputs = new ArrayList<>();
     outputEntitiesAndFiltersAndAttributes.entrySet().stream()
         .forEach(
             entry -> {
               Entity outputEntity = entry.getKey();
               List<EntityFilter> filters = entry.getValue().getLeft();
               List<Attribute> includeAttributes = new ArrayList<>(entry.getValue().getRight());
+              EntityOutput entityOutput;
               if (filters.isEmpty()) {
-                entityOutputs.add(EntityOutput.unfiltered(outputEntity, includeAttributes));
+                entityOutput = EntityOutput.unfiltered(outputEntity, includeAttributes);
               } else if (filters.size() == 1) {
-                entityOutputs.add(
-                    EntityOutput.filtered(outputEntity, filters.get(0), includeAttributes));
+                entityOutput =
+                    EntityOutput.filtered(outputEntity, filters.get(0), includeAttributes);
               } else {
-                entityOutputs.add(
+                entityOutput =
                     EntityOutput.filtered(
                         outputEntity,
                         new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters),
-                        includeAttributes));
+                        includeAttributes);
               }
+              entityOutputs.add(
+                  new EntityOutputAndAttributedCriteria(
+                      entityOutput, outputEntitiesAndAttributedCriteria.get(outputEntity)));
             });
     return entityOutputs;
   }
@@ -314,7 +335,12 @@ public class FilterBuilderService {
             cohorts.stream().map(Cohort::getMostRecentRevision).collect(Collectors.toList()));
 
     // Build a combined filter per output entity from all the data feature sets.
-    List<EntityOutput> dataFeatureOutputs = buildOutputsForConceptSets(conceptSets);
+    List<EntityOutputAndAttributedCriteria> dataFeatureOutputsAndAttributedCriteria =
+        buildOutputsForConceptSets(conceptSets);
+    List<EntityOutput> dataFeatureOutputs =
+        dataFeatureOutputsAndAttributedCriteria.stream()
+            .map(EntityOutputAndAttributedCriteria::getEntityOutput)
+            .collect(Collectors.toList());
 
     // If there's no cohort filter, just return the entity output from the concept sets.
     if (combinedCohortFilter == null) {

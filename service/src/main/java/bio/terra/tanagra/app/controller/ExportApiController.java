@@ -18,6 +18,7 @@ import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.generated.controller.ExportApi;
 import bio.terra.tanagra.generated.model.ApiEntityOutputPreview;
+import bio.terra.tanagra.generated.model.ApiEntityOutputPreviewCriteria;
 import bio.terra.tanagra.generated.model.ApiEntityOutputPreviewList;
 import bio.terra.tanagra.generated.model.ApiExportLinkResult;
 import bio.terra.tanagra.generated.model.ApiExportModel;
@@ -42,6 +43,7 @@ import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
+import bio.terra.tanagra.service.filter.EntityOutputAndAttributedCriteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.ArrayList;
@@ -177,18 +179,29 @@ public class ExportApiController implements ExportApi {
         body.getConceptSets().stream()
             .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
             .collect(Collectors.toList());
-    List<EntityOutput> entityOutputs = filterBuilderService.buildOutputsForConceptSets(conceptSets);
+    List<EntityOutputAndAttributedCriteria> entityOutputs =
+        filterBuilderService.buildOutputsForConceptSets(conceptSets);
 
     ApiEntityOutputPreviewList apiEntityOutputs = new ApiEntityOutputPreviewList();
     entityOutputs.stream()
         .forEach(
-            entityOutput -> {
+            entityOutputAndAttributedCriteria -> {
               ApiEntityOutputPreview apiEntityOutput =
                   new ApiEntityOutputPreview()
-                      .entity(entityOutput.getEntity().getName())
+                      .entity(
+                          entityOutputAndAttributedCriteria.getEntityOutput().getEntity().getName())
                       .includedAttributes(
-                          entityOutput.getAttributes().stream()
+                          entityOutputAndAttributedCriteria.getEntityOutput().getAttributes()
+                              .stream()
                               .map(Attribute::getName)
+                              .collect(Collectors.toList()))
+                      .criteria(
+                          entityOutputAndAttributedCriteria.getAttributedCriteria().stream()
+                              .map(
+                                  conceptSetAndCriteria ->
+                                      new ApiEntityOutputPreviewCriteria()
+                                          .conceptSetId(conceptSetAndCriteria.getLeft().getId())
+                                          .criteriaId(conceptSetAndCriteria.getRight().getId()))
                               .collect(Collectors.toList()));
               apiEntityOutputs.addEntityOutputsItem(apiEntityOutput);
             });

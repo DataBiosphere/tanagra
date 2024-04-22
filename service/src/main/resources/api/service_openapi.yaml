@@ -2589,9 +2589,19 @@ components:
           description: Names of attributes included in the output
           items:
             type: string
+        criteria:
+          type: array
+          items:
+            type: object
+            properties:
+              conceptSetId:
+                type: string
+              criteriaId:
+                type: string
       required:
         - entity
         - includedAttributes
+        - criteria
 
     EntityOutputPreviewList:
       type: object

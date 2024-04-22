@@ -12,6 +12,8 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_DEMOG
 import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_DEMOGRAPHICS_EXCLUDE_ID_AGE;
 import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_EMPTY;
+import static bio.terra.tanagra.service.criteriaconstants.sd.Criteria.CONDITION_EQ_TYPE_2_DIABETES;
+import static bio.terra.tanagra.service.criteriaconstants.sd.Criteria.PROCEDURE_EQ_AMPUTATION;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_CONDITION_WITH_MODIFIER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_EMPTY;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_GENDER;
@@ -35,12 +37,18 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
+import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.filter.EntityOutputAndAttributedCriteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -135,7 +143,8 @@ public class FilterBuilderServiceTest {
   @Test
   void conceptSet() {
     // No concept sets = no entity outputs.
-    List<EntityOutput> entityOutputs = filterBuilderService.buildOutputsForConceptSets(List.of());
+    List<EntityOutputAndAttributedCriteria> entityOutputs =
+        filterBuilderService.buildOutputsForConceptSets(List.of());
     assertTrue(entityOutputs.isEmpty());
 
     // Single empty concept set, no excluded attributes.
@@ -146,7 +155,11 @@ public class FilterBuilderServiceTest {
     entityOutputs = filterBuilderService.buildOutputsForConceptSets(List.of(CS_DEMOGRAPHICS));
     assertEquals(1, entityOutputs.size());
     EntityOutput expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
-    assertEquals(expectedOutput, entityOutputs.get(0));
+    assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
+    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria = new ArrayList<>();
+    CS_DEMOGRAPHICS.getCriteria().stream()
+        .forEach(criteria -> expectedAttributedCriteria.add(Pair.of(CS_DEMOGRAPHICS, criteria)));
+    assertEquals(expectedAttributedCriteria, entityOutputs.get(0).getAttributedCriteria());
 
     // Multiple concept sets, with overlapping excluded attributes.
     entityOutputs =
@@ -157,21 +170,65 @@ public class FilterBuilderServiceTest {
                 CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER,
                 CS_CONDITION_AND_PROCEDURE));
     assertEquals(3, entityOutputs.size());
+
     EntityOutput expectedOutput1 =
         EntityOutput.unfiltered(
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttributes().stream()
                 .filter(attribute -> !attribute.isId())
                 .collect(Collectors.toList()));
-    assertTrue(entityOutputs.contains(expectedOutput1));
+    Optional<EntityOutputAndAttributedCriteria> entityOutputAndAttributedCriteria1 =
+        entityOutputs.stream()
+            .filter(
+                entityOutputAndAttributedCriteria ->
+                    entityOutputAndAttributedCriteria.getEntityOutput().equals(expectedOutput1))
+            .findAny();
+    assertTrue(entityOutputAndAttributedCriteria1.isPresent());
+    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria1 = new ArrayList<>();
+    CS_DEMOGRAPHICS_EXCLUDE_ID_AGE.getCriteria().stream()
+        .forEach(
+            criteria ->
+                expectedAttributedCriteria1.add(Pair.of(CS_DEMOGRAPHICS_EXCLUDE_ID_AGE, criteria)));
+    CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER.getCriteria().stream()
+        .forEach(
+            criteria ->
+                expectedAttributedCriteria1.add(
+                    Pair.of(CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER, criteria)));
+    assertEquals(
+        expectedAttributedCriteria1,
+        entityOutputAndAttributedCriteria1.get().getAttributedCriteria());
+
     EntityOutput expectedOutput2 =
         EntityOutput.filtered(
             underlay.getEntity("conditionOccurrence"), conditionEqType2DiabetesDataFeatureFilter());
-    assertTrue(entityOutputs.contains(expectedOutput2));
+    Optional<EntityOutputAndAttributedCriteria> entityOutputAndAttributedCriteria2 =
+        entityOutputs.stream()
+            .filter(
+                entityOutputAndAttributedCriteria ->
+                    entityOutputAndAttributedCriteria.getEntityOutput().equals(expectedOutput2))
+            .findAny();
+    assertTrue(entityOutputAndAttributedCriteria2.isPresent());
+    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria2 =
+        List.of(Pair.of(CS_CONDITION_AND_PROCEDURE, CONDITION_EQ_TYPE_2_DIABETES));
+    assertEquals(
+        expectedAttributedCriteria2,
+        entityOutputAndAttributedCriteria2.get().getAttributedCriteria());
+
     EntityOutput expectedOutput3 =
         EntityOutput.filtered(
             underlay.getEntity("procedureOccurrence"), procedureEqAmputationDataFeatureFilter());
-    assertTrue(entityOutputs.contains(expectedOutput3));
+    Optional<EntityOutputAndAttributedCriteria> entityOutputAndAttributedCriteria3 =
+        entityOutputs.stream()
+            .filter(
+                entityOutputAndAttributedCriteria ->
+                    entityOutputAndAttributedCriteria.getEntityOutput().equals(expectedOutput3))
+            .findAny();
+    assertTrue(entityOutputAndAttributedCriteria3.isPresent());
+    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria3 =
+        List.of(Pair.of(CS_CONDITION_AND_PROCEDURE, PROCEDURE_EQ_AMPUTATION));
+    assertEquals(
+        expectedAttributedCriteria3,
+        entityOutputAndAttributedCriteria3.get().getAttributedCriteria());
   }
 
   @Test
