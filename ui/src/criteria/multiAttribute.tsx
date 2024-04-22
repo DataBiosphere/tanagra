@@ -15,7 +15,7 @@ import produce from "immer";
 import * as configProto from "proto/criteriaselector/configschema/multi_attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/multi_attribute";
 import { useCallback, useMemo } from "react";
-import { base64ToBytes, bytesToBase64 } from "util/base64";
+import { base64ToBytes } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 import { isValid } from "util/valid";
 
@@ -59,11 +59,7 @@ class _ implements CriteriaPlugin<string> {
   constructor(public id: string, selector: CommonSelectorConfig, data: string) {
     this.selector = selector;
     this.config = decodeConfig(selector);
-    try {
-      this.data = encodeData(JSON.parse(data));
-    } catch (e) {
-      this.data = data;
-    }
+    this.data = data;
   }
 
   renderInline(groupId: string) {
@@ -235,7 +231,11 @@ async function search(
 }
 
 function decodeData(data: string): Data {
-  const message = dataProto.MultiAttribute.decode(base64ToBytes(data));
+  const message =
+    data[0] === "{"
+      ? dataProto.MultiAttribute.fromJSON(JSON.parse(data))
+      : dataProto.MultiAttribute.decode(base64ToBytes(data));
+
   return {
     valueData: message.valueData?.map((vd) => decodeValueData(vd)) ?? [],
   };
@@ -245,7 +245,7 @@ function encodeData(data: Data): string {
   const message: dataProto.MultiAttribute = {
     valueData: data.valueData.map((vd) => encodeValueData(vd)),
   };
-  return bytesToBase64(dataProto.MultiAttribute.encode(message).finish());
+  return JSON.stringify(dataProto.MultiAttribute.toJSON(message));
 }
 
 function decodeConfig(

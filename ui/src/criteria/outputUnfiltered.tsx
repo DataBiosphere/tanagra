@@ -2,7 +2,7 @@ import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import { CommonSelectorConfig } from "data/source";
 import * as configProto from "proto/criteriaselector/configschema/output_unfiltered";
 import * as dataProto from "proto/criteriaselector/dataschema/output_unfiltered";
-import { base64ToBytes, bytesToBase64 } from "util/base64";
+import { base64ToBytes } from "util/base64";
 
 interface Data {
   entities: string[];
@@ -64,7 +64,11 @@ class _ implements CriteriaPlugin<string> {
 }
 
 function decodeData(data: string): Data {
-  const message = dataProto.OutputUnfiltered.decode(base64ToBytes(data));
+  const message =
+    data[0] === "{"
+      ? dataProto.OutputUnfiltered.fromJSON(JSON.parse(data))
+      : dataProto.OutputUnfiltered.decode(base64ToBytes(data));
+
   return {
     entities: message.entities,
   };
@@ -74,7 +78,7 @@ function encodeData(data: Data): string {
   const message: dataProto.OutputUnfiltered = {
     entities: data.entities,
   };
-  return bytesToBase64(dataProto.OutputUnfiltered.encode(message).finish());
+  return JSON.stringify(dataProto.OutputUnfiltered.toJSON(message));
 }
 
 function decodeConfig(
