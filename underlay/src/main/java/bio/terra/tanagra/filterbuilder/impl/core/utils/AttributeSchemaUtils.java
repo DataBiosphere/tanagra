@@ -39,7 +39,7 @@ public final class AttributeSchemaUtils {
 
   public static EntityFilter buildForEntity(
       Underlay underlay, Entity entity, Attribute attribute, DTAttribute.Attribute data) {
-    if (data == null) {
+    if (data == null || (data.getSelectedList().isEmpty() && data.getDataRangesList().isEmpty())) {
       return null;
     }
     if (!data.getSelectedList().isEmpty()) {

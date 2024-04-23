@@ -6,8 +6,6 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
@@ -15,7 +13,6 @@ import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.exception.InvalidQueryException;
-import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.generated.controller.ExportApi;
 import bio.terra.tanagra.generated.model.ApiEntityOutputPreview;
 import bio.terra.tanagra.generated.model.ApiEntityOutputPreviewCriteria;
@@ -42,12 +39,15 @@ import bio.terra.tanagra.service.export.DataExportService;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.service.filter.EntityOutputAndAttributedCriteria;
+import bio.terra.tanagra.service.filter.EntityOutputPreview;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,34 +124,25 @@ public class ExportApiController implements ExportApi {
         body.getConceptSets().stream()
             .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
             .collect(Collectors.toList());
-    List<EntityOutput> entityOutputs =
-        filterBuilderService.buildOutputsForExport(cohorts, conceptSets);
-    EntityOutput previewEntityOutput =
-        entityOutputs.stream()
-            .filter(entityOutput -> entityName.equals(entityOutput.getEntity().getName()))
+    List<EntityOutputPreview> entityOutputPreviews =
+        filterBuilderService.buildOutputPreviewsForExport(cohorts, conceptSets);
+    EntityOutputPreview entityOutputPreview =
+        entityOutputPreviews.stream()
+            .filter(eop -> entityName.equals(eop.getEntityOutput().getEntity().getName()))
             .findAny()
             .orElseThrow(
                 () ->
                     new InvalidQueryException(
-                        "Preview entity is not included in the entity outputs for the selected concept sets."));
-
-    // Build the attribute fields to select.
-    Underlay underlay = underlayService.getUnderlay(underlayName);
-    List<ValueDisplayField> attributeFields = new ArrayList<>();
-    previewEntityOutput.getAttributes().stream()
-        .forEach(
-            attribute ->
-                attributeFields.add(
-                    new AttributeField(
-                        underlay, previewEntityOutput.getEntity(), attribute, false)));
+                        "Preview entity is not included in the entity output previews for the selected concept sets."));
 
     // Run the list query and map the results back to API objects.
+    Underlay underlay = underlayService.getUnderlay(underlayName);
     ListQueryRequest listQueryRequest =
         ListQueryRequest.againstIndexData(
             underlay,
-            previewEntityOutput.getEntity(),
-            attributeFields,
-            previewEntityOutput.getDataFeatureFilter(),
+            entityOutputPreview.getEntityOutput().getEntity(),
+            entityOutputPreview.getSelectedFields(),
+            entityOutputPreview.getEntityOutput().getDataFeatureFilter(),
             null,
             null,
             null,
@@ -174,35 +165,76 @@ public class ExportApiController implements ExportApi {
           ResourceId.forConceptSet(body.getStudy(), conceptSetId));
     }
 
-    // Build the entity outputs.
+    // Build the entity output previews.
+    List<Cohort> cohorts =
+        body.getCohorts().stream()
+            .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
+            .collect(Collectors.toList());
     List<ConceptSet> conceptSets =
         body.getConceptSets().stream()
             .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
             .collect(Collectors.toList());
-    List<EntityOutputAndAttributedCriteria> entityOutputs =
-        filterBuilderService.buildOutputsForConceptSets(conceptSets);
+    List<EntityOutputPreview> entityOutputPreviews =
+        filterBuilderService.buildOutputPreviewsForExport(cohorts, conceptSets);
+
+    // Build the index and source sql for each entity output.
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    Map<EntityOutputPreview, String> indexSqlForEntityOutputs = new HashMap<>();
+    Map<EntityOutputPreview, String> sourceSqlForEntityOutputs = new HashMap<>();
+    entityOutputPreviews
+        .parallelStream()
+        .forEach(
+            entityOutputPreview -> {
+              if (entityOutputPreview.getEntityOutput().getEntity().supportsSourceQueries()) {
+                ListQueryRequest sourceListQueryRequest =
+                    ListQueryRequest.dryRunAgainstSourceData(
+                        underlay,
+                        entityOutputPreview.getEntityOutput().getEntity(),
+                        entityOutputPreview.getSelectedFields(),
+                        entityOutputPreview.getEntityOutput().getDataFeatureFilter());
+                ListQueryResult sourceListQueryResult =
+                    underlay.getQueryRunner().run(sourceListQueryRequest);
+                sourceSqlForEntityOutputs.put(
+                    entityOutputPreview, sourceListQueryResult.getSqlNoParams());
+              } else {
+                ListQueryRequest indexListQueryRequest =
+                    ListQueryRequest.dryRunAgainstIndexData(
+                        underlay,
+                        entityOutputPreview.getEntityOutput().getEntity(),
+                        entityOutputPreview.getSelectedFields(),
+                        entityOutputPreview.getEntityOutput().getDataFeatureFilter(),
+                        null,
+                        null);
+                ListQueryResult indexListQueryResult =
+                    underlay.getQueryRunner().run(indexListQueryRequest);
+                indexSqlForEntityOutputs.put(
+                    entityOutputPreview, indexListQueryResult.getSqlNoParams());
+              }
+            });
 
     ApiEntityOutputPreviewList apiEntityOutputs = new ApiEntityOutputPreviewList();
-    entityOutputs.stream()
+    entityOutputPreviews.stream()
         .forEach(
-            entityOutputAndAttributedCriteria -> {
+            entityOutputPreview -> {
               ApiEntityOutputPreview apiEntityOutput =
                   new ApiEntityOutputPreview()
-                      .entity(
-                          entityOutputAndAttributedCriteria.getEntityOutput().getEntity().getName())
+                      .entity(entityOutputPreview.getEntityOutput().getEntity().getName())
                       .includedAttributes(
-                          entityOutputAndAttributedCriteria.getEntityOutput().getAttributes()
-                              .stream()
+                          entityOutputPreview.getEntityOutput().getAttributes().stream()
                               .map(Attribute::getName)
                               .collect(Collectors.toList()))
                       .criteria(
-                          entityOutputAndAttributedCriteria.getAttributedCriteria().stream()
+                          entityOutputPreview.getAttributedCriteria().stream()
                               .map(
                                   conceptSetAndCriteria ->
                                       new ApiEntityOutputPreviewCriteria()
                                           .conceptSetId(conceptSetAndCriteria.getLeft().getId())
                                           .criteriaId(conceptSetAndCriteria.getRight().getId()))
-                              .collect(Collectors.toList()));
+                              .collect(Collectors.toList()))
+                      .indexSql(
+                          SqlFormatter.format(indexSqlForEntityOutputs.get(entityOutputPreview)))
+                      .sourceSql(
+                          SqlFormatter.format(sourceSqlForEntityOutputs.get(entityOutputPreview)));
               apiEntityOutputs.addEntityOutputsItem(apiEntityOutput);
             });
     return ResponseEntity.ok(apiEntityOutputs);

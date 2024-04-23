@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service.filter;
 
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
@@ -140,8 +142,7 @@ public class FilterBuilderService {
     }
   }
 
-  public List<EntityOutputAndAttributedCriteria> buildOutputsForConceptSets(
-      List<ConceptSet> conceptSets) {
+  public List<EntityOutputPreview> buildOutputPreviewsForConceptSets(List<ConceptSet> conceptSets) {
     // No concept sets = no entity outputs.
     if (conceptSets.isEmpty()) {
       return List.of();
@@ -278,7 +279,7 @@ public class FilterBuilderService {
     // e.g. data feature set 1 = condition diabetes, data feature set 2 = condition
     // hypertension, output entity condition_occurrence filtered on condition diabetes or
     // hypertension
-    List<EntityOutputAndAttributedCriteria> entityOutputs = new ArrayList<>();
+    List<EntityOutputPreview> entityOutputs = new ArrayList<>();
     outputEntitiesAndFiltersAndAttributes.entrySet().stream()
         .forEach(
             entry -> {
@@ -298,14 +299,24 @@ public class FilterBuilderService {
                         new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters),
                         includeAttributes);
               }
+
+              // Build the attribute fields to select.
+              List<ValueDisplayField> selectedAttributeFields = new ArrayList<>();
+              includeAttributes.stream()
+                  .forEach(
+                      includeAttribute ->
+                          selectedAttributeFields.add(
+                              new AttributeField(underlay, outputEntity, includeAttribute, false)));
               entityOutputs.add(
-                  new EntityOutputAndAttributedCriteria(
-                      entityOutput, outputEntitiesAndAttributedCriteria.get(outputEntity)));
+                  new EntityOutputPreview()
+                      .setEntityOutput(entityOutput)
+                      .setAttributedCriteria(outputEntitiesAndAttributedCriteria.get(outputEntity))
+                      .setSelectedFields(selectedAttributeFields));
             });
     return entityOutputs;
   }
 
-  public List<EntityOutput> buildOutputsForExport(
+  public List<EntityOutputPreview> buildOutputPreviewsForExport(
       List<Cohort> cohorts, List<ConceptSet> conceptSets) {
     // No cohorts and no concept sets = no entity outputs.
     if (cohorts.isEmpty() && conceptSets.isEmpty()) {
@@ -335,28 +346,28 @@ public class FilterBuilderService {
             cohorts.stream().map(Cohort::getMostRecentRevision).collect(Collectors.toList()));
 
     // Build a combined filter per output entity from all the data feature sets.
-    List<EntityOutputAndAttributedCriteria> dataFeatureOutputsAndAttributedCriteria =
-        buildOutputsForConceptSets(conceptSets);
-    List<EntityOutput> dataFeatureOutputs =
-        dataFeatureOutputsAndAttributedCriteria.stream()
-            .map(EntityOutputAndAttributedCriteria::getEntityOutput)
-            .collect(Collectors.toList());
+    List<EntityOutputPreview> dataFeatureOutputPreviews =
+        buildOutputPreviewsForConceptSets(conceptSets);
 
     // If there's no cohort filter, just return the entity output from the concept sets.
     if (combinedCohortFilter == null) {
-      return dataFeatureOutputs;
+      return dataFeatureOutputPreviews;
     }
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
-    return dataFeatureOutputs.stream()
+    return dataFeatureOutputPreviews.stream()
         .map(
-            dataFeatureOutput -> {
-              Entity outputEntity = dataFeatureOutput.getEntity();
+            dataFeatureOutputPreview -> {
+              Entity outputEntity = dataFeatureOutputPreview.getEntityOutput().getEntity();
 
               // If the output entity is the primary entity, just add the cohort filter.
               if (outputEntity.isPrimary()) {
-                return EntityOutput.filtered(
-                    outputEntity, combinedCohortFilter, dataFeatureOutput.getAttributes());
+                EntityOutput updatedEntityOutput =
+                    EntityOutput.filtered(
+                        outputEntity,
+                        combinedCohortFilter,
+                        dataFeatureOutputPreview.getEntityOutput().getAttributes());
+                return dataFeatureOutputPreview.setEntityOutput(updatedEntityOutput);
               }
 
               // Find the relationship between this output entity and the primary entity.
@@ -365,17 +376,20 @@ public class FilterBuilderService {
 
               // Build a single relationship filter per output entity that has the combined cohort
               // filter as the primary entity sub-filter.
+              EntityOutput updatedEntityOutput;
               switch (outputToPrimaryEntityGroup.getType()) {
                 case CRITERIA_OCCURRENCE:
-                  return EntityOutput.filtered(
-                      outputEntity,
-                      new OccurrenceForPrimaryFilter(
-                          underlay,
-                          (CriteriaOccurrence) outputToPrimaryEntityGroup,
+                  updatedEntityOutput =
+                      EntityOutput.filtered(
                           outputEntity,
-                          combinedCohortFilter,
-                          dataFeatureOutput.getDataFeatureFilter()),
-                      dataFeatureOutput.getAttributes());
+                          new OccurrenceForPrimaryFilter(
+                              underlay,
+                              (CriteriaOccurrence) outputToPrimaryEntityGroup,
+                              outputEntity,
+                              combinedCohortFilter,
+                              dataFeatureOutputPreview.getEntityOutput().getDataFeatureFilter()),
+                          dataFeatureOutputPreview.getEntityOutput().getAttributes());
+                  break;
                 case GROUP_ITEMS:
                   GroupItems groupItems = (GroupItems) outputToPrimaryEntityGroup;
                   EntityFilter occurrenceForPrimaryFilter;
@@ -390,26 +404,39 @@ public class FilterBuilderService {
                   }
                   // Build a single filter per output entity with the combined cohort and data
                   // feature filters.
-                  if (!dataFeatureOutput.hasDataFeatureFilter()) {
-                    return EntityOutput.filtered(
-                        outputEntity,
-                        occurrenceForPrimaryFilter,
-                        dataFeatureOutput.getAttributes());
+                  if (!dataFeatureOutputPreview.getEntityOutput().hasDataFeatureFilter()) {
+                    updatedEntityOutput =
+                        EntityOutput.filtered(
+                            outputEntity,
+                            occurrenceForPrimaryFilter,
+                            dataFeatureOutputPreview.getEntityOutput().getAttributes());
                   } else {
-                    return EntityOutput.filtered(
-                        outputEntity,
-                        new BooleanAndOrFilter(
-                            BooleanAndOrFilter.LogicalOperator.AND,
-                            List.of(
-                                dataFeatureOutput.getDataFeatureFilter(),
-                                occurrenceForPrimaryFilter)),
-                        dataFeatureOutput.getAttributes());
+                    updatedEntityOutput =
+                        EntityOutput.filtered(
+                            outputEntity,
+                            new BooleanAndOrFilter(
+                                BooleanAndOrFilter.LogicalOperator.AND,
+                                List.of(
+                                    dataFeatureOutputPreview
+                                        .getEntityOutput()
+                                        .getDataFeatureFilter(),
+                                    occurrenceForPrimaryFilter)),
+                            dataFeatureOutputPreview.getEntityOutput().getAttributes());
                   }
+                  break;
                 default:
                   throw new SystemException(
                       "Unsupported entity group type: " + outputToPrimaryEntityGroup.getType());
               }
+              return dataFeatureOutputPreview.setEntityOutput(updatedEntityOutput);
             })
+        .collect(Collectors.toList());
+  }
+
+  public List<EntityOutput> buildOutputsForExport(
+      List<Cohort> cohorts, List<ConceptSet> conceptSets) {
+    return buildOutputPreviewsForExport(cohorts, conceptSets).stream()
+        .map(EntityOutputPreview::getEntityOutput)
         .collect(Collectors.toList());
   }
 
