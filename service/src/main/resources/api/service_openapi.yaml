@@ -2580,11 +2580,11 @@ components:
           description: |
             When true, ignore the selected attributes in the data feature set definitions and include all
             attributes for each output entity.
+          default: false
       required:
         - study
         - cohorts
         - conceptSets
-        - includeAllAttributes
 
     EntityOutputPreview:
       type: object
