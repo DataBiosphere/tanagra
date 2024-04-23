@@ -145,16 +145,17 @@ public class FilterBuilderServiceTest {
   void conceptSet() {
     // No concept sets = no entity outputs.
     List<EntityOutputPreview> entityOutputs =
-        filterBuilderService.buildOutputPreviewsForConceptSets(List.of());
+        filterBuilderService.buildOutputPreviewsForConceptSets(List.of(), false);
     assertTrue(entityOutputs.isEmpty());
 
     // Single empty concept set, no excluded attributes.
-    entityOutputs = filterBuilderService.buildOutputPreviewsForConceptSets(List.of(CS_EMPTY));
+    entityOutputs =
+        filterBuilderService.buildOutputPreviewsForConceptSets(List.of(CS_EMPTY), false);
     assertTrue(entityOutputs.isEmpty());
 
     // Single concept set, no excluded attributes.
     entityOutputs =
-        filterBuilderService.buildOutputPreviewsForConceptSets(List.of(CS_DEMOGRAPHICS));
+        filterBuilderService.buildOutputPreviewsForConceptSets(List.of(CS_DEMOGRAPHICS), false);
     assertEquals(1, entityOutputs.size());
     EntityOutput expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
@@ -163,6 +164,14 @@ public class FilterBuilderServiceTest {
         .forEach(criteria -> expectedAttributedCriteria.add(Pair.of(CS_DEMOGRAPHICS, criteria)));
     assertEquals(expectedAttributedCriteria, entityOutputs.get(0).getAttributedCriteria());
 
+    // Single concept set, excluded attributes but with override flag to include all attributes.
+    entityOutputs =
+        filterBuilderService.buildOutputPreviewsForConceptSets(
+            List.of(CS_DEMOGRAPHICS_EXCLUDE_ID_AGE), true);
+    assertEquals(1, entityOutputs.size());
+    expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
+    assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
+
     // Multiple concept sets, with overlapping excluded attributes.
     entityOutputs =
         filterBuilderService.buildOutputPreviewsForConceptSets(
@@ -170,7 +179,8 @@ public class FilterBuilderServiceTest {
                 CS_EMPTY,
                 CS_DEMOGRAPHICS_EXCLUDE_ID_AGE,
                 CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER,
-                CS_CONDITION_AND_PROCEDURE));
+                CS_CONDITION_AND_PROCEDURE),
+            false);
     assertEquals(3, entityOutputs.size());
 
     EntityOutput expectedOutput1 =

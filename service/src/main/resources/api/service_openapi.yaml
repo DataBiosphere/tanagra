@@ -2575,8 +2575,16 @@ components:
         limit:
           type: integer
           default: 50
+        includeAllAttributes:
+          type: boolean
+          description: |
+            When true, ignore the selected attributes in the data feature set definitions and include all
+            attributes for each output entity.
       required:
         - study
+        - cohorts
+        - conceptSets
+        - includeAllAttributes
 
     EntityOutputPreview:
       type: object

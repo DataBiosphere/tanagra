@@ -142,7 +142,8 @@ public class FilterBuilderService {
     }
   }
 
-  public List<EntityOutputPreview> buildOutputPreviewsForConceptSets(List<ConceptSet> conceptSets) {
+  public List<EntityOutputPreview> buildOutputPreviewsForConceptSets(
+      List<ConceptSet> conceptSets, boolean includeAllAttributes) {
     // No concept sets = no entity outputs.
     if (conceptSets.isEmpty()) {
       return List.of();
@@ -285,7 +286,10 @@ public class FilterBuilderService {
             entry -> {
               Entity outputEntity = entry.getKey();
               List<EntityFilter> filters = entry.getValue().getLeft();
-              List<Attribute> includeAttributes = new ArrayList<>(entry.getValue().getRight());
+              List<Attribute> includeAttributes =
+                  includeAllAttributes
+                      ? outputEntity.getAttributes()
+                      : new ArrayList<>(entry.getValue().getRight());
               EntityOutput entityOutput;
               if (filters.isEmpty()) {
                 entityOutput = EntityOutput.unfiltered(outputEntity, includeAttributes);
@@ -317,7 +321,7 @@ public class FilterBuilderService {
   }
 
   public List<EntityOutputPreview> buildOutputPreviewsForExport(
-      List<Cohort> cohorts, List<ConceptSet> conceptSets) {
+      List<Cohort> cohorts, List<ConceptSet> conceptSets, boolean includeAllAttributes) {
     // No cohorts and no concept sets = no entity outputs.
     if (cohorts.isEmpty() && conceptSets.isEmpty()) {
       return List.of();
@@ -347,7 +351,7 @@ public class FilterBuilderService {
 
     // Build a combined filter per output entity from all the data feature sets.
     List<EntityOutputPreview> dataFeatureOutputPreviews =
-        buildOutputPreviewsForConceptSets(conceptSets);
+        buildOutputPreviewsForConceptSets(conceptSets, includeAllAttributes);
 
     // If there's no cohort filter, just return the entity output from the concept sets.
     if (combinedCohortFilter == null) {
@@ -435,7 +439,7 @@ public class FilterBuilderService {
 
   public List<EntityOutput> buildOutputsForExport(
       List<Cohort> cohorts, List<ConceptSet> conceptSets) {
-    return buildOutputPreviewsForExport(cohorts, conceptSets).stream()
+    return buildOutputPreviewsForExport(cohorts, conceptSets, false).stream()
         .map(EntityOutputPreview::getEntityOutput)
         .collect(Collectors.toList());
   }
