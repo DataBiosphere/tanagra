@@ -6,6 +6,6 @@ public final class SqlFormatter {
   private SqlFormatter() {}
 
   public static String format(String sqlNoLineBreaks) {
-    return new BasicFormatterImpl().format(sqlNoLineBreaks);
+    return sqlNoLineBreaks != null ? new BasicFormatterImpl().format(sqlNoLineBreaks) : null;
   }
 }
