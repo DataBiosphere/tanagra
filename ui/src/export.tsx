@@ -23,6 +23,7 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
   generateCohortFilter,
+  getCriteriaTitle,
   getOccurrenceList,
   OccurrenceFilters,
 } from "cohort";
@@ -35,6 +36,7 @@ import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, makeArrayFilter } from "data/filter";
 import {
   Cohort,
+  Criteria,
   ExportModel,
   ExportResultLink,
   FeatureSet,
@@ -440,7 +442,33 @@ function Preview(props: PreviewProps) {
           }
 
           of.attributes = pe.attributes;
-          // TODO(tjennison): Update source criteria.
+          of.sourceCriteria = pe.sourceCriteria.map((sc) => {
+            const featureSet = filteredFeatureSets.find(
+              (fs) => fs.id === sc.conceptSetId
+            );
+            if (!featureSet) {
+              throw new Error(
+                `Unexpected source feature set: ${sc.conceptSetId}`
+              );
+            }
+
+            let criteria: Criteria | undefined;
+            if (featureSet.predefinedCriteria.includes(sc.criteriaId)) {
+              criteria = underlaySource.createPredefinedCriteria(sc.criteriaId);
+            } else {
+              criteria = featureSet?.criteria?.find(
+                (c) => c.id === sc.criteriaId
+              );
+            }
+            if (!criteria) {
+              throw new Error(
+                `Unexpected source criteria: feature set: ${sc.conceptSetId}, criteria: ${sc.criteriaId}`
+              );
+            }
+
+            return getCriteriaTitle(criteria);
+          });
+          of.sql = pe.sql;
           merged.push(of);
         });
       }
@@ -583,7 +611,7 @@ function PreviewTable(props: PreviewTableProps) {
 
           return {
             name: filters.name,
-            sql: res.sql,
+            sql: filters.sql ?? res.sql,
             data: data,
           };
         })
