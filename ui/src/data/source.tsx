@@ -131,9 +131,16 @@ export type ExportRequestEntity = {
   conceptSet: Filter | null;
 };
 
+export type ExportSourceCriteria = {
+  conceptSetId: string;
+  criteriaId: string;
+};
+
 export type ExportPreviewEntity = {
   id: string;
   attributes: string[];
+  sourceCriteria: ExportSourceCriteria[];
+  sql?: string;
 };
 
 export type ExportResultLink = {
@@ -886,6 +893,8 @@ export class BackendUnderlaySource implements UnderlaySource {
           res.entityOutputs.map((o) => ({
             id: o.entity,
             attributes: o.includedAttributes,
+            sourceCriteria: o.criteria,
+            sql: o.sourceSql ?? o.indexSql,
           }))
         )
     );
