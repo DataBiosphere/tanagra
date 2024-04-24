@@ -1,13 +1,14 @@
 package bio.terra.tanagra.service.export.impl;
 
-import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
-
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,22 +38,17 @@ public class IndividualFileDownload implements DataExport {
   @Override
   public ExportResult run(ExportRequest request, DataExportHelper helper) {
     // Export the entity and annotation data to GCS.
-    String studyUnderlayRef =
-        simplifyStringForName(request.getStudy().getId() + "_" + request.getUnderlay().getName());
-    String cohortRef =
-        simplifyStringForName(
-                request.getCohorts().get(0).getDisplayName()
-                    + "_"
-                    + request.getCohorts().get(0).getId())
-            + (request.getCohorts().size() > 1
-                ? "_plus" + (request.getCohorts().size() - 1) + "more"
-                : "");
+    // Filename template: YYYYMMDD_HHMMSS_{random}_{type}_{name}
+    String timestamp =
+        DateTimeFormatter.ofPattern("yyyyMMdd_hhmmss")
+            .withZone(ZoneId.of("UTC"))
+            .format(Instant.now());
+    // e.g. 20240422_132237_1234_data_person
     List<ExportFileResult> entityExportFileResults =
-        helper.writeEntityDataToGcs(
-            "${entity}_cohort" + cohortRef + "_" + studyUnderlayRef + "_${random}");
+        helper.writeEntityDataToGcs(timestamp + "_${random}_data_${entity}");
+    // e.g. 202040422_132237_1234_annotation_MyCohort
     List<ExportFileResult> annotationExportFileResults =
-        helper.writeAnnotationDataToGcs(
-            "annotations_cohort${cohort}" + "_" + studyUnderlayRef + "_${random}");
+        helper.writeAnnotationDataToGcs(timestamp + "_${random}_annotation_${cohort}");
 
     // Build a combined list of all output files.
     List<ExportFileResult> allExportFileResults = new ArrayList<>();

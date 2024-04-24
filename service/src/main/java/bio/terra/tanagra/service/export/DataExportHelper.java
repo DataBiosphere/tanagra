@@ -302,7 +302,7 @@ public class DataExportHelper {
                           "entity",
                           entityOutput.getEntity().getName(),
                           "random",
-                          Instant.now().getEpochSecond() + "_" + randomNumberGenerator.getNext());
+                          String.valueOf(randomNumberGenerator.getNext()));
                   String substitutedFilename =
                       StringSubstitutor.replace(fileNameTemplate, substitutions);
                   return new ExportQueryRequest(
@@ -450,12 +450,9 @@ public class DataExportHelper {
                           fileNameTemplate,
                           Map.of(
                               "cohort",
-                              NameUtils.simplifyStringForName(
-                                  cohort.getDisplayName() + "_" + cohort.getId()),
+                              NameUtils.simplifyStringForName(cohort.getDisplayName()),
                               "random",
-                              Instant.now().getEpochSecond()
-                                  + "_"
-                                  + randomNumberGenerator.getNext()));
+                              String.valueOf(randomNumberGenerator.getNext())));
                   if (!fileName.endsWith(".csv")) {
                     fileName += ".csv";
                   }
