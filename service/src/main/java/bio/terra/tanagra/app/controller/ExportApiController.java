@@ -125,7 +125,8 @@ public class ExportApiController implements ExportApi {
             .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
             .collect(Collectors.toList());
     List<EntityOutputPreview> entityOutputPreviews =
-        filterBuilderService.buildOutputPreviewsForExport(cohorts, conceptSets);
+        filterBuilderService.buildOutputPreviewsForExport(
+            cohorts, conceptSets, body.isIncludeAllAttributes());
     EntityOutputPreview entityOutputPreview =
         entityOutputPreviews.stream()
             .filter(eop -> entityName.equals(eop.getEntityOutput().getEntity().getName()))
@@ -175,7 +176,8 @@ public class ExportApiController implements ExportApi {
             .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
             .collect(Collectors.toList());
     List<EntityOutputPreview> entityOutputPreviews =
-        filterBuilderService.buildOutputPreviewsForExport(cohorts, conceptSets);
+        filterBuilderService.buildOutputPreviewsForExport(
+            cohorts, conceptSets, body.isIncludeAllAttributes());
 
     // Build the index and source sql for each entity output.
     Underlay underlay = underlayService.getUnderlay(underlayName);
