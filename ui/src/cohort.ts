@@ -223,6 +223,7 @@ export type OccurrenceFilters = {
   attributes: string[];
   filters: Filter[];
   sourceCriteria: string[];
+  sql?: string;
 };
 
 export function getOccurrenceList(

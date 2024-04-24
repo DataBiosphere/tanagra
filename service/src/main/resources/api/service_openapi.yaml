@@ -1599,7 +1599,17 @@ components:
         filterType:
           type: string
           enum:
-            ["ATTRIBUTE", "TEXT", "HIERARCHY", "RELATIONSHIP", "BOOLEAN_LOGIC", "ITEM_IN_GROUP", "GROUP_HAS_ITEMS", "OCCURRENCE_FOR_PRIMARY", "PRIMARY_WITH_CRITERIA"]
+            [
+              "ATTRIBUTE",
+              "TEXT",
+              "HIERARCHY",
+              "RELATIONSHIP",
+              "BOOLEAN_LOGIC",
+              "ITEM_IN_GROUP",
+              "GROUP_HAS_ITEMS",
+              "OCCURRENCE_FOR_PRIMARY",
+              "PRIMARY_WITH_CRITERIA",
+            ]
         filterUnion:
           type: object
           properties:
@@ -2606,6 +2616,9 @@ components:
                 type: string
               criteriaId:
                 type: string
+            required:
+              - conceptSetId
+              - criteriaId
         indexSql:
           type: string
           description: |
