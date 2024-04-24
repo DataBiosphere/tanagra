@@ -6,6 +6,8 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.tanagra.api.field.AttributeField;
+import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
@@ -43,6 +45,7 @@ import bio.terra.tanagra.service.filter.EntityOutputPreview;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,13 +139,28 @@ public class ExportApiController implements ExportApi {
                     new InvalidQueryException(
                         "Preview entity is not included in the entity output previews for the selected concept sets."));
 
-    // Run the list query and map the results back to API objects.
+    // Always include the id attribute in the query, even if it's not selected in any of the data
+    // feature sets.
+    List<ValueDisplayField> selectedFields;
+    Entity outputEntity = entityOutputPreview.getEntityOutput().getEntity();
     Underlay underlay = underlayService.getUnderlay(underlayName);
+    if (!entityOutputPreview
+        .getEntityOutput()
+        .getAttributes()
+        .contains(outputEntity.getIdAttribute())) {
+      selectedFields = new ArrayList<>(entityOutputPreview.getSelectedFields());
+      selectedFields.add(
+          new AttributeField(underlay, outputEntity, outputEntity.getIdAttribute(), false));
+    } else {
+      selectedFields = entityOutputPreview.getSelectedFields();
+    }
+
+    // Run the list query and map the results back to API objects.
     ListQueryRequest listQueryRequest =
         ListQueryRequest.againstIndexData(
             underlay,
-            entityOutputPreview.getEntityOutput().getEntity(),
-            entityOutputPreview.getSelectedFields(),
+            outputEntity,
+            selectedFields,
             entityOutputPreview.getEntityOutput().getDataFeatureFilter(),
             null,
             null,
