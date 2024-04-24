@@ -116,6 +116,15 @@ public class SZAttribute {
   public Double displayHintRangeMax;
 
   @AnnotatedField(
+      name = "SZAttribute.isSuppressedForExport",
+      markdown =
+          "True if this attribute is suppressed for export "
+              + "(i.e. not available for selection in data feature sets).",
+      optional = true,
+      defaultValue = "false")
+  public boolean isSuppressedForExport;
+
+  @AnnotatedField(
       name = "SZAttribute.sourceQuery",
       markdown =
           "How to generate a query against the source data that includes this attribute.\n\n"
@@ -133,13 +142,6 @@ public class SZAttribute {
               + "This query isn't actually run by the service, only generated as an export option "
               + "(e.g. as part of a notebook file).")
   public static class SourceQuery {
-    @AnnotatedField(
-        name = "SZSourceQuery.isSuppressed",
-        markdown = "True if this attribute doesn't map to a specific field in the source table.",
-        optional = true,
-        defaultValue = "false")
-    public boolean isSuppressed;
-
     @AnnotatedField(
         name = "SZSourceQuery.valueFieldName",
         markdown =

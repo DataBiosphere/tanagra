@@ -334,7 +334,6 @@ public final class Underlay {
                   Attribute.SourceQuery sourceQuery =
                       szAttribute.sourceQuery == null
                           ? new Attribute.SourceQuery(
-                              false,
                               szAttribute.valueFieldName == null
                                   ? szAttribute.name
                                   : szAttribute.valueFieldName,
@@ -342,7 +341,6 @@ public final class Underlay {
                               null,
                               null)
                           : new Attribute.SourceQuery(
-                              szAttribute.sourceQuery.isSuppressed,
                               szAttribute.sourceQuery.valueFieldName == null
                                   ? (szAttribute.valueFieldName == null
                                       ? szAttribute.name
@@ -359,6 +357,7 @@ public final class Underlay {
                       szAttribute.runtimeSqlFunctionWrapper,
                       ConfigReader.deserializeDataType(szAttribute.runtimeDataType),
                       szAttribute.isComputeDisplayHint,
+                      szAttribute.isSuppressedForExport,
                       sourceQuery);
                 })
             .collect(Collectors.toList());

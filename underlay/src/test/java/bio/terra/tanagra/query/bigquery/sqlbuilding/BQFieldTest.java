@@ -93,12 +93,9 @@ public class BQFieldTest extends BQRunnerTest {
                 ethnicityAttribute.getRuntimeSqlFunctionWrapper(),
                 ethnicityAttribute.getRuntimeDataType(),
                 ethnicityAttribute.isComputeDisplayHint(),
+                ethnicityAttribute.isSuppressedForExport(),
                 new Attribute.SourceQuery(
-                    ethnicityAttribute.getSourceQuery().isSuppressed(),
-                    "person_source_value",
-                    null,
-                    "ethnicity_concept_id",
-                    null)),
+                    "person_source_value", null, "ethnicity_concept_id", null)),
             false);
 
     // We don't have an example of a suppressed attribute, yet.
@@ -116,8 +113,8 @@ public class BQFieldTest extends BQRunnerTest {
                 genderAttribute.getRuntimeSqlFunctionWrapper(),
                 genderAttribute.getRuntimeDataType(),
                 genderAttribute.isComputeDisplayHint(),
+                true,
                 new Attribute.SourceQuery(
-                    true,
                     genderAttribute.getSourceQuery().getValueFieldName(),
                     genderAttribute.getSourceQuery().getDisplayFieldTable(),
                     genderAttribute.getSourceQuery().getDisplayFieldName(),

@@ -244,6 +244,30 @@ public class FilterBuilderServiceTest {
   }
 
   @Test
+  @SuppressWarnings("PMD.UnnecessaryFullyQualifiedName")
+  void suppressedAttribute() {
+    Underlay cmssynpuf = underlayService.getUnderlay("cmssynpuf");
+
+    // One suppressed attribute.
+    List<EntityOutputPreview> entityOutputs =
+        filterBuilderService.buildOutputPreviewsForConceptSets(
+            List.of(
+                bio.terra.tanagra.service.criteriaconstants.cmssynpuf.ConceptSet.CS_DEMOGRAPHICS),
+            true);
+    assertEquals(1, entityOutputs.size());
+    assertEquals(
+        cmssynpuf.getPrimaryEntity().getAttributes().size() - 1,
+        entityOutputs.get(0).getEntityOutput().getAttributes().size());
+    EntityOutput expectedOutput =
+        EntityOutput.unfiltered(
+            cmssynpuf.getPrimaryEntity(),
+            cmssynpuf.getPrimaryEntity().getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
+    assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
+  }
+
+  @Test
   void export() {
     // No cohorts or concept sets = no entity outputs.
     List<EntityOutput> entityOutputs =

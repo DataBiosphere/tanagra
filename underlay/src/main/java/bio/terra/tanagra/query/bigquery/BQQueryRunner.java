@@ -234,9 +234,6 @@ public class BQQueryRunner implements QueryRunner {
                   AttributeField.againstSourceDataset((AttributeField) valueDisplayField);
               Attribute.SourceQuery attrSourcePointer =
                   attrFieldAgainstSourceData.getAttribute().getSourceQuery();
-              if (attrSourcePointer.isSuppressed()) {
-                return;
-              }
 
               List<SqlQueryField> valueAndDisplayFields =
                   bqTranslator.translator(attrFieldAgainstSourceData).buildSqlFieldsForListSelect();
