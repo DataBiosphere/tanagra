@@ -159,3 +159,14 @@ Modify the logging level for the service directly in the [`application.yml` file
 ```
 logging.level.org.springframework.jdbc.core: trace
 ```
+
+## Generated documentation
+We generate documentation for the underlay and service application configuration properties, directly from the code.
+Run the `checkGeneratedFiles.sh` script to regenerate the documentation or confirm that no changes are needed.
+
+```
+.github/tools/checkGeneratedFiles.sh
+```
+
+If any changes are generated, check them in. This script is also run in a GitHub action that will prevent you from
+merging code that has code inconsistent documentation.

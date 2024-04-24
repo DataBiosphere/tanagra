@@ -71,6 +71,13 @@ When set to true, an indexing job will try to compute a display hint for this at
 
 *Default value:* `false`
 
+### SZAttribute.isSuppressedForExport
+**optional** boolean
+
+True if this attribute is suppressed for export (i.e. not available for selection in data feature sets).
+
+*Default value:* `false`
+
 ### SZAttribute.name
 **required** String
 
@@ -976,13 +983,6 @@ Name of the field in the display table (#szsourcequerydisplayfieldtable) that is
 This is required if the #szsourcequerydisplayfieldtable is specified.
 
 *Example value:* `concept_id`
-
-### SZSourceQuery.isSuppressed
-**optional** boolean
-
-True if this attribute doesn't map to a specific field in the source table.
-
-*Default value:* `false`
 
 ### SZSourceQuery.valueFieldName
 **optional** String

@@ -4,6 +4,7 @@ export type SZAttribute = {
   displayHintRangeMax?: number;
   displayHintRangeMin?: number;
   isComputeDisplayHint?: boolean;
+  isSuppressedForExport?: boolean;
   name: string;
   runtimeDataType?: SZDataType;
   runtimeSqlFunctionWrapper?: string;
@@ -182,7 +183,6 @@ export type SZSourceQuery = {
   displayFieldName?: string;
   displayFieldTable?: string;
   displayFieldTableJoinFieldName?: string;
-  isSuppressed?: boolean;
   valueFieldName?: string;
 };
 

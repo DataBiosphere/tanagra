@@ -288,7 +288,9 @@ public class FilterBuilderService {
               List<EntityFilter> filters = entry.getValue().getLeft();
               List<Attribute> includeAttributes =
                   includeAllAttributes
-                      ? outputEntity.getAttributes()
+                      ? outputEntity.getAttributes().stream()
+                          .filter(attribute -> !attribute.isSuppressedForExport())
+                          .collect(Collectors.toList())
                       : new ArrayList<>(entry.getValue().getRight());
               EntityOutput entityOutput;
               if (filters.isEmpty()) {
