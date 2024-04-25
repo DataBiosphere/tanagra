@@ -1,7 +1,8 @@
-import { defaultGroup, defaultSection } from "cohort";
+import { defaultGroup, newSection } from "cohort";
 import { Cohort, Criteria, GroupSectionFilter } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import deepEqual from "deep-equal";
 import produce from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -59,22 +60,24 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
     return await studySource.getCohort(studyId, underlaySource, cohortId);
   });
 
-  useEffect(
-    () =>
-      setState(
-        status.data
-          ? {
-              past: state?.past ?? [],
-              present: status.data,
-              future: state?.future ?? [],
+  useEffect(() => {
+    if (state?.present && deepEqual(status.data, state.present)) {
+      return;
+    }
 
-              saving: false,
-              showSnackbar,
-            }
-          : null
-      ),
-    [status.data]
-  );
+    setState(
+      status.data
+        ? {
+            past: state?.past ?? [],
+            present: status.data,
+            future: state?.future ?? [],
+
+            saving: false,
+            showSnackbar,
+          }
+        : null
+    );
+  }, [status.data]);
 
   const updateCohort = async (newState: CohortState | null) => {
     if (!newState) {
@@ -336,7 +339,7 @@ export function insertCohortGroupSection(
   criteria?: Criteria
 ) {
   context.updatePresent((present) => {
-    present.groupSections.push(defaultSection(criteria));
+    present.groupSections.push(newSection(criteria));
   });
 }
 
@@ -346,7 +349,7 @@ export function deleteCohortGroupSection(
 ) {
   context.updatePresent((present) => {
     if (present.groupSections.length === 1) {
-      present.groupSections = [defaultSection()];
+      present.groupSections = [newSection()];
       return;
     }
 

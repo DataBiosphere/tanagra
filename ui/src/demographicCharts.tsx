@@ -1,7 +1,4 @@
-import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
-import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -13,42 +10,11 @@ import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  TooltipProps,
-  XAxis,
-  YAxis,
-} from "recharts";
 import useSWRImmutable from "swr/immutable";
 import { ChartConfigProperty } from "underlaysSlice";
 import { isValid } from "util/valid";
+import { useVizPlugin, VizData } from "viz/viz";
 import { generateCohortFilter } from "./cohort";
-
-const barColours = [
-  "#4450C0",
-  "#F7963F",
-  "#4393C3",
-  "#FBCD50",
-  "#53978B",
-  "#D14545",
-  "#538B61",
-  "#D77CA8",
-  "#B6D07E",
-  "#91C3C7",
-  "#1F255C",
-  "#9D4D07",
-  "#1D455D",
-  "#B48504",
-  "#335C55",
-  "#832121",
-  "#538B61",
-  "#AC356E",
-  "#448388",
-];
 
 type BarData = {
   name: string;
@@ -63,82 +29,35 @@ type ChartData = {
 
 type StackedBarChartProps = {
   chart: ChartData;
-  tickFormatter: (label: string) => string;
 };
 
-function StackedBarChart({ chart, tickFormatter }: StackedBarChartProps) {
-  const theme = useTheme();
+const vizConfig = {};
 
-  const barData = chart.bars.map((bar) => {
-    return {
-      name: bar.name,
-      ...Object.fromEntries(bar.counts),
-    };
-  });
+function StackedBarChart({ chart }: StackedBarChartProps) {
+  const viz = useVizPlugin("bar", vizConfig);
+  const vizData = chart.bars
+    .map((b) => {
+      const data: VizData[] = [];
+      b.counts.forEach((count, segment) =>
+        data.push({
+          keys: [
+            { stringId: b.name, name: b.name },
+            ...(b.counts.size > 1
+              ? [{ stringId: segment, name: segment }]
+              : []),
+          ],
+          values: [{ numeric: count }],
+        })
+      );
+      return data;
+    })
+    .flat();
+
   return (
-    <>
+    <GridLayout rows>
       <Typography variant="body1">{chart.title}</Typography>
-      <ResponsiveContainer width="100%" height={40 + barData.length * 30}>
-        <BarChart data={barData} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            type="number"
-            style={{
-              ...theme.typography.body2,
-            }}
-          />
-          <YAxis
-            dataKey="name"
-            type="category"
-            width={140}
-            tickFormatter={tickFormatter}
-            tickMargin={10}
-            style={{
-              ...theme.typography.body2,
-            }}
-          />
-          <Tooltip
-            content={(props: TooltipProps<number, string>) => {
-              return (
-                <Paper elevation={1} sx={{ p: 1 }}>
-                  <Stack>
-                    <Typography variant="body2em">{props.label}</Typography>
-                    {props.payload?.map((row) => (
-                      <Stack key={row.name} direction="row" sx={{ mt: 1 }}>
-                        <Box
-                          sx={{
-                            width: "20px",
-                            height: "20px",
-                            backgroundColor: row.color,
-                            mr: 1,
-                          }}
-                        />
-                        <Typography variant="body2">
-                          {row.name}: {row.value}
-                        </Typography>
-                      </Stack>
-                    ))}
-                  </Stack>
-                </Paper>
-              );
-            }}
-          />
-          {chart.stackedProperties.length > 0 ? (
-            chart.stackedProperties.map((property, index) => (
-              <Bar
-                key={index}
-                dataKey={property as string}
-                stackId="a"
-                fill={barColours[index % barColours.length]}
-                maxBarSize={100}
-              />
-            ))
-          ) : (
-            <Bar dataKey="count" fill={barColours[0]} maxBarSize={60} />
-          )}
-        </BarChart>
-      </ResponsiveContainer>
-    </>
+      {viz.render(vizData)}
+    </GridLayout>
   );
 }
 
@@ -279,10 +198,6 @@ export function DemographicCharts({
     fetchDemographicData
   );
 
-  const tickFormatter = (value: string) => {
-    return value.length > 15 ? value.substr(0, 15).concat("…") : value;
-  };
-
   return (
     <>
       <GridLayout rows spacing={3}>
@@ -307,11 +222,7 @@ export function DemographicCharts({
               <GridLayout rows>
                 {demographicState.data?.chartsData.map((chart, index) => {
                   return (
-                    <StackedBarChart
-                      key={index}
-                      chart={chart as ChartData}
-                      tickFormatter={tickFormatter}
-                    />
+                    <StackedBarChart key={index} chart={chart as ChartData} />
                   );
                 })}
               </GridLayout>
