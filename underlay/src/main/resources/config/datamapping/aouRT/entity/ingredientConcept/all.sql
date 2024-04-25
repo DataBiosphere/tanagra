@@ -5,8 +5,6 @@ SELECT
     concept_code,
     'Standard' AS standard_concept
 FROM `${omopDataset}.concept`
-WHERE domain_id = 'Drug'
-AND (
+WHERE
     (vocabulary_id = 'ATC' AND standard_concept = 'C')
     OR (vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND standard_concept = 'S')
-)
