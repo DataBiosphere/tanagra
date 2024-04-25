@@ -110,15 +110,25 @@ export function sectionName(section: GroupSection, index: number) {
   return section.name || "group " + String(index + 1);
 }
 
-export function defaultSection(criteria?: Criteria): GroupSection {
+const DEFAULT_SECTION_ID = "_default";
+
+function newSectionInternal(id: string, criteria?: Criteria): GroupSection {
   return {
-    id: generateId(),
+    id,
     filter: {
       kind: GroupSectionFilterKind.Any,
       excluded: false,
     },
     groups: !!criteria ? [defaultGroup(criteria)] : [],
   };
+}
+
+export function newSection(criteria?: Criteria): GroupSection {
+  return newSectionInternal(generateId(), criteria);
+}
+
+export function defaultSection(): GroupSection {
+  return newSectionInternal(DEFAULT_SECTION_ID);
 }
 
 export function defaultGroup(criteria: Criteria): Group {
