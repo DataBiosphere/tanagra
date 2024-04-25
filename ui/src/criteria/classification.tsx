@@ -476,7 +476,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
           await underlaySource.searchEntityGroup(
             attributes,
             c.eg.id,
-            fromProtoSortOrder(calcSortOrder(c.eg.id, false, c.grouping)),
+            fromProtoSortOrder(
+              calcSortOrder(c.eg.id, !!searchState?.hierarchy, c.grouping)
+            ),
             {
               query: !searchState?.hierarchy
                 ? searchState?.query ?? ""
