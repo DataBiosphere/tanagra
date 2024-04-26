@@ -1,0 +1,221 @@
+{
+  "demographicChartConfigs": {
+    "groupByAttributes": ["gender", "race", "age"],
+    "chartConfigs": [
+      {
+        "title": "Gender identity",
+        "primaryProperties": [{ "key": "gender" }]
+      },
+      {
+        "title": "Gender identity, Current age, Race",
+        "primaryProperties": [
+          { "key": "gender" },
+          {
+            "key": "age",
+            "buckets": [
+              {
+                "min": 18,
+                "max": 45,
+                "displayName": "18-44"
+              },
+              {
+                "min": 45,
+                "max": 65,
+                "displayName": "45-64"
+              },
+              {
+                "min": 65,
+                "displayName": "65+"
+              }
+            ]
+          }
+        ],
+        "stackedProperty": { "key": "race" }
+      }
+    ]
+  },
+  "criteriaSearchConfig": {
+    "criteriaTypeWidth": 120,
+    "columns": [
+      { "key": "name", "width": "100%", "title": "Concept Name" },
+      { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+      { "key": "concept_code", "width": 120, "title": "Code" },
+      { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" }
+    ]
+  },
+  "cohortReviewConfig": {
+    "participantIdAttribute": "GRID",
+    "participantsListColumns": [
+      { "key": "GRID", "width": 100, "title": "GRID" },
+      { "key": "gender", "width": 100, "title": "Gender" },
+      { "key": "race", "width": 100, "title": "Race" },
+      { "key": "ethnicity", "width": 100, "title": "Ethnicity" },
+      { "key": "age", "width": 60, "title": "Age" }
+    ],
+    "attributes": [
+      {
+        "title": "Gender",
+        "key": "gender"
+      },
+      {
+        "title": "Age",
+        "key": "age"
+      },
+      {
+        "title": "Race",
+        "key": "race"
+      },
+      {
+        "title": "Ethnicity",
+        "key": "ethnicity"
+      }
+    ],
+    "pages": [
+      {
+        "type": "entityTable",
+        "id": "condition",
+        "title": "Conditions",
+        "plugin": {
+          "entity": "conditionOccurrence",
+          "columns": [
+            {
+              "key": "condition",
+              "width": "100%",
+              "title": "Condition name",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "start_date",
+              "width": 200,
+              "title": "Start date",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "end_date",
+              "width": 200,
+              "title": "End date",
+              "sortable": true,
+              "filterable": true
+            }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "procedure",
+        "title": "Procedures",
+        "plugin": {
+          "entity": "procedureOccurrence",
+          "columns": [
+            {
+              "key": "procedure",
+              "width": "100%",
+              "title": "Procedure name",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "observation",
+        "title": "Observations",
+        "plugin": {
+          "entity": "observationOccurrence",
+          "columns": [
+            {
+              "key": "observation",
+              "width": "100%",
+              "title": "Observation name",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "ingredient",
+        "title": "Drugs",
+        "plugin": {
+          "entity": "ingredientOccurrence",
+          "columns": [
+            {
+              "key": "ingredient",
+              "width": "100%",
+              "title": "Drug name",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "start_date",
+              "width": 200,
+              "title": "Start date",
+              "sortable": true
+            },
+            {
+              "key": "end_date",
+              "width": 200,
+              "title": "End date",
+              "sortable": true
+            }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "measurements",
+        "title": "Labs and measurements",
+        "plugin": {
+          "entity": "measurementOccurrence",
+          "columns": [
+            {
+              "key": "measurement",
+              "width": "100%",
+              "title": "Lab/measurement name",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "date", "width": 200, "title": "Date", "sortable": true },
+            {
+              "key": "value_enum",
+              "width": 160,
+              "title": "Categorical value",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "value_numeric",
+              "width": 160,
+              "title": "Numeric value",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "unit", "width": 160, "title": "Unit", "sortable": true }
+          ]
+        }
+      },
+      {
+        "type": "textSearch",
+        "id": "notes",
+        "title": "Documents",
+        "plugin": {
+          "entity": "noteOccurrence",
+          "title": "title",
+          "subtitles": ["note", "start_date"],
+          "text": "note_text",
+          "categoryAttribute": "note",
+          "sortOrder": {
+            "attribute": "date",
+            "direction": "ASC"
+          }
+        }
+      }
+    ]
+  }
+}
