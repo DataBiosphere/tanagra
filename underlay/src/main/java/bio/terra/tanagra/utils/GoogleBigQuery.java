@@ -273,10 +273,12 @@ public final class GoogleBigQuery {
             .setCompression(compression)
             .setFormat(fileFormat)
             .build();
-    Job job = bigQuery.create(JobInfo.of(extractConfig));
 
     // Blocks until this job completes its execution, either failing or succeeding.
-    return callWithRetries(() -> job.waitFor(), "Retryable error running query");
+    return callWithRetries(() -> {
+      Job job = bigQuery.create(JobInfo.of(extractConfig));
+      return job.waitFor();
+    }, "Retryable error running query");
   }
 
   /**
@@ -342,8 +344,6 @@ public final class GoogleBigQuery {
    */
   public TableResult queryBigQuery(
       QueryJobConfiguration queryConfig, @Nullable String pageToken, @Nullable Integer pageSize) {
-    Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
-
     List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
     queryResultsOptions.add(
         BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
@@ -353,17 +353,21 @@ public final class GoogleBigQuery {
     if (pageSize != null) {
       queryResultsOptions.add(BigQuery.QueryResultsOption.pageSize(pageSize));
     }
-
     return callWithRetries(
-        () -> job.getQueryResults(queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0])),
+        () -> {
+          Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
+          return job.getQueryResults(queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0]));
+        },
         "Error running BigQuery query: " + queryConfig.getQuery());
   }
 
   /** Get the job statistics for a query, without running it. Intended for dry running queries. */
   public JobStatistics.QueryStatistics queryStatistics(QueryJobConfiguration queryConfig) {
-    Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
     return callWithRetries(
-        () -> job.getStatistics(),
+        () -> {
+          Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
+          return job.getStatistics();
+        },
         "Error getting job statistics for query: " + queryConfig.getQuery());
   }
 
@@ -400,7 +404,6 @@ public final class GoogleBigQuery {
   }
 
   public int getNumRows(String projectId, String datasetId, String tableId) {
-
     return getNumRowsWhereFieldNotNull(projectId, datasetId, tableId, null);
   }
 
@@ -431,16 +434,16 @@ public final class GoogleBigQuery {
     if (!(ex instanceof BigQueryException)) {
       return false;
     }
-    LOGGER.error("Caught a BQ error.", ex);
     int statusCode = ((BigQueryException) ex).getCode();
+    LOGGER.error("Caught a BQ error (status code = {}).", statusCode, ex);
 
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
 
-        // retry forbidden errors because we often see propagation delays when a user is just
-        // granted access
+        // Retry forbidden errors because we often see propagation delays when a user is just
+        // granted access.
         || statusCode == HttpStatus.SC_FORBIDDEN;
   }
 
