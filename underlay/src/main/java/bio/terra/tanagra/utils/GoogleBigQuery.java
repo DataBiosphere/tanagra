@@ -275,10 +275,12 @@ public final class GoogleBigQuery {
             .build();
 
     // Blocks until this job completes its execution, either failing or succeeding.
-    return callWithRetries(() -> {
-      Job job = bigQuery.create(JobInfo.of(extractConfig));
-      return job.waitFor();
-    }, "Retryable error running query");
+    return callWithRetries(
+        () -> {
+          Job job = bigQuery.create(JobInfo.of(extractConfig));
+          return job.waitFor();
+        },
+        "Retryable error running query");
   }
 
   /**
@@ -356,7 +358,8 @@ public final class GoogleBigQuery {
     return callWithRetries(
         () -> {
           Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
-          return job.getQueryResults(queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0]));
+          return job.getQueryResults(
+              queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0]));
         },
         "Error running BigQuery query: " + queryConfig.getQuery());
   }
