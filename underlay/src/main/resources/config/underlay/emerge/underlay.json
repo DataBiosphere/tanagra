@@ -1,0 +1,124 @@
+{
+  "name": "emerge",
+  "primaryEntity": "person",
+  "entities": [
+    "sd/person",
+
+    "omop/condition",
+    "sd/conditionOccurrence",
+    "omop/procedure",
+    "sd/procedureOccurrence",
+
+    "omop/brand",
+    "omop/ingredient",
+    "sd/ingredientOccurrence",
+
+    "omop/measurementLoinc",
+    "omop/measurementSnomed",
+    "sd/measurementOccurrence",
+
+    "omop/observation",
+    "sd/observationOccurrence",
+    "omop/device",
+    "sd/deviceOccurrence",
+    "omop/visit",
+    "sd/visitOccurrence",
+
+    "omop/note",
+    "sd/noteOccurrence",
+    "sd/familyHistory",
+
+    "sd/cpt4",
+    "omop/icd9cm",
+    "omop/icd9proc",
+    "omop/icd10cm",
+    "omop/icd10pcs",
+    "sd/phewas",
+
+    "sd/genotyping",
+    "sd/snp",
+
+    "sd/bloodPressure",
+    "sd/bmi",
+    "sd/height",
+    "sd/weight",
+    "sd/pulse",
+    "sd/respiratoryRate"
+  ],
+  "groupItemsEntityGroups": [
+    "omop/brandIngredient",
+
+    "sd/familyHistoryPerson",
+
+    "sd/genotypingPerson",
+    "sd/snpPerson",
+
+    "sd/bloodPressurePerson",
+    "sd/bmiPerson",
+    "sd/heightPerson",
+    "sd/weightPerson",
+    "sd/pulsePerson",
+    "sd/respiratoryRatePerson"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "omop/conditionPerson",
+    "omop/procedurePerson",
+
+    "omop/ingredientPerson",
+
+    "omop/measurementLoincPerson",
+    "omop/measurementSnomedPerson",
+
+    "omop/observationPerson",
+    "omop/devicePerson",
+    "omop/visitPerson",
+
+    "omop/notePerson",
+
+    "sd/cpt4Person",
+    "omop/icd9cmPerson",
+    "omop/icd9procPerson",
+    "omop/icd10cmPerson",
+    "omop/icd10pcsPerson",
+    "sd/phewasPerson"
+  ],
+  "criteriaSelectors": [
+    "sd/ethnicity",
+    "sd/gender",
+    "sd/race",
+    "sd/age",
+    "sd/bioVU",
+    "sd/bioVUPlasma",
+    "sd/genotyping",
+    "sd/measurement",
+    "sd/documents",
+    "sd/conditions",
+    "sd/phewas",
+    "sd/cpt4",
+    "sd/icd9CM",
+    "sd/icd9Proc",
+    "sd/icd10CM",
+    "sd/icd10PCS",
+    "sd/procedures",
+    "sd/observations",
+    "sd/drugs",
+    "sd/bmi",
+    "sd/bloodPressure",
+    "sd/height",
+    "sd/weight",
+    "sd/pulse",
+    "sd/respRate",
+    "sd/outputUnfiltered"
+  ],
+  "prepackagedDataFeatures": [
+    "sd/_demographics"
+  ],
+  "metadata": {
+    "displayName": "Synthetic Derivative Discover Dataset",
+    "description": "Dataset Updated August 31, 2023",
+    "properties": {
+      "lastUpdated": "08/31/23"
+    }
+  },
+  "uiConfigFile": "ui.json"
+}
