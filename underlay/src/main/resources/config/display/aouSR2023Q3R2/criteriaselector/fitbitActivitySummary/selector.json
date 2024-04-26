@@ -8,7 +8,7 @@
     "tags": null
   },
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
-  "plugin": "outputUnfiltered",
+  "plugin": "attribute",
   "pluginConfig": null,
   "pluginConfigFile": "fitbitActivitySummary.json",
   "modifiers": null

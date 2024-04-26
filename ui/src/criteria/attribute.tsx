@@ -23,6 +23,7 @@ import * as configProto from "proto/criteriaselector/configschema/attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/attribute";
 import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
+import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { base64ToBytes } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 
@@ -319,7 +320,7 @@ function AttributeInline(props: AttributeInlineProps) {
     );
   };
 
-  return (
+  return attribute.dataType === tanagraUnderlay.SZDataType.BOOLEAN ? null : (
     <Loading status={hintDataState}>
       <Box>
         <Stack spacing={1}>{listRanges()}</Stack>
