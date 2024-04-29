@@ -1,0 +1,32 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Age: 20-24",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-age",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"DClglggx\",\"min\":20,\"max\":24}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Pulse: (any)",
+    "criteria": [{
+      "selectorOrModifierName": "tanagra-pulse",
+      "selectionData": "{}",
+      "pluginVersion": 0,
+      "pluginConfig": "{\n  \"entity\": \"pulse\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"value_numeric\",\n      \"unit\": \"bpm\"\n    }\n  ]\n}",
+      "pluginName": "multiAttribute"
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "pulse",
+    "numRows": "1111709"
+  }]
+}

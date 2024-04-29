@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Gender identity: FEMALE",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-gender",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":8532},\"name\":\"FEMALE\"}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"gender\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "2028135"
+  }]
+}

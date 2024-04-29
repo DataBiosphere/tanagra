@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Height: Raw, 145-170",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-height",
+          "selectionData": "{\"valueData\":[{\"attribute\":\"is_clean\",\"selected\":[{\"value\":{\"int64Value\":0},\"name\":\"Raw\"}],\"range\":{\"min\":-9007199254740991,\"max\":9007199254740991}},{\"attribute\":\"value_numeric\",\"numeric\":true,\"range\":{\"min\":145,\"max\":170}}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"entity\": \"height\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"is_clean\",\n      \"title\": \"Cleanliness\"\n    },\n    {\n      \"attribute\": \"value_numeric\",\n      \"unit\": \"cm\"\n    }\n  ]\n}",
+          "pluginName": "multiAttribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "60300"
+  }]
+}

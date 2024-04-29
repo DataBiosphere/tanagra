@@ -1,0 +1,32 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Age: 20-24",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-age",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"DClglggx\",\"min\":20,\"max\":24}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Blood pressure: (any)",
+    "criteria": [{
+      "selectorOrModifierName": "tanagra-blood-pressure",
+      "selectionData": "{}",
+      "pluginVersion": 0,
+      "pluginConfig": "{\n  \"entity\": \"bloodPressure\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"status_code\",\n      \"title\": \"Category\"\n    },\n    {\n      \"attribute\": \"systolic\",\n      \"title\": \"Systolic\"\n    },\n    {\n      \"attribute\": \"diastolic\",\n      \"title\": \"Diastolic\"\n    }\n  ]\n}",
+      "pluginName": "multiAttribute"
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "bloodPressure",
+    "numRows": "4048846"
+  }]
+}

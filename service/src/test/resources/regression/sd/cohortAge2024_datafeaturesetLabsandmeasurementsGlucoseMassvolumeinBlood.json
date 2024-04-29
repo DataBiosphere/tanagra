@@ -1,0 +1,32 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Age: 20-24",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-age",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"DClglggx\",\"min\":20,\"max\":24}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Labs and measurements: Glucose [Mass/volume] in Blood",
+    "criteria": [{
+      "selectorOrModifierName": "tanagra-measurement",
+      "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":3000483},\"name\":\"Glucose [Mass/volume] in Blood\",\"entityGroup\":\"measurementLoincPerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
+      "pluginVersion": 0,
+      "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_item_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_item_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"measurementLoincPerson\"\n    },\n    {\n      \"id\": \"measurementSnomedPerson\"\n    }\n  ],\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"value_enum\",\n      \"title\": \"Categorical value\"\n    },\n    {\n      \"attribute\": \"value_numeric\",\n      \"title\": \"Numeric value\"\n    }\n  ],\n  \"defaultSort\": {\n    \"attribute\": \"t_item_count\",\n    \"direction\": \"SORT_ORDER_DIRECTION_DESCENDING\"\n  }\n}",
+      "pluginName": "entityGroup"
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "measurementOccurrence",
+    "numRows": "84709"
+  }]
+}

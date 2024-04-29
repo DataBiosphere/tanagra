@@ -1,0 +1,47 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Condition: Type 2 diabetes mellitus, Age at occurrence 60-80, Visit type Outpatient, Occurrence count \u003e\u003d2",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-conditions",
+          "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":201826},\"name\":\"Type 2 diabetes mellitus\",\"entityGroup\":\"conditionPerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 150,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 150,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"conditionPerson\"\n    }\n  ],\n  \"multiSelect\": true\n}",
+          "pluginName": "entityGroup"
+        }, {
+          "selectorOrModifierName": "ageAtOccurrence",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"7NWupKYL\",\"min\":60,\"max\":80}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age_at_occurrence\"\n}",
+          "pluginName": "attribute"
+        }, {
+          "selectorOrModifierName": "visitType",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":9202},\"name\":\"Outpatient Visit\"}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"visit_type\"\n}",
+          "pluginName": "attribute"
+        }, {
+          "selectorOrModifierName": "startDateGroupByCount",
+          "selectionData": "{\"operator\":\"COMPARISON_OPERATOR_GREATER_THAN_EQUAL\",\"min\":2,\"max\":10}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"groupByCount\": true,\n  \"attributes\": {\n    \"conditionOccurrence\": {\n      \"values\": [\n        \"start_date\",\n        \"condition\"\n      ]\n    }\n  }\n}\n",
+          "pluginName": "unhinted-value"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "50574"
+  }]
+}
