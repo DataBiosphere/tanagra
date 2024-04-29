@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Ethnicity: Hispanic or Latino",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-ethnicity",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":38003563},\"name\":\"Hispanic or Latino\"}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"ethnicity\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "154473"
+  }]
+}

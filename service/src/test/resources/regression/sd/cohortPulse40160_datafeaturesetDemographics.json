@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Pulse: 40-160",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-pulse",
+          "selectionData": "{\"valueData\":[{\"attribute\":\"value_numeric\",\"numeric\":true,\"range\":{\"min\":40,\"max\":160}}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"entity\": \"pulse\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"value_numeric\",\n      \"unit\": \"bpm\"\n    }\n  ]\n}",
+          "pluginName": "multiAttribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "1555900"
+  }]
+}

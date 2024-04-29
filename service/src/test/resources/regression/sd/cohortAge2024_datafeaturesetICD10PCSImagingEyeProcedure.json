@@ -1,0 +1,33 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Age: 20-24",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-age",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"DClglggx\",\"min\":20,\"max\":24}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "ICD-10-PCS: Imaging @ Eye (Procedure)",
+    "criteria": [{
+      "selectorOrModifierName": "tanagra-icd10pcs",
+      "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":2873468},\"name\":\"Imaging @ Eye (Procedure)\",\"entityGroup\":\"icd10pcsPerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
+      "pluginVersion": 0,
+      "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 150,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 150,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"icd10pcsPerson\",\n      \"sortOrder\": {\n        \"attribute\": \"concept_code\",\n        \"direction\": \"SORT_ORDER_DIRECTION_ASCENDING\"\n      }\n    }\n  ],\n  \"multiSelect\": true\n}",
+      "pluginName": "entityGroup"
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "ingredientOccurrence"
+  }, {
+    "entity": "procedureOccurrence"
+  }]
+}
