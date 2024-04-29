@@ -123,7 +123,7 @@ class _ implements CriteriaPlugin<string> {
 
   generateFilter() {
     const decodedData = decodeData(this.data);
-
+    console.log(decodedData);
     return {
       type: FilterType.Attribute,
       attribute: this.config.attribute,
