@@ -1,0 +1,29 @@
+{
+  "underlay": "cmssynpuf",
+  "cohorts": [{
+    "displayName": "Condition: Diabetes mellitus",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-conditions",
+          "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":201820},\"name\":\"Diabetes mellitus\",\"entityGroup\":\"conditionPerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"conditionPerson\"\n    }\n  ]\n}",
+          "pluginName": "entityGroup"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "1593269"
+  }]
+}

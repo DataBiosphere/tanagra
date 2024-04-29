@@ -1,0 +1,41 @@
+{
+  "underlay": "cmssynpuf",
+  "cohorts": [{
+    "displayName": "Observation: H/O: artificial joint, Age at occurrence 24-32, Occurrence count \u003e\u003d3",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-observations",
+          "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":4058431},\"name\":\"H/O: artificial joint\",\"entityGroup\":\"observationPerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"observationPerson\"\n    }\n  ]\n}",
+          "pluginName": "entityGroup"
+        }, {
+          "selectorOrModifierName": "ageAtOccurrence",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"O5T7LBXT\",\"min\":24,\"max\":32}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age_at_occurrence\"\n}",
+          "pluginName": "attribute"
+        }, {
+          "selectorOrModifierName": "dateGroupByCount",
+          "selectionData": "{\"operator\":\"COMPARISON_OPERATOR_GREATER_THAN_EQUAL\",\"min\":3,\"max\":10}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"groupByCount\": true,\n  \"attributes\": {\n    \"observationOccurrence\": {\n      \"values\": [\n        \"date\",\n        \"observation\"\n      ]\n    }\n  }\n}\n",
+          "pluginName": "unhinted-value"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "268"
+  }]
+}

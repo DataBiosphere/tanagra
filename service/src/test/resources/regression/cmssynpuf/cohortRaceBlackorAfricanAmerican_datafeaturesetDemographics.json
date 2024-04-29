@@ -1,0 +1,29 @@
+{
+  "underlay": "cmssynpuf",
+  "cohorts": [{
+    "displayName": "Race: Black or African American",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-race",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":8516},\"name\":\"Black or African American\"}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"race\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "247723"
+  }]
+}

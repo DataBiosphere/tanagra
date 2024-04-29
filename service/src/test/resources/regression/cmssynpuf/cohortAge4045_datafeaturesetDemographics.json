@@ -1,23 +1,12 @@
 {
   "underlay": "cmssynpuf",
   "cohorts": [{
-    "displayName": "men 50-65",
+    "displayName": "Age: 40 - 45",
     "criteriaGroupSections": [{
       "criteriaGroups": [{
         "criteria": [{
-          "selectorOrModifierName": "tanagra-gender",
-          "selectionData": "CgsKAxC7QhIETUFMRQ\u003d\u003d",
-          "pluginVersion": 0,
-          "pluginConfig": "{\n  \"attribute\": \"gender\"\n}",
-          "pluginName": "attribute"
-        }]
-      }],
-      "operator": "OR"
-    }, {
-      "criteriaGroups": [{
-        "criteria": [{
           "selectorOrModifierName": "tanagra-age",
-          "selectionData": "EhwKCDdNVFkwaDdaEQAAAAAAAElAGQAAAAAAQFBA",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"GD8p3XkP\",\"min\":40,\"max\":45}]}",
           "pluginVersion": 0,
           "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
           "pluginName": "attribute"
@@ -27,7 +16,7 @@
     }]
   }],
   "dataFeatureSets": [{
-    "displayName": "demographics",
+    "displayName": "Demographics",
     "criteria": [{
       "predefinedId": "_demographics",
       "selectionData": ""
@@ -35,6 +24,6 @@
   }],
   "entityOutputCounts": [{
     "entity": "person",
-    "numRows": "66396"
+    "numRows": "18140"
   }]
 }
