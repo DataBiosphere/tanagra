@@ -1,50 +1,14 @@
 {
   "underlay": "cmssynpuf",
   "cohorts": [{
-    "displayName": "men 50-65",
+    "displayName": "Gender identity: FEMALE",
     "criteriaGroupSections": [{
       "criteriaGroups": [{
         "criteria": [{
           "selectorOrModifierName": "tanagra-gender",
-          "selectionData": "CgsKAxC7QhIETUFMRQ\u003d\u003d",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":8532},\"name\":\"FEMALE\"}]}",
           "pluginVersion": 0,
           "pluginConfig": "{\n  \"attribute\": \"gender\"\n}",
-          "pluginName": "attribute"
-        }]
-      }],
-      "operator": "OR"
-    }, {
-      "criteriaGroups": [{
-        "criteria": [{
-          "selectorOrModifierName": "tanagra-age",
-          "selectionData": "EhwKCDdNVFkwaDdaEQAAAAAAAElAGQAAAAAAQFBA",
-          "pluginVersion": 0,
-          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
-          "pluginName": "attribute"
-        }]
-      }],
-      "operator": "OR"
-    }]
-  }, {
-    "displayName": "women 40-65",
-    "criteriaGroupSections": [{
-      "criteriaGroups": [{
-        "criteria": [{
-          "selectorOrModifierName": "tanagra-gender",
-          "selectionData": "Cg0KAxDUQhIGRkVNQUxF",
-          "pluginVersion": 0,
-          "pluginConfig": "{\n  \"attribute\": \"gender\"\n}",
-          "pluginName": "attribute"
-        }]
-      }],
-      "operator": "OR"
-    }, {
-      "criteriaGroups": [{
-        "criteria": [{
-          "selectorOrModifierName": "tanagra-age",
-          "selectionData": "EhwKCG5EWTVJNWpREQAAAAAAAERAGQAAAAAAQFBA",
-          "pluginVersion": 0,
-          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
           "pluginName": "attribute"
         }]
       }],
@@ -52,10 +16,10 @@
     }]
   }],
   "dataFeatureSets": [{
-    "displayName": "type 2 diabetes",
+    "displayName": "Condition: Diabetes mellitus",
     "criteria": [{
       "selectorOrModifierName": "tanagra-conditions",
-      "selectionData": "CjEKBBDiqAwSGFR5cGUgMiBkaWFiZXRlcyBtZWxsaXR1cxoPY29uZGl0aW9uUGVyc29uEgkKBXRfYW55IgA\u003d",
+      "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":201820},\"name\":\"Diabetes mellitus\",\"entityGroup\":\"conditionPerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
       "pluginVersion": 0,
       "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"conditionPerson\"\n    }\n  ]\n}",
       "pluginName": "entityGroup"
@@ -63,6 +27,6 @@
   }],
   "entityOutputCounts": [{
     "entity": "conditionOccurrence",
-    "numRows": "728024"
+    "numRows": "8142962"
   }]
 }
