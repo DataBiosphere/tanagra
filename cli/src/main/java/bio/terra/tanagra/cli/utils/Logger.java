@@ -40,6 +40,7 @@ public final class Logger {
           "An NPE would only happen here if there was an error getting the global context directory,"
               + " and an exception would have been thrown earlier when we first read in the global "
               + "context file anyway.")
+  @SuppressWarnings("unchecked")
   public static void setupLogging(LogLevel consoleLoggingLevel, LogLevel fileLoggingLevel) {
     LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
     loggerContext.reset();
@@ -126,6 +127,7 @@ public final class Logger {
    * @param loggerContext global logger context object
    * @param loggingLevel logging level particular to this appender
    */
+  @SuppressWarnings("unchecked")
   private static void setupEncoderAndFilter(
       OutputStreamAppender appender, LoggerContext loggerContext, Level loggingLevel) {
     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
