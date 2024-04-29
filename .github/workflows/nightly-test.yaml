@@ -15,7 +15,7 @@ jobs:
         company-and-underlay: [ "broad/aou_synthetic", "broad/cms_synpuf" ]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Pull credentials
       id: pull_credentials
       run: |

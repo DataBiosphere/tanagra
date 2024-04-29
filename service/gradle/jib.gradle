@@ -1,6 +1,6 @@
 jib {
     from {
-        image = "adoptopenjdk:11-jre-hotspot"
+        image = "adoptopenjdk:17-jre-hotspot"
     }
     container {
         mainClass = "bio.terra.tanagra.app.Main"

@@ -5,7 +5,7 @@
 ## Usage: source tools/local-dev.sh
 
 function check_java_version() {
-  local REQ_JAVA_VERSION=11
+  local REQ_JAVA_VERSION=17
 
   echo "--  Checking if installed Java version is ${REQ_JAVA_VERSION} or higher"
   if [[ -n "$(which java)" ]]; then
