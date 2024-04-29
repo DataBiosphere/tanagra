@@ -515,9 +515,11 @@ public class BQQueryRunner implements QueryRunner {
                 enumValues.put(attribute, enumValuesForAttr);
               } else {
                 // This is a range hint.
-                double min = sqlRowResult.get(minColName, DataType.DOUBLE).getDoubleVal();
-                double max = sqlRowResult.get(maxColName, DataType.DOUBLE).getDoubleVal();
-                hintInstances.add(new HintInstance(attribute, min, max));
+                Double min = sqlRowResult.get(minColName, DataType.DOUBLE).getDoubleVal();
+                Double max = sqlRowResult.get(maxColName, DataType.DOUBLE).getDoubleVal();
+                if (min != null && max != null) {
+                  hintInstances.add(new HintInstance(attribute, min, max));
+                }
               }
             });
     // Assemble the value/count pairs into a single enum values hint for each attribute.
