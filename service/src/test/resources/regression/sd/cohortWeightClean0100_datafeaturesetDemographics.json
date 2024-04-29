@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Weight: Clean, 0-100",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-weight",
+          "selectionData": "{\"valueData\":[{\"attribute\":\"is_clean\",\"selected\":[{\"value\":{\"int64Value\":1},\"name\":\"Clean\"}],\"range\":{\"min\":-9007199254740991,\"max\":9007199254740991}},{\"attribute\":\"value_numeric\",\"numeric\":true,\"range\":{\"max\":100}}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"entity\": \"weight\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"is_clean\",\n      \"title\": \"Cleanliness\"\n    },\n    {\n      \"attribute\": \"value_numeric\",\n      \"unit\": \"kg\"\n    }\n  ]\n}",
+          "pluginName": "multiAttribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "2304146"
+  }]
+}

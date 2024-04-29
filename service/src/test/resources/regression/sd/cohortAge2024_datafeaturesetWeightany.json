@@ -1,0 +1,32 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Age: 20-24",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-age",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"DClglggx\",\"min\":20,\"max\":24}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Weight: (any)",
+    "criteria": [{
+      "selectorOrModifierName": "tanagra-weight",
+      "selectionData": "{}",
+      "pluginVersion": 0,
+      "pluginConfig": "{\n  \"entity\": \"weight\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"is_clean\",\n      \"title\": \"Cleanliness\"\n    },\n    {\n      \"attribute\": \"value_numeric\",\n      \"unit\": \"kg\"\n    }\n  ]\n}",
+      "pluginName": "multiAttribute"
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "weight",
+    "numRows": "1849963"
+  }]
+}

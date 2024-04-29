@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Observation: Requires influenza virus vaccination",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-observations",
+          "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":44784283},\"name\":\"Requires influenza virus vaccination\",\"entityGroup\":\"observationPerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_item_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_item_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"observationPerson\"\n    }\n  ]\n}",
+          "pluginName": "entityGroup"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "144086"
+  }]
+}

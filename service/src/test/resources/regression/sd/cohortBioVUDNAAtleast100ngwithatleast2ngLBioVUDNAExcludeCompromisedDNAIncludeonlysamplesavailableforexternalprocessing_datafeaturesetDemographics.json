@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "BioVU DNA: At least 100ng with at least 2 ng/µL BioVU DNA, Exclude Compromised DNA, Include only samples available for external processing",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "biovu",
+          "selectionData": "CAIQARgB",
+          "pluginVersion": 0,
+          "pluginConfig": "{}",
+          "pluginName": "biovu"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "305380"
+  }]
+}

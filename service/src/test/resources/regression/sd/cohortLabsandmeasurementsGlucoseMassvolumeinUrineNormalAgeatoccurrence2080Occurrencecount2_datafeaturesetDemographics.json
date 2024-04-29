@@ -1,0 +1,41 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Labs and measurements: Glucose [Mass/volume] in Urine, Normal, Age at occurrence 20-80, Occurrence count \u003e\u003d2",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-measurement",
+          "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":3020399},\"name\":\"Glucose [Mass/volume] in Urine\",\"entityGroup\":\"measurementLoincPerson\"}],\"valueData\":{\"attribute\":\"value_enum\",\"selected\":[{\"value\":{\"int64Value\":45884153},\"name\":\"Normal\"}],\"range\":{\"min\":-9007199254740991,\"max\":9007199254740991}}}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_item_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 120,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 180,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_item_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"measurementLoincPerson\"\n    },\n    {\n      \"id\": \"measurementSnomedPerson\"\n    }\n  ],\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"value_enum\",\n      \"title\": \"Categorical value\"\n    },\n    {\n      \"attribute\": \"value_numeric\",\n      \"title\": \"Numeric value\"\n    }\n  ],\n  \"defaultSort\": {\n    \"attribute\": \"t_item_count\",\n    \"direction\": \"SORT_ORDER_DIRECTION_DESCENDING\"\n  }\n}",
+          "pluginName": "entityGroup"
+        }, {
+          "selectorOrModifierName": "ageAtOccurrence",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"smcoaWyu\",\"min\":20,\"max\":80}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age_at_occurrence\"\n}",
+          "pluginName": "attribute"
+        }, {
+          "selectorOrModifierName": "startDateGroupByCount",
+          "selectionData": "{\"operator\":\"COMPARISON_OPERATOR_GREATER_THAN_EQUAL\",\"min\":2,\"max\":10}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"groupByCount\": true,\n  \"attributes\": {\n    \"measurementOccurrence\": {\n      \"values\": [\n        \"start_date\",\n        \"measurement\"\n      ]\n    }\n  }\n}\n",
+          "pluginName": "unhinted-value"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "1"
+  }]
+}
