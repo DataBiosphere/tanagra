@@ -166,7 +166,10 @@ public final class ToApiUtils {
             listQueryResult.getPageMarker() == null
                 ? null
                 : listQueryResult.getPageMarker().serialize())
-        .numRowsAcrossAllPages(Math.toIntExact(listQueryResult.getNumRowsAcrossAllPages()));
+        .numRowsAcrossAllPages(
+            listQueryResult.getNumRowsAcrossAllPages() == null
+                ? null
+                : Math.toIntExact(listQueryResult.getNumRowsAcrossAllPages()));
   }
 
   private static ApiInstance toApiObject(ListInstance listInstance) {
@@ -191,7 +194,10 @@ public final class ToApiUtils {
                 getHierarchyFieldSet(
                         hierarchyFieldSets,
                         ((HierarchyNumChildrenField) field).getHierarchy().getName())
-                    .setNumChildren(Math.toIntExact(value.getValue().getInt64Val()));
+                    .setNumChildren(
+                        value.getValue().getInt64Val() == null
+                            ? null
+                            : Math.toIntExact(value.getValue().getInt64Val()));
               } else if (field instanceof HierarchyIsRootField) {
                 getHierarchyFieldSet(
                         hierarchyFieldSets, ((HierarchyIsRootField) field).getHierarchy().getName())
@@ -210,7 +216,10 @@ public final class ToApiUtils {
                             countField.getHierarchy() == null
                                 ? null
                                 : countField.getHierarchy().getName())
-                        .count(Math.toIntExact(value.getValue().getInt64Val())));
+                        .count(
+                            value.getValue().getInt64Val() == null
+                                ? null
+                                : Math.toIntExact(value.getValue().getInt64Val())));
               }
             });
     return new ApiInstance()
@@ -238,7 +247,10 @@ public final class ToApiUtils {
             countQueryResult.getPageMarker() == null
                 ? null
                 : countQueryResult.getPageMarker().serialize())
-        .numRowsAcrossAllPages(Math.toIntExact(countQueryResult.getNumRowsAcrossAllPages()));
+        .numRowsAcrossAllPages(
+            countQueryResult.getNumRowsAcrossAllPages() == null
+                ? null
+                : Math.toIntExact(countQueryResult.getNumRowsAcrossAllPages()));
   }
 
   public static ApiInstanceCount toApiObject(CountInstance countInstance) {
