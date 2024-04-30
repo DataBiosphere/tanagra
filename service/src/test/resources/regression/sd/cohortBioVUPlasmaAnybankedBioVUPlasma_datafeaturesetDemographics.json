@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "BioVU Plasma: Any banked BioVU Plasma",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "biovu-plasma",
+          "selectionData": "CAE\u003d",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"plasmaFilter\": true\n}",
+          "pluginName": "biovu"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "2576"
+  }]
+}

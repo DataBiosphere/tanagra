@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Blood pressure: Normal, Systolic 120-129, Diastolic 80-84",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-blood-pressure",
+          "selectionData": "{\"valueData\":[{\"attribute\":\"status_code\",\"selected\":[{\"value\":{\"int64Value\":4},\"name\":\"Normal\"}],\"range\":{\"min\":-9007199254740991,\"max\":9007199254740991}},{\"attribute\":\"systolic\",\"numeric\":true,\"range\":{\"min\":120,\"max\":129}},{\"attribute\":\"diastolic\",\"numeric\":true,\"range\":{\"min\":80,\"max\":84}}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"entity\": \"bloodPressure\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"status_code\",\n      \"title\": \"Category\"\n    },\n    {\n      \"attribute\": \"systolic\",\n      \"title\": \"Systolic\"\n    },\n    {\n      \"attribute\": \"diastolic\",\n      \"title\": \"Diastolic\"\n    }\n  ]\n}",
+          "pluginName": "multiAttribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "145503"
+  }]
+}

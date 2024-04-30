@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Race: PACIFIC ISLAND",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-race",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":2001173109},\"name\":\"PACIFIC ISLAND\"}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"race\"\n}",
+          "pluginName": "attribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "557"
+  }]
+}

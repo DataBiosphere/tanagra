@@ -1,0 +1,41 @@
+{
+  "underlay": "cmssynpuf",
+  "cohorts": [{
+    "displayName": "Procedure: Yellow fever screening, Age at occurrence 30-34, Occurrence count \u003e\u003d1",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-procedures",
+          "selectionData": "{\"selected\":[{\"key\":{\"int64Key\":4064902},\"name\":\"Yellow fever screening\",\"entityGroup\":\"procedurePerson\"}],\"valueData\":{\"attribute\":\"t_any\",\"range\":{}}}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"columns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"hierarchyColumns\": [\n    {\n      \"key\": \"name\",\n      \"widthString\": \"100%\",\n      \"title\": \"Concept name\"\n    },\n    {\n      \"key\": \"id\",\n      \"widthDouble\": 100,\n      \"title\": \"Concept ID\"\n    },\n    {\n      \"key\": \"standard_concept\",\n      \"widthDouble\": 120,\n      \"title\": \"Source/standard\"\n    },\n    {\n      \"key\": \"vocabulary_t_value\",\n      \"widthDouble\": 120,\n      \"title\": \"Vocab\"\n    },\n    {\n      \"key\": \"concept_code\",\n      \"widthDouble\": 120,\n      \"title\": \"Code\"\n    },\n    {\n      \"key\": \"t_rollup_count\",\n      \"widthDouble\": 120,\n      \"title\": \"Roll-up count\"\n    }\n  ],\n  \"classificationEntityGroups\": [\n    {\n      \"id\": \"procedurePerson\"\n    }\n  ]\n}",
+          "pluginName": "entityGroup"
+        }, {
+          "selectorOrModifierName": "ageAtOccurrence",
+          "selectionData": "{\"dataRanges\":[{\"id\":\"7DkG9rwj\",\"min\":30,\"max\":34}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"age_at_occurrence\"\n}",
+          "pluginName": "attribute"
+        }, {
+          "selectorOrModifierName": "dateGroupByCount",
+          "selectionData": "{\"operator\":\"COMPARISON_OPERATOR_GREATER_THAN_EQUAL\",\"min\":1,\"max\":10}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"groupByCount\": true,\n  \"attributes\": {\n    \"procedureOccurrence\": {\n      \"values\": [\n        \"date\",\n        \"procedure\"\n      ]\n    }\n  }\n}\n",
+          "pluginName": "unhinted-value"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "77"
+  }]
+}

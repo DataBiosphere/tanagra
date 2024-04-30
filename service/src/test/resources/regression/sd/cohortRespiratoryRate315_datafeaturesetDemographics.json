@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Respiratory Rate: 3-15",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-resp-rate",
+          "selectionData": "{\"valueData\":[{\"attribute\":\"value_numeric\",\"numeric\":true,\"range\":{\"min\":3,\"max\":15}}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"entity\": \"respiratoryRate\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"value_numeric\",\n      \"title\": \"Resp rate in br/min\",\n      \"unit\": \"br/min\"\n    }\n  ]\n}",
+          "pluginName": "multiAttribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "385754"
+  }]
+}

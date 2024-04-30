@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "BMI: Raw, 18-25",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-bmi",
+          "selectionData": "{\"valueData\":[{\"attribute\":\"is_clean\",\"selected\":[{\"value\":{\"int64Value\":0},\"name\":\"Raw\"}],\"range\":{\"min\":-9007199254740991,\"max\":9007199254740991}},{\"attribute\":\"value_numeric\",\"numeric\":true,\"range\":{\"min\":18,\"max\":25}}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"entity\": \"bmi\",\n  \"valueConfigs\": [\n    {\n      \"attribute\": \"is_clean\",\n      \"title\": \"Cleanliness\"\n    },\n    {\n      \"attribute\": \"value_numeric\",\n      \"unit\": \"kg/m^2\"\n    }\n  ]\n}",
+          "pluginName": "multiAttribute"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "986060"
+  }]
+}
