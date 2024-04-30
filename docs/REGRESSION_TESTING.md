@@ -78,9 +78,12 @@ How to trigger the tests depends on where your regression test files are stored.
 ## Build a test suite
 When building a regression test suite for a particular underlay/dataset, we recommend covering the various criteria 
 plugins, because they are configured separately per underlay. e.g.
-- One test per cohort criteria type (e.g. blood pressure, age) without modifiers. Use the demographics data feature only.
+- One test per cohort criteria type (e.g. blood pressure, gender) without modifiers. Use the demographics data feature 
+only.
 - One test per cohort criteria type with modifiers, if there are any. Use the demographics data feature only.
 - One test per data feature criteria type (e.g. ICD9-CM, weight). Use any cohort.
+- **DO NOT INCLUDE** criteria that are runtime-calculated and can change day-to-day (e.g. age) because we expect those
+counts to change over time.
 
 We also recommend including tests for any "notable" data, where your underlying dataset may be unique (e.g. a particular
 SQL schema or JOIN pattern that we haven't encountered before, or an unusual data range perhaps with many outliers).
