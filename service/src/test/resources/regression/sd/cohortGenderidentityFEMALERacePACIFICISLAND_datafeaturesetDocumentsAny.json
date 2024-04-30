@@ -1,0 +1,39 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Gender identity: FEMALE, Race: PACIFIC ISLAND",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-gender",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":8532},\"name\":\"FEMALE\"}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"gender\"\n}",
+          "pluginName": "attribute"
+        }]
+      }, {
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-race",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":2001173109},\"name\":\"PACIFIC ISLAND\"}]}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"attribute\": \"race\"\n}",
+          "pluginName": "attribute"
+        }]
+      }]
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Documents: Any",
+    "criteria": [{
+      "selectorOrModifierName": "tanagra-documents",
+      "selectionData": "{}",
+      "pluginVersion": 0,
+      "pluginConfig": "{\n  \"entity\": \"noteOccurrence\",\n  \"categoryAttribute\": \"note\"\n}",
+      "pluginName": "search"
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "noteOccurrence",
+    "numRows": "88487"
+  }]
+}
