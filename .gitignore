@@ -9,6 +9,7 @@ workflow/rendered/
 */bin
 tanagra-indexing.html
 diffReleases.txt
+ui/src/tanagra-underlay/
 
 ### Jenv ###
 .java-version
