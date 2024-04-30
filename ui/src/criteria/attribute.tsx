@@ -21,7 +21,7 @@ import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import * as configProto from "proto/criteriaselector/configschema/attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/attribute";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { base64ToBytes } from "util/base64";
@@ -123,7 +123,7 @@ class _ implements CriteriaPlugin<string> {
 
   generateFilter() {
     const decodedData = decodeData(this.data);
-    console.log(decodedData);
+
     return {
       type: FilterType.Attribute,
       attribute: this.config.attribute,
@@ -231,6 +231,21 @@ function AttributeInline(props: AttributeInlineProps) {
       `Attribute ${props.config.attribute} not found in "${entity.name}`
     );
   }
+
+  useEffect(() => {
+    if (attribute.dataType === tanagraUnderlay.SZDataType.BOOLEAN) {
+      updateCriteria(
+        produce(decodedData, (data) => {
+          data.selected = [
+            {
+              name: "",
+              value: true,
+            },
+          ];
+        })
+      );
+    }
+  }, []);
 
   const fetchHintData = useCallback(() => {
     return underlaySource.getHintData(entity.name, props.config.attribute);
