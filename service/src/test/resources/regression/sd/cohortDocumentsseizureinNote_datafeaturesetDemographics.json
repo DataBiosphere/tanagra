@@ -1,0 +1,29 @@
+{
+  "underlay": "sd",
+  "cohorts": [{
+    "displayName": "Documents: \"seizure\" in [Note]",
+    "criteriaGroupSections": [{
+      "criteriaGroups": [{
+        "criteria": [{
+          "selectorOrModifierName": "tanagra-documents",
+          "selectionData": "{\"categories\":[{\"value\":{\"int64Value\":44814645},\"name\":\"Note\"}],\"query\":\"seizure\"}",
+          "pluginVersion": 0,
+          "pluginConfig": "{\n  \"entity\": \"noteOccurrence\",\n  \"categoryAttribute\": \"note\"\n}",
+          "pluginName": "search"
+        }]
+      }],
+      "operator": "OR"
+    }]
+  }],
+  "dataFeatureSets": [{
+    "displayName": "Demographics",
+    "criteria": [{
+      "predefinedId": "_demographics",
+      "selectionData": ""
+    }]
+  }],
+  "entityOutputCounts": [{
+    "entity": "person",
+    "numRows": "269865"
+  }]
+}
