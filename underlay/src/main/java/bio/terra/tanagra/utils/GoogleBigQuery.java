@@ -437,17 +437,23 @@ public final class GoogleBigQuery {
     if (!(ex instanceof BigQueryException)) {
       return false;
     }
-    int statusCode = ((BigQueryException) ex).getCode();
+    BigQueryException bqEx = (BigQueryException) ex;
+    int statusCode = bqEx.getCode();
     LOGGER.error("Caught a BQ error (status code = {}).", statusCode, ex);
+
+    if (statusCode == HttpStatus.SC_FORBIDDEN) {
+      return !bqEx.getMessage()
+          .contains(
+              "Response too large to return. Consider specifying a destination table in your job configuration.");
+      // Retry other forbidden errors because we often see propagation delays when a user is just
+      // granted access.
+    }
 
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
-
-        // Retry forbidden errors because we often see propagation delays when a user is just
-        // granted access.
-        || statusCode == HttpStatus.SC_FORBIDDEN;
+        || bqEx.isRetryable();
   }
 
   /**
@@ -456,8 +462,8 @@ public final class GoogleBigQuery {
    * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the BQ client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the BQ client or the retries
    */
   private <T> T callWithRetries(
       RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
