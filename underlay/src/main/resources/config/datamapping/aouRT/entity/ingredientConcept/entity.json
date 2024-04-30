@@ -22,7 +22,7 @@
       "parentIdFieldName": "parent",
       "rootNodeIdsSqlFile": "rootNode.sql",
       "rootIdFieldName": "concept_id",
-      "maxDepth": 15,
+      "maxDepth": 8,
       "keepOrphanNodes": false,
       "cleanHierarchyNodesWithZeroCounts": true
     }
