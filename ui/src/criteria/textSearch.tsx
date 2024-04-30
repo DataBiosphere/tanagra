@@ -53,11 +53,7 @@ class _ implements CriteriaPlugin<string> {
   constructor(public id: string, selector: CommonSelectorConfig, data: string) {
     this.selector = selector;
     this.config = decodeConfig(selector);
-    try {
-      this.data = encodeData(JSON.parse(data));
-    } catch (e) {
-      this.data = data;
-    }
+    this.data = data;
   }
 
   renderInline(groupId: string) {
