@@ -21,7 +21,7 @@ import { useUpdateCriteria } from "hooks";
 import produce from "immer";
 import * as configProto from "proto/criteriaselector/configschema/attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/attribute";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { base64ToBytes } from "util/base64";
@@ -121,13 +121,21 @@ class _ implements CriteriaPlugin<string> {
     };
   }
 
-  generateFilter() {
+  generateFilter(occurrenceId: string, underlaySource: UnderlaySource) {
     const decodedData = decodeData(this.data);
+
+    const entity = underlaySource.lookupEntity(this.entity ?? "");
+    const attribute = entity.attributes.find(
+      (a) => a.name === this.config.attribute
+    );
 
     return {
       type: FilterType.Attribute,
       attribute: this.config.attribute,
-      values: decodedData.selected?.map(({ value }) => value),
+      values:
+        attribute?.dataType === tanagraUnderlay.SZDataType.BOOLEAN
+          ? [true]
+          : decodedData.selected?.map(({ value }) => value),
       ranges: decodedData.dataRanges,
     };
   }
@@ -231,21 +239,6 @@ function AttributeInline(props: AttributeInlineProps) {
       `Attribute ${props.config.attribute} not found in "${entity.name}`
     );
   }
-
-  useEffect(() => {
-    if (attribute.dataType === tanagraUnderlay.SZDataType.BOOLEAN) {
-      updateCriteria(
-        produce(decodedData, (data) => {
-          data.selected = [
-            {
-              name: "",
-              value: true,
-            },
-          ];
-        })
-      );
-    }
-  }, []);
 
   const fetchHintData = useCallback(() => {
     return underlaySource.getHintData(entity.name, props.config.attribute);
