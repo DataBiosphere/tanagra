@@ -10,13 +10,18 @@ swaggerSources {
             outputDir = file(openapiOutputDir)
             components = ["models", "apis"]
             rawOptions = [
-                '--api-package', "${artifactGroup}.generated.controller",
-                '--model-package', "${artifactGroup}.generated.model",
-                '--model-name-prefix', 'Api',
-                '--additional-properties', 'errorOnUnknownEnum=true',
-                '-D', 'interfaceOnly=true,' +
-                        'useTags=true,' +
-                        'dateLibrary=java8,'
+                '--api-package',
+                "${artifactGroup}.generated.controller",
+                '--model-package',
+                "${artifactGroup}.generated.model",
+                '--model-name-prefix',
+                'Api',
+                '--additional-properties',
+                'errorOnUnknownEnum=true',
+                '-D',
+                'interfaceOnly=true,' +
+                'useTags=true,' +
+                'dateLibrary=java8,'
             ]
         }
     }
