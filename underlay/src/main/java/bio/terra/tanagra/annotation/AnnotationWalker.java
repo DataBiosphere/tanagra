@@ -41,7 +41,7 @@ public abstract class AnnotationWalker {
 
     // Walk through each inherited field with an annotation.
     if (clazz.getAnnotation(AnnotatedInheritedFields.class) != null) {
-      Arrays.asList(clazz.getAnnotation(AnnotatedInheritedFields.class).value()).stream()
+      Arrays.stream(clazz.getAnnotation(AnnotatedInheritedFields.class).value())
           .sorted(Comparator.comparing(AnnotatedInheritedField::name))
           .forEach(
               inheritedFieldAnnotation ->
@@ -77,12 +77,11 @@ public abstract class AnnotationWalker {
     return annotationPath.getClassesToWalk().stream()
         .sorted(
             Comparator.comparing(
-                clazz -> {
-                  return !clazz.isAnnotationPresent(AnnotatedClass.class)
-                      ? clazz.getSimpleName()
-                      : clazz.getAnnotation(AnnotatedClass.class).name();
-                }))
-        .map(clazz -> walk(clazz))
+                clazz ->
+                    !clazz.isAnnotationPresent(AnnotatedClass.class)
+                        ? clazz.getSimpleName()
+                        : clazz.getAnnotation(AnnotatedClass.class).name()))
+        .map(this::walk)
         .collect(Collectors.joining());
   }
 

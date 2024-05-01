@@ -58,7 +58,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     assertEquals(limit, listQueryResult.getListInstances().size());
 
     // Check each of the selected fields.
-    listQueryResult.getListInstances().stream()
+    listQueryResult
+        .getListInstances()
         .forEach(
             listInstance -> {
               ValueDisplay yearOfBirth = listInstance.getEntityFieldValue(simpleAttribute);
@@ -112,7 +113,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     assertEquals(1, listQueryResult.getListInstances().size());
 
     // Check each of the selected fields.
-    listQueryResult.getListInstances().stream()
+    listQueryResult
+        .getListInstances()
         .forEach(
             listInstance -> {
               ValueDisplay entityIdCount = listInstance.getEntityFieldValue(entityIdCountField);
@@ -154,7 +156,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     assertEquals(limit, listQueryResult.getListInstances().size());
 
     // Check each of the selected fields.
-    listQueryResult.getListInstances().stream()
+    listQueryResult
+        .getListInstances()
         .forEach(
             listInstance -> {
               ValueDisplay isMember = listInstance.getEntityFieldValue(hierarchyIsMemberField);
@@ -216,7 +219,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     assertEquals(limit, listQueryResult.getListInstances().size());
 
     // Check each of the selected fields.
-    listQueryResult.getListInstances().stream()
+    listQueryResult
+        .getListInstances()
         .forEach(
             listInstance -> {
               ValueDisplay countNoHier =

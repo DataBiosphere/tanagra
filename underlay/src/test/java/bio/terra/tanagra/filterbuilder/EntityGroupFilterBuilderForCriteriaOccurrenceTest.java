@@ -28,6 +28,7 @@ import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
@@ -948,7 +949,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
         (CriteriaOccurrence) underlay.getEntityGroup("icd9cmPerson");
     List<EntityOutput> expectedDataFeatureOutputs =
         criteriaOccurrence.getOccurrenceEntities().stream()
-            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
+            .sorted(Comparator.comparing(Entity::getName))
             .map(
                 occurrenceEntity ->
                     EntityOutput.filtered(
@@ -989,7 +990,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             List.of(Literal.forInt64(44_833_365L), Literal.forInt64(44_833_556L)));
     expectedDataFeatureOutputs =
         criteriaOccurrence.getOccurrenceEntities().stream()
-            .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
+            .sorted(Comparator.comparing(Entity::getName))
             .map(
                 occurrenceEntity ->
                     EntityOutput.filtered(
@@ -1029,22 +1030,22 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
     CriteriaOccurrence criteriaOccurrenceGroup2 =
         (CriteriaOccurrence) underlay.getEntityGroup("icd9procPerson");
 
-    criteriaOccurrenceGroup1.getOccurrenceEntities().stream()
+    criteriaOccurrenceGroup1
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity ->
                 assertTrue(
                     dataFeatureOutputsMultipleEntityGroups.stream()
-                        .filter(entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))
-                        .findAny()
-                        .isPresent()));
-    criteriaOccurrenceGroup2.getOccurrenceEntities().stream()
+                        .anyMatch(
+                            entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))));
+    criteriaOccurrenceGroup2
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity ->
                 assertTrue(
                     dataFeatureOutputsMultipleEntityGroups.stream()
-                        .filter(entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))
-                        .findAny()
-                        .isPresent()));
+                        .anyMatch(
+                            entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))));
   }
 
   @Test

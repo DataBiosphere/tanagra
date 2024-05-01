@@ -5,7 +5,7 @@ import bio.terra.tanagra.underlay.ColumnSchema;
 import com.google.common.collect.ImmutableList;
 
 public abstract class SourceTable {
-  protected BQTable bqTable;
+  protected final BQTable bqTable;
 
   protected SourceTable(BQTable bqTable) {
     this.bqTable = bqTable;

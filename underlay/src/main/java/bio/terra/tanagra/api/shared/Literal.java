@@ -13,6 +13,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Objects;
 
+@SuppressWarnings("PMD.ImmutableField")
 public final class Literal {
   private final boolean isNull;
   private final DataType dataType;

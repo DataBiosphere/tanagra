@@ -248,7 +248,7 @@ public final class BigQueryStorageWriter {
 
             // Retry the remaining valid rows, but using a separate thread to
             // avoid potentially blocking while we are in a callback.
-            if (dataNew.length() > 0) {
+            if (!dataNew.isEmpty()) {
               try {
                 this.parent.append(new AppendContext(dataNew, 0));
               } catch (Descriptors.DescriptorValidationException

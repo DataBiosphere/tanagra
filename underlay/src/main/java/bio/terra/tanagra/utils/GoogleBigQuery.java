@@ -328,7 +328,6 @@ public final class GoogleBigQuery {
    *
    * @param query the query to run
    * @return the result of the BQ query
-   * @throws InterruptedException from the bigQuery.query() method
    */
   public TableResult queryBigQuery(
       String query, @Nullable String pageToken, @Nullable Integer pageSize) {
@@ -342,7 +341,6 @@ public final class GoogleBigQuery {
    *
    * @param queryConfig the query job configuration to run
    * @return the result of the BQ query
-   * @throws InterruptedException from the bigQuery.query() method
    */
   public TableResult queryBigQuery(
       QueryJobConfiguration queryConfig, @Nullable String pageToken, @Nullable Integer pageSize) {
@@ -456,8 +454,8 @@ public final class GoogleBigQuery {
    * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the BQ client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the BQ client or the retries
    */
   private <T> T callWithRetries(
       RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
@@ -476,8 +474,8 @@ public final class GoogleBigQuery {
    * client or the retries, make sure the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the BQ client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the BQ client or the retries
    */
   private <T> T handleClientExceptions(
       RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {

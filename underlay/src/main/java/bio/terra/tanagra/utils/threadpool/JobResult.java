@@ -47,7 +47,7 @@ public class JobResult<T> {
     return jobStatus;
   }
 
-  public JobResult setJobStatus(Status jobStatus) {
+  public JobResult<T> setJobStatus(Status jobStatus) {
     this.jobStatus = jobStatus;
     return this;
   }
@@ -56,7 +56,7 @@ public class JobResult<T> {
     return jobForceTerminated;
   }
 
-  public JobResult setJobForceTerminated(boolean jobForceTerminated) {
+  public JobResult<T> setJobForceTerminated(boolean jobForceTerminated) {
     this.jobForceTerminated = jobForceTerminated;
     return this;
   }
@@ -65,7 +65,7 @@ public class JobResult<T> {
     return elapsedTimeNS;
   }
 
-  public JobResult setElapsedTimeNS(long elapsedTimeNS) {
+  public JobResult<T> setElapsedTimeNS(long elapsedTimeNS) {
     this.elapsedTimeNS = elapsedTimeNS;
     return this;
   }

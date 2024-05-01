@@ -26,8 +26,8 @@ public class Job<R, T> implements Callable<JobResult<T>> {
   }
 
   @Override
-  public JobResult call() {
-    JobResult jobResult = new JobResult(jobId, Thread.currentThread().getName());
+  public JobResult<T> call() {
+    JobResult<T> jobResult = new JobResult<>(jobId, Thread.currentThread().getName());
 
     long startTime = System.nanoTime();
     try {

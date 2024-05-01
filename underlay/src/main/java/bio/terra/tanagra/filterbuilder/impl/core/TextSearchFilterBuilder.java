@@ -83,7 +83,8 @@ public class TextSearchFilterBuilder extends FilterBuilder {
 
     // Build the text search filter on each of the occurrence entities.
     if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
-      criteriaOccurrence.getOccurrenceEntities().stream()
+      criteriaOccurrence
+          .getOccurrenceEntities()
           .forEach(
               occurrenceEntity -> {
                 List<EntityFilter> subFilters =
@@ -157,7 +158,8 @@ public class TextSearchFilterBuilder extends FilterBuilder {
 
     // Create an output for each of the occurrence entities.
     Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(occurrenceEntity -> filtersPerEntity.put(occurrenceEntity, new ArrayList<>()));
 
     // Empty selection data = occurrence entities with no filter.
@@ -180,7 +182,8 @@ public class TextSearchFilterBuilder extends FilterBuilder {
 
         // Build the text search filter on each of the occurrence entities.
         if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
-          criteriaOccurrence.getOccurrenceEntities().stream()
+          criteriaOccurrence
+              .getOccurrenceEntities()
               .forEach(
                   occurrenceEntity -> {
                     List<EntityFilter> subFilters =

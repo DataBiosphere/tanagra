@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class BQQueryRunner implements QueryRunner {
@@ -72,7 +71,8 @@ public class BQQueryRunner implements QueryRunner {
         .forEachRemaining(
             sqlRowResult -> {
               Map<ValueDisplayField, ValueDisplay> fieldValues = new HashMap<>();
-              listQueryRequest.getSelectFields().stream()
+              listQueryRequest
+                  .getSelectFields()
                   .forEach(
                       valueDisplayField ->
                           fieldValues.put(
@@ -117,15 +117,18 @@ public class BQQueryRunner implements QueryRunner {
             .getIndexSchema()
             .getEntityMain(listQueryRequest.getEntity().getName());
     List<String> selectFields = new ArrayList<>();
-    listQueryRequest.getSelectFields().stream()
+    listQueryRequest
+        .getSelectFields()
         .forEach(
             valueDisplayField ->
-                bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect().stream()
+                bqTranslator
+                    .translator(valueDisplayField)
+                    .buildSqlFieldsForListSelect()
                     .forEach(sqlField -> selectFields.add(sqlField.renderForSelect())));
 
     // SELECT [select fields] FROM [entity main]
     sql.append("SELECT ")
-        .append(selectFields.stream().collect(Collectors.joining(", ")))
+        .append(String.join(", ", selectFields))
         .append(" FROM ")
         .append(entityMain.getTablePointer().render());
 
@@ -139,14 +142,16 @@ public class BQQueryRunner implements QueryRunner {
     if (!listQueryRequest.getOrderBys().isEmpty()) {
       // All the order by fields come from the index entity main table.
       List<String> orderByFields = new ArrayList<>();
-      listQueryRequest.getOrderBys().stream()
+      listQueryRequest
+          .getOrderBys()
           .forEach(
               orderBy -> {
                 if (orderBy.isRandom()) {
                   orderByFields.add(bqTranslator.orderByRandSql());
                 } else {
-                  bqTranslator.translator(orderBy.getEntityField()).buildSqlFieldsForOrderBy()
-                      .stream()
+                  bqTranslator
+                      .translator(orderBy.getEntityField())
+                      .buildSqlFieldsForOrderBy()
                       .forEach(
                           sqlField ->
                               orderByFields.add(
@@ -159,7 +164,7 @@ public class BQQueryRunner implements QueryRunner {
                                       + bqTranslator.orderByDirectionSql(orderBy.getDirection())));
                 }
               });
-      sql.append(" ORDER BY ").append(orderByFields.stream().collect(Collectors.joining(", ")));
+      sql.append(" ORDER BY ").append(String.join(", ", orderByFields));
     }
 
     // LIMIT [limit]
@@ -187,7 +192,8 @@ public class BQQueryRunner implements QueryRunner {
       throw new InvalidConfigException(
           "Entity " + listQueryRequest.getEntity().getName() + " does not support source queries");
     }
-    listQueryRequest.getSelectFields().stream()
+    listQueryRequest
+        .getSelectFields()
         .forEach(
             selectField -> {
               if (!(selectField instanceof AttributeField)) {
@@ -227,7 +233,8 @@ public class BQQueryRunner implements QueryRunner {
     final String sourceTableAlias = "st";
     List<String> selectFields = new ArrayList<>();
     List<String> displayTableJoins = new ArrayList<>();
-    listQueryRequest.getSelectFields().stream()
+    listQueryRequest
+        .getSelectFields()
         .forEach(
             valueDisplayField -> {
               AttributeField attrFieldAgainstSourceData =
@@ -276,12 +283,12 @@ public class BQQueryRunner implements QueryRunner {
     // JOIN [display table] ON [display join field]
     // WHERE [source id field] IN [inner query against index data]
     sql.append("SELECT ")
-        .append(selectFields.stream().collect(Collectors.joining(", ")))
+        .append(String.join(", ", selectFields))
         .append(" FROM ")
         .append(fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render())
         .append(" AS ")
         .append(sourceTableAlias)
-        .append(displayTableJoins.stream().collect(Collectors.joining()))
+        .append(String.join("", displayTableJoins))
         .append(" WHERE ")
         .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
         .append(" IN (")
@@ -322,15 +329,16 @@ public class BQQueryRunner implements QueryRunner {
             .getIndexSchema()
             .getEntityMain(countQueryRequest.getEntity().getName());
     List<String> selectFields = new ArrayList<>();
-    selectValueDisplayFields.stream()
-        .forEach(
-            valueDisplayField ->
-                bqTranslator.translator(valueDisplayField).buildSqlFieldsForCountSelect().stream()
-                    .forEach(sqlField -> selectFields.add(sqlField.renderForSelect())));
+    selectValueDisplayFields.forEach(
+        valueDisplayField ->
+            bqTranslator
+                .translator(valueDisplayField)
+                .buildSqlFieldsForCountSelect()
+                .forEach(sqlField -> selectFields.add(sqlField.renderForSelect())));
 
     // SELECT [id count field],[group by fields] FROM [entity main]
     sql.append("SELECT ")
-        .append(selectFields.stream().collect(Collectors.joining(", ")))
+        .append(String.join(", ", selectFields))
         .append(" FROM ")
         .append(entityMain.getTablePointer().render());
 
@@ -343,13 +351,16 @@ public class BQQueryRunner implements QueryRunner {
     // GROUP BY [group by fields]
     if (!countQueryRequest.getGroupByFields().isEmpty()) {
       List<String> groupByFields = new ArrayList<>();
-      countQueryRequest.getGroupByFields().stream()
+      countQueryRequest
+          .getGroupByFields()
           .forEach(
               groupBy ->
-                  bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy().stream()
+                  bqTranslator
+                      .translator(groupBy)
+                      .buildSqlFieldsForGroupBy()
                       .forEach(
                           sqlField -> groupByFields.add(sqlField.renderForGroupBy(null, true))));
-      sql.append(" GROUP BY ").append(groupByFields.stream().collect(Collectors.joining(", ")));
+      sql.append(" GROUP BY ").append(String.join(", ", groupByFields));
     }
 
     // Swap out any un-cacheable functions with SQL parameters.
@@ -378,7 +389,8 @@ public class BQQueryRunner implements QueryRunner {
         .forEachRemaining(
             sqlRowResult -> {
               Map<ValueDisplayField, ValueDisplay> fieldValues = new HashMap<>();
-              countQueryRequest.getGroupByFields().stream()
+              countQueryRequest
+                  .getGroupByFields()
                   .forEach(
                       valueDisplayField -> {
                         ValueDisplay valueDisplay;
@@ -504,7 +516,7 @@ public class BQQueryRunner implements QueryRunner {
                           sqlRowResult.get(attributeColName, DataType.STRING).getStringVal());
               if (attribute.isValueDisplay()
                   || attribute.getRuntimeDataType().equals(DataType.STRING)) {
-                // This is one value/count pair of an enum values hint.
+                // This is one value/count a pair of an enum values hint.
                 Literal enumVal = sqlRowResult.get(enumValColName, DataType.INT64);
                 String enumDisplay =
                     sqlRowResult.get(enumDisplayColName, DataType.STRING).getStringVal();
@@ -523,13 +535,9 @@ public class BQQueryRunner implements QueryRunner {
               }
             });
     // Assemble the value/count pairs into a single enum values hint for each attribute.
-    enumValues.entrySet().stream()
-        .forEach(
-            entry -> {
-              Attribute attribute = entry.getKey();
-              Map<ValueDisplay, Long> enumValuesForAttr = entry.getValue();
-              hintInstances.add(new HintInstance(attribute, enumValuesForAttr));
-            });
+    enumValues.forEach(
+        (attribute, enumValuesForAttr) ->
+            hintInstances.add(new HintInstance(attribute, enumValuesForAttr)));
 
     return new HintQueryResult(sql.toString(), hintInstances);
   }

@@ -207,7 +207,8 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
       // GROUP BY foreignKey HAVING COUNT(*) groupByOp groupByCount)
       List<SqlField> groupByFields = new ArrayList<>();
       groupByFields.add(foreignKeyField);
-      relationshipFilter.getGroupByCountAttributes().stream()
+      relationshipFilter
+          .getGroupByCountAttributes()
           .forEach(
               groupByAttr ->
                   groupByFields.add(
@@ -385,7 +386,8 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
       SqlField filterIdField =
           filterEntityTable.getAttributeValueField(filterIdAttribute.getName());
       List<SqlField> groupByAttrFields = new ArrayList<>();
-      relationshipFilter.getGroupByCountAttributes().stream()
+      relationshipFilter
+          .getGroupByCountAttributes()
           .forEach(
               groupByAttr ->
                   groupByAttrFields.add(

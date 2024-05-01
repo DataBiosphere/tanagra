@@ -38,6 +38,7 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
+  @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
   protected String walkField(AnnotatedField fieldAnnotation, Field field) {
     // Add a bookmark for this field.
     String fieldTitle = fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
@@ -52,9 +53,8 @@ public class MarkdownWalker extends AnnotationWalker {
             .append(fieldAnnotation.optional() ? "**optional** " : "**required** ");
 
     // Add the markdown for field type.
-    if (field.getGenericType() instanceof ParameterizedType) {
+    if (field.getGenericType() instanceof ParameterizedType pType) {
       // This is a type-parameterized class (e.g. List, Map).
-      ParameterizedType pType = (ParameterizedType) field.getGenericType();
       markdown
           .append(getSimpleName(pType.getRawType().getTypeName()))
           .append(" [ ")
@@ -92,6 +92,7 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
+  @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
   protected String walkInheritedField(AnnotatedInheritedField inheritedFieldAnnotation) {
     // Add a bookmark for this field.
     addBookmark(inheritedFieldAnnotation.name(), inheritedFieldAnnotation.name());
@@ -148,7 +149,7 @@ public class MarkdownWalker extends AnnotationWalker {
             .append("\n\n")
             .append(annotationPath.getIntroduction())
             .append("\n\n")
-            .append(tableOfContents.stream().collect(Collectors.joining("\n")))
+            .append(String.join("\n", tableOfContents))
             .append("\n\n")
             .toString();
 
