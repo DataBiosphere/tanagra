@@ -80,17 +80,14 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
   public int getNumGroupByAttributes() {
     int numGroupByAttributes =
         getGroupByAttributes(criteriaOccurrence.getOccurrenceEntities().get(0)).size();
-    groupByAttributesPerOccurrenceEntity.entrySet().stream()
-        .forEach(
-            entry -> {
-              Entity occurrenceEntity = entry.getKey();
-              List<Attribute> groupByAttributes = entry.getValue();
-              if (groupByAttributes.size() != numGroupByAttributes) {
-                throw new InvalidQueryException(
-                    "There must be the same number of group by attributes for each occurrence entity: "
-                        + occurrenceEntity.getName());
-              }
-            });
+    groupByAttributesPerOccurrenceEntity.forEach(
+        (occurrenceEntity, groupByAttributes) -> {
+          if (groupByAttributes.size() != numGroupByAttributes) {
+            throw new InvalidQueryException(
+                "There must be the same number of group by attributes for each occurrence entity: "
+                    + occurrenceEntity.getName());
+          }
+        });
     return numGroupByAttributes;
   }
 

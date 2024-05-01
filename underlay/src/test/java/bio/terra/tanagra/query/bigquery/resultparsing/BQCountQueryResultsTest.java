@@ -67,7 +67,8 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
     assertFalse(countQueryResult.getCountInstances().isEmpty());
 
     // Check each of the group by fields.
-    countQueryResult.getCountInstances().stream()
+    countQueryResult
+        .getCountInstances()
         .forEach(
             countInstance -> {
               ValueDisplay yearOfBirth = countInstance.getEntityFieldValue(simpleAttribute);
@@ -129,7 +130,8 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
     assertFalse(countQueryResult.getCountInstances().isEmpty());
 
     // Check each of the group by fields.
-    countQueryResult.getCountInstances().stream()
+    countQueryResult
+        .getCountInstances()
         .forEach(
             countInstance -> {
               ValueDisplay isMember = countInstance.getEntityFieldValue(hierarchyIsMemberField);
@@ -183,7 +185,8 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
     assertFalse(countQueryResult.getCountInstances().isEmpty());
 
     // Check each of the group by fields.
-    countQueryResult.getCountInstances().stream()
+    countQueryResult
+        .getCountInstances()
         .forEach(
             countInstance -> {
               ValueDisplay countNoHier =

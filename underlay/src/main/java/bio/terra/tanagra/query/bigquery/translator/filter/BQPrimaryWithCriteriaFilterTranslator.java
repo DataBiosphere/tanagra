@@ -147,7 +147,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
               selectSqls.add(
                   "SELECT "
                       + selectQueryFields.stream()
-                          .map(selectQueryField -> selectQueryField.renderForSelect())
+                          .map(SqlQueryField::renderForSelect)
                           .collect(Collectors.joining(","))
                       + " FROM "
                       + occurrenceEntityTable.getTablePointer().render()
@@ -169,7 +169,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     if (!primaryWithCriteriaFilter.hasGroupByModifier()) {
       return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
           + " IN ("
-          + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
+          + String.join(" UNION ALL ", selectSqls)
           + ')';
     }
 
@@ -178,7 +178,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
           + " IN (SELECT "
           + primaryIdFieldAlias
           + " FROM ("
-          + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
+          + String.join(" UNION ALL ", selectSqls)
           + ") GROUP BY "
           + primaryIdFieldAlias
           + " HAVING COUNT(*) "
@@ -194,7 +194,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     for (int i = 0; i < primaryWithCriteriaFilter.getNumGroupByAttributes(); i++) {
       groupByFieldsSql.add(groupByFieldAliasPrefix + i);
     }
-    String groupByFieldsSqlJoined = groupByFieldsSql.stream().collect(Collectors.joining(", "));
+    String groupByFieldsSqlJoined = String.join(", ", groupByFieldsSql);
     return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
         + " IN (SELECT "
         + primaryIdFieldAlias
@@ -203,7 +203,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
         + ", "
         + groupByFieldsSqlJoined
         + " FROM ("
-        + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
+        + String.join(" UNION ALL ", selectSqls)
         + ") GROUP BY "
         + primaryIdFieldAlias
         + ", "

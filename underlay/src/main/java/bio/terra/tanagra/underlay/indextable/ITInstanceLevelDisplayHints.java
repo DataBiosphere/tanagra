@@ -47,9 +47,7 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
   public ImmutableList<ColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity.
     return ImmutableList.copyOf(
-        Arrays.stream(Column.values())
-            .map(column -> column.getSchema())
-            .collect(Collectors.toList()));
+        Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
   }
 
   public enum Column {

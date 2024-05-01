@@ -56,9 +56,7 @@ public final class SourceSchema {
 
   public boolean hasTextSearchTerms(String entity) {
     return textSearchTermsTables.stream()
-        .filter(textSearchTerms -> textSearchTerms.getEntity().equals(entity))
-        .findFirst()
-        .isPresent();
+        .anyMatch(textSearchTerms -> textSearchTerms.getEntity().equals(entity));
   }
 
   public STHierarchyChildParent getHierarchyChildParent(String entity, String hierarchy) {
@@ -83,12 +81,10 @@ public final class SourceSchema {
 
   public boolean hasHierarchyRootFilter(String entity, String hierarchy) {
     return hierarchyRootFilterTables.stream()
-        .filter(
+        .anyMatch(
             rootFilter ->
                 rootFilter.getEntity().equals(entity)
-                    && rootFilter.getHierarchy().equals(hierarchy))
-        .findFirst()
-        .isPresent();
+                    && rootFilter.getHierarchy().equals(hierarchy));
   }
 
   public STRelationshipIdPairs getRelationshipIdPairs(
@@ -112,30 +108,27 @@ public final class SourceSchema {
     List<STRelationshipIdPairs> relationshipIdPairTables = new ArrayList<>();
 
     // Build source tables for each entity.
-    szUnderlay.entities.stream()
-        .forEach(
-            entityPath ->
-                fromConfigEntity(
-                    entityPath,
-                    configReader,
-                    entityAttributesTables,
-                    textSearchTermsTables,
-                    hierarchyChildParentTables,
-                    hierarchyRootFilterTables));
+    szUnderlay.entities.forEach(
+        entityPath ->
+            fromConfigEntity(
+                entityPath,
+                configReader,
+                entityAttributesTables,
+                textSearchTermsTables,
+                hierarchyChildParentTables,
+                hierarchyRootFilterTables));
 
     // Build source tables for each entity group.
-    szUnderlay.groupItemsEntityGroups.stream()
-        .forEach(
-            groupItemsPath ->
-                fromConfigGroupItems(groupItemsPath, configReader, relationshipIdPairTables));
-    szUnderlay.criteriaOccurrenceEntityGroups.stream()
-        .forEach(
-            criteriaOccurrencePath ->
-                fromConfigCriteriaOccurrence(
-                    criteriaOccurrencePath,
-                    szUnderlay.primaryEntity,
-                    configReader,
-                    relationshipIdPairTables));
+    szUnderlay.groupItemsEntityGroups.forEach(
+        groupItemsPath ->
+            fromConfigGroupItems(groupItemsPath, configReader, relationshipIdPairTables));
+    szUnderlay.criteriaOccurrenceEntityGroups.forEach(
+        criteriaOccurrencePath ->
+            fromConfigCriteriaOccurrence(
+                criteriaOccurrencePath,
+                szUnderlay.primaryEntity,
+                configReader,
+                relationshipIdPairTables));
     return new SourceSchema(
         entityAttributesTables,
         textSearchTermsTables,
@@ -168,25 +161,24 @@ public final class SourceSchema {
           new STTextSearchTerms(idTextPairsTable, szEntity.name, szEntity.textSearch));
     }
 
-    szEntity.hierarchies.stream()
-        .forEach(
-            szHierarchy -> {
-              // HierarchyChildParent table.
-              String childParentSql =
-                  configReader.readEntitySql(entityPath, szHierarchy.childParentIdPairsSqlFile);
-              BQTable childParentTable = new BQTable(childParentSql);
-              hierarchyChildParentTables.add(
-                  new STHierarchyChildParent(childParentTable, szEntity.name, szHierarchy));
+    szEntity.hierarchies.forEach(
+        szHierarchy -> {
+          // HierarchyChildParent table.
+          String childParentSql =
+              configReader.readEntitySql(entityPath, szHierarchy.childParentIdPairsSqlFile);
+          BQTable childParentTable = new BQTable(childParentSql);
+          hierarchyChildParentTables.add(
+              new STHierarchyChildParent(childParentTable, szEntity.name, szHierarchy));
 
-              if (szHierarchy.rootNodeIdsSqlFile != null) {
-                // HierarchyRootFilter table.
-                String rootNodeSql =
-                    configReader.readEntitySql(entityPath, szHierarchy.rootNodeIdsSqlFile);
-                BQTable rootNodeTable = new BQTable(rootNodeSql);
-                hierarchyRootFilterTables.add(
-                    new STHierarchyRootFilter(rootNodeTable, szEntity.name, szHierarchy));
-              }
-            });
+          if (szHierarchy.rootNodeIdsSqlFile != null) {
+            // HierarchyRootFilter table.
+            String rootNodeSql =
+                configReader.readEntitySql(entityPath, szHierarchy.rootNodeIdsSqlFile);
+            BQTable rootNodeTable = new BQTable(rootNodeSql);
+            hierarchyRootFilterTables.add(
+                new STHierarchyRootFilter(rootNodeTable, szEntity.name, szHierarchy));
+          }
+        });
   }
 
   private static void fromConfigGroupItems(
@@ -233,41 +225,38 @@ public final class SourceSchema {
               szCriteriaOccurrence.primaryCriteriaRelationship.primaryEntityIdFieldName,
               szCriteriaOccurrence.primaryCriteriaRelationship.criteriaEntityIdFieldName));
     }
-    szCriteriaOccurrence.occurrenceEntities.stream()
-        .forEach(
-            szOccurrenceEntity -> {
-              if (szOccurrenceEntity.criteriaRelationship.idPairsSqlFile != null) {
-                // RelationshipIdPairs table.
-                String idPairsSql =
-                    configReader.readEntityGroupSql(
-                        criteriaOccurrencePath,
-                        szOccurrenceEntity.criteriaRelationship.idPairsSqlFile);
-                BQTable idPairsTable = new BQTable(idPairsSql);
-                relationshipIdPairTables.add(
-                    new STRelationshipIdPairs(
-                        idPairsTable,
-                        szCriteriaOccurrence.name,
-                        szOccurrenceEntity.occurrenceEntity,
-                        szCriteriaOccurrence.criteriaEntity,
-                        szOccurrenceEntity.criteriaRelationship.occurrenceEntityIdFieldName,
-                        szOccurrenceEntity.criteriaRelationship.criteriaEntityIdFieldName));
-              }
-              if (szOccurrenceEntity.primaryRelationship.idPairsSqlFile != null) {
-                // RelationshipIdPairs table.
-                String idPairsSql =
-                    configReader.readEntityGroupSql(
-                        criteriaOccurrencePath,
-                        szOccurrenceEntity.primaryRelationship.idPairsSqlFile);
-                BQTable idPairsTable = new BQTable(idPairsSql);
-                relationshipIdPairTables.add(
-                    new STRelationshipIdPairs(
-                        idPairsTable,
-                        szCriteriaOccurrence.name,
-                        szOccurrenceEntity.occurrenceEntity,
-                        primaryEntityName,
-                        szOccurrenceEntity.primaryRelationship.occurrenceEntityIdFieldName,
-                        szOccurrenceEntity.primaryRelationship.primaryEntityIdFieldName));
-              }
-            });
+    szCriteriaOccurrence.occurrenceEntities.forEach(
+        szOccurrenceEntity -> {
+          if (szOccurrenceEntity.criteriaRelationship.idPairsSqlFile != null) {
+            // RelationshipIdPairs table.
+            String idPairsSql =
+                configReader.readEntityGroupSql(
+                    criteriaOccurrencePath, szOccurrenceEntity.criteriaRelationship.idPairsSqlFile);
+            BQTable idPairsTable = new BQTable(idPairsSql);
+            relationshipIdPairTables.add(
+                new STRelationshipIdPairs(
+                    idPairsTable,
+                    szCriteriaOccurrence.name,
+                    szOccurrenceEntity.occurrenceEntity,
+                    szCriteriaOccurrence.criteriaEntity,
+                    szOccurrenceEntity.criteriaRelationship.occurrenceEntityIdFieldName,
+                    szOccurrenceEntity.criteriaRelationship.criteriaEntityIdFieldName));
+          }
+          if (szOccurrenceEntity.primaryRelationship.idPairsSqlFile != null) {
+            // RelationshipIdPairs table.
+            String idPairsSql =
+                configReader.readEntityGroupSql(
+                    criteriaOccurrencePath, szOccurrenceEntity.primaryRelationship.idPairsSqlFile);
+            BQTable idPairsTable = new BQTable(idPairsSql);
+            relationshipIdPairTables.add(
+                new STRelationshipIdPairs(
+                    idPairsTable,
+                    szCriteriaOccurrence.name,
+                    szOccurrenceEntity.occurrenceEntity,
+                    primaryEntityName,
+                    szOccurrenceEntity.primaryRelationship.occurrenceEntityIdFieldName,
+                    szOccurrenceEntity.primaryRelationship.primaryEntityIdFieldName));
+          }
+        });
   }
 }

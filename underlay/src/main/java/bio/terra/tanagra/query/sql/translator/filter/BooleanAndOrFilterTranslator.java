@@ -19,7 +19,7 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
     this.booleanAndOrFilter = booleanAndOrFilter;
     this.subFilterTranslators =
         booleanAndOrFilter.getSubFilters().stream()
-            .map(subFilter -> apiTranslator.translator(subFilter))
+            .map(apiTranslator::translator)
             .collect(Collectors.toList());
   }
 
@@ -28,15 +28,14 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
     List<String> subFilterSqls =
         subFilterTranslators.stream()
             .map(subFilterTranslator -> subFilterTranslator.buildSql(sqlParams, tableAlias))
-            .collect(Collectors.toList());
+            .toList();
     return apiTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
   }
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return subFilterTranslators
-        .parallelStream()
+    return subFilterTranslators.parallelStream()
         .filter(subFilterTranslator -> !subFilterTranslator.isFilterOnAttribute(attribute))
         .findAny()
         .isEmpty();
@@ -44,9 +43,8 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public ApiFilterTranslator swapAttributeField(Attribute attribute, SqlField swappedField) {
-    subFilterTranslators.stream()
-        .forEach(
-            subFilterTranslator -> subFilterTranslator.swapAttributeField(attribute, swappedField));
+    subFilterTranslators.forEach(
+        subFilterTranslator -> subFilterTranslator.swapAttributeField(attribute, swappedField));
     return this;
   }
 }

@@ -99,11 +99,10 @@ public final class ConfigReader {
                     szAttribute.sourceQuery != null
                         && szAttribute.sourceQuery.displayFieldTable != null)
             .forEach(
-                szAttribute -> {
-                  szAttribute.sourceQuery.displayFieldTable =
-                      StringSubstitutor.replace(
-                          szAttribute.sourceQuery.displayFieldTable, sqlSubstitutions);
-                });
+                szAttribute ->
+                    szAttribute.sourceQuery.displayFieldTable =
+                        StringSubstitutor.replace(
+                            szAttribute.sourceQuery.displayFieldTable, sqlSubstitutions));
       }
       szEntityCache.put(entityPath, szEntity);
     }
@@ -248,13 +247,12 @@ public final class ConfigReader {
       szEntity.hierarchies = szEntity.hierarchies == null ? new HashSet<>() : szEntity.hierarchies;
 
       // Set hierarchy names to default, if not otherwise specified.
-      szEntity.hierarchies.stream()
-          .forEach(
-              szHierarchy -> {
-                if (szHierarchy.name == null) {
-                  szHierarchy.name = Hierarchy.DEFAULT_NAME;
-                }
-              });
+      szEntity.hierarchies.forEach(
+          szHierarchy -> {
+            if (szHierarchy.name == null) {
+              szHierarchy.name = Hierarchy.DEFAULT_NAME;
+            }
+          });
 
       return szEntity;
     } catch (IOException ioEx) {
@@ -289,13 +287,12 @@ public final class ConfigReader {
           szCriteriaOccurrence.occurrenceEntities == null
               ? new HashSet<>()
               : szCriteriaOccurrence.occurrenceEntities;
-      szCriteriaOccurrence.occurrenceEntities.stream()
-          .forEach(
-              szOccurrenceEntity ->
-                  szOccurrenceEntity.attributesWithInstanceLevelHints =
-                      szOccurrenceEntity.attributesWithInstanceLevelHints == null
-                          ? new HashSet<>()
-                          : szOccurrenceEntity.attributesWithInstanceLevelHints);
+      szCriteriaOccurrence.occurrenceEntities.forEach(
+          szOccurrenceEntity ->
+              szOccurrenceEntity.attributesWithInstanceLevelHints =
+                  szOccurrenceEntity.attributesWithInstanceLevelHints == null
+                      ? new HashSet<>()
+                      : szOccurrenceEntity.attributesWithInstanceLevelHints);
 
       return szCriteriaOccurrence;
     } catch (IOException ioEx) {

@@ -51,7 +51,8 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
 
     // Build the attribute filters on the not-primary entity.
     List<EntityFilter> subFiltersNotPrimaryEntity = new ArrayList<>();
-    multiAttrSelectionData.getValueDataList().stream()
+    multiAttrSelectionData
+        .getValueDataList()
         .forEach(
             valueData ->
                 subFiltersNotPrimaryEntity.add(
@@ -89,7 +90,8 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
           deserializeData(selectionData.get(0).getPluginData());
       if (multiAttrSelectionData != null) {
         // Build the attribute filters on the not-primary entity.
-        multiAttrSelectionData.getValueDataList().stream()
+        multiAttrSelectionData
+            .getValueDataList()
             .forEach(
                 valueData ->
                     subFiltersNotPrimaryEntity.add(

@@ -119,7 +119,7 @@ public final class Underlay {
 
   public Entity getPrimaryEntity() {
     return entities.stream()
-        .filter(e -> e.isPrimary())
+        .filter(Entity::isPrimary)
         .findFirst()
         .orElseThrow(() -> new SystemException("No primary entity defined"));
   }
@@ -140,10 +140,9 @@ public final class Underlay {
       Optional<Relationship> relationship =
           entityGroup.getRelationships().stream()
               .filter(r -> r.matchesEntities(entity1, entity2))
-              .sorted(
+              .min(
                   Comparator.comparing(
-                      r -> r.getEntityA().getName() + ',' + r.getEntityB().getName()))
-              .findFirst();
+                      r -> r.getEntityA().getName() + ',' + r.getEntityB().getName()));
       if (relationship.isPresent()) {
         return Pair.of(entityGroup, relationship.get());
       }
@@ -227,23 +226,21 @@ public final class Underlay {
     Set<SZGroupItems> szGroupItemsEntityGroups = new HashSet<>();
     Set<SZCriteriaOccurrence> szCriteriaOccurrenceEntityGroups = new HashSet<>();
     List<EntityGroup> entityGroups = new ArrayList<>();
-    szUnderlay.groupItemsEntityGroups.stream()
-        .forEach(
-            groupItemsPath -> {
-              SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
-              szGroupItemsEntityGroups.add(szGroupItems);
-              entityGroups.add(fromConfigGroupItems(szGroupItems, entities));
-            });
-    szUnderlay.criteriaOccurrenceEntityGroups.stream()
-        .forEach(
-            criteriaOccurrencePath -> {
-              SZCriteriaOccurrence szCriteriaOccurrence =
-                  configReader.readCriteriaOccurrence(criteriaOccurrencePath);
-              szCriteriaOccurrenceEntityGroups.add(szCriteriaOccurrence);
-              entityGroups.add(
-                  fromConfigCriteriaOccurrence(
-                      szCriteriaOccurrence, entities, szUnderlay.primaryEntity));
-            });
+    szUnderlay.groupItemsEntityGroups.forEach(
+        groupItemsPath -> {
+          SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
+          szGroupItemsEntityGroups.add(szGroupItems);
+          entityGroups.add(fromConfigGroupItems(szGroupItems, entities));
+        });
+    szUnderlay.criteriaOccurrenceEntityGroups.forEach(
+        criteriaOccurrencePath -> {
+          SZCriteriaOccurrence szCriteriaOccurrence =
+              configReader.readCriteriaOccurrence(criteriaOccurrencePath);
+          szCriteriaOccurrenceEntityGroups.add(szCriteriaOccurrence);
+          entityGroups.add(
+              fromConfigCriteriaOccurrence(
+                  szCriteriaOccurrence, entities, szUnderlay.primaryEntity));
+        });
 
     // Build the query executor.
     BQQueryRunner queryRunner =
@@ -253,50 +250,46 @@ public final class Underlay {
     List<SZCriteriaSelector> szCriteriaSelectors = new ArrayList<>();
     List<CriteriaSelector> criteriaSelectors = new ArrayList<>();
     if (szUnderlay.criteriaSelectors != null) {
-      szUnderlay.criteriaSelectors.stream()
-          .forEach(
-              criteriaSelectorPath -> {
-                SZCriteriaSelector szCriteriaSelector =
-                    configReader.readCriteriaSelector(criteriaSelectorPath);
-                CriteriaSelector criteriaSelector =
-                    fromConfigCriteriaSelector(
-                        szCriteriaSelector, criteriaSelectorPath, configReader);
+      szUnderlay.criteriaSelectors.forEach(
+          criteriaSelectorPath -> {
+            SZCriteriaSelector szCriteriaSelector =
+                configReader.readCriteriaSelector(criteriaSelectorPath);
+            CriteriaSelector criteriaSelector =
+                fromConfigCriteriaSelector(szCriteriaSelector, criteriaSelectorPath, configReader);
 
-                // Update the szCriteriaSelector with the contents of the plugin config files.
-                szCriteriaSelector.pluginConfig = criteriaSelector.getPluginConfig();
-                szCriteriaSelector.modifiers.stream()
-                    .forEach(
-                        modifier ->
-                            modifier.pluginConfig =
-                                criteriaSelector.getModifier(modifier.name).getPluginConfig());
+            // Update the szCriteriaSelector with the contents of the plugin config files.
+            szCriteriaSelector.pluginConfig = criteriaSelector.getPluginConfig();
+            szCriteriaSelector.modifiers.forEach(
+                modifier ->
+                    modifier.pluginConfig =
+                        criteriaSelector.getModifier(modifier.name).getPluginConfig());
 
-                szCriteriaSelectors.add(szCriteriaSelector);
-                criteriaSelectors.add(criteriaSelector);
-              });
+            szCriteriaSelectors.add(szCriteriaSelector);
+            criteriaSelectors.add(criteriaSelector);
+          });
     }
 
     // Build the prepackaged data features.
     Set<SZPrepackagedCriteria> szPrepackagedDataFeatures = new HashSet<>();
     List<PrepackagedCriteria> prepackagedDataFeatures = new ArrayList<>();
     if (szUnderlay.prepackagedDataFeatures != null) {
-      szUnderlay.prepackagedDataFeatures.stream()
-          .forEach(
-              prepackagedCriteriaPath -> {
-                SZPrepackagedCriteria szPrepackagedCriteria =
-                    configReader.readPrepackagedCriteria(prepackagedCriteriaPath);
-                PrepackagedCriteria prepackagedCriteria =
-                    fromConfigPrepackagedCriteria(
-                        szPrepackagedCriteria, prepackagedCriteriaPath, configReader);
+      szUnderlay.prepackagedDataFeatures.forEach(
+          prepackagedCriteriaPath -> {
+            SZPrepackagedCriteria szPrepackagedCriteria =
+                configReader.readPrepackagedCriteria(prepackagedCriteriaPath);
+            PrepackagedCriteria prepackagedCriteria =
+                fromConfigPrepackagedCriteria(
+                    szPrepackagedCriteria, prepackagedCriteriaPath, configReader);
 
-                // Update the szPrepackagedCriteria with the contents of the plugin data files.
-                if (prepackagedCriteria.hasSelectionData()) {
-                  szPrepackagedCriteria.pluginData =
-                      prepackagedCriteria.getSelectionData().getPluginData();
-                }
+            // Update the szPrepackagedCriteria with the contents of the plugin data files.
+            if (prepackagedCriteria.hasSelectionData()) {
+              szPrepackagedCriteria.pluginData =
+                  prepackagedCriteria.getSelectionData().getPluginData();
+            }
 
-                szPrepackagedDataFeatures.add(szPrepackagedCriteria);
-                prepackagedDataFeatures.add(prepackagedCriteria);
-              });
+            szPrepackagedDataFeatures.add(szPrepackagedCriteria);
+            prepackagedDataFeatures.add(prepackagedCriteria);
+          });
     }
 
     // Read the UI config.
@@ -448,54 +441,51 @@ public final class Underlay {
     Map<String, Relationship> occurrenceCriteriaRelationships = new HashMap<>();
     Map<String, Relationship> occurrencePrimaryRelationships = new HashMap<>();
     Map<String, Set<String>> occurrenceAttributesWithInstanceLevelHints = new HashMap<>();
-    szCriteriaOccurrence.occurrenceEntities.stream()
-        .forEach(
-            szOccurrenceEntity -> {
-              // Get the occurrence entity.
-              Entity occurrenceEntity =
-                  entities.stream()
-                      .filter(
-                          entity -> entity.getName().equals(szOccurrenceEntity.occurrenceEntity))
-                      .findFirst()
-                      .get();
-              occurrenceEntities.add(occurrenceEntity);
+    szCriteriaOccurrence.occurrenceEntities.forEach(
+        szOccurrenceEntity -> {
+          // Get the occurrence entity.
+          Entity occurrenceEntity =
+              entities.stream()
+                  .filter(entity -> entity.getName().equals(szOccurrenceEntity.occurrenceEntity))
+                  .findFirst()
+                  .get();
+          occurrenceEntities.add(occurrenceEntity);
 
-              // Build the occurrence-criteria relationship.
-              Relationship occurrenceCriteriaRelationship =
-                  new Relationship(
-                      occurrenceEntity,
-                      criteriaEntity,
-                      szOccurrenceEntity.criteriaRelationship.foreignKeyAttributeOccurrenceEntity
-                              == null
-                          ? null
-                          : occurrenceEntity.getAttribute(
-                              szOccurrenceEntity
-                                  .criteriaRelationship
-                                  .foreignKeyAttributeOccurrenceEntity),
-                      null);
-              occurrenceCriteriaRelationships.put(
-                  occurrenceEntity.getName(), occurrenceCriteriaRelationship);
+          // Build the occurrence-criteria relationship.
+          Relationship occurrenceCriteriaRelationship =
+              new Relationship(
+                  occurrenceEntity,
+                  criteriaEntity,
+                  szOccurrenceEntity.criteriaRelationship.foreignKeyAttributeOccurrenceEntity
+                          == null
+                      ? null
+                      : occurrenceEntity.getAttribute(
+                          szOccurrenceEntity
+                              .criteriaRelationship
+                              .foreignKeyAttributeOccurrenceEntity),
+                  null);
+          occurrenceCriteriaRelationships.put(
+              occurrenceEntity.getName(), occurrenceCriteriaRelationship);
 
-              // Build the occurrence-primary relationship.
-              Relationship occurrencePrimaryRelationship =
-                  new Relationship(
-                      occurrenceEntity,
-                      primaryEntity,
-                      szOccurrenceEntity.primaryRelationship.foreignKeyAttributeOccurrenceEntity
-                              == null
-                          ? null
-                          : occurrenceEntity.getAttribute(
-                              szOccurrenceEntity
-                                  .primaryRelationship
-                                  .foreignKeyAttributeOccurrenceEntity),
-                      null);
-              occurrencePrimaryRelationships.put(
-                  occurrenceEntity.getName(), occurrencePrimaryRelationship);
+          // Build the occurrence-primary relationship.
+          Relationship occurrencePrimaryRelationship =
+              new Relationship(
+                  occurrenceEntity,
+                  primaryEntity,
+                  szOccurrenceEntity.primaryRelationship.foreignKeyAttributeOccurrenceEntity == null
+                      ? null
+                      : occurrenceEntity.getAttribute(
+                          szOccurrenceEntity
+                              .primaryRelationship
+                              .foreignKeyAttributeOccurrenceEntity),
+                  null);
+          occurrencePrimaryRelationships.put(
+              occurrenceEntity.getName(), occurrencePrimaryRelationship);
 
-              // Get the attributes with instance-level hints.
-              occurrenceAttributesWithInstanceLevelHints.put(
-                  occurrenceEntity.getName(), szOccurrenceEntity.attributesWithInstanceLevelHints);
-            });
+          // Get the attributes with instance-level hints.
+          occurrenceAttributesWithInstanceLevelHints.put(
+              occurrenceEntity.getName(), szOccurrenceEntity.attributesWithInstanceLevelHints);
+        });
 
     // Build the primary-criteria relationship.
     Relationship primaryCriteriaRelationship =
@@ -528,19 +518,18 @@ public final class Underlay {
     // Deserialize the modifiers.
     List<CriteriaSelector.Modifier> modifiers = new ArrayList<>();
     if (szCriteriaSelector.modifiers != null) {
-      szCriteriaSelector.modifiers.stream()
-          .forEach(
-              szModifier -> {
-                String modifierPluginConfig = szModifier.pluginConfig;
-                if (szModifier.pluginConfigFile != null && !szModifier.pluginConfigFile.isEmpty()) {
-                  modifierPluginConfig =
-                      configReader.readCriteriaSelectorPluginConfig(
-                          criteriaSelectorPath, szModifier.pluginConfigFile);
-                }
-                modifiers.add(
-                    new CriteriaSelector.Modifier(
-                        szModifier.name, szModifier.plugin, modifierPluginConfig));
-              });
+      szCriteriaSelector.modifiers.forEach(
+          szModifier -> {
+            String modifierPluginConfig = szModifier.pluginConfig;
+            if (szModifier.pluginConfigFile != null && !szModifier.pluginConfigFile.isEmpty()) {
+              modifierPluginConfig =
+                  configReader.readCriteriaSelectorPluginConfig(
+                      criteriaSelectorPath, szModifier.pluginConfigFile);
+            }
+            modifiers.add(
+                new CriteriaSelector.Modifier(
+                    szModifier.name, szModifier.plugin, modifierPluginConfig));
+          });
     }
 
     return new CriteriaSelector(

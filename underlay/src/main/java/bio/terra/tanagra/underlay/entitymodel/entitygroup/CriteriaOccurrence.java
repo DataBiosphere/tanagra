@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class CriteriaOccurrence extends EntityGroup {
             occurrenceAttributesWithInstanceLevelDisplayHints.entrySet().stream()
                 .collect(
                     Collectors.toMap(
-                        entry -> entry.getKey(), entry -> ImmutableSet.copyOf(entry.getValue()))));
+                        Entry::getKey, entry -> ImmutableSet.copyOf(entry.getValue()))));
   }
 
   @Override
@@ -56,10 +57,7 @@ public class CriteriaOccurrence extends EntityGroup {
   public boolean includesEntity(String name) {
     return criteriaEntity.getName().equals(name)
         || primaryEntity.getName().equals(name)
-        || occurrenceEntities.stream()
-            .filter(oe -> oe.getName().equals(name))
-            .findFirst()
-            .isPresent();
+        || occurrenceEntities.stream().anyMatch(oe -> oe.getName().equals(name));
   }
 
   @Override
@@ -112,7 +110,7 @@ public class CriteriaOccurrence extends EntityGroup {
       Entity occurrenceEntity) {
     return ImmutableSet.copyOf(
         occurrenceAttributesWithInstanceLevelDisplayHints.get(occurrenceEntity.getName()).stream()
-            .map(attrName -> occurrenceEntity.getAttribute(attrName))
+            .map(occurrenceEntity::getAttribute)
             .collect(Collectors.toSet()));
   }
 }

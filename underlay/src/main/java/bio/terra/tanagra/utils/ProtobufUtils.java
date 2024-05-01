@@ -30,6 +30,7 @@ public final class ProtobufUtils {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public static <T extends Message.Builder> T deserializeFromBase64Protobuf(
       String serialized, T builder) {
     try {

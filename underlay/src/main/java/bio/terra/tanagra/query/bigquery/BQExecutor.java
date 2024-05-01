@@ -12,7 +12,6 @@ import bio.terra.tanagra.query.sql.SqlRowResult;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
@@ -50,11 +49,10 @@ public class BQExecutor {
   public SqlQueryResult run(SqlQueryRequest queryRequest) {
     QueryJobConfiguration.Builder queryConfig =
         QueryJobConfiguration.newBuilder(queryRequest.getSql()).setUseLegacySql(false);
-    queryRequest.getSqlParams().getParams().entrySet().stream()
-        .forEach(
-            sqlParam ->
-                queryConfig.addNamedParameter(
-                    sqlParam.getKey(), toQueryParameterValue(sqlParam.getValue())));
+    queryRequest
+        .getSqlParams()
+        .getParams()
+        .forEach((key, value) -> queryConfig.addNamedParameter(key, toQueryParameterValue(value)));
     queryConfig.setDryRun(queryRequest.isDryRun());
     queryConfig.setUseQueryCache(true);
 
@@ -91,8 +89,7 @@ public class BQExecutor {
       LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
       Iterable<SqlRowResult> rowResults =
           Iterables.transform(
-              tableResult.getValues() /* Single page of results. */,
-              (FieldValueList fieldValueList) -> new BQRowResult(fieldValueList));
+              tableResult.getValues() /* Single page of results. */, BQRowResult::new);
       PageMarker nextPageMarker =
           tableResult.hasNextPage() ? PageMarker.forToken(tableResult.getNextPageToken()) : null;
       return new SqlQueryResult(
@@ -100,7 +97,9 @@ public class BQExecutor {
     }
   }
 
-  /** @return pair of strings: GCS URL, file name */
+  /**
+   * @return pair of strings: GCS URL, file name
+   */
   public Pair<String, String> export(
       SqlQueryRequest queryRequest,
       String fileNamePrefix,
@@ -131,11 +130,10 @@ public class BQExecutor {
         QueryJobConfiguration.newBuilder(queryRequest.getSql())
             .setUseLegacySql(false)
             .setDestinationTable(tempTableId);
-    queryRequest.getSqlParams().getParams().entrySet().stream()
-        .forEach(
-            sqlParam ->
-                queryConfig.addNamedParameter(
-                    sqlParam.getKey(), toQueryParameterValue(sqlParam.getValue())));
+    queryRequest
+        .getSqlParams()
+        .getParams()
+        .forEach((key, value) -> queryConfig.addNamedParameter(key, toQueryParameterValue(value)));
     Table tempTable = getBigQueryService().createTableFromQuery(queryConfig.build());
     LOGGER.info(
         "Temporary table created for export: {}.{}.{}",
