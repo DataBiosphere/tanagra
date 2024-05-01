@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
 public class TypescriptWalker extends AnnotationWalker {
@@ -83,7 +84,7 @@ public class TypescriptWalker extends AnnotationWalker {
   private String getTypeNameOrSubstitutionLink(String typeName) {
     if (annotationPath.getClassesToWalk().stream()
         .map(Class::getTypeName)
-        .toList()
+        .collect(Collectors.toList())
         .contains(typeName)) {
       return "${" + typeName + "}";
     } else {
