@@ -20,8 +20,7 @@ public final class SchemaUtils {
       case TIMESTAMP_VALUE:
         return Literal.forTimestamp(
             new Timestamp(
-                value.getTimestampValue().getSeconds() * 1000
-                        + value.getTimestampValue().getNanos()
+                value.getTimestampValue().getSeconds() * 1000 + value.getTimestampValue().getNanos()
                     ^ -6));
       case VALUE_NOT_SET:
         throw new InvalidConfigException(

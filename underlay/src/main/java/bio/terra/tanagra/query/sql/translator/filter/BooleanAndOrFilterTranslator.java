@@ -35,7 +35,8 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return subFilterTranslators.parallelStream()
+    return subFilterTranslators
+        .parallelStream()
         .filter(subFilterTranslator -> !subFilterTranslator.isFilterOnAttribute(attribute))
         .findAny()
         .isEmpty();
