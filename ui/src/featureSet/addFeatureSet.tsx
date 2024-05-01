@@ -1,7 +1,9 @@
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { generateId, sectionName } from "cohort";
+import { generateId, getCriteriaTitle, sectionName } from "cohort";
 import { insertCohortCriteria, useCohortContext } from "cohortContext";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -22,6 +24,14 @@ import { absoluteFeatureSetURL, cohortURL, useBaseParams } from "router";
 import useSWR from "swr";
 import { useNavigate } from "util/searchState";
 
+type FeatureSetData = FeatureSet & {
+  criteriaTitles: string[];
+};
+
+function filterCriteria(featureSet: FeatureSet) {
+  return featureSet.criteria.filter((c) => c.config.isEnabledForCohorts);
+}
+
 export function AddFeatureSet() {
   const studyId = useStudyId();
   const underlaySource = useUnderlaySource();
@@ -40,9 +50,14 @@ export function AddFeatureSet() {
       underlayName: underlay.name,
     },
     async () =>
-      await studySource
-        .listFeatureSets(studyId, underlaySource)
-        .then((res) => res.filter((fs) => fs.underlayName === underlay.name))
+      (
+        await studySource
+          .listFeatureSets(studyId, underlaySource)
+          .then((res) => res.filter((fs) => fs.underlayName === underlay.name))
+      ).map((fs) => ({
+        criteriaTitles: filterCriteria(fs).map((c) => getCriteriaTitle(c)),
+        ...fs,
+      }))
   );
 
   const data = useArrayAsTreeGridData(featureSetsState.data ?? [], "id");
@@ -50,6 +65,7 @@ export function AddFeatureSet() {
   const columns = [
     { key: "name", width: "100%", title: "Name" },
     { key: "lastModified", width: 200, title: "Last modified" },
+    { key: "criteria", width: 100, title: "Criteria" },
     { key: "button", width: 80 },
   ];
 
@@ -63,9 +79,7 @@ export function AddFeatureSet() {
 
   const onInsertFeatureSet = useCallback(
     (featureSet: FeatureSet) => {
-      const filteredCriteria = featureSet.criteria.filter(
-        (c) => c.config.isEnabledForCohorts
-      );
+      const filteredCriteria = filterCriteria(featureSet);
       const group = insertCohortCriteria(
         context,
         section.id,
@@ -101,19 +115,41 @@ export function AddFeatureSet() {
                   return undefined;
                 }
 
-                const featureSet = data[id].data as FeatureSet;
-                if (!featureSet) {
+                const featureSetData = data[id].data as FeatureSetData;
+                if (!featureSetData) {
                   return undefined;
                 }
 
                 return [
+                  {
+                    column: columns.length - 2,
+                    content: featureSetData.criteriaTitles.length ? (
+                      <Tooltip
+                        title={
+                          <span style={{ whiteSpace: "pre-line" }}>
+                            {featureSetData.criteriaTitles.join("\n")}
+                          </span>
+                        }
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{ textDecoration: "underline" }}
+                        >
+                          {featureSetData.criteriaTitles.length}
+                        </Typography>
+                      </Tooltip>
+                    ) : (
+                      <Typography variant="body2">0</Typography>
+                    ),
+                  },
                   {
                     column: columns.length - 1,
                     content: (
                       <GridLayout cols fillCol={0}>
                         <Button
                           variant="outlined"
-                          onClick={() => onInsertFeatureSet(featureSet)}
+                          disabled={!featureSetData.criteriaTitles.length}
+                          onClick={() => onInsertFeatureSet(featureSetData)}
                         >
                           Add
                         </Button>
