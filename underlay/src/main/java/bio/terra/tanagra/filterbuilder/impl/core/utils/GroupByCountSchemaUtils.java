@@ -76,11 +76,8 @@ public final class GroupByCountSchemaUtils {
           occurrenceEntity ->
               groupByAttributesPerOccurrenceEntity.put(
                   occurrenceEntity,
-                  groupByModifierConfig
-                      .getAttributesMap()
-                      .get(occurrenceEntity.getName())
-                      .getValuesList()
-                      .stream()
+                  groupByModifierConfig.getAttributesMap().get(occurrenceEntity.getName())
+                      .getValuesList().stream()
                       .map(occurrenceEntity::getAttribute)
                       .collect(Collectors.toList())));
     }

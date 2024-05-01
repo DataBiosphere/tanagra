@@ -97,9 +97,7 @@ public class BQExecutor {
     }
   }
 
-  /**
-   * @return pair of strings: GCS URL, file name
-   */
+  /** @return pair of strings: GCS URL, file name */
   public Pair<String, String> export(
       SqlQueryRequest queryRequest,
       String fileNamePrefix,
