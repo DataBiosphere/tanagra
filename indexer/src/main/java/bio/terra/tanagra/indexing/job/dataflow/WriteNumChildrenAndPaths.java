@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -222,7 +223,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
             .append("))");
       }
     }
-    LOGGER.info("child-parent query: {}", childParentSql.toString());
+    LOGGER.info("child-parent query: {}", childParentSql);
     PCollection<KV<Long, Long>> childParentRelationshipsPC =
         BigQueryBeamUtils.readTwoFieldRowsFromBQ(
             pipeline,
@@ -326,7 +327,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
 
     // Build the schema for the temp table.
     List<TableFieldSchema> tempTableFieldSchemas =
-        List.of(idColumnSchema, pathColumnSchema, numChildrenColumnSchema).stream()
+        Stream.of(idColumnSchema, pathColumnSchema, numChildrenColumnSchema)
             .map(
                 columnSchema ->
                     new TableFieldSchema()

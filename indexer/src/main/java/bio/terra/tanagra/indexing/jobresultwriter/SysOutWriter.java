@@ -38,25 +38,20 @@ public class SysOutWriter extends JobResultWriter {
   }
 
   private void printSingleResult(JobResult jobResult) {
-    outStream.println(
-        String.format(
-            "%s %s",
-            jobResult.getJobName(),
-            jobResult.isFailure()
-                ? (TERMINAL_ANSI_RED + "FAILED" + TERMINAL_ESCAPE_RESET)
-                : (TERMINAL_ANSI_GREEN + "SUCCESS" + TERMINAL_ESCAPE_RESET)));
-    outStream.println(String.format("   thread: %s", jobResult.getThreadName()));
-    outStream.println(String.format("   job status: %s", jobResult.getJobStatus()));
-    outStream.println(
-        String.format("   job status as expected: %s", jobResult.isJobStatusAsExpected()));
-    outStream.println(
-        String.format(
-            "   elapsed time (sec): %d",
-            TimeUnit.MINUTES.convert(jobResult.getElapsedTimeNS(), TimeUnit.NANOSECONDS)));
-    outStream.println(
-        String.format("   thread terminated on time: %s", jobResult.isThreadTerminatedOnTime()));
-    outStream.println(String.format("   exception msg: %s", jobResult.getExceptionMessage()));
-    outStream.println(
-        String.format("   exception stack trace: %s", jobResult.getExceptionStackTrace()));
+    outStream.printf(
+        "%s %s%n",
+        jobResult.getJobName(),
+        jobResult.isFailure()
+            ? (TERMINAL_ANSI_RED + "FAILED" + TERMINAL_ESCAPE_RESET)
+            : (TERMINAL_ANSI_GREEN + "SUCCESS" + TERMINAL_ESCAPE_RESET));
+    outStream.printf("   thread: %s%n", jobResult.getThreadName());
+    outStream.printf("   job status: %s%n", jobResult.getJobStatus());
+    outStream.printf("   job status as expected: %s%n", jobResult.isJobStatusAsExpected());
+    outStream.printf(
+        "   elapsed time (sec): %d%n",
+        TimeUnit.MINUTES.convert(jobResult.getElapsedTimeNS(), TimeUnit.NANOSECONDS));
+    outStream.printf("   thread terminated on time: %s%n", jobResult.isThreadTerminatedOnTime());
+    outStream.printf("   exception msg: %s%n", jobResult.getExceptionMessage());
+    outStream.printf("   exception stack trace: %s%n", jobResult.getExceptionStackTrace());
   }
 }

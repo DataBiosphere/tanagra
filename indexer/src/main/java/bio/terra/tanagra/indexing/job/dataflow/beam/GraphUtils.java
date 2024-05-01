@@ -39,8 +39,8 @@ public final class GraphUtils {
    */
   public static <T> PCollection<KV<T, T>> transitiveClosure(
       PCollection<KV<T, T>> edges, int maxPathLengthHint) {
-    // allPaths[n] is the set of vertices {V0, V1}, where V0 -> V1 is reachable in N or less edges.
-    // That is, there is a path with N or less edges from V0 to V1.
+    // allPaths[n] is the set of vertices {V0, V1}, where V0 -> V1 is reachable in N or fewer edges.
+    // That is, there is a path with N or fewer edges from V0 to V1.
     Map<Integer, PCollection<KV<T, T>>> allPaths = new HashMap<>();
     // exactPaths[n] is the set of vertices where there exists a path from V0 -> V1 in exactly N
     // edges.
@@ -58,11 +58,11 @@ public final class GraphUtils {
     // where '+' is appending lists, and '*' is concatenating paths together, joining on vertexes
     // e.g. [{A, B}] * [{B, C}, {B, D}, {D, E}] yields [{A, C}, {A,D}].
     //
-    // Given that exactPaths[x + y] = exactPaths[x] * exactPaths[y], and
+    // Given that exactPaths[x + y] = exactPaths[x] * exactPaths[y],
     // and that for x >= y, allPaths[x] = allPaths[y - 1] + exactPaths[y] * allPaths[x - y], we have
     // allPaths[2n - 1] = allPaths[n - 1] + exactPaths[n] + exactPaths[n] * allPaths[n - 1].
     //
-    // With this, we can increase n exponentially by 2, allowing for O(log_2(maxPathLengths) joins,
+    // With this, we can increase n exponentially by 2, allowing for O(log_2(maxPathLengths)) joins,
     // (n=2) allPaths[3] = allPaths[1] + exactPaths[2] + exactPaths[2] * allPaths[1]
     // (n=4) allPaths[7] = allPaths[3] + exactPaths[4] + exactPaths[4] * allPaths[3]
     // etc. where exactPaths[n] = exactPaths[n/2] * exactPaths[n/2].

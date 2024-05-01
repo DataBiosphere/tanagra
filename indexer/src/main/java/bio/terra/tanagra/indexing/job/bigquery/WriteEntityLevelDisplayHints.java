@@ -96,7 +96,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
     // Calculate a display hint for each attribute. Build a list of all the hints as JSON records.
     List<List<Literal>> insertRows = new ArrayList<>();
-    entity.getAttributes().stream()
+    entity
+        .getAttributes()
         .forEach(
             attribute -> {
               if (!attribute.isComputeDisplayHint()) {
@@ -118,24 +119,23 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                     minMax.getValue());
               } else if (isEnumHint(attribute)) {
                 List<Pair<ValueDisplay, Long>> enumCounts = computeEnumHint(attribute, isDryRun);
-                enumCounts.stream()
-                    .forEach(
-                        enumCount -> {
-                          List<Literal> rowOfLiterals = new ArrayList<>();
-                          rowOfLiterals.add(Literal.forString(attribute.getName()));
-                          rowOfLiterals.add(Literal.forDouble(null));
-                          rowOfLiterals.add(Literal.forDouble(null));
-                          rowOfLiterals.add(enumCount.getKey().getValue());
-                          rowOfLiterals.add(Literal.forString(enumCount.getKey().getDisplay()));
-                          rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
-                          insertRows.add(rowOfLiterals);
-                          LOGGER.info(
-                              "Enum hint: {}, {}, {}, {}",
-                              attribute.getName(),
-                              enumCount.getKey().getValue(),
-                              enumCount.getKey().getDisplay(),
-                              enumCount.getValue());
-                        });
+                enumCounts.forEach(
+                    enumCount -> {
+                      List<Literal> rowOfLiterals = new ArrayList<>();
+                      rowOfLiterals.add(Literal.forString(attribute.getName()));
+                      rowOfLiterals.add(Literal.forDouble(null));
+                      rowOfLiterals.add(Literal.forDouble(null));
+                      rowOfLiterals.add(enumCount.getKey().getValue());
+                      rowOfLiterals.add(Literal.forString(enumCount.getKey().getDisplay()));
+                      rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
+                      insertRows.add(rowOfLiterals);
+                      LOGGER.info(
+                          "Enum hint: {}, {}, {}, {}",
+                          attribute.getName(),
+                          enumCount.getKey().getValue(),
+                          enumCount.getKey().getDisplay(),
+                          enumCount.getValue());
+                    });
               } else {
                 LOGGER.info(
                     "Attribute {} data type {} not yet supported for computing hint",
@@ -178,9 +178,9 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       for (Literal literal : insertRow) {
         paramNames.add("@" + sqlParams.addParam("valr", literal));
       }
-      insertRowSqls.add("(" + paramNames.stream().collect(Collectors.joining(",")) + ")");
+      insertRowSqls.add("(" + String.join(",", paramNames) + ")");
     }
-    String rowsOfLiteralsSql = insertRowSqls.stream().collect(Collectors.joining(", "));
+    String rowsOfLiteralsSql = String.join(", ", insertRowSqls);
     String insertLiteralsSql =
         "INSERT INTO "
             + indexHintsTable.getTablePointer().render()
@@ -361,9 +361,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     } else {
       TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
       LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
-      Iterator<FieldValueList> rowResults = tableResult.getValues().iterator();
-      while (rowResults.hasNext()) {
-        FieldValueList rowResult = rowResults.next();
+      for (FieldValueList rowResult : tableResult.getValues()) {
         FieldValue enumValFieldValue = rowResult.get(enumValAlias);
         Literal enumVal =
             Literal.forInt64(enumValFieldValue.isNull() ? null : enumValFieldValue.getLongValue());
@@ -386,17 +384,15 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
     // Check that there is exactly one display per value.
     Map<Literal, String> valDisplay = new HashMap<>();
-    enumCounts.stream()
-        .forEach(
-            enumCount -> {
-              if (valDisplay.containsKey(enumCount.getKey().getValue())) {
-                throw new InvalidConfigException(
-                    "Found >1 possible display for the enum value "
-                        + enumCount.getKey().getValue());
-              } else {
-                valDisplay.put(enumCount.getKey().getValue(), enumCount.getKey().getDisplay());
-              }
-            });
+    enumCounts.forEach(
+        enumCount -> {
+          if (valDisplay.containsKey(enumCount.getKey().getValue())) {
+            throw new InvalidConfigException(
+                "Found >1 possible display for the enum value " + enumCount.getKey().getValue());
+          } else {
+            valDisplay.put(enumCount.getKey().getValue(), enumCount.getKey().getDisplay());
+          }
+        });
     return enumCounts;
   }
 }

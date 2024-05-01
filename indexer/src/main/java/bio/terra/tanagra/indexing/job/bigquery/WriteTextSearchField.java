@@ -11,7 +11,6 @@ import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STTextSearchTerms;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,8 @@ public class WriteTextSearchField extends BigQueryJob {
     // SELECT id AS idVal, attrDisp AS textVal FROM entityMain
     SqlField entityTableIdField =
         indexTable.getAttributeValueField(entity.getIdAttribute().getName());
-    entity.getOptimizeTextSearchAttributes().stream()
+    entity
+        .getOptimizeTextSearchAttributes()
         .forEach(
             attribute -> {
               SqlField attributeTextField;
@@ -107,7 +107,7 @@ public class WriteTextSearchField extends BigQueryJob {
     //   UNION ALL
     //   SELECT id AS idVal, text AS textVal FROM textSearchTerms
     // ) GROUP BY idVal
-    String unionAllSql = idTextSqls.stream().collect(Collectors.joining(" UNION ALL "));
+    String unionAllSql = String.join(" UNION ALL ", idTextSqls);
     BQTable unionAllTable = new BQTable(unionAllSql);
     SqlField tempTableIdField = SqlField.of(idAlias);
     SqlField tempTableTextField = SqlField.of(textAlias, "STRING_AGG");
