@@ -12,17 +12,17 @@ swaggerSources {
 //            templateDir = file("${projectDir}/src/main/resources/swaggercodegen")
             outputDir = file(openapiOutputDir)
             rawOptions = [
-                    "--model-package", "${artifactGroup}.model",
-                    "--api-package", "${artifactGroup}.api",
-                    "--invoker-package", "${artifactGroup}.client",
-                    "--group-id", "${artifactGroup}",
-                    "--artifact-version", "${version}",
-                    "--ignore-file-override", "${projectDir}/.swagger-codegen-ignore",
-                    "-D", "apiTests=false," +
-                            "apiDocs=false," +
-                            "modelTests=false," +
-                            "modelDocs=false," +
-                            "dateLibrary=java8"
+                "--api-package", "${artifactGroup}.api",
+                "--model-package", "${artifactGroup}.model",
+                "--invoker-package", "${artifactGroup}.client",
+                "--group-id", "${artifactGroup}",
+                "--artifact-version", "${version}",
+                "--ignore-file-override", "${projectDir}/.swagger-codegen-ignore",
+                '-D', 'apiTests=false,' +
+                        'apiDocs=false,' +
+                        'modelTests=false,' +
+                        'modelDocs=false,' +
+                        'dateLibrary=java8,'
             ]
         }
     }

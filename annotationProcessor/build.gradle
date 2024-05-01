@@ -1,8 +1,8 @@
 plugins {
-    id "java"
-    id "tanagra.java-conventions"
-    id "io.spring.dependency-management" version "1.0.11.RELEASE"
-    id "org.springframework.boot" version "2.5.1"
+    id 'java'
+    id 'tanagra.java-conventions'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.5.1'
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -42,7 +42,6 @@ dependencyManagement {
         dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
     }
 }
-
 
 dependencies {
     implementation project(path: ':underlay')
