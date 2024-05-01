@@ -28,7 +28,7 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
     List<String> subFilterSqls =
         subFilterTranslators.stream()
             .map(subFilterTranslator -> subFilterTranslator.buildSql(sqlParams, tableAlias))
-            .toList();
+            .collect(Collectors.toList());
     return apiTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
   }
