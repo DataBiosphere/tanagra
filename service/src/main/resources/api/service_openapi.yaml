@@ -866,13 +866,13 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/underlays/{underlayName}/entities/{entityName}/exportPreview":
+  "/v2/underlays/{underlayName}/entities/{entityName}/previewExport":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
       - $ref: "#/components/parameters/EntityName"
     post:
-      summary: List entity instances to preview the export
-      operationId: previewEntityExport
+      summary: List entity instances that will be included in an export
+      operationId: previewExportInstances
       tags: [Export]
       requestBody:
         required: true
@@ -892,12 +892,12 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/underlays/{underlayName}/entityOutputsPreview":
+  "/v2/underlays/{underlayName}/describeExport":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
     post:
-      summary: Preview the entity outputs that will be exported
-      operationId: previewEntityOutputs
+      summary: Describe the entities and attributes that will be included in an export
+      operationId: describeExport
       tags: [Export]
       requestBody:
         required: true

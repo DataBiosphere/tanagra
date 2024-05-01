@@ -99,7 +99,7 @@ public class ExportApiController implements ExportApi {
   }
 
   @Override
-  public ResponseEntity<ApiInstanceListResult> previewEntityExport(
+  public ResponseEntity<ApiInstanceListResult> previewExportInstances(
       String underlayName, String entityName, ApiExportPreviewRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
@@ -171,7 +171,7 @@ public class ExportApiController implements ExportApi {
   }
 
   @Override
-  public ResponseEntity<ApiEntityOutputPreviewList> previewEntityOutputs(
+  public ResponseEntity<ApiEntityOutputPreviewList> describeExport(
       String underlayName, ApiExportPreviewRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),

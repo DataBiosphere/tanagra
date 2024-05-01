@@ -881,7 +881,7 @@ export class BackendUnderlaySource implements UnderlaySource {
   ): Promise<ExportPreviewEntity[]> {
     return await parseAPIError(
       this.exportApi
-        .previewEntityOutputs({
+        .describeExport({
           underlayName,
           exportPreviewRequest: {
             study: studyId,
@@ -911,7 +911,7 @@ export class BackendUnderlaySource implements UnderlaySource {
 
     return await parseAPIError(
       this.exportApi
-        .previewEntityExport({
+        .previewExportInstances({
           underlayName,
           entityName: entity.name,
           exportPreviewRequest: {
