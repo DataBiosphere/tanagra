@@ -1,6 +1,0 @@
-{
-  "name": "_fitbit_heart_rate_summary_id",
-  "displayName": "Fitbit Heart Rate Summary",
-  "criteriaSelector": "outputUnfiltered",
-  "pluginDataFile": "fitbitHeartRateSummaryId.json"
-}
