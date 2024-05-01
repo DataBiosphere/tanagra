@@ -32,6 +32,8 @@
   <suppress checks="ReturnCount"/>
   <!-- Spotless is canonical for whitespace. -->
   <suppress checks="WhitespaceAround"/>
+  <!-- May be added for readability. -->
+  <suppress checks="UnnecessaryParentheses"/>
 
   <suppress files="underlay/src/main/java/bio/terra/tanagra/underlay/serialization/SZ*" checks="VisibilityModifier"/>
   <suppress files="indexer/src/main/java/bio/terra/tanagra/indexing/cli/*" checks="VisibilityModifier"/>
