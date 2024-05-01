@@ -2584,7 +2584,6 @@ components:
             type: string
         limit:
           type: integer
-          default: 50
         includeAllAttributes:
           type: boolean
           description: |

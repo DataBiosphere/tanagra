@@ -163,9 +163,9 @@ public class ExportApiController implements ExportApi {
             selectedFields,
             entityOutputPreview.getEntityOutput().getDataFeatureFilter(),
             null,
+            body.getLimit(),
             null,
-            null,
-            body.getLimit());
+            null);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
   }
