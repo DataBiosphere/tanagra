@@ -1,7 +1,9 @@
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { generateId } from "cohort";
+import { generateId, getCriteriaTitle } from "cohort";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import {
@@ -25,6 +27,19 @@ import { absoluteFeatureSetURL, featureSetURL, useBaseParams } from "router";
 import useSWR from "swr";
 import { useNavigate } from "util/searchState";
 
+type CohortData = Cohort & {
+  criteriaTitles: string[];
+};
+
+function filterCriteria(cohort: Cohort) {
+  return cohort.groupSections
+    .filter((gs) => !gs.filter.excluded)
+    .map((gs) => gs.groups)
+    .flat()
+    .map((g) => g.criteria[0])
+    .filter((c) => c.config.isEnabledForDataFeatureSets);
+}
+
 export function AddCohort() {
   const studyId = useStudyId();
   const underlaySource = useUnderlaySource();
@@ -43,9 +58,14 @@ export function AddCohort() {
       underlayName: underlay.name,
     },
     async () =>
-      await studySource
-        .listCohorts(studyId, underlaySource)
-        .then((res) => res.filter((fs) => fs.underlayName === underlay.name))
+      (
+        await studySource
+          .listCohorts(studyId, underlaySource)
+          .then((res) => res.filter((fs) => fs.underlayName === underlay.name))
+      ).map((cohort) => ({
+        criteriaTitles: filterCriteria(cohort).map((c) => getCriteriaTitle(c)),
+        ...cohort,
+      }))
   );
 
   const data = useArrayAsTreeGridData(cohortsState.data ?? [], "id");
@@ -53,6 +73,7 @@ export function AddCohort() {
   const columns = [
     { key: "name", width: "100%", title: "Name" },
     { key: "lastModified", width: 200, title: "Last modified" },
+    { key: "criteria", width: 100, title: "Criteria" },
     { key: "button", width: 80 },
   ];
 
@@ -66,12 +87,7 @@ export function AddCohort() {
 
   const onInsertCohort = useCallback(
     (cohort: Cohort) => {
-      const filteredCriteria = cohort.groupSections
-        .filter((gs) => !gs.filter.excluded)
-        .map((gs) => gs.groups)
-        .flat()
-        .map((g) => g.criteria[0])
-        .filter((c) => c.config.isEnabledForDataFeatureSets);
+      const filteredCriteria = filterCriteria(cohort);
       insertFeatureSetCriteria(
         context,
         produce(filteredCriteria, (fc) =>
@@ -101,23 +117,43 @@ export function AddCohort() {
                   return undefined;
                 }
 
-                const cohort = data[id].data as Cohort;
-                if (!cohort) {
+                const cohortData = data[id].data as CohortData;
+                if (!cohortData) {
                   return undefined;
                 }
 
                 return [
                   {
+                    column: columns.length - 2,
+                    content: cohortData.criteriaTitles.length ? (
+                      <Tooltip
+                        title={
+                          <span style={{ whiteSpace: "pre-line" }}>
+                            {cohortData.criteriaTitles.join("\n")}
+                          </span>
+                        }
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{ textDecoration: "underline" }}
+                        >
+                          {cohortData.criteriaTitles.length}
+                        </Typography>
+                      </Tooltip>
+                    ) : (
+                      <Typography variant="body2">0</Typography>
+                    ),
+                  },
+                  {
                     column: columns.length - 1,
                     content: (
-                      <GridLayout cols fillCol={0}>
-                        <Button
-                          variant="outlined"
-                          onClick={() => onInsertCohort(cohort)}
-                        >
-                          Add
-                        </Button>
-                      </GridLayout>
+                      <Button
+                        variant="outlined"
+                        disabled={!cohortData.criteriaTitles.length}
+                        onClick={() => onInsertCohort(cohortData)}
+                      >
+                        Add
+                      </Button>
                     ),
                   },
                 ];
