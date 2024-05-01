@@ -29,7 +29,7 @@ import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, FilterType, makeArrayFilter } from "data/filter";
-import { Criteria } from "data/source";
+import { Criteria, ListDataResponse } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import {
@@ -271,6 +271,8 @@ type PreviewTabData = {
 function Preview() {
   const featureSet = useFeatureSet();
   const underlaySource = useUnderlaySource();
+  const underlay = useUnderlay();
+  const studyId = useStudyId();
   const navigate = useNavigate();
 
   const occurrenceList = useMemo(() => {
@@ -304,12 +306,24 @@ function Preview() {
     async () => {
       return Promise.all(
         occurrenceList.map(async (params) => {
-          const res = await underlaySource.listData(
-            params.attributes,
-            params.id,
-            cohortFilter,
-            makeArrayFilter({ min: 1 }, params.filters)
-          );
+          let res: ListDataResponse | undefined;
+          if (process.env.REACT_APP_BACKEND_FILTERS) {
+            res = await underlaySource.exportPreview(
+              underlay.name,
+              params.id,
+              studyId,
+              [],
+              [featureSet.id],
+              true
+            );
+          } else {
+            res = await underlaySource.listData(
+              params.attributes,
+              params.id,
+              cohortFilter,
+              makeArrayFilter({ min: 1 }, params.filters)
+            );
+          }
 
           const data: TreeGridData = {
             root: { data: {}, children: [] },
