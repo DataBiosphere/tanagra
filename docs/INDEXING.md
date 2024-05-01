@@ -102,7 +102,7 @@ Kick off all jobs for the underlay.
 ```
 tanagra index underlay --indexer-config=cmssynpuf_verily
 ```
-This can take a long time to complete. If e.g. your computer falls asleep or you need to kill the process on your
+This can take a long time to complete. If e.g. your computer falls asleep, or you need to kill the process on your
 computer, you can re-run the same command again. You need to check that there are no in-progress Dataflow jobs in the
 project before kicking it off again, because the jobs check for the existence of the output BQ table (not whether there
 are any in-progress Dataflow jobs) to tell if they need to run.
