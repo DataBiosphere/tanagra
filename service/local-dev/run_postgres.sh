@@ -4,18 +4,18 @@ POSTGRES_VERSION=13.1
 
 start() {
     echo "attempting to remove old $CONTAINER container..."
-    docker rm -f $CONTAINER
+    docker rm -f "${CONTAINER}"
 
     # start up postgres
     echo "starting up postgres container..."
     BASEDIR=$(dirname "$0")
-    docker create --name $CONTAINER --rm -e POSTGRES_PASSWORD=password -p "$POSTGRES_PORT:5432" postgres:$POSTGRES_VERSION
-    docker cp $BASEDIR/local-postgres-init.sql $CONTAINER:/docker-entrypoint-initdb.d/docker_postgres_init.sql
-    docker start $CONTAINER
+    docker create --name "${CONTAINER}" --rm -e POSTGRES_PASSWORD=password -p "$POSTGRES_PORT:5432" postgres:$POSTGRES_VERSION
+    docker cp "${BASEDIR}"/local-postgres-init.sql "${CONTAINER}":/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    docker start "${CONTAINER}"
 
     # validate postgres
     echo "running postgres validation..."
-    docker exec $CONTAINER sh -c "$(cat $BASEDIR/sql_validate.sh)"
+    docker exec "${CONTAINER}" sh -c "$(cat "${BASEDIR}"/sql_validate.sh)"
     if [ 0 -eq $? ]; then
         echo "postgres validation succeeded."
     else
@@ -26,9 +26,9 @@ start() {
 }
 
 stop() {
-    echo "Stopping docker $CONTAINER container..."
-    docker stop $CONTAINER || echo "postgres stop failed. container already stopped."
-    docker rm -v $CONTAINER
+    echo "Stopping docker ${CONTAINER} container..."
+    docker stop "${CONTAINER}" || echo "postgres stop failed. container already stopped."
+    docker rm -v "${CONTAINER}"
     exit 0
 }
 
@@ -41,9 +41,9 @@ if [ ${#@} == 0 ]; then
     exit 1
 fi
 
-if [ $COMMAND = "start" ]; then
+if [ "${COMMAND}" = "start" ]; then
     start
-elif [ $COMMAND = "stop" ]; then
+elif [ "${COMMAND}" = "stop" ]; then
     stop
 else
     exit 1
