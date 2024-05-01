@@ -323,7 +323,8 @@ export interface UnderlaySource {
     entityId: string,
     studyId: string,
     cohorts: string[],
-    featureSets: string[]
+    featureSets: string[],
+    includeAllAttributes?: boolean
   ): Promise<ListDataResponse>;
 
   export(
@@ -905,7 +906,8 @@ export class BackendUnderlaySource implements UnderlaySource {
     entityId: string,
     studyId: string,
     cohorts: string[],
-    featureSets: string[]
+    featureSets: string[],
+    includeAllAttributes?: boolean
   ): Promise<ListDataResponse> {
     const entity = this.lookupEntity(entityId);
 
@@ -918,6 +920,8 @@ export class BackendUnderlaySource implements UnderlaySource {
             study: studyId,
             cohorts,
             conceptSets: featureSets,
+            includeAllAttributes,
+            limit: includeAllAttributes ? 100 : undefined,
           },
         })
         .then((res) => ({
@@ -2375,11 +2379,13 @@ function parseAPIError<T>(p: Promise<T>) {
     }
 
     const text = await response.text();
+    let message = "";
     try {
-      throw new Error(JSON.parse(text).message);
+      message = JSON.parse(text).message;
     } catch (e) {
-      throw new Error(getReasonPhrase(response.status) + ": " + text);
+      message = getReasonPhrase(response.status) + ": " + text;
     }
+    throw new Error(message);
   });
 }
 

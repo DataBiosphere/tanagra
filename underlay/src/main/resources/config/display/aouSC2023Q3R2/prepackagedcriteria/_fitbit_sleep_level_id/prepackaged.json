@@ -1,6 +1,0 @@
-{
-  "name": "_fitbit_sleep_level_id",
-  "displayName": "Fitbit Sleep Level",
-  "criteriaSelector": "outputUnfiltered",
-  "pluginDataFile": "fitbitSleepLevelId.json"
-}
