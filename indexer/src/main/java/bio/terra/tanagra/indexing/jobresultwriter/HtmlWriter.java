@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -178,7 +179,7 @@ public class HtmlWriter extends JobResultWriter {
               List<JobResult> jobResultsSorted =
                   summary.getJobResults().stream()
                       .sorted(Comparator.comparing(JobResult::getJobName))
-                      .toList();
+                      .collect(Collectors.toList());
               for (int i = 0; i < jobResultsSorted.size(); i++) {
                 JobResult jobResult = jobResultsSorted.get(i);
                 String bookmarkName =
