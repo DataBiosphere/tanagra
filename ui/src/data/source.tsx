@@ -2375,11 +2375,13 @@ function parseAPIError<T>(p: Promise<T>) {
     }
 
     const text = await response.text();
+    let message = "";
     try {
-      throw new Error(JSON.parse(text).message);
+      message = JSON.parse(text).message;
     } catch (e) {
-      throw new Error(getReasonPhrase(response.status) + ": " + text);
+      message = getReasonPhrase(response.status) + ": " + text;
     }
+    throw new Error(message);
   });
 }
 
