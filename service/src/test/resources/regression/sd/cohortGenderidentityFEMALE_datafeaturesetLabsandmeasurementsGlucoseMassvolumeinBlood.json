@@ -1,14 +1,14 @@
 {
   "underlay": "sd",
   "cohorts": [{
-    "displayName": "Age: 20-24",
+    "displayName": "Gender identity: FEMALE",
     "criteriaGroupSections": [{
       "criteriaGroups": [{
         "criteria": [{
-          "selectorOrModifierName": "tanagra-age",
-          "selectionData": "{\"dataRanges\":[{\"id\":\"DClglggx\",\"min\":20,\"max\":24}]}",
+          "selectorOrModifierName": "tanagra-gender",
+          "selectionData": "{\"selected\":[{\"value\":{\"int64Value\":8532},\"name\":\"FEMALE\"}]}",
           "pluginVersion": 0,
-          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
+          "pluginConfig": "{\n  \"attribute\": \"gender\"\n}",
           "pluginName": "attribute"
         }]
       }],
@@ -27,6 +27,6 @@
   }],
   "entityOutputCounts": [{
     "entity": "measurementOccurrence",
-    "numRows": "84709"
+    "numRows": "612726"
   }]
 }

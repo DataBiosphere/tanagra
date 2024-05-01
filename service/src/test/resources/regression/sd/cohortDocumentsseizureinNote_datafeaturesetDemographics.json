@@ -1,15 +1,15 @@
 {
   "underlay": "sd",
   "cohorts": [{
-    "displayName": "Age: 20-24",
+    "displayName": "Documents: \"seizure\" in [Note]",
     "criteriaGroupSections": [{
       "criteriaGroups": [{
         "criteria": [{
-          "selectorOrModifierName": "tanagra-age",
-          "selectionData": "{\"dataRanges\":[{\"id\":\"DClglggx\",\"min\":20,\"max\":24}]}",
+          "selectorOrModifierName": "tanagra-documents",
+          "selectionData": "{\"categories\":[{\"value\":{\"int64Value\":44814645},\"name\":\"Note\"}],\"query\":\"seizure\"}",
           "pluginVersion": 0,
-          "pluginConfig": "{\n  \"attribute\": \"age\"\n}",
-          "pluginName": "attribute"
+          "pluginConfig": "{\n  \"entity\": \"noteOccurrence\",\n  \"categoryAttribute\": \"note\"\n}",
+          "pluginName": "search"
         }]
       }],
       "operator": "OR"
@@ -24,6 +24,6 @@
   }],
   "entityOutputCounts": [{
     "entity": "person",
-    "numRows": "231347"
+    "numRows": "269865"
   }]
 }
