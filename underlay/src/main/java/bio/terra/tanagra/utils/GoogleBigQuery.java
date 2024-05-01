@@ -1,5 +1,6 @@
 package bio.terra.tanagra.utils;
 
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
@@ -437,17 +438,25 @@ public final class GoogleBigQuery {
     if (!(ex instanceof BigQueryException)) {
       return false;
     }
-    int statusCode = ((BigQueryException) ex).getCode();
-    LOGGER.error("Caught a BQ error (status code = {}).", statusCode, ex);
+    BigQueryException bqEx = (BigQueryException) ex;
+    int statusCode = bqEx.getCode();
+    LOGGER.error(
+        "Caught a BQ error (status code = {}, reason = {}).",
+        statusCode,
+        bqEx.getError().getReason(),
+        ex);
 
+    if (isResultSetTooLarge(bqEx)) {
+      return false;
+    }
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
         || statusCode == HttpStatus.SC_BAD_GATEWAY
         || statusCode == HttpStatus.SC_SERVICE_UNAVAILABLE
         || statusCode == HttpStatus.SC_GATEWAY_TIMEOUT
-
         // Retry forbidden errors because we often see propagation delays when a user is just
         // granted access.
-        || statusCode == HttpStatus.SC_FORBIDDEN;
+        || statusCode == HttpStatus.SC_FORBIDDEN
+        || bqEx.isRetryable();
   }
 
   /**
@@ -456,8 +465,8 @@ public final class GoogleBigQuery {
    * the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the BQ client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the BQ client or the retries
    */
   private <T> T callWithRetries(
       RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
@@ -476,16 +485,42 @@ public final class GoogleBigQuery {
    * client or the retries, make sure the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the BQ client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the BQ client or the retries
    */
   private <T> T handleClientExceptions(
       RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {
     try {
       return makeRequest.makeRequest();
+    } catch (BigQueryException bqEx) {
+      if (isResultSetTooLarge(bqEx)) {
+        throw new InvalidQueryException(
+            "Query too large to preview or export to a single file. You can still run this SQL in BigQuery directly, but you'll need to specify a destination table for the result set. See https://cloud.google.com/bigquery/docs/writing-results#large-results and https://cloud.google.com/bigquery/docs/exporting-data for more details.",
+            bqEx);
+      } else {
+        throw bqEx;
+      }
     } catch (IOException | InterruptedException ex) {
-      // wrap the BQ exception and re-throw it
+      // Wrap the BQ exception and re-throw it.
       throw new SystemException(errorMsg, ex);
     }
+  }
+
+  private static boolean isResultSetTooLarge(BigQueryException bqEx) {
+    final String responseTooLarge = "responseTooLarge";
+    boolean isResponseTooLarge =
+        bqEx.getCode() == HttpStatus.SC_FORBIDDEN
+            && bqEx.getError() != null
+            && responseTooLarge.equals(bqEx.getError().getReason());
+
+    final String invalid = "invalid";
+    final String tooLargeToExportToSingleFile = "too large to be exported to a single file";
+    boolean isTooLargeToExportToSingleFile =
+        bqEx.getCode() == 0
+            && bqEx.getError() != null
+            && invalid.equals(bqEx.getError().getReason())
+            && bqEx.getError().getMessage().contains(tooLargeToExportToSingleFile);
+
+    return isResponseTooLarge || isTooLargeToExportToSingleFile;
   }
 }

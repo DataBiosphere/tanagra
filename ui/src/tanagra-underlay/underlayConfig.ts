@@ -26,7 +26,7 @@ export enum SZCorePlugin {
   OUTPUT_UNFILTERED = "OUTPUT_UNFILTERED",
   TEXT_SEARCH = "TEXT_SEARCH",
   UNHINTED_VALUE = "UNHINTED_VALUE",
-};
+}
 
 export type SZCriteriaOccurrence = {
   criteriaEntity: string;
@@ -75,7 +75,7 @@ export enum SZDataType {
   INT64 = "INT64",
   STRING = "STRING",
   TIMESTAMP = "TIMESTAMP",
-};
+}
 
 export type SZDataflow = {
   dataflowLocation: string;
@@ -204,4 +204,3 @@ export type SZUnderlay = {
   primaryEntity: string;
   uiConfigFile: string;
 };
-

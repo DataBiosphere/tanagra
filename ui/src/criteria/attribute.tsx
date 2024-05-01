@@ -23,6 +23,7 @@ import * as configProto from "proto/criteriaselector/configschema/attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/attribute";
 import React, { useCallback, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
+import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { base64ToBytes } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
 
@@ -120,13 +121,21 @@ class _ implements CriteriaPlugin<string> {
     };
   }
 
-  generateFilter() {
+  generateFilter(occurrenceId: string, underlaySource: UnderlaySource) {
     const decodedData = decodeData(this.data);
+
+    const entity = underlaySource.lookupEntity(this.entity ?? "");
+    const attribute = entity.attributes.find(
+      (a) => a.name === this.config.attribute
+    );
 
     return {
       type: FilterType.Attribute,
       attribute: this.config.attribute,
-      values: decodedData.selected?.map(({ value }) => value),
+      values:
+        attribute?.dataType === tanagraUnderlay.SZDataType.BOOLEAN
+          ? [true]
+          : decodedData.selected?.map(({ value }) => value),
       ranges: decodedData.dataRanges,
     };
   }
@@ -319,7 +328,7 @@ function AttributeInline(props: AttributeInlineProps) {
     );
   };
 
-  return (
+  return attribute.dataType === tanagraUnderlay.SZDataType.BOOLEAN ? null : (
     <Loading status={hintDataState}>
       <Box>
         <Stack spacing={1}>{listRanges()}</Stack>
