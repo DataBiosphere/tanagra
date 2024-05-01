@@ -1,5 +1,6 @@
 package bio.terra.tanagra.utils;
 
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
@@ -439,14 +440,23 @@ public final class GoogleBigQuery {
     }
     BigQueryException bqEx = (BigQueryException) ex;
     int statusCode = bqEx.getCode();
-    LOGGER.error("Caught a BQ error (status code = {}).", statusCode, ex);
+    LOGGER.error(
+        "Caught a BQ error (status code = {}, reason = {}).",
+        statusCode,
+        bqEx.getError().getReason(),
+        ex);
 
     if (statusCode == HttpStatus.SC_FORBIDDEN) {
-      return !bqEx.getMessage()
-          .contains(
-              "Response too large to return. Consider specifying a destination table in your job configuration.");
-      // Retry other forbidden errors because we often see propagation delays when a user is just
-      // granted access.
+      final String responseTooLarge = "responseTooLarge";
+      if (bqEx.getError() != null || responseTooLarge.equals(bqEx.getError().getReason())) {
+        throw new InvalidQueryException(
+            "Query too large to preview. You can still run this SQL in BigQuery directly, but you'll need to specify a destination table for the result set. See https://cloud.google.com/bigquery/docs/writing-results#large-results for more details.",
+            bqEx);
+      } else {
+        // Retry other forbidden errors because we often see propagation delays when a user is just
+        // granted access.
+        return true;
+      }
     }
 
     return statusCode == HttpStatus.SC_INTERNAL_SERVER_ERROR
