@@ -33,10 +33,18 @@ import picocli.CommandLine;
 public abstract class BaseCommand implements Callable<Integer> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseCommand.class);
   // Output streams for commands to write to.
-  @SuppressWarnings({"checkstyle:StaticVariableName", "PMD.FieldNamingConventions"})
+  @SuppressWarnings({
+    "checkstyle:StaticVariableName",
+    "PMD.FieldNamingConventions",
+    "PMD.MutableStaticState"
+  })
   protected static PrintStream OUT;
 
-  @SuppressWarnings({"checkstyle:StaticVariableName", "PMD.FieldNamingConventions"})
+  @SuppressWarnings({
+    "checkstyle:StaticVariableName",
+    "PMD.FieldNamingConventions",
+    "PMD.MutableStaticState"
+  })
   protected static PrintStream ERR;
 
   @Override
