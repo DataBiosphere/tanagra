@@ -94,6 +94,74 @@ FROM (
         ON c1.concept_id = ca.ancestor_concept_id
     WHERE c1.vocabulary_id = 'RxNorm'
         AND c1.concept_class_id = 'Ingredient'
+
+    UNION ALL
+
+    /* Unmapped */
+    SELECT 1 AS parent_id, concept_id AS child
+    FROM `${omopDataset}.concept`
+    WHERE VOCABULARY_ID IN ('RxNorm', 'RxNorm Extension')
+      AND CONCEPT_CLASS_ID = 'Ingredient'
+      AND STANDARD_CONCEPT = 'S'
+      AND concept_id IN (
+        SELECT ANCESTOR_CONCEPT_ID
+        FROM `${omopDataset}.concept_ancestor`
+        WHERE DESCENDANT_CONCEPT_ID IN (
+            SELECT DISTINCT DRUG_CONCEPT_ID
+            FROM `${omopDataset}.drug_exposure` ) )
+      AND concept_id NOT IN (
+        SELECT DISTINCT c_rxing.concept_id AS child
+        FROM `${omopDataset}.concept_relationship` cr_atc4_atc5
+                 JOIN `${omopDataset}.concept` c_atc4
+                      ON c_atc4.concept_id = cr_atc4_atc5.concept_id_1
+                          AND c_atc4.VOCABULARY_ID = 'ATC'
+                          AND c_atc4.CONCEPT_CLASS_ID = 'ATC 4th'
+                          AND c_atc4.STANDARD_CONCEPT = 'C'
+                 JOIN `${omopDataset}.concept` c_atc5
+                      ON c_atc5.concept_id = cr_atc4_atc5.concept_id_2
+                          AND c_atc5.VOCABULARY_ID = 'ATC'
+                          AND c_atc5.CONCEPT_CLASS_ID = 'ATC 5th'
+                          AND c_atc5.STANDARD_CONCEPT = 'C'
+                 LEFT JOIN `${omopDataset}.concept_relationship` cr_rxing_atc5
+                           ON cr_rxing_atc5.concept_id_2 = c_atc5.concept_id
+                               AND cr_rxing_atc5.relationship_id IN ('RxNorm - ATC name', 'Mapped from', 'RxNorm - ATC')
+                 JOIN `${omopDataset}.concept` c_rxing
+                      ON c_rxing.concept_id = cr_rxing_atc5.concept_id_1
+                          AND c_rxing.VOCABULARY_ID = 'RxNorm'
+                          AND c_rxing.CONCEPT_CLASS_ID = 'Ingredient'
+                          AND c_rxing.STANDARD_CONCEPT = 'S'
+        WHERE cr_atc4_atc5.relationship_id = 'Subsumes'
+
+        UNION ALL
+
+        SELECT DISTINCT c_rxing.concept_id AS child
+        FROM `${omopDataset}.concept_relationship` cr_atc4_atc5
+                 JOIN `${omopDataset}.concept` c_atc4
+                      ON c_atc4.concept_id = cr_atc4_atc5.concept_id_1
+                          AND c_atc4.VOCABULARY_ID = 'ATC'
+                          AND c_atc4.CONCEPT_CLASS_ID = 'ATC 4th'
+                          AND c_atc4.STANDARD_CONCEPT = 'C'
+                 JOIN `${omopDataset}.concept` c_atc5
+                      ON c_atc5.concept_id = cr_atc4_atc5.concept_id_2
+                          AND c_atc5.VOCABULARY_ID = 'ATC'
+                          AND c_atc5.CONCEPT_CLASS_ID = 'ATC 5th'
+                          AND c_atc5.STANDARD_CONCEPT = 'C'
+                 LEFT JOIN `${omopDataset}.concept_relationship` cr_rxprecing_atc5
+                           ON cr_rxprecing_atc5.concept_id_2 = c_atc5.concept_id
+                               AND cr_rxprecing_atc5.relationship_id = 'RxNorm - ATC'
+                 JOIN `${omopDataset}.concept` cr_rxprecing
+                      ON cr_rxprecing.concept_id = cr_rxprecing_atc5.concept_id_1
+                          AND cr_rxprecing.VOCABULARY_ID = 'RxNorm'
+                          AND cr_rxprecing.CONCEPT_CLASS_ID = 'Precise Ingredient'
+                 LEFT JOIN `${omopDataset}.concept_relationship` cr_rxing_rxprecing
+                           ON cr_rxing_rxprecing.concept_id_2 = cr_rxprecing.concept_id
+                               AND cr_rxing_rxprecing.relationship_id = 'Has form'
+                 JOIN `${omopDataset}.concept` c_rxing
+                      ON c_rxing.concept_id = cr_rxing_rxprecing.concept_id_1
+                          AND c_rxing.VOCABULARY_ID = 'RxNorm'
+                          AND c_rxing.CONCEPT_CLASS_ID = 'Ingredient'
+                          AND c_rxing.STANDARD_CONCEPT = 'S'
+        WHERE cr_atc4_atc5.relationship_id = 'Subsumes' )
 ) cp
 WHERE cp.child != cp.parent
 GROUP BY cp.child, cp.parent
