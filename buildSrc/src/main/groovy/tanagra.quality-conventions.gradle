@@ -8,7 +8,7 @@
  * To suppress a violation in code, use `@SuppressWarning("ViolationName")`.
  */
 plugins {
-    id "ru.vyarus.quality"
+    id 'ru.vyarus.quality'
 }
 quality {
     strict = true

@@ -23,6 +23,7 @@
         <exclude name="JUnit4TestShouldUseTestAnnotation"/>
         <exclude name="JUnitTestContainsTooManyAsserts"/>
         <exclude name="JUnitTestsShouldIncludeAssert"/>
+        <exclude name="JUnit5TestShouldBePackagePrivate"/>
     </rule>
 
 
@@ -80,6 +81,7 @@
         <exclude name="StdCyclomaticComplexity"/>
         <exclude name="TooManyMethods"/>
         <exclude name="UseObjectForClearerAPI"/>
+        <exclude name="CognitiveComplexity"/>
     </rule>
     <rule ref="category/java/design.xml/AvoidDeeplyNestedIfStmts">
         <properties>

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.cli.command;
 
 import bio.terra.tanagra.cli.exception.InternalErrorException;
-import bio.terra.tanagra.cli.utils.Context;
+import bio.terra.tanagra.cli.utils.Config;
 import bio.terra.tanagra.cli.utils.UserIO;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -63,7 +63,7 @@ public class Format {
 
   // Return the option in force, either from the --format passed in or the Config system.
   public FormatOptions getEffectiveFormatOption() {
-    return Optional.ofNullable(format).orElseGet(() -> Context.getConfig().FORMAT);
+    return Optional.ofNullable(format).orElse(Config.FORMAT);
   }
 
   /**

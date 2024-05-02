@@ -38,25 +38,24 @@ public abstract class JobResultWriter {
     this.errStream = errStream;
     this.numJobs = jobResults.size();
     this.numFailures = jobResults.stream().filter(JobResult::isFailure).count();
-    jobResults.stream()
-        .forEach(
-            jobResult -> {
-              if (jobResult.getEntity() != null) {
-                Summary summary =
-                    entitySummaries.containsKey(jobResult.getEntity())
-                        ? entitySummaries.get(jobResult.getEntity())
-                        : new Summary(jobResult.getEntity(), null);
-                summary.addJobResult(jobResult);
-                entitySummaries.put(jobResult.getEntity(), summary);
-              } else {
-                Summary summary =
-                    entityGroupSummaries.containsKey(jobResult.getEntityGroup())
-                        ? entityGroupSummaries.get(jobResult.getEntityGroup())
-                        : new Summary(null, jobResult.getEntityGroup());
-                summary.addJobResult(jobResult);
-                entityGroupSummaries.put(jobResult.getEntityGroup(), summary);
-              }
-            });
+    jobResults.forEach(
+        jobResult -> {
+          if (jobResult.getEntity() != null) {
+            Summary summary =
+                entitySummaries.containsKey(jobResult.getEntity())
+                    ? entitySummaries.get(jobResult.getEntity())
+                    : new Summary(jobResult.getEntity(), null);
+            summary.addJobResult(jobResult);
+            entitySummaries.put(jobResult.getEntity(), summary);
+          } else {
+            Summary summary =
+                entityGroupSummaries.containsKey(jobResult.getEntityGroup())
+                    ? entityGroupSummaries.get(jobResult.getEntityGroup())
+                    : new Summary(null, jobResult.getEntityGroup());
+            summary.addJobResult(jobResult);
+            entityGroupSummaries.put(jobResult.getEntityGroup(), summary);
+          }
+        });
   }
 
   public long getNumJobs() {

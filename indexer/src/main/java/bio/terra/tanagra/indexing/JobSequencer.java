@@ -77,7 +77,8 @@ public final class JobSequencer {
         jobSet.addJob(
             new WriteTextSearchField(indexerConfig, entity, sourceTextTable, indexEntityMain));
       }
-      entity.getHierarchies().stream()
+      entity
+          .getHierarchies()
           .forEach(
               hierarchy -> {
                 STHierarchyChildParent sourceChildParent =
@@ -101,7 +102,8 @@ public final class JobSequencer {
               });
 
       jobSet.startNewStage();
-      entity.getHierarchies().stream()
+      entity
+          .getHierarchies()
           .forEach(
               hierarchy -> {
                 ITHierarchyChildParent indexChildParent =
@@ -205,25 +207,26 @@ public final class JobSequencer {
     // hierarchy.
     // e.g. To show rollup counts for each genotyping.
     if (groupItems.getGroupEntity().hasHierarchies()) {
-      groupItems.getGroupEntity().getHierarchies().stream()
+      groupItems
+          .getGroupEntity()
+          .getHierarchies()
           .forEach(
-              hierarchy -> {
-                jobSet.addJob(
-                    new WriteRollupCounts(
-                        indexerConfig,
-                        groupItems,
-                        groupItems.getGroupEntity(),
-                        groupItems.getItemsEntity(),
-                        groupItems.getGroupItemsRelationship(),
-                        groupEntityIndexTable,
-                        itemsEntityIndexTable,
-                        groupItemsIdPairsTable,
-                        hierarchy,
-                        underlay
-                            .getIndexSchema()
-                            .getHierarchyAncestorDescendant(
-                                groupItems.getGroupEntity().getName(), hierarchy.getName())));
-              });
+              hierarchy ->
+                  jobSet.addJob(
+                      new WriteRollupCounts(
+                          indexerConfig,
+                          groupItems,
+                          groupItems.getGroupEntity(),
+                          groupItems.getItemsEntity(),
+                          groupItems.getGroupItemsRelationship(),
+                          groupEntityIndexTable,
+                          itemsEntityIndexTable,
+                          groupItemsIdPairsTable,
+                          hierarchy,
+                          underlay
+                              .getIndexSchema()
+                              .getHierarchyAncestorDescendant(
+                                  groupItems.getGroupEntity().getName(), hierarchy.getName()))));
     }
 
     if (groupItems.getGroupEntity().hasHierarchies()) {
@@ -272,7 +275,8 @@ public final class JobSequencer {
     // Write the relationship id-pairs for each occurrence-criteria and occurrence-primary
     // relationship that is not a direct foreign-key mapping.
     // e.g. To allow joins between person-conditionOccurrence, conditionOccurrence-condition.
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity -> {
               Relationship occurrenceCriteriaRelationship =
@@ -378,7 +382,9 @@ public final class JobSequencer {
     // hierarchy.
     // e.g. To show rollup counts for each condition.
     if (criteriaOccurrence.getCriteriaEntity().hasHierarchies()) {
-      criteriaOccurrence.getCriteriaEntity().getHierarchies().stream()
+      criteriaOccurrence
+          .getCriteriaEntity()
+          .getHierarchies()
           .forEach(
               hierarchy ->
                   jobSet.addJob(

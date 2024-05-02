@@ -32,7 +32,7 @@ value and a display name.
 
 ### Hierarchies
 Each entity can have one or more hierarchies. This is used by the UI to display instances in a tree view instead of
-a list view. Currently the hierarchy depth is capped at 64 levels, but that's just an arbitrary limit and we could
+a list view. Currently, the hierarchy depth is capped at 64 levels, but that's just an arbitrary limit and we could
 raise it or allow users to override it in the future.
 
 ### Text search

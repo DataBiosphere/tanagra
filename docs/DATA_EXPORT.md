@@ -47,7 +47,7 @@ parameters, to distinguish between them.
 ## Shared configuration across models
 The export configuration contains a `shared` section with parameters that are made available to all data export
 models. Currently, this section contains references to GCS buckets where data export implementation classes
-can write files. In the future, we may add other cloud resource pointers here (e.g AWS S3 bucket). You must define
+can write files. In the future, we may add other cloud resource pointers here (e.g. AWS S3 bucket). You must define
 these properties if any of the data export models you define need them.
 ```
   export:

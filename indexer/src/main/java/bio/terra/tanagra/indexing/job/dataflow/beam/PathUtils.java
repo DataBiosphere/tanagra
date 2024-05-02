@@ -2,7 +2,6 @@ package bio.terra.tanagra.indexing.job.dataflow.beam;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.NullableCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -161,8 +160,7 @@ public final class PathUtils {
                 List<String> nodesInPath =
                     new java.util.ArrayList<>(List.of(path.split(PATH_DELIMITER_REGEX)));
                 String firstNodeInPath = nodesInPath.remove(0);
-                String pathWithoutFirstNode =
-                    nodesInPath.stream().collect(Collectors.joining(PATH_DELIMITER));
+                String pathWithoutFirstNode = String.join(PATH_DELIMITER, nodesInPath);
 
                 Long firstNode = Long.valueOf(firstNodeInPath);
 
@@ -285,7 +283,7 @@ public final class PathUtils {
 
   /**
    * Filter the root nodes in the hierarchy (i.e. set path=null for nodes that currently have
-   * path="" but are not members of the possible root nodes.
+   * path="" but are not members of the possible root nodes).
    *
    * @param possibleRootNodes a collection of all possible root nodes
    * @param nodePaths a collection of all (node, path) mappings, where nodes may be null
@@ -325,8 +323,7 @@ public final class PathUtils {
                               List.of(pathWithoutFirstNode.split(PATH_DELIMITER_REGEX)));
                       Long rootNode = Long.valueOf(nodesInPath.get(nodesInPath.size() - 1));
                       nodesInPath.add(0, firstNodeInPath.toString());
-                      String pathWithFirstNode =
-                          nodesInPath.stream().collect(Collectors.joining(PATH_DELIMITER));
+                      String pathWithFirstNode = String.join(PATH_DELIMITER, nodesInPath);
 
                       context.output(KV.of(rootNode, pathWithFirstNode));
                     }
@@ -382,9 +379,7 @@ public final class PathUtils {
                                 List.of(fullPath.split(PATH_DELIMITER_REGEX)));
                         Long firstNodeInPath = Long.valueOf(nodesInPath.remove(0));
                         String path =
-                            isPossibleRoot
-                                ? nodesInPath.stream().collect(Collectors.joining(PATH_DELIMITER))
-                                : null;
+                            isPossibleRoot ? String.join(PATH_DELIMITER, nodesInPath) : null;
 
                         context.output(KV.of(firstNodeInPath, path));
                       }

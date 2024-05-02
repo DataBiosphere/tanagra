@@ -11,6 +11,8 @@ import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.text.StringSubstitutor;
 
 public final class DataflowUtils {
+  private static final Random RANDOM = new Random();
+
   private DataflowUtils() {}
 
   public static BigQueryOptions getPipelineOptions(SZIndexer indexerConfig, String jobName) {
@@ -62,7 +64,7 @@ public final class DataflowUtils {
     if (cleanUser.length() > userSubstrLen) {
       cleanUser = cleanUser.substring(0, userSubstrLen);
     }
-    String randNum = String.valueOf(new Random().nextInt(1000));
+    String randNum = String.valueOf(RANDOM.nextInt(1000));
 
     return String.format("%s-%s-%s-%s", cleanUnderlay, cleanJob, cleanUser, randNum);
   }

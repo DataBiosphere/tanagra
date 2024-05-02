@@ -2,6 +2,7 @@ package bio.terra.tanagra.cli;
 
 import bio.terra.tanagra.cli.exception.InternalErrorException;
 import bio.terra.tanagra.cli.exception.UserActionableException;
+import bio.terra.tanagra.cli.utils.Config;
 import bio.terra.tanagra.cli.utils.Context;
 import bio.terra.tanagra.cli.utils.Logger;
 import bio.terra.tanagra.cli.utils.UserIO;
@@ -66,8 +67,7 @@ public abstract class BaseMain implements Runnable {
 
     // Initialize the context and setup logging.
     Context.initialize();
-    Logger.setupLogging(
-        Context.getConfig().CONSOLE_LOGGING_LEVEL, Context.getConfig().FILE_LOGGING_LEVEL);
+    Logger.setupLogging(Config.CONSOLE_LOGGING_LEVEL, Config.FILE_LOGGING_LEVEL);
 
     // Delegate to the appropriate command class, or print the usage if no command was specified.
     int exitCode = cmd.execute(args);
