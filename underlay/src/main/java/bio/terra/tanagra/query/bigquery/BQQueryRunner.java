@@ -516,7 +516,7 @@ public class BQQueryRunner implements QueryRunner {
                           sqlRowResult.get(attributeColName, DataType.STRING).getStringVal());
               if (attribute.isValueDisplay()
                   || attribute.getRuntimeDataType().equals(DataType.STRING)) {
-                // This is one value/count a pair of an enum values hint.
+                // This is one (value,count) pair of an enum values hint.
                 Literal enumVal = sqlRowResult.get(enumValColName, DataType.INT64);
                 String enumDisplay =
                     sqlRowResult.get(enumDisplayColName, DataType.STRING).getStringVal();
