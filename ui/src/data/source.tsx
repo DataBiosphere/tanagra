@@ -323,7 +323,8 @@ export interface UnderlaySource {
     entityId: string,
     studyId: string,
     cohorts: string[],
-    featureSets: string[]
+    featureSets: string[],
+    includeAllAttributes?: boolean
   ): Promise<ListDataResponse>;
 
   export(
@@ -881,7 +882,7 @@ export class BackendUnderlaySource implements UnderlaySource {
   ): Promise<ExportPreviewEntity[]> {
     return await parseAPIError(
       this.exportApi
-        .previewEntityOutputs({
+        .describeExport({
           underlayName,
           exportPreviewRequest: {
             study: studyId,
@@ -905,19 +906,22 @@ export class BackendUnderlaySource implements UnderlaySource {
     entityId: string,
     studyId: string,
     cohorts: string[],
-    featureSets: string[]
+    featureSets: string[],
+    includeAllAttributes?: boolean
   ): Promise<ListDataResponse> {
     const entity = this.lookupEntity(entityId);
 
     return await parseAPIError(
       this.exportApi
-        .previewEntityExport({
+        .previewExportInstances({
           underlayName,
           entityName: entity.name,
           exportPreviewRequest: {
             study: studyId,
             cohorts,
             conceptSets: featureSets,
+            includeAllAttributes,
+            limit: includeAllAttributes ? 100 : undefined,
           },
         })
         .then((res) => ({
