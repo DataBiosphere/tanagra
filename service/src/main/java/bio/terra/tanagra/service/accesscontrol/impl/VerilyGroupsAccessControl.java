@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -115,7 +115,8 @@ public class VerilyGroupsAccessControl implements AccessControl {
       } else {
         // Otherwise, check membership in each of the underlay-specific groups.
         Map<ResourceId, Permissions> underlayPermissionsMap = new HashMap<>();
-        underlayToGroup.keySet().stream()
+        underlayToGroup
+            .keySet()
             .forEach(
                 underlay ->
                     underlayPermissionsMap.put(
@@ -216,8 +217,7 @@ public class VerilyGroupsAccessControl implements AccessControl {
 
       StringBuffer response = new StringBuffer();
       try (BufferedReader in =
-          new BufferedReader(
-              new InputStreamReader(con.getInputStream(), Charset.forName("UTF-8")))) {
+          new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
           response.append(inputLine);

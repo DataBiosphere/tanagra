@@ -243,7 +243,7 @@ public class ConceptSetDao {
         new MapSqlParameterSource()
             .addValue(
                 "concept_set_ids",
-                conceptSets.stream().map(cs -> cs.getId()).collect(Collectors.toSet()));
+                conceptSets.stream().map(ConceptSet.Builder::getId).collect(Collectors.toSet()));
     List<Pair<String, Criteria.Builder>> criterias =
         jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER);
 
@@ -262,38 +262,34 @@ public class ConceptSetDao {
         criterias.stream()
             .collect(
                 Collectors.toMap(
-                    pair -> List.of(pair.getValue().getId(), pair.getKey()),
-                    pair -> pair.getValue()));
-    tags.stream()
-        .forEach(
-            pair -> {
-              List<String> criteraAndConceptSetId = pair.getKey();
-              String tagKey = pair.getValue().getKey();
-              String tagValue = pair.getValue().getValue();
-              criteriasMap.get(criteraAndConceptSetId).addTag(tagKey, tagValue);
-            });
+                    pair -> List.of(pair.getValue().getId(), pair.getKey()), Pair::getValue));
+    tags.forEach(
+        pair -> {
+          List<String> criteraAndConceptSetId = pair.getKey();
+          String tagKey = pair.getValue().getKey();
+          String tagValue = pair.getValue().getValue();
+          criteriasMap.get(criteraAndConceptSetId).addTag(tagKey, tagValue);
+        });
 
     // Put criteria into their respective concept sets.
     Map<String, ConceptSet.Builder> conceptSetsMap =
         conceptSets.stream()
             .collect(Collectors.toMap(ConceptSet.Builder::getId, Function.identity()));
-    criterias.stream()
-        .forEach(
-            pair -> {
-              String conceptSetId = pair.getKey();
-              Criteria criteria = pair.getValue().build();
-              conceptSetsMap.get(conceptSetId).addCriteria(criteria);
-            });
+    criterias.forEach(
+        pair -> {
+          String conceptSetId = pair.getKey();
+          Criteria criteria = pair.getValue().build();
+          conceptSetsMap.get(conceptSetId).addCriteria(criteria);
+        });
 
     // Put the output attributes into their respective concept sets.
-    outputAttributes.stream()
-        .forEach(
-            pair -> {
-              String conceptSetId = pair.getKey();
-              String entity = pair.getValue().getKey();
-              String attribute = pair.getValue().getValue();
-              conceptSetsMap.get(conceptSetId).addExcludeOutputAttribute(entity, attribute);
-            });
+    outputAttributes.forEach(
+        pair -> {
+          String conceptSetId = pair.getKey();
+          String entity = pair.getValue().getKey();
+          String attribute = pair.getValue().getValue();
+          conceptSetsMap.get(conceptSetId).addExcludeOutputAttribute(entity, attribute);
+        });
 
     // Preserve the order returned by the original query.
     return conceptSets.stream()
@@ -349,19 +345,18 @@ public class ConceptSetDao {
         "INSERT INTO criteria_tag (concept_set_id, criteria_id, criteria_key, criteria_value) VALUES (:concept_set_id, :criteria_id, :key, :value)";
     LOGGER.debug("CREATE criteria tag: {}", sql);
     List<MapSqlParameterSource> tagParamSets = new ArrayList<>();
-    criteria.stream()
-        .forEach(
-            c ->
-                tagParamSets.addAll(
-                    c.getTags().entrySet().stream()
-                        .map(
-                            tag ->
-                                new MapSqlParameterSource()
-                                    .addValue("concept_set_id", conceptSetId)
-                                    .addValue("criteria_id", c.getId())
-                                    .addValue("key", tag.getKey())
-                                    .addValue("value", tag.getValue()))
-                        .collect(Collectors.toList())));
+    criteria.forEach(
+        c ->
+            tagParamSets.addAll(
+                c.getTags().entrySet().stream()
+                    .map(
+                        tag ->
+                            new MapSqlParameterSource()
+                                .addValue("concept_set_id", conceptSetId)
+                                .addValue("criteria_id", c.getId())
+                                .addValue("key", tag.getKey())
+                                .addValue("value", tag.getValue()))
+                    .collect(Collectors.toList())));
     rowsAffected =
         Arrays.stream(
                 jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
@@ -385,19 +380,15 @@ public class ConceptSetDao {
             + "VALUES (:concept_set_id, :entity, :exclude_attribute)";
     LOGGER.debug("CREATE output attribute: {}", sql);
     List<MapSqlParameterSource> outputAttributeParamSets = new ArrayList<>();
-    outputAttributes.entrySet().stream()
-        .forEach(
-            entityAttributes -> {
-              String entity = entityAttributes.getKey();
-              entityAttributes.getValue().stream()
-                  .forEach(
-                      attribute ->
-                          outputAttributeParamSets.add(
-                              new MapSqlParameterSource()
-                                  .addValue("concept_set_id", conceptSetId)
-                                  .addValue("entity", entity)
-                                  .addValue("exclude_attribute", attribute)));
-            });
+    outputAttributes.forEach(
+        (entity, value) ->
+            value.forEach(
+                attribute ->
+                    outputAttributeParamSets.add(
+                        new MapSqlParameterSource()
+                            .addValue("concept_set_id", conceptSetId)
+                            .addValue("entity", entity)
+                            .addValue("exclude_attribute", attribute))));
     rowsAffected =
         Arrays.stream(
                 jdbcTemplate.batchUpdate(

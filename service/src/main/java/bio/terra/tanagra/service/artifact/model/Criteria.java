@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class Criteria {
+public final class Criteria {
   private final String id;
   private final String displayName;
   private final String pluginName;

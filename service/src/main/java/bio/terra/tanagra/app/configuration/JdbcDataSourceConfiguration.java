@@ -15,10 +15,13 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 public class JdbcDataSourceConfiguration {
   /** An id within Tanagra for this DataSource. This is referenced by Underlays. */
   private String dataSourceId;
+
   /** JDBC URL of the database, e.g. 'jdbc:postgresql://127.0.0.1:5432/my_database' */
   private String url;
+
   /** Username for the database */
   private String username;
+
   /** Password for the database */
   private String password;
 

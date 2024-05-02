@@ -10,12 +10,12 @@ import java.util.function.Supplier;
 
 public interface DataExport {
   enum Type {
-    INDIVIDUAL_FILE_DOWNLOAD(() -> new IndividualFileDownload()),
-    VWB_FILE_IMPORT(() -> new VwbFileImport()),
-    IPYNB_FILE_DOWNLOAD(() -> new IpynbFileDownload()),
-    REGRESSION_TEST(() -> new RegressionTest());
+    INDIVIDUAL_FILE_DOWNLOAD(IndividualFileDownload::new),
+    VWB_FILE_IMPORT(VwbFileImport::new),
+    IPYNB_FILE_DOWNLOAD(IpynbFileDownload::new),
+    REGRESSION_TEST(RegressionTest::new);
 
-    private Supplier<DataExport> createNewInstanceFn;
+    private final Supplier<DataExport> createNewInstanceFn;
 
     Type(Supplier<DataExport> createNewInstanceFn) {
       this.createNewInstanceFn = createNewInstanceFn;

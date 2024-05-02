@@ -8,11 +8,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class ConceptSet {
+public final class ConceptSet {
   private final String id;
   private final String underlay;
   private final List<Criteria> criteria;
@@ -70,7 +71,7 @@ public class ConceptSet {
     } else if (entity.isPrimary() && excludeOutputAttributesPerEntity.containsKey("")) {
       return excludeOutputAttributesPerEntity.get("");
     } else {
-      return null;
+      return List.of();
     }
   }
 
@@ -192,7 +193,7 @@ public class ConceptSet {
           excludeOutputAttributesPerEntity.entrySet().stream()
               .collect(
                   Collectors.toMap(
-                      entry -> entry.getKey(),
+                      Entry::getKey,
                       entry -> entry.getValue().stream().sorted().collect(Collectors.toList())));
       return new ConceptSet(this);
     }

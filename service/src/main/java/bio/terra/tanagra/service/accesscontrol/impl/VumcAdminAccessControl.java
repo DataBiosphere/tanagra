@@ -96,7 +96,8 @@ public class VumcAdminAccessControl implements AccessControl {
       //   - Map the action type to the action on the study (e.g. create cohort -> update study).
       //   - Check authorization with the ancestor study id.
       HashSet<Action> actionsOnStudy = new HashSet<>();
-      permissions.getActions().stream()
+      permissions
+          .getActions()
           .forEach(
               action ->
                   actionsOnStudy.add(
@@ -116,11 +117,11 @@ public class VumcAdminAccessControl implements AccessControl {
     // Convert the list of permitted actions to their API equivalents.
     Set<ResourceAction> apiActions = new HashSet<>();
     if (ResourceType.ACTIVITY_LOG.equals(type)) {
-      actions.stream().forEach(a -> apiActions.add(ResourceAction.valueOf(a.name())));
+      actions.forEach(a -> apiActions.add(ResourceAction.valueOf(a.name())));
     } else if (ResourceType.UNDERLAY.equals(type)) {
-      actions.stream().forEach(a -> apiActions.addAll(toUnderlayApiAction(a)));
+      actions.forEach(a -> apiActions.addAll(toUnderlayApiAction(a)));
     } else if (ResourceType.STUDY.equals(type)) {
-      actions.stream().forEach(a -> apiActions.addAll(toStudyApiAction(a)));
+      actions.forEach(a -> apiActions.addAll(toStudyApiAction(a)));
     } else {
       throw new SystemException(
           "VUMC admin service only stores permissions for underlays and studies");
@@ -191,7 +192,8 @@ public class VumcAdminAccessControl implements AccessControl {
                       Map.Entry::getKey,
                       entry -> {
                         Set<Action> actions = new HashSet<>();
-                        entry.getValue().stream()
+                        entry
+                            .getValue()
                             .forEach(
                                 apiAction ->
                                     actions.addAll(
@@ -222,10 +224,8 @@ public class VumcAdminAccessControl implements AccessControl {
       // object for the descendant resource type.
       Set<ResourceAction> parentStudyApiActions = studyApiActionsMap.get(studyAncestorResource);
       Set<Action> descendantActions = new HashSet<>();
-      parentStudyApiActions.stream()
-          .forEach(
-              apiAction ->
-                  descendantActions.addAll(fromStudyApiActionForDescendant(apiAction, type)));
+      parentStudyApiActions.forEach(
+          apiAction -> descendantActions.addAll(fromStudyApiActionForDescendant(apiAction, type)));
       Permissions descendantPermissions = Permissions.forActions(type, descendantActions);
 
       return ResourceCollection.allResourcesSamePermissions(descendantPermissions, parentResource)
@@ -239,38 +239,37 @@ public class VumcAdminAccessControl implements AccessControl {
             user.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(type.name()));
 
     Map<ResourceId, Set<ResourceAction>> resourceApiActionsMap = new HashMap<>();
-    apiResourceList.stream()
-        .forEach(
-            apiResource -> {
-              // Ignore any API resources returned that don't match the expected resource type.
-              if (!org.vumc.vda.tanagra.admin.model.ResourceType.ALL.equals(apiResource.getType())
-                  && !apiResource.getType().name().equals(type.name())) {
-                LOGGER.warn(
-                    "API resource list includes unexpected resource type: requested {}, returned {}",
-                    type,
-                    apiResource.getType());
-                return;
-              }
+    apiResourceList.forEach(
+        apiResource -> {
+          // Ignore any API resources returned that don't match the expected resource type.
+          if (!org.vumc.vda.tanagra.admin.model.ResourceType.ALL.equals(apiResource.getType())
+              && !apiResource.getType().name().equals(type.name())) {
+            LOGGER.warn(
+                "API resource list includes unexpected resource type: requested {}, returned {}",
+                type,
+                apiResource.getType());
+            return;
+          }
 
-              // Convert from the API resource id.
-              ResourceId resource;
-              if (apiResource.getId() == null) {
-                resource = ResourceId.builder().type(type).isNull(true).build();
-              } else if (ResourceType.UNDERLAY.equals(type)) {
-                resource = ResourceId.forUnderlay(apiResource.getId());
-              } else {
-                resource = ResourceId.forStudy(apiResource.getId());
-              }
+          // Convert from the API resource id.
+          ResourceId resource;
+          if (apiResource.getId() == null) {
+            resource = ResourceId.builder().type(type).isNull(true).build();
+          } else if (ResourceType.UNDERLAY.equals(type)) {
+            resource = ResourceId.forUnderlay(apiResource.getId());
+          } else {
+            resource = ResourceId.forStudy(apiResource.getId());
+          }
 
-              // Add to the list of permitted API actions for this resource id.
-              Set<ResourceAction> apiActions =
-                  resourceApiActionsMap.containsKey(resource)
-                      ? resourceApiActionsMap.get(resource)
-                      : new HashSet<>();
-              apiActions.add(apiResource.getAction());
+          // Add to the list of permitted API actions for this resource id.
+          Set<ResourceAction> apiActions =
+              resourceApiActionsMap.containsKey(resource)
+                  ? resourceApiActionsMap.get(resource)
+                  : new HashSet<>();
+          apiActions.add(apiResource.getAction());
 
-              resourceApiActionsMap.put(resource, apiActions);
-            });
+          resourceApiActionsMap.put(resource, apiActions);
+        });
     return resourceApiActionsMap;
   }
 

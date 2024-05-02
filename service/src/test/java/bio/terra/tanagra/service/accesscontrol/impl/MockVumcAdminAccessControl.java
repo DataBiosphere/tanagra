@@ -45,7 +45,7 @@ public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
     if (permissions.containsKey(userEmail)) {
       permissions.get(userEmail).stream()
           .filter(r -> r.getType().equals(resourceType))
-          .forEach(r -> resourceList.add(r));
+          .forEach(resourceList::add);
     }
     return resourceList;
   }

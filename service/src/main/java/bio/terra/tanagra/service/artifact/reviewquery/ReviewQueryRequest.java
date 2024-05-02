@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ReviewQueryRequest {
+public final class ReviewQueryRequest {
   private final List<Attribute> attributes;
   private final EntityFilter entityFilter;
   private final AnnotationFilter annotationFilter;

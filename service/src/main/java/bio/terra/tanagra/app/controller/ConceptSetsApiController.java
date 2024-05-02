@@ -91,7 +91,8 @@ public class ConceptSetsApiController implements ConceptSetsApi {
             offset,
             limit);
     ApiConceptSetList apiConceptSets = new ApiConceptSetList();
-    conceptSetService.listConceptSets(authorizedConceptSetIds, offset, limit).stream()
+    conceptSetService
+        .listConceptSets(authorizedConceptSetIds, offset, limit)
         .forEach(conceptSet -> apiConceptSets.add(toApiObject(conceptSet)));
     return ResponseEntity.ok(apiConceptSets);
   }
@@ -114,7 +115,9 @@ public class ConceptSetsApiController implements ConceptSetsApi {
         body.getEntityOutputs() == null
             ? null
             : body.getEntityOutputs().stream()
-                .collect(Collectors.toMap(eo -> eo.getEntity(), eo -> eo.getExcludeAttributes()));
+                .collect(
+                    Collectors.toMap(
+                        ApiEntityOutput::getEntity, ApiEntityOutput::getExcludeAttributes));
     ConceptSet updatedConceptSet =
         conceptSetService.updateConceptSet(
             studyId,

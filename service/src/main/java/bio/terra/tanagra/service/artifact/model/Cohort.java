@@ -10,7 +10,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class Cohort {
+public final class Cohort {
   private final String id;
   private final String underlay;
   private final OffsetDateTime created;
@@ -77,7 +77,7 @@ public class Cohort {
 
   public CohortRevision getMostRecentRevision() {
     Optional<CohortRevision> mostRecentRevision =
-        revisions.stream().filter(r -> r.isMostRecent()).findFirst();
+        revisions.stream().filter(CohortRevision::isMostRecent).findFirst();
     if (mostRecentRevision.isEmpty()) {
       throw new SystemException("Most recent cohort revision not found " + id);
     }

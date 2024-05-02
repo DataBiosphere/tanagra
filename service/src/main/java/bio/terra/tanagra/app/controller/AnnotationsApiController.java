@@ -95,7 +95,8 @@ public class AnnotationsApiController implements AnnotationsApi {
             offset,
             limit);
     ApiAnnotationList apiAnnotationKeys = new ApiAnnotationList();
-    annotationService.listAnnotationKeys(authorizedAnnotationKeyIds, offset, limit).stream()
+    annotationService
+        .listAnnotationKeys(authorizedAnnotationKeyIds, offset, limit)
         .forEach(annotationKey -> apiAnnotationKeys.add(toApiObject(annotationKey)));
     return ResponseEntity.ok(apiAnnotationKeys);
   }

@@ -331,7 +331,8 @@ public class CohortDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue(
-                "cohort_ids", cohorts.stream().map(c -> c.getId()).collect(Collectors.toSet()));
+                "cohort_ids",
+                cohorts.stream().map(Cohort.Builder::getId).collect(Collectors.toSet()));
     List<Pair<String, CohortRevision.Builder>> cohortRevisions =
         jdbcTemplate.query(sql, params, COHORT_REVISION_ROW_MAPPER);
 
@@ -341,13 +342,12 @@ public class CohortDao {
     // Put cohort revisions into their respective cohorts.
     Map<String, Cohort.Builder> cohortsMap =
         cohorts.stream().collect(Collectors.toMap(Cohort.Builder::getId, Function.identity()));
-    cohortRevisions.stream()
-        .forEach(
-            entry -> {
-              String cohortId = entry.getKey();
-              CohortRevision cohortRevision = entry.getValue().build();
-              cohortsMap.get(cohortId).addRevision(cohortRevision);
-            });
+    cohortRevisions.forEach(
+        entry -> {
+          String cohortId = entry.getKey();
+          CohortRevision cohortRevision = entry.getValue().build();
+          cohortsMap.get(cohortId).addRevision(cohortRevision);
+        });
 
     // Preserve the order returned by the original query.
     return cohorts.stream()
@@ -492,7 +492,7 @@ public class CohortDao {
                       uniqueId.addAll(c.getKey());
                       return uniqueId;
                     },
-                    c -> c.getValue()));
+                    Pair::getValue));
     for (Pair<List<String>, Pair<String, String>> pair : tags) {
       List<String> criteriaId = pair.getKey();
       Pair<String, String> tag = pair.getValue();
@@ -510,7 +510,7 @@ public class CohortDao {
                       uniqueId.addAll(cg.getKey());
                       return uniqueId;
                     },
-                    cg -> cg.getValue()));
+                    Pair::getValue));
     for (Pair<List<String>, Criteria.Builder> pair : criterias) {
       List<String> criteriaGroupId = pair.getKey();
       Criteria criteria = pair.getValue().build();
@@ -528,7 +528,7 @@ public class CohortDao {
                       uniqueId.add(cgs.getKey());
                       return uniqueId;
                     },
-                    cgs -> cgs.getValue()));
+                    Pair::getValue));
     for (Pair<List<String>, CohortRevision.CriteriaGroup.Builder> pair : criteriaGroups) {
       List<String> criteriaGroupSectionId = pair.getKey();
       CohortRevision.CriteriaGroup criteriaGroup = pair.getValue().build();
@@ -538,7 +538,7 @@ public class CohortDao {
     // Put criteria group sections into their respective cohort revisions.
     Map<String, CohortRevision.Builder> cohortRevisionsMap =
         cohortRevisions.stream()
-            .collect(Collectors.toMap(cr -> cr.getValue().getId(), cr -> cr.getValue()));
+            .collect(Collectors.toMap(cr -> cr.getValue().getId(), Pair::getValue));
     for (Pair<String, CohortRevision.CriteriaGroupSection.Builder> pair : criteriaGroupSections) {
       String cohortRevisionId = pair.getKey();
       CohortRevision.CriteriaGroupSection criteriaGroupSection = pair.getValue().build();

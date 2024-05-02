@@ -223,8 +223,7 @@ public class ReviewDao {
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
     List<Pair<Literal, Integer>> idIndexPairs =
         jdbcTemplate.query(sql, params, PRIMARY_ENTITY_INSTANCE_ROW_MAPPER);
-    return idIndexPairs.stream()
-        .collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()));
+    return idIndexPairs.stream().collect(Collectors.toMap(Pair::getKey, Pair::getValue));
   }
 
   private List<Review> getReviewsHelper(String reviewsSql, MapSqlParameterSource reviewsParams) {
@@ -239,7 +238,8 @@ public class ReviewDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue(
-                "review_ids", reviews.stream().map(r -> r.getId()).collect(Collectors.toSet()));
+                "review_ids",
+                reviews.stream().map(Review.Builder::getId).collect(Collectors.toSet()));
     List<Pair<String, CohortRevision.Builder>> cohortRevisions =
         jdbcTemplate.query(sql, params, COHORT_REVISION_ROW_MAPPER);
 
@@ -249,13 +249,12 @@ public class ReviewDao {
     // Put cohort revisions into their respective reviews.
     Map<String, Review.Builder> reviewsMap =
         reviews.stream().collect(Collectors.toMap(Review.Builder::getId, Function.identity()));
-    cohortRevisions.stream()
-        .forEach(
-            entry -> {
-              String reviewId = entry.getKey();
-              CohortRevision cohortRevision = entry.getValue().build();
-              reviewsMap.get(reviewId).revision(cohortRevision);
-            });
+    cohortRevisions.forEach(
+        entry -> {
+          String reviewId = entry.getKey();
+          CohortRevision cohortRevision = entry.getValue().build();
+          reviewsMap.get(reviewId).revision(cohortRevision);
+        });
 
     // Preserve the order returned by the original query.
     return reviews.stream()

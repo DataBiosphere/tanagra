@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 public final class ExportResult {
@@ -51,11 +50,7 @@ public final class ExportResult {
   }
 
   public boolean isSuccessful() {
-    return error == null
-        && fileResults.stream()
-            .filter(fileResult -> !fileResult.isSuccessful())
-            .collect(Collectors.toList())
-            .isEmpty();
+    return error == null && fileResults.stream().allMatch(ExportFileResult::isSuccessful);
   }
 
   public @Nullable ExportError getError() {

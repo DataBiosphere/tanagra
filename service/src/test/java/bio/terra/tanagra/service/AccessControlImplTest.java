@@ -101,7 +101,7 @@ public class AccessControlImplTest {
   @Disabled(
       "AoU Workbench service base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
   @Test
-  void aouWorkbench() throws ApiException {
+  void aouWorkbench() {
     AouWorkbenchAccessControl impl = new AouWorkbenchAccessControl();
     impl.initialize(
         accessControlConfiguration.getParams(),

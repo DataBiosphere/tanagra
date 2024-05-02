@@ -1,7 +1,6 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
-import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
@@ -56,11 +55,8 @@ public class WriteEntityAttributes extends BigQueryJob {
             });
     sourceTable
         .getAttributeDisplayColumnSchemas()
-        .entrySet()
         .forEach(
-            entry -> {
-              String attributeName = entry.getKey();
-              ColumnSchema attributeDisplayColumnSchema = entry.getValue();
+            (attributeName, attributeDisplayColumnSchema) -> {
               String indexColumn =
                   indexTable.getAttributeDisplayField(attributeName).getColumnName();
               LOGGER.info(

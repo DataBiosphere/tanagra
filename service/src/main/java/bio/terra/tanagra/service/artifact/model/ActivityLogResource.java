@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ActivityLogResource {
+public final class ActivityLogResource {
   public enum Type {
     STUDY,
     COHORT,

@@ -160,7 +160,8 @@ public class FilterBuilderServiceTest {
     EntityOutput expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
     List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria = new ArrayList<>();
-    CS_DEMOGRAPHICS.getCriteria().stream()
+    CS_DEMOGRAPHICS
+        .getCriteria()
         .forEach(criteria -> expectedAttributedCriteria.add(Pair.of(CS_DEMOGRAPHICS, criteria)));
     assertEquals(expectedAttributedCriteria, entityOutputs.get(0).getAttributedCriteria());
 
@@ -197,11 +198,13 @@ public class FilterBuilderServiceTest {
             .findAny();
     assertTrue(entityOutputAndAttributedCriteria1.isPresent());
     List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria1 = new ArrayList<>();
-    CS_DEMOGRAPHICS_EXCLUDE_ID_AGE.getCriteria().stream()
+    CS_DEMOGRAPHICS_EXCLUDE_ID_AGE
+        .getCriteria()
         .forEach(
             criteria ->
                 expectedAttributedCriteria1.add(Pair.of(CS_DEMOGRAPHICS_EXCLUDE_ID_AGE, criteria)));
-    CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER.getCriteria().stream()
+    CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER
+        .getCriteria()
         .forEach(
             criteria ->
                 expectedAttributedCriteria1.add(

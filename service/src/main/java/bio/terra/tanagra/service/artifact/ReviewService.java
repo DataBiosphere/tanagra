@@ -206,67 +206,53 @@ public class ReviewService {
     // Build a map of the values by key and instance id: annotation key id -> list of annotation
     // values
     Map<Pair<String, String>, List<AnnotationValue.Builder>> allValuesMap = new HashMap<>();
-    allValues.stream()
-        .forEach(
-            v -> {
-              Pair<String, String> keyAndInstance =
-                  Pair.of(v.getAnnotationKeyId(), v.getInstanceId());
-              List<AnnotationValue.Builder> valuesForKeyAndInstance =
-                  allValuesMap.get(keyAndInstance);
-              if (valuesForKeyAndInstance == null) {
-                valuesForKeyAndInstance = new ArrayList<>();
-                allValuesMap.put(keyAndInstance, valuesForKeyAndInstance);
-              }
-              valuesForKeyAndInstance.add(v);
-            });
+    allValues.forEach(
+        v -> {
+          Pair<String, String> keyAndInstance = Pair.of(v.getAnnotationKeyId(), v.getInstanceId());
+          List<AnnotationValue.Builder> valuesForKeyAndInstance =
+              allValuesMap.computeIfAbsent(keyAndInstance, k -> new ArrayList<>());
+          valuesForKeyAndInstance.add(v);
+        });
 
     // Filter the values, keeping only the most recent ones for each key-instance pair, and those
     // that belong to the specified revision.
     List<AnnotationValue> filteredValues = new ArrayList<>();
-    allValuesMap.entrySet().stream()
-        .forEach(
-            keyValues -> {
-              Pair<String, String> keyAndInstance = keyValues.getKey();
-              LOGGER.debug(
-                  "Building filtered list of values for annotation key {} and instance id {}",
-                  keyAndInstance.getKey(),
-                  keyAndInstance.getValue());
+    allValuesMap.forEach(
+        (keyAndInstance, allValuesForKeyAndInstance) -> {
+          LOGGER.debug(
+              "Building filtered list of values for annotation key {} and instance id {}",
+              keyAndInstance.getKey(),
+              keyAndInstance.getValue());
 
-              List<AnnotationValue.Builder> allValuesForKeyAndInstance = keyValues.getValue();
-              int maxVersionForKeyAndInstance =
-                  allValuesForKeyAndInstance.stream()
-                      .max(
-                          Comparator.comparingInt(
-                              AnnotationValue.Builder::getCohortRevisionVersion))
-                      .get()
-                      .getCohortRevisionVersion();
-
-              List<AnnotationValue> filteredValuesForKey = new ArrayList<>();
+          int maxVersionForKeyAndInstance =
               allValuesForKeyAndInstance.stream()
-                  .forEach(
-                      v -> {
-                        boolean isMostRecent =
-                            v.getCohortRevisionVersion() == maxVersionForKeyAndInstance;
-                        boolean isPartOfSelectedReview =
-                            v.getCohortRevisionVersion() == selectedVersion;
-                        if (isMostRecent || isPartOfSelectedReview) {
-                          filteredValuesForKey.add(
-                              v.isMostRecent(isMostRecent)
-                                  .isPartOfSelectedReview(isPartOfSelectedReview)
-                                  .build());
-                        } else {
-                          LOGGER.debug(
-                              "Filtering out annotation value {} - {} - {} - {} ({}, {})",
-                              v.build().getCohortRevisionVersion(),
-                              v.build().getInstanceId(),
-                              v.build().getAnnotationKeyId(),
-                              v.build().getLiteral().getStringVal(),
-                              maxVersionForKeyAndInstance,
-                              selectedVersion);
-                        }
-                      });
-              filteredValues.addAll(filteredValuesForKey);
-            });
+                  .max(Comparator.comparingInt(AnnotationValue.Builder::getCohortRevisionVersion))
+                  .get()
+                  .getCohortRevisionVersion();
+
+          List<AnnotationValue> filteredValuesForKey = new ArrayList<>();
+          allValuesForKeyAndInstance.forEach(
+              v -> {
+                boolean isMostRecent = v.getCohortRevisionVersion() == maxVersionForKeyAndInstance;
+                boolean isPartOfSelectedReview = v.getCohortRevisionVersion() == selectedVersion;
+                if (isMostRecent || isPartOfSelectedReview) {
+                  filteredValuesForKey.add(
+                      v.isMostRecent(isMostRecent)
+                          .isPartOfSelectedReview(isPartOfSelectedReview)
+                          .build());
+                } else {
+                  LOGGER.debug(
+                      "Filtering out annotation value {} - {} - {} - {} ({}, {})",
+                      v.build().getCohortRevisionVersion(),
+                      v.build().getInstanceId(),
+                      v.build().getAnnotationKeyId(),
+                      v.build().getLiteral().getStringVal(),
+                      maxVersionForKeyAndInstance,
+                      selectedVersion);
+                }
+              });
+          filteredValues.addAll(filteredValuesForKey);
+        });
     return filteredValues;
   }
 
@@ -292,7 +278,7 @@ public class ReviewService {
             primaryEntity,
             idAttribute,
             NaryOperator.IN,
-            primaryEntityIdsToStableIndex.keySet().stream().collect(Collectors.toList()));
+            new ArrayList<>(primaryEntityIdsToStableIndex.keySet()));
     if (reviewQueryRequest.getEntityFilter() != null) {
       entityFilter =
           new BooleanAndOrFilter(
@@ -302,7 +288,8 @@ public class ReviewService {
 
     // Get all the primary entity instances. Paginate through all the results.
     List<ValueDisplayField> attributeFields = new ArrayList<>();
-    reviewQueryRequest.getAttributes().stream()
+    reviewQueryRequest
+        .getAttributes()
         .forEach(
             attribute ->
                 attributeFields.add(new AttributeField(underlay, primaryEntity, attribute, false)));
@@ -317,9 +304,7 @@ public class ReviewService {
             null,
             MAX_REVIEW_SIZE);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
-    List<ListInstance> listInstances = new ArrayList<>();
-    listQueryResult.getListInstances().stream()
-        .forEach(listInstance -> listInstances.add(listInstance));
+    List<ListInstance> listInstances = new ArrayList<>(listQueryResult.getListInstances());
     while (listQueryResult.getPageMarker() != null) {
       // Using the MAX_REVIEW_SIZE as the page size should mean we get all results back in a single
       // page, but that's not guaranteed, so paginate here just in case.
@@ -334,8 +319,7 @@ public class ReviewService {
               listQueryResult.getPageMarker(),
               MAX_REVIEW_SIZE);
       listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
-      listQueryResult.getListInstances().stream()
-          .forEach(listInstance -> listInstances.add(listInstance));
+      listInstances.addAll(listQueryResult.getListInstances());
     }
 
     // Get the annotation values.
@@ -344,37 +328,34 @@ public class ReviewService {
     // Merge entity instances and annotation values, filtering out any instances that don't match
     // the annotation filter (if specified).
     List<ReviewInstance> reviewInstances = new ArrayList<>();
-    listInstances.stream()
-        .forEach(
-            listInstance -> {
-              Map<Attribute, ValueDisplay> attributeValues = new HashMap<>();
-              listInstance.getEntityFieldValues().entrySet().stream()
-                  .forEach(
-                      entry -> {
-                        ValueDisplayField field = entry.getKey();
-                        ValueDisplay value = entry.getValue();
-                        if (field instanceof AttributeField) {
-                          attributeValues.put(((AttributeField) field).getAttribute(), value);
-                        }
-                      });
-              Literal idAttributeValue =
-                  attributeValues.get(primaryEntity.getIdAttribute()).getValue();
-              String idAttributeValueStr = idAttributeValue.getInt64Val().toString();
+    listInstances.forEach(
+        listInstance -> {
+          Map<Attribute, ValueDisplay> attributeValues = new HashMap<>();
+          listInstance
+              .getEntityFieldValues()
+              .forEach(
+                  (field, value) -> {
+                    if (field instanceof AttributeField) {
+                      attributeValues.put(((AttributeField) field).getAttribute(), value);
+                    }
+                  });
+          Literal idAttributeValue = attributeValues.get(primaryEntity.getIdAttribute()).getValue();
+          String idAttributeValueStr = idAttributeValue.getInt64Val().toString();
 
-              List<AnnotationValue> associatedAnnotationValues =
-                  annotationValues.stream()
-                      .filter(av -> av.getInstanceId().equals(idAttributeValueStr))
-                      .collect(Collectors.toList());
+          List<AnnotationValue> associatedAnnotationValues =
+              annotationValues.stream()
+                  .filter(av -> av.getInstanceId().equals(idAttributeValueStr))
+                  .collect(Collectors.toList());
 
-              if (!reviewQueryRequest.hasAnnotationFilter()
-                  || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
-                reviewInstances.add(
-                    new ReviewInstance(
-                        primaryEntityIdsToStableIndex.get(idAttributeValue),
-                        attributeValues,
-                        associatedAnnotationValues));
-              }
-            });
+          if (!reviewQueryRequest.hasAnnotationFilter()
+              || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
+            reviewInstances.add(
+                new ReviewInstance(
+                    primaryEntityIdsToStableIndex.get(idAttributeValue),
+                    attributeValues,
+                    associatedAnnotationValues));
+          }
+        });
 
     if (reviewQueryRequest.getOrderBys().isEmpty()) {
       // Order by the stable index, ascending.
@@ -385,9 +366,9 @@ public class ReviewService {
       Comparator<ReviewInstance> comparator = null;
       for (ReviewQueryOrderBy reviewOrderBy : reviewQueryRequest.getOrderBys()) {
         if (comparator == null) {
-          comparator = Comparator.comparing(Function.identity(), reviewOrderBy::compare);
+          comparator = Comparator.comparing(Function.identity(), reviewOrderBy);
         } else {
-          comparator = comparator.thenComparing(Function.identity(), reviewOrderBy::compare);
+          comparator = comparator.thenComparing(Function.identity(), reviewOrderBy);
         }
       }
       reviewInstances.sort(comparator.thenComparing(ReviewInstance::getStableIndex));
@@ -434,8 +415,7 @@ public class ReviewService {
             entity,
             entity.getIdAttribute(),
             NaryOperator.IN,
-            reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet().stream()
-                .collect(Collectors.toList()));
+            new ArrayList<>(reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet()));
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
             underlay, entity, groupByAttributeFields, entityFilter, null, null, null, false);
@@ -472,8 +452,8 @@ public class ReviewService {
                 ResourceCollection.allResourcesAllPermissions(
                     ResourceType.ANNOTATION_KEY,
                     ResourceId.forCohort(study.getId(), cohort.getId())),
-                /*offset=*/ 0,
-                /*limit=*/ Integer.MAX_VALUE)
+                /* offset= */ 0,
+                /* limit= */ Integer.MAX_VALUE)
             .stream()
             .sorted(Comparator.comparing(AnnotationKey::getDisplayName))
             .collect(Collectors.toList());

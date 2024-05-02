@@ -85,7 +85,7 @@ public class AnnotationService {
       List<Literal> annotationValues) {
     featureConfiguration.artifactStorageEnabledCheck();
     AnnotationKey annotationKey = annotationDao.getAnnotationKey(cohortId, annotationKeyId);
-    annotationValues.stream().forEach(av -> annotationKey.validateValue(av));
+    annotationValues.forEach(annotationKey::validateValue);
     annotationDao.updateAnnotationValues(
         cohortId, annotationKeyId, reviewId, instanceId, annotationValues);
   }

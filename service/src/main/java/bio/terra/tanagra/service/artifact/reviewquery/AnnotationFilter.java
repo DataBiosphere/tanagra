@@ -20,7 +20,7 @@ public class AnnotationFilter {
 
   public boolean isMatch(List<AnnotationValue> annotationValues) {
     return annotationValues.stream()
-        .filter(
+        .anyMatch(
             av -> {
               if (!av.getAnnotationKeyId().equals(annotationKey.getId())) {
                 return false;
@@ -42,8 +42,6 @@ public class AnnotationFilter {
                 default:
                   throw new SystemException("Unsupported annotation filter operator: " + operator);
               }
-            })
-        .findFirst()
-        .isPresent();
+            });
   }
 }
