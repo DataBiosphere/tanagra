@@ -8,7 +8,7 @@ service (this repo) together. General outline of what each service is responsibl
 - The admin service will handle access control (e.g. which users have access to which
   studies/artifacts) and any VUMC-specific information (e.g. list possible users to grant access, store study PI).
 
-It's not a hard line though and we expect ongoing discussions around functionality that doesn't fall neatly into
+It's not a hard line though, and we expect ongoing discussions around functionality that doesn't fall neatly into
 one service or the other.
 
 ## Deployments

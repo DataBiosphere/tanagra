@@ -19,7 +19,7 @@ indexing job would trigger a recommendation to re-index).
 2. Click the gray "Run Workflow" button on the left.
 ![Diff Releases Run Workflow Button screenshot](./images/diff_releases_run_workflow.png "Diff Releases Run Workflow Button")
 3. Enter the first and last release tags in the text boxes and click the green "Run workflow" button below.
-4. Within a couple minutes, you should see the workflow in progress.
+4. Within a couple of minutes, you should see the workflow in progress.
    ![Diff Releases Workflow In Progress screenshot](./images/diff_releases_workflow_in_progress.png "Diff Releases Workflow In Progress")
 5. Once the workflow finishes, it should show a green checkmark. Click on the workflow run to see the results.
 6. The output file is linked in the "Artifacts" section. Click on the `diff-file` to download it.

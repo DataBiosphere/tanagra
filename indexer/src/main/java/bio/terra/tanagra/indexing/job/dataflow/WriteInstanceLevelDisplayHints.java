@@ -134,7 +134,8 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
         readInRelationshipIdPairs(
             pipeline, occPriIdPairsSql, entityAIdColumnName, entityBIdColumnName);
 
-    criteriaOccurrence.getAttributesWithInstanceLevelDisplayHints(occurrenceEntity).stream()
+    criteriaOccurrence
+        .getAttributesWithInstanceLevelDisplayHints(occurrenceEntity)
         .forEach(
             attribute -> {
               if (attribute.isValueDisplay()) {

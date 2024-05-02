@@ -45,7 +45,7 @@ public final class Context {
     // parallel without clobbering context across runners.
     String isTest = System.getProperty(IS_TEST);
     if (isTest != null && isTest.equals(IS_TEST_TRUE_VALUE)) {
-      // cleanupTestUserWorkspaces uses CLI Test Harness to call commands outside of test context.
+      // cleanupTestUserWorkspaces uses CLI Test Harness to call commands outside test context.
       // In this case IS_TEST is true, but "org.gradle.test.worker" is not set, causing testWorker
       // to be NULL.
       String testWorker = System.getProperty("org.gradle.test.worker");

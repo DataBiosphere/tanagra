@@ -111,6 +111,6 @@ public final class BigQueryBeamUtils {
   }
 
   private static Stream<ColumnSchema> sortedStream(List<ColumnSchema> columns) {
-    return columns.stream().sorted(Comparator.comparing(c -> c.getColumnName()));
+    return columns.stream().sorted(Comparator.comparing(ColumnSchema::getColumnName));
   }
 }

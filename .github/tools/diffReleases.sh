@@ -4,7 +4,7 @@ first_release=$1
 last_release=$2
 output_file="diffReleases.txt"
 
-if [ -z $first_release ] || [ -z $last_release ];
+if [ -z "${first_release}" ] || [ -z "${last_release}" ];
 then
   echo "First and last release tags are required (e.g. 0.0.370).";
   exit 1;

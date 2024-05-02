@@ -39,6 +39,16 @@
         <Bug pattern="NM_SAME_SIMPLE_NAME_AS_SUPERCLASS"/>
     </Match>
 
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+
     <!-- Do not check class -->
     <!--<Match>-->
         <!--<Class name="com.foobar.ClassNotToBeAnalyzed" />-->

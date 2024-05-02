@@ -6,6 +6,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.filter.ThresholdFilter;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
@@ -48,13 +49,13 @@ public final class Logger {
     StatusPrinter.printIfErrorsOccured(loggerContext);
 
     // Build the rolling file appender.
-    RollingFileAppender rollingFileAppender = new RollingFileAppender();
+    RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();
     rollingFileAppender.setName("RollingFileAppender");
     rollingFileAppender.setContext(loggerContext);
     rollingFileAppender.setFile(Context.getLogFile().toString());
 
     // Trigger a file rollover based on the log file size.
-    SizeBasedTriggeringPolicy triggeringPolicy = new SizeBasedTriggeringPolicy();
+    SizeBasedTriggeringPolicy<ILoggingEvent> triggeringPolicy = new SizeBasedTriggeringPolicy<>();
     triggeringPolicy.setContext(loggerContext);
     triggeringPolicy.setMaxFileSize(new FileSize(MAX_FILE_SIZE));
     rollingFileAppender.setTriggeringPolicy(triggeringPolicy);
@@ -90,7 +91,7 @@ public final class Logger {
     rollingFileAppender.start();
 
     // Build the console appender.
-    ConsoleAppender consoleAppender = new ConsoleAppender();
+    ConsoleAppender<ILoggingEvent> consoleAppender = new ConsoleAppender<>();
     consoleAppender.setName("ConsoleAppender");
     consoleAppender.setContext(loggerContext);
     setupEncoderAndFilter(consoleAppender, loggerContext, consoleLoggingLevel.getLogLevelImpl());
@@ -127,7 +128,9 @@ public final class Logger {
    * @param loggingLevel logging level particular to this appender
    */
   private static void setupEncoderAndFilter(
-      OutputStreamAppender appender, LoggerContext loggerContext, Level loggingLevel) {
+      OutputStreamAppender<ILoggingEvent> appender,
+      LoggerContext loggerContext,
+      Level loggingLevel) {
     PatternLayoutEncoder encoder = new PatternLayoutEncoder();
     encoder.setContext(loggerContext);
     encoder.setPattern(LOG_FORMAT);
@@ -156,7 +159,7 @@ public final class Logger {
    * ch.qos.logback.classic.Level is an object, not a string, and we don't want this file to include
    * logger implementation-specific object structure. That would make it harder to change later (i.e
    * because if we replace the cho.qos library with another one, then we won't have the appropriate
-   * Level class any more to do the deserialization)
+   * Level class anymore to do the deserialization)
    *
    * <p>- Config command to set the log level(s), including displaying the possible values.
    */

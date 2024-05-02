@@ -54,7 +54,7 @@ public final class ValidationUtils {
             LOGGER.info(
                 "Found a different definition of the relationship between entities: {} in entity groups: {}",
                 relatedEntitiesStr,
-                errorMsgs.stream().collect(Collectors.joining(",")));
+                String.join(",", errorMsgs));
           }
         } else {
           relationshipMap.put(relatedEntities, relationship);
@@ -69,13 +69,11 @@ public final class ValidationUtils {
       errorsForRelationship.keySet().stream()
           .sorted()
           .forEach(
-              relatedEntitiesStr -> {
-                LOGGER.warn(
-                    "Found >1 definition of the relationshp between entities: {} in entity groups: {}",
-                    relatedEntitiesStr,
-                    errorsForRelationship.get(relatedEntitiesStr).stream()
-                        .collect(Collectors.joining(",")));
-              });
+              relatedEntitiesStr ->
+                  LOGGER.warn(
+                      "Found >1 definition of the relationshp between entities: {} in entity groups: {}",
+                      relatedEntitiesStr,
+                      String.join(",", errorsForRelationship.get(relatedEntitiesStr))));
       throw new InvalidConfigException("Validation of entity relationships had errors");
     }
   }

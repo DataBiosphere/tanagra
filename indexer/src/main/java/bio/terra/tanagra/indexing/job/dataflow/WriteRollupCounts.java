@@ -24,6 +24,7 @@ import com.google.cloud.bigquery.Table;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -307,7 +308,7 @@ public class WriteRollupCounts extends BigQueryJob {
       PCollection<KV<Long, Long>> nodeCountKVs) {
     // Build the schema for the temp table.
     List<TableFieldSchema> tempTableFieldSchemas =
-        List.of(idColumnSchema, countColumnSchema).stream()
+        Stream.of(idColumnSchema, countColumnSchema)
             .map(
                 columnSchema ->
                     new TableFieldSchema()

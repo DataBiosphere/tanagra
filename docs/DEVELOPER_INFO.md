@@ -170,3 +170,11 @@ Run the `checkGeneratedFiles.sh` script to regenerate the documentation or confi
 
 If any changes are generated, check them in. This script is also run in a GitHub action that will prevent you from
 merging code that has code inconsistent documentation.
+
+## General coding guidelines
+AN easy way to inspect and cleanup code during development is using IntelliJ's 'Analyze Code' feature. 
+More information on their website. See [Analyze code before committing it to Git](https://www.jetbrains.com/help/idea/running-inspections.html#run-before-commit). 
+Performance optimizations, possible null pointer exceptions and other code issues are listed along with suggested fixes.
+
+- [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html)
+- [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)

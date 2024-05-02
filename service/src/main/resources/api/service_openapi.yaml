@@ -866,13 +866,13 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/underlays/{underlayName}/entities/{entityName}/exportPreview":
+  "/v2/underlays/{underlayName}/entities/{entityName}/previewExport":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
       - $ref: "#/components/parameters/EntityName"
     post:
-      summary: List entity instances to preview the export
-      operationId: previewEntityExport
+      summary: List entity instances that will be included in an export
+      operationId: previewExportInstances
       tags: [Export]
       requestBody:
         required: true
@@ -892,12 +892,12 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/underlays/{underlayName}/entityOutputsPreview":
+  "/v2/underlays/{underlayName}/describeExport":
     parameters:
       - $ref: "#/components/parameters/UnderlayName"
     post:
-      summary: Preview the entity outputs that will be exported
-      operationId: previewEntityOutputs
+      summary: Describe the entities and attributes that will be included in an export
+      operationId: describeExport
       tags: [Export]
       requestBody:
         required: true
@@ -1293,10 +1293,8 @@ components:
       description: Underlay
       properties:
         summary:
-          description: Summary information
           $ref: "#/components/schemas/UnderlaySummary"
         serializedConfiguration:
-          description: Contents of the underlay configuration files
           $ref: "#/components/schemas/UnderlaySerializedConfiguration"
         # TODO: Remove this uiConfiguration property from the service API once the UI config overhaul is done.
         uiConfiguration:
@@ -1354,7 +1352,6 @@ components:
       description: Attribute value and optional display string
       properties:
         value:
-          description: Literal value
           $ref: "#/components/schemas/Literal"
         display:
           type: string
@@ -1852,8 +1849,6 @@ components:
           description: A map of entity attribute names to their value for this instance. Only the attributes requested are populated.
           type: object
           additionalProperties:
-            type: object
-            nullable: true
             $ref: "#/components/schemas/ValueDisplay"
         hierarchyFields:
           description: Hierarchy field values for this instance. One set of values per hierarchy. Only the values requested are populated.
@@ -1910,8 +1905,6 @@ components:
           description: A map of entity attribute names to their value for this group
           type: object
           additionalProperties:
-            type: object
-            nullable: true
             $ref: "#/components/schemas/ValueDisplay"
 
     InstanceCountList:
@@ -2054,7 +2047,7 @@ components:
     # There seems to be a bug in the TS code generator that fails to create
     # proper objects for these when they're nested directy inside Properties.
     # It instead leaves them as untyped "object". My best guess is that it's
-    # cause by having an array as the top level object and it fails to generate
+    # cause by having an array as the top level object, and it fails to generate
     # a nested type for that case like for nested objects under other objects.
     # I've moved it out into a separate top level type as a workaround.
     PropertyKeyValue:
@@ -2082,9 +2075,7 @@ components:
         id:
           $ref: "#/components/schemas/CohortId"
         revisionId:
-          description: ID of the cohort revision, if frozen, null otherwise
           $ref: "#/components/schemas/CohortRevisionId"
-          nullable: true
         underlayName:
           $ref: "#/components/schemas/UnderlayName"
         displayName:
@@ -2534,8 +2525,6 @@ components:
             A map of entity attribute names to their value for this instance. The id attribute will always be included.
           type: object
           additionalProperties:
-            type: object
-            nullable: true
             $ref: "#/components/schemas/ValueDisplay"
         annotations:
           description: A map of annotation ids to their values for this instance in this review
@@ -2584,7 +2573,6 @@ components:
             type: string
         limit:
           type: integer
-          default: 50
         includeAllAttributes:
           type: boolean
           description: |
@@ -2787,31 +2775,22 @@ components:
       properties:
         type:
           $ref: "#/components/schemas/ResourceType"
-          nullable: false
         studyId:
           $ref: "#/components/schemas/StudyId"
-          nullable: false
         studyDisplayName:
           $ref: "#/components/schemas/StudyDisplayName"
-          nullable: true
         studyProperties:
           $ref: "#/components/schemas/Properties"
-          nullable: true
         cohortId:
           $ref: "#/components/schemas/CohortId"
-          nullable: true
         cohortDisplayName:
           $ref: "#/components/schemas/CohortDisplayName"
-          nullable: true
         cohortRevisionId:
           $ref: "#/components/schemas/CohortRevisionId"
-          nullable: true
         reviewId:
           $ref: "#/components/schemas/ReviewId"
-          nullable: true
         reviewDisplayName:
           $ref: "#/components/schemas/ReviewDisplayName"
-          nullable: true
       required:
         - type
         - studyId
@@ -2844,10 +2823,8 @@ components:
           nullable: false
         systemVersion:
           $ref: "#/components/schemas/SystemVersion"
-          nullable: false
         activityType:
           $ref: "#/components/schemas/ActivityType"
-          nullable: false
         resources:
           type: array
           items:

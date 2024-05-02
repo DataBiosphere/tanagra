@@ -99,7 +99,7 @@ public class ExportApiController implements ExportApi {
   }
 
   @Override
-  public ResponseEntity<ApiInstanceListResult> previewEntityExport(
+  public ResponseEntity<ApiInstanceListResult> previewExportInstances(
       String underlayName, String entityName, ApiExportPreviewRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
@@ -163,15 +163,15 @@ public class ExportApiController implements ExportApi {
             selectedFields,
             entityOutputPreview.getEntityOutput().getDataFeatureFilter(),
             null,
+            body.getLimit(),
             null,
-            null,
-            body.getLimit());
+            null);
     ListQueryResult listQueryResult = underlay.getQueryRunner().run(listQueryRequest);
     return ResponseEntity.ok(ToApiUtils.toApiObject(listQueryResult));
   }
 
   @Override
-  public ResponseEntity<ApiEntityOutputPreviewList> previewEntityOutputs(
+  public ResponseEntity<ApiEntityOutputPreviewList> describeExport(
       String underlayName, ApiExportPreviewRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),

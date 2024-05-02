@@ -7,7 +7,6 @@ import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +42,10 @@ public class WriteEntityAttributes extends BigQueryJob {
   public void run(boolean isDryRun) {
     List<String> selectColumns = new ArrayList<>();
     List<String> insertColumns = new ArrayList<>();
-    sourceTable.getAttributeValueColumnSchemas().entrySet().stream()
+    sourceTable
+        .getAttributeValueColumnSchemas()
         .forEach(
-            entry -> {
-              String attributeName = entry.getKey();
-              ColumnSchema attributeValueColumnSchema = entry.getValue();
+            (attributeName, attributeValueColumnSchema) -> {
               String indexColumn = indexTable.getAttributeValueField(attributeName).getColumnName();
               LOGGER.info(
                   "attribute value {}, column name {}",
@@ -56,7 +54,9 @@ public class WriteEntityAttributes extends BigQueryJob {
               selectColumns.add(attributeValueColumnSchema.getColumnName());
               insertColumns.add(indexColumn);
             });
-    sourceTable.getAttributeDisplayColumnSchemas().entrySet().stream()
+    sourceTable
+        .getAttributeDisplayColumnSchemas()
+        .entrySet()
         .forEach(
             entry -> {
               String attributeName = entry.getKey();
@@ -76,9 +76,9 @@ public class WriteEntityAttributes extends BigQueryJob {
         "INSERT INTO "
             + indexTable.getTablePointer().render()
             + " ("
-            + insertColumns.stream().collect(Collectors.joining(", "))
+            + String.join(", ", insertColumns)
             + ") SELECT "
-            + selectColumns.stream().collect(Collectors.joining(", "))
+            + String.join(", ", selectColumns)
             + " FROM "
             + sourceTable.getTablePointer().render();
     LOGGER.info("Generated insert SQL: {}", insertFromSelectSql);

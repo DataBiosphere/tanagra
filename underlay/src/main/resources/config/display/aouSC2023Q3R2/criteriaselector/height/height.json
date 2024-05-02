@@ -1,9 +1,0 @@
-{
-  "entity": "height",
-  "valueConfigs": [
-    {
-      "attribute": "value_numeric",
-      "unit": "cm"
-    }
-  ]
-}
