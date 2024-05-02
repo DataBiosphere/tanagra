@@ -74,7 +74,7 @@ public final class Entity {
 
   public Attribute getIdAttribute() {
     return attributes.stream()
-        .filter(a -> a.isId())
+        .filter(Attribute::isId)
         .findFirst()
         .orElseThrow(() -> new SystemException("No id attribute defined"));
   }

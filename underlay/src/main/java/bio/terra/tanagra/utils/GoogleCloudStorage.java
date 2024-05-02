@@ -17,12 +17,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -126,7 +124,7 @@ public final class GoogleCloudStorage {
     try (BufferedReader in =
         new BufferedReader(
             new InputStreamReader(
-                new URL(signedUrl).openConnection().getInputStream(), Charset.forName("UTF-8")))) {
+                new URL(signedUrl).openConnection().getInputStream(), StandardCharsets.UTF_8))) {
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
         fileContents.append(inputLine).append(System.lineSeparator());
@@ -139,7 +137,8 @@ public final class GoogleCloudStorage {
       throws IOException {
     try (GZIPInputStream gzipInputStream =
             new GZIPInputStream(new URL(signedUrl).openConnection().getInputStream());
-        InputStreamReader inputStreamReader = new InputStreamReader(gzipInputStream, "UTF-8");
+        InputStreamReader inputStreamReader =
+            new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
       StringBuffer fileContents = new StringBuffer();
       String inputLine;
@@ -181,7 +180,7 @@ public final class GoogleCloudStorage {
         "No compatible GCS bucket found for export from BQ dataset in location: "
             + bigQueryDataLocation
             + ", "
-            + gcsBucketNames.stream().collect(Collectors.joining("/")));
+            + String.join("/", gcsBucketNames));
   }
 
   /**
@@ -236,8 +235,8 @@ public final class GoogleCloudStorage {
    * client or the retries, make sure the HTTP status code and error message are logged.
    *
    * @param makeRequest function with a return value
-   * @param errorMsg error message for the the {@link SystemException} that wraps any exceptions
-   *     thrown by the GCS client or the retries
+   * @param errorMsg error message for the {@link SystemException} that wraps any exceptions thrown
+   *     by the GCS client or the retries
    */
   private <T> T handleClientExceptions(
       RetryUtils.SupplierWithCheckedException<T, IOException> makeRequest, String errorMsg) {

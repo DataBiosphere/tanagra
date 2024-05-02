@@ -329,7 +329,6 @@ public final class GoogleBigQuery {
    *
    * @param query the query to run
    * @return the result of the BQ query
-   * @throws InterruptedException from the bigQuery.query() method
    */
   public TableResult queryBigQuery(
       String query, @Nullable String pageToken, @Nullable Integer pageSize) {
@@ -343,7 +342,6 @@ public final class GoogleBigQuery {
    *
    * @param queryConfig the query job configuration to run
    * @return the result of the BQ query
-   * @throws InterruptedException from the bigQuery.query() method
    */
   public TableResult queryBigQuery(
       QueryJobConfiguration queryConfig, @Nullable String pageToken, @Nullable Integer pageSize) {

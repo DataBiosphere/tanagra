@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class ListQueryRequest {
+public final class ListQueryRequest {
   @VisibleForTesting public static final Integer DEFAULT_PAGE_SIZE = 250;
 
   private final Underlay underlay;

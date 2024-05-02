@@ -72,15 +72,14 @@ public final class GroupByCountSchemaUtils {
 
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
     if (groupByModifierConfig.getAttributesMap() != null) {
-      occurrenceEntities.stream()
-          .forEach(
-              occurrenceEntity ->
-                  groupByAttributesPerOccurrenceEntity.put(
-                      occurrenceEntity,
-                      groupByModifierConfig.getAttributesMap().get(occurrenceEntity.getName())
-                          .getValuesList().stream()
-                          .map(attributeName -> occurrenceEntity.getAttribute(attributeName))
-                          .collect(Collectors.toList())));
+      occurrenceEntities.forEach(
+          occurrenceEntity ->
+              groupByAttributesPerOccurrenceEntity.put(
+                  occurrenceEntity,
+                  groupByModifierConfig.getAttributesMap().get(occurrenceEntity.getName())
+                      .getValuesList().stream()
+                      .map(occurrenceEntity::getAttribute)
+                      .collect(Collectors.toList())));
     }
     return groupByAttributesPerOccurrenceEntity;
   }

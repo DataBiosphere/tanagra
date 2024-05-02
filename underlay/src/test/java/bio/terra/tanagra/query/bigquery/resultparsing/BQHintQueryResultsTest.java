@@ -30,7 +30,8 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
     assertFalse(hintQueryResult.getHintInstances().isEmpty());
 
     // Check each of the hinted attributes fields.
-    hintQueryResult.getHintInstances().stream()
+    hintQueryResult
+        .getHintInstances()
         .forEach(
             hintInstance -> {
               Attribute attribute = hintInstance.getAttribute();
@@ -45,7 +46,9 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                     attribute.isValueDisplay()
                         || attribute.getRuntimeDataType().equals(DataType.STRING));
                 assertFalse(hintInstance.getEnumValueCounts().isEmpty());
-                hintInstance.getEnumValueCounts().keySet().stream()
+                hintInstance
+                    .getEnumValueCounts()
+                    .keySet()
                     .forEach(
                         enumValue ->
                             assertTrue(
@@ -77,7 +80,8 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
     assertFalse(hintQueryResult.getHintInstances().isEmpty());
 
     // Check each of the hinted attributes fields.
-    hintQueryResult.getHintInstances().stream()
+    hintQueryResult
+        .getHintInstances()
         .forEach(
             hintInstance -> {
               Attribute attribute = hintInstance.getAttribute();
@@ -95,7 +99,9 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                     attribute.isValueDisplay()
                         || attribute.getRuntimeDataType().equals(DataType.STRING));
                 assertFalse(hintInstance.getEnumValueCounts().isEmpty());
-                hintInstance.getEnumValueCounts().keySet().stream()
+                hintInstance
+                    .getEnumValueCounts()
+                    .keySet()
                     .forEach(
                         enumValue ->
                             assertTrue(

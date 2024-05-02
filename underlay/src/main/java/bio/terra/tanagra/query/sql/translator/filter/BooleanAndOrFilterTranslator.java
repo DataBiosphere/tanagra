@@ -19,7 +19,7 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
     this.booleanAndOrFilter = booleanAndOrFilter;
     this.subFilterTranslators =
         booleanAndOrFilter.getSubFilters().stream()
-            .map(subFilter -> apiTranslator.translator(subFilter))
+            .map(apiTranslator::translator)
             .collect(Collectors.toList());
   }
 
@@ -44,9 +44,8 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public ApiFilterTranslator swapAttributeField(Attribute attribute, SqlField swappedField) {
-    subFilterTranslators.stream()
-        .forEach(
-            subFilterTranslator -> subFilterTranslator.swapAttributeField(attribute, swappedField));
+    subFilterTranslators.forEach(
+        subFilterTranslator -> subFilterTranslator.swapAttributeField(attribute, swappedField));
     return this;
   }
 }

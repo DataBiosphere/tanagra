@@ -1317,7 +1317,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity ->
                 tableNamesToSubstitute.add(
@@ -1422,7 +1423,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity ->
                 tableNamesToSubstitute.add(
@@ -1456,7 +1458,8 @@ public class BQFilterTest extends BQRunnerTest {
 
     // Filter on criteria ids + attribute subfilters.
     Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity -> {
               AttributeFilter ageAtOccurrenceFilter =
@@ -1537,7 +1540,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity ->
                 tableNamesToSubstitute.add(
@@ -1667,7 +1671,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity ->
                 tableNamesToSubstitute.add(
@@ -1708,7 +1713,8 @@ public class BQFilterTest extends BQRunnerTest {
             BinaryOperator.EQUALS,
             Literal.forInt64(44_833_365L));
     Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity -> {
               AttributeFilter ageAtOccurrenceFilter =
@@ -1788,7 +1794,8 @@ public class BQFilterTest extends BQRunnerTest {
                 null));
 
     List<BQTable> tableNamesToSubstitute = new ArrayList<>();
-    criteriaOccurrence.getOccurrenceEntities().stream()
+    criteriaOccurrence
+        .getOccurrenceEntities()
         .forEach(
             occurrenceEntity ->
                 tableNamesToSubstitute.add(

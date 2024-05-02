@@ -24,22 +24,20 @@ public class STEntityAttributes extends SourceTable {
 
     Map<String, ColumnSchema> attributeValueColumnSchemasBuilder = new HashMap<>();
     Map<String, ColumnSchema> attributeDisplayColumnSchemasBuilder = new HashMap<>();
-    szAttributes.stream()
-        .forEach(
-            szAttribute -> {
-              attributeValueColumnSchemasBuilder.put(
-                  szAttribute.name,
-                  new ColumnSchema(
-                      szAttribute.valueFieldName == null
-                          ? szAttribute.name
-                          : szAttribute.valueFieldName,
-                      ConfigReader.deserializeDataType(szAttribute.dataType)));
-              if (szAttribute.displayFieldName != null) {
-                attributeDisplayColumnSchemasBuilder.put(
-                    szAttribute.name,
-                    new ColumnSchema(szAttribute.displayFieldName, DataType.STRING));
-              }
-            });
+    szAttributes.forEach(
+        szAttribute -> {
+          attributeValueColumnSchemasBuilder.put(
+              szAttribute.name,
+              new ColumnSchema(
+                  szAttribute.valueFieldName == null
+                      ? szAttribute.name
+                      : szAttribute.valueFieldName,
+                  ConfigReader.deserializeDataType(szAttribute.dataType)));
+          if (szAttribute.displayFieldName != null) {
+            attributeDisplayColumnSchemasBuilder.put(
+                szAttribute.name, new ColumnSchema(szAttribute.displayFieldName, DataType.STRING));
+          }
+        });
     this.attributeValueColumnSchemas = ImmutableMap.copyOf(attributeValueColumnSchemasBuilder);
     this.attributeDisplayColumnSchemas = ImmutableMap.copyOf(attributeDisplayColumnSchemasBuilder);
   }

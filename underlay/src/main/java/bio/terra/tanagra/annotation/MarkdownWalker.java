@@ -38,6 +38,7 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
+  @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
   protected String walkField(AnnotatedField fieldAnnotation, Field field) {
     // Add a bookmark for this field.
     String fieldTitle = fieldAnnotation.name().isEmpty() ? field.getName() : fieldAnnotation.name();
@@ -92,6 +93,7 @@ public class MarkdownWalker extends AnnotationWalker {
   }
 
   @Override
+  @SuppressWarnings("PMD.InsufficientStringBufferDeclaration")
   protected String walkInheritedField(AnnotatedInheritedField inheritedFieldAnnotation) {
     // Add a bookmark for this field.
     addBookmark(inheritedFieldAnnotation.name(), inheritedFieldAnnotation.name());
@@ -148,7 +150,7 @@ public class MarkdownWalker extends AnnotationWalker {
             .append("\n\n")
             .append(annotationPath.getIntroduction())
             .append("\n\n")
-            .append(tableOfContents.stream().collect(Collectors.joining("\n")))
+            .append(String.join("\n", tableOfContents))
             .append("\n\n")
             .toString();
 

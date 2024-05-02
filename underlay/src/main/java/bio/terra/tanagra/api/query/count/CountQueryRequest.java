@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 
 public class CountQueryRequest {
   // Choose a very large default page size for count queries because, unlike list queries, we expect
-  // callers to always paginate through all results).
+  // callers to always paginate through all results.
   private static final Integer DEFAULT_PAGE_SIZE = 20_000;
 
   private final Underlay underlay;

@@ -115,6 +115,6 @@ public final class FileUtils {
     // create the file and any parent directories if they don't already exist
     createFile(path);
 
-    return Files.write(path, fileContents.getBytes(StandardCharsets.UTF_8));
+    return Files.writeString(path, fileContents);
   }
 }

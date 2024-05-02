@@ -37,7 +37,8 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
       return List.of();
     }
     List<EntityOutput> entityOutputs = new ArrayList<>();
-    outputUnfilteredSelectionData.getEntitiesList().stream()
+    outputUnfilteredSelectionData
+        .getEntitiesList()
         .forEach(
             outputEntityName ->
                 entityOutputs.add(

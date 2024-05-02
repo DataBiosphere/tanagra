@@ -148,7 +148,7 @@ public interface ApiTranslator {
       @Nullable String tableAlias,
       SqlParams sqlParams) {
     List<String> valueParamNames = new ArrayList<>();
-    values.stream().forEach(value -> valueParamNames.add(sqlParams.addParam("val", value)));
+    values.forEach(value -> valueParamNames.add(sqlParams.addParam("val", value)));
     Map<String, String> substitutorParams =
         Map.of(
             FUNCTION_TEMPLATE_FIELD_VAR, SqlQueryField.of(field).renderForWhere(tableAlias),
@@ -228,7 +228,7 @@ public interface ApiTranslator {
         .forEach(literal -> selectSqls.add("SELECT @" + sqlParams.addParam("val", literal)));
     return SqlQueryField.of(whereField).renderForWhere(tableAlias)
         + " IN ("
-        + selectSqls.stream().collect(Collectors.joining(" UNION ALL "))
+        + String.join(" UNION ALL ", selectSqls)
         + ')';
   }
 

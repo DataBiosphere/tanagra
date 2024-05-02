@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Utility methods for retrying and polling. */
-public class RetryUtils {
+public final class RetryUtils {
   // Default value for the maximum number of times to retry calls.
   public static final int DEFAULT_MAXIMUM_RETRIES = 15;
   // Default value for the time to sleep between retries.
@@ -164,10 +164,10 @@ public class RetryUtils {
           // the exception is not retryable: re-throw
           throw ex;
         } else {
-          // keep track of the last retryable exception so we can re-throw it in case of a timeout
+          // keep track of the last retryable exception, so we can re-throw it in case of a timeout
           lastRetryableException = ex;
         }
-        LOGGER.debug("Caught retryable exception: {}", ex);
+        LOGGER.debug("Caught retryable exception", ex);
       }
 
       // sleep before retrying, unless this is the last try

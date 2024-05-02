@@ -69,31 +69,30 @@ public final class EntityGroupFilterUtils {
       List<SelectionData> modifiersSelectionData,
       List<Entity> occurrenceEntities) {
     Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
-    AttributeSchemaUtils.getModifiers(criteriaSelector, modifiersSelectionData).stream()
+    AttributeSchemaUtils.getModifiers(criteriaSelector, modifiersSelectionData)
         .forEach(
             configAndData -> {
               CFAttribute.Attribute modifierConfig = configAndData.getLeft();
               DTAttribute.Attribute modifierData = configAndData.getRight();
 
               // Add a separate filter for each occurrence entity.
-              occurrenceEntities.stream()
-                  .forEach(
-                      occurrenceEntity -> {
-                        List<EntityFilter> subFilters =
-                            subFiltersPerOccurrenceEntity.containsKey(occurrenceEntity)
-                                ? subFiltersPerOccurrenceEntity.get(occurrenceEntity)
-                                : new ArrayList<>();
-                        EntityFilter modifierSubFilter =
-                            AttributeSchemaUtils.buildForEntity(
-                                underlay,
-                                occurrenceEntity,
-                                occurrenceEntity.getAttribute(modifierConfig.getAttribute()),
-                                modifierData);
-                        if (modifierSubFilter != null) {
-                          subFilters.add(modifierSubFilter);
-                          subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFilters);
-                        }
-                      });
+              occurrenceEntities.forEach(
+                  occurrenceEntity -> {
+                    List<EntityFilter> subFilters =
+                        subFiltersPerOccurrenceEntity.containsKey(occurrenceEntity)
+                            ? subFiltersPerOccurrenceEntity.get(occurrenceEntity)
+                            : new ArrayList<>();
+                    EntityFilter modifierSubFilter =
+                        AttributeSchemaUtils.buildForEntity(
+                            underlay,
+                            occurrenceEntity,
+                            occurrenceEntity.getAttribute(modifierConfig.getAttribute()),
+                            modifierData);
+                    if (modifierSubFilter != null) {
+                      subFilters.add(modifierSubFilter);
+                      subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFilters);
+                    }
+                  });
             });
     return subFiltersPerOccurrenceEntity;
   }
@@ -111,8 +110,7 @@ public final class EntityGroupFilterUtils {
 
     // Compile a list of all sub filters on the non-primary entity, which includes any passed in and
     // any attribute modifiers.
-    List<EntityFilter> allFiltersNotPrimaryEntity = new ArrayList<>();
-    allFiltersNotPrimaryEntity.addAll(filtersOnNotPrimaryEntity);
+    List<EntityFilter> allFiltersNotPrimaryEntity = new ArrayList<>(filtersOnNotPrimaryEntity);
 
     // Build the attribute modifier filters for the non-primary entity.
     Map<Entity, List<EntityFilter>> attributeModifierFilters =
@@ -188,7 +186,7 @@ public final class EntityGroupFilterUtils {
         EntityGroupFilterUtils.buildIdSubFilter(
             underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds);
     criteriaOccurrence.getOccurrenceEntities().stream()
-        .sorted(Comparator.comparing(occurrenceEntity -> occurrenceEntity.getName()))
+        .sorted(Comparator.comparing(Entity::getName))
         .forEach(
             occurrenceEntity -> {
               List<EntityFilter> occurrenceEntityFilters =

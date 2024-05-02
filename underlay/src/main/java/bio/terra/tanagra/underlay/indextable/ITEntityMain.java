@@ -34,61 +34,57 @@ public final class ITEntityMain extends IndexTable {
 
     List<ColumnSchema> columnSchemasBuilder = new ArrayList<>();
     // Build the attribute columns.
-    szAttributes.stream()
-        .forEach(
-            szAttribute -> {
-              columnSchemasBuilder.add(
-                  new ColumnSchema(
-                      szAttribute.name, ConfigReader.deserializeDataType(szAttribute.dataType)));
-              if (szAttribute.displayFieldName != null) {
-                columnSchemasBuilder.add(
-                    new ColumnSchema(
-                        getAttributeDisplayFieldName(szAttribute.name),
-                        ColumnTemplate.ATTRIBUTE_DISPLAY.getDataType()));
-              }
-            });
+    szAttributes.forEach(
+        szAttribute -> {
+          columnSchemasBuilder.add(
+              new ColumnSchema(
+                  szAttribute.name, ConfigReader.deserializeDataType(szAttribute.dataType)));
+          if (szAttribute.displayFieldName != null) {
+            columnSchemasBuilder.add(
+                new ColumnSchema(
+                    getAttributeDisplayFieldName(szAttribute.name),
+                    ColumnTemplate.ATTRIBUTE_DISPLAY.getDataType()));
+          }
+        });
 
     // Build the hierarchy columns.
-    szHierarchies.stream()
-        .forEach(
-            szHierarchy -> {
-              columnSchemasBuilder.add(
-                  new ColumnSchema(
-                      getHierarchyPathFieldName(szHierarchy.name),
-                      ColumnTemplate.HIERARCHY_PATH.getDataType()));
-              columnSchemasBuilder.add(
-                  new ColumnSchema(
-                      getHierarchyNumChildrenFieldName(szHierarchy.name),
-                      ColumnTemplate.HIERARCHY_NUMCHILDREN.getDataType()));
-            });
+    szHierarchies.forEach(
+        szHierarchy -> {
+          columnSchemasBuilder.add(
+              new ColumnSchema(
+                  getHierarchyPathFieldName(szHierarchy.name),
+                  ColumnTemplate.HIERARCHY_PATH.getDataType()));
+          columnSchemasBuilder.add(
+              new ColumnSchema(
+                  getHierarchyNumChildrenFieldName(szHierarchy.name),
+                  ColumnTemplate.HIERARCHY_NUMCHILDREN.getDataType()));
+        });
 
     // Build the text search column.
     if (hasTextSearch) {
       columnSchemasBuilder.add(
           new ColumnSchema(
-              namer.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix()),
+              NameHelper.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix()),
               ColumnTemplate.TEXT_SEARCH.getDataType()));
     }
 
     // Build the relationship columns.
-    entityGroupsWithCounts.stream()
-        .forEach(
-            entityGroup -> {
-              // Build the no hierarchy column.
-              columnSchemasBuilder.add(
-                  new ColumnSchema(
-                      getEntityGroupCountFieldName(entityGroup, null),
-                      ColumnTemplate.RELATIONSHIP_COUNT.getDataType()));
+    entityGroupsWithCounts.forEach(
+        entityGroup -> {
+          // Build the no hierarchy column.
+          columnSchemasBuilder.add(
+              new ColumnSchema(
+                  getEntityGroupCountFieldName(entityGroup, null),
+                  ColumnTemplate.RELATIONSHIP_COUNT.getDataType()));
 
-              // Build the hierarchy columns.
-              szHierarchies.stream()
-                  .forEach(
-                      szHierarchy ->
-                          columnSchemasBuilder.add(
-                              new ColumnSchema(
-                                  getEntityGroupCountFieldName(entityGroup, szHierarchy.name),
-                                  ColumnTemplate.RELATIONSHIP_COUNT.getDataType())));
-            });
+          // Build the hierarchy columns.
+          szHierarchies.forEach(
+              szHierarchy ->
+                  columnSchemasBuilder.add(
+                      new ColumnSchema(
+                          getEntityGroupCountFieldName(entityGroup, szHierarchy.name),
+                          ColumnTemplate.RELATIONSHIP_COUNT.getDataType())));
+        });
     this.columnSchemas = ImmutableList.copyOf(columnSchemasBuilder);
   }
 
@@ -119,7 +115,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   private String getAttributeDisplayFieldName(String attribute) {
-    return namer.getReservedFieldName(
+    return NameHelper.getReservedFieldName(
         ColumnTemplate.ATTRIBUTE_DISPLAY.getColumnNamePrefixed(attribute));
   }
 
@@ -133,7 +129,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   private String getHierarchyPathFieldName(String hierarchy) {
-    return namer.getReservedFieldName(
+    return NameHelper.getReservedFieldName(
         ColumnTemplate.HIERARCHY_PATH.getColumnNamePrefixed(hierarchy));
   }
 
@@ -148,7 +144,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   private String getHierarchyNumChildrenFieldName(String hierarchy) {
-    return namer.getReservedFieldName(
+    return NameHelper.getReservedFieldName(
         ColumnTemplate.HIERARCHY_NUMCHILDREN.getColumnNamePrefixed(hierarchy));
   }
 
@@ -164,7 +160,7 @@ public final class ITEntityMain extends IndexTable {
   }
 
   private String getEntityGroupCountFieldName(String entityGroup, @Nullable String hierarchy) {
-    return namer.getReservedFieldName(
+    return NameHelper.getReservedFieldName(
         ColumnTemplate.RELATIONSHIP_COUNT.getColumnNamePrefixed(
             entityGroup + "_" + (hierarchy == null ? NO_HIERARCHY_NAME : hierarchy)));
   }
@@ -174,12 +170,12 @@ public final class ITEntityMain extends IndexTable {
   }
 
   private String getTextSearchFieldName() {
-    return namer.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix());
+    return NameHelper.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix());
   }
 
   public ColumnSchema getTextSearchColumnSchema() {
     return new ColumnSchema(
-        namer.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix()),
+        NameHelper.getReservedFieldName(ColumnTemplate.TEXT_SEARCH.getColumnPrefix()),
         ColumnTemplate.TEXT_SEARCH.getDataType());
   }
 

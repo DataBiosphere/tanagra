@@ -117,41 +117,38 @@ public final class IndexSchema {
     List<ITInstanceLevelDisplayHints> instanceLevelDisplayHintTables = new ArrayList<>();
 
     // Build source tables for each entity.
-    szUnderlay.entities.stream()
-        .forEach(
-            entityPath ->
-                fromConfigEntity(
-                    entityPath,
-                    szUnderlay,
-                    configReader,
-                    nameHelper,
-                    szBigQuery.indexData,
-                    entityMainTables,
-                    entityLevelDisplayHintTables,
-                    hierarchyChildParentTables,
-                    hierarchyAncestorDescendantTables));
+    szUnderlay.entities.forEach(
+        entityPath ->
+            fromConfigEntity(
+                entityPath,
+                szUnderlay,
+                configReader,
+                nameHelper,
+                szBigQuery.indexData,
+                entityMainTables,
+                entityLevelDisplayHintTables,
+                hierarchyChildParentTables,
+                hierarchyAncestorDescendantTables));
 
     // Build source tables for each entity group.
-    szUnderlay.groupItemsEntityGroups.stream()
-        .forEach(
-            groupItemsPath ->
-                fromConfigGroupItems(
-                    groupItemsPath,
-                    configReader,
-                    nameHelper,
-                    szBigQuery.indexData,
-                    relationshipIdPairTables));
-    szUnderlay.criteriaOccurrenceEntityGroups.stream()
-        .forEach(
-            criteriaOccurrencePath ->
-                fromConfigCriteriaOccurrence(
-                    criteriaOccurrencePath,
-                    szUnderlay.primaryEntity,
-                    configReader,
-                    nameHelper,
-                    szBigQuery.indexData,
-                    relationshipIdPairTables,
-                    instanceLevelDisplayHintTables));
+    szUnderlay.groupItemsEntityGroups.forEach(
+        groupItemsPath ->
+            fromConfigGroupItems(
+                groupItemsPath,
+                configReader,
+                nameHelper,
+                szBigQuery.indexData,
+                relationshipIdPairTables));
+    szUnderlay.criteriaOccurrenceEntityGroups.forEach(
+        criteriaOccurrencePath ->
+            fromConfigCriteriaOccurrence(
+                criteriaOccurrencePath,
+                szUnderlay.primaryEntity,
+                configReader,
+                nameHelper,
+                szBigQuery.indexData,
+                relationshipIdPairTables,
+                instanceLevelDisplayHintTables));
     return new IndexSchema(
         entityMainTables,
         entityLevelDisplayHintTables,
@@ -176,23 +173,21 @@ public final class IndexSchema {
 
     // EntityMain table.
     Set<String> entityGroupsWithCount = new HashSet<>();
-    szUnderlay.groupItemsEntityGroups.stream()
-        .forEach(
-            groupItemsPath -> {
-              SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
-              if (szGroupItems.groupEntity.equals(szEntity.name)) {
-                entityGroupsWithCount.add(szGroupItems.name);
-              }
-            });
-    szUnderlay.criteriaOccurrenceEntityGroups.stream()
-        .forEach(
-            criteriaOccurrencePath -> {
-              SZCriteriaOccurrence szCriteriaOccurrence =
-                  configReader.readCriteriaOccurrence(criteriaOccurrencePath);
-              if (szCriteriaOccurrence.criteriaEntity.equals(szEntity.name)) {
-                entityGroupsWithCount.add(szCriteriaOccurrence.name);
-              }
-            });
+    szUnderlay.groupItemsEntityGroups.forEach(
+        groupItemsPath -> {
+          SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
+          if (szGroupItems.groupEntity.equals(szEntity.name)) {
+            entityGroupsWithCount.add(szGroupItems.name);
+          }
+        });
+    szUnderlay.criteriaOccurrenceEntityGroups.forEach(
+        criteriaOccurrencePath -> {
+          SZCriteriaOccurrence szCriteriaOccurrence =
+              configReader.readCriteriaOccurrence(criteriaOccurrencePath);
+          if (szCriteriaOccurrence.criteriaEntity.equals(szEntity.name)) {
+            entityGroupsWithCount.add(szCriteriaOccurrence.name);
+          }
+        });
     entityMainTables.add(
         new ITEntityMain(
             nameHelper,
@@ -207,19 +202,18 @@ public final class IndexSchema {
     entityLevelDisplayHintTables.add(
         new ITEntityLevelDisplayHints(nameHelper, szBigQueryIndexData, szEntity.name));
 
-    szEntity.hierarchies.stream()
-        .forEach(
-            szHierarchy -> {
-              // HierarchyChildParent table.
-              hierarchyChildParentTables.add(
-                  new ITHierarchyChildParent(
-                      nameHelper, szBigQueryIndexData, szEntity.name, szHierarchy.name));
+    szEntity.hierarchies.forEach(
+        szHierarchy -> {
+          // HierarchyChildParent table.
+          hierarchyChildParentTables.add(
+              new ITHierarchyChildParent(
+                  nameHelper, szBigQueryIndexData, szEntity.name, szHierarchy.name));
 
-              // HierarchyAncestorDescendant table.
-              hierarchyAncestorDescendantTables.add(
-                  new ITHierarchyAncestorDescendant(
-                      nameHelper, szBigQueryIndexData, szEntity.name, szHierarchy.name));
-            });
+          // HierarchyAncestorDescendant table.
+          hierarchyAncestorDescendantTables.add(
+              new ITHierarchyAncestorDescendant(
+                  nameHelper, szBigQueryIndexData, szEntity.name, szHierarchy.name));
+        });
   }
 
   private static void fromConfigGroupItems(
@@ -261,39 +255,38 @@ public final class IndexSchema {
               primaryEntityName,
               szCriteriaOccurrence.criteriaEntity));
     }
-    szCriteriaOccurrence.occurrenceEntities.stream()
-        .forEach(
-            szOccurrenceEntity -> {
-              if (szOccurrenceEntity.criteriaRelationship.idPairsSqlFile != null) {
-                // RelationshipIdPairs table.
-                relationshipIdPairTables.add(
-                    new ITRelationshipIdPairs(
-                        nameHelper,
-                        szBigQueryIndexData,
-                        szCriteriaOccurrence.name,
-                        szOccurrenceEntity.occurrenceEntity,
-                        szCriteriaOccurrence.criteriaEntity));
-              }
-              if (szOccurrenceEntity.primaryRelationship.idPairsSqlFile != null) {
-                // RelationshipIdPairs table.
-                relationshipIdPairTables.add(
-                    new ITRelationshipIdPairs(
-                        nameHelper,
-                        szBigQueryIndexData,
-                        szCriteriaOccurrence.name,
-                        szOccurrenceEntity.occurrenceEntity,
-                        primaryEntityName));
-              }
-              if (szOccurrenceEntity.attributesWithInstanceLevelHints != null) {
-                // InstanceLevelDisplayHints table.
-                instanceLevelDisplayHintTables.add(
-                    new ITInstanceLevelDisplayHints(
-                        nameHelper,
-                        szBigQueryIndexData,
-                        szCriteriaOccurrence.name,
-                        szOccurrenceEntity.occurrenceEntity,
-                        szCriteriaOccurrence.criteriaEntity));
-              }
-            });
+    szCriteriaOccurrence.occurrenceEntities.forEach(
+        szOccurrenceEntity -> {
+          if (szOccurrenceEntity.criteriaRelationship.idPairsSqlFile != null) {
+            // RelationshipIdPairs table.
+            relationshipIdPairTables.add(
+                new ITRelationshipIdPairs(
+                    nameHelper,
+                    szBigQueryIndexData,
+                    szCriteriaOccurrence.name,
+                    szOccurrenceEntity.occurrenceEntity,
+                    szCriteriaOccurrence.criteriaEntity));
+          }
+          if (szOccurrenceEntity.primaryRelationship.idPairsSqlFile != null) {
+            // RelationshipIdPairs table.
+            relationshipIdPairTables.add(
+                new ITRelationshipIdPairs(
+                    nameHelper,
+                    szBigQueryIndexData,
+                    szCriteriaOccurrence.name,
+                    szOccurrenceEntity.occurrenceEntity,
+                    primaryEntityName));
+          }
+          if (szOccurrenceEntity.attributesWithInstanceLevelHints != null) {
+            // InstanceLevelDisplayHints table.
+            instanceLevelDisplayHintTables.add(
+                new ITInstanceLevelDisplayHints(
+                    nameHelper,
+                    szBigQueryIndexData,
+                    szCriteriaOccurrence.name,
+                    szOccurrenceEntity.occurrenceEntity,
+                    szCriteriaOccurrence.criteriaEntity));
+          }
+        });
   }
 }
