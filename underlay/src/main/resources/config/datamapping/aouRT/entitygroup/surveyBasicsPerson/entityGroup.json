@@ -1,0 +1,20 @@
+{
+  "name": "surveyBasicsPerson",
+  "criteriaEntity": "surveyBasics",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "observationOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "survey_item_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "survey_item_id"
+  }
+}
