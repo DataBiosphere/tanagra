@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class Review {
+public final class Review {
   private final String id;
   private final @Nullable String displayName;
   private final @Nullable String description;

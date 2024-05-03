@@ -6,7 +6,6 @@ import bio.terra.tanagra.api.field.HierarchyIsRootField;
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
-import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.list.ListInstance;
@@ -113,7 +112,7 @@ public final class ToApiUtils {
         .lastModified(cohort.getLastModified())
         .criteriaGroupSections(
             cohort.getMostRecentRevision().getSections().stream()
-                .map(criteriaGroup -> toApiObject(criteriaGroup))
+                .map(ToApiUtils::toApiObject)
                 .collect(Collectors.toList()));
   }
 
@@ -128,7 +127,7 @@ public final class ToApiUtils {
         .excluded(criteriaGroupSection.isExcluded())
         .criteriaGroups(
             criteriaGroupSection.getCriteriaGroups().stream()
-                .map(criteriaGroup -> toApiObject(criteriaGroup))
+                .map(ToApiUtils::toApiObject)
                 .collect(Collectors.toList()));
   }
 
@@ -138,7 +137,7 @@ public final class ToApiUtils {
         .displayName(criteriaGroup.getDisplayName())
         .criteria(
             criteriaGroup.getCriteria().stream()
-                .map(criteria -> toApiObject(criteria))
+                .map(ToApiUtils::toApiObject)
                 .collect(Collectors.toList()));
   }
 
@@ -159,7 +158,7 @@ public final class ToApiUtils {
     return new ApiInstanceListResult()
         .instances(
             listQueryResult.getListInstances().stream()
-                .map(listInstance -> toApiObject(listInstance))
+                .map(ToApiUtils::toApiObject)
                 .collect(Collectors.toList()))
         .sql(SqlFormatter.format(listQueryResult.getSqlNoParams()))
         .pageMarker(
@@ -176,12 +175,10 @@ public final class ToApiUtils {
     Map<String, ApiValueDisplay> attributes = new HashMap<>();
     Map<String, ApiInstanceHierarchyFields> hierarchyFieldSets = new HashMap<>();
     List<ApiInstanceRelationshipFields> relationshipFieldSets = new ArrayList<>();
-    listInstance.getEntityFieldValues().entrySet().stream()
+    listInstance
+        .getEntityFieldValues()
         .forEach(
-            fieldValuePair -> {
-              ValueDisplayField field = fieldValuePair.getKey();
-              ValueDisplay value = fieldValuePair.getValue();
-
+            (field, value) -> {
               if (field instanceof AttributeField) {
                 attributes.put(
                     ((AttributeField) field).getAttribute().getName(),
@@ -224,7 +221,7 @@ public final class ToApiUtils {
             });
     return new ApiInstance()
         .attributes(attributes)
-        .hierarchyFields(hierarchyFieldSets.values().stream().collect(Collectors.toList()))
+        .hierarchyFields(new ArrayList<>(hierarchyFieldSets.values()))
         .relationshipFields(relationshipFieldSets);
   }
 
@@ -255,12 +252,10 @@ public final class ToApiUtils {
 
   public static ApiInstanceCount toApiObject(CountInstance countInstance) {
     Map<String, ApiValueDisplay> attributes = new HashMap<>();
-    countInstance.getEntityFieldValues().entrySet().stream()
+    countInstance
+        .getEntityFieldValues()
         .forEach(
-            fieldValuePair -> {
-              ValueDisplayField field = fieldValuePair.getKey();
-              ValueDisplay value = fieldValuePair.getValue();
-
+            (field, value) -> {
               if (field instanceof AttributeField) {
                 attributes.put(
                     ((AttributeField) field).getAttribute().getName(),

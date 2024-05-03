@@ -298,8 +298,7 @@ public class StudyDao {
     Study study = getStudyNotDeleted(id);
 
     // Delete just the properties specified, leave the rest as is.
-    Map<String, String> updatedProperties = new HashMap<>();
-    updatedProperties.putAll(study.getProperties());
+    Map<String, String> updatedProperties = new HashMap<>(study.getProperties());
     for (String key : propertyKeys) {
       updatedProperties.remove(key);
     }
@@ -332,20 +331,20 @@ public class StudyDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue(
-                "study_ids", studies.stream().map(s -> s.getId()).collect(Collectors.toSet()));
+                "study_ids",
+                studies.stream().map(Study.Builder::getId).collect(Collectors.toSet()));
     List<Pair<String, Pair<String, String>>> properties =
         jdbcTemplate.query(sql, params, PROPERTY_ROW_MAPPER);
 
     // Put properties into their respective studies.
     Map<String, Study.Builder> studiesMap =
         studies.stream().collect(Collectors.toMap(Study.Builder::getId, Function.identity()));
-    properties.stream()
-        .forEach(
-            pair -> {
-              String studyId = pair.getKey();
-              Pair<String, String> property = pair.getValue();
-              studiesMap.get(studyId).addProperty(property.getKey(), property.getValue());
-            });
+    properties.forEach(
+        pair -> {
+          String studyId = pair.getKey();
+          Pair<String, String> property = pair.getValue();
+          studiesMap.get(studyId).addProperty(property.getKey(), property.getValue());
+        });
 
     // Preserve the order returned by the original query.
     return studies.stream()

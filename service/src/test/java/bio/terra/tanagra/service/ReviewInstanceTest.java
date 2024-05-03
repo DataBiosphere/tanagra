@@ -328,7 +328,7 @@ public class ReviewInstanceTest {
         List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L), idAttr, reviewInstances2);
 
     // Check that the id attribute was fetched automatically to each review instance.
-    reviewInstances2.stream().forEach(ri -> assertNotNull(ri.getAttributeValues().get(idAttr)));
+    reviewInstances2.forEach(ri -> assertNotNull(ri.getAttributeValues().get(idAttr)));
 
     // Check that the gender attribute values are correct.
     Attribute genderAttr = primaryEntity.getAttribute("gender");
@@ -721,7 +721,7 @@ public class ReviewInstanceTest {
                 review4.getId(),
                 ReviewQueryRequest.builder().build())
             .getReviewInstances();
-    reviewInstancesDefault.stream().forEach(rid -> LOGGER.info("si {}", rid.getStableIndex()));
+    reviewInstancesDefault.forEach(rid -> LOGGER.info("si {}", rid.getStableIndex()));
 
     // Check the rows are returned in ascending stable index order.
     List<ReviewInstance> reviewInstancesOrderedByStableIndexAsc =
@@ -937,14 +937,12 @@ public class ReviewInstanceTest {
     for (Long instanceId : instanceIds) {
       assertTrue(
           reviewInstances.stream()
-              .filter(
+              .anyMatch(
                   ri ->
                       ri.getAttributeValues()
                           .get(idAttribute)
                           .getValue()
-                          .equals(Literal.forInt64(instanceId)))
-              .findFirst()
-              .isPresent());
+                          .equals(Literal.forInt64(instanceId))));
     }
   }
 

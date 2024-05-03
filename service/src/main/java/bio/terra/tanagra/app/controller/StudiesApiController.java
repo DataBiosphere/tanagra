@@ -100,7 +100,7 @@ public class StudiesApiController implements StudiesApi {
             includeDeleted != null && includeDeleted,
             fromApiObject(displayName, description, createdBy, properties));
     ApiStudyList apiStudies = new ApiStudyList();
-    authorizedStudies.stream().forEach(study -> apiStudies.add(ToApiUtils.toApiObject(study)));
+    authorizedStudies.forEach(study -> apiStudies.add(ToApiUtils.toApiObject(study)));
     return ResponseEntity.ok(apiStudies);
   }
 

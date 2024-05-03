@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 public class BaseSpringUnitTest {
   @MockBean protected RandomNumberGenerator randomNumberGenerator;
 

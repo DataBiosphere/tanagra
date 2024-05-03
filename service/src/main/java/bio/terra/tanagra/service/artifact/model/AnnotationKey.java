@@ -9,7 +9,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class AnnotationKey {
+public final class AnnotationKey {
   private final String id;
   private final String displayName;
   private final String description;

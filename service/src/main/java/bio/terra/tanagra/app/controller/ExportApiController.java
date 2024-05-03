@@ -94,7 +94,7 @@ public class ExportApiController implements ExportApi {
     // Get a map of implementation name -> (display name, class instance).
     List<DataExportModel> exportModels = dataExportService.getModels(underlayName);
     ApiExportModelList apiExportImpls = new ApiExportModelList();
-    exportModels.stream().forEach(em -> apiExportImpls.add(toApiObject(em)));
+    exportModels.forEach(em -> apiExportImpls.add(toApiObject(em)));
     return ResponseEntity.ok(apiExportImpls);
   }
 
@@ -233,30 +233,28 @@ public class ExportApiController implements ExportApi {
             });
 
     ApiEntityOutputPreviewList apiEntityOutputs = new ApiEntityOutputPreviewList();
-    entityOutputPreviews.stream()
-        .forEach(
-            entityOutputPreview -> {
-              ApiEntityOutputPreview apiEntityOutput =
-                  new ApiEntityOutputPreview()
-                      .entity(entityOutputPreview.getEntityOutput().getEntity().getName())
-                      .includedAttributes(
-                          entityOutputPreview.getEntityOutput().getAttributes().stream()
-                              .map(Attribute::getName)
-                              .collect(Collectors.toList()))
-                      .criteria(
-                          entityOutputPreview.getAttributedCriteria().stream()
-                              .map(
-                                  conceptSetAndCriteria ->
-                                      new ApiEntityOutputPreviewCriteria()
-                                          .conceptSetId(conceptSetAndCriteria.getLeft().getId())
-                                          .criteriaId(conceptSetAndCriteria.getRight().getId()))
-                              .collect(Collectors.toList()))
-                      .indexSql(
-                          SqlFormatter.format(indexSqlForEntityOutputs.get(entityOutputPreview)))
-                      .sourceSql(
-                          SqlFormatter.format(sourceSqlForEntityOutputs.get(entityOutputPreview)));
-              apiEntityOutputs.addEntityOutputsItem(apiEntityOutput);
-            });
+    entityOutputPreviews.forEach(
+        entityOutputPreview -> {
+          ApiEntityOutputPreview apiEntityOutput =
+              new ApiEntityOutputPreview()
+                  .entity(entityOutputPreview.getEntityOutput().getEntity().getName())
+                  .includedAttributes(
+                      entityOutputPreview.getEntityOutput().getAttributes().stream()
+                          .map(Attribute::getName)
+                          .collect(Collectors.toList()))
+                  .criteria(
+                      entityOutputPreview.getAttributedCriteria().stream()
+                          .map(
+                              conceptSetAndCriteria ->
+                                  new ApiEntityOutputPreviewCriteria()
+                                      .conceptSetId(conceptSetAndCriteria.getLeft().getId())
+                                      .criteriaId(conceptSetAndCriteria.getRight().getId()))
+                          .collect(Collectors.toList()))
+                  .indexSql(SqlFormatter.format(indexSqlForEntityOutputs.get(entityOutputPreview)))
+                  .sourceSql(
+                      SqlFormatter.format(sourceSqlForEntityOutputs.get(entityOutputPreview)));
+          apiEntityOutputs.addEntityOutputsItem(apiEntityOutput);
+        });
     return ResponseEntity.ok(apiEntityOutputs);
   }
 
@@ -312,11 +310,8 @@ public class ExportApiController implements ExportApi {
           listQueryRequests.stream()
               .filter(listQueryRequest -> listQueryRequest.getEntity().isPrimary())
               .findFirst();
-      if (primaryEntityListQueryRequest.isPresent()) {
-        primaryEntityFilter = primaryEntityListQueryRequest.get().getFilter();
-      } else {
-        primaryEntityFilter = null;
-      }
+      primaryEntityFilter =
+          primaryEntityListQueryRequest.map(ListQueryRequest::getFilter).orElse(null);
     }
 
     ExportRequest exportRequest =

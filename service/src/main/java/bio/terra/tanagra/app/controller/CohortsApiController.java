@@ -109,7 +109,8 @@ public class CohortsApiController implements CohortsApi {
             offset,
             limit);
     ApiCohortList apiCohorts = new ApiCohortList();
-    cohortService.listCohorts(authorizedCohortIds, offset, limit).stream()
+    cohortService
+        .listCohorts(authorizedCohortIds, offset, limit)
         .forEach(cohort -> apiCohorts.add(ToApiUtils.toApiObject(cohort)));
     return ResponseEntity.ok(apiCohorts);
   }

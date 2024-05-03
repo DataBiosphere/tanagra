@@ -78,9 +78,7 @@ public class IpynbFileDownload implements DataExport {
     // Make substitutions in the template file contents.
     String studyIdAndName =
         NameUtils.simplifyStringForName(
-            new StringBuilder(
-                    request.getStudy().getDisplayName() + "_" + request.getStudy().getId())
-                .toString());
+            request.getStudy().getDisplayName() + "_" + request.getStudy().getId());
     Map<String, String> params =
         ImmutableMap.<String, String>builder()
             .put("underlayName", request.getUnderlay().getDisplayName())

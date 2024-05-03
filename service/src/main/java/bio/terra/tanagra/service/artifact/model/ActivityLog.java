@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ActivityLog {
+public final class ActivityLog {
   public enum Type {
     CREATE_STUDY,
     DELETE_STUDY,

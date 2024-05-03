@@ -21,7 +21,6 @@ import bio.terra.tanagra.utils.threadpool.JobResult;
 import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;
 import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableList;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -67,7 +66,7 @@ public class DataExportHelper {
 
   /**
    * @param isAgainstSourceDataset True to generate SQL queries against the source dataset.
-   * @return Map of entity -> SQL query with all parameters substituted.
+   * @return Map of (entity,SQL query with all parameters substituted).
    */
   public Map<Entity, String> generateSqlPerExportEntity(
       List<String> entityNames, boolean isAgainstSourceDataset) {
@@ -149,7 +148,7 @@ public class DataExportHelper {
     return listQueryResult.getSqlNoParams();
   }
 
-  /** @return Map of output entity name -> total number of rows. */
+  /** @return Map of (output entity name, total number of rows). */
   public Map<String, Long> getTotalNumRowsOfEntityData() {
     // Build set of list query requests with very small page size.
     List<ListQueryRequest> listQueryRequests =
@@ -183,20 +182,14 @@ public class DataExportHelper {
     if (maxChildThreads == null || maxChildThreads > 1) {
       // Build set of list query jobs.
       Set<Job<ListQueryRequest, ListQueryResult>> listQueryJobs = new HashSet<>();
-      listQueryRequests.stream()
-          .forEach(
-              listQueryRequest ->
-                  listQueryJobs.add(
-                      new Job<>(
-                          listQueryRequest.getEntity().getName()
-                              + '_'
-                              + Instant.now().toEpochMilli(),
-                          listQueryRequest,
-                          () ->
-                              listQueryRequest
-                                  .getUnderlay()
-                                  .getQueryRunner()
-                                  .run(listQueryRequest))));
+      listQueryRequests.forEach(
+          listQueryRequest ->
+              listQueryJobs.add(
+                  new Job<>(
+                      listQueryRequest.getEntity().getName() + '_' + Instant.now().toEpochMilli(),
+                      listQueryRequest,
+                      () ->
+                          listQueryRequest.getUnderlay().getQueryRunner().run(listQueryRequest))));
       // Kick off jobs in parallel.
       int threadPoolSize =
           maxChildThreads == null
@@ -206,57 +199,52 @@ public class DataExportHelper {
           "Running list query requests in parallel, with a thread pool size of {}", threadPoolSize);
       Map<ListQueryRequest, JobResult<ListQueryResult>> listQueryJobResults =
           ThreadPoolUtils.runInParallel(threadPoolSize, listQueryJobs);
-      listQueryJobResults.entrySet().stream()
-          .forEach(
-              listQueryJobResult -> {
-                ListQueryRequest listQueryRequest = listQueryJobResult.getKey();
-                JobResult<ListQueryResult> jobResult = listQueryJobResult.getValue();
-                if (jobResult == null) {
-                  LOGGER.error(
-                      "List query did not complete or timed out: entity={}",
-                      listQueryRequest.getEntity().getName());
-                  throw new SystemException(
-                      "List query did not complete or timed out: entity="
-                          + listQueryRequest.getEntity().getName());
-                } else if (jobResult.getJobOutput() == null) {
-                  LOGGER.error(
-                      "List query threw an exception: entity={}, {}",
-                      listQueryRequest.getEntity().getName(),
-                      jobResult.getExceptionMessage());
-                  throw new SystemException(
-                      "List query threw an exception: entity="
-                          + listQueryRequest.getEntity().getName()
-                          + ", "
-                          + jobResult.getExceptionMessage());
-                } else {
-                  totalNumRows.put(
-                      listQueryRequest.getEntity().getName(),
-                      jobResult.getJobOutput().getNumRowsAcrossAllPages());
-                }
-              });
+      listQueryJobResults.forEach(
+          (listQueryRequest, jobResult) -> {
+            if (jobResult == null) {
+              LOGGER.error(
+                  "List query did not complete or timed out: entity={}",
+                  listQueryRequest.getEntity().getName());
+              throw new SystemException(
+                  "List query did not complete or timed out: entity="
+                      + listQueryRequest.getEntity().getName());
+            } else if (jobResult.getJobOutput() == null) {
+              LOGGER.error(
+                  "List query threw an exception: entity={}, {}",
+                  listQueryRequest.getEntity().getName(),
+                  jobResult.getExceptionMessage());
+              throw new SystemException(
+                  "List query threw an exception: entity="
+                      + listQueryRequest.getEntity().getName()
+                      + ", "
+                      + jobResult.getExceptionMessage());
+            } else {
+              totalNumRows.put(
+                  listQueryRequest.getEntity().getName(),
+                  jobResult.getJobOutput().getNumRowsAcrossAllPages());
+            }
+          });
     } else {
       // Kick off jobs in serial.
       LOGGER.info("Running list query requests in serial");
-      listQueryRequests.stream()
-          .forEach(
-              listQueryRequest -> {
-                try {
-                  ListQueryResult listQueryResult =
-                      listQueryRequest.getUnderlay().getQueryRunner().run(listQueryRequest);
-                  totalNumRows.put(
-                      listQueryRequest.getEntity().getName(),
-                      listQueryResult.getNumRowsAcrossAllPages());
-                } catch (Exception ex) {
-                  LOGGER.error(
-                      "List query threw an exception: entity={}",
-                      listQueryRequest.getEntity().getName(),
-                      ex);
-                  throw new SystemException(
-                      "List query threw an exception: entity="
-                          + listQueryRequest.getEntity().getName(),
-                      ex);
-                }
-              });
+      listQueryRequests.forEach(
+          listQueryRequest -> {
+            try {
+              ListQueryResult listQueryResult =
+                  listQueryRequest.getUnderlay().getQueryRunner().run(listQueryRequest);
+              totalNumRows.put(
+                  listQueryRequest.getEntity().getName(),
+                  listQueryResult.getNumRowsAcrossAllPages());
+            } catch (Exception ex) {
+              LOGGER.error(
+                  "List query threw an exception: entity={}",
+                  listQueryRequest.getEntity().getName(),
+                  ex);
+              throw new SystemException(
+                  "List query threw an exception: entity=" + listQueryRequest.getEntity().getName(),
+                  ex);
+            }
+          });
     }
     return totalNumRows;
   }
@@ -320,21 +308,20 @@ public class DataExportHelper {
     if (maxChildThreads == null || maxChildThreads > 1) {
       // Build set of export jobs.
       Set<Job<ExportQueryRequest, ExportQueryResult>> exportJobs = new HashSet<>();
-      exportQueryRequests.stream()
-          .forEach(
-              exportQueryRequest ->
-                  exportJobs.add(
-                      new Job<>(
-                          exportQueryRequest.getListQueryRequest().getEntity().getName()
-                              + '_'
-                              + Instant.now().toEpochMilli(),
-                          exportQueryRequest,
-                          () ->
-                              exportQueryRequest
-                                  .getListQueryRequest()
-                                  .getUnderlay()
-                                  .getQueryRunner()
-                                  .run(exportQueryRequest))));
+      exportQueryRequests.forEach(
+          exportQueryRequest ->
+              exportJobs.add(
+                  new Job<>(
+                      exportQueryRequest.getListQueryRequest().getEntity().getName()
+                          + '_'
+                          + Instant.now().toEpochMilli(),
+                      exportQueryRequest,
+                      () ->
+                          exportQueryRequest
+                              .getListQueryRequest()
+                              .getUnderlay()
+                              .getQueryRunner()
+                              .run(exportQueryRequest))));
       // Kick off jobs in parallel.
       int threadPoolSize =
           maxChildThreads == null
@@ -344,75 +331,70 @@ public class DataExportHelper {
           "Running export requests in parallel, with a thread pool size of {}", threadPoolSize);
       Map<ExportQueryRequest, JobResult<ExportQueryResult>> exportJobResults =
           ThreadPoolUtils.runInParallel(threadPoolSize, exportJobs);
-      exportJobResults.entrySet().stream()
-          .forEach(
-              exportJobResult -> {
-                ExportQueryRequest exportQueryRequest = exportJobResult.getKey();
-                JobResult<ExportQueryResult> jobResult = exportJobResult.getValue();
-                if (jobResult == null) {
-                  exportFileResults.add(
-                      ExportFileResult.forEntityData(
-                          null,
-                          null,
-                          exportQueryRequest.getListQueryRequest().getEntity(),
-                          null,
-                          ExportError.forMessage(
-                              "Export job did not complete or timed out", false)));
-                } else if (jobResult.getJobOutput() == null) {
-                  exportFileResults.add(
-                      ExportFileResult.forEntityData(
-                          null,
-                          null,
-                          exportQueryRequest.getListQueryRequest().getEntity(),
-                          null,
-                          ExportError.forException(
-                              jobResult.getExceptionMessage(),
-                              jobResult.getExceptionStackTrace(),
-                              jobResult.isJobForceTerminated())));
-                } else {
-                  exportFileResults.add(
-                      ExportFileResult.forEntityData(
-                          jobResult.getJobOutput().getFileDisplayName(),
-                          jobResult.getJobOutput().getFilePath(),
-                          exportQueryRequest.getListQueryRequest().getEntity(),
-                          jobResult.getJobOutput().getFilePath() == null
-                              ? "Export query returned zero rows. No file generated."
-                              : null,
-                          null));
-                }
-              });
+      exportJobResults.forEach(
+          (exportQueryRequest, jobResult) -> {
+            if (jobResult == null) {
+              exportFileResults.add(
+                  ExportFileResult.forEntityData(
+                      null,
+                      null,
+                      exportQueryRequest.getListQueryRequest().getEntity(),
+                      null,
+                      ExportError.forMessage("Export job did not complete or timed out", false)));
+            } else if (jobResult.getJobOutput() == null) {
+              exportFileResults.add(
+                  ExportFileResult.forEntityData(
+                      null,
+                      null,
+                      exportQueryRequest.getListQueryRequest().getEntity(),
+                      null,
+                      ExportError.forException(
+                          jobResult.getExceptionMessage(),
+                          jobResult.getExceptionStackTrace(),
+                          jobResult.isJobForceTerminated())));
+            } else {
+              exportFileResults.add(
+                  ExportFileResult.forEntityData(
+                      jobResult.getJobOutput().getFileDisplayName(),
+                      jobResult.getJobOutput().getFilePath(),
+                      exportQueryRequest.getListQueryRequest().getEntity(),
+                      jobResult.getJobOutput().getFilePath() == null
+                          ? "Export query returned zero rows. No file generated."
+                          : null,
+                      null));
+            }
+          });
     } else {
       // Kick off jobs in serial.
       LOGGER.info("Running export requests in serial");
-      exportQueryRequests.stream()
-          .forEach(
-              exportQueryRequest -> {
-                try {
-                  ExportQueryResult exportQueryResult =
-                      exportQueryRequest
-                          .getListQueryRequest()
-                          .getUnderlay()
-                          .getQueryRunner()
-                          .run(exportQueryRequest);
-                  exportFileResults.add(
-                      ExportFileResult.forEntityData(
-                          exportQueryResult.getFileDisplayName(),
-                          exportQueryResult.getFilePath(),
-                          exportQueryRequest.getListQueryRequest().getEntity(),
-                          exportQueryResult.getFilePath() == null
-                              ? "Export query returned zero rows. No file generated."
-                              : null,
-                          null));
-                } catch (Exception ex) {
-                  exportFileResults.add(
-                      ExportFileResult.forEntityData(
-                          null,
-                          null,
-                          exportQueryRequest.getListQueryRequest().getEntity(),
-                          null,
-                          ExportError.forException(ex)));
-                }
-              });
+      exportQueryRequests.forEach(
+          exportQueryRequest -> {
+            try {
+              ExportQueryResult exportQueryResult =
+                  exportQueryRequest
+                      .getListQueryRequest()
+                      .getUnderlay()
+                      .getQueryRunner()
+                      .run(exportQueryRequest);
+              exportFileResults.add(
+                  ExportFileResult.forEntityData(
+                      exportQueryResult.getFileDisplayName(),
+                      exportQueryResult.getFilePath(),
+                      exportQueryRequest.getListQueryRequest().getEntity(),
+                      exportQueryResult.getFilePath() == null
+                          ? "Export query returned zero rows. No file generated."
+                          : null,
+                      null));
+            } catch (Exception ex) {
+              exportFileResults.add(
+                  ExportFileResult.forEntityData(
+                      null,
+                      null,
+                      exportQueryRequest.getListQueryRequest().getEntity(),
+                      null,
+                      ExportError.forException(ex)));
+            }
+          });
     }
     return exportFileResults;
   }
@@ -429,7 +411,8 @@ public class DataExportHelper {
 
     // Write the annotations for each cohort to a separate file.
     List<ExportFileResult> exportFileResults = new ArrayList<>();
-    exportRequest.getCohorts().stream()
+    exportRequest
+        .getCohorts()
         .forEach(
             cohort -> {
               try {
@@ -480,11 +463,7 @@ public class DataExportHelper {
   }
 
   public static String urlEncode(String param) {
-    try {
-      return URLEncoder.encode(param, StandardCharsets.UTF_8.toString());
-    } catch (UnsupportedEncodingException ueEx) {
-      throw new SystemException("Error encoding URL param: " + param, ueEx);
-    }
+    return URLEncoder.encode(param, StandardCharsets.UTF_8);
   }
 
   public EntityFilter getPrimaryEntityFilter() {

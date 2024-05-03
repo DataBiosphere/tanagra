@@ -4,7 +4,6 @@ import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -36,6 +35,6 @@ public class UnderlayConfiguration {
   }
 
   public void log() {
-    LOGGER.info("Underlay: files: {}", getFiles().stream().collect(Collectors.joining(",")));
+    LOGGER.info("Underlay: files: {}", String.join(",", getFiles()));
   }
 }

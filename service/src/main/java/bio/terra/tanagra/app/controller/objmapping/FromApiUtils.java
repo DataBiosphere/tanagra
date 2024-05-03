@@ -126,6 +126,7 @@ public final class FromApiUtils {
             apiTextFilter.getAttribute() == null
                 ? null
                 : entity.getAttribute(apiTextFilter.getAttribute()));
+
       case HIERARCHY:
         ApiHierarchyFilter apiHierarchyFilter = apiFilter.getFilterUnion().getHierarchyFilter();
         Hierarchy hierarchy = entity.getHierarchy(apiHierarchyFilter.getHierarchy());
@@ -154,6 +155,7 @@ public final class FromApiUtils {
             throw new SystemException(
                 "Unknown API hierarchy filter operator: " + apiHierarchyFilter.getOperator());
         }
+
       case RELATIONSHIP:
         ApiRelationshipFilter apiRelationshipFilter =
             apiFilter.getFilterUnion().getRelationshipFilter();
@@ -173,7 +175,8 @@ public final class FromApiUtils {
           groupByCountOperator = fromApiObject(apiRelationshipFilter.getGroupByCountOperator());
           groupByCountValue = apiRelationshipFilter.getGroupByCountValue();
           if (apiRelationshipFilter.getGroupByCountAttributes() != null) {
-            apiRelationshipFilter.getGroupByCountAttributes().stream()
+            apiRelationshipFilter
+                .getGroupByCountAttributes()
                 .forEach(
                     groupByCountAttrName ->
                         groupByCountAttributes.add(
@@ -189,6 +192,7 @@ public final class FromApiUtils {
             groupByCountAttributes,
             groupByCountOperator,
             groupByCountValue);
+
       case BOOLEAN_LOGIC:
         ApiBooleanLogicFilter apiBooleanLogicFilter =
             apiFilter.getFilterUnion().getBooleanLogicFilter();
@@ -217,6 +221,7 @@ public final class FromApiUtils {
             throw new SystemException(
                 "Unknown boolean logic operator: " + apiBooleanLogicFilter.getOperator());
         }
+
       case ITEM_IN_GROUP:
         ApiItemInGroupFilter apiItemInGroupFilter =
             apiFilter.getFilterUnion().getItemInGroupFilter();
@@ -228,7 +233,8 @@ public final class FromApiUtils {
                 : fromApiObject(apiItemInGroupFilter.getGroupSubfilter(), underlay);
         List<Attribute> groupByAttrsItemInGroup = new ArrayList<>();
         if (apiItemInGroupFilter.getGroupByCountAttributes() != null) {
-          apiItemInGroupFilter.getGroupByCountAttributes().stream()
+          apiItemInGroupFilter
+              .getGroupByCountAttributes()
               .forEach(
                   groupByCountAttrName ->
                       groupByAttrsItemInGroup.add(
@@ -243,6 +249,7 @@ public final class FromApiUtils {
             groupByAttrsItemInGroup,
             fromApiObject(apiItemInGroupFilter.getGroupByCountOperator()),
             apiItemInGroupFilter.getGroupByCountValue());
+
       case GROUP_HAS_ITEMS:
         ApiGroupHasItemsFilter apiGroupHasItemsFilter =
             apiFilter.getFilterUnion().getGroupHasItemsFilter();
@@ -254,7 +261,8 @@ public final class FromApiUtils {
                 : fromApiObject(apiGroupHasItemsFilter.getItemsSubfilter(), underlay);
         List<Attribute> groupByAttrsGroupHasItems = new ArrayList<>();
         if (apiGroupHasItemsFilter.getGroupByCountAttributes() != null) {
-          apiGroupHasItemsFilter.getGroupByCountAttributes().stream()
+          apiGroupHasItemsFilter
+              .getGroupByCountAttributes()
               .forEach(
                   groupByCountAttrName ->
                       groupByAttrsGroupHasItems.add(
@@ -269,6 +277,7 @@ public final class FromApiUtils {
             groupByAttrsGroupHasItems,
             fromApiObject(apiGroupHasItemsFilter.getGroupByCountOperator()),
             apiGroupHasItemsFilter.getGroupByCountValue());
+
       case OCCURRENCE_FOR_PRIMARY:
         ApiOccurrenceForPrimaryFilter apiOccurrenceForPrimaryFilter =
             apiFilter.getFilterUnion().getOccurrenceForPrimaryFilter();
@@ -291,6 +300,7 @@ public final class FromApiUtils {
             occurrenceEntityOccForPri,
             ofpPrimarySubFilter,
             ofpCriteriaSubFilter);
+
       case PRIMARY_WITH_CRITERIA:
         ApiPrimaryWithCriteriaFilter apiPrimaryWithCriteriaFilter =
             apiFilter.getFilterUnion().getPrimaryWithCriteriaFilter();
@@ -304,18 +314,18 @@ public final class FromApiUtils {
         Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity = new HashMap<>();
         Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
         if (apiPrimaryWithCriteriaFilter.getOccurrenceSubfiltersAndGroupByAttributes() != null) {
-          apiPrimaryWithCriteriaFilter.getOccurrenceSubfiltersAndGroupByAttributes().entrySet()
-              .stream()
+          apiPrimaryWithCriteriaFilter
+              .getOccurrenceSubfiltersAndGroupByAttributes()
               .forEach(
-                  entry -> {
-                    Entity occurrenceEntity = underlay.getEntity(entry.getKey());
+                  (key, value) -> {
+                    Entity occurrenceEntity = underlay.getEntity(key);
                     List<EntityFilter> subFiltersForOcc =
-                        entry.getValue().getSubfilters().stream()
+                        value.getSubfilters().stream()
                             .map(apiFilterForOcc -> fromApiObject(apiFilterForOcc, underlay))
                             .collect(Collectors.toList());
                     subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFiltersForOcc);
                     List<Attribute> groupByAttributesForOcc =
-                        entry.getValue().getGroupByCountAttributes().stream()
+                        value.getGroupByCountAttributes().stream()
                             .map(occurrenceEntity::getAttribute)
                             .collect(Collectors.toList());
                     groupByAttributesPerOccurrenceEntity.put(
@@ -330,6 +340,7 @@ public final class FromApiUtils {
             groupByAttributesPerOccurrenceEntity,
             fromApiObject(apiPrimaryWithCriteriaFilter.getGroupByCountOperator()),
             apiPrimaryWithCriteriaFilter.getGroupByCountValue());
+
       default:
         throw new SystemException("Unknown API filter type: " + apiFilter.getFilterType());
     }
@@ -352,13 +363,16 @@ public final class FromApiUtils {
     // Build the select fields for attributes, hierarchies, and relationships.
     List<ValueDisplayField> selectFields = new ArrayList<>();
     if (apiObj.getIncludeAttributes() != null) {
-      apiObj.getIncludeAttributes().stream()
+      apiObj
+          .getIncludeAttributes()
           .forEach(
               attributeName ->
                   selectFields.add(buildAttributeField(underlay, entity, attributeName, false)));
     }
     if (apiObj.getIncludeHierarchyFields() != null) {
-      apiObj.getIncludeHierarchyFields().getHierarchies().stream()
+      apiObj
+          .getIncludeHierarchyFields()
+          .getHierarchies()
           .forEach(
               hierarchyName ->
                   selectFields.addAll(
@@ -369,7 +383,8 @@ public final class FromApiUtils {
                           apiObj.getIncludeHierarchyFields().getFields())));
     }
     if (apiObj.getIncludeRelationshipFields() != null) {
-      apiObj.getIncludeRelationshipFields().stream()
+      apiObj
+          .getIncludeRelationshipFields()
           .forEach(
               relationshipField ->
                   selectFields.addAll(
@@ -383,7 +398,8 @@ public final class FromApiUtils {
     // Build the order by fields.
     List<ListQueryRequest.OrderBy> orderByFields = new ArrayList<>();
     if (apiObj.getOrderBys() != null) {
-      apiObj.getOrderBys().stream()
+      apiObj
+          .getOrderBys()
           .forEach(
               orderByField -> {
                 ValueDisplayField valueDisplayField =
@@ -451,16 +467,16 @@ public final class FromApiUtils {
     // TODO: Use a constant here instead of special-casing null.
     hierarchies.add(null);
     if (apiObj.getHierarchies() != null) {
-      apiObj.getHierarchies().stream()
+      apiObj
+          .getHierarchies()
           .forEach(hierarchyName -> hierarchies.add(entity.getHierarchy(hierarchyName)));
     }
 
     Set<ValueDisplayField> relationshipFields = new HashSet<>();
-    hierarchies.stream()
-        .forEach(
-            hierarchy ->
-                relationshipFields.add(
-                    buildRelationshipField(underlay, entity, relatedEntity, hierarchy)));
+    hierarchies.forEach(
+        hierarchy ->
+            relationshipFields.add(
+                buildRelationshipField(underlay, entity, relatedEntity, hierarchy)));
     return relationshipFields;
   }
 

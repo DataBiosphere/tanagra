@@ -101,7 +101,8 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
     LOGGER.info("Testing against underlay: {}", rtExportCounts.getUnderlay());
     Underlay underlay = underlayService.getUnderlay(rtExportCounts.getUnderlay());
     List<Cohort> cohorts = new ArrayList<>();
-    rtExportCounts.getCohortsList().stream()
+    rtExportCounts
+        .getCohortsList()
         .forEach(
             rtCohort -> {
               Cohort cohort =
@@ -119,7 +120,8 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
               cohorts.add(cohort);
             });
     List<ConceptSet> conceptSets = new ArrayList<>();
-    rtExportCounts.getDataFeatureSetsList().stream()
+    rtExportCounts
+        .getDataFeatureSetsList()
         .forEach(
             rtDataFeatureSet -> {
               ConceptSet conceptSet =
@@ -161,14 +163,11 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
     // Compare the counts with those saved in the exported regression file.
     Map<String, Long> expectedTotalNumRowsPerEntity =
         fromRegressionTestObj(rtExportCounts.getEntityOutputCountsList());
-    totalNumRowsPerEntity.entrySet().stream()
-        .forEach(
-            entry -> {
-              String entityName = entry.getKey();
-              Long totalNumRows = entry.getValue();
-              LOGGER.info("entity={}, actual count={}", entityName, totalNumRows);
-              assertEquals(expectedTotalNumRowsPerEntity.get(entityName), totalNumRows);
-            });
+    totalNumRowsPerEntity.forEach(
+        (entityName, totalNumRows) -> {
+          LOGGER.info("entity={}, actual count={}", entityName, totalNumRows);
+          assertEquals(expectedTotalNumRowsPerEntity.get(entityName), totalNumRows);
+        });
   }
 
   @SuppressWarnings("PMD.UnusedPrivateMethod")
@@ -182,35 +181,33 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
 
     List<Path> regressionTestDirs = new ArrayList<>();
     if (regressionTestDirsParam != null && !regressionTestDirsParam.isEmpty()) {
-      List.of(regressionTestDirsParam.split(",")).stream()
+      List.of(regressionTestDirsParam.split(","))
           .forEach(dirName -> regressionTestDirs.add(Path.of(dirName)));
     } else if (regressionTestUnderlaysParam != null && !regressionTestUnderlaysParam.isEmpty()) {
       List<String> underlaySubDirs = List.of(regressionTestUnderlaysParam.split(","));
       Path regressionParentDir =
           Path.of(gradleProjectDir).resolve("src/test/resources/regression/");
-      underlaySubDirs.stream()
-          .forEach(
-              underlayName -> regressionTestDirs.add(regressionParentDir.resolve(underlayName)));
+      underlaySubDirs.forEach(
+          underlayName -> regressionTestDirs.add(regressionParentDir.resolve(underlayName)));
     } else {
       throw new IllegalArgumentException(
           "No test directories or underlays specified. Use Gradle properties: -PregressionTestDirs for a directory, -PregressionTestUnderlays for an underlay-specific directory in the service/test/resources/regression sub-directory.");
     }
 
     List<String> regressionTestFiles = new ArrayList<>();
-    regressionTestDirs.stream()
-        .forEach(
-            regressionTestDir -> {
-              LOGGER.info(
-                  "Searching directory for regression test files: {}",
-                  regressionTestDir.toAbsolutePath());
-              File[] testFiles = regressionTestDir.toFile().listFiles();
-              if (testFiles != null && testFiles.length > 0) {
-                List.of(testFiles).stream()
-                    .forEach(
-                        testFile ->
-                            regressionTestFiles.add(testFile.toPath().toAbsolutePath().toString()));
-              }
-            });
+    regressionTestDirs.forEach(
+        regressionTestDir -> {
+          LOGGER.info(
+              "Searching directory for regression test files: {}",
+              regressionTestDir.toAbsolutePath());
+          File[] testFiles = regressionTestDir.toFile().listFiles();
+          if (testFiles != null && testFiles.length > 0) {
+            List.of(testFiles)
+                .forEach(
+                    testFile ->
+                        regressionTestFiles.add(testFile.toPath().toAbsolutePath().toString()));
+          }
+        });
     if (regressionTestFiles.isEmpty()) {
       throw new FileNotFoundException(
           "No regression test files found: "
@@ -224,32 +221,26 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
   private static Map<String, Long> fromRegressionTestObj(
       List<RTExportCounts.EntityOutputCount> rtObj) {
     Map<String, Long> totalNumRowsPerEntity = new HashMap<>();
-    rtObj.stream()
-        .forEach(
-            rtEntityOutputCount ->
-                totalNumRowsPerEntity.put(
-                    rtEntityOutputCount.getEntity(), rtEntityOutputCount.getNumRows()));
+    rtObj.forEach(
+        rtEntityOutputCount ->
+            totalNumRowsPerEntity.put(
+                rtEntityOutputCount.getEntity(), rtEntityOutputCount.getNumRows()));
     return totalNumRowsPerEntity;
   }
 
   private static Map<String, List<String>> fromRegressionTestObj(
       Underlay underlay, List<RTDataFeatureSet.EntityOutput> rtObj) {
     Map<String, List<String>> excludedAttributesPerEntity = new HashMap<>();
-    rtObj.stream()
-        .forEach(
-            rtEntityOutput -> {
-              Entity entity = underlay.getEntity(rtEntityOutput.getEntity());
-              List<String> excludedAttributes =
-                  entity.getAttributes().stream()
-                      .filter(
-                          attribute ->
-                              !rtEntityOutput
-                                  .getIncludedAttributesList()
-                                  .contains(attribute.getName()))
-                      .map(Attribute::getName)
-                      .collect(Collectors.toList());
-              excludedAttributesPerEntity.put(entity.getName(), excludedAttributes);
-            });
+    rtObj.forEach(
+        rtEntityOutput -> {
+          Entity entity = underlay.getEntity(rtEntityOutput.getEntity());
+          List<String> excludedAttributes =
+              entity.getAttributes().stream()
+                  .map(Attribute::getName)
+                  .filter(name -> !rtEntityOutput.getIncludedAttributesList().contains(name))
+                  .collect(Collectors.toList());
+          excludedAttributesPerEntity.put(entity.getName(), excludedAttributes);
+        });
     return excludedAttributesPerEntity;
   }
 

@@ -147,8 +147,8 @@
         <exclude name="AvoidInstantiatingObjectsInLoops"/>
         <exclude name="InefficientStringBuffering"/>
         <exclude name="UseIndexOfChar"/>
+        <exclude name="AppendCharacterWithChar"/>
     </rule>
-
 
     <!-- Security (no rules) -->
     <rule ref="category/java/security.xml"/>

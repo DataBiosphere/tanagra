@@ -63,9 +63,8 @@ public class UnderlayService {
               .map(ResourceId::getUnderlay)
               .collect(Collectors.toList());
       return underlayCache.values().stream()
-          .filter(
-              cachedUnderlay -> authorizedNames.contains(cachedUnderlay.getUnderlay().getName()))
           .map(CachedUnderlay::getUnderlay)
+          .filter(underlay -> authorizedNames.contains(underlay.getName()))
           .collect(Collectors.toUnmodifiableList());
     }
   }
@@ -108,12 +107,10 @@ public class UnderlayService {
 
     // Build the attribute fields for select and group by.
     List<ValueDisplayField> attributeFields = new ArrayList<>();
-    groupByAttributeNames.stream()
-        .forEach(
-            attributeName ->
-                attributeFields.add(
-                    new AttributeField(
-                        underlay, entity, entity.getAttribute(attributeName), false)));
+    groupByAttributeNames.forEach(
+        attributeName ->
+            attributeFields.add(
+                new AttributeField(underlay, entity, entity.getAttribute(attributeName), false)));
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(

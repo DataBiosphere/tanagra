@@ -80,7 +80,7 @@ public class DataExportService {
    */
   public List<DataExportModel> getModels(String underlay) {
     // TODO: Allow configuring the list of implementations per underlay.
-    return nameToModel.values().stream().collect(Collectors.toList());
+    return new ArrayList<>(nameToModel.values());
   }
 
   public ExportResult run(
@@ -89,7 +89,8 @@ public class DataExportService {
       EntityFilter frontendPrimaryEntityFilter) {
     // Make the current cohort revisions un-editable, and create the next version.
     Map<String, String> cohortToRevisionIdMap = new HashMap<>();
-    request.getCohorts().stream()
+    request
+        .getCohorts()
         .forEach(
             cohort -> {
               String revisionId =

@@ -57,7 +57,6 @@ public class ActivityLogApiController implements ActivityLogApi {
             exactMatch,
             activityType == null ? null : ActivityLog.Type.valueOf(activityType.name()),
             resourceType == null ? null : ActivityLogResource.Type.valueOf(resourceType.name()))
-        .stream()
         .forEach(activityLog -> apiActivityLogs.add(toApiObject(activityLog)));
     return ResponseEntity.ok(apiActivityLogs);
   }
@@ -82,9 +81,7 @@ public class ActivityLogApiController implements ActivityLogApi {
                 .build(activityLog.getVersionBuild()))
         .activityType(ApiActivityType.valueOf(activityLog.getType().name()))
         .resources(
-            activityLog.getResources().stream()
-                .map(alr -> toApiObject(alr))
-                .collect(Collectors.toList()))
+            activityLog.getResources().stream().map(this::toApiObject).collect(Collectors.toList()))
         .additionalInfo(
             new ApiActivityLogEntryAdditionalInfo()
                 .exportModel(activityLog.getExportModel())
