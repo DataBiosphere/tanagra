@@ -36,9 +36,6 @@ these definitions and counts to a regression test file. Then we can take those s
 row counts with the most recent code, and expect them to match the original.
 
 ## Create a new test
-**WARNING: THE PROCESS DOCUMENTED BELOW DEPENDS ON A PENDING UI CHANGE TO SUPPORT BACKEND FILTERBULIDING.
-DO NOT ATTEMPT UNTIL THAT'S IN AND THIS WARNING IS REMOVED.**
-
 Create a new test via the export flow in the UI. You must use a server that has the regression test export option
 enabled. We recommend configuring a non-prod deployment to [enable this export option](./DATA_EXPORT.md). It's enabled 
 by default if you start a local server using the `./service/local_dev/run_server.sh` script.
