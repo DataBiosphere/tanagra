@@ -3,7 +3,7 @@
   "criteriaEntity": "surveyBasics",
   "occurrenceEntities": [
     {
-      "occurrenceEntity": "observationOccurrence",
+      "occurrenceEntity": "surveyOccurrence",
       "criteriaRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "survey_item_id"
       },
