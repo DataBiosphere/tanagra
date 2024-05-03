@@ -5,6 +5,7 @@ tanagra:
   feature:
     artifact-storage-enabled: true
     activity-log-enabled: true
+    backend-filters-enabled: true
 
   auth:
     disable-checks: false
