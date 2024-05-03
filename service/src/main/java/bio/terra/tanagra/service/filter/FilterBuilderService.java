@@ -235,9 +235,7 @@ public class FilterBuilderService {
 
                           // Add to the list of attributes to include for this entity.
                           List<String> excludeAttrNames =
-                              conceptSet.containsExcludeOutputAttributes(entityOutput.getEntity())
-                                  ? conceptSet.getExcludeOutputAttributes(entityOutput.getEntity())
-                                  : List.of();
+                              conceptSet.getExcludeOutputAttributes(entityOutput.getEntity());
 
                           Set<Attribute> includeAttributes =
                               outputEntitiesAndFiltersAndAttributes.containsKey(

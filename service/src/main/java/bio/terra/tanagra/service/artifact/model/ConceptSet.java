@@ -60,11 +60,6 @@ public final class ConceptSet {
     return excludeOutputAttributesPerEntity;
   }
 
-  public boolean containsExcludeOutputAttributes(Entity entity) {
-    return excludeOutputAttributesPerEntity.containsKey(entity.getName())
-        || (entity.isPrimary() && excludeOutputAttributesPerEntity.containsKey(""));
-  }
-
   public List<String> getExcludeOutputAttributes(Entity entity) {
     if (excludeOutputAttributesPerEntity.containsKey(entity.getName())) {
       return excludeOutputAttributesPerEntity.get(entity.getName());

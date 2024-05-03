@@ -66,7 +66,7 @@ public class DataExportHelper {
 
   /**
    * @param isAgainstSourceDataset True to generate SQL queries against the source dataset.
-   * @return Map of (entity,SQL) query with all parameters substituted.
+   * @return Map of (entity,SQL query with all parameters substituted).
    */
   public Map<Entity, String> generateSqlPerExportEntity(
       List<String> entityNames, boolean isAgainstSourceDataset) {
@@ -148,7 +148,7 @@ public class DataExportHelper {
     return listQueryResult.getSqlNoParams();
   }
 
-  /** @return Map of output (entity name, total number of rows). */
+  /** @return Map of (output entity name, total number of rows). */
   public Map<String, Long> getTotalNumRowsOfEntityData() {
     // Build set of list query requests with very small page size.
     List<ListQueryRequest> listQueryRequests =
