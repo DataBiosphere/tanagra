@@ -16,8 +16,7 @@ SELECT
   CAST(FLOOR(TIMESTAMP_DIFF(o.observation_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   o.visit_occurrence_id,
   vo.visit_concept_id,
-  vc.concept_name AS visit_concept_name,
-  ps.id AS survey_item_id
+  vc.concept_name AS visit_concept_name
 FROM `${omopDataset}.observation` AS o
 JOIN `${omopDataset}.person` AS p ON p.person_id = o.person_id
 JOIN `${omopDataset}.concept` AS oc ON oc.concept_id = o.observation_concept_id
