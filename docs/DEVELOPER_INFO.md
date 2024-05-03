@@ -80,13 +80,13 @@ If you don't want/need a background service you can just run:
 Run a script to start/stop and initialize the application database.
 - For PostGres: 
 ```
-export DBMS=mariadb
+export DBMS=postgresql
 ./service/local-dev/run_postgres.sh start
 ./service/local-dev/run_postgres.sh stop
 ```
 - For MariaDB:
 ```
-export DBMS=postgresql
+export DBMS=mariadb
 ./service/local-dev/run_mariadb.sh start
 ./service/local-dev/run_mariadb.sh stop
 ```
