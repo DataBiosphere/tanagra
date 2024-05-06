@@ -3,7 +3,7 @@ package bio.terra.tanagra.service.artifact.model;
 import bio.terra.tanagra.api.shared.Literal;
 import java.util.Objects;
 
-public class AnnotationValue {
+public final class AnnotationValue {
   private final Literal literal;
   private final int cohortRevisionVersion;
   private final String annotationKeyId;

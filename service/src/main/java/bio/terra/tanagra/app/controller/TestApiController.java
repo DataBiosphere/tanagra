@@ -11,6 +11,7 @@ import org.vumc.vda.tanagra.admin.model.CoreServiceTest;
 import org.vumc.vda.tanagra.admin.model.SystemVersion;
 
 @Controller
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 public class TestApiController implements TestApi {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestApiController.class);
 

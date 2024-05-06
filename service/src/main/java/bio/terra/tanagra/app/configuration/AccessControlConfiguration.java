@@ -5,7 +5,6 @@ import bio.terra.tanagra.annotation.AnnotatedField;
 import bio.terra.tanagra.service.accesscontrol.AccessControl;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -94,8 +93,7 @@ public class AccessControlConfiguration {
 
   public void log() {
     LOGGER.info("Access control: model: {}", getModel());
-    LOGGER.info(
-        "Access control: params: {}", getParams().stream().collect(Collectors.joining(",")));
+    LOGGER.info("Access control: params: {}", String.join(",", getParams()));
     LOGGER.info("Access control: base-path: {}", getBasePath());
     LOGGER.info("Access control: oauth-client-id: {}", getOauthClientId());
 

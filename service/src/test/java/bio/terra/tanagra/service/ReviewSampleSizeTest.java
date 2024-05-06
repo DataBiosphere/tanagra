@@ -134,9 +134,7 @@ public class ReviewSampleSizeTest {
     ReviewQueryResult reviewQueryResult =
         reviewService.listReviewInstances(
             study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest);
-    List<ReviewInstance> reviewInstances = new ArrayList<>();
-    reviewQueryResult.getReviewInstances().stream()
-        .forEach(reviewInstance -> reviewInstances.add(reviewInstance));
+    List<ReviewInstance> reviewInstances = new ArrayList<>(reviewQueryResult.getReviewInstances());
 
     // Paginate through results.
     while (reviewQueryResult.getPageMarker() != null) {
@@ -149,22 +147,20 @@ public class ReviewSampleSizeTest {
       reviewQueryResult =
           reviewService.listReviewInstances(
               study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest);
-      reviewQueryResult.getReviewInstances().stream()
-          .forEach(reviewInstance -> reviewInstances.add(reviewInstance));
+      reviewInstances.addAll(reviewQueryResult.getReviewInstances());
     }
     assertEquals(ReviewService.MAX_REVIEW_SIZE, reviewInstances.size());
 
     // Make sure all the ids are unique (i.e. we're not just fetching the same page over and over).
     Set<Long> primaryEntityIds = new HashSet<>();
-    reviewInstances.stream()
-        .forEach(
-            reviewInstance ->
-                primaryEntityIds.add(
-                    reviewInstance
-                        .getAttributeValues()
-                        .get(underlay.getPrimaryEntity().getIdAttribute())
-                        .getValue()
-                        .getInt64Val()));
+    reviewInstances.forEach(
+        reviewInstance ->
+            primaryEntityIds.add(
+                reviewInstance
+                    .getAttributeValues()
+                    .get(underlay.getPrimaryEntity().getIdAttribute())
+                    .getValue()
+                    .getInt64Val()));
     assertEquals(ReviewService.MAX_REVIEW_SIZE, primaryEntityIds.size());
   }
 

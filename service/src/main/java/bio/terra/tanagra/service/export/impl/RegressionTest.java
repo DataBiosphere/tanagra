@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 public class RegressionTest implements DataExport {
   private List<String> gcsBucketNames;
 
@@ -53,9 +54,9 @@ public class RegressionTest implements DataExport {
     // Build the export counts proto object.
     RTExportCounts.ExportCounts.Builder exportCounts =
         RTExportCounts.ExportCounts.newBuilder().setUnderlay(request.getUnderlay().getName());
-    request.getCohorts().stream()
-        .forEach(cohort -> exportCounts.addCohorts(toRegressionTestObj(cohort)));
-    request.getConceptSets().stream()
+    request.getCohorts().forEach(cohort -> exportCounts.addCohorts(toRegressionTestObj(cohort)));
+    request
+        .getConceptSets()
         .forEach(
             conceptSet ->
                 exportCounts.addDataFeatureSets(
@@ -63,11 +64,8 @@ public class RegressionTest implements DataExport {
 
     // Get the counts for each output entity.
     Map<String, Long> totalNumRowsPerEntity = helper.getTotalNumRowsOfEntityData();
-    totalNumRowsPerEntity.entrySet().stream()
-        .forEach(
-            entry ->
-                exportCounts.addEntityOutputCounts(
-                    toRegressionTestObj(entry.getKey(), entry.getValue())));
+    totalNumRowsPerEntity.forEach(
+        (key, value) -> exportCounts.addEntityOutputCounts(toRegressionTestObj(key, value)));
 
     // Write the proto object in JSON format to a GCS file. Just pick the first bucket name.
     String cohortRef =
@@ -125,8 +123,8 @@ public class RegressionTest implements DataExport {
       Entity entity, List<String> excludedAttributes) {
     List<String> includedAttributes =
         entity.getAttributes().stream()
-            .filter(attribute -> !excludedAttributes.contains(attribute.getName()))
             .map(Attribute::getName)
+            .filter(name -> !excludedAttributes.contains(name))
             .collect(Collectors.toList());
     return RTDataFeatureSet.EntityOutput.newBuilder()
         .setEntity(entity.getName())

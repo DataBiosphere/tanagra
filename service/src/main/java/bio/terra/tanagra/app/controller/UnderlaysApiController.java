@@ -80,8 +80,8 @@ public class UnderlaysApiController implements UnderlaysApi {
             SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ));
     List<Underlay> authorizedUnderlays = underlayService.listUnderlays(authorizedUnderlayNames);
     ApiUnderlaySummaryList apiUnderlays = new ApiUnderlaySummaryList();
-    authorizedUnderlays.stream()
-        .forEach(underlay -> apiUnderlays.addUnderlaysItem(ToApiUtils.toApiObject(underlay)));
+    authorizedUnderlays.forEach(
+        underlay -> apiUnderlays.addUnderlaysItem(ToApiUtils.toApiObject(underlay)));
     return ResponseEntity.ok(apiUnderlays);
   }
 
@@ -106,7 +106,9 @@ public class UnderlaysApiController implements UnderlaysApi {
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     ApiEntityList apiEntities = new ApiEntityList();
-    underlayService.getUnderlay(underlayName).getEntities().stream()
+    underlayService
+        .getUnderlay(underlayName)
+        .getEntities()
         .forEach(entity -> apiEntities.addEntitiesItem(toApiObject(entity)));
     return ResponseEntity.ok(apiEntities);
   }
@@ -167,7 +169,7 @@ public class UnderlaysApiController implements UnderlaysApi {
     // Build the order by fields.
     List<ListQueryRequest.OrderBy> orderByFields = new ArrayList<>();
     if (body.getOrderBys() != null) {
-      body.getOrderBys().stream()
+      body.getOrderBys()
           .forEach(
               orderByField -> {
                 Attribute attribute = outputEntity.getAttribute(orderByField.getAttribute());
@@ -253,7 +255,7 @@ public class UnderlaysApiController implements UnderlaysApi {
             .sql(SqlFormatter.format(hintQueryResult.getSql()))
             .displayHints(
                 hintQueryResult.getHintInstances().stream()
-                    .map(hintInstance -> toApiObject(hintInstance))
+                    .map(this::toApiObject)
                     .collect(Collectors.toList())));
   }
 
@@ -273,7 +275,7 @@ public class UnderlaysApiController implements UnderlaysApi {
         .idAttribute(entity.getIdAttribute().getName())
         .attributes(
             entity.getAttributes().stream()
-                .map(a -> ToApiUtils.toApiObject(a))
+                .map(ToApiUtils::toApiObject)
                 .collect(Collectors.toList()));
   }
 

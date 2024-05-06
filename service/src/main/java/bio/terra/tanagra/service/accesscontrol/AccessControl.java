@@ -12,12 +12,12 @@ import javax.annotation.Nullable;
 /** Interface that all access control models must implement. */
 public interface AccessControl {
   enum Model {
-    OPEN_ACCESS(() -> new OpenAccessControl()),
-    VUMC_ADMIN(() -> new VumcAdminAccessControl()),
-    VERILY_GROUP(() -> new VerilyGroupsAccessControl()),
-    AOU_WORKBENCH(() -> new AouWorkbenchAccessControl());
+    OPEN_ACCESS(OpenAccessControl::new),
+    VUMC_ADMIN(VumcAdminAccessControl::new),
+    VERILY_GROUP(VerilyGroupsAccessControl::new),
+    AOU_WORKBENCH(AouWorkbenchAccessControl::new);
 
-    private Supplier<AccessControl> createNewInstanceFn;
+    private final Supplier<AccessControl> createNewInstanceFn;
 
     Model(Supplier<AccessControl> createNewInstanceFn) {
       this.createNewInstanceFn = createNewInstanceFn;

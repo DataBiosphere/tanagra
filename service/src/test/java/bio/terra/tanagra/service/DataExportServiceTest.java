@@ -48,7 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -330,9 +330,7 @@ public class DataExportServiceTest {
 
     // Validate the entity instances file + tags.
     Optional<ExportFileResult> entityInstancesFileResult =
-        exportResult.getFileResults().stream()
-            .filter(exportFileResult -> exportFileResult.isEntityData())
-            .findFirst();
+        exportResult.getFileResults().stream().filter(ExportFileResult::isEntityData).findFirst();
     assertTrue(entityInstancesFileResult.isPresent());
     assertTrue(entityInstancesFileResult.get().isSuccessful());
     assertTrue(entityInstancesFileResult.get().getFileDisplayName().endsWith(".csv.gzip"));
@@ -354,7 +352,7 @@ public class DataExportServiceTest {
     // Validate the annotations file + tags.
     Optional<ExportFileResult> annotationsFileResult =
         exportResult.getFileResults().stream()
-            .filter(exportFileResult -> exportFileResult.isAnnotationData())
+            .filter(ExportFileResult::isAnnotationData)
             .findFirst();
     assertTrue(annotationsFileResult.isPresent());
     assertTrue(annotationsFileResult.get().isSuccessful());
@@ -430,7 +428,7 @@ public class DataExportServiceTest {
     URL url = new URL(exportResult.getRedirectAwayUrl());
     assertEquals("terra-devel-ui-terra.api.verily.com", url.getHost());
     assertEquals("/import", url.getPath());
-    List<NameValuePair> params = URLEncodedUtils.parse(url.toURI(), Charset.forName("UTF-8"));
+    List<NameValuePair> params = URLEncodedUtils.parse(url.toURI(), StandardCharsets.UTF_8);
     assertEquals("urlList", params.get(0).getName());
     assertTrue(params.get(0).getValue().startsWith("https://storage.googleapis.com/"));
     assertEquals("returnUrl", params.get(1).getName());

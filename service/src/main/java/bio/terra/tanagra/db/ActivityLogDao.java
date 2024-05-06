@@ -218,55 +218,50 @@ public class ActivityLogDao {
         new MapSqlParameterSource()
             .addValue(
                 "activity_log_ids",
-                activityLogs.stream().map(al -> al.getId()).collect(Collectors.toSet()));
+                activityLogs.stream().map(ActivityLog.Builder::getId).collect(Collectors.toSet()));
     List<Pair<String, ActivityLogResource.Builder>> resources =
         jdbcTemplate.query(sql, params, ACTIVITY_LOG_RESOURCE_ROW_MAPPER);
 
     // Fetch the study properties. (study id -> property)
     Set<String> studyIds = new HashSet<>();
-    resources.stream()
-        .forEach(
-            pair -> {
-              ActivityLogResource.Builder resource = pair.getValue();
-              if (resource.getStudyId() != null) {
-                studyIds.add(resource.getStudyId());
-              }
-            });
+    resources.forEach(
+        pair -> {
+          ActivityLogResource.Builder resource = pair.getValue();
+          if (resource.getStudyId() != null) {
+            studyIds.add(resource.getStudyId());
+          }
+        });
     sql = PROPERTY_SELECT_SQL + " WHERE study_id IN (:study_ids)";
     params = new MapSqlParameterSource().addValue("study_ids", studyIds);
     List<Pair<String, Pair<String, String>>> properties =
         jdbcTemplate.query(sql, params, PROPERTY_ROW_MAPPER);
 
     // Put study properties into their respective activity log resources.
-    resources.stream()
-        .forEach(
-            resourcePair -> {
-              ActivityLogResource.Builder resource = resourcePair.getValue();
-              if (resource.getStudyId() != null) {
-                properties.stream()
-                    .forEach(
-                        propertyPair -> {
-                          String studyId = propertyPair.getKey();
-                          if (studyId.equals(resource.getStudyId())) {
-                            Pair<String, String> studyProperty = propertyPair.getValue();
-                            resource.addStudyProperty(
-                                studyProperty.getKey(), studyProperty.getValue());
-                          }
-                        });
-              }
-            });
+    resources.forEach(
+        resourcePair -> {
+          ActivityLogResource.Builder resource = resourcePair.getValue();
+          if (resource.getStudyId() != null) {
+            properties.forEach(
+                propertyPair -> {
+                  String studyId = propertyPair.getKey();
+                  if (studyId.equals(resource.getStudyId())) {
+                    Pair<String, String> studyProperty = propertyPair.getValue();
+                    resource.addStudyProperty(studyProperty.getKey(), studyProperty.getValue());
+                  }
+                });
+          }
+        });
 
     // Put the resources into their respective activity logs.
     Map<String, ActivityLog.Builder> activityLogsMap =
         activityLogs.stream()
             .collect(Collectors.toMap(ActivityLog.Builder::getId, Function.identity()));
-    resources.stream()
-        .forEach(
-            entry -> {
-              String activityLogId = entry.getKey();
-              ActivityLogResource.Builder resource = entry.getValue();
-              activityLogsMap.get(activityLogId).addResource(resource.build());
-            });
+    resources.forEach(
+        entry -> {
+          String activityLogId = entry.getKey();
+          ActivityLogResource.Builder resource = entry.getValue();
+          activityLogsMap.get(activityLogId).addResource(resource.build());
+        });
 
     // Preserve the order returned by the original query.
     return activityLogs.stream()

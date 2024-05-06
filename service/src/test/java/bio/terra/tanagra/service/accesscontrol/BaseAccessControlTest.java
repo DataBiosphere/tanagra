@@ -42,7 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = Main.class)
 @SpringBootTest
 @ActiveProfiles("test")
-@SuppressWarnings("PMD.TooManyFields")
+@SuppressWarnings({"PMD.TooManyFields", "PMD.TestClassWithoutTestCases"})
 public class BaseAccessControlTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseAccessControlTest.class);
   @Autowired protected UnderlayService underlayService;
@@ -322,6 +322,6 @@ public class BaseAccessControlTest {
     }
     List<ResourceId> expected = Arrays.asList(expectedResources);
     assertEquals(expected.size(), actual.size());
-    actual.stream().forEach(r -> assertTrue(expected.contains(r)));
+    actual.forEach(r -> assertTrue(expected.contains(r)));
   }
 }

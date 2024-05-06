@@ -78,13 +78,12 @@ public final class ResourceCollection {
       throw new SystemException(
           "Resource type mismatch building ResourceCollection with same permissions");
     }
-    resources.stream()
-        .forEach(
-            r -> {
-              if (r.getType().hasParentResourceType() && !r.getParent().equals(parentId)) {
-                throw new SystemException("Resources must all share the same parent");
-              }
-            });
+    resources.forEach(
+        r -> {
+          if (r.getType().hasParentResourceType() && !r.getParent().equals(parentId)) {
+            throw new SystemException("Resources must all share the same parent");
+          }
+        });
     return new ResourceCollection(
         permissions.getType(), false, parentId, true, permissions, resources, null);
   }
@@ -167,13 +166,12 @@ public final class ResourceCollection {
           : ResourceCollection.empty(permissions.getType(), parentId);
     } else {
       Map<ResourceId, Permissions> filtered = new HashMap<>();
-      idPermissionsMap.entrySet().stream()
-          .forEach(
-              entry -> {
-                if (entry.getValue().contains(permissions)) {
-                  filtered.put(entry.getKey(), permissions);
-                }
-              });
+      idPermissionsMap.forEach(
+          (key, value) -> {
+            if (value.contains(permissions)) {
+              filtered.put(key, permissions);
+            }
+          });
       return filtered.isEmpty()
           ? ResourceCollection.empty(permissions.getType(), parentId)
           : ResourceCollection.resourcesDifferentPermissions(filtered);
@@ -199,7 +197,7 @@ public final class ResourceCollection {
               .skip(offset)
               .limit(limit)
               .collect(Collectors.toSet());
-      idsSlice.stream().forEach(id -> idPermissionsMapSlice.put(id, idPermissionsMap.get(id)));
+      idsSlice.forEach(id -> idPermissionsMapSlice.put(id, idPermissionsMap.get(id)));
       return ResourceCollection.resourcesDifferentPermissions(idPermissionsMapSlice);
     }
   }

@@ -5,7 +5,6 @@ import bio.terra.tanagra.annotation.AnnotatedField;
 import bio.terra.tanagra.service.export.DataExport;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -41,8 +40,7 @@ public class ExportConfiguration {
   public void log() {
     LOGGER.info("Export: shared gcs-project-id: {}", shared.getGcpProjectId());
     LOGGER.info(
-        "Export: shared gcs-bucket-names: {}",
-        shared.getGcsBucketNames().stream().collect(Collectors.joining(",")));
+        "Export: shared gcs-bucket-names: {}", String.join(",", shared.getGcsBucketNames()));
     for (int i = 0; i < models.size(); i++) {
       PerModel m = models.get(i);
       LOGGER.info("Export: models[{}] name: {}", i, m.getName());
@@ -50,10 +48,7 @@ public class ExportConfiguration {
       LOGGER.info("Export: models[{}] type: {}", i, m.getType());
       LOGGER.info("Export: models[{}] redirect-away-url: {}", i, m.getRedirectAwayUrl());
       LOGGER.info("Export: models[{}] num-primary-entity-cap: {}", i, m.getNumPrimaryEntityCap());
-      LOGGER.info(
-          "Export: models[{}] params: {}",
-          i,
-          m.getParams().stream().collect(Collectors.joining(",")));
+      LOGGER.info("Export: models[{}] params: {}", i, String.join(",", m.getParams()));
     }
   }
 

@@ -106,7 +106,7 @@ export function useNewFeatureSetContext(
 
   return {
     ...status,
-    isLoading: status.isLoading || !state,
+    isLoading: status.isLoading || (!state && !status.error),
     context: {
       state: state,
       updateState: async (update: (state: FeatureSetState) => void) => {

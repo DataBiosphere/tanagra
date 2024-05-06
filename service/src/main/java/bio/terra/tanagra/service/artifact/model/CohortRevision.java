@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
-public class CohortRevision {
+public final class CohortRevision {
   private final String id;
   private final List<CriteriaGroupSection> sections;
   private final int version;

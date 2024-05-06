@@ -53,7 +53,7 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +149,8 @@ public class ReviewsApiController implements ReviewsApi {
             offset,
             limit);
     ApiReviewList apiReviews = new ApiReviewList();
-    reviewService.listReviews(authorizedReviewIds, offset, limit).stream()
+    reviewService
+        .listReviews(authorizedReviewIds, offset, limit)
         .forEach(
             review ->
                 apiReviews.add(toApiObject(review, cohortService.getCohort(studyId, cohortId))));
@@ -189,7 +190,7 @@ public class ReviewsApiController implements ReviewsApi {
         new ApiReviewInstanceListResult()
             .instances(
                 reviewQueryResult.getReviewInstances().stream()
-                    .map(reviewInstance -> toApiObject(reviewInstance))
+                    .map(this::toApiObject)
                     .collect(Collectors.toList()))
             .sql(SqlFormatter.format(reviewQueryResult.getSql()))
             .pageMarker(
@@ -209,7 +210,8 @@ public class ReviewsApiController implements ReviewsApi {
         reviewService.countReviewInstances(studyId, cohortId, reviewId, body.getAttributes());
     ApiInstanceCountList apiCounts =
         new ApiInstanceCountList().sql(SqlFormatter.format(countResult.getSql()));
-    countResult.getCountInstances().stream()
+    countResult
+        .getCountInstances()
         .forEach(count -> apiCounts.addInstanceCountsItem(ToApiUtils.toApiObject(count)));
     return ResponseEntity.ok(apiCounts);
   }
@@ -224,7 +226,7 @@ public class ReviewsApiController implements ReviewsApi {
     if (apiObj.getIncludeAttributes() != null) {
       attributes =
           apiObj.getIncludeAttributes().stream()
-              .map(attrName -> entity.getAttribute(attrName))
+              .map(entity::getAttribute)
               .collect(Collectors.toList());
     }
 
@@ -250,7 +252,8 @@ public class ReviewsApiController implements ReviewsApi {
 
     List<ReviewQueryOrderBy> orderBys = new ArrayList<>();
     if (apiObj.getOrderBys() != null) {
-      apiObj.getOrderBys().stream()
+      apiObj
+          .getOrderBys()
           .forEach(
               orderBy -> {
                 OrderByDirection direction =
@@ -293,7 +296,7 @@ public class ReviewsApiController implements ReviewsApi {
       if (!annotationValues.containsKey(annotationKeyId)) {
         annotationValues.put(
             annotationKeyId,
-            new ArrayList<>(Arrays.asList(ToApiUtils.toApiObject(annotationValue))));
+            new ArrayList<>(Collections.singletonList(ToApiUtils.toApiObject(annotationValue))));
       } else {
         annotationValues.get(annotationKeyId).add(ToApiUtils.toApiObject(annotationValue));
       }
@@ -327,7 +330,7 @@ public class ReviewsApiController implements ReviewsApi {
                 .lastModified(cohort.getLastModified())
                 .criteriaGroupSections(
                     review.getRevision().getSections().stream()
-                        .map(criteriaGroup -> ToApiUtils.toApiObject(criteriaGroup))
+                        .map(ToApiUtils::toApiObject)
                         .collect(Collectors.toList())));
   }
 }

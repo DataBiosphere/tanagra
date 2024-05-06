@@ -199,7 +199,9 @@ public class AnnotationDao {
         new MapSqlParameterSource()
             .addValue(
                 "annotation_key_ids",
-                annotationKeys.stream().map(ak -> ak.getId()).collect(Collectors.toSet()));
+                annotationKeys.stream()
+                    .map(AnnotationKey.Builder::getId)
+                    .collect(Collectors.toSet()));
     List<Pair<String, String>> enumVals =
         jdbcTemplate.query(sql, params, ANNOTATION_KEY_ENUM_VALUE_ROW_MAPPER);
 
@@ -207,13 +209,12 @@ public class AnnotationDao {
     Map<String, AnnotationKey.Builder> annotationKeysMap =
         annotationKeys.stream()
             .collect(Collectors.toMap(AnnotationKey.Builder::getId, Function.identity()));
-    enumVals.stream()
-        .forEach(
-            pair -> {
-              String annotationKeyId = pair.getKey();
-              String enumVal = pair.getValue();
-              annotationKeysMap.get(annotationKeyId).addEnumVal(enumVal);
-            });
+    enumVals.forEach(
+        pair -> {
+          String annotationKeyId = pair.getKey();
+          String enumVal = pair.getValue();
+          annotationKeysMap.get(annotationKeyId).addEnumVal(enumVal);
+        });
 
     // Preserve the order returned by the original query.
     return annotationKeys.stream()

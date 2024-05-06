@@ -88,7 +88,7 @@ public class VwbFileImport implements DataExport {
             exportFileResult -> exportFileResult.isSuccessful() && exportFileResult.hasFileUrl())
         .map(ExportFileResult::getFileUrl)
         .sorted()
-        .forEach(tsvRow -> fileContents.append(tsvRow + "\n"));
+        .forEach(tsvRow -> fileContents.append(tsvRow).append("\n"));
 
     // Write the TSV file to GCS. Just pick the first bucket name.
     String fileName = "tanagra_vwb_export_" + Instant.now() + ".tsv";
