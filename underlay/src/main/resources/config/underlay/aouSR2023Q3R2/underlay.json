@@ -49,7 +49,8 @@
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
 
-    "aouRT/surveyBasics"
+    "aouRT/surveyBasics",
+    "aouRT/surveyOccurrence"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
