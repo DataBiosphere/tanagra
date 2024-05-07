@@ -1,0 +1,61 @@
+{
+  "columns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "concept_id",
+      "widthDouble": 120,
+      "title": "Concept Id"
+    },
+    {
+      "key": "value",
+      "widthDouble": 120,
+      "title": "Answer Concept Id"
+    },
+    {
+      "key": "subtype",
+      "widthDouble": 180,
+      "title": "Type"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Count"
+    }
+  ],
+  "hierarchyColumns": [
+    {
+      "key": "name",
+      "widthString": "40%",
+      "title": "Name"
+    },
+    {
+      "key": "concept_id",
+      "widthString": "10%",
+      "title": "Concept Id"
+    },
+    {
+      "key": "value",
+      "widthString": "10%",
+      "title": "Answer Concept Id"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthString": "40%",
+      "title": "Count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "surveyBasicsPerson",
+      "sortOrder": {
+        "attribute": "id",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    }
+  ],
+  "multiSelect": true
+}

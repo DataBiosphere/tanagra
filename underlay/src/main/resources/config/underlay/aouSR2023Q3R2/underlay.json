@@ -47,7 +47,10 @@
     "aouRT/weight",
     "aouRT/bmi",
     "aouRT/waistCircumference",
-    "aouRT/hipCircumference"
+    "aouRT/hipCircumference",
+
+    "aouRT/surveyBasics",
+    "aouRT/surveyOccurrence"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -89,7 +92,9 @@
     "aouRT/icd9cmPerson",
     "aouRT/icd9procPerson",
     "aouRT/icd10cmPerson",
-    "aouRT/icd10pcsPerson"
+    "aouRT/icd10pcsPerson",
+
+    "aouRT/surveyBasicsPerson"
   ],
   "criteriaSelectors": [
     "aouSR2023Q3R2/conditions",
@@ -125,7 +130,8 @@
     "aouSR2023Q3R2/bmi",
     "aouSR2023Q3R2/waistCircumference",
     "aouSR2023Q3R2/hipCircumference",
-    "aouSR2023Q3R2/outputUnfiltered"
+    "aouSR2023Q3R2/outputUnfiltered",
+    "aouSR2023Q3R2/surveyBasics"
   ],
   "prepackagedDataFeatures": [
     "aouSR2023Q3R2/_demographics",

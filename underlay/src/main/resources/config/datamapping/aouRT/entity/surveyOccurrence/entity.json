@@ -1,0 +1,15 @@
+{
+  "name": "surveyOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "observation_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "survey_datetime", "dataType": "TIMESTAMP", "valueFieldName": "observation_datetime" },
+    { "name": "survey_item_id", "dataType": "INT64" },
+    { "name": "survey", "dataType": "INT64", "valueFieldName": "survey_concept_id", "displayFieldName": "survey_concept_name" },
+    { "name": "question", "dataType": "INT64", "valueFieldName": "question_concept_id", "displayFieldName": "question_concept_name" },
+    { "name": "answer", "dataType": "INT64", "valueFieldName": "answer_concept_id", "displayFieldName": "answer_concept_name" }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "survey_item_id" ]
+}

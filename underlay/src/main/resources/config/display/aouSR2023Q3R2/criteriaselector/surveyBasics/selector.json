@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyBasics",
+  "displayName": "The Basics",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyBasics.json",
+  "modifiers": []
+}
