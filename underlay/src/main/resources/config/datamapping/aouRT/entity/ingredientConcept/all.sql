@@ -30,4 +30,13 @@ FROM (
         AND c1.concept_class_id = 'Ingredient'
     JOIN `${omopDataset}.concept` c2
         ON c2.concept_id = ca.descendant_concept_id
+
+    UNION ALL
+
+    SELECT
+        1 AS concept_id,
+        'Unmapped' AS concept_name,
+        'RxNorm' AS vocabulary_id,
+        'Unmapped' AS concept_code,
+        'Standard' AS standard_concept
 )
