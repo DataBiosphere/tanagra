@@ -37,6 +37,6 @@ FROM (
         1 AS concept_id,
         'Unmapped' AS concept_name,
         'RxNorm' AS vocabulary_id,
-        'Z' AS concept_code,
+        'Unmapped' AS concept_code,
         'Standard' AS standard_concept
 )
