@@ -2,6 +2,7 @@ SELECT
   o.observation_id,
   o.person_id,
   o.observation_datetime,
+  o.value_as_number,
   ps.id AS survey_item_id,
 
   ps_survey.concept_id AS survey_concept_id,
@@ -12,9 +13,15 @@ SELECT
   ac.concept_name AS answer_concept_name
 
 FROM `${omopDataset}.observation` AS o
+
 JOIN `${omopDataset}.prep_survey` AS ps
     ON ps.concept_id = o.observation_source_concept_id
-    AND CAST(ps.value AS INT64) = o.value_source_concept_id
+    AND (
+      (CAST(ps.value AS INT64) = o.value_source_concept_id)
+      OR
+      (ps.value IS NULL AND o.value_source_concept_id IS NULL)
+    )
+    AND ps.subtype = 'ANSWER'
 
 JOIN `${omopDataset}.prep_survey` AS ps_survey
     ON ps_survey.survey = ps.survey
