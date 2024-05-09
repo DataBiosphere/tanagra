@@ -32,3 +32,5 @@ LEFT JOIN `${omopDataset}.concept` AS qc
     ON qc.concept_id = o.observation_source_concept_id
 LEFT JOIN `${omopDataset}.concept` AS ac
     ON ac.concept_id = o.value_source_concept_id
+
+WHERE ps.survey = 'Basics'

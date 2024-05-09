@@ -57,5 +57,11 @@
       }
     }
   ],
-  "multiSelect": true
+  "multiSelect": false,
+  "valueConfigs": [
+    {
+      "attribute": "value_numeric",
+      "title": "Numeric value"
+    }
+  ]
 }
