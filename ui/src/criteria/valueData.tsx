@@ -80,24 +80,6 @@ export function ValueDataEdit(props: ValueDataEditProps) {
             key.key
           )
         : undefined;
-      // TODO(tjennison): Remove once index is updated.
-      if (!hintData?.find((hd) => hd.attribute === "is_clean")) {
-        (hintData ?? []).push({
-          attribute: "is_clean",
-          enumHintOptions: [
-            {
-              value: false,
-              name: "Raw",
-              count: 10,
-            },
-            {
-              value: true,
-              name: "Cleaned",
-              count: 20,
-            },
-          ],
-        });
-      }
       return {
         hintData,
       };
@@ -228,88 +210,92 @@ export function ValueDataEdit(props: ValueDataEditProps) {
 
   return (
     <Loading status={hintDataState}>
-      <GridLayout
-        cols={!!props.singleValue ? true : undefined}
-        rows={!props.singleValue ? true : undefined}
-        height="auto"
-      >
-        {!!props.valueData.length && props.singleValue ? (
-          <FormControl
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <Select
-              value={props.valueData[0].attribute}
-              input={<OutlinedInput />}
-              disabled={!hintDataState.data?.hintData?.length}
-              onChange={onSelect}
+      {hintDataState.data?.hintData?.length ? (
+        <GridLayout
+          cols={!!props.singleValue ? true : undefined}
+          rows={!props.singleValue ? true : undefined}
+          height="auto"
+        >
+          {!!props.valueData.length && props.singleValue ? (
+            <FormControl
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
             >
-              <MenuItem key={ANY_VALUE} value={ANY_VALUE}>
-                Any value
-              </MenuItem>
-              {props.valueConfigs?.map((c) =>
-                hintDataState.data?.hintData?.find(
-                  (hint) => hint.attribute === c.attribute
-                ) ? (
-                  <MenuItem key={c.attribute} value={c.attribute}>
-                    {c.title}
-                  </MenuItem>
-                ) : null
-              )}
-            </Select>
-          </FormControl>
-        ) : null}
-        {selectedConfigs.map((c, i) => {
-          let component: ReactNode = null;
-          if (c.hintData.enumHintOptions) {
-            component = (
-              <HintDataSelect
-                key={c.valueConfig.attribute}
-                hintData={c.hintData}
-                selected={c.valueData.selected}
-                onSelect={(sel) => onValueSelect(sel, c.valueData)}
-              />
-            );
-          }
-          if (c.hintData.integerHint) {
-            component = (
-              <RangeSlider
-                key={c.valueConfig.attribute}
-                index={0}
-                minBound={c.hintData.integerHint.min}
-                maxBound={c.hintData.integerHint.max}
-                range={c.valueData.range}
-                unit={c.valueConfig.unit}
-                onUpdate={(range, index, min, max) =>
-                  onUpdateRange(range, index, min, max, c.valueData)
-                }
-              />
-            );
-          }
-          if (!component || props.singleValue) {
-            return component;
-          }
+              <Select
+                value={props.valueData[0].attribute}
+                input={<OutlinedInput />}
+                disabled={!hintDataState.data?.hintData?.length}
+                onChange={onSelect}
+              >
+                <MenuItem key={ANY_VALUE} value={ANY_VALUE}>
+                  Any value
+                </MenuItem>
+                {props.valueConfigs?.map((c) =>
+                  hintDataState.data?.hintData?.find(
+                    (hint) => hint.attribute === c.attribute
+                  ) ? (
+                    <MenuItem key={c.attribute} value={c.attribute}>
+                      {c.title}
+                    </MenuItem>
+                  ) : null
+                )}
+              </Select>
+            </FormControl>
+          ) : null}
+          {selectedConfigs.map((c, i) => {
+            let component: ReactNode = null;
+            if (c.hintData.enumHintOptions) {
+              component = (
+                <HintDataSelect
+                  key={c.valueConfig.attribute}
+                  hintData={c.hintData}
+                  selected={c.valueData.selected}
+                  onSelect={(sel) => onValueSelect(sel, c.valueData)}
+                />
+              );
+            }
+            if (c.hintData.integerHint) {
+              component = (
+                <RangeSlider
+                  key={c.valueConfig.attribute}
+                  index={0}
+                  minBound={c.hintData.integerHint.min}
+                  maxBound={c.hintData.integerHint.max}
+                  range={c.valueData.range}
+                  unit={c.valueConfig.unit}
+                  onUpdate={(range, index, min, max) =>
+                    onUpdateRange(range, index, min, max, c.valueData)
+                  }
+                />
+              );
+            }
+            if (!component || props.singleValue) {
+              return component;
+            }
 
-          return (
-            <GridLayout key={c.valueData.attribute} rows height="auto">
-              {i !== 0 ? (
-                <Divider variant="middle">
-                  <Chip label="AND" />
-                </Divider>
-              ) : null}
-              <GridLayout cols rowAlign="middle" spacing={3} height="auto">
-                {!!c.valueConfig.title ? (
-                  <Typography variant="body1">{c.valueConfig.title}</Typography>
+            return (
+              <GridLayout key={c.valueData.attribute} rows height="auto">
+                {i !== 0 ? (
+                  <Divider variant="middle">
+                    <Chip label="AND" />
+                  </Divider>
                 ) : null}
-                {component}
+                <GridLayout cols rowAlign="middle" spacing={3} height="auto">
+                  {!!c.valueConfig.title ? (
+                    <Typography variant="body1">
+                      {c.valueConfig.title}
+                    </Typography>
+                  ) : null}
+                  {component}
+                </GridLayout>
               </GridLayout>
-            </GridLayout>
-          );
-        })}
-        <GridBox />
-      </GridLayout>
+            );
+          })}
+          <GridBox />
+        </GridLayout>
+      ) : null}
     </Loading>
   );
 }
