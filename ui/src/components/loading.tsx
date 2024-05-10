@@ -5,6 +5,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Theme, useTheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import errorImage from "images/error.png";
+import GridLayout from "layout/gridLayout";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
 type Status = {
@@ -15,7 +17,7 @@ type Status = {
 };
 
 type Props = {
-  size?: string;
+  size?: "small" | "medium" | "large";
   status?: Status;
   children?: React.ReactNode;
   showProgressOnMutate?: boolean;
@@ -58,13 +60,13 @@ export default function Loading(props: Props) {
   }
 
   return (
-    <Box sx={props.size !== "small" ? { px: 4, py: 2 } : {}}>
+    <Box>
       {showStatus(
         theme,
         visible,
         isLoading,
         props.status,
-        props.size,
+        props.size ?? "large",
         props.disableReloadButton
       )}
     </Box>
@@ -80,37 +82,42 @@ function showStatus(
   disableReloadButton?: boolean
 ): ReactNode {
   if (status?.error && !status?.isLoading) {
-    const errorMessage = status.error.message
-      ? `An error has occurred: ${status.error.message}`
-      : "An unknown error has occurred.";
+    const defaultMessage = "Something went wrong";
     if (size === "small") {
       return (
-        <Tooltip title={errorMessage} arrow={true}>
+        <Tooltip title={status.error.message ?? defaultMessage} arrow={true}>
           <ErrorIcon sx={{ display: "block" }} />
         </Tooltip>
       );
     }
 
     return (
-      <>
-        <Typography variant="h2" sx={{ textAlign: "center" }}>
-          Error
-        </Typography>
-        <Typography paragraph sx={{ textAlign: "center" }}>
-          {errorMessage}
-        </Typography>
-        {!disableReloadButton ? (
-          <div>
-            <Button
-              onClick={() => status?.mutate?.()}
-              variant="contained"
-              sx={{ display: "block", m: "auto" }}
-            >
+      <GridLayout
+        cols
+        rowAlign="middle"
+        colAlign="center"
+        sx={{ px: 2, py: 1, minHeight: "200px" }}
+      >
+        <GridLayout
+          colAlign="center"
+          spacing={1}
+          height="auto"
+          sx={{ textAlign: "center" }}
+        >
+          {size === "large" ? (
+            <img src={errorImage} style={{ width: "200px", height: "auto" }} />
+          ) : null}
+          <Typography variant="h6">{defaultMessage}</Typography>
+          {status.error.message ? (
+            <Typography variant="body1">{status.error.message}</Typography>
+          ) : null}
+          {!disableReloadButton ? (
+            <Button onClick={() => status?.mutate?.()} variant="contained">
               Reload
             </Button>
-          </div>
-        ) : null}
-      </>
+          ) : null}
+        </GridLayout>
+      </GridLayout>
     );
   }
   return visible ? (
