@@ -181,65 +181,67 @@ export function Export() {
                 }}
               >
                 <GridBox sx={{ px: 1, overflowY: "auto" }}>
-                  {cohorts.length === 0 ? (
-                    <Empty
-                      maxWidth="80%"
-                      title="Cohorts are groups of people with common traits"
-                      subtitle={
-                        <>
-                          <Link
-                            variant="link"
-                            underline="hover"
-                            onClick={() => newCohort()}
-                            sx={{ cursor: "pointer" }}
-                          >
-                            Create a new cohort
-                          </Link>{" "}
-                          to define criteria
-                        </>
-                      }
-                    />
-                  ) : (
-                    cohorts.map((cohort, i) => (
-                      <GridLayout
-                        key={cohort.id}
-                        cols
-                        fillCol={2}
-                        rowAlign="middle"
-                        height="auto"
-                        sx={{
-                          boxShadow:
-                            i !== 0
-                              ? (theme) => `0 -1px 0 ${theme.palette.divider}`
-                              : undefined,
-                        }}
-                      >
-                        <Checkbox
-                          name={cohort.name}
-                          checked={selectedCohorts.has(cohort.id)}
-                          onChange={() =>
-                            onToggle(updateSelectedCohorts, cohort.id)
-                          }
-                        />
-                        <Typography variant="body2" sx={{ my: 0.5 }}>
-                          {cohort.name}
-                        </Typography>
-                        <GridBox />
-                        <Button
-                          data-testid={cohort.name}
-                          variant="outlined"
-                          onClick={() =>
-                            navigate(
-                              cohortURL(cohort.id, cohort.groupSections[0].id)
-                            )
-                          }
-                          sx={{ minWidth: "auto" }}
+                  <Loading status={cohortsState} size="medium">
+                    {cohorts.length === 0 ? (
+                      <Empty
+                        maxWidth="80%"
+                        title="Cohorts are groups of people with common traits"
+                        subtitle={
+                          <>
+                            <Link
+                              variant="link"
+                              underline="hover"
+                              onClick={() => newCohort()}
+                              sx={{ cursor: "pointer" }}
+                            >
+                              Create a new cohort
+                            </Link>{" "}
+                            to define criteria
+                          </>
+                        }
+                      />
+                    ) : (
+                      cohorts.map((cohort, i) => (
+                        <GridLayout
+                          key={cohort.id}
+                          cols
+                          fillCol={2}
+                          rowAlign="middle"
+                          height="auto"
+                          sx={{
+                            boxShadow:
+                              i !== 0
+                                ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+                                : undefined,
+                          }}
                         >
-                          Edit
-                        </Button>
-                      </GridLayout>
-                    ))
-                  )}
+                          <Checkbox
+                            name={cohort.name}
+                            checked={selectedCohorts.has(cohort.id)}
+                            onChange={() =>
+                              onToggle(updateSelectedCohorts, cohort.id)
+                            }
+                          />
+                          <Typography variant="body2" sx={{ my: 0.5 }}>
+                            {cohort.name}
+                          </Typography>
+                          <GridBox />
+                          <Button
+                            data-testid={cohort.name}
+                            variant="outlined"
+                            onClick={() =>
+                              navigate(
+                                cohortURL(cohort.id, cohort.groupSections[0].id)
+                              )
+                            }
+                            sx={{ minWidth: "auto" }}
+                          >
+                            Edit
+                          </Button>
+                        </GridLayout>
+                      ))
+                    )}
+                  </Loading>
                 </GridBox>
               </Paper>
             </GridLayout>
@@ -270,61 +272,63 @@ export function Export() {
                 }}
               >
                 <GridBox sx={{ px: 1, overflowY: "auto" }}>
-                  {featureSets.length === 0 ? (
-                    <Empty
-                      maxWidth="80%"
-                      title="Data features decide the data shown for each participant"
-                      subtitle={
-                        <>
-                          <Link
-                            variant="link"
-                            underline="hover"
-                            onClick={() => newFeatureSet()}
-                            sx={{ cursor: "pointer" }}
-                          >
-                            Create a data feature set
-                          </Link>{" "}
-                          to explore domains of interest
-                        </>
-                      }
-                    />
-                  ) : (
-                    featureSets.map((fs, i) => (
-                      <GridLayout
-                        key={fs.id}
-                        cols
-                        fillCol={2}
-                        rowAlign="middle"
-                        height="auto"
-                        sx={{
-                          boxShadow:
-                            i !== 0
-                              ? (theme) => `0 -1px 0 ${theme.palette.divider}`
-                              : undefined,
-                        }}
-                      >
-                        <Checkbox
-                          name={fs.name}
-                          checked={selectedFeatureSets.has(fs.id)}
-                          onChange={() =>
-                            onToggle(updateSelectedFeatureSets, fs.id)
-                          }
-                        />
-                        <Typography variant="body2" sx={{ my: 0.5 }}>
-                          {fs.name}
-                        </Typography>
-                        <GridBox />
-                        <Button
-                          data-testid={fs.name}
-                          variant="outlined"
-                          onClick={() => navigate(featureSetURL(fs.id))}
-                          sx={{ minWidth: "auto" }}
+                  <Loading status={featureSetsState} size="medium">
+                    {featureSets.length === 0 ? (
+                      <Empty
+                        maxWidth="80%"
+                        title="Data features decide the data shown for each participant"
+                        subtitle={
+                          <>
+                            <Link
+                              variant="link"
+                              underline="hover"
+                              onClick={() => newFeatureSet()}
+                              sx={{ cursor: "pointer" }}
+                            >
+                              Create a data feature set
+                            </Link>{" "}
+                            to explore domains of interest
+                          </>
+                        }
+                      />
+                    ) : (
+                      featureSets.map((fs, i) => (
+                        <GridLayout
+                          key={fs.id}
+                          cols
+                          fillCol={2}
+                          rowAlign="middle"
+                          height="auto"
+                          sx={{
+                            boxShadow:
+                              i !== 0
+                                ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+                                : undefined,
+                          }}
                         >
-                          Edit
-                        </Button>
-                      </GridLayout>
-                    ))
-                  )}
+                          <Checkbox
+                            name={fs.name}
+                            checked={selectedFeatureSets.has(fs.id)}
+                            onChange={() =>
+                              onToggle(updateSelectedFeatureSets, fs.id)
+                            }
+                          />
+                          <Typography variant="body2" sx={{ my: 0.5 }}>
+                            {fs.name}
+                          </Typography>
+                          <GridBox />
+                          <Button
+                            data-testid={fs.name}
+                            variant="outlined"
+                            onClick={() => navigate(featureSetURL(fs.id))}
+                            sx={{ minWidth: "auto" }}
+                          >
+                            Edit
+                          </Button>
+                        </GridLayout>
+                      ))
+                    )}
+                  </Loading>
                 </GridBox>
               </Paper>
             </GridLayout>
