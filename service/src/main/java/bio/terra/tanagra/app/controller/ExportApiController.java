@@ -1,6 +1,5 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
@@ -103,7 +102,7 @@ public class ExportApiController implements ExportApi {
       String underlayName, String entityName, ApiExportPreviewRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     for (String cohortId : body.getCohorts()) {
       accessControlService.throwIfUnauthorized(
@@ -175,7 +174,7 @@ public class ExportApiController implements ExportApi {
       String underlayName, ApiExportPreviewRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     for (String conceptSetId : body.getConceptSets()) {
       accessControlService.throwIfUnauthorized(
@@ -263,7 +262,7 @@ public class ExportApiController implements ExportApi {
       String underlayName, ApiExportRequest body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     for (String cohortId : body.getCohorts()) {
       accessControlService.throwIfUnauthorized(

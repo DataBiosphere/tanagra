@@ -9,15 +9,6 @@ public interface StudyAccessControl extends FineGrainedAccessControl {
   }
 
   @Override
-  default Permissions getUnderlay(UserId user, ResourceId underlay) {
-    // TODO: Check optional study permission here once we are passing it for all endpoints.
-    return Permissions.allActions(ResourceType.UNDERLAY);
-    //    return hasStudyReadPermission(getStudy(user, underlay.getStudyResourceId()))
-    //        ? Permissions.allActions(ResourceType.UNDERLAY)
-    //        : Permissions.empty(ResourceType.UNDERLAY);
-  }
-
-  @Override
   default ResourceCollection listCohorts(UserId user, ResourceId study, int offset, int limit) {
     return listStudyDescendantResources(user, study, ResourceType.COHORT);
   }

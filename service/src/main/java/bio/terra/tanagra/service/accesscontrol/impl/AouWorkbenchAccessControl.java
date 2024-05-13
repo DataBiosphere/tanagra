@@ -39,6 +39,13 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
   }
 
   @Override
+  public Permissions getUnderlay(UserId user, ResourceId underlay) {
+    // TODO: Call workbench to check for RT/CT access. See "/v1/profile" endpoint to get user
+    // profile.
+    return Permissions.allActions(ResourceType.UNDERLAY);
+  }
+
+  @Override
   public ResourceCollection listUnderlays(UserId user, int offset, int limit) {
     LOGGER.error("AoU will not call Tanagra to list underlays - this is managed by the Workbench.");
     return ResourceCollection.empty(ResourceType.UNDERLAY, null);

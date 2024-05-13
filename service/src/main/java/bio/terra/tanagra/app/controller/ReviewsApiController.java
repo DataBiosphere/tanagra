@@ -2,8 +2,6 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_REVIEW;
 import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
@@ -181,7 +179,7 @@ public class ReviewsApiController implements ReviewsApi {
       String studyId, String cohortId, String reviewId, ApiReviewQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(REVIEW, QUERY_INSTANCES),
+        Permissions.forActions(REVIEW, READ),
         ResourceId.forReview(studyId, cohortId, reviewId));
     ReviewQueryResult reviewQueryResult =
         reviewService.listReviewInstances(
@@ -204,7 +202,7 @@ public class ReviewsApiController implements ReviewsApi {
       String studyId, String cohortId, String reviewId, ApiReviewCountQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(REVIEW, QUERY_COUNTS),
+        Permissions.forActions(REVIEW, READ),
         ResourceId.forReview(studyId, cohortId, reviewId));
     CountQueryResult countResult =
         reviewService.countReviewInstances(studyId, cohortId, reviewId, body.getAttributes());
