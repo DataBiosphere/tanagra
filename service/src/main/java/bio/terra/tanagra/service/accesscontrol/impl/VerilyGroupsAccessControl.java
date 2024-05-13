@@ -1,11 +1,11 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.accesscontrol.AccessControl;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
+import bio.terra.tanagra.service.accesscontrol.UnderlayAccessControl;
 import bio.terra.tanagra.service.authentication.AppDefaultUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
 import bio.terra.tanagra.service.authentication.UserId;
@@ -21,21 +21,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * VerilyGroups access control plugin implementation that checks membership in a VerilyGroup for
- * each underlay.
- */
-public class VerilyGroupsAccessControl implements AccessControl {
+public class VerilyGroupsAccessControl implements UnderlayAccessControl {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerilyGroupsAccessControl.class);
-
   public static final String ALL_ACCESS = "ALL_ACCESS";
 
   private String basePath;
@@ -46,7 +41,7 @@ public class VerilyGroupsAccessControl implements AccessControl {
 
   @Override
   public String getDescription() {
-    return "Check VerilyGroup membership for underlay access";
+    return "VerilyGroups underlay-based access control";
   }
 
   @Override
@@ -86,54 +81,32 @@ public class VerilyGroupsAccessControl implements AccessControl {
   }
 
   @Override
-  public boolean isAuthorized(UserId user, Permissions permissions, @Nullable ResourceId resource) {
-    if (ResourceType.UNDERLAY.equals(permissions.getType())) {
-      // Check membership in ALL_ACCESS and/or underlay-specific group.
-      return hasAllUnderlayAccess(user.getEmail())
-          || hasSpecificUnderlayAccess(resource.getUnderlay(), user.getEmail());
+  public ResourceCollection listUnderlays(UserId user, int offset, int limit) {
+    if (hasAllUnderlayAccess(user.getEmail())) {
+      // If user is a member in ALL_ACCESS group, then return all underlays.
+      return ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null);
     } else {
-      // For resources other than underlays, all actions are allowed to everyone.
-      return true;
+      // Otherwise, check membership in each of the underlay-specific groups.
+      Set<ResourceId> underlaysWithAccess =
+          underlayToGroup.keySet().stream()
+              .filter(underlay -> hasSpecificUnderlayAccess(underlay, user.getEmail()))
+              .map(ResourceId::forUnderlay)
+              .collect(Collectors.toSet());
+      return underlaysWithAccess.isEmpty()
+          ? ResourceCollection.empty(ResourceType.UNDERLAY, null)
+          : ResourceCollection.resourcesSamePermissions(
+                  Permissions.allActions(ResourceType.UNDERLAY), underlaysWithAccess)
+              .slice(offset, limit);
     }
   }
 
   @Override
-  public Permissions getPermissions(UserId user, ResourceId resource) {
+  public Permissions getUnderlay(UserId user, ResourceId underlay) {
     // There are no partial permissions, users either have all or none.
-    return isAuthorized(user, Permissions.allActions(resource.getType()), resource)
-        ? Permissions.allActions(resource.getType())
-        : Permissions.empty(resource.getType());
-  }
-
-  @Override
-  public ResourceCollection listAllPermissions(
-      UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (ResourceType.UNDERLAY.equals(type)) {
-      if (hasAllUnderlayAccess(user.getEmail())) {
-        // If user is a member in ALL_ACCESS group, then return all underlays.
-        return ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null);
-      } else {
-        // Otherwise, check membership in each of the underlay-specific groups.
-        Map<ResourceId, Permissions> underlayPermissionsMap = new HashMap<>();
-        underlayToGroup
-            .keySet()
-            .forEach(
-                underlay ->
-                    underlayPermissionsMap.put(
-                        ResourceId.forUnderlay(underlay),
-                        hasSpecificUnderlayAccess(underlay, user.getEmail())
-                            ? Permissions.allActions(ResourceType.UNDERLAY)
-                            : Permissions.empty(ResourceType.UNDERLAY)));
-        ResourceCollection allUnderlays =
-            underlayPermissionsMap.isEmpty()
-                ? ResourceCollection.empty(ResourceType.UNDERLAY, null)
-                : ResourceCollection.resourcesDifferentPermissions(underlayPermissionsMap);
-        return allUnderlays.slice(offset, limit);
-      }
-    } else {
-      // For resources other than underlays, everyone has all permissions on everything.
-      return ResourceCollection.allResourcesAllPermissions(type, parentResource);
-    }
+    return hasAllUnderlayAccess(user.getEmail())
+            || hasSpecificUnderlayAccess(underlay.getUnderlay(), user.getEmail())
+        ? Permissions.allActions(ResourceType.UNDERLAY)
+        : Permissions.empty(ResourceType.UNDERLAY);
   }
 
   /** Return true if the user email is included the underlay-specific group membership list. */

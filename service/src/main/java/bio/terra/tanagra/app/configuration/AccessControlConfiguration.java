@@ -2,7 +2,7 @@ package bio.terra.tanagra.app.configuration;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
-import bio.terra.tanagra.service.accesscontrol2.CoreModel;
+import bio.terra.tanagra.service.accesscontrol.CoreModel;
 import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;

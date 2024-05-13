@@ -1,9 +1,9 @@
-package bio.terra.tanagra.service.accesscontrol2;
+package bio.terra.tanagra.service.accesscontrol;
 
-import bio.terra.tanagra.service.accesscontrol2.impl.AouWorkbenchAccessControl;
-import bio.terra.tanagra.service.accesscontrol2.impl.OpenAccessControl;
-import bio.terra.tanagra.service.accesscontrol2.impl.VerilyGroupsAccessControl;
-import bio.terra.tanagra.service.accesscontrol2.impl.VumcAdminAccessControl;
+import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
+import bio.terra.tanagra.service.accesscontrol.impl.OpenAccessControl;
+import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
+import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
 import java.util.function.Supplier;
 
 public enum CoreModel {

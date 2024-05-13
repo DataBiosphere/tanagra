@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.service.accesscontrol.impl.MockVumcAdminAccessControl;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -117,7 +116,7 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
     accessControlConfig.setParams(List.of());
     accessControlConfig.setBasePath("FAKE_BASE_PATH");
     accessControlConfig.setOauthClientId("FAKE_OAUTH_CLIENT_ID");
-    accessControlService = new AccessControl2Service(vaImpl, accessControlConfig);
+    accessControlService = new AccessControlService(vaImpl, accessControlConfig);
   }
 
   @AfterEach

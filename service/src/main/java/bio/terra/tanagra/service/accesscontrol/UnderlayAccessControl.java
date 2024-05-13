@@ -1,10 +1,5 @@
-package bio.terra.tanagra.service.accesscontrol2;
+package bio.terra.tanagra.service.accesscontrol;
 
-import bio.terra.tanagra.service.accesscontrol.Action;
-import bio.terra.tanagra.service.accesscontrol.Permissions;
-import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
-import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.Set;
 

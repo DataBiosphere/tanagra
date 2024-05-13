@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.UnderlayService;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ConceptSetService;
@@ -52,7 +51,7 @@ public class BaseAccessControlTest {
   @Autowired protected ReviewService reviewService;
   @Autowired protected AnnotationService annotationService;
 
-  protected AccessControl2Service accessControlService;
+  protected AccessControlService accessControlService;
   protected static final String CMS_SYNPUF = "cmssynpuf";
   protected static final String AOU_SYNTHETIC = "aouSR2019q4r4";
   protected static final String SDD = "sd";

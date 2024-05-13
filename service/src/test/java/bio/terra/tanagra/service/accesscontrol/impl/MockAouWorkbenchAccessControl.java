@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
-import bio.terra.tanagra.service.accesscontrol2.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.HashMap;
 import java.util.Map;

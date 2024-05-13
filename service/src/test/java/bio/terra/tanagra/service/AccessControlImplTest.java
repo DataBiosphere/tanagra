@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
+import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Action;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -40,10 +41,8 @@ public class AccessControlImplTest {
   @Test
   void vumcAdmin() throws ApiException {
     VumcAdminAccessControl impl = new VumcAdminAccessControl();
-    impl.initialize(
-        accessControlConfiguration.getParams(),
-        accessControlConfiguration.getBasePath(),
-        accessControlConfiguration.getOauthClientId());
+    AccessControlService accessControlService =
+        new AccessControlService(impl, accessControlConfiguration);
 
     SystemVersion systemVersion = impl.apiVersion();
     assertNotNull(systemVersion);
@@ -59,12 +58,13 @@ public class AccessControlImplTest {
                 .get(0)
                 .getName());
     assertTrue(
-        impl.isAuthorized(
+        accessControlService.isAuthorized(
             UserId.forDisabledAuthentication(),
             Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
             firstUnderlay));
     assertFalse(
-        impl.listAuthorizedResources(
+        accessControlService
+            .listAuthorizedResources(
                 UserId.forDisabledAuthentication(),
                 Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
                 0,
@@ -78,19 +78,18 @@ public class AccessControlImplTest {
   @Test
   void verilyGroups() {
     VerilyGroupsAccessControl impl = new VerilyGroupsAccessControl();
-    impl.initialize(
-        accessControlConfiguration.getParams(),
-        accessControlConfiguration.getBasePath(),
-        accessControlConfiguration.getOauthClientId());
+    AccessControlService accessControlService =
+        new AccessControlService(impl, accessControlConfiguration);
 
     // Access control is only on underlays, no other resource types.
     assertTrue(
-        impl.isAuthorized(
+        accessControlService.isAuthorized(
             UserId.forDisabledAuthentication(),
             Permissions.forActions(ResourceType.STUDY, Action.CREATE),
             null));
     assertTrue(
-        impl.listAuthorizedResources(
+        accessControlService
+            .listAuthorizedResources(
                 UserId.forDisabledAuthentication(),
                 Permissions.forActions(ResourceType.STUDY, Action.READ),
                 0,
@@ -103,10 +102,8 @@ public class AccessControlImplTest {
   @Test
   void aouWorkbench() {
     AouWorkbenchAccessControl impl = new AouWorkbenchAccessControl();
-    impl.initialize(
-        accessControlConfiguration.getParams(),
-        accessControlConfiguration.getBasePath(),
-        accessControlConfiguration.getOauthClientId());
+    AccessControlService accessControlService =
+        new AccessControlService(impl, accessControlConfiguration);
 
     // Access control is only on studies, no other resource types.
     ResourceId firstUnderlay =
@@ -117,12 +114,13 @@ public class AccessControlImplTest {
                 .get(0)
                 .getName());
     assertTrue(
-        impl.isAuthorized(
+        accessControlService.isAuthorized(
             UserId.forDisabledAuthentication(),
             Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
             firstUnderlay));
     assertFalse(
-        impl.listAuthorizedResources(
+        accessControlService
+            .listAuthorizedResources(
                 UserId.forDisabledAuthentication(),
                 Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
                 0,

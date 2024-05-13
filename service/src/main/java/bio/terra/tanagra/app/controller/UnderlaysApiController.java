@@ -40,10 +40,10 @@ import bio.terra.tanagra.generated.model.ApiUnderlay;
 import bio.terra.tanagra.generated.model.ApiUnderlaySerializedConfiguration;
 import bio.terra.tanagra.generated.model.ApiUnderlaySummaryList;
 import bio.terra.tanagra.service.UnderlayService;
+import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.ClientConfig;
 import bio.terra.tanagra.underlay.Underlay;
@@ -61,13 +61,13 @@ import org.springframework.stereotype.Controller;
 public class UnderlaysApiController implements UnderlaysApi {
   private final UnderlayService underlayService;
   private final FilterBuilderService filterBuilderService;
-  private final AccessControl2Service accessControlService;
+  private final AccessControlService accessControlService;
 
   @Autowired
   public UnderlaysApiController(
       UnderlayService underlayService,
       FilterBuilderService filterBuilderService,
-      AccessControl2Service accessControlService) {
+      AccessControlService accessControlService) {
     this.underlayService = underlayService;
     this.filterBuilderService = filterBuilderService;
     this.accessControlService = accessControlService;

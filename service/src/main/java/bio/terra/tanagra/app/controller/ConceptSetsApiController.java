@@ -16,10 +16,10 @@ import bio.terra.tanagra.generated.model.ApiConceptSetCreateInfo;
 import bio.terra.tanagra.generated.model.ApiConceptSetList;
 import bio.terra.tanagra.generated.model.ApiConceptSetUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiEntityOutput;
+import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.ConceptSetService;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
@@ -34,11 +34,11 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class ConceptSetsApiController implements ConceptSetsApi {
   private final ConceptSetService conceptSetService;
-  private final AccessControl2Service accessControlService;
+  private final AccessControlService accessControlService;
 
   @Autowired
   public ConceptSetsApiController(
-      ConceptSetService conceptSetService, AccessControl2Service accessControlService) {
+      ConceptSetService conceptSetService, AccessControlService accessControlService) {
     this.conceptSetService = conceptSetService;
     this.accessControlService = accessControlService;
   }

@@ -5,9 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
+import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.accesscontrol.impl.MockAouWorkbenchAccessControl;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
-import bio.terra.tanagra.service.accesscontrol2.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +36,7 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     accessControlConfig.setParams(List.of());
     accessControlConfig.setBasePath("FAKE_BASE_PATH");
     accessControlConfig.setOauthClientId("FAKE_OAUTH_CLIENT_ID");
-    accessControlService = new AccessControl2Service(awImpl, accessControlConfig);
+    accessControlService = new AccessControlService(awImpl, accessControlConfig);
   }
 
   @AfterEach

@@ -26,10 +26,10 @@ import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
 import bio.terra.tanagra.generated.model.ApiInstanceCountList;
 import bio.terra.tanagra.service.UnderlayService;
+import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -47,14 +47,14 @@ public class CohortsApiController implements CohortsApi {
   private final CohortService cohortService;
   private final UnderlayService underlayService;
   private final FilterBuilderService filterBuilderService;
-  private final AccessControl2Service accessControlService;
+  private final AccessControlService accessControlService;
 
   @Autowired
   public CohortsApiController(
       CohortService cohortService,
       UnderlayService underlayService,
       FilterBuilderService filterBuilderService,
-      AccessControl2Service accessControlService) {
+      AccessControlService accessControlService) {
     this.cohortService = cohortService;
     this.underlayService = underlayService;
     this.filterBuilderService = filterBuilderService;

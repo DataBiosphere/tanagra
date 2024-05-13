@@ -3,7 +3,6 @@ package bio.terra.tanagra.service.accesscontrol;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +19,7 @@ public class OpenAccessControlTest extends BaseAccessControlTest {
     accessControlConfig.setParams(List.of());
     accessControlConfig.setBasePath(null);
     accessControlConfig.setOauthClientId(null);
-    accessControlService = new AccessControl2Service(accessControlConfig);
+    accessControlService = new AccessControlService(accessControlConfig);
   }
 
   @AfterEach

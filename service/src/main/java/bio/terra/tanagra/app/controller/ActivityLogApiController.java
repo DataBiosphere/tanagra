@@ -15,8 +15,8 @@ import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
 import bio.terra.tanagra.generated.model.ApiResource;
 import bio.terra.tanagra.generated.model.ApiResourceType;
 import bio.terra.tanagra.generated.model.ApiSystemVersion;
+import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.ActivityLogResource;
@@ -29,11 +29,11 @@ import org.springframework.stereotype.Controller;
 public class ActivityLogApiController implements ActivityLogApi {
 
   private final ActivityLogService activityLogService;
-  private final AccessControl2Service accessControlService;
+  private final AccessControlService accessControlService;
 
   @Autowired
   public ActivityLogApiController(
-      ActivityLogService activityLogService, AccessControl2Service accessControlService) {
+      ActivityLogService activityLogService, AccessControlService accessControlService) {
     this.activityLogService = activityLogService;
     this.accessControlService = accessControlService;
   }

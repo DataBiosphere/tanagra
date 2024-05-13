@@ -18,10 +18,10 @@ import bio.terra.tanagra.generated.model.ApiAnnotationList;
 import bio.terra.tanagra.generated.model.ApiAnnotationUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiDataType;
 import bio.terra.tanagra.generated.model.ApiLiteral;
+import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
-import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import java.util.List;
@@ -34,11 +34,11 @@ import org.springframework.stereotype.Controller;
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class AnnotationsApiController implements AnnotationsApi {
   private final AnnotationService annotationService;
-  private final AccessControl2Service accessControlService;
+  private final AccessControlService accessControlService;
 
   @Autowired
   public AnnotationsApiController(
-      AnnotationService annotationService, AccessControl2Service accessControlService) {
+      AnnotationService annotationService, AccessControlService accessControlService) {
     this.annotationService = annotationService;
     this.accessControlService = accessControlService;
   }
