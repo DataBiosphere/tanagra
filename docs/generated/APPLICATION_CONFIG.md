@@ -25,9 +25,9 @@ URL of another service the access control model will call. e.g. Workbench URL.
 *Example value:* `https://www.workbench.com`
 
 ### tanagra.access-control.model
-**optional** Model
+**optional** String
 
-Pointer to the access control model Java class. Currently this must be one of the enum values in the`bio.terra.tanagra.service.accesscontrol.AccessControl.Model` Java class. In the future, it will support arbitrary class names
+Pointer to the access control model Java class. Currently this must be one of the enum values in the`bio.terra.tanagra.service.accesscontrol.CoreModel` Java class, or the full name of a class that implements the `bio.terra.tanagra.service.accesscontrol.FineGrainedAccessControl` interface and is on the classpath.
 
 *Environment variable:* `TANAGRA_ACCESS_CONTROL_MODEL`
 

@@ -24,8 +24,9 @@ public class AccessControlConfiguration {
       name = "tanagra.access-control.model",
       markdown =
           "Pointer to the access control model Java class. Currently this must be one of the enum values in the"
-              + "`bio.terra.tanagra.service.accesscontrol.FienGrainedAccessControl` Java class, or the full name "
-              + "of a class that implements the FineGrainedAccessControl interface and is on the classpath.",
+              + "`bio.terra.tanagra.service.accesscontrol.CoreModel` Java class, or the full name of a class "
+              + "that implements the `bio.terra.tanagra.service.accesscontrol.FineGrainedAccessControl` interface "
+              + "and is on the classpath.",
       optional = true,
       defaultValue = "OPEN_ACCESS",
       environmentVariable = "TANAGRA_ACCESS_CONTROL_MODEL")
