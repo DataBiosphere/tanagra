@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
+import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.service.accesscontrol.impl.MockAouWorkbenchAccessControl;
+import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
+import bio.terra.tanagra.service.accesscontrol2.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,8 +33,11 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     awImpl.addPermission(USER_2, study1.getId(), AouWorkbenchAccessControl.WorkspaceRole.WRITER);
     awImpl.addPermission(USER_4, study2.getId(), AouWorkbenchAccessControl.WorkspaceRole.READER);
 
-    impl = awImpl;
-    impl.initialize(List.of(), "FAKE_BASE_PATH", "FAKE_OAUTH_CLIENT_ID");
+    AccessControlConfiguration accessControlConfig = new AccessControlConfiguration();
+    accessControlConfig.setParams(List.of());
+    accessControlConfig.setBasePath("FAKE_BASE_PATH");
+    accessControlConfig.setOauthClientId("FAKE_OAUTH_CLIENT_ID");
+    accessControlService = new AccessControl2Service(awImpl, accessControlConfig);
   }
 
   @AfterEach
@@ -43,10 +48,18 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   @Test
   void activityLog() {
     // isAuthorized
-    assertFalse(impl.isAuthorized(USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertFalse(impl.isAuthorized(USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertFalse(impl.isAuthorized(USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertFalse(impl.isAuthorized(USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertFalse(
+        accessControlService.isAuthorized(
+            USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertFalse(
+        accessControlService.isAuthorized(
+            USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertFalse(
+        accessControlService.isAuthorized(
+            USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertFalse(
+        accessControlService.isAuthorized(
+            USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
   }
 
   @Test
@@ -55,9 +68,9 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     ResourceId aouSyntheticId = ResourceId.forUnderlay(AOU_SYNTHETIC);
     // Need to do this one-off since we return true for underlay for isAuthorized
     // but return empty for listAllPermissions for Underlays as listing is not allowed for AoU
-    assertUnderlayPermissions(USER_1, aouSyntheticId);
-    assertUnderlayPermissions(USER_2, aouSyntheticId);
-    assertUnderlayPermissions(USER_4, aouSyntheticId);
+    assertUnderlayPermissions(USER_1, aouSyntheticId, true);
+    assertUnderlayPermissions(USER_2, aouSyntheticId, true);
+    assertUnderlayPermissions(USER_4, aouSyntheticId, true);
     // service.list
     assertServiceListWithReadPermission(USER_1, ResourceType.UNDERLAY, null, false);
     assertServiceListWithReadPermission(USER_2, ResourceType.UNDERLAY, null, false);
@@ -105,13 +118,17 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
 
     // isAuthorized for STUDY.CREATE
     assertTrue(
-        impl.isAuthorized(USER_1, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_1, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_2, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_2, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_3, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_3, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
 
     // service.list
     assertStudyNoListPermissions(USER_1, ResourceType.STUDY);
@@ -200,16 +217,14 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     ResourceId review1Id = ResourceId.forReview(study1.getId(), cohort1.getId(), review1.getId());
     ResourceId review2Id = ResourceId.forReview(study2.getId(), cohort2.getId(), review2.getId());
     assertHasPermissions(USER_1, review1Id);
-    assertHasPermissions(
-        USER_1, review2Id, Action.READ, Action.QUERY_INSTANCES, Action.QUERY_COUNTS);
+    assertHasPermissions(USER_1, review2Id, Action.READ);
     assertDoesNotHavePermissions(USER_1, review2Id, Action.UPDATE, Action.DELETE);
     assertHasPermissions(USER_2, review1Id);
     assertDoesNotHavePermissions(USER_2, review2Id);
     assertDoesNotHavePermissions(USER_3, review1Id);
     assertDoesNotHavePermissions(USER_3, review2Id);
     assertDoesNotHavePermissions(USER_4, review1Id);
-    assertHasPermissions(
-        USER_4, review2Id, Action.READ, Action.QUERY_INSTANCES, Action.QUERY_COUNTS);
+    assertHasPermissions(USER_4, review2Id, Action.READ);
     assertDoesNotHavePermissions(USER_4, review2Id, Action.UPDATE, Action.DELETE);
 
     // service.list
@@ -261,21 +276,27 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   }
 
   // Specific cases for AoU
-  private void assertUnderlayPermissions(UserId user, ResourceId resource) {
-    assertTrue(impl.isAuthorized(user, Permissions.empty(resource.getType()), resource));
+  private void assertUnderlayPermissions(UserId user, ResourceId resource, boolean isAllActions) {
+    Permissions expectedPermissions =
+        isAllActions
+            ? Permissions.allActions(ResourceType.UNDERLAY)
+            : Permissions.empty(ResourceType.UNDERLAY);
+    assertTrue(accessControlService.isAuthorized(user, expectedPermissions, resource));
     assertServiceListWithReadPermission(USER_1, ResourceType.UNDERLAY, null, false);
   }
 
   private void assertStudyPermissions(UserId user, ResourceId resource, Action... actions) {
-    assertTrue(impl.isAuthorized(user, Permissions.empty(resource.getType()), resource));
+    assertTrue(
+        accessControlService.isAuthorized(
+            user, Permissions.forActions(resource.getType(), actions), resource));
     // List actions are not allowed for study
     assertStudyNoListPermissions(user, resource.getType(), actions);
   }
 
   private void assertStudyNoListPermissions(UserId user, ResourceType resource, Action... actions) {
     ResourceCollection resources =
-        impl.listAuthorizedResources(
-            user, Permissions.forActions(resource, actions), null, 0, Integer.MAX_VALUE);
+        accessControlService.listAuthorizedResources(
+            user, Permissions.forActions(resource, actions), 0, Integer.MAX_VALUE);
     assertFalse(resources.isAllResources());
     assertEquals(
         0,

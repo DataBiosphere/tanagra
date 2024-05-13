@@ -6,9 +6,8 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.authentication.UserId;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
+// @Component
 public class AccessControlService {
   // The application configuration specifies which AccessControl implementation class this service
   // calls.
@@ -17,7 +16,7 @@ public class AccessControlService {
   @Autowired
   public AccessControlService(AccessControlConfiguration accessControlConfiguration) {
     AccessControl accessControlImplInstance =
-        accessControlConfiguration.getModel().createNewInstance();
+        AccessControl.Model.valueOf(accessControlConfiguration.getModel()).createNewInstance();
     accessControlImplInstance.initialize(
         accessControlConfiguration.getParams(),
         accessControlConfiguration.getBasePath(),

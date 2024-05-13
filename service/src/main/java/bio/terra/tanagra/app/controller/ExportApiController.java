@@ -27,9 +27,9 @@ import bio.terra.tanagra.generated.model.ApiExportRequest;
 import bio.terra.tanagra.generated.model.ApiExportResult;
 import bio.terra.tanagra.generated.model.ApiInstanceListResult;
 import bio.terra.tanagra.service.UnderlayService;
-import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ConceptSetService;
 import bio.terra.tanagra.service.artifact.StudyService;
@@ -59,7 +59,7 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class ExportApiController implements ExportApi {
-  private final AccessControlService accessControlService;
+  private final AccessControl2Service accessControlService;
   private final DataExportService dataExportService;
   private final StudyService studyService;
   private final CohortService cohortService;
@@ -69,7 +69,7 @@ public class ExportApiController implements ExportApi {
 
   @Autowired
   public ExportApiController(
-      AccessControlService accessControlService,
+      AccessControl2Service accessControlService,
       DataExportService dataExportService,
       StudyService studyService,
       CohortService cohortService,

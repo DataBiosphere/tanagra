@@ -15,10 +15,10 @@ import bio.terra.tanagra.generated.model.ApiStudy;
 import bio.terra.tanagra.generated.model.ApiStudyCreateInfo;
 import bio.terra.tanagra.generated.model.ApiStudyList;
 import bio.terra.tanagra.generated.model.ApiStudyUpdateInfo;
-import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Study;
 import com.google.common.collect.ImmutableMap;
@@ -33,11 +33,11 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class StudiesApiController implements StudiesApi {
   private final StudyService studyService;
-  private final AccessControlService accessControlService;
+  private final AccessControl2Service accessControlService;
 
   @Autowired
   public StudiesApiController(
-      StudyService studyService, AccessControlService accessControlService) {
+      StudyService studyService, AccessControl2Service accessControlService) {
     this.studyService = studyService;
     this.accessControlService = accessControlService;
   }

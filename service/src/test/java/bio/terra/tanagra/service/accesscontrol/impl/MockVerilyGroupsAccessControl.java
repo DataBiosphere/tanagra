@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
+import bio.terra.tanagra.service.accesscontrol2.impl.VerilyGroupsAccessControl;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;

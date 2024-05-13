@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.UnderlayService;
+import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ConceptSetService;
@@ -24,7 +25,6 @@ import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +52,7 @@ public class BaseAccessControlTest {
   @Autowired protected ReviewService reviewService;
   @Autowired protected AnnotationService annotationService;
 
-  protected AccessControl impl;
+  protected AccessControl2Service accessControlService;
   protected static final String CMS_SYNPUF = "cmssynpuf";
   protected static final String AOU_SYNTHETIC = "aouSR2019q4r4";
   protected static final String SDD = "sd";
@@ -204,65 +204,42 @@ public class BaseAccessControlTest {
   protected void assertHasPermissions(UserId user, ResourceId resource, Action... actions) {
     Action[] actionsArr =
         actions.length > 0 ? actions : resource.getType().getActions().toArray(new Action[0]);
+
     assertTrue(
-        impl.isAuthorized(user, Permissions.forActions(resource.getType(), actionsArr), resource));
-    assertTrue(
-        impl.getPermissions(user, resource)
-            .contains(Permissions.forActions(resource.getType(), actionsArr)));
+        accessControlService.isAuthorized(
+            user, Permissions.forActions(resource.getType(), actionsArr), resource));
 
     ResourceCollection resources =
-        impl.listAllPermissions(
-            user, resource.getType(), resource.getParent(), 0, Integer.MAX_VALUE);
-    assertTrue(
-        resources
-            .getPermissions(resource)
-            .contains(Permissions.forActions(resource.getType(), actionsArr)));
-
-    if (new HashSet<>(Arrays.asList(actionsArr)).equals(resource.getType().getActions())) {
-      assertTrue(impl.getPermissions(user, resource).isAllActions());
-      assertTrue(resources.getPermissions(resource).isAllActions());
-    }
-
-    resources =
-        impl.listAuthorizedResources(
+        accessControlService.listAuthorizedResources(
             user,
             Permissions.forActions(resource.getType(), actionsArr),
             resource.getParent(),
             0,
             Integer.MAX_VALUE);
     assertTrue(resources.contains(resource));
+    assertTrue(
+        resources
+            .getPermissions(resource)
+            .contains(Permissions.forActions(resource.getType(), actionsArr)));
   }
 
   protected void assertDoesNotHavePermissions(UserId user, ResourceId resource, Action... actions) {
     Action[] actionsArr =
         actions.length > 0 ? actions : resource.getType().getActions().toArray(new Action[0]);
+
     assertFalse(
-        impl.isAuthorized(user, Permissions.forActions(resource.getType(), actionsArr), resource));
-    assertFalse(
-        impl.getPermissions(user, resource)
-            .contains(Permissions.forActions(resource.getType(), actionsArr)));
+        accessControlService.isAuthorized(
+            user, Permissions.forActions(resource.getType(), actionsArr), resource));
 
     ResourceCollection resources =
-        impl.listAllPermissions(
-            user, resource.getType(), resource.getParent(), 0, Integer.MAX_VALUE);
-    assertFalse(
-        resources
-            .getPermissions(resource)
-            .contains(Permissions.forActions(resource.getType(), actionsArr)));
-
-    if (new HashSet<>(Arrays.asList(actionsArr)).equals(resource.getType().getActions())) {
-      assertTrue(impl.getPermissions(user, resource).isEmpty());
-      assertTrue(resources.getPermissions(resource).isEmpty());
-    }
-
-    resources =
-        impl.listAuthorizedResources(
+        accessControlService.listAuthorizedResources(
             user,
             Permissions.forActions(resource.getType(), actionsArr),
             resource.getParent(),
             0,
             Integer.MAX_VALUE);
     assertFalse(resources.contains(resource));
+    assertTrue(resources.getPermissions(resource).isEmpty());
   }
 
   protected void assertServiceListWithReadPermission(
@@ -272,7 +249,7 @@ public class BaseAccessControlTest {
       boolean isAllResources,
       ResourceId... expectedResources) {
     ResourceCollection resources =
-        impl.listAuthorizedResources(
+        accessControlService.listAuthorizedResources(
             user, Permissions.forActions(type, Action.READ), parent, 0, Integer.MAX_VALUE);
     assertEquals(isAllResources, resources.isAllResources());
 

@@ -2,7 +2,7 @@ package bio.terra.tanagra.app.configuration;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
-import bio.terra.tanagra.service.accesscontrol.AccessControl;
+import bio.terra.tanagra.service.accesscontrol2.CoreModel;
 import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
@@ -24,12 +24,12 @@ public class AccessControlConfiguration {
       name = "tanagra.access-control.model",
       markdown =
           "Pointer to the access control model Java class. Currently this must be one of the enum values in the"
-              + "`bio.terra.tanagra.service.accesscontrol.AccessControl.Model` Java class. In the future, "
-              + "it will support arbitrary class names",
+              + "`bio.terra.tanagra.service.accesscontrol.FienGrainedAccessControl` Java class, or the full name "
+              + "of a class that implements the FineGrainedAccessControl interface and is on the classpath.",
       optional = true,
       defaultValue = "OPEN_ACCESS",
       environmentVariable = "TANAGRA_ACCESS_CONTROL_MODEL")
-  private AccessControl.Model model;
+  private String model;
 
   @AnnotatedField(
       name = "tanagra.access-control.basePath",
@@ -59,8 +59,8 @@ public class AccessControlConfiguration {
       exampleValue = "googleGroupName,admin-users@googlegroups.com")
   private List<String> params;
 
-  public AccessControl.Model getModel() {
-    return model != null ? model : AccessControl.Model.OPEN_ACCESS;
+  public String getModel() {
+    return model != null ? model : CoreModel.OPEN_ACCESS.name();
   }
 
   public List<String> getParams() {
@@ -75,7 +75,7 @@ public class AccessControlConfiguration {
     return oauthClientId;
   }
 
-  public void setModel(AccessControl.Model model) {
+  public void setModel(String model) {
     this.model = model;
   }
 

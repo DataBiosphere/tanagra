@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
+import bio.terra.tanagra.service.accesscontrol2.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,23 +21,6 @@ public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
   @Override
   protected boolean apiIsAuthorizedUser(String userEmail) {
     return admins.contains(userEmail);
-  }
-
-  @Override
-  @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  protected boolean apiIsAuthorized(
-      String userEmail,
-      ResourceAction resourceAction,
-      ResourceType resourceType,
-      String resourceId) {
-    return permissions.containsKey(userEmail)
-        && (permissions
-                .get(userEmail)
-                .contains(new Resource().action(resourceAction).type(resourceType).id(resourceId))
-            || permissions
-                .get(userEmail)
-                .contains(
-                    new Resource().action(ResourceAction.ALL).type(resourceType).id(resourceId)));
   }
 
   @Override

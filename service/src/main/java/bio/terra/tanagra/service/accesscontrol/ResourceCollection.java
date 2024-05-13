@@ -188,7 +188,9 @@ public final class ResourceCollection {
               .skip(offset)
               .limit(limit)
               .collect(Collectors.toSet());
-      return ResourceCollection.resourcesSamePermissions(sharedPermissions, idsSlice);
+      return idsSlice.isEmpty()
+          ? ResourceCollection.empty(type, parentId)
+          : ResourceCollection.resourcesSamePermissions(sharedPermissions, idsSlice);
     } else {
       Map<ResourceId, Permissions> idPermissionsMapSlice = new HashMap<>();
       Set<ResourceId> idsSlice =
@@ -198,7 +200,9 @@ public final class ResourceCollection {
               .limit(limit)
               .collect(Collectors.toSet());
       idsSlice.forEach(id -> idPermissionsMapSlice.put(id, idPermissionsMap.get(id)));
-      return ResourceCollection.resourcesDifferentPermissions(idPermissionsMapSlice);
+      return idsSlice.isEmpty()
+          ? ResourceCollection.empty(type, parentId)
+          : ResourceCollection.resourcesDifferentPermissions(idPermissionsMapSlice);
     }
   }
 }

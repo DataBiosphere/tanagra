@@ -1,10 +1,12 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import static bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl.ALL_ACCESS;
+import static bio.terra.tanagra.service.accesscontrol2.impl.VerilyGroupsAccessControl.ALL_ACCESS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.service.accesscontrol.impl.MockVerilyGroupsAccessControl;
-import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
+import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
+import bio.terra.tanagra.service.accesscontrol2.impl.VerilyGroupsAccessControl;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,11 +34,12 @@ public class VerilyGroupsAccessControlTest extends BaseAccessControlTest {
         new VerilyGroupsAccessControl.VerilyGroup("id3", "all", "name3@verilygroups.com"),
         List.of(USER_4.getEmail()));
 
-    impl = vgImpl;
-    impl.initialize(
-        List.of(CMS_SYNPUF, "cmssynpuf", AOU_SYNTHETIC, "aousynthetic", ALL_ACCESS, "all"),
-        "FAKE_BASE_PATH",
-        "FAKE_OAUTH_CLIENT_ID");
+    AccessControlConfiguration accessControlConfig = new AccessControlConfiguration();
+    accessControlConfig.setParams(
+        List.of(CMS_SYNPUF, "cmssynpuf", AOU_SYNTHETIC, "aousynthetic", ALL_ACCESS, "all"));
+    accessControlConfig.setBasePath("FAKE_BASE_PATH");
+    accessControlConfig.setOauthClientId("FAKE_OAUTH_CLIENT_ID");
+    accessControlService = new AccessControl2Service(vgImpl, accessControlConfig);
   }
 
   @AfterEach
@@ -47,10 +50,18 @@ public class VerilyGroupsAccessControlTest extends BaseAccessControlTest {
   @Test
   void activityLog() {
     // isAuthorized
-    assertTrue(impl.isAuthorized(USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
   }
 
   @Test
@@ -100,13 +111,17 @@ public class VerilyGroupsAccessControlTest extends BaseAccessControlTest {
 
     // isAuthorized for STUDY.CREATE
     assertTrue(
-        impl.isAuthorized(USER_1, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_1, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_2, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_2, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_3, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_3, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
 
     // service.list
     assertServiceListWithReadPermission(USER_1, ResourceType.STUDY, null, true, study1Id, study2Id);

@@ -32,10 +32,10 @@ import bio.terra.tanagra.generated.model.ApiReviewQuery;
 import bio.terra.tanagra.generated.model.ApiReviewUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiValueDisplay;
 import bio.terra.tanagra.service.UnderlayService;
-import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol2.AccessControl2Service;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
@@ -70,7 +70,7 @@ public class ReviewsApiController implements ReviewsApi {
   private final CohortService cohortService;
   private final AnnotationService annotationService;
 
-  private final AccessControlService accessControlService;
+  private final AccessControl2Service accessControlService;
 
   @Autowired
   public ReviewsApiController(
@@ -78,7 +78,7 @@ public class ReviewsApiController implements ReviewsApi {
       ReviewService reviewService,
       CohortService cohortService,
       AnnotationService annotationService,
-      AccessControlService accessControlService) {
+      AccessControl2Service accessControlService) {
     this.underlayService = underlayService;
     this.reviewService = reviewService;
     this.cohortService = cohortService;
