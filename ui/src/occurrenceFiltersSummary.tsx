@@ -23,7 +23,7 @@ export function OccurrenceFiltersSummary(props: OccurrenceFiltersSummaryProps) {
           {" table contains "}
         </Typography>
         <Typography variant="body2em" component="span">
-          {props.filters.sourceCriteria.sort().join(", ")}
+          {[...props.filters.sourceCriteria].sort().join(", ")}
         </Typography>
       </GridBox>
       <GridLayout cols rowAlign="middle">
@@ -34,7 +34,7 @@ export function OccurrenceFiltersSummary(props: OccurrenceFiltersSummaryProps) {
       </GridLayout>
       <GridBox>
         <Typography variant="body2" component="span">
-          {props.filters.attributes.sort().join("; ")}
+          {[...props.filters.attributes].sort().join("; ")}
         </Typography>
       </GridBox>
     </GridLayout>
