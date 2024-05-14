@@ -29,18 +29,8 @@
   "hierarchyColumns": [
     {
       "key": "name",
-      "widthString": "40%",
+      "widthString": "60%",
       "title": "Name"
-    },
-    {
-      "key": "concept_id",
-      "widthString": "10%",
-      "title": "Concept Id"
-    },
-    {
-      "key": "value",
-      "widthString": "10%",
-      "title": "Answer Concept Id"
     },
     {
       "key": "t_rollup_count",
