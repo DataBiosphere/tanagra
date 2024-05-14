@@ -88,13 +88,8 @@ if [[ ${disableAuthChecks} ]]; then
 else
   echo "Enabling auth checks. bearer-token"
   export TANAGRA_AUTH_DISABLE_CHECKS=false
-  if [[ ${useAouUnderlays} ]]; then
-    export TANAGRA_AUTH_BEARER_TOKEN=true
-    export TANAGRA_AUTH_IAP_GKE_JWT=false
-  elif [[ ${useSdUnderlays} ]]; then
-    export TANAGRA_AUTH_BEARER_TOKEN=false
-    export TANAGRA_AUTH_IAP_GKE_JWT=true
-  fi
+  export TANAGRA_AUTH_BEARER_TOKEN=true
+  export TANAGRA_AUTH_IAP_GKE_JWT=false
 fi
 
 echo

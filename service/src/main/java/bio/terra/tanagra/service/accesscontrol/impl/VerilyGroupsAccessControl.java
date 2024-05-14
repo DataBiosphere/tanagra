@@ -33,6 +33,7 @@ public class VerilyGroupsAccessControl implements UnderlayAccessControl {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerilyGroupsAccessControl.class);
   public static final String ALL_ACCESS = "ALL_ACCESS";
 
+  private List<String> params;
   private String basePath;
   private String oauthClientId;
 
@@ -58,7 +59,14 @@ public class VerilyGroupsAccessControl implements UnderlayAccessControl {
       throw new IllegalArgumentException(
           "Require even number of parameters to VerilyGroups access control implementation: underlay1,groupName1,underlay2,groupName2,...");
     }
+    this.params = params;
+    lookupGroupIds();
+  }
 
+  private void lookupGroupIds() {
+    if (allAccessGroup != null || !underlayToGroup.isEmpty()) {
+      return; // Already initialized.
+    }
     try {
       // Lookup the group ID for each group name. The ID is required to list the members.
       Map<String, VerilyGroup> nameToGroup =
@@ -111,6 +119,7 @@ public class VerilyGroupsAccessControl implements UnderlayAccessControl {
 
   /** Return true if the user email is included the underlay-specific group membership list. */
   private boolean hasSpecificUnderlayAccess(String underlay, String userEmail) {
+    lookupGroupIds();
     // Null group or unmapped underlay means the underlay is inaccessible.
     VerilyGroup group = underlayToGroup.get(underlay);
     return group != null && apiListMembers(group.getId()).contains(userEmail);
@@ -118,6 +127,7 @@ public class VerilyGroupsAccessControl implements UnderlayAccessControl {
 
   /** Return true if the user email is included in the ALL_ACCESS group membership list. */
   private boolean hasAllUnderlayAccess(String userEmail) {
+    lookupGroupIds();
     if (allAccessGroup == null) {
       return false;
     } else {
