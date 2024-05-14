@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.accesscontrol;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.service.accesscontrol.impl.OpenAccessControl;
+import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +14,12 @@ public class OpenAccessControlTest extends BaseAccessControlTest {
     createArtifacts();
 
     // No need to use a mock here because there are no external service calls.
-    impl = new OpenAccessControl();
-    impl.initialize(List.of(), null, null);
+    AccessControlConfiguration accessControlConfig = new AccessControlConfiguration();
+    accessControlConfig.setModel("OPEN_ACCESS");
+    accessControlConfig.setParams(List.of());
+    accessControlConfig.setBasePath(null);
+    accessControlConfig.setOauthClientId(null);
+    accessControlService = new AccessControlService(accessControlConfig);
   }
 
   @AfterEach
@@ -26,10 +30,18 @@ public class OpenAccessControlTest extends BaseAccessControlTest {
   @Test
   void activityLog() {
     // isAuthorized
-    assertTrue(impl.isAuthorized(USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
-    assertTrue(impl.isAuthorized(USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG), null));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_1, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_2, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_3, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
+    assertTrue(
+        accessControlService.isAuthorized(
+            USER_4, Permissions.allActions(ResourceType.ACTIVITY_LOG)));
   }
 
   @Test
@@ -81,13 +93,17 @@ public class OpenAccessControlTest extends BaseAccessControlTest {
 
     // isAuthorized for STUDY.CREATE
     assertTrue(
-        impl.isAuthorized(USER_1, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_1, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_2, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_2, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_3, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_3, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
     assertTrue(
-        impl.isAuthorized(USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE), null));
+        accessControlService.isAuthorized(
+            USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
 
     // service.list
     assertServiceListWithReadPermission(USER_1, ResourceType.STUDY, null, true, study1Id, study2Id);

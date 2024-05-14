@@ -2,7 +2,6 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.CREATE_COHORT;
 import static bio.terra.tanagra.service.accesscontrol.Action.DELETE;
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.Action.UPDATE;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
@@ -148,7 +147,7 @@ public class CohortsApiController implements CohortsApi {
 
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_COUNTS),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(cohort.getUnderlay()));
 
     // Build the entity filter.

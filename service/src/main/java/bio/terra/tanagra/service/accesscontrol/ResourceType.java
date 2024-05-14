@@ -5,7 +5,7 @@ import java.util.Set;
 
 /** Names of Tanagra resources and the actions that are possible for each. */
 public enum ResourceType {
-  UNDERLAY(Set.of(Action.READ, Action.QUERY_INSTANCES, Action.QUERY_COUNTS)),
+  UNDERLAY(Set.of(Action.READ)),
   STUDY(
       Set.of(
           Action.READ,
@@ -23,10 +23,7 @@ public enum ResourceType {
           Action.CREATE_ANNOTATION_KEY),
       STUDY),
   CONCEPT_SET(Set.of(Action.READ, Action.UPDATE, Action.DELETE), STUDY),
-  REVIEW(
-      Set.of(
-          Action.READ, Action.UPDATE, Action.DELETE, Action.QUERY_INSTANCES, Action.QUERY_COUNTS),
-      COHORT),
+  REVIEW(Set.of(Action.READ, Action.UPDATE, Action.DELETE), COHORT),
   ANNOTATION_KEY(Set.of(Action.READ, Action.UPDATE, Action.DELETE), COHORT),
   ACTIVITY_LOG(Set.of(Action.READ));
 

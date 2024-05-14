@@ -23,23 +23,6 @@ public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
   }
 
   @Override
-  @SuppressWarnings("PMD.UseObjectForClearerAPI")
-  protected boolean apiIsAuthorized(
-      String userEmail,
-      ResourceAction resourceAction,
-      ResourceType resourceType,
-      String resourceId) {
-    return permissions.containsKey(userEmail)
-        && (permissions
-                .get(userEmail)
-                .contains(new Resource().action(resourceAction).type(resourceType).id(resourceId))
-            || permissions
-                .get(userEmail)
-                .contains(
-                    new Resource().action(ResourceAction.ALL).type(resourceType).id(resourceId)));
-  }
-
-  @Override
   protected ResourceList apiListAuthorizedResources(String userEmail, ResourceType resourceType) {
     ResourceList resourceList = new ResourceList();
     if (permissions.containsKey(userEmail)) {

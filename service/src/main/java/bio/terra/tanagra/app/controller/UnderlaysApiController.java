@@ -1,7 +1,5 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_COUNTS;
-import static bio.terra.tanagra.service.accesscontrol.Action.QUERY_INSTANCES;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
@@ -77,7 +75,7 @@ public class UnderlaysApiController implements UnderlaysApi {
   public ResponseEntity<ApiUnderlaySummaryList> listUnderlaySummaries() {
     ResourceCollection authorizedUnderlayNames =
         accessControlService.listAuthorizedResources(
-            SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ));
+            SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ), 0, 1000);
     List<Underlay> authorizedUnderlays = underlayService.listUnderlays(authorizedUnderlayNames);
     ApiUnderlaySummaryList apiUnderlays = new ApiUnderlaySummaryList();
     authorizedUnderlays.forEach(
@@ -128,7 +126,7 @@ public class UnderlaysApiController implements UnderlaysApi {
       String underlayName, String entityName, ApiQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     Underlay underlay = underlayService.getUnderlay(underlayName);
     ListQueryRequest listQueryRequest =
@@ -144,7 +142,7 @@ public class UnderlaysApiController implements UnderlaysApi {
       String underlayName, String entityName, ApiQueryFilterOnPrimaryEntity body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_INSTANCES),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     Underlay underlay = underlayService.getUnderlay(underlayName);
 
@@ -201,7 +199,7 @@ public class UnderlaysApiController implements UnderlaysApi {
       String underlayName, String entityName, ApiCountQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_COUNTS),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
 
     // Build the entity filter.
@@ -229,7 +227,7 @@ public class UnderlaysApiController implements UnderlaysApi {
       String underlayName, String entityName, ApiHintQuery body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, QUERY_COUNTS),
+        Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
     Underlay underlay = underlayService.getUnderlay(underlayName);
     Entity entity = underlay.getEntity(entityName);

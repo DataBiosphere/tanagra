@@ -88,6 +88,10 @@ public final class ResourceId {
     }
   }
 
+  public ResourceId getStudyResourceId() {
+    return forStudy(study);
+  }
+
   public String getId() {
     if (isNull) {
       return "NULL_" + type;

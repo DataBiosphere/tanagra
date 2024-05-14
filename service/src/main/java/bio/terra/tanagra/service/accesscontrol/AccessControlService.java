@@ -4,90 +4,187 @@ import bio.terra.common.exception.UnauthorizedException;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.authentication.UserId;
-import javax.annotation.Nullable;
+import com.google.common.annotations.VisibleForTesting;
+import java.lang.reflect.InvocationTargetException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccessControlService {
-  // The application configuration specifies which AccessControl implementation class this service
-  // calls.
-  private final AccessControl accessControlImpl;
+  private static final Logger LOGGER = LoggerFactory.getLogger(AccessControlService.class);
+  private final FineGrainedAccessControl accessControlImpl;
 
   @Autowired
+  @SuppressWarnings("PMD.PreserveStackTrace")
   public AccessControlService(AccessControlConfiguration accessControlConfiguration) {
-    AccessControl accessControlImplInstance =
-        accessControlConfiguration.getModel().createNewInstance();
-    accessControlImplInstance.initialize(
+    // Try to load the access control model using the CoreModel enum.
+    // If that doesn't work, then assume the model is a class name that we can load via reflection.
+    FineGrainedAccessControl impl;
+    String modelPointer = accessControlConfiguration.getModel();
+    try {
+      CoreModel coreModel = CoreModel.valueOf(modelPointer);
+      impl = coreModel.createNewInstance();
+    } catch (IllegalArgumentException iaEx) {
+      LOGGER.warn(
+          "Access control model not recognized as a CoreModel. Trying to load using classname.",
+          iaEx);
+      try {
+        Class<?> implClass = Class.forName(modelPointer);
+        impl = (FineGrainedAccessControl) implClass.getDeclaredConstructor().newInstance();
+      } catch (ClassNotFoundException
+          | NoSuchMethodException
+          | InstantiationException
+          | IllegalAccessException
+          | InvocationTargetException cnfEx) {
+        throw new SystemException("Invalid access control class name: " + modelPointer, cnfEx);
+      }
+    }
+
+    impl.initialize(
         accessControlConfiguration.getParams(),
         accessControlConfiguration.getBasePath(),
         accessControlConfiguration.getOauthClientId());
+    this.accessControlImpl = impl;
+  }
 
-    this.accessControlImpl = accessControlImplInstance;
+  @VisibleForTesting
+  public AccessControlService(
+      FineGrainedAccessControl impl, AccessControlConfiguration accessControlConfiguration) {
+    impl.initialize(
+        accessControlConfiguration.getParams(),
+        accessControlConfiguration.getBasePath(),
+        accessControlConfiguration.getOauthClientId());
+    this.accessControlImpl = impl;
   }
 
   public void throwIfUnauthorized(UserId user, Permissions permissions) {
-    throwIfUnauthorized(user, permissions, null);
+    if (!isAuthorized(user, permissions)) {
+      throw new UnauthorizedException("User is unauthorized to " + permissions.logString());
+    }
   }
 
-  public void throwIfUnauthorized(
-      UserId user, Permissions permissions, @Nullable ResourceId resource) {
+  public void throwIfUnauthorized(UserId user, Permissions permissions, ResourceId resource) {
     if (!isAuthorized(user, permissions, resource)) {
       throw new UnauthorizedException(
           "User is unauthorized to "
               + permissions.logString()
               + " "
-              + (resource == null ? "" : resource.getType() + ":" + resource.getId()));
+              + resource.getType()
+              + ": "
+              + resource.getId());
     }
   }
 
+  public boolean isAuthorized(UserId user, Permissions permissions) {
+    // Study.CREATE and ActivityLog.* are the only permissions that don't require a corresponding
+    // resource id.
+    if (Permissions.forActions(ResourceType.STUDY, Action.CREATE).equals(permissions)) {
+      return accessControlImpl.createStudy(user).contains(permissions);
+    } else if (ResourceType.ACTIVITY_LOG.equals(permissions.getType())) {
+      return accessControlImpl.getActivityLog(user).contains(permissions);
+    } else {
+      throw new SystemException(
+          "Permissions check requires resource id: "
+              + permissions.getType()
+              + ", "
+              + permissions.logString());
+    }
+  }
+
+  @VisibleForTesting
   public boolean isAuthorized(UserId user, Permissions permissions, ResourceId resource) {
-    if (user == null) {
-      throw new SystemException("Invalid user");
-    } else if (resource != null && !permissions.getType().equals(resource.getType())) {
+    if (resource == null) {
+      return isAuthorized(user, permissions);
+    }
+
+    if (!permissions.getType().equals(resource.getType())) {
       throw new SystemException(
           "Permissions and resource types do not match: "
               + permissions.getType()
               + ", "
               + resource.getType());
     }
-    return accessControlImpl.isAuthorized(user, permissions, resource);
-  }
-
-  public ResourceCollection listAuthorizedResources(
-      UserId user, Permissions permissions, ResourceId parentResource) {
-    return listAuthorizedResources(user, permissions, parentResource, 0, Integer.MAX_VALUE);
-  }
-
-  public ResourceCollection listAuthorizedResources(UserId user, Permissions permissions) {
-    return listAuthorizedResources(user, permissions, 0, Integer.MAX_VALUE);
+    Permissions resourcePermissions;
+    switch (resource.getType()) {
+      case UNDERLAY:
+        resourcePermissions = accessControlImpl.getUnderlay(user, resource);
+        break;
+      case STUDY:
+        resourcePermissions = accessControlImpl.getStudy(user, resource);
+        break;
+      case COHORT:
+        resourcePermissions = accessControlImpl.getCohort(user, resource);
+        break;
+      case CONCEPT_SET:
+        resourcePermissions = accessControlImpl.getDataFeatureSet(user, resource);
+        break;
+      case REVIEW:
+        resourcePermissions = accessControlImpl.getReview(user, resource);
+        break;
+      case ANNOTATION_KEY:
+        resourcePermissions = accessControlImpl.getAnnotation(user, resource);
+        break;
+      case ACTIVITY_LOG:
+        resourcePermissions = accessControlImpl.getActivityLog(user);
+        break;
+      default:
+        throw new SystemException("Unsupported resource type: " + resource.getType());
+    }
+    return resourcePermissions.contains(permissions);
   }
 
   public ResourceCollection listAuthorizedResources(
       UserId user, Permissions permissions, int offset, int limit) {
-    return listAuthorizedResources(user, permissions, null, offset, limit);
+    ResourceCollection allResources;
+    switch (permissions.getType()) {
+      case UNDERLAY:
+        allResources = accessControlImpl.listUnderlays(user, offset, limit);
+        break;
+      case STUDY:
+        allResources = accessControlImpl.listStudies(user, offset, limit);
+        break;
+      default:
+        throw new SystemException(
+            "Listing " + permissions.getType() + " resources requires a parent resource id");
+    }
+    return allResources.filter(permissions);
   }
 
   public ResourceCollection listAuthorizedResources(
-      UserId user,
-      Permissions permissions,
-      @Nullable ResourceId parentResource,
-      int offset,
-      int limit) {
-    return accessControlImpl.listAuthorizedResources(
-        user, permissions, parentResource, offset, limit);
-  }
-
-  public Permissions getPermissions(UserId user, ResourceId resource) {
-    return accessControlImpl.getPermissions(user, resource);
-  }
-
-  public ResourceCollection listAllPermissions(
-      UserId user, ResourceType type, @Nullable ResourceId parentResource, int offset, int limit) {
-    if (type.hasParentResourceType() && parentResource == null) {
-      throw new SystemException(
-          "Parent resource must be specified when listing resources of type: " + type);
+      UserId user, Permissions permissions, ResourceId parentResource, int offset, int limit) {
+    if (parentResource == null) {
+      return listAuthorizedResources(user, permissions, offset, limit);
     }
-    return accessControlImpl.listAllPermissions(user, type, parentResource, offset, limit);
+
+    if (!parentResource.getType().equals(permissions.getType().getParentResourceType())) {
+      throw new SystemException(
+          "Parent resource type "
+              + parentResource.getType()
+              + " is unexpected for child resource type "
+              + permissions.getType());
+    }
+    ResourceCollection allResources;
+    switch (permissions.getType()) {
+      case COHORT:
+        allResources = accessControlImpl.listCohorts(user, parentResource, offset, limit);
+        break;
+      case CONCEPT_SET:
+        allResources = accessControlImpl.listDataFeatureSets(user, parentResource, offset, limit);
+        break;
+      case REVIEW:
+        allResources = accessControlImpl.listReviews(user, parentResource, offset, limit);
+        break;
+      case ANNOTATION_KEY:
+        allResources = accessControlImpl.listAnnotations(user, parentResource, offset, limit);
+        break;
+      default:
+        throw new SystemException(
+            "Listing "
+                + permissions.getType()
+                + " resources does not require a parent resource id");
+    }
+    return allResources.filter(permissions);
   }
 }
