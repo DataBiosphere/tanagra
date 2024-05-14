@@ -149,7 +149,7 @@ public class ExportApiController implements ExportApi {
         .contains(outputEntity.getIdAttribute())) {
       selectedFields = new ArrayList<>(entityOutputPreview.getSelectedFields());
       selectedFields.add(
-          new AttributeField(underlay, outputEntity, outputEntity.getIdAttribute(), false));
+          0, new AttributeField(underlay, outputEntity, outputEntity.getIdAttribute(), false));
     } else {
       selectedFields = entityOutputPreview.getSelectedFields();
     }
