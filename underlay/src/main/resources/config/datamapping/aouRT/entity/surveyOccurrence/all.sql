@@ -8,9 +8,9 @@ SELECT
   ps_survey.concept_id AS survey_concept_id,
   sc.concept_name AS survey_concept_name,
   o.observation_source_concept_id AS question_concept_id,
-  qc.concept_name AS question_concept_name,
+  qc.name AS question_concept_name,
   o.value_source_concept_id AS answer_concept_id,
-  ac.concept_name AS answer_concept_name
+  ac.name AS answer_concept_name
 
 FROM `${omopDataset}.observation` AS o
 
@@ -28,9 +28,12 @@ JOIN `${omopDataset}.prep_survey` AS ps_survey
     AND ps_survey.subtype = 'SURVEY'
 LEFT JOIN `${omopDataset}.concept` AS sc
     ON sc.concept_id = ps_survey.concept_id
-LEFT JOIN `${omopDataset}.concept` AS qc
-    ON qc.concept_id = o.observation_source_concept_id
-LEFT JOIN `${omopDataset}.concept` AS ac
-    ON ac.concept_id = o.value_source_concept_id
+LEFT JOIN `${omopDataset}.prep_survey` AS qc
+    ON qc.concept_id = o.observation_source_concept_id 
+    AND qc.subtype = 'QUESTION'
+LEFT JOIN `${omopDataset}.prep_survey` AS ac
+    ON ac.concept_id = o.observation_source_concept_id 
+    AND CAST(ac.value AS INT64) = o.value_source_concept_id 
+    AND ac.subtype = 'ANSWER'
 
 WHERE ps.survey = 'Basics'
