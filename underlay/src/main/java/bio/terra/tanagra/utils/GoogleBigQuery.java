@@ -441,7 +441,7 @@ public final class GoogleBigQuery {
     LOGGER.error(
         "Caught a BQ error (status code = {}, reason = {}).",
         statusCode,
-        bqEx.getError().getReason(),
+        bqEx.getError() == null ? null : bqEx.getError().getReason(),
         ex);
 
     if (isResultSetTooLarge(bqEx)) {
