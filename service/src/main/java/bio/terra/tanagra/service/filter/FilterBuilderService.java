@@ -295,10 +295,12 @@ public class FilterBuilderService {
 
           // Build the attribute fields to select.
           List<ValueDisplayField> selectedAttributeFields = new ArrayList<>();
-          includeAttributes.forEach(
-              includeAttribute ->
-                  selectedAttributeFields.add(
-                      new AttributeField(underlay, outputEntity, includeAttribute, false)));
+          entityOutput
+              .getAttributes()
+              .forEach(
+                  includeAttribute ->
+                      selectedAttributeFields.add(
+                          new AttributeField(underlay, outputEntity, includeAttribute, false)));
           entityOutputs.add(
               new EntityOutputPreview()
                   .setEntityOutput(entityOutput)
