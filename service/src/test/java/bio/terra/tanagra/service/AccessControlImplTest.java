@@ -16,8 +16,6 @@ import bio.terra.tanagra.service.accesscontrol.model.impl.AouWorkbenchAccessCont
 import bio.terra.tanagra.service.accesscontrol.model.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.model.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
-import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.authentication.UserId;
 import org.junit.jupiter.api.Disabled;
@@ -41,8 +39,6 @@ public class AccessControlImplTest {
   @Autowired private UnderlayService underlayService;
   @Autowired protected StudyService studyService;
   @Autowired protected CohortService cohortService;
-  @Autowired protected ConceptSetService conceptSetService;
-  @Autowired protected ReviewService reviewService;
 
   @Disabled(
       "VUMC admin service base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
