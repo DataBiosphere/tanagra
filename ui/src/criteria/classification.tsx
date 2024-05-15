@@ -55,6 +55,7 @@ import useSWRImmutable from "swr/immutable";
 import { useImmer } from "use-immer";
 import { base64ToBytes } from "util/base64";
 import { useLocalSearchState } from "util/searchState";
+import { isValid } from "util/valid";
 import emptyImage from "../images/empty.svg";
 
 type Selection = {
@@ -94,9 +95,7 @@ export interface Data {
     };
 
     if (dataEntry) {
-      const column = config.columns[config.nameColumnIndex ?? 0];
-
-      const name = String(dataEntry[column.key]);
+      const name = String(dataEntry[nameAttribute(config)]);
       const entityGroup = String(dataEntry.entityGroup);
       if (!name || !entityGroup) {
         throw new Error(
@@ -402,7 +401,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
         [
           props.config.columns.map(({ key }) => key),
           (props.config.hierarchyColumns ?? []).map(({ key }) => key),
-        ].flat()
+          props.config.nameAttribute,
+        ]
+          .flat()
+          .filter(isValid)
       ),
     ],
     [props.config.columns]
@@ -555,8 +557,6 @@ function ClassificationEdit(props: ClassificationEditProps) {
     [props.config.columns]
   );
 
-  const nameColumnIndex = props.config.nameColumnIndex ?? 0;
-
   return (
     <GridBox
       sx={{
@@ -617,8 +617,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     return undefined;
                   }
 
-                  const column = props.config.columns[nameColumnIndex];
-                  const name = rowData[column.key];
+                  const name = rowData[nameAttribute(props.config)];
                   const newItem = {
                     key: item.node.data.key,
                     name: !!name ? String(name) : "",
@@ -705,7 +704,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
                     return [
                       {
-                        column: nameColumnIndex,
+                        column: props.config.nameColumnIndex ?? 0,
                         prefixElements: (
                           <Checkbox
                             size="small"
@@ -1062,4 +1061,10 @@ function fromProtoColumns(
     sortable: c.sortable,
     filterable: c.filterable,
   }));
+}
+
+function nameAttribute(config: configProto.EntityGroup) {
+  return (
+    config.nameAttribute ?? config.columns[config.nameColumnIndex ?? 0].key
+  );
 }
