@@ -1,11 +1,11 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import static bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl.ALL_ACCESS;
+import static bio.terra.tanagra.service.accesscontrol.model.impl.VerilyGroupsAccessControl.ALL_ACCESS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.service.accesscontrol.impl.MockVerilyGroupsAccessControl;
-import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.impl.VerilyGroupsAccessControl;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +38,7 @@ public class VerilyGroupsAccessControlTest extends BaseAccessControlTest {
         List.of(CMS_SYNPUF, "cmssynpuf", AOU_SYNTHETIC, "aousynthetic", ALL_ACCESS, "all"));
     accessControlConfig.setBasePath("FAKE_BASE_PATH");
     accessControlConfig.setOauthClientId("FAKE_OAUTH_CLIENT_ID");
-    accessControlService = new AccessControlService(vgImpl, accessControlConfig);
+    accessControlService = new AccessControlService(vgImpl, accessControlConfig, studyService);
   }
 
   @AfterEach

@@ -12,9 +12,11 @@ import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.accesscontrol.impl.AouWorkbenchAccessControl;
-import bio.terra.tanagra.service.accesscontrol.impl.VerilyGroupsAccessControl;
-import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.impl.AouWorkbenchAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.impl.VerilyGroupsAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.impl.VumcAdminAccessControl;
+import bio.terra.tanagra.service.artifact.CohortService;
+import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.authentication.UserId;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,8 @@ import org.vumc.vda.tanagra.admin.model.SystemVersion;
 public class AccessControlImplTest {
   @Autowired private AccessControlConfiguration accessControlConfiguration;
   @Autowired private UnderlayService underlayService;
+  @Autowired protected StudyService studyService;
+  @Autowired protected CohortService cohortService;
 
   @Disabled(
       "VUMC admin service base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
@@ -42,7 +46,7 @@ public class AccessControlImplTest {
   void vumcAdmin() throws ApiException {
     VumcAdminAccessControl impl = new VumcAdminAccessControl();
     AccessControlService accessControlService =
-        new AccessControlService(impl, accessControlConfiguration);
+        new AccessControlService(impl, accessControlConfiguration, studyService);
 
     SystemVersion systemVersion = impl.apiVersion();
     assertNotNull(systemVersion);
@@ -79,7 +83,7 @@ public class AccessControlImplTest {
   void verilyGroups() {
     VerilyGroupsAccessControl impl = new VerilyGroupsAccessControl();
     AccessControlService accessControlService =
-        new AccessControlService(impl, accessControlConfiguration);
+        new AccessControlService(impl, accessControlConfiguration, studyService);
 
     // Access control is only on underlays, no other resource types.
     assertTrue(
@@ -103,7 +107,7 @@ public class AccessControlImplTest {
   void aouWorkbench() {
     AouWorkbenchAccessControl impl = new AouWorkbenchAccessControl();
     AccessControlService accessControlService =
-        new AccessControlService(impl, accessControlConfiguration);
+        new AccessControlService(impl, accessControlConfiguration, studyService);
 
     // Access control is only on studies, no other resource types.
     ResourceId firstUnderlay =

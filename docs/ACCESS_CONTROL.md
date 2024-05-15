@@ -9,16 +9,14 @@ Each service endpoint checks that the user is allowed to perform the operation b
 This check is implemented as a function call to an implementation class of the `AccessControl` interface.
 The service can be configured to call any class that implements this interface.
 
-There are 4 steps to configuring Tanagra to use a new access control model:
-1. **Write a class that implements the `bio.terra.tanagra.service.accesscontrol.AccessControl` interface.**
-   - Existing implementation classes live in the `bio.terra.tanagra.service.accesscontrol.impl` package. Please put yours there also.
-   - You can add any additional dependencies directly to the `service/build.gradle` file.
-2. **Add a new value to `AccessControl.Model` enum.**
-   - This is the enum value you will use to specify your access control model in the application configuration.
-3. **Change the application configuration to point to your class and supply any parameters.**
-   - Set `model` to the enum value defined in the previous step.
+There are 2 steps required to configure Tanagra to use a new access control model:
+1. **Write a class that implements one of the interfaces in the `bio.terra.tanagra.service.accesscontrol.model` package.**
+   - Existing implementation classes live in the `bio.terra.tanagra.service.accesscontrol.model.impl` package.
+2. **Change the application configuration to point to your class and supply any parameters.**
+   - Set `model` to the full classname of your implementation (e.g. `bio.terra.tanagra.service.accesscontrol.model.impl.OpenAccessControl`).
+     Or, if you've implemented a new `CoreModel` and added to that enum, you can use the enum value instead (e.g. `OPEN_ACCESS`).
    - The `params`, `base-path`, and `oauth-client-id` config properties are all optional. They will be passed to your
-     implementation class in the `initialize` method, so you can use or ignore them.
+     implementation class in the `initialize` method.
 ```
 tanagra:
     access-control:
@@ -27,8 +25,8 @@ tanagra:
         base-path:
         oauth-client-id:
 ```
-4. **[Optional] Add a new `@Disabled` test method to the `AccessControlImplTest` class.**
-   - It should instantiate and initialize your implementation class, and maybe call some of its methods.
+3. **[Optional] Add a new `@Disabled` test method to the `AccessControlImplTest` class.**
+   - Instantiate your implementation class, initialize it, and call its methods.
    - This is intended to help with debugging any problems.
 
 ## Client library dependencies
@@ -60,7 +58,7 @@ export TANAGRA_ACCESS_CONTROL_OAUTH_CLIENT_ID=12345.apps.googleusercontent.com  
 
 
 ## Access control implementations
-So far, there are 3 access control implementations in the `bio.terra.tanagra.service.accesscontrol.impl` package.
+So far, there are 5 access control implementations in the `bio.terra.tanagra.service.accesscontrol.model.impl` package.
 
 ### Open Access Control
 Allow everything for everyone. This is helpful when developing locally and running tests.
@@ -68,6 +66,17 @@ Allow everything for everyone. This is helpful when developing locally and runni
 tanagra:
     access-control:
         model: OPEN_ACCESS
+        params: []
+        base-path:
+        oauth-client-id:
+```
+
+### Open Underlay, Private Study Access Control
+Allow users to only see the studies they create.
+```
+tanagra:
+    access-control:
+        model: OPEN_UNDERLAY_USER_PRIVATE_STUDY
         params: []
         base-path:
         oauth-client-id:

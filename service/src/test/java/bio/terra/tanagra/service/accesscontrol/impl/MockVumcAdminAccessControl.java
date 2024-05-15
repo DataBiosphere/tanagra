@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol.impl;
 
+import bio.terra.tanagra.service.accesscontrol.model.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.ArrayList;
 import java.util.HashMap;

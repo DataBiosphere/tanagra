@@ -1,14 +1,15 @@
-package bio.terra.tanagra.service.accesscontrol.impl;
+package bio.terra.tanagra.service.accesscontrol.model.impl;
 
 import bio.terra.common.logging.RequestIdFilter;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.service.accesscontrol.AccessControlHelper;
 import bio.terra.tanagra.service.accesscontrol.Action;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.accesscontrol.StudyAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.StudyAccessControl;
 import bio.terra.tanagra.service.authentication.AppDefaultUtils;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.HashMap;
@@ -46,7 +47,11 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   }
 
   @Override
-  public void initialize(List<String> params, String basePath, String oauthClientId) {
+  public void initialize(
+      List<String> params,
+      String basePath,
+      String oauthClientId,
+      AccessControlHelper accessControlHelper) {
     if (basePath == null || oauthClientId == null) {
       throw new IllegalArgumentException(
           "Base URL and OAuth client id are required for VUMC admin service API calls");
@@ -68,8 +73,9 @@ public class VumcAdminAccessControl implements StudyAccessControl {
 
   @Override
   public Permissions getUnderlay(UserId user, ResourceId underlay) {
-    ResourceCollection resourceCollection = listAllPermissions(user, ResourceType.UNDERLAY);
-    return resourceCollection.getPermissions(underlay);
+    Map<ResourceId, Permissions> resourcePermissionsMap =
+        listAllPermissions(user, ResourceType.UNDERLAY);
+    return resourcePermissionsMap.getOrDefault(underlay, Permissions.empty(ResourceType.UNDERLAY));
   }
 
   @Override
@@ -82,17 +88,20 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   @Override
   public ResourceCollection listStudies(UserId user, int offset, int limit) {
     // Get permissions for all studies, then splice the list to accommodate the offset+limit.
-    ResourceCollection resourceCollection = listAllPermissions(user, ResourceType.STUDY);
-    return resourceCollection.isEmpty()
-        ? resourceCollection
-        : resourceCollection.slice(offset, limit);
+    Map<ResourceId, Permissions> resourcePermissionsMap =
+        listAllPermissions(user, ResourceType.STUDY);
+    return resourcePermissionsMap.isEmpty()
+        ? ResourceCollection.empty(ResourceType.STUDY, null)
+        : ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap)
+            .slice(offset, limit);
   }
 
   @Override
   public Permissions getStudy(UserId user, ResourceId study) {
     // Get permissions for all studies, then pull out the one requested here.
-    ResourceCollection resourceCollection = listAllPermissions(user, ResourceType.STUDY);
-    return resourceCollection.getPermissions(study);
+    Map<ResourceId, Permissions> resourcePermissionsMap =
+        listAllPermissions(user, ResourceType.STUDY);
+    return resourcePermissionsMap.getOrDefault(study, Permissions.empty(ResourceType.STUDY));
   }
 
   @Override
@@ -102,7 +111,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
         : Permissions.empty(ResourceType.ACTIVITY_LOG);
   }
 
-  private ResourceCollection listAllPermissions(UserId user, ResourceType type) {
+  private Map<ResourceId, Permissions> listAllPermissions(UserId user, ResourceType type) {
     ResourceList apiResourceList =
         apiListAuthorizedResources(
             user.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(type.name()));
@@ -141,27 +150,22 @@ public class VumcAdminAccessControl implements StudyAccessControl {
         });
 
     // For each resource id, convert the list of permitted API actions to a permissions object.
-    Map<ResourceId, Permissions> resourcePermissionsMap =
-        resourceApiActionsMap.entrySet().stream()
-            .collect(
-                Collectors.toMap(
-                    Map.Entry::getKey,
-                    entry -> {
-                      Set<Action> actions = new HashSet<>();
-                      entry
-                          .getValue()
-                          .forEach(
-                              apiAction ->
-                                  actions.addAll(
-                                      ResourceType.UNDERLAY.equals(type)
-                                          ? fromUnderlayApiAction(apiAction)
-                                          : fromStudyApiAction(apiAction)));
-                      return Permissions.forActions(type, actions);
-                    }));
-
-    return resourcePermissionsMap.isEmpty()
-        ? ResourceCollection.empty(type, null)
-        : ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap);
+    return resourceApiActionsMap.entrySet().stream()
+        .collect(
+            Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> {
+                  Set<Action> actions = new HashSet<>();
+                  entry
+                      .getValue()
+                      .forEach(
+                          apiAction ->
+                              actions.addAll(
+                                  ResourceType.UNDERLAY.equals(type)
+                                      ? fromUnderlayApiAction(apiAction)
+                                      : fromStudyApiAction(apiAction)));
+                  return Permissions.forActions(type, actions);
+                }));
   }
 
   /** Admin service underlay permission -> Core service underlay permission. */

@@ -2,7 +2,7 @@ package bio.terra.tanagra.app.controller;
 
 import bio.terra.tanagra.generated.controller.TestApi;
 import bio.terra.tanagra.generated.model.ApiVumcAdminServiceTest;
-import bio.terra.tanagra.service.accesscontrol.impl.VumcAdminAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.impl.VumcAdminAccessControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

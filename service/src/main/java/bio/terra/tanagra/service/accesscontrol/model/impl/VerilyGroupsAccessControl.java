@@ -1,11 +1,12 @@
-package bio.terra.tanagra.service.accesscontrol.impl;
+package bio.terra.tanagra.service.accesscontrol.model.impl;
 
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.service.accesscontrol.AccessControlHelper;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.accesscontrol.UnderlayAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.UnderlayAccessControl;
 import bio.terra.tanagra.service.authentication.AppDefaultUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
 import bio.terra.tanagra.service.authentication.UserId;
@@ -46,7 +47,11 @@ public class VerilyGroupsAccessControl implements UnderlayAccessControl {
   }
 
   @Override
-  public void initialize(List<String> params, String basePath, String oauthClientId) {
+  public void initialize(
+      List<String> params,
+      String basePath,
+      String oauthClientId,
+      AccessControlHelper accessControlHelper) {
     // Store the basePath and oauthClientId first, so we can use it when looking up group IDs.
     if (basePath == null || oauthClientId == null) {
       throw new IllegalArgumentException(

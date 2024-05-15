@@ -1,5 +1,9 @@
-package bio.terra.tanagra.service.accesscontrol;
+package bio.terra.tanagra.service.accesscontrol.model;
 
+import bio.terra.tanagra.service.accesscontrol.AccessControlHelper;
+import bio.terra.tanagra.service.accesscontrol.Permissions;
+import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
+import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 
@@ -8,7 +12,11 @@ public interface FineGrainedAccessControl {
     return "Fine-grained access control";
   }
 
-  default void initialize(List<String> params, String basePath, String oauthClientId) {
+  default void initialize(
+      List<String> params,
+      String basePath,
+      String oauthClientId,
+      AccessControlHelper accessControlHelper) {
     // Do nothing with parameters.
   }
 
