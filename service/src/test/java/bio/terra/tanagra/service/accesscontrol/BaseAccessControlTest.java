@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -74,11 +75,11 @@ public class BaseAccessControlTest {
 
   protected void createArtifacts() {
     // Create 2 studies.
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), "abc@123.com");
+    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_1.getEmail());
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
-    study2 = studyService.createStudy(Study.builder().displayName("study 2"), "def@123.com");
+    study2 = studyService.createStudy(Study.builder().displayName("study 2"), USER_2.getEmail());
     assertNotNull(study2);
     LOGGER.info("Created study2 {} at {}", study2.getId(), study2.getCreated());
 
@@ -90,7 +91,7 @@ public class BaseAccessControlTest {
                 .underlay(CMS_SYNPUF)
                 .displayName("cohort 2")
                 .description("first cohort"),
-            "abc@123.com",
+            USER_3.getEmail(),
             List.of(
                 CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
                 CRITERIA_GROUP_SECTION_PROCEDURE));
@@ -104,7 +105,7 @@ public class BaseAccessControlTest {
                 .underlay(CMS_SYNPUF)
                 .displayName("cohort 2")
                 .description("second cohort"),
-            "def@123.com",
+            USER_4.getEmail(),
             List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
@@ -120,7 +121,7 @@ public class BaseAccessControlTest {
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue()))
                 .excludeOutputAttributesPerEntity(
                     Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), List.of("gender"))),
-            "abc@123.com");
+            USER_1.getEmail());
     assertNotNull(conceptSet1);
     LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
 
@@ -134,7 +135,7 @@ public class BaseAccessControlTest {
                 .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
                 .excludeOutputAttributesPerEntity(
                     Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
-            "def@123.com");
+            USER_2.getEmail());
     assertNotNull(conceptSet2);
     LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
 
@@ -145,7 +146,7 @@ public class BaseAccessControlTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().displayName("review 1").description("first review").size(11),
-            "abc@123.com",
+            USER_3.getEmail(),
             randomSampleQueryResult,
             14);
     assertNotNull(review1);
@@ -155,7 +156,7 @@ public class BaseAccessControlTest {
             study2.getId(),
             cohort2.getId(),
             Review.builder().displayName("review 2").description("second review").size(3),
-            "def@123.com",
+            USER_4.getEmail(),
             randomSampleQueryResult,
             15);
     assertNotNull(review2);
@@ -215,11 +216,12 @@ public class BaseAccessControlTest {
             resource.getParent(),
             0,
             Integer.MAX_VALUE);
-    assertTrue(resources.contains(resource));
-    assertTrue(
-        resources
-            .getPermissions(resource)
-            .contains(Permissions.forActions(resource.getType(), actionsArr)));
+    if (!resources.hasUserFilter()) {
+      assertTrue(contains(resources, resource));
+      assertTrue(
+          getPermissions(resources, resource)
+              .contains(Permissions.forActions(resource.getType(), actionsArr)));
+    }
   }
 
   protected void assertDoesNotHavePermissions(UserId user, ResourceId resource, Action... actions) {
@@ -237,8 +239,34 @@ public class BaseAccessControlTest {
             resource.getParent(),
             0,
             Integer.MAX_VALUE);
-    assertFalse(resources.contains(resource));
-    assertTrue(resources.getPermissions(resource).isEmpty());
+    if (!resources.hasUserFilter()) {
+      assertFalse(contains(resources, resource));
+      assertTrue(getPermissions(resources, resource).isEmpty());
+    }
+  }
+
+  private static Permissions getPermissions(
+      ResourceCollection resourceCollection, ResourceId resource) {
+    if (!contains(resourceCollection, resource)) {
+      return Permissions.empty(resource.getType());
+    } else if (resourceCollection.isSharedPermissions()) {
+      return resourceCollection.getSharedPermissions();
+    } else {
+      return resourceCollection.getIdPermissionsMap().get(resource);
+    }
+  }
+
+  private static boolean contains(ResourceCollection resourceCollection, ResourceId resource) {
+    if (resourceCollection.hasUserFilter()) {
+      throw new SystemException("Cannot test inclusion when a user filter is defined.");
+    } else if (resource.getType().hasParentResourceType()
+        && !resourceCollection.getParent().equals(resource.getParent())) {
+      return false;
+    } else if (resourceCollection.isAllResources()) {
+      return true;
+    } else {
+      return resourceCollection.getResources().contains(resource);
+    }
   }
 
   protected void assertServiceListWithReadPermission(

@@ -1,10 +1,10 @@
-package bio.terra.tanagra.service.accesscontrol.impl;
+package bio.terra.tanagra.service.accesscontrol.model.impl;
 
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.accesscontrol.UnderlayAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.UnderlayAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 
 public class OpenAccessControl implements UnderlayAccessControl {

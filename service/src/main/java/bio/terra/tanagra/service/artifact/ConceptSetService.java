@@ -67,20 +67,32 @@ public class ConceptSetService {
       ResourceCollection authorizedConceptSetIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     String studyId = authorizedConceptSetIds.getParent().getStudy();
-    if (authorizedConceptSetIds.isAllResources()) {
-      return conceptSetDao.getAllConceptSets(studyId, offset, limit);
-    } else if (authorizedConceptSetIds.isEmpty()) {
+    if (authorizedConceptSetIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
       // concept sets, so we return an empty list.
       return Collections.emptyList();
-    } else {
-      return conceptSetDao.getConceptSetsMatchingList(
-          authorizedConceptSetIds.getResources().stream()
-              .map(ResourceId::getConceptSet)
-              .collect(Collectors.toSet()),
-          offset,
-          limit);
     }
+
+    List<ConceptSet> authorizedConceptSets;
+    if (authorizedConceptSetIds.isAllResources()) {
+      authorizedConceptSets = conceptSetDao.getAllConceptSets(studyId, offset, limit);
+    } else {
+      authorizedConceptSets =
+          conceptSetDao.getConceptSetsMatchingList(
+              authorizedConceptSetIds.getResources().stream()
+                  .map(ResourceId::getConceptSet)
+                  .collect(Collectors.toSet()),
+              offset,
+              limit);
+    }
+
+    // Apply user filter to conceptSet.createdBy.
+    return authorizedConceptSets.stream()
+        .filter(
+            conceptSet ->
+                !authorizedConceptSetIds.hasUserFilter()
+                    || authorizedConceptSetIds.getUserFilter().equals(conceptSet.getCreatedBy()))
+        .collect(Collectors.toList());
   }
 
   public ConceptSet getConceptSet(String studyId, String conceptSetId) {

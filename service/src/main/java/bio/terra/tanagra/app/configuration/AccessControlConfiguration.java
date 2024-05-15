@@ -2,7 +2,7 @@ package bio.terra.tanagra.app.configuration;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
-import bio.terra.tanagra.service.accesscontrol.CoreModel;
+import bio.terra.tanagra.service.accesscontrol.model.CoreModel;
 import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
@@ -24,8 +24,8 @@ public class AccessControlConfiguration {
       name = "tanagra.access-control.model",
       markdown =
           "Pointer to the access control model Java class. Currently this must be one of the enum values in the"
-              + "`bio.terra.tanagra.service.accesscontrol.CoreModel` Java class, or the full name of a class "
-              + "that implements the `bio.terra.tanagra.service.accesscontrol.FineGrainedAccessControl` interface "
+              + "`bio.terra.tanagra.service.accesscontrol.model.CoreModel` Java class, or the full name of a class "
+              + "that implements the `bio.terra.tanagra.service.accesscontrol.model.FineGrainedAccessControl` interface "
               + "and is on the classpath.",
       optional = true,
       defaultValue = "OPEN_ACCESS",

@@ -1,11 +1,12 @@
-package bio.terra.tanagra.service.accesscontrol.impl;
+package bio.terra.tanagra.service.accesscontrol.model.impl;
 
+import bio.terra.tanagra.service.accesscontrol.AccessControlHelper;
 import bio.terra.tanagra.service.accesscontrol.Action;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
-import bio.terra.tanagra.service.accesscontrol.StudyAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.StudyAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,11 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
   }
 
   @Override
-  public void initialize(List<String> params, String basePath, String oauthClientId) {
+  public void initialize(
+      List<String> params,
+      String basePath,
+      String oauthClientId,
+      AccessControlHelper accessControlHelper) {
     // Store the basePath, so we can use it when calling the workbench API.
     // oauthClientId not used for AoU RW call
     if (basePath == null) {
