@@ -26,6 +26,8 @@ message EntityGroup {
   repeated Column columns = 1;
   repeated Column hierarchy_columns = 2;
 
+  // This has been replaced by nameAttribute for determining stored names. Now
+  // this only determines which is the primary column for checkboxes, etc.
   int32 name_column_index = 3;
 
   message EntityGroupConfig {
@@ -42,4 +44,6 @@ message EntityGroup {
   SortOrder default_sort = 8;
 
   optional int32 limit = 9;
+
+  optional string nameAttribute = 10;
 }
