@@ -5,9 +5,6 @@ import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.model.CoreModel;
 import bio.terra.tanagra.service.accesscontrol.model.FineGrainedAccessControl;
-import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
-import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.common.annotations.VisibleForTesting;
@@ -25,11 +22,7 @@ public class AccessControlService {
   @Autowired
   @SuppressWarnings("PMD.PreserveStackTrace")
   public AccessControlService(
-      AccessControlConfiguration accessControlConfiguration,
-      StudyService studyService,
-      CohortService cohortService,
-      ConceptSetService conceptSetService,
-      ReviewService reviewService) {
+      AccessControlConfiguration accessControlConfiguration, StudyService studyService) {
     // Try to load the access control model using the CoreModel enum.
     // If that doesn't work, then assume the model is a class name that we can load via reflection.
     FineGrainedAccessControl impl;
@@ -57,7 +50,7 @@ public class AccessControlService {
         accessControlConfiguration.getParams(),
         accessControlConfiguration.getBasePath(),
         accessControlConfiguration.getOauthClientId(),
-        new AccessControlHelper(studyService, cohortService, conceptSetService, reviewService));
+        new AccessControlHelper(studyService));
     this.accessControlImpl = impl;
   }
 
@@ -65,15 +58,12 @@ public class AccessControlService {
   public AccessControlService(
       FineGrainedAccessControl impl,
       AccessControlConfiguration accessControlConfiguration,
-      StudyService studyService,
-      CohortService cohortService,
-      ConceptSetService conceptSetService,
-      ReviewService reviewService) {
+      StudyService studyService) {
     impl.initialize(
         accessControlConfiguration.getParams(),
         accessControlConfiguration.getBasePath(),
         accessControlConfiguration.getOauthClientId(),
-        new AccessControlHelper(studyService, cohortService, conceptSetService, reviewService));
+        new AccessControlHelper(studyService));
     this.accessControlImpl = impl;
   }
 

@@ -19,9 +19,7 @@ public class OpenAccessControlTest extends BaseAccessControlTest {
     accessControlConfig.setParams(List.of());
     accessControlConfig.setBasePath(null);
     accessControlConfig.setOauthClientId(null);
-    accessControlService =
-        new AccessControlService(
-            accessControlConfig, studyService, cohortService, conceptSetService, reviewService);
+    accessControlService = new AccessControlService(accessControlConfig, studyService);
   }
 
   @AfterEach

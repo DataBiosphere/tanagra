@@ -7,7 +7,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
-import bio.terra.tanagra.service.artifact.model.Cohort;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,16 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class AnnotationService {
-  private final CohortService cohortService;
   private final AnnotationDao annotationDao;
   private final FeatureConfiguration featureConfiguration;
 
   @Autowired
-  public AnnotationService(
-      CohortService cohortService,
-      AnnotationDao annotationDao,
-      FeatureConfiguration featureConfiguration) {
-    this.cohortService = cohortService;
+  public AnnotationService(AnnotationDao annotationDao, FeatureConfiguration featureConfiguration) {
     this.annotationDao = annotationDao;
     this.featureConfiguration = featureConfiguration;
   }
@@ -48,22 +42,12 @@ public class AnnotationService {
       ResourceCollection authorizedAnnotationKeyIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     String cohortId = authorizedAnnotationKeyIds.getParent().getCohort();
-    if (authorizedAnnotationKeyIds.isEmpty()) {
+    if (authorizedAnnotationKeyIds.isAllResources()) {
+      return annotationDao.getAllAnnotationKeys(cohortId, offset, limit);
+    } else if (authorizedAnnotationKeyIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
       // annotation keys, so we return an empty list.
       return Collections.emptyList();
-    }
-
-    String studyId = authorizedAnnotationKeyIds.getParent().getStudy();
-    Cohort cohort = cohortService.getCohort(studyId, cohortId);
-    if (authorizedAnnotationKeyIds.hasUserFilter()
-        && !authorizedAnnotationKeyIds.getUserFilter().equals(cohort.getCreatedBy())) {
-      // Apply user filter to cohort.createdBy.
-      return Collections.emptyList();
-    }
-
-    if (authorizedAnnotationKeyIds.isAllResources()) {
-      return annotationDao.getAllAnnotationKeys(cohortId, offset, limit);
     } else {
       return annotationDao.getAnnotationKeysMatchingList(
           cohortId,

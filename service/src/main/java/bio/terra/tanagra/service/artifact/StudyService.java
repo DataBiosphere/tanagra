@@ -60,34 +60,22 @@ public class StudyService {
       boolean includeDeleted,
       @Nullable Study.Builder studyFilter) {
     featureConfiguration.artifactStorageEnabledCheck();
-    if (authorizedIds.isEmpty()) {
+    if (authorizedIds.isAllResources()) {
+      return studyDao.getAllStudies(offset, limit, includeDeleted, studyFilter);
+    } else if (authorizedIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
       // studies, so we return an empty list.
       return Collections.emptyList();
-    }
-
-    List<Study> authorizedStudies;
-    if (authorizedIds.isAllResources()) {
-      authorizedStudies = studyDao.getAllStudies(offset, limit, includeDeleted, studyFilter);
     } else {
-      authorizedStudies =
-          studyDao.getStudiesMatchingList(
-              authorizedIds.getResources().stream()
-                  .map(ResourceId::getStudy)
-                  .collect(Collectors.toSet()),
-              offset,
-              limit,
-              includeDeleted,
-              studyFilter);
+      return studyDao.getStudiesMatchingList(
+          authorizedIds.getResources().stream()
+              .map(ResourceId::getStudy)
+              .collect(Collectors.toSet()),
+          offset,
+          limit,
+          includeDeleted,
+          studyFilter);
     }
-
-    // Apply user filter to study.createdBy.
-    return authorizedStudies.stream()
-        .filter(
-            study ->
-                !authorizedIds.hasUserFilter()
-                    || authorizedIds.getUserFilter().equals(study.getCreatedBy()))
-        .collect(Collectors.toList());
   }
 
   /** Retrieves an existing study by ID. */

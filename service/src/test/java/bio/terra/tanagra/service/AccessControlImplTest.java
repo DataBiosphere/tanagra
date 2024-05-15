@@ -50,13 +50,7 @@ public class AccessControlImplTest {
   void vumcAdmin() throws ApiException {
     VumcAdminAccessControl impl = new VumcAdminAccessControl();
     AccessControlService accessControlService =
-        new AccessControlService(
-            impl,
-            accessControlConfiguration,
-            studyService,
-            cohortService,
-            conceptSetService,
-            reviewService);
+        new AccessControlService(impl, accessControlConfiguration, studyService);
 
     SystemVersion systemVersion = impl.apiVersion();
     assertNotNull(systemVersion);
@@ -93,13 +87,7 @@ public class AccessControlImplTest {
   void verilyGroups() {
     VerilyGroupsAccessControl impl = new VerilyGroupsAccessControl();
     AccessControlService accessControlService =
-        new AccessControlService(
-            impl,
-            accessControlConfiguration,
-            studyService,
-            cohortService,
-            conceptSetService,
-            reviewService);
+        new AccessControlService(impl, accessControlConfiguration, studyService);
 
     // Access control is only on underlays, no other resource types.
     assertTrue(
@@ -123,13 +111,7 @@ public class AccessControlImplTest {
   void aouWorkbench() {
     AouWorkbenchAccessControl impl = new AouWorkbenchAccessControl();
     AccessControlService accessControlService =
-        new AccessControlService(
-            impl,
-            accessControlConfiguration,
-            studyService,
-            cohortService,
-            conceptSetService,
-            reviewService);
+        new AccessControlService(impl, accessControlConfiguration, studyService);
 
     // Access control is only on studies, no other resource types.
     ResourceId firstUnderlay =

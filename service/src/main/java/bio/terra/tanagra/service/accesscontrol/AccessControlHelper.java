@@ -1,40 +1,31 @@
 package bio.terra.tanagra.service.accesscontrol;
 
-import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
-import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
+import bio.terra.tanagra.service.artifact.model.Study;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AccessControlHelper {
   private final StudyService studyService;
-  private final CohortService cohortService;
-  private final ConceptSetService conceptSetService;
-  private final ReviewService reviewService;
 
-  public AccessControlHelper(
-      StudyService studyService,
-      CohortService cohortService,
-      ConceptSetService conceptSetService,
-      ReviewService reviewService) {
+  public AccessControlHelper(StudyService studyService) {
     this.studyService = studyService;
-    this.cohortService = cohortService;
-    this.conceptSetService = conceptSetService;
-    this.reviewService = reviewService;
   }
 
   public String getStudyUser(String studyId) {
     return studyService.getStudy(studyId).getCreatedBy();
   }
 
-  public String getCohortUser(String studyId, String cohortId) {
-    return cohortService.getCohort(studyId, cohortId).getCreatedBy();
-  }
-
-  public String getConceptSetUser(String studyId, String conceptSetId) {
-    return conceptSetService.getConceptSet(studyId, conceptSetId).getCreatedBy();
-  }
-
-  public String getReviewUser(String studyId, String cohortId, String reviewId) {
-    return reviewService.getReview(studyId, cohortId, reviewId).getCreatedBy();
+  public List<String> listStudiesForUser(String userEmail) {
+    return studyService
+        .listStudies(
+            ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null),
+            0,
+            Integer.MAX_VALUE,
+            false,
+            Study.builder().createdBy(userEmail))
+        .stream()
+        .map(Study::getId)
+        .collect(Collectors.toList());
   }
 }

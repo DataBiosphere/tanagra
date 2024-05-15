@@ -140,32 +140,20 @@ public class ReviewService {
   public List<Review> listReviews(ResourceCollection authorizedReviewIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     String cohortId = authorizedReviewIds.getParent().getCohort();
-    if (authorizedReviewIds.isEmpty()) {
+    if (authorizedReviewIds.isAllResources()) {
+      return reviewDao.getAllReviews(cohortId, offset, limit);
+    } else if (authorizedReviewIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
       // reviews, so we return an empty list.
       return Collections.emptyList();
-    }
-
-    List<Review> authorizedReviews;
-    if (authorizedReviewIds.isAllResources()) {
-      authorizedReviews = reviewDao.getAllReviews(cohortId, offset, limit);
     } else {
-      authorizedReviews =
-          reviewDao.getReviewsMatchingList(
-              authorizedReviewIds.getResources().stream()
-                  .map(ResourceId::getReview)
-                  .collect(Collectors.toSet()),
-              offset,
-              limit);
+      return reviewDao.getReviewsMatchingList(
+          authorizedReviewIds.getResources().stream()
+              .map(ResourceId::getReview)
+              .collect(Collectors.toSet()),
+          offset,
+          limit);
     }
-
-    // Apply user filter to review.createdBy.
-    return authorizedReviews.stream()
-        .filter(
-            review ->
-                !authorizedReviewIds.hasUserFilter()
-                    || authorizedReviewIds.getUserFilter().equals(review.getCreatedBy()))
-        .collect(Collectors.toList());
   }
 
   /** Retrieve a review with its cohort revision. */

@@ -9,8 +9,18 @@ import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.model.StudyAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class OpenUnderlayUserPrivateStudyAccessControl implements StudyAccessControl {
+public class OpenUnderlayPrivateStudyAccessControl implements StudyAccessControl {
+  private static final Permissions STUDY_PERMISSIONS_WITHOUT_CREATE =
+      Permissions.forActions(
+          ResourceType.STUDY,
+          Action.READ,
+          Action.UPDATE,
+          Action.DELETE,
+          Action.CREATE_COHORT,
+          Action.CREATE_CONCEPT_SET);
   private AccessControlHelper accessControlHelper;
 
   @Override
@@ -29,37 +39,35 @@ public class OpenUnderlayUserPrivateStudyAccessControl implements StudyAccessCon
 
   @Override
   public ResourceCollection listUnderlays(UserId user, int offset, int limit) {
-    // Everyone can see all underlays.
     return ResourceCollection.allResourcesAllPermissions(ResourceType.UNDERLAY, null);
   }
 
   @Override
   public Permissions getUnderlay(UserId user, ResourceId underlay) {
-    // Everyone has all permissions on each underlay.
     return Permissions.allActions(ResourceType.UNDERLAY);
   }
 
   @Override
   public Permissions createStudy(UserId user) {
-    // Everyone can create studies.
     return Permissions.forActions(ResourceType.STUDY, Action.CREATE);
   }
 
   @Override
   public ResourceCollection listStudies(UserId user, int offset, int limit) {
-    return ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null, user.getEmail());
+    Set<ResourceId> authorizedStudies =
+        accessControlHelper.listStudiesForUser(user.getEmail()).stream()
+            .map(ResourceId::forStudy)
+            .collect(Collectors.toSet());
+    return authorizedStudies.isEmpty()
+        ? ResourceCollection.empty(ResourceType.STUDY, null)
+        : ResourceCollection.resourcesSamePermissions(
+            STUDY_PERMISSIONS_WITHOUT_CREATE, authorizedStudies);
   }
 
   @Override
   public Permissions getStudy(UserId user, ResourceId study) {
     return accessControlHelper.getStudyUser(study.getStudy()).equals(user.getEmail())
-        ? Permissions.forActions(
-            ResourceType.STUDY,
-            Action.READ,
-            Action.UPDATE,
-            Action.DELETE,
-            Action.CREATE_COHORT,
-            Action.CREATE_CONCEPT_SET)
+        ? STUDY_PERMISSIONS_WITHOUT_CREATE
         : Permissions.empty(ResourceType.STUDY);
   }
 }

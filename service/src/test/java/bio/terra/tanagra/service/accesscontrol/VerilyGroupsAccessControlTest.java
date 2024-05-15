@@ -38,14 +38,7 @@ public class VerilyGroupsAccessControlTest extends BaseAccessControlTest {
         List.of(CMS_SYNPUF, "cmssynpuf", AOU_SYNTHETIC, "aousynthetic", ALL_ACCESS, "all"));
     accessControlConfig.setBasePath("FAKE_BASE_PATH");
     accessControlConfig.setOauthClientId("FAKE_OAUTH_CLIENT_ID");
-    accessControlService =
-        new AccessControlService(
-            vgImpl,
-            accessControlConfig,
-            studyService,
-            cohortService,
-            conceptSetService,
-            reviewService);
+    accessControlService = new AccessControlService(vgImpl, accessControlConfig, studyService);
   }
 
   @AfterEach

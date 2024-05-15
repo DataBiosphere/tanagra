@@ -9,7 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class OpenUnderlayUserPrivateStudyAccessControlTest extends BaseAccessControlTest {
+public class OpenUnderlayPrivateStudyAccessControlTest extends BaseAccessControlTest {
   @BeforeEach
   void createArtifactsAndDefinePermissionsInMock() {
     createArtifacts();
@@ -20,9 +20,7 @@ public class OpenUnderlayUserPrivateStudyAccessControlTest extends BaseAccessCon
     accessControlConfig.setParams(List.of());
     accessControlConfig.setBasePath(null);
     accessControlConfig.setOauthClientId(null);
-    accessControlService =
-        new AccessControlService(
-            accessControlConfig, studyService, cohortService, conceptSetService, reviewService);
+    accessControlService = new AccessControlService(accessControlConfig, studyService);
   }
 
   @AfterEach
@@ -109,10 +107,10 @@ public class OpenUnderlayUserPrivateStudyAccessControlTest extends BaseAccessCon
             USER_4, Permissions.forActions(ResourceType.STUDY, Action.CREATE)));
 
     // service.list
-    assertServiceListWithReadPermission(USER_1, ResourceType.STUDY, null, true, study1Id);
-    assertServiceListWithReadPermission(USER_2, ResourceType.STUDY, null, true, study2Id);
-    assertServiceListWithReadPermission(USER_3, ResourceType.STUDY, null, true);
-    assertServiceListWithReadPermission(USER_4, ResourceType.STUDY, null, true);
+    assertServiceListWithReadPermission(USER_1, ResourceType.STUDY, null, false, study1Id);
+    assertServiceListWithReadPermission(USER_2, ResourceType.STUDY, null, false, study2Id);
+    assertServiceListWithReadPermission(USER_3, ResourceType.STUDY, null, false);
+    assertServiceListWithReadPermission(USER_4, ResourceType.STUDY, null, false);
   }
 
   @Test

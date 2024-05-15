@@ -99,32 +99,20 @@ public class CohortService {
   public List<Cohort> listCohorts(ResourceCollection authorizedCohortIds, int offset, int limit) {
     featureConfiguration.artifactStorageEnabledCheck();
     String studyId = authorizedCohortIds.getParent().getStudy();
-    if (authorizedCohortIds.isEmpty()) {
+    if (authorizedCohortIds.isAllResources()) {
+      return cohortDao.getAllCohorts(studyId, offset, limit);
+    } else if (authorizedCohortIds.isEmpty()) {
       // If the incoming list is empty, the caller does not have permission to see any
       // cohorts, so we return an empty list.
       return Collections.emptyList();
-    }
-
-    List<Cohort> authorizedCohorts;
-    if (authorizedCohortIds.isAllResources()) {
-      authorizedCohorts = cohortDao.getAllCohorts(studyId, offset, limit);
     } else {
-      authorizedCohorts =
-          cohortDao.getCohortsMatchingList(
-              authorizedCohortIds.getResources().stream()
-                  .map(ResourceId::getCohort)
-                  .collect(Collectors.toSet()),
-              offset,
-              limit);
+      return cohortDao.getCohortsMatchingList(
+          authorizedCohortIds.getResources().stream()
+              .map(ResourceId::getCohort)
+              .collect(Collectors.toSet()),
+          offset,
+          limit);
     }
-
-    // Apply user filter to cohort.createdBy.
-    return authorizedCohorts.stream()
-        .filter(
-            cohort ->
-                !authorizedCohortIds.hasUserFilter()
-                    || authorizedCohortIds.getUserFilter().equals(cohort.getCreatedBy()))
-        .collect(Collectors.toList());
   }
 
   /** Retrieve a cohort with its most recent revision. */

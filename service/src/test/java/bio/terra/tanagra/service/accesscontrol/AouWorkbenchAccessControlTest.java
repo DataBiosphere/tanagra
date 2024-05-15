@@ -36,14 +36,7 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
     accessControlConfig.setParams(List.of());
     accessControlConfig.setBasePath("FAKE_BASE_PATH");
     accessControlConfig.setOauthClientId("FAKE_OAUTH_CLIENT_ID");
-    accessControlService =
-        new AccessControlService(
-            awImpl,
-            accessControlConfig,
-            studyService,
-            cohortService,
-            conceptSetService,
-            reviewService);
+    accessControlService = new AccessControlService(awImpl, accessControlConfig, studyService);
   }
 
   @AfterEach

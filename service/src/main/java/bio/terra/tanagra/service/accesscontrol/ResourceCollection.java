@@ -1,7 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol;
 
 import bio.terra.tanagra.exception.SystemException;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,9 +22,7 @@ public final class ResourceCollection {
   private final Permissions sharedPermissions;
   private final Set<ResourceId> ids;
   private final Map<ResourceId, Permissions> idPermissionsMap;
-  private final @Nullable String userFilter;
 
-  @SuppressWarnings("checkstyle:ParameterNumber")
   private ResourceCollection(
       ResourceType type,
       boolean isAllResources,
@@ -33,8 +30,7 @@ public final class ResourceCollection {
       boolean isSharedPermissions,
       Permissions sharedPermissions,
       Set<ResourceId> ids,
-      Map<ResourceId, Permissions> idPermissionsMap,
-      @Nullable String userFilter) {
+      Map<ResourceId, Permissions> idPermissionsMap) {
     this.type = type;
     this.isAllResources = isAllResources;
     this.parentId = parentId;
@@ -42,35 +38,24 @@ public final class ResourceCollection {
     this.sharedPermissions = sharedPermissions;
     this.ids = ids;
     this.idPermissionsMap = idPermissionsMap;
-    this.userFilter = userFilter;
   }
 
   public static ResourceCollection empty(ResourceType type, @Nullable ResourceId parentId) {
     validateParentForType(type, parentId);
     return new ResourceCollection(
-        type, false, parentId, true, Permissions.empty(type), Collections.emptySet(), null, null);
+        type, false, parentId, true, Permissions.empty(type), Collections.emptySet(), null);
   }
 
   public static ResourceCollection allResourcesAllPermissions(
       ResourceType type, @Nullable ResourceId parentId) {
-    return allResourcesAllPermissions(type, parentId, null);
-  }
-
-  public static ResourceCollection allResourcesAllPermissions(
-      ResourceType type, @Nullable ResourceId parentId, @Nullable String userFilter) {
-    return allResourcesSamePermissions(Permissions.allActions(type), parentId, userFilter);
+    return allResourcesSamePermissions(Permissions.allActions(type), parentId);
   }
 
   public static ResourceCollection allResourcesSamePermissions(
       Permissions permissions, @Nullable ResourceId parentId) {
-    return allResourcesSamePermissions(permissions, parentId, null);
-  }
-
-  public static ResourceCollection allResourcesSamePermissions(
-      Permissions permissions, @Nullable ResourceId parentId, String userFilter) {
     validateParentForType(permissions.getType(), parentId);
     return new ResourceCollection(
-        permissions.getType(), true, parentId, true, permissions, null, null, userFilter);
+        permissions.getType(), true, parentId, true, permissions, null, null);
   }
 
   private static void validateParentForType(ResourceType type, @Nullable ResourceId parentId) {
@@ -100,7 +85,7 @@ public final class ResourceCollection {
           }
         });
     return new ResourceCollection(
-        permissions.getType(), false, parentId, true, permissions, resources, null, null);
+        permissions.getType(), false, parentId, true, permissions, resources, null);
   }
 
   public static ResourceCollection resourcesDifferentPermissions(
@@ -121,7 +106,7 @@ public final class ResourceCollection {
         throw new SystemException("Resource does not match parent resource");
       }
     }
-    return new ResourceCollection(type, false, parentId, false, null, null, idPermissionsMap, null);
+    return new ResourceCollection(type, false, parentId, false, null, null, idPermissionsMap);
   }
 
   public boolean isEmpty() {
@@ -138,20 +123,8 @@ public final class ResourceCollection {
     return isAllResources;
   }
 
-  public boolean isSharedPermissions() {
-    return isSharedPermissions;
-  }
-
   public ResourceId getParent() {
     return parentId;
-  }
-
-  public Permissions getSharedPermissions() {
-    return sharedPermissions;
-  }
-
-  public Map<ResourceId, Permissions> getIdPermissionsMap() {
-    return ImmutableMap.copyOf(idPermissionsMap);
   }
 
   public Set<ResourceId> getResources() {
@@ -164,12 +137,26 @@ public final class ResourceCollection {
     }
   }
 
-  public boolean hasUserFilter() {
-    return userFilter != null;
+  public Permissions getPermissions(ResourceId resource) {
+    if (!contains(resource)) {
+      return Permissions.empty(resource.getType());
+    } else if (isSharedPermissions) {
+      return sharedPermissions;
+    } else {
+      return idPermissionsMap.get(resource);
+    }
   }
 
-  public String getUserFilter() {
-    return userFilter;
+  public boolean contains(ResourceId resource) {
+    if (resource.getType().hasParentResourceType() && !parentId.equals(resource.getParent())) {
+      return false;
+    } else if (isAllResources) {
+      return true;
+    } else if (isSharedPermissions) {
+      return ids.contains(resource);
+    } else {
+      return idPermissionsMap.containsKey(resource);
+    }
   }
 
   public ResourceCollection filter(Permissions permissions) {

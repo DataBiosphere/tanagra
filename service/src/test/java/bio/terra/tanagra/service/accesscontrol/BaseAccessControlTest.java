@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.app.Main;
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -216,12 +215,11 @@ public class BaseAccessControlTest {
             resource.getParent(),
             0,
             Integer.MAX_VALUE);
-    if (!resources.hasUserFilter()) {
-      assertTrue(contains(resources, resource));
-      assertTrue(
-          getPermissions(resources, resource)
-              .contains(Permissions.forActions(resource.getType(), actionsArr)));
-    }
+    assertTrue(resources.contains(resource));
+    assertTrue(
+        resources
+            .getPermissions(resource)
+            .contains(Permissions.forActions(resource.getType(), actionsArr)));
   }
 
   protected void assertDoesNotHavePermissions(UserId user, ResourceId resource, Action... actions) {
@@ -239,34 +237,8 @@ public class BaseAccessControlTest {
             resource.getParent(),
             0,
             Integer.MAX_VALUE);
-    if (!resources.hasUserFilter()) {
-      assertFalse(contains(resources, resource));
-      assertTrue(getPermissions(resources, resource).isEmpty());
-    }
-  }
-
-  private static Permissions getPermissions(
-      ResourceCollection resourceCollection, ResourceId resource) {
-    if (!contains(resourceCollection, resource)) {
-      return Permissions.empty(resource.getType());
-    } else if (resourceCollection.isSharedPermissions()) {
-      return resourceCollection.getSharedPermissions();
-    } else {
-      return resourceCollection.getIdPermissionsMap().get(resource);
-    }
-  }
-
-  private static boolean contains(ResourceCollection resourceCollection, ResourceId resource) {
-    if (resourceCollection.hasUserFilter()) {
-      throw new SystemException("Cannot test inclusion when a user filter is defined.");
-    } else if (resource.getType().hasParentResourceType()
-        && !resourceCollection.getParent().equals(resource.getParent())) {
-      return false;
-    } else if (resourceCollection.isAllResources()) {
-      return true;
-    } else {
-      return resourceCollection.getResources().contains(resource);
-    }
+    assertFalse(resources.contains(resource));
+    assertTrue(resources.getPermissions(resource).isEmpty());
   }
 
   protected void assertServiceListWithReadPermission(
