@@ -28,8 +28,9 @@ export function useStudyId() {
   return studyId;
 }
 
-function useOptionalCohort(throwOnUnknown: boolean) {
-  const cohort = useContext(CohortContext)?.state?.present;
+function useOptionalCohort(throwOnUnknown: boolean, backend?: boolean) {
+  const state = useContext(CohortContext)?.state;
+  const cohort = backend ? state?.backendPresent : state?.present;
   if (throwOnUnknown && !cohort) {
     throw new PathError(`No valid cohort in current context.`);
   }
@@ -38,6 +39,10 @@ function useOptionalCohort(throwOnUnknown: boolean) {
 
 export function useCohort() {
   return useOptionalCohort(true) as NonNullable<Cohort>;
+}
+
+export function useBackendCohort() {
+  return useOptionalCohort(true, true) as NonNullable<Cohort>;
 }
 
 export function useCohortGroupSectionAndGroup() {
