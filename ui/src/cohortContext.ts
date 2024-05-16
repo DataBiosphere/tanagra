@@ -15,6 +15,11 @@ type CohortState = {
   present: Cohort;
   future: Cohort[];
 
+  // The latest cohort as received from the backend. This is used for things
+  // like counts that depend on the backend state to only update once the cohort
+  // changes have been committed.
+  backendPresent: Cohort;
+
   saving: boolean;
   showSnackbar: (message: string) => void;
 };
@@ -61,16 +66,17 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
   });
 
   useEffect(() => {
-    if (state?.present && deepEqual(status.data, state.present)) {
-      return;
-    }
-
     setState(
       status.data
         ? {
             past: state?.past ?? [],
-            present: status.data,
+            present:
+              state?.present && deepEqual(status.data, state.present)
+                ? state.present
+                : status.data,
             future: state?.future ?? [],
+
+            backendPresent: status.data,
 
             saving: false,
             showSnackbar,
