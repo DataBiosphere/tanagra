@@ -10,32 +10,32 @@ SELECT p.person_id,
        p.sex_at_birth_concept_id,
        sc.concept_name AS sex_at_birth_concept_name,
        CASE
-           WHEN asum.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_activity_summary,
+           WHEN asum.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_activity_summary,
        CASE
-           WHEN hrml.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_heart_rate_level,
+           WHEN hrml.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_heart_rate_level,
        CASE
-           WHEN hrs.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_heart_rate_summary,
+           WHEN hrs.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_heart_rate_summary,
        CASE
-           WHEN si.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_steps_intraday,
+           WHEN si.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_steps_intraday,
        CASE
-           WHEN sds.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_sleep_daily_summary,
+           WHEN sds.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_daily_summary,
        CASE
-           WHEN sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit_sleep_level,
+           WHEN sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_level,
        CASE
            WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
-           AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN 0 ELSE 1 END has_fitbit,
+           AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit,
        CASE
-           WHEN wgv.sample_name IS NULL THEN 0 ELSE 1 END has_whole_genome_variant,
+           WHEN wgv.sample_name IS NULL THEN FALSE ELSE TRUE END has_whole_genome_variant,
        CASE
-           WHEN mad.sample_name IS NULL THEN 0 ELSE 1 END has_array_data,
+           WHEN mad.sample_name IS NULL THEN FALSE ELSE TRUE END has_array_data,
        CASE
-           WHEN lrwgv.sample_name IS NULL THEN 0 ELSE 1 END has_lr_whole_genome_variant,
+           WHEN lrwgv.sample_name IS NULL THEN FALSE ELSE TRUE END has_lr_whole_genome_variant,
        CASE
-           WHEN svd.sample_name IS NULL THEN 0 ELSE 1 END has_structural_variant_data,
+           WHEN svd.sample_name IS NULL THEN FALSE ELSE TRUE END has_structural_variant_data,
        CASE
-           WHEN ehr.person_id IS NULL THEN 0 ELSE 1 END has_ehr_data,
+           WHEN ehr.person_id IS NULL THEN FALSE ELSE TRUE END has_ehr_data,
        CASE
-           WHEN d.death_date is null THEN 0 ELSE 1 END is_deceased
+           WHEN d.death_date is null THEN FALSE ELSE TRUE END is_deceased
 FROM `${omopDataset}.person` p
 LEFT JOIN `${omopDataset}.concept` gc ON gc.concept_id = p.gender_concept_id
 LEFT JOIN `${omopDataset}.concept` rc ON rc.concept_id = p.race_concept_id
