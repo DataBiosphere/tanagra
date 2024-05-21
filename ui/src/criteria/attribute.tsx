@@ -47,9 +47,17 @@ interface Data {
     c: CommonSelectorConfig,
     dataEntry?: DataEntry
   ) => {
+    const entity = underlaySource.lookupEntity("");
+    const config = decodeConfig(c);
+    const attribute = entity.attributes.find(
+      (a) => a.name === config.attribute
+    );
+
     return encodeData({
       selected: dataEntry
         ? [{ value: dataEntry.key, name: dataEntry.name as string }]
+        : attribute?.dataType === tanagraUnderlay.SZDataType.BOOLEAN
+        ? [{ value: true, name: attribute.name }]
         : [],
       dataRanges: [],
     });
@@ -91,7 +99,10 @@ class _ implements CriteriaPlugin<string> {
     if (decodedData.selected.length > 0) {
       return decodedData.selected.length === 1
         ? {
-            title: decodedData.selected[0].name,
+            title:
+              decodedData.selected[0].value !== true
+                ? decodedData.selected[0].name
+                : "",
           }
         : {
             title: `(${decodedData.selected.length} selected)`,
@@ -121,21 +132,13 @@ class _ implements CriteriaPlugin<string> {
     };
   }
 
-  generateFilter(occurrenceId: string, underlaySource: UnderlaySource) {
+  generateFilter() {
     const decodedData = decodeData(this.data);
-
-    const entity = underlaySource.lookupEntity(this.entity ?? "");
-    const attribute = entity.attributes.find(
-      (a) => a.name === this.config.attribute
-    );
 
     return {
       type: FilterType.Attribute,
       attribute: this.config.attribute,
-      values:
-        attribute?.dataType === tanagraUnderlay.SZDataType.BOOLEAN
-          ? [true]
-          : decodedData.selected?.map(({ value }) => value),
+      values: decodedData.selected?.map(({ value }) => value),
       ranges: decodedData.dataRanges,
     };
   }
