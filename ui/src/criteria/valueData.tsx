@@ -65,6 +65,8 @@ export type ValueDataEditProps = {
 export function ValueDataEdit(props: ValueDataEditProps) {
   const underlaySource = useUnderlaySource();
 
+  const entity = underlaySource.lookupEntity(props.hintEntity);
+
   const hintDataState = useSWRImmutable(
     {
       type: "hintData",
@@ -128,10 +130,15 @@ export function ValueDataEdit(props: ValueDataEditProps) {
           valueData = defaultValueData(hintData);
         }
 
+        const attribute = entity.attributes.find(
+          (a) => a.name === hintData.attribute
+        );
+
         return {
           valueConfig,
           valueData,
           hintData,
+          attribute,
         };
       })
       .filter(isValid);
@@ -140,6 +147,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
     props.valueConfigs,
     props.valueData,
     hintDataState.data,
+    entity,
   ]);
 
   const onValueSelect = (sel: ValueSelection[], valueData: ValueData) => {
@@ -261,8 +269,14 @@ export function ValueDataEdit(props: ValueDataEditProps) {
                 <RangeSlider
                   key={c.valueConfig.attribute}
                   index={0}
-                  minBound={c.hintData.integerHint.min}
-                  maxBound={c.hintData.integerHint.max}
+                  minBound={
+                    c.attribute?.displayHintRangeMin ??
+                    c.hintData.integerHint.min
+                  }
+                  maxBound={
+                    c.attribute?.displayHintRangeMax ??
+                    c.hintData.integerHint.max
+                  }
                   range={c.valueData.range}
                   unit={c.valueConfig.unit}
                   onUpdate={(range, index, min, max) =>

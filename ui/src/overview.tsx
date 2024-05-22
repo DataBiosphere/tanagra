@@ -43,7 +43,7 @@ import {
   useCohortGroupSectionAndGroup,
   useStudyId,
 } from "hooks";
-import { GridBox } from "layout/gridBox";
+import { GridBox, GridBoxPaper } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
@@ -111,13 +111,10 @@ export function Overview() {
       />
       <GridLayout
         rows="minmax(max-content, 100%)"
-        cols="auto 380px"
+        cols="auto 450px"
         spacing={2}
         sx={{ px: 5, overflowY: "auto" }}
       >
-        <GridBox sx={{ pt: 3 }}>
-          <GroupList />
-        </GridBox>
         <GridBox
           sx={{
             pt: 3,
@@ -142,6 +139,15 @@ export function Overview() {
           />
           {renameTitleDialog}
         </GridBox>
+        <GridBox sx={{ pt: 3 }}>
+          <Paper
+            sx={{
+              p: 2,
+            }}
+          >
+            <GroupList />
+          </Paper>
+        </GridBox>
       </GridLayout>
     </GridLayout>
   );
@@ -160,49 +166,48 @@ function GroupList() {
   const cohort = useCohort();
 
   return (
-    <GridBox sx={{ pb: 2 }}>
-      <GridLayout rows spacing={2} height="auto">
-        {cohort.groupSections.map((s, index) => (
-          <GridLayout key={s.id} rows spacing={2} height="auto">
-            {index !== 0 ? <GroupDivider /> : null}
-            <GridBox>
-              <ParticipantsGroupSection groupSection={s} sectionIndex={index} />
-            </GridBox>
-          </GridLayout>
-        ))}
-        {cohort.groupSections.length > 1 ||
-        cohort.groupSections[0].groups.length > 0 ? (
-          <GridLayout rows spacing={2} height="auto">
-            <GroupDivider />
-            <Paper
-              sx={{
-                width: "100%",
-                overflow: "hidden",
-                backgroundColor: "unset",
-                borderStyle: "dashed",
-                borderWidth: "1px",
-                borderColor: (theme) => theme.palette.divider,
-                p: 2,
-              }}
-            >
-              <GridLayout cols colAlign="center">
-                <GridBox>
-                  <Link
-                    variant="link"
-                    underline="hover"
-                    onClick={() => insertCohortGroupSection(context)}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    Add another group
-                  </Link>{" "}
-                  to manage a new set of criteria
-                </GridBox>
-              </GridLayout>
-            </Paper>
-          </GridLayout>
-        ) : null}
-      </GridLayout>
-    </GridBox>
+    <GridLayout rows spacing={2} height="auto">
+      <Typography variant="h6">Cohort filter</Typography>
+      {cohort.groupSections.map((s, index) => (
+        <GridLayout key={s.id} rows spacing={2} height="auto">
+          {index !== 0 ? <GroupDivider /> : null}
+          <GridBox>
+            <ParticipantsGroupSection groupSection={s} sectionIndex={index} />
+          </GridBox>
+        </GridLayout>
+      ))}
+      {cohort.groupSections.length > 1 ||
+      cohort.groupSections[0].groups.length > 0 ? (
+        <GridLayout rows spacing={2} height="auto">
+          <GroupDivider />
+          <Paper
+            sx={{
+              width: "100%",
+              overflow: "hidden",
+              backgroundColor: "unset",
+              borderStyle: "dashed",
+              borderWidth: "1px",
+              borderColor: (theme) => theme.palette.divider,
+              p: 2,
+            }}
+          >
+            <GridLayout cols colAlign="center">
+              <GridBox>
+                <Link
+                  variant="link"
+                  underline="hover"
+                  onClick={() => insertCohortGroupSection(context)}
+                  sx={{ cursor: "pointer" }}
+                >
+                  Add another group
+                </Link>{" "}
+                to manage a new set of criteria
+              </GridBox>
+            </GridLayout>
+          </Paper>
+        </GridLayout>
+      ) : null}
+    </GridLayout>
   );
 }
 
@@ -260,11 +265,17 @@ function ParticipantsGroupSection(props: {
   );
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden", pb: 2 }}>
+    <GridBoxPaper
+      sx={{
+        borderWidth: "1px",
+        borderColor: (theme) => theme.palette.divider,
+        borderStyle: "solid",
+      }}
+    >
       <GridLayout rows height="auto">
         <GridLayout
           cols
-          fillCol={4}
+          fillCol={3}
           rowAlign="baseline"
           sx={{ p: 2, backgroundColor: (theme) => theme.palette.info.main }}
         >
@@ -296,9 +307,7 @@ function ParticipantsGroupSection(props: {
               <MenuItem value={1}>Exclude</MenuItem>
             </Select>
           </FormControl>
-          <Typography variant="body1">
-            &nbsp;participants who meet&nbsp;
-          </Typography>
+          <GridBox sx={{ width: (theme) => theme.spacing(1) }} />
           <FormControl>
             <Select
               value={props.groupSection.filter.kind}
@@ -323,17 +332,15 @@ function ParticipantsGroupSection(props: {
                 },
               }}
             >
-              <MenuItem value={GroupSectionFilterKind.Any}>any</MenuItem>
-              <MenuItem value={GroupSectionFilterKind.All}>all</MenuItem>
+              <MenuItem value={GroupSectionFilterKind.Any}>
+                Meet any criteria
+              </MenuItem>
+              <MenuItem value={GroupSectionFilterKind.All}>
+                Meet all criteria
+              </MenuItem>
             </Select>
           </FormControl>
-          <Typography variant="body1">
-            &nbsp;of the following criteria
-          </Typography>
           <GridBox />
-          <Typography variant="body1" color="text.muted">
-            Group count:&nbsp;
-          </Typography>
           <Loading status={sectionCountState} size="small">
             <Typography variant="body1" color="text.muted">
               {(sectionCountState.data ?? -1) < 0
@@ -345,10 +352,9 @@ function ParticipantsGroupSection(props: {
       </GridLayout>
       <GridLayout rows height="auto">
         {props.groupSection.groups.length === 0 ? (
-          <GridBox sx={{ pt: 2 }}>
+          <GridLayout rows height="auto">
             <Empty
               maxWidth="90%"
-              minHeight="60px"
               title="Criteria are traits you select to define your cohort’s participant groups"
               subtitle={
                 <>
@@ -368,7 +374,10 @@ function ParticipantsGroupSection(props: {
                 </>
               }
             />
-          </GridBox>
+            {cohort.groupSections.length > 1 ? (
+              <Divider sx={{ mx: 2, mb: 1 }} />
+            ) : null}
+          </GridLayout>
         ) : (
           props.groupSection.groups.map((group) => (
             <GridLayout key={group.id} rows height="auto">
@@ -393,25 +402,36 @@ function ParticipantsGroupSection(props: {
         )}
         {props.groupSection.groups.length !== 0 ||
         cohort.groupSections.length > 1 ? (
-          <GridLayout cols fillCol={1} height="auto" sx={{ px: 2 }}>
-            <Button
-              onClick={() =>
-                navigate(
-                  `../${cohortURL(
-                    cohort.id,
-                    props.groupSection.id,
-                    group?.id
-                  )}/add`
-                )
-              }
-              variant="contained"
-              sx={{
-                display:
-                  props.groupSection.groups.length === 0 ? "hidden" : undefined,
-              }}
-            >
-              Add criteria
-            </Button>
+          <GridLayout
+            cols
+            fillCol={1}
+            height="auto"
+            sx={{ px: 2, pt: 1, pb: 2 }}
+          >
+            {props.groupSection.groups.length > 0 ? (
+              <Button
+                onClick={() =>
+                  navigate(
+                    `../${cohortURL(
+                      cohort.id,
+                      props.groupSection.id,
+                      group?.id
+                    )}/add`
+                  )
+                }
+                variant="contained"
+                sx={{
+                  display:
+                    props.groupSection.groups.length === 0
+                      ? "hidden"
+                      : undefined,
+                }}
+              >
+                Add criteria
+              </Button>
+            ) : (
+              <GridBox />
+            )}
             <GridBox />
             <Button
               color="error"
@@ -426,7 +446,7 @@ function ParticipantsGroupSection(props: {
           </GridLayout>
         ) : null}
       </GridLayout>
-    </Paper>
+    </GridBoxPaper>
   );
 }
 
