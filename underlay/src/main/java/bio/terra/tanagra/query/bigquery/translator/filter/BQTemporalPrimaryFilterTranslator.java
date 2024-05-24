@@ -123,7 +123,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
                   + indexTable.getTablePointer().render();
           if (entityOutput.hasDataFeatureFilter()) {
             subSelectSql +=
-                " WHERE"
+                " WHERE "
                     + apiTranslator
                         .translator(entityOutput.getDataFeatureFilter())
                         .buildSql(sqlParams, null);
@@ -229,8 +229,8 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
             + " = "
             + visitOccurrenceId.renderForSelect(secondConditionAlias);
       case NUM_DAYS_BEFORE:
-        // e.g. firstCondition >=2 days before secondCondition. secondCondition - firstCondition >=
-        // 2.
+        // e.g. firstCondition >=2 days before secondCondition.
+        // --> secondCondition - firstCondition >= 2.
         return joinSql
             + primaryEntityId.renderForSelect(firstConditionAlias)
             + " = "
@@ -242,7 +242,8 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
             + ", DAY) >= "
             + joinOperatorValue;
       case NUM_DAYS_AFTER:
-        // e.g. firstCondition >=3 days after secondCondition. firstCondition - secondCondition >= 3
+        // e.g. firstCondition >=3 days after secondCondition.
+        // --> firstCondition - secondCondition >= 3
         return joinSql
             + primaryEntityId.renderForSelect(firstConditionAlias)
             + " = "
@@ -254,8 +255,8 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
             + ", DAY) >= "
             + joinOperatorValue;
       case WITHIN_NUM_DAYS:
-        // e.g. firstCondition within 4 days of secondCondition. abs(firstCondition -
-        // secondCondition) <= 4
+        // e.g. firstCondition within 4 days of secondCondition.
+        // --> abs(firstCondition - secondCondition) <= 4
         return joinSql
             + primaryEntityId.renderForSelect(firstConditionAlias)
             + " = "

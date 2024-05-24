@@ -14,6 +14,7 @@ import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.api.filter.TemporalPrimaryFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQEntityIdCountFieldTranslator;
@@ -29,6 +30,7 @@ import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsMemberFil
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsRootFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQPrimaryWithCriteriaFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQRelationshipFilterTranslator;
+import bio.terra.tanagra.query.bigquery.translator.filter.BQTemporalPrimaryFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQTextSearchFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
@@ -108,6 +110,11 @@ public final class BQApiTranslator implements ApiTranslator {
   @Override
   public ApiFilterTranslator translator(TextSearchFilter textSearchFilter) {
     return new BQTextSearchFilterTranslator(this, textSearchFilter);
+  }
+
+  @Override
+  public ApiFilterTranslator translator(TemporalPrimaryFilter temporalPrimaryFilter) {
+    return new BQTemporalPrimaryFilterTranslator(this, temporalPrimaryFilter);
   }
 
   @SuppressWarnings("PMD.TooFewBranchesForASwitchStatement")

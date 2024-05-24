@@ -16,14 +16,17 @@ import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.api.filter.TemporalPrimaryFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.JoinOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
+import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.query.bigquery.BQQueryRunner;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
@@ -2097,5 +2100,67 @@ public class BQFilterTest extends BQRunnerTest {
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "groupHasItemsFKItemsTable", sqlQueryRequest.getSql(), groupEntityTable, itemsEntityTable);
+  }
+
+  @Test
+  void temporalPrimaryFilter() throws IOException {
+    Entity conditionOccurrence = underlay.getEntity("conditionOccurrence");
+    CriteriaOccurrence conditionPerson =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+
+    EntityFilter criteriaSubFilter1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            conditionPerson.getCriteriaEntity(),
+            conditionPerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_826L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter1 =
+        new PrimaryWithCriteriaFilter(
+            underlay, conditionPerson, criteriaSubFilter1, null, null, null, null);
+    List<EntityOutput> temporalCondition1 =
+        List.of(EntityOutput.filtered(conditionOccurrence, primaryWithCriteriaFilter1));
+
+    EntityFilter criteriaSubFilter2 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            conditionPerson.getCriteriaEntity(),
+            conditionPerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_254L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilter2 =
+        new PrimaryWithCriteriaFilter(
+            underlay, conditionPerson, criteriaSubFilter2, null, null, null, null);
+    List<EntityOutput> temporalCondition2 =
+        List.of(EntityOutput.filtered(conditionOccurrence, primaryWithCriteriaFilter2));
+
+    TemporalPrimaryFilter temporalPrimaryFilter =
+        new TemporalPrimaryFilter(
+            underlay,
+            null,
+            temporalCondition1,
+            JoinOperator.DURING_SAME_ENCOUNTER,
+            null,
+            null,
+            temporalCondition2);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("id"),
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                temporalPrimaryFilter,
+                null,
+                null));
+    BQTable table =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly("temporalPrimaryFilter", listQueryResult.getSql(), table);
   }
 }
