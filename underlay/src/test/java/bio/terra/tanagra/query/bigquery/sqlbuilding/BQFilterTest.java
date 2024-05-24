@@ -2103,7 +2103,7 @@ public class BQFilterTest extends BQRunnerTest {
   }
 
   @Test
-  void temporalPrimaryFilter() throws IOException {
+  void temporalPrimaryFilterSingleOutput() throws IOException {
     Entity conditionOccurrence = underlay.getEntity("conditionOccurrence");
     CriteriaOccurrence conditionPerson =
         (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
@@ -2162,5 +2162,18 @@ public class BQFilterTest extends BQRunnerTest {
             .getEntityMain(underlay.getPrimaryEntity().getName())
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly("temporalPrimaryFilter", listQueryResult.getSql(), table);
+
+    //    - ANY, single output entity1 / ANY, single output entity1 / SAME_VISIT
+    //    - FIRST, single output entity1 / FIRST, single output entity2 / NUM_DAYS_BEFORE
+    //    - LAST, single output entity2 / LAST, single output entity1 / NUM_DAYS_AFTER
+    //    - FIRST, single output entity2 / LAST, single output, entity2 / WITHIN_NUM_DAYS
+  }
+
+  @Test
+  void temporalPrimaryFilterMultipleOutputs() throws IOException {
+    //    - ANY, two outputs entity1+2 / ANY, three outputs entity1+1+2 / WITHIN_NUM_DAYS
+    //    - FIRST, two outputs entity1+1 / FIRST, three outputs entity1+1+1 / SAME_VISIT
+    //    - LAST, two outputs entity2+2 / LAST, three outputs entity1+1+1 / NUM_DAYS_BEFORE
+    //    - LAST, two outputs entity2+1 / ANY, three outputs entity2+1+2 / NUM_DAYS_AFTER
   }
 }
