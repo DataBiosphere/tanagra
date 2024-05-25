@@ -18,3 +18,6 @@ for (task in TASKS_ONLY_IF_COMPILE_JAVA) {
 
 // Explicit dep to avoid accidental dep deprecation warning.
 tasks.processResources.dependsOn(generateVersionProperties)
+
+// Status and version endpoint tests added to regression test
+tasks.regressionTests.dependsOn(generateVersionProperties)
