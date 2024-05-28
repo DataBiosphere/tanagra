@@ -70,13 +70,13 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
     String firstConditionQuery =
         buildQueryForCondition(
             temporalPrimaryFilter.getUnderlay(),
-            temporalPrimaryFilter.getFirstConditionQualifier(),
+            temporalPrimaryFilter.getFirstConditionReducingOperator(),
             firstConditionJoinFields,
             sqlParams);
     String secondConditionQuery =
         buildQueryForCondition(
             temporalPrimaryFilter.getUnderlay(),
-            temporalPrimaryFilter.getSecondConditionQualifier(),
+            temporalPrimaryFilter.getSecondConditionReducingOperator(),
             secondConditionJoinFields,
             sqlParams);
 

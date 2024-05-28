@@ -10,27 +10,27 @@ import javax.annotation.Nullable;
 
 public class TemporalPrimaryFilter extends EntityFilter {
   private final Underlay underlay;
-  private final @Nullable ReducingOperator firstConditionQualifier;
+  private final @Nullable ReducingOperator firstConditionReducingOperator;
   private final ImmutableList<EntityOutput> firstCondition;
   private final JoinOperator joinOperator;
   private final @Nullable Integer joinOperatorValue;
-  private final @Nullable ReducingOperator secondConditionQualifier;
+  private final @Nullable ReducingOperator secondConditionReducingOperator;
   private final ImmutableList<EntityOutput> secondCondition;
 
   public TemporalPrimaryFilter(
       Underlay underlay,
-      @Nullable ReducingOperator firstConditionQualifier,
+      @Nullable ReducingOperator firstConditionReducingOperator,
       List<EntityOutput> firstCondition,
       JoinOperator joinOperator,
       @Nullable Integer joinOperatorValue,
-      @Nullable ReducingOperator secondConditionQualifier,
+      @Nullable ReducingOperator secondConditionReducingOperator,
       List<EntityOutput> secondCondition) {
     this.underlay = underlay;
-    this.firstConditionQualifier = firstConditionQualifier;
+    this.firstConditionReducingOperator = firstConditionReducingOperator;
     this.firstCondition = ImmutableList.copyOf(firstCondition);
     this.joinOperator = joinOperator;
     this.joinOperatorValue = joinOperatorValue;
-    this.secondConditionQualifier = secondConditionQualifier;
+    this.secondConditionReducingOperator = secondConditionReducingOperator;
     this.secondCondition = ImmutableList.copyOf(secondCondition);
   }
 
@@ -39,8 +39,8 @@ public class TemporalPrimaryFilter extends EntityFilter {
   }
 
   @Nullable
-  public ReducingOperator getFirstConditionQualifier() {
-    return firstConditionQualifier;
+  public ReducingOperator getFirstConditionReducingOperator() {
+    return firstConditionReducingOperator;
   }
 
   public List<EntityOutput> getFirstCondition() {
@@ -57,8 +57,8 @@ public class TemporalPrimaryFilter extends EntityFilter {
   }
 
   @Nullable
-  public ReducingOperator getSecondConditionQualifier() {
-    return secondConditionQualifier;
+  public ReducingOperator getSecondConditionReducingOperator() {
+    return secondConditionReducingOperator;
   }
 
   public List<EntityOutput> getSecondCondition() {
