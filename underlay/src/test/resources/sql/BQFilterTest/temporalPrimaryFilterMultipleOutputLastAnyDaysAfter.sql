@@ -22,13 +22,13 @@
                     FROM
                         (SELECT
                             person_id AS primaryEntityId,
-                            date AS visitDate FROM${ENT_procedureOccurrence}                          
+                            start_date AS visitDate FROM${ENT_conditionOccurrence}                          
                         WHERE
-                            procedure IN (
+                            condition IN (
                                 SELECT
                                     descendant                                  
                                 FROM
-                                    ${HAD_procedure_default}                                  
+                                    ${HAD_condition_default}                                  
                                 WHERE
                                     ancestor = @val0                                  
                                 UNION
@@ -38,13 +38,13 @@
                         UNION
                         ALL SELECT
                             person_id AS primaryEntityId,
-                            start_date AS visitDate FROM${ENT_conditionOccurrence}                          
+                            date AS visitDate FROM${ENT_procedureOccurrence}                          
                         WHERE
-                            condition IN (
+                            procedure IN (
                                 SELECT
                                     descendant                                  
                                 FROM
-                                    ${HAD_condition_default}                                  
+                                    ${HAD_procedure_default}                                  
                                 WHERE
                                     ancestor = @val2                                  
                                 UNION
@@ -60,13 +60,13 @@
         (
             SELECT
                 person_id AS primaryEntityId,
-                date AS visitDate FROM${ENT_procedureOccurrence}              
+                start_date AS visitDate FROM${ENT_conditionOccurrence}              
             WHERE
-                procedure IN (
+                condition IN (
                     SELECT
                         descendant                      
                     FROM
-                        ${HAD_procedure_default}                      
+                        ${HAD_condition_default}                      
                     WHERE
                         ancestor = @val4                      
                     UNION
@@ -76,13 +76,13 @@
             UNION
             ALL SELECT
                 person_id AS primaryEntityId,
-                start_date AS visitDate FROM${ENT_conditionOccurrence}              
+                date AS visitDate FROM${ENT_procedureOccurrence}              
             WHERE
-                condition IN (
+                procedure IN (
                     SELECT
                         descendant                      
                     FROM
-                        ${HAD_condition_default}                      
+                        ${HAD_procedure_default}                      
                     WHERE
                         ancestor = @val6                      
                     UNION

@@ -18,6 +18,7 @@ import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,56 +118,64 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
     boolean isSingleOccurrence = joinFields.size() == 1;
     List<String> subSelectSqls = new ArrayList<>();
     List<String> selectFieldsFromUnionSql = new ArrayList<>();
-    joinFields.forEach(
-        (entityOutput, sqlQueryFields) -> {
-          ITEntityMain indexTable =
-              underlay.getIndexSchema().getEntityMain(entityOutput.getEntity().getName());
+    joinFields.entrySet().stream()
+        .sorted(Comparator.comparing(entry -> entry.getKey().getEntity().getName()))
+        .forEach(
+            entry -> {
+              EntityOutput entityOutput = entry.getKey();
+              List<SqlQueryField> sqlQueryFields = entry.getValue();
 
-          List<String> selectFields = new ArrayList<>();
-          sqlQueryFields.stream().map(SqlQueryField::renderForSelect).forEach(selectFields::add);
-          if (isSingleOccurrence && reducingOperator != null) {
-            SqlQueryField primaryEntityIdField =
-                sqlQueryFields.stream()
-                    .filter(
-                        sqlQueryField -> PRIMARY_ENTITY_ID_ALIAS.equals(sqlQueryField.getAlias()))
-                    .findFirst()
-                    .get();
-            SqlQueryField visitDateField =
-                sqlQueryFields.stream()
-                    .filter(sqlQueryField -> VISIT_DATE_ALIAS.equals(sqlQueryField.getAlias()))
-                    .findFirst()
-                    .get();
-            selectFields.add(
-                "RANK() OVER (PARTITION BY "
-                    + SqlQueryField.of(primaryEntityIdField.getField()).renderForSelect()
-                    + " ORDER BY "
-                    + SqlQueryField.of(visitDateField.getField()).renderForSelect()
-                    + (ReducingOperator.FIRST_MENTION_OF.equals(reducingOperator)
-                        ? " ASC"
-                        : " DESC")
-                    + ") AS "
-                    + ORDER_RANK_ALIAS);
-          }
+              ITEntityMain indexTable =
+                  underlay.getIndexSchema().getEntityMain(entityOutput.getEntity().getName());
 
-          String subSelectSql =
-              "SELECT "
-                  + selectFields.stream().collect(Collectors.joining(","))
-                  + " FROM"
-                  + indexTable.getTablePointer().render();
-          if (entityOutput.hasDataFeatureFilter()) {
-            subSelectSql +=
-                " WHERE "
-                    + apiTranslator
-                        .translator(entityOutput.getDataFeatureFilter())
-                        .buildSql(sqlParams, null);
-          }
-          subSelectSqls.add(subSelectSql);
-          if (selectFieldsFromUnionSql.isEmpty()) {
-            sqlQueryFields.stream()
-                .map(SqlQueryField::getAlias)
-                .forEach(selectFieldsFromUnionSql::add);
-          }
-        });
+              List<String> selectFields = new ArrayList<>();
+              sqlQueryFields.stream()
+                  .map(SqlQueryField::renderForSelect)
+                  .forEach(selectFields::add);
+              if (isSingleOccurrence && reducingOperator != null) {
+                SqlQueryField primaryEntityIdField =
+                    sqlQueryFields.stream()
+                        .filter(
+                            sqlQueryField ->
+                                PRIMARY_ENTITY_ID_ALIAS.equals(sqlQueryField.getAlias()))
+                        .findFirst()
+                        .get();
+                SqlQueryField visitDateField =
+                    sqlQueryFields.stream()
+                        .filter(sqlQueryField -> VISIT_DATE_ALIAS.equals(sqlQueryField.getAlias()))
+                        .findFirst()
+                        .get();
+                selectFields.add(
+                    "RANK() OVER (PARTITION BY "
+                        + SqlQueryField.of(primaryEntityIdField.getField()).renderForSelect()
+                        + " ORDER BY "
+                        + SqlQueryField.of(visitDateField.getField()).renderForSelect()
+                        + (ReducingOperator.FIRST_MENTION_OF.equals(reducingOperator)
+                            ? " ASC"
+                            : " DESC")
+                        + ") AS "
+                        + ORDER_RANK_ALIAS);
+              }
+
+              String subSelectSql =
+                  "SELECT "
+                      + selectFields.stream().collect(Collectors.joining(","))
+                      + " FROM"
+                      + indexTable.getTablePointer().render();
+              if (entityOutput.hasDataFeatureFilter()) {
+                subSelectSql +=
+                    " WHERE "
+                        + apiTranslator
+                            .translator(entityOutput.getDataFeatureFilter())
+                            .buildSql(sqlParams, null);
+              }
+              subSelectSqls.add(subSelectSql);
+              if (selectFieldsFromUnionSql.isEmpty()) {
+                sqlQueryFields.stream()
+                    .map(SqlQueryField::getAlias)
+                    .forEach(selectFieldsFromUnionSql::add);
+              }
+            });
 
     // UNION together the SELECT statements for each entity output.
     String unionSql = subSelectSqls.stream().collect(Collectors.joining(" UNION ALL "));

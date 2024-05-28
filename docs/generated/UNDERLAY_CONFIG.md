@@ -26,6 +26,7 @@ This documentation is generated from annotations in the configuration classes.
 * [SZService](#szservice)
 * [SZSourceData](#szsourcedata)
 * [SZSourceQuery](#szsourcequery)
+* [SZTemporalQuery](#sztemporalquery)
 * [SZTextSearch](#sztextsearch)
 * [SZUnderlay](#szunderlay)
 
@@ -546,7 +547,7 @@ If unspecified, exporting a query against the source data is unsupported.
 *Example value:* `${omopDataset}.condition_occurrence`
 
 ### SZEntity.temporalQuery
-**optional** TemporalQuery
+**optional** [SZTemporalQuery](#sztemporalquery)
 
 How to generate a temporal query for this entity.
 
@@ -999,6 +1000,25 @@ Name of the field to use for the attribute value in the source dataset table (#s
 If unspecified, we assume the field name in the source table (#szentitysourcequerytablename) corresponding to this attribute is the same as the #szattributevaluefieldname.
 
 *Example value:* `condition_concept_id`
+
+
+
+## SZTemporalQuery
+Information to build a temporal query with this entity.
+
+### SZTemporalQuery.visitDateAttribute
+**required** String
+
+Name of the attribute to use for the visit date in a temporal query.
+
+*Example value:* `start_date`
+
+### SZTemporalQuery.visitIdAttribute
+**required** String
+
+Name of the attribute to use for the visit (occurrence) id in a temporal query.
+
+*Example value:* `visit_occurrence_id`
 
 
 

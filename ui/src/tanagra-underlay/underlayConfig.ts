@@ -96,7 +96,7 @@ export type SZEntity = {
   name: string;
   optimizeGroupByAttributes?: string[];
   sourceQueryTableName?: string;
-  temporalQuery?: szentity$temporalquery;
+  temporalQuery?: SZTemporalQuery;
   textSearch?: SZTextSearch;
 };
 
@@ -185,6 +185,11 @@ export type SZSourceQuery = {
   displayFieldTable?: string;
   displayFieldTableJoinFieldName?: string;
   valueFieldName?: string;
+};
+
+export type SZTemporalQuery = {
+  visitDateAttribute: string;
+  visitIdAttribute: string;
 };
 
 export type SZTextSearch = {
