@@ -26,6 +26,11 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
+  private static final String PRIMARY_ENTITY_ID_ALIAS = "primaryEntityId";
+  private static final String VISIT_DATE_ALIAS = "visitDate";
+  private static final String VISIT_OCCURRENCE_ID_ALIAS = "visitOccurrenceId";
+  private static final String ORDER_RANK_ALIAS = "orderRank";
+
   private final TemporalPrimaryFilter temporalPrimaryFilter;
 
   public BQTemporalPrimaryFilterTranslator(
@@ -123,12 +128,12 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
             SqlQueryField primaryEntityIdField =
                 sqlQueryFields.stream()
                     .filter(
-                        sqlQueryField -> sqlQueryField.getAlias().equals(PRIMARY_ENTITY_ID_ALIAS))
+                        sqlQueryField -> PRIMARY_ENTITY_ID_ALIAS.equals(sqlQueryField.getAlias()))
                     .findFirst()
                     .get();
             SqlQueryField visitDateField =
                 sqlQueryFields.stream()
-                    .filter(sqlQueryField -> sqlQueryField.getAlias().equals(VISIT_DATE_ALIAS))
+                    .filter(sqlQueryField -> VISIT_DATE_ALIAS.equals(sqlQueryField.getAlias()))
                     .findFirst()
                     .get();
             selectFields.add(
@@ -315,11 +320,6 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
         throw new SystemException("Unsupported JoinOperator: " + joinOperator);
     }
   }
-
-  private static final String PRIMARY_ENTITY_ID_ALIAS = "primaryEntityId";
-  private static final String VISIT_DATE_ALIAS = "visitDate";
-  private static final String VISIT_OCCURRENCE_ID_ALIAS = "visitOccurrenceId";
-  private static final String ORDER_RANK_ALIAS = "orderRank";
 
   private static SqlQueryField getJoinFieldPrimaryEntityId(Underlay underlay, Entity entity) {
     if (entity.isPrimary()) {
