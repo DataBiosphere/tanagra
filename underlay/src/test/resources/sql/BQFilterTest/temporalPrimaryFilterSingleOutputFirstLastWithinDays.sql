@@ -12,38 +12,24 @@
                     *                  
                 FROM
                     (SELECT
-                        primaryEntityId,
-                        visitDate,
+                        person_id AS primaryEntityId,
+                        date AS visitDate,
                         RANK() OVER (PARTITION                      
                     BY
-                        primaryEntityId                      
+                        person_id                      
                     ORDER BY
-                        visitDate ASC) AS orderRank                      
-                    FROM
-                        (SELECT
-                            person_id AS primaryEntityId,
-                            date AS visitDate                          
-                        FROM
-                            `verily-tanagra-dev.cmssynpuf_index_010224`.ENT_procedureOccurrence                          
-                        WHERE
-                            id IN (
-                                SELECT
-                                    person_id AS primary_id                                  
-                                FROM
-                                    `verily-tanagra-dev.cmssynpuf_index_010224`.ENT_procedureOccurrence                                  
-                                WHERE
-                                    procedure IN (
-                                        SELECT
-                                            descendant                                          
-                                        FROM
-                                            `verily-tanagra-dev.cmssynpuf_index_010224`.HAD_procedure_default                                          
-                                        WHERE
-                                            ancestor = @val0                                          
-                                        UNION
-                                        ALL SELECT
-                                            @val1                                     
-                                    )                             
-                            )                         
+                        date ASC) AS orderRank FROM${ENT_procedureOccurrence}                      
+                    WHERE
+                        procedure IN (
+                            SELECT
+                                descendant                              
+                            FROM
+                                ${HAD_procedure_default}                              
+                            WHERE
+                                ancestor = @val0                              
+                            UNION
+                            ALL SELECT
+                                @val1                         
                         )                 
                 )              
             WHERE
@@ -55,38 +41,24 @@
                     *                  
                 FROM
                     (SELECT
-                        primaryEntityId,
-                        visitDate,
+                        person_id AS primaryEntityId,
+                        date AS visitDate,
                         RANK() OVER (PARTITION                      
                     BY
-                        primaryEntityId                      
+                        person_id                      
                     ORDER BY
-                        visitDate DESC) AS orderRank                      
-                    FROM
-                        (SELECT
-                            person_id AS primaryEntityId,
-                            date AS visitDate                          
-                        FROM
-                            `verily-tanagra-dev.cmssynpuf_index_010224`.ENT_procedureOccurrence                          
-                        WHERE
-                            id IN (
-                                SELECT
-                                    person_id AS primary_id                                  
-                                FROM
-                                    `verily-tanagra-dev.cmssynpuf_index_010224`.ENT_procedureOccurrence                                  
-                                WHERE
-                                    procedure IN (
-                                        SELECT
-                                            descendant                                          
-                                        FROM
-                                            `verily-tanagra-dev.cmssynpuf_index_010224`.HAD_procedure_default                                          
-                                        WHERE
-                                            ancestor = @val2                                          
-                                        UNION
-                                        ALL SELECT
-                                            @val3                                     
-                                    )                             
-                            )                         
+                        date DESC) AS orderRank FROM${ENT_procedureOccurrence}                      
+                    WHERE
+                        procedure IN (
+                            SELECT
+                                descendant                              
+                            FROM
+                                ${HAD_procedure_default}                              
+                            WHERE
+                                ancestor = @val2                              
+                            UNION
+                            ALL SELECT
+                                @val3                         
                         )                 
                 )              
             WHERE

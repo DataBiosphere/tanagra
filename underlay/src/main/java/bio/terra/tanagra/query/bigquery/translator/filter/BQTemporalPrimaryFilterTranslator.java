@@ -106,19 +106,46 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
       Map<EntityOutput, List<SqlQueryField>> joinFields,
       SqlParams sqlParams) {
     // SELECT all the fields needed for the JOIN from each entity output.
-    // SELECT primary_id AS primaryEntityId, visit_date AS visitDate
+    // SELECT primary_id AS primaryEntityId, visit_date AS visitDate,
+    //   [RANK() OVER (PARTITION BY primaryEntityId ORDER BY date ASC) AS orderRank]
     // FROM entity [WHERE filter]
+    boolean isSingleOccurrence = joinFields.size() == 1;
     List<String> subSelectSqls = new ArrayList<>();
     List<String> selectFieldsFromUnionSql = new ArrayList<>();
     joinFields.forEach(
         (entityOutput, sqlQueryFields) -> {
           ITEntityMain indexTable =
               underlay.getIndexSchema().getEntityMain(entityOutput.getEntity().getName());
+
+          List<String> selectFields = new ArrayList<>();
+          sqlQueryFields.stream().map(SqlQueryField::renderForSelect).forEach(selectFields::add);
+          if (isSingleOccurrence && reducingOperator != null) {
+            SqlQueryField primaryEntityIdField =
+                sqlQueryFields.stream()
+                    .filter(
+                        sqlQueryField -> sqlQueryField.getAlias().equals(PRIMARY_ENTITY_ID_ALIAS))
+                    .findFirst()
+                    .get();
+            SqlQueryField visitDateField =
+                sqlQueryFields.stream()
+                    .filter(sqlQueryField -> sqlQueryField.getAlias().equals(VISIT_DATE_ALIAS))
+                    .findFirst()
+                    .get();
+            selectFields.add(
+                "RANK() OVER (PARTITION BY "
+                    + SqlQueryField.of(primaryEntityIdField.getField()).renderForSelect()
+                    + " ORDER BY "
+                    + SqlQueryField.of(visitDateField.getField()).renderForSelect()
+                    + (ReducingOperator.FIRST_MENTION_OF.equals(reducingOperator)
+                        ? " ASC"
+                        : " DESC")
+                    + ") AS "
+                    + ORDER_RANK_ALIAS);
+          }
+
           String subSelectSql =
               "SELECT "
-                  + sqlQueryFields.stream()
-                      .map(SqlQueryField::renderForSelect)
-                      .collect(Collectors.joining(","))
+                  + selectFields.stream().collect(Collectors.joining(","))
                   + " FROM"
                   + indexTable.getTablePointer().render();
           if (entityOutput.hasDataFeatureFilter()) {
@@ -141,18 +168,17 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
 
     // SELECT the JOIN fields from the UNION statement.
     if (reducingOperator == null) {
-      // SELECT includedAttributes,
-      // FROM (... UNION ALL ...)
-      return "SELECT "
-          + selectFieldsFromUnionSql.stream().collect(Collectors.joining(", "))
-          + " FROM ("
-          + unionSql
-          + ")";
+      // ... UNION ALL ...
+      return unionSql;
+    }
+
+    String innerSelectFromUnionSql;
+    if (isSingleOccurrence) {
+      innerSelectFromUnionSql = unionSql;
     } else {
       // SELECT includedAttributes,
       //   RANK() OVER (PARTITION BY primaryEntityId ORDER BY date ASC) AS orderRank
       // FROM (... UNION ALL ...)
-      final String orderRankAlias = "orderRank";
       String orderRankField =
           "RANK() OVER (PARTITION BY "
               + PRIMARY_ENTITY_ID_ALIAS
@@ -160,19 +186,19 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
               + VISIT_DATE_ALIAS
               + (ReducingOperator.FIRST_MENTION_OF.equals(reducingOperator) ? " ASC" : " DESC")
               + ") AS "
-              + orderRankAlias;
+              + ORDER_RANK_ALIAS;
       selectFieldsFromUnionSql.add(orderRankField);
-      String innerSelectFromUnionSql =
+      innerSelectFromUnionSql =
           "SELECT "
               + selectFieldsFromUnionSql.stream().collect(Collectors.joining(", "))
               + " FROM ("
               + unionSql
               + ")";
-
-      // Wrap to filter on orderRank.
-      // SELECT * FROM (above query) WHERE orderRank=1
-      return "SELECT * FROM (" + innerSelectFromUnionSql + ") WHERE " + orderRankAlias + " = 1";
     }
+
+    // Wrap to filter on orderRank.
+    // SELECT * FROM (above query) WHERE orderRank=1
+    return "SELECT * FROM (" + innerSelectFromUnionSql + ") WHERE " + ORDER_RANK_ALIAS + " = 1";
   }
 
   private static String buildQueryJoiningConditions(
@@ -293,6 +319,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
   private static final String PRIMARY_ENTITY_ID_ALIAS = "primaryEntityId";
   private static final String VISIT_DATE_ALIAS = "visitDate";
   private static final String VISIT_OCCURRENCE_ID_ALIAS = "visitOccurrenceId";
+  private static final String ORDER_RANK_ALIAS = "orderRank";
 
   private static SqlQueryField getJoinFieldPrimaryEntityId(Underlay underlay, Entity entity) {
     if (entity.isPrimary()) {
