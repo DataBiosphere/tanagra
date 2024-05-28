@@ -24,6 +24,7 @@ import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.JoinOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.ReducingOperator;
 import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
@@ -2108,30 +2109,59 @@ public class BQFilterTest extends BQRunnerTest {
     CriteriaOccurrence conditionPerson =
         (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
 
-    EntityFilter criteriaSubFilter1 =
+    EntityFilter criteriaSubFilterCondition1 =
         new HierarchyHasAncestorFilter(
             underlay,
             conditionPerson.getCriteriaEntity(),
             conditionPerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
             List.of(Literal.forInt64(201_826L)));
-    PrimaryWithCriteriaFilter primaryWithCriteriaFilter1 =
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilterCondition1 =
         new PrimaryWithCriteriaFilter(
-            underlay, conditionPerson, criteriaSubFilter1, null, null, null, null);
+            underlay, conditionPerson, criteriaSubFilterCondition1, null, null, null, null);
     List<EntityOutput> temporalCondition1 =
-        List.of(EntityOutput.filtered(conditionOccurrence, primaryWithCriteriaFilter1));
+        List.of(EntityOutput.filtered(conditionOccurrence, primaryWithCriteriaFilterCondition1));
 
-    EntityFilter criteriaSubFilter2 =
+    EntityFilter criteriaSubFilterCondition2 =
         new HierarchyHasAncestorFilter(
             underlay,
             conditionPerson.getCriteriaEntity(),
             conditionPerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
             List.of(Literal.forInt64(201_254L)));
-    PrimaryWithCriteriaFilter primaryWithCriteriaFilter2 =
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilterCondition2 =
         new PrimaryWithCriteriaFilter(
-            underlay, conditionPerson, criteriaSubFilter2, null, null, null, null);
+            underlay, conditionPerson, criteriaSubFilterCondition2, null, null, null, null);
     List<EntityOutput> temporalCondition2 =
-        List.of(EntityOutput.filtered(conditionOccurrence, primaryWithCriteriaFilter2));
+        List.of(EntityOutput.filtered(conditionOccurrence, primaryWithCriteriaFilterCondition2));
 
+    Entity procedureOccurrence = underlay.getEntity("procedureOccurrence");
+    CriteriaOccurrence procedurePerson =
+        (CriteriaOccurrence) underlay.getEntityGroup("procedurePerson");
+
+    EntityFilter criteriaSubFilterProcedure1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            procedurePerson.getCriteriaEntity(),
+            procedurePerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(4_042_673L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilterProcedure1 =
+        new PrimaryWithCriteriaFilter(
+            underlay, procedurePerson, criteriaSubFilterProcedure1, null, null, null, null);
+    List<EntityOutput> temporalProcedure1 =
+        List.of(EntityOutput.filtered(procedureOccurrence, primaryWithCriteriaFilterProcedure1));
+
+    EntityFilter criteriaSubFilterProcedure2 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            procedurePerson.getCriteriaEntity(),
+            procedurePerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(4_043_201L)));
+    PrimaryWithCriteriaFilter primaryWithCriteriaFilterProcedure2 =
+        new PrimaryWithCriteriaFilter(
+            underlay, procedurePerson, criteriaSubFilterProcedure2, null, null, null, null);
+    List<EntityOutput> temporalProcedure2 =
+        List.of(EntityOutput.filtered(procedureOccurrence, primaryWithCriteriaFilterProcedure2));
+
+    // ANY, single output entity1 / ANY, single output entity1 / SAME_VISIT
     TemporalPrimaryFilter temporalPrimaryFilter =
         new TemporalPrimaryFilter(
             underlay,
@@ -2161,12 +2191,74 @@ public class BQFilterTest extends BQRunnerTest {
             .getIndexSchema()
             .getEntityMain(underlay.getPrimaryEntity().getName())
             .getTablePointer();
-    assertSqlMatchesWithTableNameOnly("temporalPrimaryFilter", listQueryResult.getSql(), table);
+    assertSqlMatchesWithTableNameOnly(
+        "temporalPrimaryFilterSingleOutputAnyAnySameVisit", listQueryResult.getSql(), table);
 
-    //    - ANY, single output entity1 / ANY, single output entity1 / SAME_VISIT
-    //    - FIRST, single output entity1 / FIRST, single output entity2 / NUM_DAYS_BEFORE
-    //    - LAST, single output entity2 / LAST, single output entity1 / NUM_DAYS_AFTER
-    //    - FIRST, single output entity2 / LAST, single output, entity2 / WITHIN_NUM_DAYS
+    // FIRST, single output entity1 / FIRST, single output entity2 / NUM_DAYS_BEFORE
+    temporalPrimaryFilter =
+        new TemporalPrimaryFilter(
+            underlay,
+            ReducingOperator.FIRST_MENTION_OF,
+            temporalCondition1,
+            JoinOperator.NUM_DAYS_BEFORE,
+            4,
+            ReducingOperator.FIRST_MENTION_OF,
+            temporalProcedure1);
+    listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                temporalPrimaryFilter,
+                null,
+                null));
+    assertSqlMatchesWithTableNameOnly(
+        "temporalPrimaryFilterSingleOutputFirstFirstDaysBefore", listQueryResult.getSql(), table);
+
+    // LAST, single output entity2 / LAST, single output entity1 / NUM_DAYS_AFTER
+    temporalPrimaryFilter =
+        new TemporalPrimaryFilter(
+            underlay,
+            ReducingOperator.LAST_MENTION_OF,
+            temporalProcedure2,
+            JoinOperator.NUM_DAYS_AFTER,
+            2,
+            ReducingOperator.LAST_MENTION_OF,
+            temporalCondition2);
+    listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                temporalPrimaryFilter,
+                null,
+                null));
+    assertSqlMatchesWithTableNameOnly(
+        "temporalPrimaryFilterSingleOutputLastLastDaysAfter", listQueryResult.getSql(), table);
+
+    // FIRST, single output entity2 / LAST, single output, entity2 / WITHIN_NUM_DAYS
+    temporalPrimaryFilter =
+        new TemporalPrimaryFilter(
+            underlay,
+            ReducingOperator.FIRST_MENTION_OF,
+            temporalProcedure1,
+            JoinOperator.WITHIN_NUM_DAYS,
+            3,
+            ReducingOperator.LAST_MENTION_OF,
+            temporalProcedure2);
+    listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                temporalPrimaryFilter,
+                null,
+                null));
+    assertSqlMatchesWithTableNameOnly(
+        "temporalPrimaryFilterSingleOutputFirstLastWithinDays", listQueryResult.getSql(), table);
   }
 
   @Test

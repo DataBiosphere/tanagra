@@ -351,6 +351,10 @@ public final class Underlay {
                       ConfigReader.deserializeDataType(szAttribute.runtimeDataType),
                       szAttribute.isComputeDisplayHint,
                       szAttribute.isSuppressedForExport,
+                      szEntity.temporalQuery != null
+                          && szAttribute.name.equals(szEntity.temporalQuery.visitDateAttribute),
+                      szEntity.temporalQuery != null
+                          && szAttribute.name.equals(szEntity.temporalQuery.visitIdAttribute),
                       sourceQuery);
                 })
             .collect(Collectors.toList());

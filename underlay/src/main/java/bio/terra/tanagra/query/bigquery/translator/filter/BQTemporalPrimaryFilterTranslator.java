@@ -314,14 +314,13 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
   }
 
   private static SqlQueryField getJoinFieldVisitDate(Underlay underlay, Entity entity) {
-    // TODO: entity.getVisitDateAttribute()
-    return getJoinField(underlay, entity, entity.getAttribute("start_date"), VISIT_DATE_ALIAS);
+    return getJoinField(
+        underlay, entity, entity.getVisitDateAttributeForTemporalQuery(), VISIT_DATE_ALIAS);
   }
 
   private static SqlQueryField getJoinFieldVisitOccurrenceId(Underlay underlay, Entity entity) {
-    // TODO: entity.getVisitOccurrenceIdAttribute()
     return getJoinField(
-        underlay, entity, entity.getAttribute("visit_occurrence_id"), VISIT_OCCURRENCE_ID_ALIAS);
+        underlay, entity, entity.getVisitIdAttributeForTemporalQuery(), VISIT_OCCURRENCE_ID_ALIAS);
   }
 
   private static SqlQueryField getJoinField(

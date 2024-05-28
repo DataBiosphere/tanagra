@@ -12,9 +12,11 @@ public final class Attribute {
   private final DataType runtimeDataType;
   private final boolean isComputeDisplayHint;
   private final boolean isSuppressedForExport;
+  private final boolean isVisitDateForTemporalQuery;
+  private final boolean isVisitIdForTemporalQuery;
   private final SourceQuery sourceQuery;
 
-  @SuppressWarnings("checkstyle:ParameterNumber")
+  @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
   public Attribute(
       String name,
       DataType dataType,
@@ -24,6 +26,8 @@ public final class Attribute {
       DataType runtimeDataType,
       boolean isComputeDisplayHint,
       boolean isSuppressedForExport,
+      boolean isVisitDateForTemporalQuery,
+      boolean isVisitIdForTemporalQuery,
       SourceQuery sourceQuery) {
     this.name = name;
     this.dataType = dataType;
@@ -31,6 +35,8 @@ public final class Attribute {
     this.isId = isId;
     this.runtimeSqlFunctionWrapper = runtimeSqlFunctionWrapper;
     this.runtimeDataType = runtimeDataType;
+    this.isVisitDateForTemporalQuery = isVisitDateForTemporalQuery;
+    this.isVisitIdForTemporalQuery = isVisitIdForTemporalQuery;
     this.isComputeDisplayHint = isComputeDisplayHint && !isId;
     this.isSuppressedForExport = isSuppressedForExport;
     this.sourceQuery = sourceQuery;
@@ -76,6 +82,14 @@ public final class Attribute {
     return isSuppressedForExport;
   }
 
+  public boolean isVisitDateForTemporalQuery() {
+    return isVisitDateForTemporalQuery;
+  }
+
+  public boolean isVisitIdForTemporalQuery() {
+    return isVisitIdForTemporalQuery;
+  }
+
   public SourceQuery getSourceQuery() {
     return sourceQuery;
   }
@@ -93,6 +107,8 @@ public final class Attribute {
         && isId == attribute.isId
         && isComputeDisplayHint == attribute.isComputeDisplayHint
         && isSuppressedForExport == attribute.isSuppressedForExport
+        && isVisitDateForTemporalQuery == attribute.isVisitDateForTemporalQuery
+        && isVisitIdForTemporalQuery == attribute.isVisitIdForTemporalQuery
         && name.equals(attribute.name)
         && dataType == attribute.dataType
         && Objects.equals(runtimeSqlFunctionWrapper, attribute.runtimeSqlFunctionWrapper)
@@ -111,6 +127,8 @@ public final class Attribute {
         runtimeDataType,
         isComputeDisplayHint,
         isSuppressedForExport,
+        isVisitDateForTemporalQuery,
+        isVisitIdForTemporalQuery,
         sourceQuery);
   }
 

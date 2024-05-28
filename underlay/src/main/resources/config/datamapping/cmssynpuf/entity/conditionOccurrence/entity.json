@@ -13,5 +13,9 @@
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "visit_occurrence_id", "dataType": "INT64" }
   ],
-  "idAttribute": "id"
+  "idAttribute": "id",
+  "temporalQuery": {
+    "visitDateAttribute": "start_date",
+    "visitIdAttribute": "visit_occurrence_id"
+  }
 }
