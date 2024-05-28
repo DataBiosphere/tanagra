@@ -180,35 +180,30 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
     // UNION together the SELECT statements for each entity output.
     String unionSql = subSelectSqls.stream().collect(Collectors.joining(" UNION ALL "));
 
-    // SELECT the JOIN fields from the UNION statement.
-    if (reducingOperator == null) {
+    if (reducingOperator == null || isSingleOccurrence) {
       // ... UNION ALL ...
       return unionSql;
     }
 
-    String innerSelectFromUnionSql;
-    if (isSingleOccurrence) {
-      innerSelectFromUnionSql = unionSql;
-    } else {
-      // SELECT includedAttributes,
-      //   RANK() OVER (PARTITION BY primaryEntityId ORDER BY date ASC) AS orderRank
-      // FROM (... UNION ALL ...)
-      String orderRankField =
-          "RANK() OVER (PARTITION BY "
-              + PRIMARY_ENTITY_ID_ALIAS
-              + " ORDER BY "
-              + VISIT_DATE_ALIAS
-              + (ReducingOperator.FIRST_MENTION_OF.equals(reducingOperator) ? " ASC" : " DESC")
-              + ") AS "
-              + ORDER_RANK_ALIAS;
-      selectFieldsFromUnionSql.add(orderRankField);
-      innerSelectFromUnionSql =
-          "SELECT "
-              + selectFieldsFromUnionSql.stream().collect(Collectors.joining(", "))
-              + " FROM ("
-              + unionSql
-              + ")";
-    }
+    // SELECT the JOIN fields from the UNION statement.
+    // SELECT includedAttributes,
+    //   RANK() OVER (PARTITION BY primaryEntityId ORDER BY date ASC) AS orderRank
+    // FROM (... UNION ALL ...)
+    String orderRankField =
+        "RANK() OVER (PARTITION BY "
+            + PRIMARY_ENTITY_ID_ALIAS
+            + " ORDER BY "
+            + VISIT_DATE_ALIAS
+            + (ReducingOperator.FIRST_MENTION_OF.equals(reducingOperator) ? " ASC" : " DESC")
+            + ") AS "
+            + ORDER_RANK_ALIAS;
+    selectFieldsFromUnionSql.add(orderRankField);
+    String innerSelectFromUnionSql =
+        "SELECT "
+            + selectFieldsFromUnionSql.stream().collect(Collectors.joining(", "))
+            + " FROM ("
+            + unionSql
+            + ")";
 
     // Wrap to filter on orderRank.
     // SELECT * FROM (above query) WHERE orderRank=1
