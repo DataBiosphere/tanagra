@@ -1,4 +1,4 @@
-package bio.terra.tanagra.app.controller;
+package bio.terra.tanagra.regression;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

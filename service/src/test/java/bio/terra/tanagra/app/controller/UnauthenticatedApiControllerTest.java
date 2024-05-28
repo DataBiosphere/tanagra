@@ -15,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
-@Tag("regression-test")
 @AutoConfigureMockMvc
 public class UnauthenticatedApiControllerTest extends BaseSpringUnitTest {
   @Autowired private MockMvc mvc;
