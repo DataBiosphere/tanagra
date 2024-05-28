@@ -96,6 +96,7 @@ export type SZEntity = {
   name: string;
   optimizeGroupByAttributes?: string[];
   sourceQueryTableName?: string;
+  temporalQuery?: szentity$temporalquery;
   textSearch?: SZTextSearch;
 };
 

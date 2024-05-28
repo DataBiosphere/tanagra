@@ -545,6 +545,13 @@ If unspecified, exporting a query against the source data is unsupported.
 
 *Example value:* `${omopDataset}.condition_occurrence`
 
+### SZEntity.temporalQuery
+**optional** TemporalQuery
+
+How to generate a temporal query for this entity.
+
+If unspecified, temporal queries that include this output entity are not allowed.
+
 ### SZEntity.textSearch
 **optional** [SZTextSearch](#sztextsearch)
 
