@@ -255,10 +255,11 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
             + visitDate.renderForSelect(firstConditionAlias)
             + " = "
             + visitDate.renderForSelect(secondConditionAlias)
-            + " AND "
+            + " AND IFNULL("
             + visitOccurrenceId.renderForSelect(firstConditionAlias)
-            + " = "
-            + visitOccurrenceId.renderForSelect(secondConditionAlias);
+            + ", 0) = IFNULL("
+            + visitOccurrenceId.renderForSelect(secondConditionAlias)
+            + ", 0)";
       case NUM_DAYS_BEFORE:
         // e.g. firstCondition >=2 days before secondCondition.
         // --> secondCondition - firstCondition >= 2.

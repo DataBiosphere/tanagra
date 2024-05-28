@@ -80,5 +80,6 @@
             ) AS secondCondition                  
                 ON firstCondition.primaryEntityId = secondCondition.primaryEntityId                  
                 AND firstCondition.visitDate = secondCondition.visitDate                  
-                AND firstCondition.visitOccurrenceId = secondCondition.visitOccurrenceId             
-            )
+                AND IFNULL(firstCondition.visitOccurrenceId,
+            0) = IFNULL(secondCondition.visitOccurrenceId,
+            0))
