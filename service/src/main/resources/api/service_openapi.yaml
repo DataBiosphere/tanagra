@@ -1523,11 +1523,14 @@ components:
 
     CohortCountQuery:
       type: object
-      description: Count primary entity instances for a cohort filter
+      description: Count output entity instances for a cohort filter
       properties:
         criteriaGroupSectionId:
           type: string
         criteriaGroupId:
+          type: string
+        entity:
+          description: Entity to count. Defaults to primary entity.
           type: string
         attributes:
           description: |
