@@ -3,6 +3,7 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
+import { compareDataValues } from "data/types";
 import { useMemo } from "react";
 import {
   Bar,
@@ -114,7 +115,7 @@ function BarViz(props: BarVizProps) {
         ...barData[k],
       });
     }
-    return arr;
+    return arr.sort((a, b) => compareDataValues(a.name, b.name));
   }, [props.data]);
 
   const barColors = props.config.colors ?? defaultColors;

@@ -5,7 +5,7 @@ package tanagra;
 option java_package = "bio.terra.tanagra.proto.criteriaselector";
 option go_package = "github.com/DataBiosphere/tanagra/tanagrapb";
 
-import "criteriaselector/value.proto";
+import "value.proto";
 import "criteriaselector/data_range.proto";
 
 message ValueData {

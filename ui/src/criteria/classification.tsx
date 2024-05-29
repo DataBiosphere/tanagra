@@ -49,7 +49,7 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/entity_group";
 import * as dataProto from "proto/criteriaselector/dataschema/entity_group";
-import * as sortOrderProto from "proto/criteriaselector/sort_order";
+import * as sortOrderProto from "proto/sort_order";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { useImmer } from "use-immer";
