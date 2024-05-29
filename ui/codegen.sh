@@ -7,4 +7,4 @@ openapi-generator-cli generate -i ../service/src/main/resources/api/service_open
 # Generate plugin proto code.
 rm -rf src/proto
 mkdir src/proto
-npx protoc --proto_path=../underlay/src/main/proto/ --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/proto/ --ts_proto_opt=esModuleInterop=true --ts_proto_opt=outputClientImpl=false ../underlay/src/main/proto/criteriaselector/dataschema/*.proto ../underlay/src/main/proto/criteriaselector/configschema/*.proto
+npx protoc --proto_path=../underlay/src/main/proto/ --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/proto/ --ts_proto_opt=esModuleInterop=true --ts_proto_opt=outputClientImpl=false ../underlay/src/main/proto/criteriaselector/dataschema/*.proto ../underlay/src/main/proto/criteriaselector/configschema/*.proto ../underlay/src/main/proto/viz/*.proto

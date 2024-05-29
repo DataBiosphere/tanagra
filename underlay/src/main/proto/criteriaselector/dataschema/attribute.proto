@@ -6,7 +6,7 @@ option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/dataschem
 option java_package = "bio.terra.tanagra.proto.criteriaselector.dataschema";
 option java_outer_classname = "DTAttribute";
 
-import "criteriaselector/value.proto";
+import "value.proto";
 import "criteriaselector/data_range.proto";
 
 message Attribute {

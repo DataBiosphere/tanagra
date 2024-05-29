@@ -22,6 +22,7 @@ type Props = {
   children?: React.ReactNode;
   showProgressOnMutate?: boolean;
   disableReloadButton?: boolean;
+  immediate?: boolean;
 };
 
 export default function Loading(props: Props) {
@@ -40,7 +41,7 @@ export default function Loading(props: Props) {
 
     // Show the small spinner immediately since it's used inline and the delay
     // causes extra shifting of the surrounding elements.
-    if (props.size === "small") {
+    if (props.immediate || props.size === "small") {
       setVisible(true);
       return;
     }

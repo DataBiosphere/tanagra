@@ -6,7 +6,7 @@ option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configsch
 option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
 option java_outer_classname = "CFEntityGroup";
 
-import "criteriaselector/sort_order.proto";
+import "sort_order.proto";
 import "criteriaselector/value_config.proto";
 
 message EntityGroup {

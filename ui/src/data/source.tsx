@@ -1,7 +1,7 @@
 import { defaultSection, generateCohortFilter } from "cohort";
 import { getReasonPhrase } from "http-status-codes";
 import * as keyProto from "proto/criteriaselector/key";
-import * as valueProto from "proto/criteriaselector/value";
+import * as valueProto from "proto/value";
 import * as tanagra from "tanagra-api";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { Underlay } from "underlaysSlice";
