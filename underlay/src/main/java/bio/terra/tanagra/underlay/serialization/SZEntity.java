@@ -92,4 +92,30 @@ public class SZEntity {
       exampleValue = "${omopDataset}.condition_occurrence",
       optional = true)
   public String sourceQueryTableName;
+
+  @AnnotatedField(
+      name = "SZEntity.temporalQuery",
+      markdown =
+          "How to generate a temporal query for this entity.\n\n"
+              + "If unspecified, temporal queries that include this output entity are not allowed.",
+      optional = true)
+  public TemporalQuery temporalQuery;
+
+  @AnnotatedClass(
+      name = "SZTemporalQuery",
+      markdown = "Information to build a temporal query with this entity.")
+  public static class TemporalQuery {
+    @AnnotatedField(
+        name = "SZTemporalQuery.visitDateAttribute",
+        markdown = "Name of the attribute to use for the visit date in a temporal query.",
+        exampleValue = "start_date")
+    public String visitDateAttribute;
+
+    @AnnotatedField(
+        name = "SZTemporalQuery.visitIdAttribute",
+        markdown =
+            "Name of the attribute to use for the visit (occurrence) id in a temporal query.",
+        exampleValue = "visit_occurrence_id")
+    public String visitIdAttribute;
+  }
 }

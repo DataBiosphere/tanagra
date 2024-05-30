@@ -21,6 +21,7 @@ import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.api.filter.TemporalPrimaryFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
@@ -340,6 +341,8 @@ public interface ApiTranslator {
 
   ApiFilterTranslator translator(TextSearchFilter textSearchFilter);
 
+  ApiFilterTranslator translator(TemporalPrimaryFilter temporalPrimaryFilter);
+
   default ApiFilterTranslator translator(EntityFilter entityFilter) {
     if (entityFilter instanceof AttributeFilter) {
       return translator((AttributeFilter) entityFilter);
@@ -367,6 +370,8 @@ public interface ApiTranslator {
       return translator((RelationshipFilter) entityFilter);
     } else if (entityFilter instanceof TextSearchFilter) {
       return translator((TextSearchFilter) entityFilter);
+    } else if (entityFilter instanceof TemporalPrimaryFilter) {
+      return translator((TemporalPrimaryFilter) entityFilter);
     } else {
       throw new InvalidQueryException("No SQL translator defined for filter");
     }

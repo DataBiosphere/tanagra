@@ -94,6 +94,8 @@ public class BQFieldTest extends BQRunnerTest {
                 ethnicityAttribute.getRuntimeDataType(),
                 ethnicityAttribute.isComputeDisplayHint(),
                 ethnicityAttribute.isSuppressedForExport(),
+                ethnicityAttribute.isVisitDateForTemporalQuery(),
+                ethnicityAttribute.isVisitIdForTemporalQuery(),
                 new Attribute.SourceQuery(
                     "person_source_value", null, "ethnicity_concept_id", null)),
             false);
@@ -114,6 +116,8 @@ public class BQFieldTest extends BQRunnerTest {
                 genderAttribute.getRuntimeDataType(),
                 genderAttribute.isComputeDisplayHint(),
                 true,
+                genderAttribute.isVisitDateForTemporalQuery(),
+                genderAttribute.isVisitIdForTemporalQuery(),
                 new Attribute.SourceQuery(
                     genderAttribute.getSourceQuery().getValueFieldName(),
                     genderAttribute.getSourceQuery().getDisplayFieldTable(),

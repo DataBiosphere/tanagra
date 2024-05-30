@@ -79,6 +79,22 @@ public final class Entity {
         .orElseThrow(() -> new SystemException("No id attribute defined"));
   }
 
+  public Attribute getVisitDateAttributeForTemporalQuery() {
+    return attributes.stream()
+        .filter(Attribute::isVisitDateForTemporalQuery)
+        .findFirst()
+        .orElseThrow(
+            () -> new SystemException("No visit date attribute for temporal queries defined"));
+  }
+
+  public Attribute getVisitIdAttributeForTemporalQuery() {
+    return attributes.stream()
+        .filter(Attribute::isVisitIdForTemporalQuery)
+        .findFirst()
+        .orElseThrow(
+            () -> new SystemException("No visit id attribute for temporal queries defined"));
+  }
+
   public ImmutableList<Hierarchy> getHierarchies() {
     return hierarchies;
   }
