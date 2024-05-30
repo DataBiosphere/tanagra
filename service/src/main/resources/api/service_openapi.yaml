@@ -12,8 +12,11 @@ security:
   - authorization: [openid, email, profile]
 
 paths:
+  # --------------- Unauthenticated Paths ---------------
+
   "/status":
     get:
+      security: [ ]
       summary: Returns the operational status of the service
       operationId: serviceStatus
       tags: [Unauthenticated]
@@ -21,10 +24,13 @@ paths:
         200:
           description: Service can process requests
         500:
-          description: Service is broken
+          description: |
+            Service cannot process requests. That might be because dependent services are
+            unavailable, or because there is a problem with the service itself.
 
-  "/v2/version":
+  "/version":
     get:
+      security: [ ]
       summary: Returns the deployed version of the service
       operationId: serviceVersion
       tags: [Unauthenticated]
@@ -38,11 +44,13 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Users ---------------
+
   "/v2/profile":
     get:
-      tags: [Users]
       description: Returns the current user's profile information
       operationId: getMe
+      tags: [Users]
       responses:
         200:
           description: OK
@@ -52,6 +60,8 @@ paths:
                 $ref: "#/components/schemas/UserProfile"
         500:
           $ref: "#/components/responses/ServerError"
+
+  # --------------- Underlays ---------------
 
   "/v2/underlays":
     get:
@@ -230,6 +240,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Studies ---------------
+
   "/v2/studies":
     get:
       parameters:
@@ -405,6 +417,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Studies: Cohorts ---------------
+
   "/v2/studies/{studyId}/cohorts/{cohortId}":
     parameters:
       - $ref: "#/components/parameters/StudyId"
@@ -483,6 +497,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/ServerError"
+
+  # --------------- Studies: Reviews ---------------
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews":
     parameters:
@@ -627,6 +643,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Studies: Annotations ---------------
+
   "/v2/studies/{studyId}/cohorts/{cohortId}/annotations":
     parameters:
       - $ref: "#/components/parameters/StudyId"
@@ -756,6 +774,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Studies: ConceptSets ---------------
+
   "/v2/studies/{studyId}/conceptSets":
     parameters:
       - $ref: "#/components/parameters/StudyId"
@@ -846,6 +866,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/ServerError"
+
+  # --------------- Underlays: Export ---------------
 
   "/v2/underlays/{underlayName}/exportModels":
     parameters:
@@ -942,6 +964,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Activity log ---------------
+
   "/v2/activityLogEntries":
     parameters:
       - $ref: "#/components/parameters/ActivityLogFilterUserEmail"
@@ -981,11 +1005,13 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- (Misc) Test ---------------
+
   /v2/vumc-admin-service-test:
     get:
-      tags: [Test]
       description: Temporary endpoint to test service-to-service communication with the VUMC admin service.
       operationId: vumcAdminServiceTest
+      tags: [Test]
       responses:
         200:
           description: OK
@@ -1523,11 +1549,14 @@ components:
 
     CohortCountQuery:
       type: object
-      description: Count primary entity instances for a cohort filter
+      description: Count output entity instances for a cohort filter
       properties:
         criteriaGroupSectionId:
           type: string
         criteriaGroupId:
+          type: string
+        entity:
+          description: Entity to count. Defaults to primary entity.
           type: string
         attributes:
           description: |
