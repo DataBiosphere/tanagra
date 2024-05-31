@@ -4,14 +4,19 @@ import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.hint.HintInstance;
+import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class BQCountQueryTest extends BQRunnerTest {
@@ -117,20 +122,28 @@ public class BQCountQueryTest extends BQRunnerTest {
   @Test
   void groupByValueDisplayAttribute() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
-    AttributeField groupByAttribute =
-        new AttributeField(underlay, entity, entity.getAttribute("gender"), false);
+    Attribute groupByAttribute = entity.getAttribute("gender");
+    AttributeField groupByAttributeField =
+        new AttributeField(underlay, entity, groupByAttribute, false);
+    HintQueryResult hintQueryResult =
+        new HintQueryResult(
+            "",
+            List.of(
+                new HintInstance(
+                    groupByAttribute,
+                    Map.of(new ValueDisplay(Literal.forInt64(8_532L), "Female"), 100L))));
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(
                 underlay,
                 entity,
-                List.of(groupByAttribute),
+                List.of(groupByAttributeField),
                 null,
                 OrderByDirection.DESCENDING,
                 null,
                 null,
                 null,
-                null,
+                hintQueryResult,
                 true));
     BQTable entityMainTable =
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
