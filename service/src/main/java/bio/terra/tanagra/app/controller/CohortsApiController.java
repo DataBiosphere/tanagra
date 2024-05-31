@@ -12,6 +12,7 @@ import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -189,6 +190,10 @@ public class CohortsApiController implements CohortsApi {
             outputEntity,
             body.getAttributes() == null ? List.of() : body.getAttributes(),
             outputEntityFilteredOnCohort,
+            body.getOrderByDirection() == null
+                ? OrderByDirection.DESCENDING
+                : OrderByDirection.valueOf(body.getOrderByDirection().name()),
+            body.getLimit(),
             PageMarker.deserialize(body.getPageMarker()),
             body.getPageSize());
     return ResponseEntity.ok(ToApiUtils.toApiObject(countQueryResult));

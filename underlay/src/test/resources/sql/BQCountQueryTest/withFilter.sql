@@ -7,4 +7,6 @@
     WHERE
         gender != @val0      
     GROUP BY
-        year_of_birth
+        year_of_birth      
+    ORDER BY
+        T_IDCT DESC

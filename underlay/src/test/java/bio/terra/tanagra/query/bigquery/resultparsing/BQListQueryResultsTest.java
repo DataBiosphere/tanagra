@@ -13,6 +13,7 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.query.OrderBy;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.DataType;
@@ -46,8 +47,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
             valueDisplayAttribute,
             valueDisplayAttributeWithoutDisplay,
             runtimeCalculatedAttribute);
-    List<ListQueryRequest.OrderBy> orderBys =
-        List.of(new ListQueryRequest.OrderBy(idAttribute, OrderByDirection.DESCENDING));
+    List<OrderBy> orderBys = List.of(new OrderBy(idAttribute, OrderByDirection.DESCENDING));
     int limit = 5;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
@@ -101,8 +101,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     EntityIdCountField entityIdCountField = new EntityIdCountField(underlay, entity);
 
     List<ValueDisplayField> selectAttributes = List.of(entityIdCountField);
-    List<ListQueryRequest.OrderBy> orderBys =
-        List.of(new ListQueryRequest.OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
+    List<OrderBy> orderBys = List.of(new OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
     int limit = 11;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
@@ -143,9 +142,8 @@ public class BQListQueryResultsTest extends BQRunnerTest {
             hierarchyIsRootField,
             hierarchyNumChildrenField,
             hierarchyPathField);
-    List<ListQueryRequest.OrderBy> orderBys =
-        List.of(
-            new ListQueryRequest.OrderBy(hierarchyNumChildrenField, OrderByDirection.DESCENDING));
+    List<OrderBy> orderBys =
+        List.of(new OrderBy(hierarchyNumChildrenField, OrderByDirection.DESCENDING));
     int limit = 9;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
@@ -203,12 +201,10 @@ public class BQListQueryResultsTest extends BQRunnerTest {
 
     List<ValueDisplayField> selectAttributes =
         List.of(relatedEntityIdCountFieldNoHier, relatedEntityIdCountFieldWithHier);
-    List<ListQueryRequest.OrderBy> orderBys =
+    List<OrderBy> orderBys =
         List.of(
-            new ListQueryRequest.OrderBy(
-                relatedEntityIdCountFieldNoHier, OrderByDirection.DESCENDING),
-            new ListQueryRequest.OrderBy(
-                relatedEntityIdCountFieldWithHier, OrderByDirection.ASCENDING));
+            new OrderBy(relatedEntityIdCountFieldNoHier, OrderByDirection.DESCENDING),
+            new OrderBy(relatedEntityIdCountFieldWithHier, OrderByDirection.ASCENDING));
     int limit = 14;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(

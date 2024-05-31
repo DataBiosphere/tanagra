@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class BQQueryRunner implements QueryRunner {
@@ -311,7 +312,7 @@ public class BQQueryRunner implements QueryRunner {
   @Override
   public CountQueryResult run(CountQueryRequest countQueryRequest) {
     // Build the SQL query.
-    StringBuilder sql = new StringBuilder();
+    StringBuilder sql = new StringBuilder(24);
     SqlParams sqlParams = new SqlParams();
     BQApiTranslator bqTranslator = new BQApiTranslator();
 
@@ -361,6 +362,21 @@ public class BQQueryRunner implements QueryRunner {
                       .forEach(
                           sqlField -> groupByFields.add(sqlField.renderForGroupBy(null, true))));
       sql.append(" GROUP BY ").append(String.join(", ", groupByFields));
+    }
+
+    // ORDER BY [id count field]
+    List<String> orderByFields =
+        bqTranslator.translator(entityIdCountField).buildSqlFieldsForOrderBy().stream()
+            .map(sqlQueryField -> sqlQueryField.renderForOrderBy(null, true))
+            .collect(Collectors.toList());
+    sql.append(" ORDER BY ")
+        .append(String.join(", ", orderByFields))
+        .append(' ')
+        .append(bqTranslator.orderByDirectionSql(countQueryRequest.getOrderByDirection()));
+
+    // LIMIT [limit]
+    if (countQueryRequest.getLimit() != null) {
+      sql.append(" LIMIT ").append(countQueryRequest.getLimit());
     }
 
     // Swap out any un-cacheable functions with SQL parameters.

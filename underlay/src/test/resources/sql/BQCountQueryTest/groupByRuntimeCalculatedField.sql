@@ -7,4 +7,6 @@
     FROM
         ${ENT_person}      
     GROUP BY
-        age
+        age      
+    ORDER BY
+        T_IDCT DESC

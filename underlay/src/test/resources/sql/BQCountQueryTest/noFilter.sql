@@ -5,4 +5,6 @@
     FROM
         ${ENT_person}      
     GROUP BY
-        year_of_birth
+        year_of_birth      
+    ORDER BY
+        T_IDCT DESC

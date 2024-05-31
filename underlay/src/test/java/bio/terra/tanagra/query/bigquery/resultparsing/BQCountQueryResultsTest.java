@@ -19,6 +19,7 @@ import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -61,7 +62,16 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(
-                underlay, entity, groupBys, null, null, null, entityLevelHints, false));
+                underlay,
+                entity,
+                groupBys,
+                null,
+                OrderByDirection.DESCENDING,
+                null,
+                null,
+                null,
+                entityLevelHints,
+                false));
 
     // Make sure we got some results back.
     assertFalse(countQueryResult.getCountInstances().isEmpty());
@@ -124,7 +134,17 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
             hierarchyPathField);
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
-            new CountQueryRequest(underlay, entity, groupBys, null, null, null, null, false));
+            new CountQueryRequest(
+                underlay,
+                entity,
+                groupBys,
+                null,
+                OrderByDirection.DESCENDING,
+                null,
+                null,
+                null,
+                null,
+                false));
 
     // Make sure we got some results back.
     assertFalse(countQueryResult.getCountInstances().isEmpty());
@@ -179,7 +199,16 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
     CountQueryResult countQueryResult =
         bqQueryRunner.run(
             new CountQueryRequest(
-                underlay, countForEntity, groupBys, null, null, null, null, false));
+                underlay,
+                countForEntity,
+                groupBys,
+                null,
+                OrderByDirection.DESCENDING,
+                null,
+                null,
+                null,
+                null,
+                false));
 
     // Make sure we got some results back.
     assertFalse(countQueryResult.getCountInstances().isEmpty());
