@@ -34,6 +34,7 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,9 +152,9 @@ public class CohortsApiController implements CohortsApi {
         ResourceId.forUnderlay(cohort.getUnderlay()));
 
     // Build the entity filter.
-    EntityFilter filter;
+    EntityFilter cohortFilter;
     if (body.getCriteriaGroupId() != null) {
-      filter =
+      cohortFilter =
           filterBuilderService.buildFilterForCriteriaGroup(
               cohort.getUnderlay(),
               cohort
@@ -161,24 +162,33 @@ public class CohortsApiController implements CohortsApi {
                   .getSection(body.getCriteriaGroupSectionId())
                   .getCriteriaGroup(body.getCriteriaGroupId()));
     } else if (body.getCriteriaGroupSectionId() != null) {
-      filter =
+      cohortFilter =
           filterBuilderService.buildFilterForCriteriaGroupSection(
               cohort.getUnderlay(),
               cohort.getMostRecentRevision().getSection(body.getCriteriaGroupSectionId()));
     } else {
-      filter =
+      cohortFilter =
           filterBuilderService.buildFilterForCohortRevision(
               cohort.getUnderlay(), cohort.getMostRecentRevision());
     }
 
-    // Run the count query and map the results back to API objects.
+    // Build the filter for the output entity.
     Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+    Entity outputEntity =
+        body.getEntity() == null
+            ? underlay.getPrimaryEntity()
+            : underlay.getEntity(body.getEntity());
+    EntityFilter outputEntityFilteredOnCohort =
+        filterBuilderService.filterOutputByPrimaryEntity(
+            underlay, outputEntity, null, cohortFilter);
+
+    // Run the count query and map the results back to API objects.
     CountQueryResult countQueryResult =
         underlayService.runCountQuery(
             underlay,
-            underlay.getPrimaryEntity(),
+            outputEntity,
             body.getAttributes() == null ? List.of() : body.getAttributes(),
-            filter,
+            outputEntityFilteredOnCohort,
             PageMarker.deserialize(body.getPageMarker()),
             body.getPageSize());
     return ResponseEntity.ok(ToApiUtils.toApiObject(countQueryResult));
