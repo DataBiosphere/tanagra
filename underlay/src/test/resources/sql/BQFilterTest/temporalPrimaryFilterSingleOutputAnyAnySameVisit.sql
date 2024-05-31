@@ -10,8 +10,9 @@
             FROM
                 (SELECT
                     person_id AS primaryEntityId,
-                    start_date AS visitDate,
-                    visit_occurrence_id AS visitOccurrenceId FROM${ENT_conditionOccurrence}                  
+                    TIMESTAMP(start_date) AS visitDate,
+                    IFNULL(visit_occurrence_id,
+                    0) AS visitOccurrenceId FROM${ENT_conditionOccurrence}                  
                 WHERE
                     condition IN (
                         SELECT
@@ -29,8 +30,9 @@
             (
                 SELECT
                     person_id AS primaryEntityId,
-                    start_date AS visitDate,
-                    visit_occurrence_id AS visitOccurrenceId FROM${ENT_conditionOccurrence}                  
+                    TIMESTAMP(start_date) AS visitDate,
+                    IFNULL(visit_occurrence_id,
+                    0) AS visitOccurrenceId FROM${ENT_conditionOccurrence}                  
                 WHERE
                     condition IN (
                         SELECT
@@ -46,6 +48,5 @@
             ) AS secondCondition                  
                 ON firstCondition.primaryEntityId = secondCondition.primaryEntityId                  
                 AND firstCondition.visitDate = secondCondition.visitDate                  
-                AND IFNULL(firstCondition.visitOccurrenceId,
-            0) = IFNULL(secondCondition.visitOccurrenceId,
-            0))
+                AND firstCondition.visitOccurrenceId = secondCondition.visitOccurrenceId             
+            )

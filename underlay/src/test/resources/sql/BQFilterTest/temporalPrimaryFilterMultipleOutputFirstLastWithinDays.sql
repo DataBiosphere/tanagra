@@ -22,7 +22,7 @@
                     FROM
                         (SELECT
                             person_id AS primaryEntityId,
-                            start_date AS visitDate FROM${ENT_conditionOccurrence}                          
+                            TIMESTAMP(start_date) AS visitDate FROM${ENT_conditionOccurrence}                          
                         WHERE
                             condition IN (
                                 SELECT
@@ -38,7 +38,7 @@
                         UNION
                         ALL SELECT
                             person_id AS primaryEntityId,
-                            start_date AS visitDate FROM${ENT_conditionOccurrence}                          
+                            TIMESTAMP(start_date) AS visitDate FROM${ENT_conditionOccurrence}                          
                         WHERE
                             condition IN (
                                 SELECT
@@ -72,7 +72,7 @@
                 FROM
                     (SELECT
                         person_id AS primaryEntityId,
-                        start_date AS visitDate FROM${ENT_conditionOccurrence}                      
+                        TIMESTAMP(start_date) AS visitDate FROM${ENT_conditionOccurrence}                      
                     WHERE
                         condition IN (
                             SELECT
@@ -88,7 +88,7 @@
                     UNION
                     ALL SELECT
                         person_id AS primaryEntityId,
-                        start_date AS visitDate FROM${ENT_conditionOccurrence}                      
+                        TIMESTAMP(start_date) AS visitDate FROM${ENT_conditionOccurrence}                      
                     WHERE
                         condition IN (
                             SELECT

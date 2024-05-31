@@ -13,12 +13,12 @@
                 FROM
                     (SELECT
                         person_id AS primaryEntityId,
-                        date AS visitDate,
+                        TIMESTAMP(date) AS visitDate,
                         RANK() OVER (PARTITION                      
                     BY
                         person_id                      
                     ORDER BY
-                        date ASC) AS orderRank FROM${ENT_procedureOccurrence}                      
+                        TIMESTAMP(date) ASC) AS orderRank FROM${ENT_procedureOccurrence}                      
                     WHERE
                         procedure IN (
                             SELECT
@@ -42,12 +42,12 @@
                 FROM
                     (SELECT
                         person_id AS primaryEntityId,
-                        date AS visitDate,
+                        TIMESTAMP(date) AS visitDate,
                         RANK() OVER (PARTITION                      
                     BY
                         person_id                      
                     ORDER BY
-                        date DESC) AS orderRank FROM${ENT_procedureOccurrence}                      
+                        TIMESTAMP(date) DESC) AS orderRank FROM${ENT_procedureOccurrence}                      
                     WHERE
                         procedure IN (
                             SELECT
