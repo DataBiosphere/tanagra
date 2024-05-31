@@ -3,9 +3,9 @@ package bio.terra.tanagra.query.bigquery.sqlbuilding;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.query.OrderBy;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
