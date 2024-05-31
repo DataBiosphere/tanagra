@@ -3,7 +3,6 @@ package bio.terra.tanagra.api.query.list;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
-import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.annotations.VisibleForTesting;
@@ -131,40 +130,5 @@ public final class ListQueryRequest {
 
   public boolean isAgainstSourceData() {
     return isAgainstSourceData;
-  }
-
-  public static class OrderBy {
-    private final @Nullable ValueDisplayField valueDisplayField;
-    private final @Nullable OrderByDirection direction;
-    private final boolean isRandom;
-
-    public OrderBy(ValueDisplayField valueDisplayField, OrderByDirection direction) {
-      this(valueDisplayField, direction, false);
-    }
-
-    public static OrderBy random() {
-      return new OrderBy(null, null, true);
-    }
-
-    private OrderBy(
-        @Nullable ValueDisplayField valueDisplayField,
-        @Nullable OrderByDirection direction,
-        boolean isRandom) {
-      this.valueDisplayField = valueDisplayField;
-      this.direction = direction;
-      this.isRandom = isRandom;
-    }
-
-    public ValueDisplayField getEntityField() {
-      return valueDisplayField;
-    }
-
-    public OrderByDirection getDirection() {
-      return direction;
-    }
-
-    public boolean isRandom() {
-      return isRandom;
-    }
   }
 }

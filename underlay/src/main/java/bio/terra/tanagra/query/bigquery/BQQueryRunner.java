@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class BQQueryRunner implements QueryRunner {
@@ -311,7 +312,7 @@ public class BQQueryRunner implements QueryRunner {
   @Override
   public CountQueryResult run(CountQueryRequest countQueryRequest) {
     // Build the SQL query.
-    StringBuilder sql = new StringBuilder();
+    StringBuilder sql = new StringBuilder(24);
     SqlParams sqlParams = new SqlParams();
     BQApiTranslator bqTranslator = new BQApiTranslator();
 
@@ -321,22 +322,30 @@ public class BQQueryRunner implements QueryRunner {
         new EntityIdCountField(countQueryRequest.getUnderlay(), countQueryRequest.getEntity());
     selectValueDisplayFields.add(entityIdCountField);
     selectValueDisplayFields.addAll(countQueryRequest.getGroupByFields());
+    List<String> selectFields = new ArrayList<>();
+    selectValueDisplayFields.forEach(
+        valueDisplayField -> {
+          List<SqlQueryField> sqlQueryFields;
+          if (valueDisplayField instanceof AttributeField) {
+            sqlQueryFields =
+                ((BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField))
+                    .buildSqlFieldsForCountSelectAndGroupBy(
+                        countQueryRequest.getEntityLevelHints());
+          } else {
+            sqlQueryFields =
+                bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect();
+          }
+          sqlQueryFields.forEach(
+              sqlQueryField -> selectFields.add(sqlQueryField.renderForSelect()));
+        });
 
+    // SELECT [id count field],[group by fields] FROM [entity main]
     // All the select fields come from the index entity main table.
     ITEntityMain entityMain =
         countQueryRequest
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(countQueryRequest.getEntity().getName());
-    List<String> selectFields = new ArrayList<>();
-    selectValueDisplayFields.forEach(
-        valueDisplayField ->
-            bqTranslator
-                .translator(valueDisplayField)
-                .buildSqlFieldsForCountSelect()
-                .forEach(sqlField -> selectFields.add(sqlField.renderForSelect())));
-
-    // SELECT [id count field],[group by fields] FROM [entity main]
     sql.append("SELECT ")
         .append(String.join(", ", selectFields))
         .append(" FROM ")
@@ -354,13 +363,35 @@ public class BQQueryRunner implements QueryRunner {
       countQueryRequest
           .getGroupByFields()
           .forEach(
-              groupBy ->
-                  bqTranslator
-                      .translator(groupBy)
-                      .buildSqlFieldsForGroupBy()
-                      .forEach(
-                          sqlField -> groupByFields.add(sqlField.renderForGroupBy(null, true))));
+              groupBy -> {
+                List<SqlQueryField> sqlQueryFields;
+                if (groupBy instanceof AttributeField) {
+                  sqlQueryFields =
+                      ((BQAttributeFieldTranslator) bqTranslator.translator(groupBy))
+                          .buildSqlFieldsForCountSelectAndGroupBy(
+                              countQueryRequest.getEntityLevelHints());
+                } else {
+                  sqlQueryFields = bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy();
+                }
+                sqlQueryFields.forEach(
+                    sqlQueryField -> groupByFields.add(sqlQueryField.renderForGroupBy(null, true)));
+              });
       sql.append(" GROUP BY ").append(String.join(", ", groupByFields));
+    }
+
+    // ORDER BY [id count field]
+    List<String> orderByFields =
+        bqTranslator.translator(entityIdCountField).buildSqlFieldsForOrderBy().stream()
+            .map(sqlQueryField -> sqlQueryField.renderForOrderBy(null, true))
+            .collect(Collectors.toList());
+    sql.append(" ORDER BY ")
+        .append(String.join(", ", orderByFields))
+        .append(' ')
+        .append(bqTranslator.orderByDirectionSql(countQueryRequest.getOrderByDirection()));
+
+    // LIMIT [limit]
+    if (countQueryRequest.getLimit() != null) {
+      sql.append(" LIMIT ").append(countQueryRequest.getLimit());
     }
 
     // Swap out any un-cacheable functions with SQL parameters.

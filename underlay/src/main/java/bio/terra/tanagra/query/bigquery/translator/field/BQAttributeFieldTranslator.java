@@ -37,9 +37,12 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
     return buildSqlFields(true, true);
   }
 
-  @Override
-  public List<SqlQueryField> buildSqlFieldsForCountSelect() {
-    return buildSqlFields(true, false);
+  public List<SqlQueryField> buildSqlFieldsForCountSelectAndGroupBy(
+      HintQueryResult entityLevelHints) {
+    return buildSqlFields(
+        true,
+        entityLevelHints == null
+            || entityLevelHints.getHintInstance(attributeField.getAttribute()).isEmpty());
   }
 
   @Override
@@ -131,10 +134,15 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
       Optional<HintInstance> entityLevelHint =
           entityLevelHints.getHintInstance(attributeField.getAttribute());
       if (entityLevelHint.isEmpty()) {
-        LOGGER.warn(
-            "Entity-level hint not found for attribute: "
-                + attributeField.getAttribute().getName());
-        return new ValueDisplay(valueField);
+        // Check if the display value is included in the SELECT.
+        Literal displayField = sqlRowResult.get(getDisplayFieldAlias(), DataType.STRING);
+        if (displayField.isNull()) {
+          LOGGER.warn(
+              "Entity-level hint not found for attribute: "
+                  + attributeField.getAttribute().getName());
+          return new ValueDisplay(valueField);
+        }
+        return new ValueDisplay(valueField, displayField.getStringVal());
       }
       Optional<String> displayField = entityLevelHint.get().getEnumDisplay(valueField);
       if (displayField.isEmpty()) {

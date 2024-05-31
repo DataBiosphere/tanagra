@@ -13,6 +13,7 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
@@ -418,7 +419,16 @@ public class ReviewService {
             new ArrayList<>(reviewDao.getPrimaryEntityIdsToStableIndex(reviewId).keySet()));
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
-            underlay, entity, groupByAttributeFields, entityFilter, null, null, null, false);
+            underlay,
+            entity,
+            groupByAttributeFields,
+            entityFilter,
+            OrderByDirection.DESCENDING,
+            null,
+            null,
+            null,
+            null,
+            false);
     return underlay.getQueryRunner().run(countQueryRequest);
   }
 

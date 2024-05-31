@@ -4,6 +4,7 @@ import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
@@ -111,6 +112,8 @@ public class DataExportService {
             request.getUnderlay().getPrimaryEntity(),
             List.of(),
             helper.getPrimaryEntityFilter(),
+            OrderByDirection.DESCENDING,
+            null,
             null,
             null);
     long numPrimaryEntityInstances = countQueryResult.getCountInstances().get(0).getCount();

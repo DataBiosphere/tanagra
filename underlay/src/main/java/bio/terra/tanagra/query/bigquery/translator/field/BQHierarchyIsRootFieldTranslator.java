@@ -25,11 +25,6 @@ public class BQHierarchyIsRootFieldTranslator implements ApiFieldTranslator {
   }
 
   @Override
-  public List<SqlQueryField> buildSqlFieldsForCountSelect() {
-    return buildSqlFields();
-  }
-
-  @Override
   public List<SqlQueryField> buildSqlFieldsForOrderBy() {
     return buildSqlFields();
   }

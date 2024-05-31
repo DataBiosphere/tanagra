@@ -9,6 +9,7 @@ import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -85,11 +86,14 @@ public class UnderlayService {
     underlayCache.get(underlayName).putEntityLevelHints(entityName, hintQueryResult);
   }
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   public CountQueryResult runCountQuery(
       Underlay underlay,
       Entity entity,
       List<String> groupByAttributeNames,
       EntityFilter entityFilter,
+      OrderByDirection orderByDirection,
+      Integer limit,
       PageMarker pageMarker,
       Integer pageSize) {
     // Get the entity level hints, either via query or from the cache.
@@ -118,6 +122,8 @@ public class UnderlayService {
             entity,
             attributeFields,
             entityFilter,
+            orderByDirection,
+            limit,
             pageMarker,
             pageSize,
             entityLevelHints,

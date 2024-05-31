@@ -11,6 +11,7 @@ import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
@@ -62,7 +63,16 @@ public class BQCountQueryPaginationTest {
             .getQueryRunner()
             .run(
                 new CountQueryRequest(
-                    underlay, entity, groupBys, null, null, null, entityLevelHints, false));
+                    underlay,
+                    entity,
+                    groupBys,
+                    null,
+                    OrderByDirection.DESCENDING,
+                    null,
+                    null,
+                    null,
+                    entityLevelHints,
+                    false));
 
     assertNotNull(countQueryResult.getSql());
     assertEquals(152, countQueryResult.getCountInstances().size());
@@ -96,7 +106,16 @@ public class BQCountQueryPaginationTest {
             .getQueryRunner()
             .run(
                 new CountQueryRequest(
-                    underlay, entity, groupBys, null, null, 10, entityLevelHints, false));
+                    underlay,
+                    entity,
+                    groupBys,
+                    null,
+                    OrderByDirection.DESCENDING,
+                    null,
+                    null,
+                    10,
+                    entityLevelHints,
+                    false));
 
     assertNotNull(countQueryResult1.getSql());
     assertEquals(10, countQueryResult1.getCountInstances().size());
@@ -113,6 +132,8 @@ public class BQCountQueryPaginationTest {
                     underlay,
                     entity,
                     groupBys,
+                    null,
+                    OrderByDirection.DESCENDING,
                     null,
                     countQueryResult1.getPageMarker(),
                     200,

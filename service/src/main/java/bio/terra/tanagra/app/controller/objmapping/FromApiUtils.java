@@ -23,6 +23,7 @@ import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
+import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
@@ -396,7 +397,7 @@ public final class FromApiUtils {
         apiObj.getFilter() == null ? null : fromApiObject(apiObj.getFilter(), entity, underlay);
 
     // Build the order by fields.
-    List<ListQueryRequest.OrderBy> orderByFields = new ArrayList<>();
+    List<OrderBy> orderByFields = new ArrayList<>();
     if (apiObj.getOrderBys() != null) {
       apiObj
           .getOrderBys()
@@ -416,7 +417,7 @@ public final class FromApiUtils {
                                     orderByField.getRelationshipField().getHierarchy()));
                 OrderByDirection direction =
                     OrderByDirection.valueOf(orderByField.getDirection().name());
-                orderByFields.add(new ListQueryRequest.OrderBy(valueDisplayField, direction));
+                orderByFields.add(new OrderBy(valueDisplayField, direction));
               });
     }
 

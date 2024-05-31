@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -351,79 +352,75 @@ public class FilterBuilderService {
     return dataFeatureOutputPreviews.stream()
         .map(
             dataFeatureOutputPreview -> {
-              Entity outputEntity = dataFeatureOutputPreview.getEntityOutput().getEntity();
-
-              // If the output entity is the primary entity, just add the cohort filter.
-              if (outputEntity.isPrimary()) {
-                EntityOutput updatedEntityOutput =
-                    EntityOutput.filtered(
-                        outputEntity,
-                        combinedCohortFilter,
-                        dataFeatureOutputPreview.getEntityOutput().getAttributes());
-                return dataFeatureOutputPreview.setEntityOutput(updatedEntityOutput);
-              }
-
-              // Find the relationship between this output entity and the primary entity.
-              EntityGroup outputToPrimaryEntityGroup =
-                  underlay.getRelationship(outputEntity, underlay.getPrimaryEntity()).getLeft();
-
-              // Build a single relationship filter per output entity that has the combined cohort
-              // filter as the primary entity sub-filter.
-              EntityOutput updatedEntityOutput;
-              switch (outputToPrimaryEntityGroup.getType()) {
-                case CRITERIA_OCCURRENCE:
-                  updatedEntityOutput =
-                      EntityOutput.filtered(
-                          outputEntity,
-                          new OccurrenceForPrimaryFilter(
-                              underlay,
-                              (CriteriaOccurrence) outputToPrimaryEntityGroup,
-                              outputEntity,
-                              combinedCohortFilter,
-                              dataFeatureOutputPreview.getEntityOutput().getDataFeatureFilter()),
-                          dataFeatureOutputPreview.getEntityOutput().getAttributes());
-                  break;
-                case GROUP_ITEMS:
-                  GroupItems groupItems = (GroupItems) outputToPrimaryEntityGroup;
-                  EntityFilter occurrenceForPrimaryFilter;
-                  if (groupItems.getGroupEntity().isPrimary()) {
-                    occurrenceForPrimaryFilter =
-                        new ItemInGroupFilter(
-                            underlay, groupItems, combinedCohortFilter, null, null, null);
-                  } else {
-                    occurrenceForPrimaryFilter =
-                        new GroupHasItemsFilter(
-                            underlay, groupItems, combinedCohortFilter, null, null, null);
-                  }
-                  // Build a single filter per output entity with the combined cohort and data
-                  // feature filters.
-                  if (!dataFeatureOutputPreview.getEntityOutput().hasDataFeatureFilter()) {
-                    updatedEntityOutput =
-                        EntityOutput.filtered(
-                            outputEntity,
-                            occurrenceForPrimaryFilter,
-                            dataFeatureOutputPreview.getEntityOutput().getAttributes());
-                  } else {
-                    updatedEntityOutput =
-                        EntityOutput.filtered(
-                            outputEntity,
-                            new BooleanAndOrFilter(
-                                BooleanAndOrFilter.LogicalOperator.AND,
-                                List.of(
-                                    dataFeatureOutputPreview
-                                        .getEntityOutput()
-                                        .getDataFeatureFilter(),
-                                    occurrenceForPrimaryFilter)),
-                            dataFeatureOutputPreview.getEntityOutput().getAttributes());
-                  }
-                  break;
-                default:
-                  throw new SystemException(
-                      "Unsupported entity group type: " + outputToPrimaryEntityGroup.getType());
-              }
-              return dataFeatureOutputPreview.setEntityOutput(updatedEntityOutput);
+              EntityOutput entityOutput = dataFeatureOutputPreview.getEntityOutput();
+              EntityFilter outputEntityWithCohortFilter =
+                  filterOutputByPrimaryEntity(
+                      underlay,
+                      entityOutput.getEntity(),
+                      entityOutput.getDataFeatureFilter(),
+                      combinedCohortFilter);
+              return dataFeatureOutputPreview.setEntityOutput(
+                  EntityOutput.filtered(
+                      entityOutput.getEntity(),
+                      outputEntityWithCohortFilter,
+                      entityOutput.getAttributes()));
             })
         .collect(Collectors.toList());
+  }
+
+  public EntityFilter filterOutputByPrimaryEntity(
+      Underlay underlay,
+      Entity outputEntity,
+      @Nullable EntityFilter outputEntityFilter,
+      @Nullable EntityFilter primaryEntityFilter) {
+    // If the output entity is the primary entity, just return the cohort filter.
+    if (outputEntity.isPrimary()) {
+      if (outputEntityFilter != null) {
+        throw new SystemException("Unsupported data feature filter for primary entity");
+      }
+      return primaryEntityFilter;
+    }
+
+    // If there is no primary entity filter, just return the data feature filter.
+    if (primaryEntityFilter == null) {
+      return outputEntityFilter;
+    }
+
+    // Find the relationship between this output entity and the primary entity.
+    EntityGroup outputToPrimaryEntityGroup =
+        underlay.getRelationship(outputEntity, underlay.getPrimaryEntity()).getLeft();
+
+    // Build a single relationship filter per output entity that has the combined cohort
+    // filter as the primary entity sub-filter.
+    switch (outputToPrimaryEntityGroup.getType()) {
+      case CRITERIA_OCCURRENCE:
+        return new OccurrenceForPrimaryFilter(
+            underlay,
+            (CriteriaOccurrence) outputToPrimaryEntityGroup,
+            outputEntity,
+            primaryEntityFilter,
+            outputEntityFilter);
+      case GROUP_ITEMS:
+        GroupItems groupItems = (GroupItems) outputToPrimaryEntityGroup;
+        EntityFilter wrappedPrimaryEntityFilter;
+        if (groupItems.getGroupEntity().isPrimary()) {
+          wrappedPrimaryEntityFilter =
+              new ItemInGroupFilter(underlay, groupItems, primaryEntityFilter, null, null, null);
+        } else {
+          wrappedPrimaryEntityFilter =
+              new GroupHasItemsFilter(underlay, groupItems, primaryEntityFilter, null, null, null);
+        }
+        // Build a single filter per output entity with the combined cohort and data
+        // feature filters.
+        return outputEntityFilter == null
+            ? wrappedPrimaryEntityFilter
+            : new BooleanAndOrFilter(
+                BooleanAndOrFilter.LogicalOperator.AND,
+                List.of(outputEntityFilter, wrappedPrimaryEntityFilter));
+      default:
+        throw new SystemException(
+            "Unsupported entity group type: " + outputToPrimaryEntityGroup.getType());
+    }
   }
 
   public List<EntityOutput> buildOutputsForExport(

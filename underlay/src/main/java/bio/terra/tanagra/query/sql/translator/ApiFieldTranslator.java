@@ -8,8 +8,6 @@ import java.util.List;
 public interface ApiFieldTranslator {
   List<SqlQueryField> buildSqlFieldsForListSelect();
 
-  List<SqlQueryField> buildSqlFieldsForCountSelect();
-
   List<SqlQueryField> buildSqlFieldsForOrderBy();
 
   List<SqlQueryField> buildSqlFieldsForGroupBy();

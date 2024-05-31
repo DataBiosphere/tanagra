@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
@@ -51,7 +52,7 @@ public class BQListQueryTest extends BQRunnerTest {
                 entity,
                 List.of(selectAttribute),
                 null,
-                List.of(new ListQueryRequest.OrderBy(selectAttribute, OrderByDirection.DESCENDING)),
+                List.of(new OrderBy(selectAttribute, OrderByDirection.DESCENDING)),
                 null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByInSelect", listQueryResult.getSql(), table);
@@ -71,7 +72,7 @@ public class BQListQueryTest extends BQRunnerTest {
                 entity,
                 List.of(selectAttribute),
                 null,
-                List.of(new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
+                List.of(new OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
                 null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByNotInSelect", listQueryResult.getSql(), table);
@@ -91,7 +92,7 @@ public class BQListQueryTest extends BQRunnerTest {
                 entity,
                 List.of(selectAttribute),
                 null,
-                List.of(new ListQueryRequest.OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
+                List.of(new OrderBy(orderByAttribute, OrderByDirection.ASCENDING)),
                 null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
@@ -106,12 +107,7 @@ public class BQListQueryTest extends BQRunnerTest {
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
             ListQueryRequest.dryRunAgainstIndexData(
-                underlay,
-                entity,
-                List.of(selectAttribute),
-                null,
-                List.of(ListQueryRequest.OrderBy.random()),
-                45));
+                underlay, entity, List.of(selectAttribute), null, List.of(OrderBy.random()), 45));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly("withOrderByRandom", listQueryResult.getSql(), table);
   }

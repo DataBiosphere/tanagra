@@ -1565,6 +1565,10 @@ components:
           type: array
           items:
             type: string
+        orderByDirection:
+          $ref: "#/components/schemas/OrderByDirection"
+        limit:
+          $ref: "#/components/schemas/Limit"
         pageSize:
           $ref: "#/components/schemas/PageSize"
         pageMarker:

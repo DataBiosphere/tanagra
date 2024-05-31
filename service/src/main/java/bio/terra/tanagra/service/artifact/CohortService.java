@@ -6,6 +6,8 @@ import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.query.list.OrderBy;
+import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.service.UnderlayService;
@@ -160,6 +162,8 @@ public class CohortService {
             underlay.getPrimaryEntity(),
             List.of(),
             entityFilter,
+            OrderByDirection.DESCENDING,
+            null,
             null,
             null,
             null,
@@ -199,7 +203,7 @@ public class CohortService {
             underlay.getPrimaryEntity(),
             List.of(idAttributeField),
             primaryEntityFilter,
-            List.of(ListQueryRequest.OrderBy.random()),
+            List.of(OrderBy.random()),
             sampleSize,
             null,
             // BQ does not allow paginating through a query that is ordered randomly, unless we

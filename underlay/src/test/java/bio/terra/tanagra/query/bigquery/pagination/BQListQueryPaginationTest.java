@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
@@ -45,7 +46,7 @@ public class BQListQueryPaginationTest {
             primaryEntity,
             List.of(idAttributeField),
             null,
-            List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
+            List.of(new OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             null,
             null);
@@ -72,7 +73,7 @@ public class BQListQueryPaginationTest {
             primaryEntity,
             List.of(ageAttributeField),
             null,
-            List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
+            List.of(new OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             null,
             3);
@@ -93,7 +94,7 @@ public class BQListQueryPaginationTest {
             primaryEntity,
             List.of(ageAttributeField),
             null,
-            List.of(new ListQueryRequest.OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
+            List.of(new OrderBy(idAttributeField, OrderByDirection.DESCENDING)),
             10,
             listQueryResult1.getPageMarker(),
             7);

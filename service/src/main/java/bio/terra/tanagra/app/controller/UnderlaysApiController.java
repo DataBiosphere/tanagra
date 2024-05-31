@@ -13,6 +13,7 @@ import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
@@ -165,7 +166,7 @@ public class UnderlaysApiController implements UnderlaysApi {
             underlayName, entityName, primaryEntityId);
 
     // Build the order by fields.
-    List<ListQueryRequest.OrderBy> orderByFields = new ArrayList<>();
+    List<OrderBy> orderByFields = new ArrayList<>();
     if (body.getOrderBys() != null) {
       body.getOrderBys()
           .forEach(
@@ -175,7 +176,7 @@ public class UnderlaysApiController implements UnderlaysApi {
                     new AttributeField(underlay, outputEntity, attribute, false);
                 OrderByDirection direction =
                     OrderByDirection.valueOf(orderByField.getDirection().name());
-                orderByFields.add(new ListQueryRequest.OrderBy(valueDisplayField, direction));
+                orderByFields.add(new OrderBy(valueDisplayField, direction));
               });
     }
 
@@ -217,6 +218,8 @@ public class UnderlaysApiController implements UnderlaysApi {
             entity,
             body.getAttributes() == null ? List.of() : body.getAttributes(),
             filter,
+            OrderByDirection.DESCENDING,
+            null,
             PageMarker.deserialize(body.getPageMarker()),
             body.getPageSize());
     return ResponseEntity.ok(ToApiUtils.toApiObject(countQueryResult));

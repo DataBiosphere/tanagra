@@ -5,4 +5,6 @@
     FROM
         ${ENT_person}      
     GROUP BY
-        gender
+        gender      
+    ORDER BY
+        T_IDCT DESC
