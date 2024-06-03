@@ -264,11 +264,10 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
             + visitDate.renderForSelect(firstConditionAlias)
             + " = "
             + visitDate.renderForSelect(secondConditionAlias)
-            + " AND IFNULL("
+            + " AND "
             + visitOccurrenceId.renderForSelect(firstConditionAlias)
-            + ", 0) = IFNULL("
-            + visitOccurrenceId.renderForSelect(secondConditionAlias)
-            + ", 0)";
+            + " = "
+            + visitOccurrenceId.renderForSelect(secondConditionAlias);
       case NUM_DAYS_BEFORE:
         // e.g. firstCondition >=2 days before secondCondition.
         // --> secondCondition - firstCondition >= 2.
@@ -333,7 +332,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
 
   private static SqlQueryField getJoinFieldPrimaryEntityId(Underlay underlay, Entity entity) {
     if (entity.isPrimary()) {
-      return getJoinField(underlay, entity, entity.getIdAttribute(), PRIMARY_ENTITY_ID_ALIAS);
+      return getJoinField(underlay, entity, entity.getIdAttribute(), PRIMARY_ENTITY_ID_ALIAS, null);
     } else {
       Pair<EntityGroup, Relationship> relationshipToPrimary =
           underlay.getRelationship(entity, underlay.getPrimaryEntity());
@@ -346,24 +345,49 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
           underlay,
           entity,
           relationshipToPrimary.getRight().getForeignKeyAttribute(entity),
-          PRIMARY_ENTITY_ID_ALIAS);
+          PRIMARY_ENTITY_ID_ALIAS,
+          null);
     }
   }
 
   private static SqlQueryField getJoinFieldVisitDate(Underlay underlay, Entity entity) {
-    return getJoinField(
-        underlay, entity, entity.getVisitDateAttributeForTemporalQuery(), VISIT_DATE_ALIAS);
+    Attribute visitDateAttribute = entity.getVisitDateAttributeForTemporalQuery();
+    String sqlFunctionWrapper;
+    switch (visitDateAttribute.getDataType()) {
+      case TIMESTAMP:
+        sqlFunctionWrapper = null;
+        break;
+      case DATE:
+        sqlFunctionWrapper = "TIMESTAMP(${fieldSql})";
+        break;
+      default:
+        throw new SystemException(
+            "Only DATE and TIMESTAMP data types are supported for the visit date attribute for temporal queries");
+    }
+    return getJoinField(underlay, entity, visitDateAttribute, VISIT_DATE_ALIAS, sqlFunctionWrapper);
   }
 
   private static SqlQueryField getJoinFieldVisitOccurrenceId(Underlay underlay, Entity entity) {
     return getJoinField(
-        underlay, entity, entity.getVisitIdAttributeForTemporalQuery(), VISIT_OCCURRENCE_ID_ALIAS);
+        underlay,
+        entity,
+        entity.getVisitIdAttributeForTemporalQuery(),
+        VISIT_OCCURRENCE_ID_ALIAS,
+        "IFNULL(${fieldSql}, 0)");
   }
 
   private static SqlQueryField getJoinField(
-      Underlay underlay, Entity entity, Attribute attribute, String alias) {
+      Underlay underlay,
+      Entity entity,
+      Attribute attribute,
+      String alias,
+      @Nullable String sqlFunctionWrapper) {
     ITEntityMain indexMain = underlay.getIndexSchema().getEntityMain(entity.getName());
-    return SqlQueryField.of(indexMain.getAttributeValueField(attribute.getName()), alias);
+    SqlField sqlField = indexMain.getAttributeValueField(attribute.getName());
+    if (sqlFunctionWrapper != null) {
+      sqlField = sqlField.cloneWithFunctionWrapper(sqlFunctionWrapper);
+    }
+    return SqlQueryField.of(sqlField, alias);
   }
 
   @Override
