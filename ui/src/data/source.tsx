@@ -138,6 +138,7 @@ export type ExportSourceCriteria = {
 
 export type ExportPreviewEntity = {
   id: string;
+  name: string;
   attributes: string[];
   sourceCriteria: ExportSourceCriteria[];
   sql?: string;
@@ -315,7 +316,8 @@ export interface UnderlaySource {
     underlayName: string,
     studyId: string,
     cohorts: string[],
-    featureSets: string[]
+    featureSets: string[],
+    includeAllAttributes?: boolean
   ): Promise<ExportPreviewEntity[]>;
 
   exportPreview(
@@ -878,7 +880,8 @@ export class BackendUnderlaySource implements UnderlaySource {
     underlayName: string,
     studyId: string,
     cohorts: string[],
-    featureSets: string[]
+    featureSets: string[],
+    includeAllAttributes?: boolean
   ): Promise<ExportPreviewEntity[]> {
     return await parseAPIError(
       this.exportApi
@@ -888,11 +891,13 @@ export class BackendUnderlaySource implements UnderlaySource {
             study: studyId,
             cohorts,
             conceptSets: featureSets,
+            includeAllAttributes,
           },
         })
         .then((res) =>
           res.entityOutputs.map((o) => ({
             id: o.entity,
+            name: this.lookupEntity(o.entity).name,
             attributes: o.includedAttributes,
             sourceCriteria: o.criteria,
             sql: o.sourceSql ?? o.indexSql,
@@ -998,8 +1003,8 @@ export class BackendUnderlaySource implements UnderlaySource {
       throw new Error("Cohort filter is empty.");
     }
 
-    if (entityId) {
-      const primaryEntity = this.underlay.underlayConfig.primaryEntity;
+    const primaryEntity = this.underlay.underlayConfig.primaryEntity;
+    if (entityId && entityId != primaryEntity) {
       cohortFilter = {
         filterType: tanagra.FilterFilterTypeEnum.Relationship,
         filterUnion: {

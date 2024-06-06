@@ -40,17 +40,19 @@ describe("Basic tests", () => {
     cy.wait(2000);
 
     cy.iframe().find(`button[name='${featureSetName}']`).click();
-    cy.iframe().find("button:Contains(Data)").click();
 
     cy.iframe().find(`button[name='${cohortName1}']`).click();
+    cy.iframe().find("button:Contains(Data)").click();
     cy.iframe().contains(id1);
     cy.iframe().contains(id2).should("not.exist");
 
     cy.iframe().find(`button[name='${cohortName2}']`).click();
+    cy.iframe().find("button:Contains(Data)").click();
     cy.iframe().contains(id1);
     cy.iframe().contains(id2);
 
     cy.iframe().find(`button[name='${cohortName1}']`).click();
+    cy.iframe().find("button:Contains(Data)").click();
     cy.iframe().contains(id1).should("not.exist");
     cy.iframe().contains(id2);
   });
