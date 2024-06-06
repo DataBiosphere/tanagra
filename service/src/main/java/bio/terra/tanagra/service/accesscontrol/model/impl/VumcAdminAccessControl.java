@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -39,7 +38,11 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   private String basePath;
   private String oauthClientId;
   private boolean useAdc;
-  private Client commonHttpClient;
+
+  // vumcAdminClient implements javax namespace (spring 2.x)
+  // Use ApiClient to avoid jakarta <-> javax migration of client objects
+  // private Client commonHttpClient; // = ApiClient.getHttpClient()
+  private ApiClient apiClient;
 
   @Override
   public String getDescription() {
@@ -61,7 +64,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
 
     // Default is to use application default credentials.
     this.useAdc = params.isEmpty() || USE_ADC.equalsIgnoreCase(params.get(0));
-    this.commonHttpClient = new ApiClient().getHttpClient();
+    this.apiClient = new ApiClient();
   }
 
   @Override
@@ -249,7 +252,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
     ApiClient client =
         new ApiClient()
             .setBasePath(basePath)
-            .setHttpClient(commonHttpClient)
+            .setHttpClient(apiClient.getHttpClient())
             .addDefaultHeader(
                 RequestIdFilter.REQUEST_ID_HEADER, MDC.get(RequestIdFilter.REQUEST_ID_MDC_KEY));
     client.setAccessToken(userId.getToken());
