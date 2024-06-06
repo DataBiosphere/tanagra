@@ -10,6 +10,7 @@ import {
   Cohort,
   CommonSelectorConfig,
   Criteria,
+  FeatureSet,
   Group,
   GroupSection,
   GroupSectionFilter,
@@ -17,8 +18,11 @@ import {
   UnderlaySource,
 } from "data/source";
 import { DataEntry, GroupByCount } from "data/types";
+import { useUnderlaySource } from "data/underlaySourceContext";
+import { useStudyId, useUnderlay } from "hooks";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
+import useSWRImmutable from "swr/immutable";
 import { isValid } from "util/valid";
 
 export function generateId(): string {
@@ -281,6 +285,113 @@ export function getOccurrenceList(
         sourceCriteria,
       };
     });
+}
+
+export function useOccurrenceList(
+  cohorts: Cohort[],
+  featureSets: FeatureSet[],
+  includeAllAttributes?: boolean
+) {
+  const underlay = useUnderlay();
+  const underlaySource = useUnderlaySource();
+  const studyId = useStudyId();
+
+  return useSWRImmutable(
+    {
+      type: "occurrenceFilters",
+      cohorts,
+      featureSets,
+    },
+    async () => {
+      if (process.env.REACT_APP_BACKEND_FILTERS) {
+        const previewEntities = await underlaySource.exportPreviewEntities(
+          underlay.name,
+          studyId,
+          cohorts.map((c) => c.id),
+          featureSets.map((fs) => fs.id),
+          includeAllAttributes
+        );
+
+        return previewEntities.map((pe) => {
+          const sourceCriteria = pe.sourceCriteria.map((sc) => {
+            const featureSet = featureSets.find(
+              (fs) => fs.id === sc.conceptSetId
+            );
+            if (!featureSet) {
+              throw new Error(
+                `Unexpected source feature set: ${sc.conceptSetId}`
+              );
+            }
+
+            let criteria: Criteria | undefined;
+            if (featureSet.predefinedCriteria.includes(sc.criteriaId)) {
+              criteria = underlaySource.createPredefinedCriteria(sc.criteriaId);
+            } else {
+              criteria = featureSet?.criteria?.find(
+                (c) => c.id === sc.criteriaId
+              );
+            }
+            if (!criteria) {
+              throw new Error(
+                `Unexpected source criteria: feature set: ${sc.conceptSetId}, criteria: ${sc.criteriaId}`
+              );
+            }
+
+            return getCriteriaTitle(criteria);
+          });
+
+          return {
+            id: pe.id,
+            name: pe.name,
+            attributes: pe.attributes,
+            filters: [],
+            sourceCriteria,
+            sql: pe.sql,
+          };
+        });
+      } else {
+        const occurrenceLists = featureSets.map((fs) => {
+          const ol = getOccurrenceList(
+            underlaySource,
+            new Set(fs.criteria.map((c) => c.id).concat(fs.predefinedCriteria)),
+            fs.criteria
+          );
+
+          ol.forEach((of) => {
+            const output = fs.output.find((o) => o.occurrence === of.id);
+            if (!output) {
+              return;
+            }
+
+            of.attributes = of.attributes.filter(
+              (a) => output.excludedAttributes.indexOf(a) < 0
+            );
+          });
+          return ol;
+        });
+
+        const merged: OccurrenceFilters[] = [];
+        occurrenceLists.forEach((ol) => {
+          ol.forEach((of) => {
+            const cur = merged.find((f) => f.id === of.id);
+            if (!cur) {
+              merged.push(of);
+              return;
+            }
+
+            cur.attributes = Array.from(
+              new Set(cur.attributes.concat(of.attributes))
+            );
+            cur.filters = cur.filters.concat(of.filters);
+            cur.sourceCriteria = cur.sourceCriteria.concat(of.sourceCriteria);
+          });
+        });
+
+        return merged;
+      }
+    },
+    { keepPreviousData: true }
+  );
 }
 
 // registerCriteriaPlugin is a decorator that allows criteria to automatically

@@ -26,14 +26,16 @@ export type TabsProps = {
 };
 
 export function Tabs(props: TabsProps) {
-  const [currentTab, setCurrentTab] = useState(props.configs[0].id);
+  const [currentTab, setCurrentTab] = useState(props?.configs?.[0]?.id);
 
   const onChange = (event: React.SyntheticEvent, newValue: string) => {
     (props.setCurrentTab ?? setCurrentTab)(newValue);
   };
 
   return (
-    <TabContext value={props.currentTab ?? currentTab}>
+    <TabContext
+      value={props.currentTab ?? currentTab ?? props?.configs?.[0]?.id}
+    >
       <GridLayout
         rows={!props.vertical || undefined}
         cols={props.vertical || undefined}

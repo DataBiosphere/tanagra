@@ -23,9 +23,8 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
   generateCohortFilter,
-  getCriteriaTitle,
-  getOccurrenceList,
   OccurrenceFilters,
+  useOccurrenceList,
 } from "cohort";
 import { CohortSummary } from "cohortSummary";
 import Checkbox from "components/checkbox";
@@ -36,7 +35,6 @@ import { TreeGrid, TreeGridData } from "components/treegrid";
 import { Filter, makeArrayFilter } from "data/filter";
 import {
   Cohort,
-  Criteria,
   ExportModel,
   ExportResultLink,
   FeatureSet,
@@ -355,7 +353,6 @@ type PreviewProps = {
 function Preview(props: PreviewProps) {
   const underlay = useUnderlay();
   const underlaySource = useUnderlaySource();
-  const studyId = useStudyId();
 
   const filteredCohorts = useMemo(
     () =>
@@ -382,103 +379,9 @@ function Preview(props: PreviewProps) {
     [props.featureSets, props.selectedFeatureSets]
   );
 
-  const occurrenceFiltersState = useSWR(
-    {
-      type: "occurrenceFilters",
-      featureSets: filteredFeatureSets,
-    },
-    async () => {
-      const occurrenceLists = filteredFeatureSets.map((fs) => {
-        const ol = getOccurrenceList(
-          underlaySource,
-          new Set(fs.criteria.map((c) => c.id).concat(fs.predefinedCriteria)),
-          fs.criteria
-        );
-
-        ol.forEach((of) => {
-          const output = fs.output.find((o) => o.occurrence === of.id);
-          if (!output) {
-            return;
-          }
-
-          of.attributes = of.attributes.filter(
-            (a) => output.excludedAttributes.indexOf(a) < 0
-          );
-        });
-        return ol;
-      });
-
-      const merged: OccurrenceFilters[] = [];
-      occurrenceLists.forEach((ol) => {
-        ol.forEach((of) => {
-          const cur = merged.find((f) => f.id === of.id);
-          if (!cur) {
-            merged.push(of);
-            return;
-          }
-
-          cur.attributes = Array.from(
-            new Set(cur.attributes.concat(of.attributes))
-          );
-          cur.filters = cur.filters.concat(of.filters);
-          cur.sourceCriteria = cur.sourceCriteria.concat(of.sourceCriteria);
-        });
-      });
-
-      if (process.env.REACT_APP_BACKEND_FILTERS) {
-        // TODO(tjennison): Remove merging behavior once switch is made to
-        // backend filter generation and filters are no longer needed.
-        const previewEntities = await underlaySource.exportPreviewEntities(
-          underlay.name,
-          studyId,
-          filteredCohorts.map((c) => c.id),
-          filteredFeatureSets.map((fs) => fs.id)
-        );
-        const frontendOccurrenceFilters = [...merged];
-        merged.length = 0;
-
-        frontendOccurrenceFilters.forEach((of) => {
-          const pe = previewEntities.find(
-            (pe) => pe.id === underlaySource.lookupEntity(of.id).name
-          );
-          if (!pe) {
-            return;
-          }
-
-          of.attributes = pe.attributes;
-          of.sourceCriteria = pe.sourceCriteria.map((sc) => {
-            const featureSet = filteredFeatureSets.find(
-              (fs) => fs.id === sc.conceptSetId
-            );
-            if (!featureSet) {
-              throw new Error(
-                `Unexpected source feature set: ${sc.conceptSetId}`
-              );
-            }
-
-            let criteria: Criteria | undefined;
-            if (featureSet.predefinedCriteria.includes(sc.criteriaId)) {
-              criteria = underlaySource.createPredefinedCriteria(sc.criteriaId);
-            } else {
-              criteria = featureSet?.criteria?.find(
-                (c) => c.id === sc.criteriaId
-              );
-            }
-            if (!criteria) {
-              throw new Error(
-                `Unexpected source criteria: feature set: ${sc.conceptSetId}, criteria: ${sc.criteriaId}`
-              );
-            }
-
-            return getCriteriaTitle(criteria);
-          });
-          of.sql = pe.sql;
-          merged.push(of);
-        });
-      }
-
-      return merged;
-    }
+  const occurrenceFiltersState = useOccurrenceList(
+    filteredCohorts,
+    filteredFeatureSets
   );
 
   const [exportDialog, showExportDialog] = useExportDialog({

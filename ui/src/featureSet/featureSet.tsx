@@ -14,12 +14,7 @@ import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import {
-  getCriteriaPlugin,
-  getCriteriaTitle,
-  getOccurrenceList,
-  OccurrenceFilters,
-} from "cohort";
+import { getCriteriaPlugin, getCriteriaTitle, useOccurrenceList } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -32,6 +27,7 @@ import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { Criteria, ListDataResponse } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import deepEqual from "deep-equal";
 import {
   deleteFeatureSetCriteria,
   deletePredefinedFeatureSetCriteria,
@@ -43,7 +39,7 @@ import {
 import { useFeatureSet, useStudyId, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   absoluteCohortURL,
   featureSetCriteriaURL,
@@ -263,6 +259,11 @@ function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
   );
 }
 
+type PreviewOccurrence = {
+  id: string;
+  attributes: string[];
+};
+
 type PreviewTabData = {
   name: string;
   data: TreeGridData;
@@ -275,20 +276,23 @@ function Preview() {
   const studyId = useStudyId();
   const navigate = useNavigate();
 
-  const occurrenceList = useMemo(() => {
-    const selectedCriteria = new Set<string>(
-      [
-        featureSet.predefinedCriteria,
-        featureSet.criteria.map((c) => c.id),
-      ].flat()
-    );
+  const occurrenceFiltersState = useOccurrenceList([], [featureSet], true);
 
-    return getOccurrenceList(
-      underlaySource,
-      selectedCriteria,
-      featureSet.criteria
-    );
-  }, [featureSet.criteria, featureSet.predefinedCriteria]);
+  // Prevent the preview data from being refetched if the list of entities
+  // hasn't changed (i.e. an attribute was toggled).
+  const [previewOccurrences, setPreviewOccurrences] = useState<
+    PreviewOccurrence[]
+  >([]);
+  useEffect(() => {
+    const newPreviewOccurrences =
+      occurrenceFiltersState.data?.map((of) => ({
+        id: of.id,
+        attributes: of.attributes,
+      })) ?? [];
+    if (!deepEqual(newPreviewOccurrences, previewOccurrences)) {
+      setPreviewOccurrences(newPreviewOccurrences);
+    }
+  }, [occurrenceFiltersState.data]);
 
   // TODO(tjennison): Look at supporting a "true" filter instead.
   const cohortFilter: Filter = {
@@ -298,14 +302,18 @@ function Preview() {
   };
 
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
-    {
-      type: "previewData",
-      cohortFilter,
-      occurrences: occurrenceList,
+    () => {
+      if (!occurrenceFiltersState.data) {
+        return false;
+      }
+      return {
+        type: "exportPreview",
+        previewOccurrences: previewOccurrences,
+      };
     },
     async () => {
       return Promise.all(
-        occurrenceList.map(async (params) => {
+        (occurrenceFiltersState.data ?? []).map(async (params) => {
           let res: ListDataResponse | undefined;
           if (process.env.REACT_APP_BACKEND_FILTERS) {
             res = await underlaySource.exportPreview(
@@ -338,6 +346,7 @@ function Preview() {
             id: params.id,
             name: params.name,
             data: data,
+            attributes: params.attributes,
           };
         })
       );
@@ -351,12 +360,17 @@ function Preview() {
         <Loading status={tabDataState}>
           <Tabs
             configs={
-              tabDataState.data?.map((data, i) => ({
+              (tabDataState.data ?? []).map((data, i) => ({
                 id: data.name,
                 title: data.name,
                 render: () =>
                   data.data.root?.children?.length ? (
-                    <PreviewTable occurrence={occurrenceList[i]} data={data} />
+                    previewOccurrences[i] ? (
+                      <PreviewTable
+                        occurrence={previewOccurrences[i]}
+                        data={data}
+                      />
+                    ) : null
                   ) : (
                     <GridLayout cols rowAlign="middle">
                       <Empty
@@ -401,7 +415,7 @@ function Preview() {
 }
 
 type PreviewTableProps = {
-  occurrence: OccurrenceFilters;
+  occurrence: PreviewOccurrence;
   data: PreviewTabData;
 };
 
