@@ -7,7 +7,6 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
@@ -140,10 +139,6 @@ public class TextSearchFilterBuilder extends FilterBuilder {
   @Override
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
-    if (selectionData.size() > 1) {
-      throw new InvalidQueryException("Modifiers are not supported for data features");
-    }
-
     // Pull the entity group, text search attribute from the config.
     CFTextSearch.TextSearch textSearchConfig = deserializeConfig();
     Pair<EntityGroup, Relationship> entityGroup =
@@ -156,54 +151,66 @@ public class TextSearchFilterBuilder extends FilterBuilder {
             ? null
             : textSearchConfig.getSearchAttribute();
 
+    // Pull text search filter from the plugin data.
+    DTTextSearch.TextSearch textSearchSelectionData =
+        selectionData.isEmpty() ? null : deserializeData(selectionData.get(0).getPluginData());
+    List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
+
     // Create an output for each of the occurrence entities.
-    Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
-    criteriaOccurrence
-        .getOccurrenceEntities()
-        .forEach(occurrenceEntity -> filtersPerEntity.put(occurrenceEntity, new ArrayList<>()));
+    Map<Entity, List<EntityFilter>> filtersPerEntity;
 
-    // Empty selection data = occurrence entities with no filter.
-    if (!selectionData.isEmpty()) {
-      DTTextSearch.TextSearch textSearchSelectionData =
-          deserializeData(selectionData.get(0).getPluginData());
-      if (textSearchSelectionData != null) {
-        // Pull the criteria ids and text query from the selection data.
-        List<Literal> criteriaIds =
-            textSearchSelectionData.getCategoriesList().stream()
-                .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
-                .collect(Collectors.toList());
-        String textQuery = textSearchSelectionData.getQuery();
+    if (textSearchSelectionData == null) {
+      // Empty selection data = occurrence entities with no filter.
+      filtersPerEntity = new HashMap<>();
+      criteriaOccurrence
+          .getOccurrenceEntities()
+          .forEach(occurrenceEntity -> filtersPerEntity.put(occurrenceEntity, new ArrayList<>()));
+    } else {
+      // Pull the criteria ids and text query from the selection data.
+      List<Literal> criteriaIds =
+          textSearchSelectionData.getCategoriesList().stream()
+              .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
+              .collect(Collectors.toList());
+      String textQuery = textSearchSelectionData.getQuery();
 
-        // Build the criteria filters on each of the occurrence entities.
-        if (!criteriaIds.isEmpty()) {
+      // Build the criteria filters on each of the occurrence entities.
+      filtersPerEntity =
           EntityGroupFilterUtils.addOccurrenceFiltersForDataFeature(
-              underlay, criteriaOccurrence, criteriaIds, filtersPerEntity);
-        }
+              underlay, criteriaOccurrence, criteriaIds);
 
-        // Build the text search filter on each of the occurrence entities.
-        if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
-          criteriaOccurrence
-              .getOccurrenceEntities()
-              .forEach(
-                  occurrenceEntity -> {
-                    List<EntityFilter> subFilters =
-                        filtersPerEntity.containsKey(occurrenceEntity)
-                            ? filtersPerEntity.get(occurrenceEntity)
-                            : new ArrayList<>();
-                    Attribute textSearchAttr =
-                        textSearchAttrName == null
-                            ? null
-                            : occurrenceEntity.getAttribute(textSearchAttrName);
-                    subFilters.add(
-                        new TextSearchFilter(
-                            underlay,
-                            occurrenceEntity,
-                            TextSearchFilter.TextSearchOperator.EXACT_MATCH,
-                            textQuery,
-                            textSearchAttr));
-                    filtersPerEntity.put(occurrenceEntity, subFilters);
-                  });
-        }
+      Map<Entity, List<EntityFilter>> attributeModifierFilters =
+          EntityGroupFilterUtils.buildAttributeModifierFilters(
+              underlay,
+              criteriaSelector,
+              modifiersSelectionData,
+              criteriaOccurrence.getOccurrenceEntities());
+
+      // Build the text search filter on each of the occurrence entities.
+      if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
+        criteriaOccurrence
+            .getOccurrenceEntities()
+            .forEach(
+                occurrenceEntity -> {
+                  List<EntityFilter> subFilters =
+                      filtersPerEntity.containsKey(occurrenceEntity)
+                          ? filtersPerEntity.get(occurrenceEntity)
+                          : new ArrayList<>();
+                  Attribute textSearchAttr =
+                      textSearchAttrName == null
+                          ? null
+                          : occurrenceEntity.getAttribute(textSearchAttrName);
+                  subFilters.add(
+                      new TextSearchFilter(
+                          underlay,
+                          occurrenceEntity,
+                          TextSearchFilter.TextSearchOperator.EXACT_MATCH,
+                          textQuery,
+                          textSearchAttr));
+                  if (attributeModifierFilters.containsKey(occurrenceEntity)) {
+                    subFilters.addAll(attributeModifierFilters.get(occurrenceEntity));
+                  }
+                  filtersPerEntity.put(occurrenceEntity, subFilters);
+                });
       }
     }
 

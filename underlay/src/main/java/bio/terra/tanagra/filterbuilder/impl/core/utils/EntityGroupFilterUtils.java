@@ -1,5 +1,7 @@
 package bio.terra.tanagra.filterbuilder.impl.core.utils;
 
+import static bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils.IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY;
+
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -10,10 +12,12 @@ import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -37,6 +41,10 @@ public final class EntityGroupFilterUtils {
 
   public static EntityFilter buildIdSubFilter(
       Underlay underlay, Entity criteriaEntity, List<Literal> criteriaIds) {
+    if (criteriaIds.isEmpty()) {
+      return null;
+    }
+
     // Build the criteria sub-filter.
     if (criteriaEntity.hasHierarchies()) {
       // Use a has ancestor filter.
@@ -177,22 +185,62 @@ public final class EntityGroupFilterUtils {
     }
   }
 
-  public static void addOccurrenceFiltersForDataFeature(
+  public static void buildAllModifierFilters(
       Underlay underlay,
-      CriteriaOccurrence criteriaOccurrence,
-      List<Literal> criteriaIds,
+      List<Entity> occurrenceEntities,
+      CriteriaSelector criteriaSelector,
+      DTEntityGroup.EntityGroup entityGroupSelectionData,
+      List<SelectionData> modifiersSelectionData,
       Map<Entity, List<EntityFilter>> filtersPerEntity) {
+    // Build the attribute modifier filters.
+    Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity =
+        buildAttributeModifierFilters(
+            underlay, criteriaSelector, modifiersSelectionData, occurrenceEntities);
+    subFiltersPerOccurrenceEntity.forEach(
+        (entity, entityFilters) -> {
+          if (filtersPerEntity.containsKey(entity)) {
+            filtersPerEntity.get(entity).addAll(entityFilters);
+          } else {
+            filtersPerEntity.put(entity, entityFilters);
+          }
+        });
+
+    // Build the instance-level modifier filters.
+    if (entityGroupSelectionData.hasValueData()
+        && !IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY.equalsIgnoreCase(
+            entityGroupSelectionData.getValueData().getAttribute())) {
+      if (occurrenceEntities.size() > 1) {
+        throw new InvalidQueryException(
+            "Instance-level modifiers are not supported for entity groups with multiple occurrence entities");
+      }
+      Entity occurrenceEntity = occurrenceEntities.get(0);
+
+      EntityFilter attrFilter =
+          AttributeSchemaUtils.buildForEntity(
+              underlay,
+              occurrenceEntity,
+              occurrenceEntity.getAttribute(entityGroupSelectionData.getValueData().getAttribute()),
+              entityGroupSelectionData.getValueData());
+      List<EntityFilter> subFilters =
+          filtersPerEntity.containsKey(occurrenceEntity)
+              ? filtersPerEntity.get(occurrenceEntity)
+              : new ArrayList<>();
+      subFilters.add(attrFilter);
+      filtersPerEntity.put(occurrenceEntity, subFilters);
+    }
+  }
+
+  public static Map<Entity, List<EntityFilter>> addOccurrenceFiltersForDataFeature(
+      Underlay underlay, CriteriaOccurrence criteriaOccurrence, List<Literal> criteriaIds) {
     EntityFilter criteriaSubFilterCO =
-        EntityGroupFilterUtils.buildIdSubFilter(
-            underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds);
+        buildIdSubFilter(underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds);
+
+    Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
         .sorted(Comparator.comparing(Entity::getName))
         .forEach(
             occurrenceEntity -> {
-              List<EntityFilter> occurrenceEntityFilters =
-                  filtersPerEntity.containsKey(occurrenceEntity)
-                      ? filtersPerEntity.get(occurrenceEntity)
-                      : new ArrayList<>();
+              List<EntityFilter> occurrenceEntityFilters = new ArrayList<>();
               if (!criteriaIds.isEmpty()) {
                 occurrenceEntityFilters.add(
                     new OccurrenceForPrimaryFilter(
@@ -200,6 +248,7 @@ public final class EntityGroupFilterUtils {
               }
               filtersPerEntity.put(occurrenceEntity, occurrenceEntityFilters);
             });
+    return filtersPerEntity;
   }
 
   public static List<EntityOutput> mergeFiltersForDataFeature(

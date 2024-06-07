@@ -2298,6 +2298,119 @@ public class BQFilterTest extends BQRunnerTest {
   }
 
   @Test
+  void temporalPrimaryFilterSingleOutputAttrModifiers() throws IOException {
+    Entity conditionOccurrence = underlay.getEntity("conditionOccurrence");
+    CriteriaOccurrence conditionPerson =
+        (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson");
+    EntityFilter criteriaSubFilterCondition1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            conditionPerson.getCriteriaEntity(),
+            conditionPerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(201_826L)));
+    OccurrenceForPrimaryFilter occurrenceFilterCondition1 =
+        new OccurrenceForPrimaryFilter(
+            underlay, conditionPerson, conditionOccurrence, null, criteriaSubFilterCondition1);
+    AttributeFilter attrModifierFilterCondition1 =
+        new AttributeFilter(
+            underlay,
+            conditionOccurrence,
+            conditionOccurrence.getAttribute("age_at_occurrence"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(65L));
+    List<EntityOutput> temporalCondition1 =
+        List.of(
+            EntityOutput.filtered(
+                conditionOccurrence,
+                new BooleanAndOrFilter(
+                    BooleanAndOrFilter.LogicalOperator.AND,
+                    List.of(occurrenceFilterCondition1, attrModifierFilterCondition1))));
+
+    Entity procedureOccurrence = underlay.getEntity("procedureOccurrence");
+    CriteriaOccurrence procedurePerson =
+        (CriteriaOccurrence) underlay.getEntityGroup("procedurePerson");
+    EntityFilter criteriaSubFilterProcedure1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            procedurePerson.getCriteriaEntity(),
+            procedurePerson.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
+            List.of(Literal.forInt64(4_042_673L)));
+    OccurrenceForPrimaryFilter occurrenceFilterProcedure1 =
+        new OccurrenceForPrimaryFilter(
+            underlay, procedurePerson, procedureOccurrence, null, criteriaSubFilterProcedure1);
+    AttributeFilter attrModifierFilterProcedure1 =
+        new AttributeFilter(
+            underlay,
+            procedureOccurrence,
+            procedureOccurrence.getAttribute("age_at_occurrence"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(80L));
+    List<EntityOutput> temporalProcedure1 =
+        List.of(
+            EntityOutput.filtered(
+                procedureOccurrence,
+                new BooleanAndOrFilter(
+                    BooleanAndOrFilter.LogicalOperator.AND,
+                    List.of(occurrenceFilterProcedure1, attrModifierFilterProcedure1))));
+
+    // FIRST, single output entity1 / FIRST, single output entity2 / NUM_DAYS_BEFORE
+    TemporalPrimaryFilter temporalPrimaryFilter =
+        new TemporalPrimaryFilter(
+            underlay,
+            ReducingOperator.FIRST_MENTION_OF,
+            temporalCondition1,
+            JoinOperator.NUM_DAYS_BEFORE,
+            4,
+            ReducingOperator.FIRST_MENTION_OF,
+            temporalProcedure1);
+    AttributeField simpleAttribute =
+        new AttributeField(
+            underlay,
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttribute("id"),
+            false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay,
+                underlay.getPrimaryEntity(),
+                List.of(simpleAttribute),
+                temporalPrimaryFilter,
+                null,
+                null));
+
+    BQTable personTable =
+        underlay
+            .getIndexSchema()
+            .getEntityMain(underlay.getPrimaryEntity().getName())
+            .getTablePointer();
+    BQTable conditionOccurrenceTable =
+        underlay.getIndexSchema().getEntityMain(conditionOccurrence.getName()).getTablePointer();
+    BQTable conditionAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                conditionPerson.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
+    BQTable procedureOccurrenceTable =
+        underlay.getIndexSchema().getEntityMain(procedureOccurrence.getName()).getTablePointer();
+    BQTable procedureAncestorDescendantTable =
+        underlay
+            .getIndexSchema()
+            .getHierarchyAncestorDescendant(
+                procedurePerson.getCriteriaEntity().getName(), Hierarchy.DEFAULT_NAME)
+            .getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "temporalPrimaryFilterSingleOutputWithAttrModifiersFirstFirstDaysBefore",
+        listQueryResult.getSql(),
+        personTable,
+        conditionOccurrenceTable,
+        conditionAncestorDescendantTable,
+        procedureOccurrenceTable,
+        procedureAncestorDescendantTable);
+  }
+
+  @Test
   void temporalPrimaryFilterMultipleOutputs() throws IOException {
     Entity conditionOccurrence = underlay.getEntity("conditionOccurrence");
     CriteriaOccurrence conditionPerson =

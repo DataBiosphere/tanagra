@@ -674,6 +674,72 @@ public class EntityGroupFilterBuilderForGroupTest {
   }
 
   @Test
+  void criteriaWithAttrModifierDataFeatureFilter() {
+    CFAttribute.Attribute nameConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("name").build();
+    CriteriaSelector.Modifier nameModifier =
+        new CriteriaSelector.Modifier(
+            "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
+    CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "genotyping",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(genotypingConfig),
+            List.of(nameModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Single id.
+    DTAttribute.Attribute nameData =
+        DTAttribute.Attribute.newBuilder()
+            .addSelected(
+                DTAttribute.Attribute.Selection.newBuilder()
+                    .setValue(Value.newBuilder().setStringValue("Illumina OMNI-Quad").build())
+                    .build())
+            .build();
+    SelectionData nameSelectionData = new SelectionData("name", serializeToJson(nameData));
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(3L).build())
+                    .setName("Illumina OMNI-Quad")
+                    .setEntityGroup("genotypingPerson")
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("genotyping", serializeToJson(entityGroupData));
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(
+            underlay, List.of(entityGroupSelectionData, nameSelectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("genotyping"),
+            underlay.getEntity("genotyping").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3L));
+    EntityFilter expectedNameSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("genotyping"),
+            underlay.getEntity("genotyping").getAttribute("name"),
+            BinaryOperator.EQUALS,
+            Literal.forString("Illumina OMNI-Quad"));
+    EntityFilter expectedDataFeatureFilter =
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.AND,
+            List.of(expectedCriteriaSubFilter, expectedNameSubFilter));
+    EntityOutput expectedDataFeatureOutput =
+        EntityOutput.filtered(underlay.getEntity("genotyping"), expectedDataFeatureFilter);
+    assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+  }
+
+  @Test
   void emptyCriteriaDataFeatureFilter() {
     CFEntityGroup.EntityGroup config =
         CFEntityGroup.EntityGroup.newBuilder()

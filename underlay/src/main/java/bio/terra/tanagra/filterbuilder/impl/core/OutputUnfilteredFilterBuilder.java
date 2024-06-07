@@ -28,7 +28,8 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
     if (selectionData.size() > 1) {
-      throw new InvalidQueryException("Modifiers are not supported for data features");
+      throw new InvalidQueryException(
+          "Modifiers are not supported for the unfiltered filter builder");
     }
     DTOutputUnfiltered.OutputUnfiltered outputUnfilteredSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
