@@ -942,14 +942,6 @@ public class TextSearchFilterBuilderTest {
 
     DTTextSearch.TextSearch textSearchData =
         DTTextSearch.TextSearch.newBuilder().setQuery("ambulance").build();
-    //            DTTextSearch.TextSearch.newBuilder()
-    //                    .addCategories(
-    //                            DTTextSearch.TextSearch.Selection.newBuilder()
-    //
-    // .setValue(ValueOuterClass.Value.newBuilder().setInt64Value(44_814_644L).build())
-    //                                    .setName("Nursing report")
-    //                                    .build())
-    //                    .build();
     SelectionData selectionData =
         new SelectionData("note_noAttribute", serializeToJson(textSearchData));
     DTAttribute.Attribute ageAtOccurrenceData =
