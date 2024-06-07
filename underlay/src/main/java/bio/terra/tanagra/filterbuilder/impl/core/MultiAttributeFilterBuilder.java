@@ -4,7 +4,6 @@ import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBy
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
@@ -68,10 +67,6 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
   @Override
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
-    if (selectionData.size() > 1) {
-      throw new InvalidQueryException("Modifiers are not supported for data features");
-    }
-
     // Pull the entity group from the config.
     CFMultiAttribute.MultiAttribute multiAttrConfig = deserializeConfig();
     Pair<EntityGroup, Relationship> entityGroup =
@@ -100,6 +95,14 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
                             notPrimaryEntity,
                             notPrimaryEntity.getAttribute(valueData.getAttribute()),
                             valueData)));
+      }
+
+      List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
+      Map<Entity, List<EntityFilter>> attributeModifierFilters =
+          EntityGroupFilterUtils.buildAttributeModifierFilters(
+              underlay, criteriaSelector, modifiersSelectionData, List.of(notPrimaryEntity));
+      if (attributeModifierFilters.containsKey(notPrimaryEntity)) {
+        subFiltersNotPrimaryEntity.addAll(attributeModifierFilters.get(notPrimaryEntity));
       }
     }
 

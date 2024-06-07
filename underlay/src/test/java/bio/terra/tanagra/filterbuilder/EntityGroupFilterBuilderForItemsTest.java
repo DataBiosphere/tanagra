@@ -405,6 +405,58 @@ public class EntityGroupFilterBuilderForItemsTest {
   }
 
   @Test
+  void criteriaWithAttrModifierDataFeatureFilter() {
+    CFAttribute.Attribute systolicConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("systolic").build();
+    CriteriaSelector.Modifier systolicModifier =
+        new CriteriaSelector.Modifier(
+            "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
+    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "bloodPressure",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(bloodPressureConfig),
+            List.of(systolicModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Single attribute modifier.
+    DTAttribute.Attribute systolicData =
+        DTAttribute.Attribute.newBuilder()
+            .addDataRanges(DataRange.newBuilder().setMin(100).setMax(120).build())
+            .build();
+    SelectionData systolicSelectionData =
+        new SelectionData("systolic", serializeToJson(systolicData));
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setEntityGroup("bloodPressurePerson")
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("bloodPressure", serializeToJson(entityGroupData));
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(
+            underlay, List.of(entityGroupSelectionData, systolicSelectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+
+    EntityFilter expectedSystolicSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("bloodPressure"),
+            underlay.getEntity("bloodPressure").getAttribute("systolic"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(100.0), Literal.forDouble(120.0)));
+    EntityOutput expectedDataFeatureOutput =
+        EntityOutput.filtered(underlay.getEntity("bloodPressure"), expectedSystolicSubFilter);
+    assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+  }
+
+  @Test
   void emptyCriteriaDataFeatureFilter() {
     CFEntityGroup.EntityGroup config =
         CFEntityGroup.EntityGroup.newBuilder()

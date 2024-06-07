@@ -809,6 +809,103 @@ public class MultiAttributeFilterBuilderTest {
   }
 
   @Test
+  void withAttrModifiersDataFeatureFilter() {
+    CFMultiAttribute.MultiAttribute mainConfig =
+        CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
+    CriteriaSelector.Modifier ageAtOccurrenceModifier =
+        new CriteriaSelector.Modifier(
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
+    CriteriaSelector.Modifier visitTypeModifier =
+        new CriteriaSelector.Modifier(
+            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "bloodPressure",
+            true,
+            true,
+            "core.MultiAttributeFilterBuilder",
+            SZCorePlugin.MULTI_ATTRIBUTE.getIdInConfig(),
+            serializeToJson(mainConfig),
+            List.of(ageAtOccurrenceModifier, visitTypeModifier));
+    MultiAttributeFilterBuilder filterBuilder = new MultiAttributeFilterBuilder(criteriaSelector);
+
+    DTMultiAttribute.MultiAttribute data =
+        DTMultiAttribute.MultiAttribute.newBuilder()
+            .addValueData(
+                ValueData.newBuilder()
+                    .setAttribute("systolic")
+                    .setRange(DataRange.newBuilder().setMin(100).setMax(120).build())
+                    .build())
+            .addValueData(
+                ValueData.newBuilder()
+                    .setAttribute("status_code")
+                    .addSelected(
+                        ValueData.Selection.newBuilder()
+                            .setValue(Value.newBuilder().setInt64Value(3L).build())
+                            .build())
+                    .build())
+            .build();
+    SelectionData selectionData = new SelectionData("bloodPressure", serializeToJson(data));
+    DTAttribute.Attribute ageAtOccurrenceData =
+        DTAttribute.Attribute.newBuilder()
+            .addDataRanges(DataRange.newBuilder().setMin(25.0).setMax(45.0).build())
+            .build();
+    SelectionData ageAtOccurrenceSelectionData =
+        new SelectionData("age_at_occurrence", serializeToJson(ageAtOccurrenceData));
+    DTAttribute.Attribute visitTypeData =
+        DTAttribute.Attribute.newBuilder()
+            .addSelected(
+                DTAttribute.Attribute.Selection.newBuilder()
+                    .setValue(Value.newBuilder().setInt64Value(8_870L).build())
+                    .build())
+            .build();
+    SelectionData visitTypeSelectionData =
+        new SelectionData("visit_type", serializeToJson(visitTypeData));
+
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(
+            underlay, List.of(selectionData, ageAtOccurrenceSelectionData, visitTypeSelectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    EntityFilter expectedDataFeatureFilter =
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.AND,
+            List.of(
+                new AttributeFilter(
+                    underlay,
+                    underlay.getEntity("bloodPressure"),
+                    underlay.getEntity("bloodPressure").getAttribute("systolic"),
+                    NaryOperator.BETWEEN,
+                    List.of(Literal.forDouble(100.0), Literal.forDouble(120.0))),
+                new AttributeFilter(
+                    underlay,
+                    underlay.getEntity("bloodPressure"),
+                    underlay.getEntity("bloodPressure").getAttribute("status_code"),
+                    BinaryOperator.EQUALS,
+                    Literal.forInt64(3L)),
+                new AttributeFilter(
+                    underlay,
+                    underlay.getEntity("bloodPressure"),
+                    underlay.getEntity("bloodPressure").getAttribute("age_at_occurrence"),
+                    NaryOperator.BETWEEN,
+                    List.of(Literal.forDouble(25.0), Literal.forDouble(45.0))),
+                new AttributeFilter(
+                    underlay,
+                    underlay.getEntity("bloodPressure"),
+                    underlay.getEntity("bloodPressure").getAttribute("visit_type"),
+                    BinaryOperator.EQUALS,
+                    Literal.forInt64(8_870L))));
+    assertEquals(
+        dataFeatureOutputs.get(0),
+        EntityOutput.filtered(underlay.getEntity("bloodPressure"), expectedDataFeatureFilter));
+  }
+
+  @Test
   void emptySelectionDataFeatureFilter() {
     CFMultiAttribute.MultiAttribute config =
         CFMultiAttribute.MultiAttribute.newBuilder().setEntity("bloodPressure").build();

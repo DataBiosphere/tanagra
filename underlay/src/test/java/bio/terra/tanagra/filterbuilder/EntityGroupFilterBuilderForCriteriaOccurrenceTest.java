@@ -912,6 +912,79 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
   }
 
   @Test
+  void criteriaWithAttrModifiersSingleOccurrenceDataFeatureFilter() {
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
+    CriteriaSelector.Modifier ageAtOccurrenceModifier =
+        new CriteriaSelector.Modifier(
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
+    CFEntityGroup.EntityGroup conditionConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "condition",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(conditionConfig),
+            List.of(ageAtOccurrenceModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Single id, single attribute modifier.
+    DTAttribute.Attribute ageAtOccurrenceData =
+        DTAttribute.Attribute.newBuilder()
+            .addDataRanges(DataRange.newBuilder().setMin(45).setMax(65).build())
+            .build();
+    SelectionData ageAtOccurrenceSelectionData =
+        new SelectionData("age_at_occurrence", serializeToJson(ageAtOccurrenceData));
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(201_826L).build())
+                    .setName("Type 2 diabetes mellitus")
+                    .setEntityGroup("conditionPerson")
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("condition", serializeToJson(entityGroupData));
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(
+            underlay, List.of(entityGroupSelectionData, ageAtOccurrenceSelectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+
+    EntityFilter expectedCriteriaSubFilter =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("condition"),
+            underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(201_826L));
+    EntityFilter expectedAgeAtOccurrenceSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("conditionOccurrence"),
+            underlay.getEntity("conditionOccurrence").getAttribute("age_at_occurrence"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(45.0), Literal.forDouble(65.0)));
+    EntityFilter expectedDataFeatureFilter =
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.AND,
+            List.of(
+                new OccurrenceForPrimaryFilter(
+                    underlay,
+                    (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+                    underlay.getEntity("conditionOccurrence"),
+                    null,
+                    expectedCriteriaSubFilter),
+                expectedAgeAtOccurrenceSubFilter));
+    EntityOutput expectedDataFeatureOutput =
+        EntityOutput.filtered(underlay.getEntity("conditionOccurrence"), expectedDataFeatureFilter);
+    assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));
+  }
+
+  @Test
   void criteriaOnlyMultipleOccurrencesDataFeatureFilter() {
     CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
@@ -1046,6 +1119,82 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                     dataFeatureOutputsMultipleEntityGroups.stream()
                         .anyMatch(
                             entityOutput -> entityOutput.getEntity().equals(occurrenceEntity))));
+  }
+
+  @Test
+  void criteriaWithAttrModifiersMultipleOccurrencesDataFeatureFilter() {
+    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
+    CriteriaSelector.Modifier ageAtOccurrenceModifier =
+        new CriteriaSelector.Modifier(
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "icd9cm",
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(config),
+            List.of(ageAtOccurrenceModifier));
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Single id, single attribute modifier.
+    DTAttribute.Attribute ageAtOccurrenceData =
+        DTAttribute.Attribute.newBuilder()
+            .addDataRanges(DataRange.newBuilder().setMin(45).setMax(65).build())
+            .build();
+    SelectionData ageAtOccurrenceSelectionData =
+        new SelectionData("age_at_occurrence", serializeToJson(ageAtOccurrenceData));
+    DTEntityGroup.EntityGroup data =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(44_833_365L).build())
+                    .setName("Diabetes mellitus")
+                    .setEntityGroup("icd9cmPerson")
+                    .build())
+            .build();
+    SelectionData selectionData = new SelectionData("icd9cm", serializeToJson(data));
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(
+            underlay, List.of(selectionData, ageAtOccurrenceSelectionData));
+    assertEquals(4, dataFeatureOutputs.size());
+    EntityFilter expectedCriteriaSubFilterSingleId =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("icd9cm"),
+            underlay.getEntity("icd9cm").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(44_833_365L));
+    CriteriaOccurrence criteriaOccurrence =
+        (CriteriaOccurrence) underlay.getEntityGroup("icd9cmPerson");
+    List<EntityOutput> expectedDataFeatureOutputs =
+        criteriaOccurrence.getOccurrenceEntities().stream()
+            .sorted(Comparator.comparing(Entity::getName))
+            .map(
+                occurrenceEntity ->
+                    EntityOutput.filtered(
+                        occurrenceEntity,
+                        new BooleanAndOrFilter(
+                            BooleanAndOrFilter.LogicalOperator.AND,
+                            List.of(
+                                new OccurrenceForPrimaryFilter(
+                                    underlay,
+                                    criteriaOccurrence,
+                                    occurrenceEntity,
+                                    null,
+                                    expectedCriteriaSubFilterSingleId),
+                                new AttributeFilter(
+                                    underlay,
+                                    occurrenceEntity,
+                                    occurrenceEntity.getAttribute("age_at_occurrence"),
+                                    NaryOperator.BETWEEN,
+                                    List.of(Literal.forDouble(45.0), Literal.forDouble(65.0)))))))
+            .collect(Collectors.toList());
+    assertEquals(expectedDataFeatureOutputs, dataFeatureOutputs);
   }
 
   @Test

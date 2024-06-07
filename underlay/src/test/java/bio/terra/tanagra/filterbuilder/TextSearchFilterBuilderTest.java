@@ -914,6 +914,102 @@ public class TextSearchFilterBuilderTest {
   }
 
   @Test
+  void singleOccurrenceWithAttrModifierDataFeatureFilter() {
+    CFAttribute.Attribute ageAtOccurrenceConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
+    CriteriaSelector.Modifier ageAtOccurrenceModifier =
+        new CriteriaSelector.Modifier(
+            "age_at_occurrence",
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(ageAtOccurrenceConfig));
+    CFAttribute.Attribute visitTypeConfig =
+        CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
+    CriteriaSelector.Modifier visitTypeModifier =
+        new CriteriaSelector.Modifier(
+            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+    CFTextSearch.TextSearch textSearchConfig =
+        CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "note_noAttribute",
+            true,
+            true,
+            "core.TextSearchFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(textSearchConfig),
+            List.of(ageAtOccurrenceModifier, visitTypeModifier));
+    TextSearchFilterBuilder filterBuilder = new TextSearchFilterBuilder(criteriaSelector);
+
+    DTTextSearch.TextSearch textSearchData =
+        DTTextSearch.TextSearch.newBuilder().setQuery("ambulance").build();
+    //            DTTextSearch.TextSearch.newBuilder()
+    //                    .addCategories(
+    //                            DTTextSearch.TextSearch.Selection.newBuilder()
+    //
+    // .setValue(ValueOuterClass.Value.newBuilder().setInt64Value(44_814_644L).build())
+    //                                    .setName("Nursing report")
+    //                                    .build())
+    //                    .build();
+    SelectionData selectionData =
+        new SelectionData("note_noAttribute", serializeToJson(textSearchData));
+    DTAttribute.Attribute ageAtOccurrenceData =
+        DTAttribute.Attribute.newBuilder()
+            .addDataRanges(DataRangeOuterClass.DataRange.newBuilder().setMin(45).setMax(65).build())
+            .build();
+    SelectionData ageAtOccurrenceSelectionData =
+        new SelectionData("age_at_occurrence", serializeToJson(ageAtOccurrenceData));
+    DTAttribute.Attribute visitTypeData =
+        DTAttribute.Attribute.newBuilder()
+            .addSelected(
+                DTAttribute.Attribute.Selection.newBuilder()
+                    .setValue(ValueOuterClass.Value.newBuilder().setInt64Value(9_202L).build())
+                    .setName("Outpatient Visit")
+                    .build())
+            .build();
+    SelectionData visitTypeSelectionData =
+        new SelectionData("visit_type", serializeToJson(visitTypeData));
+    List<EntityOutput> dataFeatureOutputs =
+        filterBuilder.buildForDataFeature(
+            underlay, List.of(selectionData, ageAtOccurrenceSelectionData, visitTypeSelectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+
+    Entity occurrenceEntity = underlay.getEntity("noteOccurrence");
+    EntityFilter expectedTextSearchSubFilter =
+        new TextSearchFilter(
+            underlay,
+            occurrenceEntity,
+            TextSearchFilter.TextSearchOperator.EXACT_MATCH,
+            "ambulance",
+            null);
+    EntityFilter expectedAgeAtOccurrenceSubFilter =
+        new AttributeFilter(
+            underlay,
+            occurrenceEntity,
+            occurrenceEntity.getAttribute("age_at_occurrence"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(45.0), Literal.forDouble(65.0)));
+    EntityFilter expectedVisitTypeSubFilter =
+        new AttributeFilter(
+            underlay,
+            occurrenceEntity,
+            occurrenceEntity.getAttribute("visit_type"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(9_202L));
+
+    assertEquals(
+        List.of(
+            EntityOutput.filtered(
+                occurrenceEntity,
+                new BooleanAndOrFilter(
+                    BooleanAndOrFilter.LogicalOperator.AND,
+                    List.of(
+                        expectedTextSearchSubFilter,
+                        expectedAgeAtOccurrenceSubFilter,
+                        expectedVisitTypeSubFilter)))),
+        dataFeatureOutputs);
+  }
+
+  @Test
   void emptySelectionDataFeatureFilter() {
     CFTextSearch.TextSearch configWithAttr =
         CFTextSearch.TextSearch.newBuilder().setEntity("note").setSearchAttribute("title").build();
