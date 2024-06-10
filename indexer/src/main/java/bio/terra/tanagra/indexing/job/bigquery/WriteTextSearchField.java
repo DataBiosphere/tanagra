@@ -146,7 +146,7 @@ public class WriteTextSearchField extends BigQueryJob {
     LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the text search field in the index entity main table.
-    googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
+    runQueryIfTableExists(indexTable.getTablePointer(), updateFromSelectSql, isDryRun);
   }
 
   @Override

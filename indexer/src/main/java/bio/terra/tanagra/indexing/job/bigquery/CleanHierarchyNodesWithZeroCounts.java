@@ -80,13 +80,14 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
   }
 
   private void cleanHierarchyNodesWithZeroCounts(boolean isDryRun) {
-    /* Build a delete-from query for the index entity main table that have zero counts
-    for both hierarchy and non hierarchy fields */
+    // Build a delete-from query for the index entity main table that have zero counts for both
+    // hierarchy and non hierarchy fields
     String cleanHierarchyNodesWithZeroCounts = "DELETE FROM " + generateSqlBody();
     LOGGER.info("main-entity-delete-from query: {}", cleanHierarchyNodesWithZeroCounts);
 
     // Run the delete-from to remove entities that have zero counts
-    googleBigQuery.runInsertUpdateQuery(cleanHierarchyNodesWithZeroCounts, isDryRun);
+    runQueryIfTableExists(
+        indexEntityTable.getTablePointer(), cleanHierarchyNodesWithZeroCounts, isDryRun);
   }
 
   private void cleanChildParent(boolean isDryRun) {
@@ -106,7 +107,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
     LOGGER.info("child-parent-delete-from query: {}", cleanChildParent);
 
     // Run the delete-from to remove the child parent relationships that have zero counts
-    googleBigQuery.runInsertUpdateQuery(cleanChildParent, isDryRun);
+    runQueryIfTableExists(indexChildParentTable.getTablePointer(), cleanChildParent, isDryRun);
   }
 
   private void cleanAncestorDescendant(boolean isDryRun) {
@@ -126,7 +127,8 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
     LOGGER.info("ancestor-descendant-delete-from query: {}", cleanAncestorDescendant);
 
     // Run the delete-from query for the ancestor descendant relationships that have zero counts
-    googleBigQuery.runInsertUpdateQuery(cleanAncestorDescendant, isDryRun);
+    runQueryIfTableExists(
+        indexAncestorDescendantTable.getTablePointer(), cleanAncestorDescendant, isDryRun);
   }
 
   private void updateNumChildren(boolean isDryRun) {
@@ -172,13 +174,13 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
     LOGGER.info("update-num-children-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to update the count for num children.
-    googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
+    runQueryIfTableExists(indexEntityTable.getTablePointer(), updateFromSelectSql, isDryRun);
   }
 
   private boolean outputTableHasNoNodesWithZeroCounts() {
     // Check if the table has rows with zero counts for both hierarchy and non hierarchy fields
     String selectCountSql = "SELECT COUNT(*) AS count FROM " + generateSqlBody();
-    TableResult tableResult = googleBigQuery.queryBigQuery(selectCountSql);
+    TableResult tableResult = googleBigQuery.runQuery(selectCountSql, null, null, null);
     return tableResult.iterateAll().iterator().next().get("count").getLongValue() == 0;
   }
 

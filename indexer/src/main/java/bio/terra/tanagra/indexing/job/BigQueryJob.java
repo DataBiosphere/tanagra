@@ -70,7 +70,22 @@ public abstract class BigQueryJob implements IndexingJob {
             + " WHERE "
             + bqTranslator.unaryFilterSql(field, UnaryOperator.IS_NOT_NULL, null, new SqlParams())
             + " LIMIT 1";
-    TableResult tableResult = googleBigQuery.queryBigQuery(selectOneRowSql);
+    TableResult tableResult = googleBigQuery.runQuery(selectOneRowSql, null, null, null);
     return tableResult.getTotalRows() > 0;
+  }
+
+  protected void runQueryIfTableExists(BQTable bqTable, String sql, boolean isDryRun) {
+    Optional<Table> table =
+        googleBigQuery.getTable(
+            indexerConfig.bigQuery.indexData.projectId,
+            indexerConfig.bigQuery.indexData.datasetId,
+            bqTable.getTableName());
+    if (table.isEmpty()) {
+      LOGGER.info("Output table has not been created yet, so skipping query");
+    } else if (isDryRun) {
+      googleBigQuery.dryRunQuery(sql, null, null, null);
+    } else {
+      googleBigQuery.runQuery(sql, null, null, null);
+    }
   }
 }

@@ -2,7 +2,6 @@ package bio.terra.tanagra.utils;
 
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
-import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.BigQuery;
@@ -16,32 +15,27 @@ import com.google.cloud.bigquery.Job;
 import com.google.cloud.bigquery.JobInfo;
 import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.StandardTableDefinition;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableInfo;
 import com.google.cloud.bigquery.TableResult;
-import com.google.cloud.bigquery.storage.v1.TableName;
-import com.google.protobuf.Descriptors;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Utility methods for talking to Google BigQuery. This class maintains a singleton instance of the
- * BigQuery service, and a cache of table schemas to avoid looking up the schema for the same table
- * multiple times.
- */
+/** Utility methods for talking to Google BigQuery. */
 public final class GoogleBigQuery {
   private static final Logger LOGGER = LoggerFactory.getLogger(GoogleBigQuery.class);
 
@@ -51,13 +45,9 @@ public final class GoogleBigQuery {
   private static final org.threeten.bp.Duration MAX_BQ_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(10);
 
-  private final GoogleCredentials credentials;
   private final BigQuery bigQuery;
-  private final ConcurrentHashMap<String, Schema> tableSchemasCache;
-  private final ConcurrentHashMap<String, Schema> querySchemasCache;
 
-  public GoogleBigQuery(GoogleCredentials credentials, String projectId) {
-    this.credentials = credentials;
+  private GoogleBigQuery(GoogleCredentials credentials, String projectId) {
     this.bigQuery =
         BigQueryOptions.newBuilder()
             .setCredentials(credentials)
@@ -66,8 +56,6 @@ public final class GoogleBigQuery {
                 RetrySettings.newBuilder().setTotalTimeout(MAX_BQ_CLIENT_TIMEOUT).build())
             .build()
             .getService();
-    this.tableSchemasCache = new ConcurrentHashMap<>();
-    this.querySchemasCache = new ConcurrentHashMap<>();
   }
 
   public static GoogleBigQuery forApplicationDefaultCredentials(String projectId) {
@@ -78,44 +66,6 @@ public final class GoogleBigQuery {
       throw new SystemException("Error loading application default credentials", ioEx);
     }
     return new GoogleBigQuery(credentials, projectId);
-  }
-
-  public Schema getQuerySchemaWithCaching(String query) {
-    // Check if the schema is in the cache.
-    Schema schema = querySchemasCache.get(query);
-    if (schema != null) {
-      return schema;
-    }
-
-    // If it isn't, then fetch it and insert into the cache.
-    schema = queryBigQuery(query).getSchema();
-    querySchemasCache.put(query, schema);
-    return schema;
-  }
-
-  public Schema getTableSchemaWithCaching(String projectId, String datasetId, String tableId) {
-    // check if the schema is in the cache
-    String tablePath = TableId.of(projectId, datasetId, tableId).toString();
-    Schema schema = tableSchemasCache.get(tablePath);
-
-    // if it is, then just return it
-    if (schema != null) {
-      return schema;
-    }
-
-    // if it isn't, then fetch it, cache it, and then return it
-    schema = getTableSchema(projectId, datasetId, tableId);
-    tableSchemasCache.put(tablePath, schema);
-    return schema;
-  }
-
-  private Schema getTableSchema(String projectId, String datasetId, String tableId) {
-    Optional<Table> table = getTable(projectId, datasetId, tableId);
-    if (table.isEmpty()) {
-      throw new SystemException(
-          "Table not found: " + projectId + ", " + datasetId + ", " + tableId);
-    }
-    return table.get().getDefinition().getSchema();
   }
 
   public Optional<Dataset> getDataset(
@@ -284,18 +234,6 @@ public final class GoogleBigQuery {
         "Retryable error running query");
   }
 
-  /**
-   * Run an insert or update query.
-   *
-   * @param query the SQL string
-   * @param isDryRun true if this is a dry run and no table should actually be created
-   * @return the result of the BQ query job
-   */
-  public TableResult runInsertUpdateQuery(String query, boolean isDryRun) {
-    return runUpdateQuery(
-        QueryJobConfiguration.newBuilder(query).setDryRun(isDryRun).build(), isDryRun);
-  }
-
   private TableResult runUpdateQuery(QueryJobConfiguration queryConfig, boolean isDryRun) {
     if (isDryRun) {
       try {
@@ -320,59 +258,6 @@ public final class GoogleBigQuery {
     }
   }
 
-  public TableResult queryBigQuery(String query) {
-    return queryBigQuery(query, null, null);
-  }
-
-  /**
-   * Execute a query.
-   *
-   * @param query the query to run
-   * @return the result of the BQ query
-   */
-  public TableResult queryBigQuery(
-      String query, @Nullable String pageToken, @Nullable Integer pageSize) {
-    QueryJobConfiguration queryConfig =
-        QueryJobConfiguration.newBuilder(query).setUseLegacySql(false).build();
-    return queryBigQuery(queryConfig, pageToken, pageSize);
-  }
-
-  /**
-   * Execute a query.
-   *
-   * @param queryConfig the query job configuration to run
-   * @return the result of the BQ query
-   */
-  public TableResult queryBigQuery(
-      QueryJobConfiguration queryConfig, @Nullable String pageToken, @Nullable Integer pageSize) {
-    List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
-    queryResultsOptions.add(
-        BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
-    if (pageToken != null) {
-      queryResultsOptions.add(BigQuery.QueryResultsOption.pageToken(pageToken));
-    }
-    if (pageSize != null) {
-      queryResultsOptions.add(BigQuery.QueryResultsOption.pageSize(pageSize));
-    }
-    return callWithRetries(
-        () -> {
-          Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
-          return job.getQueryResults(
-              queryResultsOptions.toArray(new BigQuery.QueryResultsOption[0]));
-        },
-        "Error running BigQuery query: " + queryConfig.getQuery());
-  }
-
-  /** Get the job statistics for a query, without running it. Intended for dry running queries. */
-  public JobStatistics.QueryStatistics queryStatistics(QueryJobConfiguration queryConfig) {
-    return callWithRetries(
-        () -> {
-          Job job = bigQuery.create(JobInfo.newBuilder(queryConfig).build());
-          return job.getStatistics();
-        },
-        "Error getting job statistics for query: " + queryConfig.getQuery());
-  }
-
   /**
    * Delete a table. Do nothing if the table is not found (i.e. assume that means it's already
    * deleted).
@@ -392,36 +277,75 @@ public final class GoogleBigQuery {
     }
   }
 
-  /** Append rows to a table using the Storage Write API. */
-  public void insertWithStorageWriteApi(
-      String projectId, String datasetId, String tableId, List<JSONObject> records) {
-    try {
-      BigQueryStorageWriter.insertWithStorageWriteApi(
-          FixedCredentialsProvider.create(credentials),
-          TableName.of(projectId, datasetId, tableId),
-          records);
-    } catch (IOException | InterruptedException | Descriptors.DescriptorValidationException ex) {
-      throw new SystemException("Error inserting rows with Storage Write API", ex);
-    }
+  // -----------------------------------------------------------------------------------
+  public TableResult runQuery(
+      String sql,
+      @Nullable Map<String, QueryParameterValue> queryParams,
+      @Nullable String pageToken,
+      @Nullable Integer pageSize) {
+    Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
+        buildQueryJobConfig(sql, false, queryParams, pageToken, pageSize);
+    return callWithRetries(
+        () -> {
+          Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
+          TableResult tableResult =
+              job.getQueryResults(
+                  queryJobConfig.getRight().toArray(new BigQuery.QueryResultsOption[0]));
+          LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
+          return tableResult;
+        },
+        "Error running query: " + queryJobConfig.getLeft().getQuery());
   }
 
-  public int getNumRows(String projectId, String datasetId, String tableId) {
-    return getNumRowsWhereFieldNotNull(projectId, datasetId, tableId, null);
+  public JobStatistics.QueryStatistics dryRunQuery(
+      String sql,
+      @Nullable Map<String, QueryParameterValue> queryParams,
+      @Nullable String pageToken,
+      @Nullable Integer pageSize) {
+    Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
+        buildQueryJobConfig(sql, true, queryParams, pageToken, pageSize);
+    return callWithRetries(
+        () -> {
+          Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
+          JobStatistics.QueryStatistics queryStatistics = job.getStatistics();
+          LOGGER.info(
+              "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
+              queryStatistics.getStatementType(),
+              queryStatistics.getCacheHit(),
+              queryStatistics.getTotalBytesProcessed(),
+              queryStatistics.getTotalSlotMs());
+          return queryStatistics;
+        },
+        "Error getting job statistics for query: " + queryJobConfig.getLeft().getQuery());
   }
 
-  public int getNumRowsWhereFieldNotNull(
-      String projectId, String datasetId, String tableId, @Nullable String field) {
-    String queryRowCount =
-        "SELECT COUNT(*) FROM `" + projectId + "." + datasetId + "." + tableId + "`";
-    if (field != null) {
-      queryRowCount += " WHERE " + field + " IS NOT NULL";
+  private Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> buildQueryJobConfig(
+      String sql,
+      boolean isDryRun,
+      @Nullable Map<String, QueryParameterValue> queryParams,
+      @Nullable String pageToken,
+      @Nullable Integer pageSize) {
+    QueryJobConfiguration.Builder queryJobConfig =
+        QueryJobConfiguration.newBuilder(sql)
+            .setUseLegacySql(false)
+            .setUseQueryCache(true)
+            .setDryRun(isDryRun);
+    if (queryParams != null) {
+      queryParams.forEach((name, val) -> queryJobConfig.addNamedParameter(name, val));
     }
-    QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(queryRowCount).build();
-    TableResult results =
-        callWithRetries(
-            () -> bigQuery.query(queryConfig), "Error counting rows in BigQuery table: " + tableId);
-    return Integer.parseInt(results.getValues().iterator().next().get("f0_").getStringValue());
+
+    List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
+    queryResultsOptions.add(
+        BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
+    if (pageToken != null) {
+      queryResultsOptions.add(BigQuery.QueryResultsOption.pageToken(pageToken));
+    }
+    if (pageSize != null) {
+      queryResultsOptions.add(BigQuery.QueryResultsOption.pageSize(pageSize));
+    }
+    return Pair.of(queryJobConfig.build(), queryResultsOptions);
   }
+  // -----------------------------------------------------------------------------------
 
   /**
    * Utility method that checks if an exception thrown by the BQ client is retryable.

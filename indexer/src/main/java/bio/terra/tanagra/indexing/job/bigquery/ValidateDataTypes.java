@@ -13,7 +13,6 @@ import com.google.cloud.StringEnumValue;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.LegacySQLTypeName;
-import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.Schema;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,12 +59,8 @@ public class ValidateDataTypes extends BigQueryJob {
     LOGGER.info("Generated select SQL: {}", selectOneRowSql);
 
     // Dry run the query just to get the returned schema.
-    QueryJobConfiguration queryConfig =
-        QueryJobConfiguration.newBuilder(selectOneRowSql)
-            .setUseLegacySql(false)
-            .setDryRun(true)
-            .build();
-    JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
+    JobStatistics.QueryStatistics queryStatistics =
+        googleBigQuery.dryRunQuery(selectOneRowSql, null, null, null);
     Schema sourceQueryResultSchema = queryStatistics.getSchema();
     LOGGER.info("Select SQL results schema: {}", sourceQueryResultSchema);
 
