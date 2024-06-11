@@ -13,6 +13,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.model.impl.AouWorkbenchAccessControl;
+import bio.terra.tanagra.service.accesscontrol.model.impl.SamGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.model.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.model.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -131,5 +132,29 @@ public class AccessControlImplTest {
                 10)
             .getResources()
             .isEmpty());
+  }
+
+  @Disabled(
+      "SamGroup base path is not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
+  @Test
+  void samGroups() {
+    SamGroupsAccessControl impl = new SamGroupsAccessControl();
+    AccessControlService accessControlService =
+        new AccessControlService(impl, accessControlConfiguration, studyService);
+
+    // Access control is only on underlays, no other resource types.
+    assertTrue(
+        accessControlService.isAuthorized(
+            UserId.forDisabledAuthentication(),
+            Permissions.forActions(ResourceType.STUDY, Action.CREATE),
+            null));
+    assertTrue(
+        accessControlService
+            .listAuthorizedResources(
+                UserId.forDisabledAuthentication(),
+                Permissions.forActions(ResourceType.STUDY, Action.READ),
+                0,
+                10)
+            .isAllResources());
   }
 }

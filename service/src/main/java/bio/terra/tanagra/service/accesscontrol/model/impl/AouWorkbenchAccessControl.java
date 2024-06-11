@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 public class AouWorkbenchAccessControl implements StudyAccessControl {
@@ -37,9 +38,7 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
       AccessControlHelper accessControlHelper) {
     // Store the basePath, so we can use it when calling the workbench API.
     // oauthClientId not used for AoU RW call
-    if (basePath == null) {
-      throw new IllegalArgumentException("Base URL is required for Workbench API calls");
-    }
+    Assert.notNull(basePath, "Base URL is required for Workbench API calls");
     this.basePath = basePath;
   }
 
