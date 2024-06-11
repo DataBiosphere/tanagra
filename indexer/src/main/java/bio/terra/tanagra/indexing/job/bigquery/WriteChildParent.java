@@ -68,6 +68,11 @@ public class WriteChildParent extends BigQueryJob {
         Clustering.newBuilder()
             .setFields(List.of(sourceTable.getParentField().getColumnName()))
             .build();
-    googleBigQuery.createTableFromQuery(outputTable, sourceChildParentSql, clustering, isDryRun);
+
+    if (isDryRun) {
+      googleBigQuery.dryRunQuery(sourceChildParentSql, null, null, null, outputTable, clustering);
+    } else {
+      googleBigQuery.runQuery(sourceChildParentSql, null, null, null, outputTable, clustering);
+    }
   }
 }

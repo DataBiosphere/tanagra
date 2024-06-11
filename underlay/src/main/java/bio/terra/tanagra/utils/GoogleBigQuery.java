@@ -68,7 +68,9 @@ public final class GoogleBigQuery {
     return new GoogleBigQuery(credentials, projectId);
   }
 
-  public Optional<Dataset> getDataset(
+  // -----------------------------------------------------------------------------------
+  // Datasets
+  private Optional<Dataset> getDataset(
       String projectId, String datasetId, BigQuery.DatasetOption... datasetOptions) {
     try {
       DatasetId datasetPointer = DatasetId.of(projectId, datasetId);
@@ -78,10 +80,37 @@ public final class GoogleBigQuery {
               "Error looking up dataset");
       return Optional.ofNullable(dataset);
     } catch (Exception ex) {
+      LOGGER.warn("Error looking up dataset", ex);
       return Optional.empty();
     }
   }
 
+  public String findDatasetWithLocation(
+      String gcpProjectId, List<String> bqDatasetIds, String bigQueryDataLocation) {
+    // Lookup the BQ dataset location. Return the first dataset with a compatible location for the
+    // dataset.
+    for (String datasetId : bqDatasetIds) {
+      Optional<Dataset> dataset =
+          getDataset(
+              gcpProjectId,
+              datasetId,
+              BigQuery.DatasetOption.fields(BigQuery.DatasetField.LOCATION));
+      if (dataset.isEmpty()) {
+        LOGGER.warn("Dataset not found: {}", datasetId);
+        continue;
+      }
+      String datasetLocation = dataset.get().getLocation();
+      if (bigQueryDataLocation.equalsIgnoreCase(datasetLocation)) {
+        return datasetId;
+      }
+    }
+    throw new SystemException(
+        "No compatible BQ dataset found for export from BQ dataset in location: "
+            + bigQueryDataLocation);
+  }
+
+  // -----------------------------------------------------------------------------------
+  // Tables
   public Optional<Table> getTable(String projectId, String datasetId, String tableId) {
     try {
       TableId tablePointer = TableId.of(projectId, datasetId, tableId);
@@ -89,23 +118,23 @@ public final class GoogleBigQuery {
           callWithRetries(
               () -> bigQuery.getTable(tablePointer), "Retryable error looking up table");
       return Optional.ofNullable(table);
-    } catch (Exception e) {
-      LOGGER.error("Error looking up table", e);
+    } catch (Exception ex) {
+      LOGGER.warn("Error looking up table", ex);
       return Optional.empty();
     }
   }
 
-  public void pollForTableExistenceOrThrow(
+  public Table pollForTableExistenceOrThrow(
       String projectId, String datasetId, String tableId, int maxCalls, Duration sleepDuration) {
     try {
-      boolean tableExists =
+      Optional<Table> table =
           RetryUtils.pollWithRetries(
-              () -> getTable(projectId, datasetId, tableId).isPresent(),
-              checkTableExistsResult -> checkTableExistsResult,
+              () -> getTable(projectId, datasetId, tableId),
+              checkTableExistsResult -> checkTableExistsResult.isPresent(),
               ex -> false,
               maxCalls,
               sleepDuration);
-      if (!tableExists) {
+      if (table.isEmpty()) {
         throw new SystemException(
             "Error finding table "
                 + tableId
@@ -115,6 +144,7 @@ public final class GoogleBigQuery {
                 + sleepDuration.toString()
                 + " between each try.");
       }
+      return table.get();
     } catch (InterruptedException intEx) {
       throw new SystemException("Error polling for table existence", intEx);
     }
@@ -146,77 +176,6 @@ public final class GoogleBigQuery {
     }
   }
 
-  /**
-   * Create a new table from the results of a query.
-   *
-   * @param query the SQL string
-   * @param destinationTable the destination project+dataset+table id
-   * @param isDryRun true if this is a dry run and no table should actually be created
-   * @return the result of the BQ query job
-   */
-  public TableResult createTableFromQuery(
-      TableId destinationTable, String query, @Nullable Clustering clustering, boolean isDryRun) {
-    QueryJobConfiguration.Builder queryJobConfig =
-        QueryJobConfiguration.newBuilder(query)
-            .setDestinationTable(destinationTable)
-            .setDryRun(isDryRun);
-    if (clustering != null) {
-      queryJobConfig.setClustering(clustering);
-    }
-    return runUpdateQuery(queryJobConfig.build(), isDryRun);
-  }
-
-  public Table createTableFromQuery(QueryJobConfiguration queryJobConfig) {
-    // Create a temporary table from the query.
-    TableResult createTableResult = runUpdateQuery(queryJobConfig, false);
-    LOGGER.info(
-        "Created temporary table from query successfully: jobId={}",
-        createTableResult.getJobId().getJob());
-
-    // Make sure the temporary table exists.
-    TableId destinationTempTable = queryJobConfig.getDestinationTable();
-    LOGGER.info("Temporary table created: {}", destinationTempTable);
-    Optional<Table> tempTable =
-        getTable(
-            destinationTempTable.getProject(),
-            destinationTempTable.getDataset(),
-            destinationTempTable.getTable());
-    if (tempTable.isEmpty()) {
-      throw new SystemException(
-          "Temporary table not found: "
-              + destinationTempTable.getProject()
-              + '.'
-              + destinationTempTable.getDataset()
-              + '.'
-              + destinationTempTable.getTable());
-    }
-    return tempTable.get();
-  }
-
-  public String findDatasetForExportTempTable(
-      String gcpProjectId, List<String> bqDatasetIds, String bigQueryDataLocation) {
-    // Lookup the BQ dataset location. Return the first dataset with a compatible location for the
-    // dataset.
-    for (String datasetId : bqDatasetIds) {
-      Optional<Dataset> dataset =
-          getDataset(
-              gcpProjectId,
-              datasetId,
-              BigQuery.DatasetOption.fields(BigQuery.DatasetField.LOCATION));
-      if (dataset.isEmpty()) {
-        LOGGER.warn("Dataset not found: {}", datasetId);
-        continue;
-      }
-      String datasetLocation = dataset.get().getLocation();
-      if (bigQueryDataLocation.equalsIgnoreCase(datasetLocation)) {
-        return datasetId;
-      }
-    }
-    throw new SystemException(
-        "No compatible BQ dataset found for export from BQ dataset in location: "
-            + bigQueryDataLocation);
-  }
-
   public Job exportTableToGcs(
       TableId sourceTable, String destinationUrl, String compression, String fileFormat) {
     ExtractJobConfiguration extractConfig =
@@ -232,30 +191,6 @@ public final class GoogleBigQuery {
           return job.waitFor();
         },
         "Retryable error running query");
-  }
-
-  private TableResult runUpdateQuery(QueryJobConfiguration queryConfig, boolean isDryRun) {
-    if (isDryRun) {
-      try {
-        Job job = bigQuery.create(JobInfo.of(queryConfig));
-        JobStatistics.QueryStatistics statistics = job.getStatistics();
-        LOGGER.info(
-            "BigQuery dry run performed successfully: {} bytes processed",
-            statistics.getTotalBytesProcessed());
-        return null;
-      } catch (BigQueryException bqEx) {
-        if (bqEx.getCode() == HttpStatus.SC_NOT_FOUND) {
-          LOGGER.info(
-              "Query dry run failed because table has not been created yet: {}",
-              bqEx.getError().getMessage());
-          return null;
-        } else {
-          throw bqEx;
-        }
-      }
-    } else {
-      return callWithRetries(() -> bigQuery.query(queryConfig), "Retryable error running query");
-    }
   }
 
   /**
@@ -278,13 +213,17 @@ public final class GoogleBigQuery {
   }
 
   // -----------------------------------------------------------------------------------
+  // Queries
   public TableResult runQuery(
       String sql,
       @Nullable Map<String, QueryParameterValue> queryParams,
       @Nullable String pageToken,
-      @Nullable Integer pageSize) {
+      @Nullable Integer pageSize,
+      @Nullable TableId destinationTable,
+      @Nullable Clustering clustering) {
     Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
-        buildQueryJobConfig(sql, false, queryParams, pageToken, pageSize);
+        buildQueryJobConfig(
+            sql, false, queryParams, pageToken, pageSize, destinationTable, clustering);
     return callWithRetries(
         () -> {
           Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
@@ -301,9 +240,12 @@ public final class GoogleBigQuery {
       String sql,
       @Nullable Map<String, QueryParameterValue> queryParams,
       @Nullable String pageToken,
-      @Nullable Integer pageSize) {
+      @Nullable Integer pageSize,
+      @Nullable TableId destinationTable,
+      @Nullable Clustering clustering) {
     Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
-        buildQueryJobConfig(sql, true, queryParams, pageToken, pageSize);
+        buildQueryJobConfig(
+            sql, true, queryParams, pageToken, pageSize, destinationTable, clustering);
     return callWithRetries(
         () -> {
           Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
@@ -324,7 +266,9 @@ public final class GoogleBigQuery {
       boolean isDryRun,
       @Nullable Map<String, QueryParameterValue> queryParams,
       @Nullable String pageToken,
-      @Nullable Integer pageSize) {
+      @Nullable Integer pageSize,
+      @Nullable TableId destinationTable,
+      @Nullable Clustering clustering) {
     QueryJobConfiguration.Builder queryJobConfig =
         QueryJobConfiguration.newBuilder(sql)
             .setUseLegacySql(false)
@@ -332,6 +276,12 @@ public final class GoogleBigQuery {
             .setDryRun(isDryRun);
     if (queryParams != null) {
       queryParams.forEach((name, val) -> queryJobConfig.addNamedParameter(name, val));
+    }
+    if (destinationTable != null) {
+      queryJobConfig.setDestinationTable(destinationTable);
+    }
+    if (clustering != null) {
+      queryJobConfig.setClustering(clustering);
     }
 
     List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
@@ -343,9 +293,12 @@ public final class GoogleBigQuery {
     if (pageSize != null) {
       queryResultsOptions.add(BigQuery.QueryResultsOption.pageSize(pageSize));
     }
+
     return Pair.of(queryJobConfig.build(), queryResultsOptions);
   }
+
   // -----------------------------------------------------------------------------------
+  // Exceptions and retries
 
   /**
    * Utility method that checks if an exception thrown by the BQ client is retryable.

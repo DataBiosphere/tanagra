@@ -258,12 +258,13 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       if (getOutputTable().isEmpty()) {
         LOGGER.info("Skipping query dry run because output table does not exist yet.");
       } else {
-        googleBigQuery.dryRunQuery(selectMinMaxSql, null, null, null);
+        googleBigQuery.dryRunQuery(selectMinMaxSql, null, null, null, null, null);
       }
       return Pair.of(Literal.forDouble(0.0), Literal.forDouble(0.0));
     } else {
       // Parse the result row.
-      TableResult tableResult = googleBigQuery.runQuery(selectMinMaxSql, null, null, null);
+      TableResult tableResult =
+          googleBigQuery.runQuery(selectMinMaxSql, null, null, null, null, null);
       Iterator<FieldValueList> rowResults = tableResult.getValues().iterator();
       if (rowResults.hasNext()) {
         FieldValueList rowResult = rowResults.next();
@@ -311,11 +312,12 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       if (getOutputTable().isEmpty()) {
         LOGGER.info("Skipping query dry run because output table does not exist yet.");
       } else {
-        googleBigQuery.dryRunQuery(selectEnumCountSql, null, null, null);
+        googleBigQuery.dryRunQuery(selectEnumCountSql, null, null, null, null, null);
       }
       enumCounts.add(Pair.of(new ValueDisplay(Literal.forInt64(0L), "ZERO"), 0L));
     } else {
-      TableResult tableResult = googleBigQuery.runQuery(selectEnumCountSql, null, null, null);
+      TableResult tableResult =
+          googleBigQuery.runQuery(selectEnumCountSql, null, null, null, null, null);
 
       // Parse the result rows.
       for (FieldValueList rowResult : tableResult.getValues()) {

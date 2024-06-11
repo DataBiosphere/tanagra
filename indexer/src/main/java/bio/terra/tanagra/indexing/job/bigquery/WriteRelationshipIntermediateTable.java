@@ -62,6 +62,10 @@ public class WriteRelationshipIntermediateTable extends BigQueryJob {
             indexerConfig.bigQuery.indexData.projectId,
             indexerConfig.bigQuery.indexData.datasetId,
             indexTable.getTablePointer().getTableName());
-    googleBigQuery.createTableFromQuery(outputTable, sourceIdPairsSql, null, isDryRun);
+    if (isDryRun) {
+      googleBigQuery.dryRunQuery(sourceIdPairsSql, null, null, null, outputTable, null);
+    } else {
+      googleBigQuery.runQuery(sourceIdPairsSql, null, null, null, outputTable, null);
+    }
   }
 }

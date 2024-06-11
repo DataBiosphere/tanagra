@@ -12,7 +12,6 @@ import bio.terra.tanagra.query.sql.SqlRowResult;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
@@ -20,6 +19,7 @@ import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Iterables;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -58,11 +58,8 @@ public class BQExecutor {
     LOGGER.info("SQL no parameters: {}", sqlNoParams);
 
     // Build a BQ parameter value object for each SQL query parameter.
-    Map<String, QueryParameterValue> bqQueryParams = new HashMap<>();
-    queryRequest
-        .getSqlParams()
-        .getParams()
-        .forEach((key, value) -> bqQueryParams.put(key, toQueryParameterValue(value)));
+    Map<String, QueryParameterValue> bqQueryParams =
+        toQueryParameterMap(queryRequest.getSqlParams());
 
     // Pull the page token from the request, if we're paging.
     String pageToken =
@@ -71,14 +68,25 @@ public class BQExecutor {
     if (queryRequest.isDryRun()) {
       // For a dry run, validate the query and log some statistics.
       getBigQueryService()
-          .dryRunQuery(queryRequest.getSql(), bqQueryParams, pageToken, queryRequest.getPageSize());
+          .dryRunQuery(
+              queryRequest.getSql(),
+              bqQueryParams,
+              pageToken,
+              queryRequest.getPageSize(),
+              null,
+              null);
       return new SqlQueryResult(List.of(), null, 0, sqlNoParams);
     } else {
       // For a regular run, convert the BQ query results to our internal result objects.
       TableResult tableResult =
           getBigQueryService()
               .runQuery(
-                  queryRequest.getSql(), bqQueryParams, pageToken, queryRequest.getPageSize());
+                  queryRequest.getSql(),
+                  bqQueryParams,
+                  pageToken,
+                  queryRequest.getPageSize(),
+                  null,
+                  null);
       Iterable<SqlRowResult> rowResults =
           Iterables.transform(
               tableResult.getValues() /* Single page of results. */, BQRowResult::new);
@@ -112,19 +120,18 @@ public class BQExecutor {
     }
     String exportDatasetId =
         getBigQueryService()
-            .findDatasetForExportTempTable(exportProjectId, exportDatasetIds, datasetLocation);
+            .findDatasetWithLocation(exportProjectId, exportDatasetIds, datasetLocation);
     TableId tempTableId = TableId.of(exportProjectId, exportDatasetId, tempTableName);
 
-    // Pass query parameters to the job.
-    QueryJobConfiguration.Builder queryConfig =
-        QueryJobConfiguration.newBuilder(queryRequest.getSql())
-            .setUseLegacySql(false)
-            .setDestinationTable(tempTableId);
-    queryRequest
-        .getSqlParams()
-        .getParams()
-        .forEach((key, value) -> queryConfig.addNamedParameter(key, toQueryParameterValue(value)));
-    Table tempTable = getBigQueryService().createTableFromQuery(queryConfig.build());
+    // Build a BQ parameter value object for each SQL query parameter.
+    Map<String, QueryParameterValue> bqQueryParams =
+        toQueryParameterMap(queryRequest.getSqlParams());
+    getBigQueryService()
+        .runQuery(queryRequest.getSql(), bqQueryParams, null, null, tempTableId, null);
+    Table tempTable =
+        getBigQueryService()
+            .pollForTableExistenceOrThrow(
+                exportProjectId, exportDatasetId, tempTableName, 10, Duration.ofSeconds(1));
     LOGGER.info(
         "Temporary table created for export: {}.{}.{}",
         exportProjectId,
@@ -188,6 +195,15 @@ public class BQExecutor {
           sql.replace(currentDateParens, '@' + paramName).replace(currentDate, '@' + paramName);
     }
     return modifiedSql;
+  }
+
+  private static Map<String, QueryParameterValue> toQueryParameterMap(SqlParams sqlParams) {
+    // Build a BQ parameter value object for each SQL query parameter.
+    Map<String, QueryParameterValue> bqQueryParams = new HashMap<>();
+    sqlParams
+        .getParams()
+        .forEach((key, value) -> bqQueryParams.put(key, toQueryParameterValue(value)));
+    return bqQueryParams;
   }
 
   private static QueryParameterValue toQueryParameterValue(Literal literal) {
