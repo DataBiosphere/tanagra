@@ -23,9 +23,9 @@ public class SamGroupsAccessControlTest extends BaseAccessControlTest {
     //   user1: cmssynpuf
     //   user2: cmssynpuf, aousynthetic
     //   user3: <no access>
-    sgImpl.addMembership(USER_1.getEmail(), CMS_SYNPUF, cmssynpufGroup);
-    sgImpl.addMembership(USER_2.getEmail(), CMS_SYNPUF, cmssynpufGroup);
-    sgImpl.addMembership(USER_2.getEmail(), AOU_SYNTHETIC, aousyntheticGroup);
+    sgImpl.addMembership(USER_1.getEmail(), cmssynpufGroup);
+    sgImpl.addMembership(USER_2.getEmail(), cmssynpufGroup);
+    sgImpl.addMembership(USER_2.getEmail(), aousyntheticGroup);
 
     AccessControlConfiguration accessControlConfig = new AccessControlConfiguration();
     accessControlConfig.setParams(
@@ -58,16 +58,12 @@ public class SamGroupsAccessControlTest extends BaseAccessControlTest {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
     ResourceId cmsSynpufId = ResourceId.forUnderlay(CMS_SYNPUF);
     ResourceId aouSyntheticId = ResourceId.forUnderlay(AOU_SYNTHETIC);
-    ResourceId sddId = ResourceId.forUnderlay(SDD);
     assertHasPermissions(USER_1, cmsSynpufId);
     assertDoesNotHavePermissions(USER_1, aouSyntheticId);
-    assertDoesNotHavePermissions(USER_1, sddId);
     assertHasPermissions(USER_2, cmsSynpufId);
     assertHasPermissions(USER_2, aouSyntheticId);
-    assertDoesNotHavePermissions(USER_2, sddId);
     assertDoesNotHavePermissions(USER_3, cmsSynpufId);
     assertDoesNotHavePermissions(USER_3, aouSyntheticId);
-    assertDoesNotHavePermissions(USER_3, sddId);
 
     // service.list
     assertServiceListWithReadPermission(USER_1, ResourceType.UNDERLAY, null, false, cmsSynpufId);

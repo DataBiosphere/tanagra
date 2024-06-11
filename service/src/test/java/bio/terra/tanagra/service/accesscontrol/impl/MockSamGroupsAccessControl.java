@@ -9,9 +9,6 @@ import java.util.Map;
 import org.broadinstitute.dsde.workbench.client.sam.model.ManagedGroupMembershipEntry;
 
 public class MockSamGroupsAccessControl extends SamGroupsAccessControl {
-
-  private final Map<String, String> underlayToGroups = new HashMap<>(); // underlay -> group name
-
   private final Map<String, List<ManagedGroupMembershipEntry>> samGroupMemberships =
       new HashMap<>(); // user -> list of managed group memberships
 
@@ -20,12 +17,10 @@ public class MockSamGroupsAccessControl extends SamGroupsAccessControl {
     return samGroupMemberships.get(user.getEmail());
   }
 
-  public void addMembership(String userEmail, String underlay, String groupName) {
-    underlayToGroups.put(underlay, groupName);
-
+  public void addMembership(String userEmail, String groupName) {
     List<ManagedGroupMembershipEntry> userGroups =
         samGroupMemberships.getOrDefault(userEmail, new ArrayList<>());
-    userGroups.add(new ManagedGroupMembershipEntry().groupName(groupName));
+    userGroups.add(new ManagedGroupMembershipEntry().groupName(groupName).role("member"));
     samGroupMemberships.put(userEmail, userGroups);
   }
 }
