@@ -59,8 +59,7 @@ public class ValidateDataTypes extends BigQueryJob {
     LOGGER.info("Generated select SQL: {}", selectOneRowSql);
 
     // Dry run the query just to get the returned schema.
-    JobStatistics.QueryStatistics queryStatistics =
-        googleBigQuery.dryRunQuery(selectOneRowSql, null, null, null, null, null);
+    JobStatistics.QueryStatistics queryStatistics = googleBigQuery.dryRunQuery(selectOneRowSql);
     Schema sourceQueryResultSchema = queryStatistics.getSchema();
     LOGGER.info("Select SQL results schema: {}", sourceQueryResultSchema);
 

@@ -180,7 +180,7 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
   private boolean outputTableHasNoNodesWithZeroCounts() {
     // Check if the table has rows with zero counts for both hierarchy and non hierarchy fields
     String selectCountSql = "SELECT COUNT(*) AS count FROM " + generateSqlBody();
-    TableResult tableResult = googleBigQuery.runQuery(selectCountSql, null, null, null, null, null);
+    TableResult tableResult = googleBigQuery.runQuery(selectCountSql);
     return tableResult.iterateAll().iterator().next().get("count").getLongValue() == 0;
   }
 

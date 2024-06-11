@@ -214,6 +214,14 @@ public final class GoogleBigQuery {
 
   // -----------------------------------------------------------------------------------
   // Queries
+  public TableResult runQuery(String sql) {
+    return runQuery(sql, null, null, null, null, null);
+  }
+
+  public JobStatistics.QueryStatistics dryRunQuery(String sql) {
+    return dryRunQuery(sql, null, null, null, null, null);
+  }
+
   public TableResult runQuery(
       String sql,
       @Nullable Map<String, QueryParameterValue> queryParams,
