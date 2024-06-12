@@ -137,6 +137,9 @@ dependencies {
 
     // [Access control]: VerilyGroups
     implementation 'org.json:json:20240303'
+
+    // [Access control]: SamGroups
+    implementation group: "org.broadinstitute.dsde.workbench", name: "sam-client_2.13", version: "v0.0.241"
 }
 
 protobuf {

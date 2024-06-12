@@ -113,7 +113,7 @@ tanagra:
 ### AouWorkbench Access Control
 Access control is enforced on studies only. For studies and their child artifacts (e.g. cohorts), send a request to
 the AoU Researcher Workbench API to check access on the containing workspace. Expect the Tanagra study id to be the
-same as the workbench workspace id. =For underlays, allow everything. This was written to support the AoU deployment.
+same as the workbench workspace id. For underlays, allow everything. This was written to support the AoU deployment.
 ```
 tanagra:
     access-control:
@@ -122,3 +122,26 @@ tanagra:
         base-path: https://all-of-us-workbench-test.appspot.com
 ```
 
+### SamGroups Access Control
+The general approach here is to control access to resources based on a user's membership in Sam groups.
+More information about Sam can be found at [broadinstitute/sam)](https://github.com/broadinstitute/sam).
+At this time access control is enforced on underlays only, however the same design can be extended for other concepts like studies, cohorts, etc.
+
+This is primarily written for Verily deployment.
+
+Pre-requisite steps:
+1. Create a Sam resource for each underlay. The specific of the mapping between a Sam resource and
+   the underlay depends on the overall system deployment and hence omitted here.
+2. Create a Sam group with read access to the underlay resource created above.
+3. Add users to the group created above.
+4. To display underlays for a user:
+    - Fetch the list of underlay / underlay-groups from the configuration
+    - For each underlay check if the user has membership in the corresponding group
+
+```
+tanagra
+    access-control:
+        model: SAM_GROUP
+        params: [underlay1,underlay1-readers, underlay2,underlay2-readers]
+        base-path: "https://terra-devel-sam.api.verily.com" <--- Example value only, specific to Sam Service deployment
+```
