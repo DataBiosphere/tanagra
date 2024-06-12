@@ -1,0 +1,38 @@
+{
+  "name": "emrc",
+  "primaryEntity": "person",
+  "entities": [
+    "emrc/person",
+    "emrc/cpt4",
+    "emrc/cpt4Occurrence"
+  ],
+  "groupItemsEntityGroups": [
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "emrc/cpt4Person"
+  ],
+  "criteriaSelectors": [
+    "emrc/gender",
+    "emrc/race",
+    "emrc/age",
+    "emrc/datasetEmergeseq",
+    "emrc/datasetExomechip",
+    "emrc/datasetGwas",
+    "emrc/datasetPgrnseq",
+    "emrc/datasetWes",
+    "emrc/datasetWgs",
+    "emrc/datasetGira",
+    "emrc/cpt4"
+  ],
+  "prepackagedDataFeatures": [
+    "emrc/_demographics"
+  ],
+  "metadata": {
+    "displayName": "eMerge Record Counter Dataset",
+    "description": "Dataset Updated June 03, 2024",
+    "properties": {
+      "lastUpdated": "06/03/24"
+    }
+  },
+  "uiConfigFile": "ui.json"
+}

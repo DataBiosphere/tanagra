@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-dataset-pgrnseq",
+  "displayName": "PGRNSEQ",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Dataset",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "datasetPgrnseq.json",
+  "modifiers": null
+}

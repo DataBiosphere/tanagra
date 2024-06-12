@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-dataset-emergeseq",
+  "displayName": "EMERGESEQ",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Dataset",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "datasetEmergeseq.json",
+  "modifiers": null
+}
