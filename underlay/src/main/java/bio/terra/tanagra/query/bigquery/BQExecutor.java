@@ -97,7 +97,9 @@ public class BQExecutor {
     }
   }
 
-  /** @return pair of strings: GCS URL, file name */
+  /**
+   * @return pair of strings: GCS URL, file name
+   */
   public Pair<String, String> export(
       SqlQueryRequest queryRequest,
       String fileNamePrefix,
@@ -191,7 +193,7 @@ public class BQExecutor {
       String paramName =
           sqlParams.addParam(
               "currentDate",
-              Literal.forDate(DateTimeFormatter.ofPattern("yyyy-mm-dd").format(queryInstant)));
+              Literal.forDate(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(queryInstant)));
       modifiedSql =
           sql.replace(currentDateParens, '@' + paramName).replace(currentDate, '@' + paramName);
     }

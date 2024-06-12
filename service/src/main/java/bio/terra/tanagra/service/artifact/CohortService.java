@@ -18,10 +18,10 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
+import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,7 +137,9 @@ public class CohortService {
     return cohortDao.getCohort(cohortId);
   }
 
-  /** @return the id of the frozen revision just created */
+  /**
+   * @return the id of the frozen revision just created
+   */
   public String createNextRevision(String studyId, String cohortId, String userEmail) {
     Long recordsCount;
     if (featureConfiguration.isBackendFiltersEnabled()) {

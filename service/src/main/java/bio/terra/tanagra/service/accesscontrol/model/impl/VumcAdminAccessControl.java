@@ -182,6 +182,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
         return Set.of();
     }
   }
+
   /** Admin service study permission -> Core service study permission. */
   private static Set<Action> fromStudyApiAction(ResourceAction apiAction) {
     switch (apiAction) {

@@ -4,7 +4,7 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class HintQueryRequest {
   private final Underlay underlay;

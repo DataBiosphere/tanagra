@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class NameHelper {
   private static final String GENERATED_FIELD_PREFIX = "T_";

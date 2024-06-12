@@ -32,6 +32,7 @@ import picocli.CommandLine;
             + "static.")
 public abstract class BaseCommand implements Callable<Integer> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseCommand.class);
+
   // Output streams for commands to write to.
   @SuppressWarnings({
     "checkstyle:StaticVariableName",

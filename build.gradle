@@ -1,7 +1,20 @@
-
 // Required by spotless. https://github.com/diffplug/spotless/issues/747
 buildscript {
     repositories {
         mavenCentral()
     }
+}
+
+gradle.ext {
+    vSpringBoot = '3.2.5'
+    vPmd = '7.1.0'
+    vTerraCommonLib = '1.1.12-SNAPSHOT'
+    vApacheCommonsText = '1.12.0'
+    vSlf4jApi = '2.0.13'
+    vSpotBugs = '4.8.5'
+    vJackson = '2.17.1'
+    vJersey = '2.43'
+    vSwaggerAnnotations = '2.2.21'
+    vSwaggerCodegen = '3.0.55'
+    vPicocliVersion = '4.7.6'
 }

@@ -5,7 +5,7 @@
 ## Usage: source tools/local-dev.sh
 
 function check_java_version() {
-  local REQ_JAVA_VERSION=11
+  local REQ_JAVA_VERSION=17
 
   echo "--  Checking if installed Java version is ${REQ_JAVA_VERSION} or higher"
   if [[ -n "$(which java)" ]]; then
@@ -34,7 +34,7 @@ if [[ "$(basename "$PWD")" != 'tanagra' ]]; then
 fi
 
 echo "Building Java code"
-./gradlew clean indexer:install
+./gradlew clean indexer:installDist
 
 echo "Aliasing JAR file"
 alias tanagra="$(pwd)"/indexer/build/install/tanagra/bin/tanagra

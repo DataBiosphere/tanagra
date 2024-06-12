@@ -8,9 +8,9 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.model.StudyAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -133,10 +133,12 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
         return null;
       }
     }
+
+    HttpStatus statusCode = (HttpStatus) responseEntity.getStatusCode();
     LOGGER.error(
         "AoU Workspace Access Level api error. Http status code: {}, Message: {}",
-        responseEntity.getStatusCodeValue(),
-        responseEntity.getStatusCode().getReasonPhrase());
+        statusCode,
+        statusCode.getReasonPhrase());
     return null;
   }
 }
