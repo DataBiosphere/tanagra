@@ -26,6 +26,7 @@ public class SamGroupsAccessControlTest extends BaseAccessControlTest {
     sgImpl.addMembership(USER_1.getEmail(), cmssynpufGroup);
     sgImpl.addMembership(USER_2.getEmail(), cmssynpufGroup);
     sgImpl.addMembership(USER_2.getEmail(), aousyntheticGroup);
+    sgImpl.addMembership(USER_3.getEmail(), null);
 
     AccessControlConfiguration accessControlConfig = new AccessControlConfiguration();
     accessControlConfig.setParams(

@@ -20,7 +20,9 @@ public class MockSamGroupsAccessControl extends SamGroupsAccessControl {
   public void addMembership(String userEmail, String groupName) {
     List<ManagedGroupMembershipEntry> userGroups =
         samGroupMemberships.getOrDefault(userEmail, new ArrayList<>());
-    userGroups.add(new ManagedGroupMembershipEntry().groupName(groupName).role("member"));
+    if (groupName != null) {
+      userGroups.add(new ManagedGroupMembershipEntry().groupName(groupName).role("member"));
+    }
     samGroupMemberships.put(userEmail, userGroups);
   }
 }
