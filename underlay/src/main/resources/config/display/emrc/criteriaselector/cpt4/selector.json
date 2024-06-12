@@ -1,0 +1,16 @@
+{
+  "name": "tanagra-cpt4",
+  "displayName": "CPT-4",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Source Codes",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "cpt4.json",
+  "modifiers": [
+  ]
+}
