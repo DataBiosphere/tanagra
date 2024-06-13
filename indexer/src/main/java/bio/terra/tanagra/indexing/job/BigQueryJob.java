@@ -70,7 +70,7 @@ public abstract class BigQueryJob implements IndexingJob {
             + " WHERE "
             + bqTranslator.unaryFilterSql(field, UnaryOperator.IS_NOT_NULL, null, new SqlParams())
             + " LIMIT 1";
-    TableResult tableResult = googleBigQuery.runQuery(selectOneRowSql);
+    TableResult tableResult = googleBigQuery.runQueryLongTimeout(selectOneRowSql);
     return tableResult.getTotalRows() > 0;
   }
 
@@ -85,7 +85,7 @@ public abstract class BigQueryJob implements IndexingJob {
     } else if (isDryRun) {
       googleBigQuery.dryRunQuery(sql);
     } else {
-      googleBigQuery.runQuery(sql);
+      googleBigQuery.runQueryLongTimeout(sql);
     }
   }
 }

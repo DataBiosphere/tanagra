@@ -1,5 +1,7 @@
 package bio.terra.tanagra.indexing.job.bigquery;
 
+import static bio.terra.tanagra.utils.GoogleBigQuery.LONG_QUERY_TIMEOUT;
+
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
@@ -72,7 +74,8 @@ public class WriteChildParent extends BigQueryJob {
     if (isDryRun) {
       googleBigQuery.dryRunQuery(sourceChildParentSql, null, null, null, outputTable, clustering);
     } else {
-      googleBigQuery.runQuery(sourceChildParentSql, null, null, null, outputTable, clustering);
+      googleBigQuery.runQuery(
+          sourceChildParentSql, null, null, null, outputTable, clustering, LONG_QUERY_TIMEOUT);
     }
   }
 }

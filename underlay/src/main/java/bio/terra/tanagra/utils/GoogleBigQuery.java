@@ -41,7 +41,8 @@ public final class GoogleBigQuery {
 
   // Default value for the maximum number of times to retry HTTP requests.
   public static final int BQ_MAXIMUM_RETRIES = 5;
-  private static final Duration MAX_QUERY_WAIT_TIME = Duration.ofMinutes(10);
+  public static final Duration LONG_QUERY_TIMEOUT = Duration.ofHours(3);
+  private static final Duration DEFAULT_QUERY_TIMEOUT = Duration.ofMinutes(10);
   private static final org.threeten.bp.Duration MAX_BQ_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(10);
 
@@ -214,8 +215,8 @@ public final class GoogleBigQuery {
 
   // -----------------------------------------------------------------------------------
   // Queries
-  public TableResult runQuery(String sql) {
-    return runQuery(sql, null, null, null, null, null);
+  public TableResult runQueryLongTimeout(String sql) {
+    return runQuery(sql, null, null, null, null, null, LONG_QUERY_TIMEOUT);
   }
 
   public JobStatistics.QueryStatistics dryRunQuery(String sql) {
@@ -228,10 +229,18 @@ public final class GoogleBigQuery {
       @Nullable String pageToken,
       @Nullable Integer pageSize,
       @Nullable TableId destinationTable,
-      @Nullable Clustering clustering) {
+      @Nullable Clustering clustering,
+      @Nullable Duration queryTimeout) {
     Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
         buildQueryJobConfig(
-            sql, false, queryParams, pageToken, pageSize, destinationTable, clustering);
+            sql,
+            false,
+            queryParams,
+            pageToken,
+            pageSize,
+            destinationTable,
+            clustering,
+            queryTimeout);
     return callWithRetries(
         () -> {
           Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
@@ -253,7 +262,7 @@ public final class GoogleBigQuery {
       @Nullable Clustering clustering) {
     Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
         buildQueryJobConfig(
-            sql, true, queryParams, pageToken, pageSize, destinationTable, clustering);
+            sql, true, queryParams, pageToken, pageSize, destinationTable, clustering, null);
     return callWithRetries(
         () -> {
           Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
@@ -269,6 +278,7 @@ public final class GoogleBigQuery {
         "Error getting job statistics for query: " + queryJobConfig.getLeft().getQuery());
   }
 
+  @SuppressWarnings("checkstyle:ParameterNumber")
   private Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> buildQueryJobConfig(
       String sql,
       boolean isDryRun,
@@ -276,7 +286,8 @@ public final class GoogleBigQuery {
       @Nullable String pageToken,
       @Nullable Integer pageSize,
       @Nullable TableId destinationTable,
-      @Nullable Clustering clustering) {
+      @Nullable Clustering clustering,
+      @Nullable Duration queryTimeout) {
     QueryJobConfiguration.Builder queryJobConfig =
         QueryJobConfiguration.newBuilder(sql)
             .setUseLegacySql(false)
@@ -294,7 +305,8 @@ public final class GoogleBigQuery {
 
     List<BigQuery.QueryResultsOption> queryResultsOptions = new ArrayList<>();
     queryResultsOptions.add(
-        BigQuery.QueryResultsOption.maxWaitTime(MAX_QUERY_WAIT_TIME.toMillis()));
+        BigQuery.QueryResultsOption.maxWaitTime(
+            queryTimeout != null ? queryTimeout.toMillis() : DEFAULT_QUERY_TIMEOUT.toMillis()));
     if (pageToken != null) {
       queryResultsOptions.add(BigQuery.QueryResultsOption.pageToken(pageToken));
     }

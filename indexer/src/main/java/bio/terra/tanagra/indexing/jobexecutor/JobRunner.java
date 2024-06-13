@@ -1,6 +1,8 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
 import bio.terra.tanagra.indexing.job.IndexingJob;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -34,9 +36,9 @@ public abstract class JobRunner {
 
   /** Run all job sets. */
   public void runJobSets() {
-    long startTime = System.nanoTime();
+    Instant startTime = Instant.now();
     runJobSetsWithoutTimer();
-    elapsedTimeNS = System.nanoTime() - startTime;
+    elapsedTimeNS = startTime.until(startTime, ChronoUnit.NANOS);
   }
 
   public List<JobResult> getJobResults() {

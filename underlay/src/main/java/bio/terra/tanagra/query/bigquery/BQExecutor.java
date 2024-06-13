@@ -86,6 +86,7 @@ public class BQExecutor {
                   pageToken,
                   queryRequest.getPageSize(),
                   null,
+                  null,
                   null);
       Iterable<SqlRowResult> rowResults =
           Iterables.transform(
@@ -127,7 +128,7 @@ public class BQExecutor {
     Map<String, QueryParameterValue> bqQueryParams =
         toQueryParameterMap(queryRequest.getSqlParams());
     getBigQueryService()
-        .runQuery(queryRequest.getSql(), bqQueryParams, null, null, tempTableId, null);
+        .runQuery(queryRequest.getSql(), bqQueryParams, null, null, tempTableId, null, null);
     Table tempTable =
         getBigQueryService()
             .pollForTableExistenceOrThrow(

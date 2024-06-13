@@ -263,7 +263,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       return Pair.of(Literal.forDouble(0.0), Literal.forDouble(0.0));
     } else {
       // Parse the result row.
-      TableResult tableResult = googleBigQuery.runQuery(selectMinMaxSql);
+      TableResult tableResult = googleBigQuery.runQueryLongTimeout(selectMinMaxSql);
       Iterator<FieldValueList> rowResults = tableResult.getValues().iterator();
       if (rowResults.hasNext()) {
         FieldValueList rowResult = rowResults.next();
@@ -315,7 +315,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       }
       enumCounts.add(Pair.of(new ValueDisplay(Literal.forInt64(0L), "ZERO"), 0L));
     } else {
-      TableResult tableResult = googleBigQuery.runQuery(selectEnumCountSql);
+      TableResult tableResult = googleBigQuery.runQueryLongTimeout(selectEnumCountSql);
 
       // Parse the result rows.
       for (FieldValueList rowResult : tableResult.getValues()) {
