@@ -1,0 +1,6 @@
+{
+  "name": "gender",
+  "title": "Gender Identity",
+  "configFile": "gender.json",
+  "plugin": "bar"
+}

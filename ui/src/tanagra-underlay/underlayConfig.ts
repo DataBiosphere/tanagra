@@ -209,5 +209,16 @@ export type SZUnderlay = {
   prepackagedDataFeatures: string[];
   primaryEntity: string;
   uiConfigFile: string;
+  visualizations: string[];
+};
+
+export type SZVisualization = {
+  dataConfig: string;
+  dataConfigFile: string;
+  name: string;
+  plugin: string;
+  pluginConfig: string;
+  pluginConfigFile: string;
+  title: string;
 };
 

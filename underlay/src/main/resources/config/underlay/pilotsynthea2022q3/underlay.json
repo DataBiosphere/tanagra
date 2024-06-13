@@ -64,6 +64,10 @@
   "prepackagedDataFeatures": [
     "pilotsynthea2022q3/_demographics"
   ],
+  "visualizations": [
+    "omop/gender",
+    "omop/raceAndAge"
+  ],
   "metadata": {
     "displayName": "Pilot Synthetic Dataset 2022q3",
     "description": "Dataset For Pilot",

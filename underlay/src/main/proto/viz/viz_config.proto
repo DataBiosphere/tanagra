@@ -71,12 +71,4 @@ message VizConfig {
     repeated Attribute attributes = 5;
   }
   repeated Source sources = 1;
-
-  message Display {
-    string title = 1;
-  }
-  Display display = 2;
-
-  string viz_plugin = 3;
-  optional string viz_data = 4;
 }

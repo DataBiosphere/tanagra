@@ -55,6 +55,10 @@
   "prepackagedDataFeatures": [
     "cmssynpuf/_demographics"
   ],
+  "visualizations": [
+    "omop/gender",
+    "omop/raceAndAge"
+  ],
   "metadata": {
     "displayName": "Centers for Medicare and Medicaid Services (CMS) Medicare Claims Synthetic Public Use Files (SynPUF)",
     "description": "Synthetic data containing 2008-2010 Medicare insurance claims",
