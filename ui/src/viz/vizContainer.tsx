@@ -10,12 +10,27 @@ import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/viz/viz_config";
+import { useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { isValid } from "util/valid";
 import { getVizPlugin, VizData } from "viz/viz";
 
+type UnparsedConfig = {
+  dataConfig: string;
+  plugin: string;
+  pluginConfig: string;
+  title: string;
+};
+
+type ParsedConfig = {
+  dataConfig: configProto.VizConfig;
+  plugin: string;
+  pluginConfig: object;
+  title: string;
+};
+
 type VizContainerProps = {
-  configs: configProto.VizConfig[];
+  configs: UnparsedConfig[];
   cohort: Cohort;
 };
 
@@ -25,23 +40,36 @@ export function VizContainer(props: VizContainerProps) {
   const studyId = useStudyId();
   const studySource = useStudySource();
 
+  const configs = useMemo(
+    (): ParsedConfig[] =>
+      props.configs.map((c) => ({
+        ...c,
+        dataConfig: configProto.VizConfig.fromJSON(JSON.parse(c.dataConfig)),
+        pluginConfig: JSON.parse(c.pluginConfig ?? "{}"),
+      })),
+    [props.configs]
+  );
+
   const dataState = useSWRImmutable(
-    { type: "vizData", configs: props.configs, cohort: props.cohort },
+    { type: "vizData", configs: configs, cohort: props.cohort },
     async () =>
       await Promise.all(
-        props.configs.map((c) =>
-          fetchVizData(c, underlaySource, studySource, studyId, cohort)
+        configs.map((c) =>
+          fetchVizData(
+            c.dataConfig,
+            underlaySource,
+            studySource,
+            studyId,
+            cohort
+          )
         )
       ).then((res) =>
         res.map((data, i) => {
-          const config = props.configs[i];
+          const config = configs[i];
           return {
             config,
             data,
-            plugin: getVizPlugin(
-              config.vizPlugin,
-              JSON.parse(config.vizData ?? "{}")
-            ),
+            plugin: getVizPlugin(config.plugin, config.pluginConfig),
           };
         })
       )
@@ -53,9 +81,7 @@ export function VizContainer(props: VizContainerProps) {
         <GridLayout rows>
           {dataState.data?.map((d, i) => (
             <GridLayout key={i} rows>
-              <Typography variant="body1">
-                {d.config.display?.title ?? "Untitled"}
-              </Typography>
+              <Typography variant="body1">{d.config.title}</Typography>
               {d.data?.length ? (
                 d.plugin.render(d.data ?? [])
               ) : (

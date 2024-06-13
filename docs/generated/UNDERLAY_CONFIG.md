@@ -29,6 +29,7 @@ This documentation is generated from annotations in the configuration classes.
 * [SZTemporalQuery](#sztemporalquery)
 * [SZTextSearch](#sztextsearch)
 * [SZUnderlay](#szunderlay)
+* [SZVisualization](#szvisualization)
 
 ## SZAttribute
 Attribute or property of an entity.
@@ -1164,6 +1165,73 @@ Name of the UI config file.
 File must be in the same directory as the underlay file. Name includes file extension.
 
 *Example value:* `ui.json`
+
+### SZUnderlay.visualizations
+**required** List [ String ]
+
+List of paths of all the visualizations.
+
+A visualization contains all of the configuration to display a underlay or cohort level visualization in the UI.
+
+Path consists of two parts: [Display Group]/[Visualization Name] (e.g. `omop/peopleByAge`).
+
+[Display Group] is the name of a sub-directory of the config/ui/ sub-directory in the underlay sub-project resources (e.g. `omop`).
+
+[Visualization Name] is specified in the visualization file, and also matches the name of the sub-directory of the config/ui/[Display Group]/viz sub-directory in the underlay sub-project resources (e.g. `peopleByAge`).
+
+Using the path here instead of just the visualization name allows us to share visualization definitions across underlays. For example, the `omop` visualization group contains template visualization definitions for standing up a new underlay.
+
+
+
+## SZVisualization
+Configuration for a single visualization.
+
+### SZVisualization.dataConfig
+**required** String
+
+Serialized configuration of the visualization. VizConfig protocol buffer as JSON.
+
+### SZVisualization.dataConfigFile
+**required** String
+
+Name of the file that contains the serialized configuration of the visualization.
+
+This file should be in the same directory as the visualization (e.g. `gender.json`).
+
+If this property is specified, the value of the `config` property is ignored.
+
+### SZVisualization.name
+**required** String
+
+Name of the visualization.
+
+This is the unique identifier for the vizualization. The vizualization names cannot overlap within an underlay.
+
+Name may not include spaces or special characters, only letters and numbers.
+
+### SZVisualization.plugin
+**required** String
+
+Name of the visualization UI plugin.
+
+### SZVisualization.pluginConfig
+**required** String
+
+Serialized configuration of the visualization UI plugin as JSON.
+
+### SZVisualization.pluginConfigFile
+**required** String
+
+Name of the file that contains the serialized configuration of the visualization UI plugin.
+
+This file should be in the same directory as the visualization (e.g. `gender.json`).
+
+If this property is specified, the value of the `pluginConfig` property is ignored.
+
+### SZVisualization.title
+**required** String
+
+Visible title of the visualization.
 
 
 

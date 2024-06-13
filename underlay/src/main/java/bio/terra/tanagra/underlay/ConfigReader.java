@@ -12,6 +12,7 @@ import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.collect.ImmutableMap;
@@ -30,6 +31,7 @@ import org.apache.commons.text.StringSubstitutor;
 @SuppressFBWarnings(
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
     justification = "Jackson object mapper writes the POJO fields during deserialization")
+@SuppressWarnings("PMD.TooManyFields")
 public final class ConfigReader {
   private static final String RESOURCES_DIR_DISK_PATH = "underlay/src/main/resources/";
   private static final String RESOURCES_CONFIG_PATH = "config/";
@@ -39,26 +41,32 @@ public final class ConfigReader {
   private static final String DATA_MAPPING_CONFIG_SUBDIR = "datamapping/";
   private static final String ENTITY_CONFIG_SUBDIR = "entity/";
   private static final String ENTITY_GROUP_CONFIG_SUBDIR = "entitygroup/";
-  private static final String DISPLAY_CONFIG_SUBDIR = "display/";
+  private static final String CRITERIA_CONFIG_SUBDIR = "criteria/";
   private static final String CRITERIA_SELECTOR_CONFIG_SUBDIR = "criteriaselector/";
   private static final String PREPACKAGED_CRITERIA_CONFIG_SUBDIR = "prepackagedcriteria/";
+  private static final String UI_CONFIG_SUBDIR = "ui/";
+  private static final String VIZ_CONFIG_SUBDIR = "viz/";
   private static final String FILE_EXTENSION = ".json";
   private static final String UNDERLAY_FILE_NAME = "underlay";
   private static final String ENTITY_FILE_NAME = "entity";
   private static final String ENTITY_GROUP_FILE_NAME = "entityGroup";
   private static final String CRITERIA_SELECTOR_FILE_NAME = "selector";
   private static final String PREPACKAGED_CRITERIA_FILE_NAME = "prepackaged";
+  private static final String VIZ_FILE_NAME = "viz";
   private final Map<String, SZEntity> szEntityCache = new HashMap<>();
   private final Map<String, SZGroupItems> szGroupItemsCache = new HashMap<>();
   private final Map<String, SZCriteriaOccurrence> szCriteriaOccurrenceCache = new HashMap<>();
   private final Map<String, SZCriteriaSelector> szCriteriaSelectorCache = new HashMap<>();
   private final Map<String, SZPrepackagedCriteria> szPrepackagedCriteriaCache = new HashMap<>();
+  private final Map<String, SZVisualization> szVizCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entitySqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> criteriaSelectorPluginConfigCache =
       new HashMap<>();
   private final Map<Pair<String, String>, String> prepackagedCriteriaPluginConfigCache =
       new HashMap<>();
+  private final Map<Pair<String, String>, String> vizDataConfigCache = new HashMap<>();
+  private final Map<Pair<String, String>, String> vizPluginConfigCache = new HashMap<>();
   private String underlay;
   private ImmutableMap<String, String> sqlSubstitutions = ImmutableMap.of();
   private final boolean useResourcesInputStream;
@@ -140,6 +148,13 @@ public final class ConfigReader {
     return szPrepackagedCriteriaCache.get(prepackagedCriteriaPath);
   }
 
+  public SZVisualization readViz(String vizPath) {
+    if (!szVizCache.containsKey(vizPath)) {
+      szVizCache.put(vizPath, deserializeViz(vizPath));
+    }
+    return szVizCache.get(vizPath);
+  }
+
   public String readEntitySql(String entityPath, String fileName) {
     if (!entitySqlCache.containsKey(Pair.of(entityPath, fileName))) {
       Path sqlFile = resolveEntityDir(entityPath).resolve(fileName);
@@ -179,6 +194,24 @@ public final class ConfigReader {
       prepackagedCriteriaPluginConfigCache.put(Pair.of(prepackagedCriteriaPath, fileName), config);
     }
     return prepackagedCriteriaPluginConfigCache.get(Pair.of(prepackagedCriteriaPath, fileName));
+  }
+
+  public String readVizDataConfig(String vizPath, String fileName) {
+    if (!vizDataConfigCache.containsKey(Pair.of(vizPath, fileName))) {
+      Path dataConfigFile = resolveVizDir(vizPath).resolve(fileName);
+      String config = FileUtils.readStringFromFile(getStream(dataConfigFile));
+      vizDataConfigCache.put(Pair.of(vizPath, fileName), config);
+    }
+    return vizDataConfigCache.get(Pair.of(vizPath, fileName));
+  }
+
+  public String readVizPluginConfig(String vizPath, String fileName) {
+    if (!vizPluginConfigCache.containsKey(Pair.of(vizPath, fileName))) {
+      Path pluginConfigFile = resolveVizDir(vizPath).resolve(fileName);
+      String config = FileUtils.readStringFromFile(getStream(pluginConfigFile));
+      vizPluginConfigCache.put(Pair.of(vizPath, fileName), config);
+    }
+    return vizPluginConfigCache.get(Pair.of(vizPath, fileName));
   }
 
   public String readUIConfig(String fileName) {
@@ -333,6 +366,16 @@ public final class ConfigReader {
     }
   }
 
+  private SZVisualization deserializeViz(String vizPath) {
+    try {
+      return JacksonMapper.readFileIntoJavaObject(
+          getStream(resolveVizDir(vizPath).resolve(VIZ_FILE_NAME + FILE_EXTENSION)),
+          SZVisualization.class);
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException("Error deserializing visualization config file", ioEx);
+    }
+  }
+
   private InputStream getStream(Path resourcesPath) {
     try {
       return useResourcesInputStream
@@ -369,7 +412,7 @@ public final class ConfigReader {
   private static Path resolveCriteriaSelectorDir(String criteriaSelectorPath) {
     Pair<String, String> underlayCriteriaSelector = parseTwoPartPath(criteriaSelectorPath);
     return Path.of(RESOURCES_CONFIG_PATH)
-        .resolve(DISPLAY_CONFIG_SUBDIR)
+        .resolve(CRITERIA_CONFIG_SUBDIR)
         .resolve(underlayCriteriaSelector.getLeft())
         .resolve(CRITERIA_SELECTOR_CONFIG_SUBDIR)
         .resolve(underlayCriteriaSelector.getRight());
@@ -378,10 +421,19 @@ public final class ConfigReader {
   private static Path resolvePrepackagedCriteriaDir(String prepackagedCriteriaPath) {
     Pair<String, String> underlayPrepackagedCriteria = parseTwoPartPath(prepackagedCriteriaPath);
     return Path.of(RESOURCES_CONFIG_PATH)
-        .resolve(DISPLAY_CONFIG_SUBDIR)
+        .resolve(CRITERIA_CONFIG_SUBDIR)
         .resolve(underlayPrepackagedCriteria.getLeft())
         .resolve(PREPACKAGED_CRITERIA_CONFIG_SUBDIR)
         .resolve(underlayPrepackagedCriteria.getRight());
+  }
+
+  private static Path resolveVizDir(String vizPath) {
+    Pair<String, String> underlayViz = parseTwoPartPath(vizPath);
+    return Path.of(RESOURCES_CONFIG_PATH)
+        .resolve(UI_CONFIG_SUBDIR)
+        .resolve(underlayViz.getLeft())
+        .resolve(VIZ_CONFIG_SUBDIR)
+        .resolve(underlayViz.getRight());
   }
 
   private static Pair<String, String> parseTwoPartPath(String path) {

@@ -14,6 +14,7 @@ import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZTextSearch;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import java.util.List;
 
 @SuppressWarnings("PMD.CouplingBetweenObjects")
@@ -51,6 +52,7 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZCriteriaSelector.Display.class,
           SZCriteriaSelector.Modifier.class,
           SZPrepackagedCriteria.class,
+          SZVisualization.class,
           SZCorePlugin.class);
 
   @Override

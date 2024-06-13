@@ -1,0 +1,6 @@
+{
+  "name": "raceAndAge",
+  "title": "Race and Age",
+  "configFile": "raceAndAge.json",
+  "plugin": "bar"
+}

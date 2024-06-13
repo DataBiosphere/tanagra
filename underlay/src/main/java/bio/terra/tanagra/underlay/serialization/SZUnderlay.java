@@ -118,6 +118,23 @@ public class SZUnderlay {
               + "criteria definitions for standing up a new underlay.")
   public Set<String> prepackagedDataFeatures;
 
+  @AnnotatedField(
+      name = "SZUnderlay.visualizations",
+      markdown =
+          "List of paths of all the visualizations.\n\n"
+              + "A visualization contains all of the configuration to display a underlay or cohort level visualization "
+              + "in the UI.\n\n"
+              + "Path consists of two parts: [Display Group]/[Visualization Name] (e.g. `omop/peopleByAge`).\n\n"
+              + "[Display Group] is the name of a sub-directory of the config/ui/ sub-directory "
+              + "in the underlay sub-project resources (e.g. `omop`).\n\n"
+              + "[Visualization Name] is specified in the visualization file, and also matches the name of the "
+              + "sub-directory of the config/ui/[Display Group]/viz sub-directory in the underlay sub-project "
+              + "resources (e.g. `peopleByAge`).\n\n"
+              + "Using the path here instead of just the visualization name allows us to share visualization "
+              + "definitions across underlays. For example, the `omop` visualization group contains template "
+              + "visualization definitions for standing up a new underlay.")
+  public List<String> visualizations;
+
   @AnnotatedField(name = "SZUnderlay.metadata", markdown = "Metadata for the underlay.")
   public Metadata metadata;
 

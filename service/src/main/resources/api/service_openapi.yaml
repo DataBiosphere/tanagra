@@ -1308,6 +1308,11 @@ components:
           type: array
           items:
             type: string
+        visualizations:
+          description: Contents of the visualization json files
+          type: array
+          items:
+            type: string
       required:
         - underlay
         - entities

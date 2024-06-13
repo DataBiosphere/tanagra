@@ -67,6 +67,10 @@
   "prepackagedDataFeatures": [
     "aouSR2019q4r4/_demographics"
   ],
+  "visualizations": [
+    "omop/gender",
+    "omop/raceAndAge"
+  ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset SR2019q4r4",
     "description": "Dataset From 2019",
