@@ -38,7 +38,7 @@ public abstract class JobRunner {
   public void runJobSets() {
     Instant startTime = Instant.now();
     runJobSetsWithoutTimer();
-    elapsedTimeNS = startTime.until(startTime, ChronoUnit.NANOS);
+    elapsedTimeNS = startTime.until(Instant.now(), ChronoUnit.NANOS);
   }
 
   public List<JobResult> getJobResults() {
