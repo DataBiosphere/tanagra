@@ -41,14 +41,14 @@ dependencies {
     implementation group: "com.google.guava", name: "guava"
 
     // Apache Beam libraries
-    implementation group: "org.apache.beam", name: "beam-sdks-java-core", version: "2.51.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-io-google-cloud-platform", version: "2.51.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-io-jdbc", version: "2.51.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-extensions-google-cloud-platform-core", version: "2.51.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-extensions-join-library", version: "2.51.0"
-    implementation group: "org.apache.beam", name: "beam-runners-google-cloud-dataflow-java", version: "2.51.0"
-    implementation group: "org.apache.beam", name: "beam-runners-direct-java", version: "2.51.0"
-    testRuntimeClasspath group: "org.apache.beam", name: "beam-runners-direct-java", version: "2.51.0"
+    implementation group: "org.apache.beam", name: "beam-sdks-java-core", version: "2.56.0"
+    implementation group: "org.apache.beam", name: "beam-sdks-java-io-google-cloud-platform", version: "2.56.0"
+    implementation group: "org.apache.beam", name: "beam-sdks-java-io-jdbc", version: "2.56.0"
+    implementation group: "org.apache.beam", name: "beam-sdks-java-extensions-google-cloud-platform-core", version: "2.56.0"
+    implementation group: "org.apache.beam", name: "beam-sdks-java-extensions-join-library", version: "2.56.0"
+    implementation group: "org.apache.beam", name: "beam-runners-google-cloud-dataflow-java", version: "2.56.0"
+    implementation group: "org.apache.beam", name: "beam-runners-direct-java", version: "2.56.0"
+    testRuntimeClasspath group: "org.apache.beam", name: "beam-runners-direct-java", version: "2.56.0"
 
     // Apache Beam depends on JUnit 4.13.1, so this sub-project can't use JUnit 5 like the other sub-projects.
     // https://github.com/apache/beam/blob/dd2f67bb8ec49e542635035743a754421cce3a75/buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy#L595
