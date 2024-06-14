@@ -20,7 +20,8 @@ public abstract class BigQueryJob implements IndexingJob {
   protected BigQueryJob(SZIndexer indexerConfig) {
     this.indexerConfig = indexerConfig;
     this.googleBigQuery =
-        GoogleBigQuery.forApplicationDefaultCredentials(indexerConfig.bigQuery.queryProjectId);
+        GoogleBigQuery.forApplicationDefaultCredentialsLongTimeout(
+            indexerConfig.bigQuery.queryProjectId);
   }
 
   @Override

@@ -43,30 +43,41 @@ public final class GoogleBigQuery {
   public static final int BQ_MAXIMUM_RETRIES = 5;
   public static final Duration LONG_QUERY_TIMEOUT = Duration.ofHours(3);
   private static final Duration DEFAULT_QUERY_TIMEOUT = Duration.ofMinutes(10);
-  private static final org.threeten.bp.Duration MAX_BQ_CLIENT_TIMEOUT =
+  private static final org.threeten.bp.Duration LONG_BQ_CLIENT_TIMEOUT =
+      org.threeten.bp.Duration.ofHours(3);
+  private static final org.threeten.bp.Duration DEFAULT_BQ_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(10);
 
   private final BigQuery bigQuery;
 
-  private GoogleBigQuery(GoogleCredentials credentials, String projectId) {
+  private GoogleBigQuery(
+      GoogleCredentials credentials, String projectId, org.threeten.bp.Duration clientTimeout) {
     this.bigQuery =
         BigQueryOptions.newBuilder()
             .setCredentials(credentials)
             .setProjectId(projectId)
-            .setRetrySettings(
-                RetrySettings.newBuilder().setTotalTimeout(MAX_BQ_CLIENT_TIMEOUT).build())
+            .setRetrySettings(RetrySettings.newBuilder().setTotalTimeout(clientTimeout).build())
             .build()
             .getService();
   }
 
   public static GoogleBigQuery forApplicationDefaultCredentials(String projectId) {
+    return forApplicationDefaultCredentialsHelper(projectId, DEFAULT_BQ_CLIENT_TIMEOUT);
+  }
+
+  public static GoogleBigQuery forApplicationDefaultCredentialsLongTimeout(String projectId) {
+    return forApplicationDefaultCredentialsHelper(projectId, LONG_BQ_CLIENT_TIMEOUT);
+  }
+
+  private static GoogleBigQuery forApplicationDefaultCredentialsHelper(
+      String projectId, org.threeten.bp.Duration clientTimeout) {
     GoogleCredentials credentials;
     try {
       credentials = GoogleCredentials.getApplicationDefault();
     } catch (IOException ioEx) {
       throw new SystemException("Error loading application default credentials", ioEx);
     }
-    return new GoogleBigQuery(credentials, projectId);
+    return new GoogleBigQuery(credentials, projectId, clientTimeout);
   }
 
   // -----------------------------------------------------------------------------------
@@ -243,16 +254,9 @@ public final class GoogleBigQuery {
             queryTimeout);
     return callWithRetries(
         () -> {
-          bigQuery.query(queryJobConfig.getLeft());
           Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
-          Job completedJob = job.waitFor();
-          if (completedJob == null) {
-            throw new SystemException("Job no longer exists: " + job.getJobId());
-          } else if (completedJob.getStatus().getError() != null) {
-            throw new SystemException("Job failed: " + completedJob.getStatus().getError());
-          }
           TableResult tableResult =
-              completedJob.getQueryResults(
+              job.getQueryResults(
                   queryJobConfig.getRight().toArray(new BigQuery.QueryResultsOption[0]));
           LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
           return tableResult;
