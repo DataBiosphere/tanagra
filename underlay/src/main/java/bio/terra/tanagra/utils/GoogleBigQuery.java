@@ -243,9 +243,16 @@ public final class GoogleBigQuery {
             queryTimeout);
     return callWithRetries(
         () -> {
+          bigQuery.query(queryJobConfig.getLeft());
           Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
+          Job completedJob = job.waitFor();
+          if (completedJob == null) {
+            throw new SystemException("Job no longer exists: " + job.getJobId());
+          } else if (completedJob.getStatus().getError() != null) {
+            throw new SystemException("Job failed: " + completedJob.getStatus().getError());
+          }
           TableResult tableResult =
-              job.getQueryResults(
+              completedJob.getQueryResults(
                   queryJobConfig.getRight().toArray(new BigQuery.QueryResultsOption[0]));
           LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
           return tableResult;
