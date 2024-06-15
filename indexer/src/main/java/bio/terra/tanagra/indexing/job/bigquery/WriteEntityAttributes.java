@@ -79,9 +79,7 @@ public class WriteEntityAttributes extends BigQueryJob {
             + sourceTable.getTablePointer().render();
     LOGGER.info("Generated insert SQL: {}", insertFromSelectSql);
 
-    if (getOutputTable().isPresent()) {
-      googleBigQuery.runInsertUpdateQuery(insertFromSelectSql, isDryRun);
-    }
+    runQueryIfTableExists(indexTable.getTablePointer(), insertFromSelectSql, isDryRun);
   }
 
   @Override

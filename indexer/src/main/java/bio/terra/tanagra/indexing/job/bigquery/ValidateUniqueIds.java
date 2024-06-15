@@ -58,7 +58,7 @@ public class ValidateUniqueIds extends BigQueryJob {
       LOGGER.info("Skipping unique id check because entity index table does not exist yet.");
     } else {
       // Run the query and check that no rows were returned.
-      TableResult tableResult = googleBigQuery.queryBigQuery(selectDuplicateIdsSql);
+      TableResult tableResult = googleBigQuery.runQueryLongTimeout(selectDuplicateIdsSql);
       if (tableResult.getTotalRows() > 0) {
         throw new InvalidConfigException(
             "Id attribute is not unique for entity: "

@@ -13,7 +13,6 @@ import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.query.sql.SqlQueryRequest;
-import bio.terra.tanagra.query.sql.SqlQueryResult;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
@@ -22,8 +21,6 @@ import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValueList;
-import com.google.cloud.bigquery.JobStatistics;
-import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
@@ -198,31 +195,15 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             + ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName()
             + ") VALUES "
             + rowsOfLiteralsSql;
-    QueryJobConfiguration queryConfig =
-        QueryJobConfiguration.newBuilder(insertLiteralsSql)
-            .setDryRun(isDryRun)
-            .setUseLegacySql(false)
-            .build();
-    if (isDryRun) {
-      if (getOutputTable().isEmpty()) {
-        LOGGER.info("Skipping query dry run because output table does not exist yet.");
-      } else {
-        JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
-        LOGGER.info(
-            "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-            queryStatistics.getStatementType(),
-            queryStatistics.getCacheHit(),
-            queryStatistics.getTotalBytesProcessed(),
-            queryStatistics.getTotalSlotMs());
-      }
+    if (isDryRun && getOutputTable().isEmpty()) {
+      LOGGER.info("Skipping query dry run because output table does not exist yet.");
     } else {
       BQExecutor bqExecutor =
           new BQExecutor(
               indexerConfig.bigQuery.queryProjectId, indexerConfig.bigQuery.dataLocation);
       SqlQueryRequest sqlQueryRequest =
           new SqlQueryRequest(insertLiteralsSql, sqlParams, null, null, isDryRun);
-      SqlQueryResult sqlQueryResult = bqExecutor.run(sqlQueryRequest);
-      LOGGER.info("SQL query returns {} rows across all pages", sqlQueryResult.getTotalNumRows());
+      bqExecutor.run(sqlQueryRequest);
     }
   }
 
@@ -270,31 +251,19 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                 .renderForSelect()
             + " FROM "
             + innerQueryTable.render();
+    LOGGER.info("SQL numeric range: {}", selectMinMaxSql);
 
     // Execute the query.
-    QueryJobConfiguration queryConfig =
-        QueryJobConfiguration.newBuilder(selectMinMaxSql)
-            .setDryRun(isDryRun)
-            .setUseLegacySql(false)
-            .build();
-    LOGGER.info("SQL numeric range: {}", selectMinMaxSql);
     if (isDryRun) {
       if (getOutputTable().isEmpty()) {
         LOGGER.info("Skipping query dry run because output table does not exist yet.");
       } else {
-        JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
-        LOGGER.info(
-            "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-            queryStatistics.getStatementType(),
-            queryStatistics.getCacheHit(),
-            queryStatistics.getTotalBytesProcessed(),
-            queryStatistics.getTotalSlotMs());
+        googleBigQuery.dryRunQuery(selectMinMaxSql);
       }
       return Pair.of(Literal.forDouble(0.0), Literal.forDouble(0.0));
     } else {
       // Parse the result row.
-      TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
-      LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
+      TableResult tableResult = googleBigQuery.runQueryLongTimeout(selectMinMaxSql);
       Iterator<FieldValueList> rowResults = tableResult.getValues().iterator();
       if (rowResults.hasNext()) {
         FieldValueList rowResult = rowResults.next();
@@ -334,33 +303,21 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             + SqlQueryField.of(attrValField, enumValAlias).renderForGroupBy(null, true)
             + ", "
             + SqlQueryField.of(attrDispField, enumDispAlias).renderForGroupBy(null, true);
-
-    // Execute the query.
-    QueryJobConfiguration queryConfig =
-        QueryJobConfiguration.newBuilder(selectEnumCountSql)
-            .setDryRun(isDryRun)
-            .setUseLegacySql(false)
-            .build();
     LOGGER.info("SQL enum count: {}", selectEnumCountSql);
 
-    // Parse the result rows.
+    // Execute the query.
     List<Pair<ValueDisplay, Long>> enumCounts = new ArrayList<>();
     if (isDryRun) {
       if (getOutputTable().isEmpty()) {
         LOGGER.info("Skipping query dry run because output table does not exist yet.");
       } else {
-        JobStatistics.QueryStatistics queryStatistics = googleBigQuery.queryStatistics(queryConfig);
-        LOGGER.info(
-            "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-            queryStatistics.getStatementType(),
-            queryStatistics.getCacheHit(),
-            queryStatistics.getTotalBytesProcessed(),
-            queryStatistics.getTotalSlotMs());
+        googleBigQuery.dryRunQuery(selectEnumCountSql);
       }
       enumCounts.add(Pair.of(new ValueDisplay(Literal.forInt64(0L), "ZERO"), 0L));
     } else {
-      TableResult tableResult = googleBigQuery.queryBigQuery(queryConfig, null, null);
-      LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
+      TableResult tableResult = googleBigQuery.runQueryLongTimeout(selectEnumCountSql);
+
+      // Parse the result rows.
       for (FieldValueList rowResult : tableResult.getValues()) {
         FieldValue enumValFieldValue = rowResult.get(enumValAlias);
         Literal enumVal =

@@ -11,21 +11,20 @@ import bio.terra.tanagra.query.sql.SqlQueryResult;
 import bio.terra.tanagra.query.sql.SqlRowResult;
 import bio.terra.tanagra.utils.GoogleBigQuery;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.JobStatistics;
-import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
 import com.google.common.collect.Iterables;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -47,15 +46,8 @@ public class BQExecutor {
   }
 
   public SqlQueryResult run(SqlQueryRequest queryRequest) {
-    QueryJobConfiguration.Builder queryConfig =
-        QueryJobConfiguration.newBuilder(queryRequest.getSql()).setUseLegacySql(false);
-    queryRequest
-        .getSqlParams()
-        .getParams()
-        .forEach((key, value) -> queryConfig.addNamedParameter(key, toQueryParameterValue(value)));
-    queryConfig.setDryRun(queryRequest.isDryRun());
-    queryConfig.setUseQueryCache(true);
-
+    // Log the SQL statement with parameters substituted locally (i.e. not by BQ) to help with
+    // debugging.
     String sqlNoParams = queryRequest.getSql();
     for (String paramName : queryRequest.getSqlParams().getParamNamesLongestFirst()) {
       sqlNoParams =
@@ -65,28 +57,37 @@ public class BQExecutor {
     }
     LOGGER.info("SQL no parameters: {}", sqlNoParams);
 
-    LOGGER.info("Running SQL against BigQuery: {}", queryRequest.getSql());
+    // Build a BQ parameter value object for each SQL query parameter.
+    Map<String, QueryParameterValue> bqQueryParams =
+        toQueryParameterMap(queryRequest.getSqlParams());
+
+    // Pull the page token from the request, if we're paging.
+    String pageToken =
+        queryRequest.getPageMarker() == null ? null : queryRequest.getPageMarker().getPageToken();
+
     if (queryRequest.isDryRun()) {
-      JobStatistics.QueryStatistics queryStatistics =
-          getBigQueryService().queryStatistics(queryConfig.build());
-      LOGGER.info(
-          "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-          queryStatistics.getStatementType(),
-          queryStatistics.getCacheHit(),
-          queryStatistics.getTotalBytesProcessed(),
-          queryStatistics.getTotalSlotMs());
+      // For a dry run, validate the query and log some statistics.
+      getBigQueryService()
+          .dryRunQuery(
+              queryRequest.getSql(),
+              bqQueryParams,
+              pageToken,
+              queryRequest.getPageSize(),
+              null,
+              null);
       return new SqlQueryResult(List.of(), null, 0, sqlNoParams);
     } else {
+      // For a regular run, convert the BQ query results to our internal result objects.
       TableResult tableResult =
           getBigQueryService()
-              .queryBigQuery(
-                  queryConfig.build(),
-                  queryRequest.getPageMarker() == null
-                      ? null
-                      : queryRequest.getPageMarker().getPageToken(),
-                  queryRequest.getPageSize());
-
-      LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
+              .runQuery(
+                  queryRequest.getSql(),
+                  bqQueryParams,
+                  pageToken,
+                  queryRequest.getPageSize(),
+                  null,
+                  null,
+                  null);
       Iterable<SqlRowResult> rowResults =
           Iterables.transform(
               tableResult.getValues() /* Single page of results. */, BQRowResult::new);
@@ -120,19 +121,18 @@ public class BQExecutor {
     }
     String exportDatasetId =
         getBigQueryService()
-            .findDatasetForExportTempTable(exportProjectId, exportDatasetIds, datasetLocation);
+            .findDatasetWithLocation(exportProjectId, exportDatasetIds, datasetLocation);
     TableId tempTableId = TableId.of(exportProjectId, exportDatasetId, tempTableName);
 
-    // Pass query parameters to the job.
-    QueryJobConfiguration.Builder queryConfig =
-        QueryJobConfiguration.newBuilder(queryRequest.getSql())
-            .setUseLegacySql(false)
-            .setDestinationTable(tempTableId);
-    queryRequest
-        .getSqlParams()
-        .getParams()
-        .forEach((key, value) -> queryConfig.addNamedParameter(key, toQueryParameterValue(value)));
-    Table tempTable = getBigQueryService().createTableFromQuery(queryConfig.build());
+    // Build a BQ parameter value object for each SQL query parameter.
+    Map<String, QueryParameterValue> bqQueryParams =
+        toQueryParameterMap(queryRequest.getSqlParams());
+    getBigQueryService()
+        .runQuery(queryRequest.getSql(), bqQueryParams, null, null, tempTableId, null, null);
+    Table tempTable =
+        getBigQueryService()
+            .pollForTableExistenceOrThrow(
+                exportProjectId, exportDatasetId, tempTableName, 10, Duration.ofSeconds(1));
     LOGGER.info(
         "Temporary table created for export: {}.{}.{}",
         exportProjectId,
@@ -198,6 +198,15 @@ public class BQExecutor {
     return modifiedSql;
   }
 
+  private static Map<String, QueryParameterValue> toQueryParameterMap(SqlParams sqlParams) {
+    // Build a BQ parameter value object for each SQL query parameter.
+    Map<String, QueryParameterValue> bqQueryParams = new HashMap<>();
+    sqlParams
+        .getParams()
+        .forEach((key, value) -> bqQueryParams.put(key, toQueryParameterValue(value)));
+    return bqQueryParams;
+  }
+
   private static QueryParameterValue toQueryParameterValue(Literal literal) {
     switch (literal.getDataType()) {
       case INT64:
@@ -240,13 +249,7 @@ public class BQExecutor {
   private GoogleBigQuery getBigQueryService() {
     // Lazy load the BigQuery service.
     if (bigQueryService == null) {
-      GoogleCredentials credentials;
-      try {
-        credentials = GoogleCredentials.getApplicationDefault();
-      } catch (IOException ioEx) {
-        throw new SystemException("Error loading application default credentials", ioEx);
-      }
-      bigQueryService = new GoogleBigQuery(credentials, queryProjectId);
+      bigQueryService = GoogleBigQuery.forApplicationDefaultCredentials(queryProjectId);
     }
     return bigQueryService;
   }
@@ -254,13 +257,7 @@ public class BQExecutor {
   private GoogleCloudStorage getCloudStorageService() {
     // Lazy load the GCS service.
     if (cloudStorageService == null) {
-      GoogleCredentials credentials;
-      try {
-        credentials = GoogleCredentials.getApplicationDefault();
-      } catch (IOException ioEx) {
-        throw new SystemException("Error loading application default credentials", ioEx);
-      }
-      cloudStorageService = new GoogleCloudStorage(credentials, queryProjectId);
+      cloudStorageService = GoogleCloudStorage.forApplicationDefaultCredentials(queryProjectId);
     }
     return cloudStorageService;
   }

@@ -397,6 +397,6 @@ public class WriteRollupCounts extends BigQueryJob {
     LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the count field in the index entity main table.
-    googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
+    runQueryIfTableExists(indexTable.getTablePointer(), updateFromSelectSql, isDryRun);
   }
 }

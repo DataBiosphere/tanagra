@@ -26,10 +26,7 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Utility methods for talking to Google Cloud Storage. This class maintains a singleton instance of
- * the Storage service.
- */
+/** Utility methods for talking to Google Cloud Storage. */
 public final class GoogleCloudStorage {
   private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCloudStorage.class);
 
@@ -42,7 +39,7 @@ public final class GoogleCloudStorage {
   private static final TimeUnit DEFAULT_SIGNED_URL_UNIT = TimeUnit.MINUTES;
   private final Storage storage;
 
-  public GoogleCloudStorage(GoogleCredentials credentials, String projectId) {
+  private GoogleCloudStorage(GoogleCredentials credentials, String projectId) {
     this.storage =
         StorageOptions.newBuilder()
             .setCredentials(credentials)

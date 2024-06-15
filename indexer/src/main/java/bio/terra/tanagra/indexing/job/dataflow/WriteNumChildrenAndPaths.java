@@ -436,6 +436,6 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
 
     // Run the update-from-select to write the path and num_children fields in the index entity main
     // table.
-    googleBigQuery.runInsertUpdateQuery(updateFromSelectSql, isDryRun);
+    runQueryIfTableExists(indexTable.getTablePointer(), updateFromSelectSql, isDryRun);
   }
 }
