@@ -1,6 +1,3 @@
-tasks.compileJava.dependsOn(swaggerSources.server.code, generateVersionProperties)
-tasks.spotlessJava.dependsOn(generateSwaggerCodeServer)
-
 // Don't run any spotless or spotbugs tasks unless we have actual source file changes. The best
 // way to determine that is to rely on the compileJava determination.
 final TASKS_ONLY_IF_COMPILE_JAVA = [
@@ -16,8 +13,4 @@ for (task in TASKS_ONLY_IF_COMPILE_JAVA) {
     task.mustRunAfter(compileJava)
 }
 
-// Explicit dep to avoid accidental dep deprecation warning.
-tasks.processResources.dependsOn(generateVersionProperties)
-
-// Status and version endpoint tests added to test
-tasks.test.dependsOn(generateVersionProperties)
+build.dependsOn spotlessApply

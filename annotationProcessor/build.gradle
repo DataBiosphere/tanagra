@@ -1,69 +1,71 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
     id 'java'
+    id 'pmd'
     id 'tanagra.java-conventions'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'org.springframework.boot' version '2.5.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+    id 'org.springframework.boot' version '3.2.5'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
-group = "bio.terra"
+group = 'bio.terra'
 version = gradle.tanagraVersion
 
 repositories {
     mavenCentral()
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
     }
     maven {
-        url "https://packages.confluent.io/maven/"
+        url 'https://packages.confluent.io/maven/'
     }
     maven {
-        name "github"
-        url "https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries"
+        name 'github'
+        url 'https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries'
         credentials {
             // Credentials required to access tanagra-client-libraries,
             // GITHUB_ACTOR: user running build task
             // GITHUB_TOKEN: user token or workflow token that grants access to libraries
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
+            username = System.getenv('GITHUB_ACTOR')
+            password = System.getenv('GITHUB_TOKEN')
         }
     }
 }
 
 dependencyManagement {
     imports {
-        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+        mavenBom SpringBootPlugin.BOM_COORDINATES
     }
     dependencies {
-        dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
+        dependency "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
     }
 }
 
 dependencies {
+    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
+    pmdAux("io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}")
+
+    implementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
+
+    implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
+        exclude group: 'io.swagger', module: 'swagger-annotations'
+    }
+
     implementation project(path: ':underlay')
     implementation project(path: ':service')
-    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
-    implementation group: "org.slf4j", name: "slf4j-api", version: "1.7.25"
-}
-
-test {
-    useJUnitPlatform()
-}
-
-task noCloudAccessRequiredTests(type: Test) {
-    useJUnitPlatform {
-        excludeTags "requires-cloud-access"
-    }
 }
 
 // e.g. ./gradlew annotationProcessor:run -Pgenerator=APPLICATION_CONFIG_DOCS
 // Possible values for the "generator" property are the Main.Command enum values.
-task run(type:JavaExec) {
-    mainClass = "bio.terra.tanagra.annotation.Main"
+tasks.register('run', JavaExec) {
+    mainClass = 'bio.terra.tanagra.annotation.Main'
     classpath = sourceSets.main.runtimeClasspath
-    args "$rootDir", project.hasProperty("generator") ? project.findProperty("generator") : "undefined"
+    args "${rootDir}", project.hasProperty('generator') ? project.findProperty('generator') : 'undefined'
 }
+
+apply from: "${rootDir}/gradle/spotless-dependencies.gradle"

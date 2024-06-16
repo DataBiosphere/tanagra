@@ -3,9 +3,9 @@ package bio.terra.tanagra.service.export;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public final class ExportFileResult {
   private final String fileDisplayName;

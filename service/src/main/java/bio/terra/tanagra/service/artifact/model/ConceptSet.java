@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class ConceptSet {

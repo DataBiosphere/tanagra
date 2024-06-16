@@ -3,8 +3,8 @@ package bio.terra.tanagra.underlay.entitymodel;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public final class Entity {
   private final String name;

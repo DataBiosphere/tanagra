@@ -148,7 +148,9 @@ public class DataExportHelper {
     return listQueryResult.getSqlNoParams();
   }
 
-  /** @return Map of (output entity name, total number of rows). */
+  /**
+   * @return Map of (output entity name, total number of rows).
+   */
   public Map<String, Long> getTotalNumRowsOfEntityData() {
     // Build set of list query requests with very small page size.
     List<ListQueryRequest> listQueryRequests =

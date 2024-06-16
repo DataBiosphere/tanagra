@@ -34,6 +34,7 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +54,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     Instant queryInstant =
         listQueryRequest.getPageMarker() == null
-            ? Instant.now()
+            ? instantNowMicros()
             : listQueryRequest.getPageMarker().getInstant();
     SqlQueryRequest sqlQueryRequest =
         listQueryRequest.isAgainstSourceData()
@@ -97,7 +98,7 @@ public class BQQueryRunner implements QueryRunner {
   }
 
   public SqlQueryRequest buildListQuerySqlAgainstIndexData(ListQueryRequest listQueryRequest) {
-    return buildListQuerySqlAgainstIndexData(listQueryRequest, Instant.now());
+    return buildListQuerySqlAgainstIndexData(listQueryRequest, instantNowMicros());
   }
 
   @VisibleForTesting
@@ -224,7 +225,7 @@ public class BQQueryRunner implements QueryRunner {
             null);
     Instant queryInstant =
         listQueryRequest.getPageMarker() == null
-            ? Instant.now()
+            ? instantNowMicros()
             : listQueryRequest.getPageMarker().getInstant();
     SqlQueryRequest indexDataSqlRequest =
         buildListQuerySqlAgainstIndexData(indexDataQueryRequest, queryInstant);
@@ -397,7 +398,7 @@ public class BQQueryRunner implements QueryRunner {
     // Swap out any un-cacheable functions with SQL parameters.
     Instant queryInstant =
         countQueryRequest.getPageMarker() == null
-            ? Instant.now()
+            ? instantNowMicros()
             : countQueryRequest.getPageMarker().getInstant();
     String sqlWithOnlyCacheableFunctions =
         BQExecutor.replaceFunctionsThatPreventCaching(sql.toString(), sqlParams, queryInstant);
@@ -591,5 +592,12 @@ public class BQQueryRunner implements QueryRunner {
 
     return new ExportQueryResult(
         exportFileUrlAndFileName.getRight(), exportFileUrlAndFileName.getLeft());
+  }
+
+  // Java17 returns Instant with nanoseconds, BigQuery only supports upto microseconds
+  // Hence, use microseconds precision everywhere
+  @VisibleForTesting
+  public static Instant instantNowMicros() {
+    return Instant.now().truncatedTo(ChronoUnit.MICROS);
   }
 }

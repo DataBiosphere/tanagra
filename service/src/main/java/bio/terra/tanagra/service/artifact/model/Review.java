@@ -1,7 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Review {
