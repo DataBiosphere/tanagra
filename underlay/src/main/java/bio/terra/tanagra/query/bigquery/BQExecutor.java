@@ -193,7 +193,7 @@ public class BQExecutor {
       String paramName =
           sqlParams.addParam(
               "currentDate",
-              Literal.forDate(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(queryInstant)));
+              Literal.forDate(DateTimeFormatter.ofPattern("yyyy-mm-dd").format(queryInstant)));
       modifiedSql =
           sql.replace(currentDateParens, '@' + paramName).replace(currentDate, '@' + paramName);
     }
