@@ -4,8 +4,6 @@ plugins {
     id 'pmd'
 
     id 'tanagra.java-conventions'
-    id 'org.springframework.boot' version '3.2.5'
-    id 'io.spring.dependency-management' version '1.1.5'
     id 'com.google.protobuf' version '0.9.4'
 }
 
@@ -24,38 +22,12 @@ repositories {
     }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-        mavenBom 'io.opentelemetry:opentelemetry-bom:1.38.0'
-        mavenBom 'io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha:2.4.0-alpha'
-    }
-    dependencies {
-        dependency "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
-    }
-}
-
 dependencies {
-    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
-    pmdAux("io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}")
-
-    implementation "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
-
     implementation "com.fasterxml.jackson.core:jackson-core:${gradle.vJackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${gradle.vJackson}"
 
     implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
     testFixturesImplementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
-
-    // Spring version controlled dependencies
-    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.retry:spring-retry'
-    implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter'
-
-    implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
-        exclude group: 'io.swagger', module: 'swagger-annotations'
-    }
 
     // GCP libraries versions are controlled by the BOM specified in buildSrc.
     implementation 'com.google.cloud:google-cloud-bigquery'
@@ -65,12 +37,13 @@ dependencies {
     // SQL formatting
     implementation 'org.hibernate.orm:hibernate-core:6.5.2.Final'
 
-    // Spring version controlled JUnit dependencies
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api'
-    testFixturesImplementation 'org.junit.jupiter:junit-jupiter-api'
+    // JUnit
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${gradle.vJunit5}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${gradle.vJunit5}"
+    testFixturesImplementation "org.junit.jupiter:junit-jupiter-api:${gradle.vJunit5}"
 
     // Static analysis
+    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
     compileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
     testCompileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
 }

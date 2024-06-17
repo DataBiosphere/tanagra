@@ -4,12 +4,12 @@ import bio.terra.tanagra.cli.BaseMain;
 import bio.terra.tanagra.indexing.jobexecutor.JobResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import jakarta.annotation.Nullable;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public abstract class JobResultWriter {
   protected final List<String> commandArgs;

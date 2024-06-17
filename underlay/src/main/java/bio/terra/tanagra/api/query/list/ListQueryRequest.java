@@ -7,8 +7,8 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import jakarta.annotation.Nullable;
 import java.util.List;
+import javax.annotation.Nullable;
 
 public final class ListQueryRequest {
   @VisibleForTesting public static final Integer DEFAULT_PAGE_SIZE = 250;

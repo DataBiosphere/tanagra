@@ -4,8 +4,6 @@ plugins {
     id 'java-test-fixtures'
     id 'pmd'
     id 'tanagra.java-conventions'
-    id 'org.springframework.boot' version '3.2.5'
-    id 'io.spring.dependency-management' version '1.1.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -27,25 +25,11 @@ repositories {
     }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-    }
-}
-
 dependencies {
-    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
-    pmdAux("io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}")
-
-    implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
-
-    implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
-        exclude group: 'io.swagger', module: 'swagger-annotations'
-    }
-
     implementation project(':underlay')
     testImplementation(testFixtures(project(':underlay')))
+
+    implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
 
     // Command parsing
     implementation project(':cli')
@@ -73,6 +57,7 @@ dependencies {
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
     // Static analysis
+    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
     compileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
     testCompileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
 }

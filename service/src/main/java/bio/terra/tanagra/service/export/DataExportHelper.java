@@ -15,7 +15,6 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
-import bio.terra.tanagra.utils.RandomNumberGenerator;
 import bio.terra.tanagra.utils.threadpool.Job;
 import bio.terra.tanagra.utils.threadpool.JobResult;
 import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;

@@ -17,4 +17,5 @@ gradle.ext {
     vSwaggerAnnotations = '2.2.21'
     vSwaggerCodegen = '3.0.55'
     vPicocliVersion = '4.7.6'
+    vJunit5 = '5.0.3'
 }

@@ -2,8 +2,8 @@ package bio.terra.tanagra.api.query;
 
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.annotation.Nullable;
 import java.time.Instant;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,8 +1,8 @@
 package bio.terra.tanagra.underlay.entitymodel;
 
 import com.google.common.collect.ImmutableSet;
-import jakarta.annotation.Nullable;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 public class Hierarchy {
   public static final String DEFAULT_NAME = "default";

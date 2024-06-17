@@ -1,12 +1,10 @@
 package bio.terra.tanagra.exception;
 
-import bio.terra.common.exception.BadRequestException;
-
 /**
  * Custom exception class for invalid query exceptions. These represent errors in the specification
  * of a query request, that the user needs to fix (e.g. "entity has no hierarchy").
  */
-public class InvalidQueryException extends BadRequestException {
+public class InvalidQueryException extends SystemException {
   /**
    * Constructs an exception with the given message. The cause is set to null.
    *

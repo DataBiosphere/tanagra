@@ -7,9 +7,9 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import com.google.common.collect.ImmutableList;
-import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 public class RelationshipFilter extends EntityFilter {
   private final Underlay underlay;

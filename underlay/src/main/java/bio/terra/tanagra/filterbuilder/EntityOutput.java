@@ -4,11 +4,11 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
-import jakarta.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public final class EntityOutput {
   private final Entity entity;

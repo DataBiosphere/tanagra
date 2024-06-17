@@ -1,8 +1,8 @@
 package bio.terra.tanagra.query.sql;
 
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
-import jakarta.annotation.Nullable;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.text.StringSubstitutor;
 
 public final class SqlQueryField {
