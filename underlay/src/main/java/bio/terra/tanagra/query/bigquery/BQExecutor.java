@@ -193,7 +193,7 @@ public class BQExecutor {
       String paramName =
           sqlParams.addParam(
               "currentDate",
-              Literal.forDate(DateTimeFormatter.ofPattern("yyyy-mm-dd").format(queryInstant)));
+              Literal.forDate(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(queryInstant)));
       modifiedSql =
           sql.replace(currentDateParens, '@' + paramName).replace(currentDate, '@' + paramName);
     }
@@ -224,7 +224,10 @@ public class BQExecutor {
         return QueryParameterValue.float64(literal.getDoubleVal());
       case TIMESTAMP:
         return QueryParameterValue.timestamp(
-            literal.getTimestampVal() == null ? null : literal.getTimestampVal().toString());
+            literal.getTimestampVal() == null
+                ? null
+                : DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS")
+                    .format(literal.getTimestampVal().toLocalDateTime()));
       default:
         throw new SystemException("Unsupported data type for BigQuery: " + literal.getDataType());
     }
