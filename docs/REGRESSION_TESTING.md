@@ -62,14 +62,16 @@ export TANAGRA_UNDERLAY_FILES=cmssynpuf_broad,aouSR2019q4r4_broad
 
 Note that regression tests are not included in the usual `./gradlew test` command; They must be run separately.
 
-How to trigger the tests depends on where your regression test files are stored.
+How to trigger the tests depends on where your regression test files are stored. Optionally specify a filename filter.
 1. In this DataBiosphere repo's `service/src/test/resources/regression/{underlay name}` subdirectory.
     ```
     ./gradlew service:regressionTests -PregressionTestUnderlays=cmssynpuf,aouSR2019q4r4
+    ./gradlew service:regressionTests -PregressionTestUnderlays=cmssynpuf -PregressionTestFiles=cohortGenderidentityFEMALE_datafeaturesetDemographics.json
     ```
 2. In your "downstream" repo.
     ```
     ./gradlew service:regressionTests -PregressionTestDirs=~/regressionTests/cmssynpuf/,~/regressionTests/aouSR2019q4r4/
+    ./gradlew service:regressionTests -PregressionTestDirs=~/regressionTests/cmssynpuf/ -PregressionTestFiles=cohortGenderidentityFEMALE_datafeaturesetDemographics.json
     ```
 
 ## Build a test suite
