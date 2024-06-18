@@ -1,5 +1,4 @@
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
-import { useFlagsmith } from "flagsmith/react";
 import {
   ReactElement,
   useCallback,
@@ -9,11 +8,10 @@ import {
   useState,
 } from "react";
 import { useNavigate } from "react-router";
-import { getEnvironment } from "../../environment";
-import { AuthContext, AuthProviderProps } from "./provider";
+import { AuthContext, AuthProviderProps } from "./authprovider";
 
-const domain = getEnvironment().REACT_APP_AUTH0_DOMAIN;
-const clientId = getEnvironment().REACT_APP_AUTH0_CLIENT_ID;
+const domain = process.env.REACT_APP_AUTH0_DOMAIN
+const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
 
 export function AuthProvider(props: AuthProviderProps): ReactElement {
   const navigate = useNavigate();
@@ -49,24 +47,15 @@ function ProviderWithClient(props: AuthProviderProps) {
   } = useAuth0();
 
   const [neverLoggedIn, setNeverLoggedIn] = useState(true);
-  const flagsmith = useFlagsmith();
   const signOut = useCallback(() => {
     logout({ logoutParams: { returnTo: window.location.origin } });
     setNeverLoggedIn(true);
-    flagsmith.logout();
-  }, [logout, setNeverLoggedIn, flagsmith]);
+  }, [logout, setNeverLoggedIn]);
 
   useEffect(() => {
     // This is needed for user state to get updated.
     getAccessTokenSilently();
   }, [getAccessTokenSilently]);
-
-  // Provide flagsmith with the logged in user's 'email_address' trait when it becomes available
-  useEffect(() => {
-    if (user && user.sub && user.email) {
-      flagsmith.identify(user.sub, { email_address: user.email });
-    }
-  }, [flagsmith, user]);
 
   const signIn = useCallback(
     async (from?: string) => {
