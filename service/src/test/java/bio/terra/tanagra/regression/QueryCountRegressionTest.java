@@ -164,9 +164,11 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
   private static Stream<String> getTestFilePaths() throws FileNotFoundException {
     String regressionTestDirsParam = System.getProperty("REGRESSION_TEST_DIRS");
     String regressionTestUnderlaysParam = System.getProperty("REGRESSION_TEST_UNDERLAYS");
+    String regressionTestFilesParam = System.getProperty("REGRESSION_TEST_FILES");
     String gradleProjectDir = System.getProperty("GRADLE_PROJECT_DIR");
     LOGGER.info("REGRESSION_TEST_DIRS = {}", regressionTestDirsParam);
     LOGGER.info("REGRESSION_TEST_UNDERLAYS = {}", regressionTestUnderlaysParam);
+    LOGGER.info("REGRESSION_TEST_FILES = {}", regressionTestFilesParam);
     LOGGER.info("GRADLE_PROJECT_DIR = {}", gradleProjectDir);
 
     List<Path> regressionTestDirs = new ArrayList<>();
@@ -184,7 +186,12 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
           "No test directories or underlays specified. Use Gradle properties: -PregressionTestDirs for a directory, -PregressionTestUnderlays for an underlay-specific directory in the service/test/resources/regression sub-directory.");
     }
 
-    List<String> regressionTestFiles = new ArrayList<>();
+    List<String> regressionTestFileNameFilters = new ArrayList<>();
+    if (regressionTestFilesParam != null && !regressionTestFilesParam.isEmpty()) {
+      regressionTestFileNameFilters.addAll(List.of(regressionTestFilesParam.split(",")));
+    }
+
+    List<String> selectedRegressionTestFiles = new ArrayList<>();
     regressionTestDirs.forEach(
         regressionTestDir -> {
           LOGGER.info(
@@ -192,20 +199,26 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
               regressionTestDir.toAbsolutePath());
           File[] testFiles = regressionTestDir.toFile().listFiles();
           if (testFiles != null && testFiles.length > 0) {
-            List.of(testFiles)
+            List.of(testFiles).stream()
+                .filter(
+                    testFile ->
+                        regressionTestFileNameFilters.isEmpty()
+                            || regressionTestFileNameFilters.contains(
+                                testFile.toPath().getFileName().toString()))
                 .forEach(
                     testFile ->
-                        regressionTestFiles.add(testFile.toPath().toAbsolutePath().toString()));
+                        selectedRegressionTestFiles.add(
+                            testFile.toPath().toAbsolutePath().toString()));
           }
         });
-    if (regressionTestFiles.isEmpty()) {
+    if (selectedRegressionTestFiles.isEmpty()) {
       throw new FileNotFoundException(
           "No regression test files found: "
               + regressionTestDirs.stream()
                   .map(path -> path.toAbsolutePath().toString())
                   .collect(Collectors.joining(",")));
     }
-    return regressionTestFiles.stream();
+    return selectedRegressionTestFiles.stream();
   }
 
   private static Map<String, Long> fromRegressionTestObj(
