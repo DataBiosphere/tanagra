@@ -170,6 +170,9 @@ tasks.withType(Test) {
     if (project.findProperty("regressionTestUnderlays")) {
         systemProperty("REGRESSION_TEST_UNDERLAYS", project.findProperty("regressionTestUnderlays"))
     }
+    if (project.findProperty("regressionTestFiles")) {
+        systemProperty("REGRESSION_TEST_FILES", project.findProperty("regressionTestFiles"))
+    }
 }
 
 // Apply Gradle Script Plugins for more modular gradle files.
