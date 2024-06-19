@@ -7,15 +7,24 @@ option java_outer_classname = "Viz";
 
 import "sort_order.proto";
 
+// The configuration of a underlay or cohort level visualization.
 message VizConfig {
   message Source {
+    // The criteria selector (e.g. condition) determines which entities the data
+    // is being pulled from.
     string criteriaSelector = 1;
+
+    // Configuration of the specified criteria selection (e.g. to select
+    // conditions under diabetes).
     optional string selectionData = 2;
 
     // For criteria selectors that return more than one entity.
     optional string entity = 3;
 
     message Join {
+      // The next entity to join to in order to eventually get to the entity the
+      // visualization is displaying (e.g. person when joining
+      // condition_occurences to age).
       string entity = 1;
 
       message Aggregation {
@@ -25,17 +34,30 @@ message VizConfig {
           MAX = 2;
           AVERAGE = 3;
         }
+
+        // The type of aggregation being performed.
         AggregationType type = 1;
 
         // The output is always ids and values but aggregation may occur over
         // another field (e.g. date to find the most recent value).
         optional string attribute = 2;
       }
+
+      // When joining an entity with an N:1 relationship (e.g. multiple weight
+      // values to a person), an aggregation is often required to make the data
+      // visualizable. For example, to visualize weight vs. race, each person
+      // needs to have a single weight value associated with them, such as the
+      // average or most recent.
       optional Aggregation aggregation = 2;
     }
+
+    // To visualize data from different entities, the data must be joined to a
+    // common entity. Each source must specify a series of joins that ends up at
+    // the same entity if it does not already come from that entity.
     repeated Join joins = 4;
 
     message Attribute {
+      // The attribute to read.
       string attribute = 1;
 
       // Converts a continuous numeric range into ids with count as the value.
@@ -65,10 +87,19 @@ message VizConfig {
         NumericBucketing numeric_bucketing = 2;
       }
 
+      // How to sort the data for display.
       optional SortOrder sort_order = 3;
+
+      // Whether a limited amount of data should be returned (e.g. 10 most
+      // common conditions).
       optional int64 limit = 4;
     }
+
+    // Which attributes should be returned from the selected data source (e.g.
+    // condition_name from condition_occurrence or age from person).
     repeated Attribute attributes = 5;
   }
+
+  // The visualization must have one or two sources of data to display.
   repeated Source sources = 1;
 }

@@ -9,41 +9,84 @@ option java_outer_classname = "CFEntityGroup";
 import "sort_order.proto";
 import "criteriaselector/value_config.proto";
 
+// A criteria based on one or more entity groups. This allows the selection of
+// primary entities which are related to one or more of another entity which
+// match certain characteristics (e.g. people related to condition_occurrences
+// which have condition_name of "Diabetes").
 message EntityGroup {
+  // Defines a column in the UI.
   message Column {
+    // A unique key for the column. By default, used to look up attributes in
+    // the displayed data.
     string key = 1;
 
     oneof width {
+      // Passed directly to the style of the column. "100%" can be used to take
+      // up space remaining after laying out fixed columns.
       string width_string = 2;
+      // Units used by the UI library to standardize dimensions.
       double width_double = 3;
     }
 
+    // The visible title of the column.
     string title = 4;
 
+    // Whether the column supports sorting.
     bool sortable = 5;
+
+    // Whether the column supports filtering.
     bool filterable = 6;
   }
+
+  // Columns displayed in the list view.
   repeated Column columns = 1;
+  // Columns displayed in the hierarchy view.
   repeated Column hierarchy_columns = 2;
 
   // This has been replaced by nameAttribute for determining stored names. Now
   // this only determines which is the primary column for checkboxes, etc.
   int32 name_column_index = 3;
 
+  // Multiple entity groups can be shown within the same criteria. Typically
+  // they would filter over the same entity, or at least very similar entities,
+  // since much of the configuration (e.g. columns) is shared. Both types of
+  // configs can be combined though they are displayed separately.
   message EntityGroupConfig {
+    // The id of the entity group.
     string id = 1;
+
+    // The sort order applied to this entity group when displayed in the
+    // hierarchy view.
     SortOrder sort_order = 2;
   }
+
+  // Entity groups where the related entity is what is selected (e.g. condition
+  // when filtering condition_occurrences).
   repeated EntityGroupConfig classification_entity_groups = 4;
+  // Entity groups where the related entity is not what is selected (e.g. brands
+  // when filtering ingredients or genotyping platforms when filtering people).
   repeated EntityGroupConfig grouping_entity_groups = 5;
 
+  // Whether a single click selects a value or multiple values can be selected
+  // and then confirmed.
   bool multi_select = 6;
 
+  // Optional configuration of a categorical or numeric value associated with
+  // the selection (e.g. a measurement value). Applied to the entire selection
+  // so generally not compatible with multi_select. Currently only one is
+  // supported.
   repeated ValueConfig value_configs = 7;
 
+  // The sort order to use in the list view, or in hierarchies where no sort
+  // order has been specified.
   SortOrder default_sort = 8;
 
+  // Number of values to display in the list view for each entity group.
+  // Otherwise, a default value is applied.
   optional int32 limit = 9;
 
+  // The attribute used to name selections if not the first column. This can be
+  // used to include extra context with the selected values that's not visible
+  // in the table view.
   optional string nameAttribute = 10;
 }
