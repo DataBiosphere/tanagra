@@ -61,6 +61,22 @@ protobuf {
     }
     // By default, the proto plugin generates Java classes in the build/classes/ directory.
     // generatedFilesBaseDir = "$projectDir/src/generated"
+
+    plugins {
+        doc {
+            artifact = "io.github.pseudomuto:protoc-gen-doc:1.5.1"
+        }
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+            task.plugins {
+                doc {
+                    option 'markdown,PROTOCOL_BUFFERS.md'
+                }
+            }
+        }
+    }
 }
 
 test {
@@ -81,6 +97,12 @@ task noCloudAccessRequiredTests(type: Test) {
     useJUnitPlatform {
         excludeTags "requires-cloud-access"
     }
+}
+
+task copyProtoDocs(type: Copy) {
+    from "${buildDir}/generated/source/proto/main/doc/"
+    into "${projectDir}/../docs/generated/";
+    dependsOn generateProto
 }
 
 // Apply Gradle Script Plugins for more modular gradle files.

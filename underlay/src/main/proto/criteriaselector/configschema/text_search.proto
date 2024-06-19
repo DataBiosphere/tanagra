@@ -6,8 +6,15 @@ option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configsch
 option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
 option java_outer_classname = "CFTextSearch";
 
+// A criteria that allows searching for text across categorized items.
 message TextSearch {
+  // The entity to search.
   string entity = 1;
+
+  // The attribute to search within. Defaults to the search configuration in the
+  // entity definition.
   optional string searchAttribute = 2;
+
+  // An optional categorical attribute to additionally filter on.
   optional string categoryAttribute = 3;
 }
