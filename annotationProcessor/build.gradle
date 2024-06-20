@@ -51,6 +51,7 @@ dependencies {
 
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
         exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.opentelemetry.instrumentation'
     }
 
     implementation project(path: ':underlay')

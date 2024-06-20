@@ -51,8 +51,6 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-        mavenBom 'io.opentelemetry:opentelemetry-bom:1.38.0'
-        mavenBom 'io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha:2.4.0-alpha'
     }
     dependencies {
         dependency "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
@@ -79,10 +77,9 @@ dependencies {
     implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
 
-    implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter'
-
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
         exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.opentelemetry.instrumentation'
     }
 
     implementation project(":underlay")
