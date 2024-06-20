@@ -10,3 +10,4 @@ AND (
     (vocabulary_id = 'ATC' AND standard_concept = 'C')
     OR (vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND standard_concept = 'S')
 )
+
