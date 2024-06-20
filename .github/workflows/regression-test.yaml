@@ -16,7 +16,7 @@ on:
       - 'docs/**'
   workflow_dispatch:
 jobs:
-  test:
+  regression-test:
     runs-on: ubuntu-latest
     services:
       postgres:

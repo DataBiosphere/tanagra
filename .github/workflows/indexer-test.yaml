@@ -16,7 +16,7 @@ on:
       - 'docs/**'
   workflow_dispatch:
 jobs:
-  test:
+  indexer-test:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:

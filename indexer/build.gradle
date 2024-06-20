@@ -83,10 +83,6 @@ application {
         'java.base/sun.net.www.protocol.https=ALL-UNNAMED',
         '--add-opens',
         'java.base/java.net=ALL-UNNAMED',
-        // Needed to avoid OOM in GHA. Not sure why this isn't needed for local runs.
-        // https://github.com/DataBiosphere/tanagra/actions/runs/4547100642/jobs/8016560406
-        // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-        '-Xmx7000m',
         '-XX:+HeapDumpOnOutOfMemoryError'
     ]
 }

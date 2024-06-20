@@ -12,7 +12,7 @@ env:
   DEFAULT_UNDERLAYS: cmssynpuf,aouSR2019q4r4
   TANAGRA_UNDERLAY_FILES: cmssynpuf_verily,aouSR2019q4r4_verily
 jobs:
-  test:
+  regression-test:
     runs-on: ubuntu-latest
     services:
       postgres:

@@ -11,7 +11,7 @@ on:
     # Always run this GHA on PRs, so that we have at least one successful check to satisfy branch protections.
   workflow_dispatch:
 jobs:
-  test:
+  generated-files-test:
     runs-on: ubuntu-latest
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
