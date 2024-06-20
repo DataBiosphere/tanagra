@@ -1,8 +1,3 @@
--- noinspection SqlNoDataSourceInspectionForFile
-
--- noinspection SqlDialectInspectionForFile
-
--- noinspection SqlDialectInspection
 SELECT
     pc.criteria_meta_seq as id,
     pc.criteria_meta_seq as concept_id,

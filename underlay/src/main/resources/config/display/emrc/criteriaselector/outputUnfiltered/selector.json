@@ -1,0 +1,15 @@
+{
+  "name": "outputUnfiltered",
+  "displayName": "outputUnfiltered",
+  "isEnabledForCohorts": false,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "",
+    "tags": null
+  },
+  "filterBuilder": "core.OutputUnfilteredFilterBuilder",
+  "plugin": "outputUnfiltered",
+  "pluginConfig": "{}",
+  "pluginConfigFile": null,
+  "modifiers": null
+}

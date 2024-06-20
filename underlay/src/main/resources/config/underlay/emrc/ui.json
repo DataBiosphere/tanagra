@@ -46,5 +46,78 @@
       { "key": "concept_code", "width": 120, "title": "Code" },
       { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" }
     ]
+  },
+  "cohortReviewConfig": {
+    "participantIdAttribute": "person_id",
+    "participantsListColumns": [
+      { "key": "person_id", "width": 100, "title": "Person ID" },
+      { "key": "gender", "width": 100, "title": "Gender" },
+      { "key": "race", "width": 100, "title": "Race" },
+      { "key": "age", "width": 60, "title": "Age" }
+    ],
+    "attributes": [
+      {
+        "title": "Gender",
+        "key": "gender"
+      },
+      {
+        "title": "Age",
+        "key": "age"
+      },
+      {
+        "title": "Race",
+        "key": "race"
+      }
+    ],
+    "pages": [
+      {
+        "type": "entityTable",
+        "id": "cpt4",
+        "title": "CPT4",
+        "plugin": {
+          "entity": "cpt4Occurrence",
+          "columns": [
+            {
+              "key": "cpt4",
+              "width": "100%",
+              "title": "CPT4",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "age_at_occurrence",
+              "width": 200,
+              "title": "Age at Event",
+              "sortable": true,
+              "filterable": true
+            }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "ICD9",
+        "title": "ICD9",
+        "plugin": {
+          "entity": "icd9Occurrence",
+          "columns": [
+            {
+              "key": "icd9",
+              "width": "100%",
+              "title": "ICD9 name",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "age_at_occurrence",
+              "width": 200,
+              "title": "Age at Event",
+              "sortable": true,
+              "filterable": true
+            }
+          ]
+        }
+      }
+    ]
   }
 }

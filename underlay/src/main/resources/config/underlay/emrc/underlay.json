@@ -4,12 +4,15 @@
   "entities": [
     "emrc/person",
     "emrc/cpt4",
-    "emrc/cpt4Occurrence"
+    "emrc/cpt4Occurrence",
+    "emrc/icd9",
+    "emrc/icd9Occurrence"
   ],
   "groupItemsEntityGroups": [
   ],
   "criteriaOccurrenceEntityGroups": [
-    "emrc/cpt4Person"
+    "emrc/cpt4Person",
+    "emrc/icd9Person"
   ],
   "criteriaSelectors": [
     "emrc/gender",
@@ -23,7 +26,9 @@
     "emrc/datasetWes",
     "emrc/datasetWgs",
     "emrc/datasetGira",
-    "emrc/cpt4"
+    "emrc/cpt4",
+    "emrc/icd9",
+    "emrc/outputUnfiltered"
   ],
   "prepackagedDataFeatures": [
     "emrc/_demographics"
