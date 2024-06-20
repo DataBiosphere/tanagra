@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "cpt4Occurrence": {
+      "values": [
+        "id",
+        "cpt4"
+      ]
+    }
+  }
+}
