@@ -12,6 +12,8 @@ SELECT
     cast(cast(r.criteria_meta_seq as numeric) as int64) as race_id,
     r.race_code,
     concat(r.race_code,'-',r.name) as race_name,
+    s.site_code,
+    sc.site_name,
     CASE WHEN s.dataset_gwas = 1 THEN true ELSE false END AS dataset_gwas,
     CASE WHEN s.dataset_emergeseq = 1 THEN true ELSE false END AS dataset_emergeseq,
     CASE WHEN s.dataset_pgrnseq = 1 THEN true ELSE false END AS dataset_pgrnseq,
@@ -30,7 +32,7 @@ LEFT JOIN (select
          WHEN name = 'Other' THEN 'N'
          WHEN name = 'Unknown' THEN 'U'
          WHEN name = 'Caucasian' THEN 'W'
-         WHEN name = 'Resolve P Race_Epic' THEN 'P'
+         WHEN name = 'Pacific Islander' THEN 'P'
         END as race_code,
     name
 FROM `${omopDataset}.demo_criteria` WHERE starts_with(label,'Race_Equals_')) r on p.race = r.race_code
@@ -42,3 +44,4 @@ LEFT JOIN (select
         END as gender_code,
     name
 FROM `${omopDataset}.demo_criteria` WHERE starts_with(label,'Gender_Equals_')) g on p.gender = g.gender_code
+LEFT JOIN `${omopDataset}.sites` sc on s.site_code = cast(cast(sc.site as numeric) as int64)

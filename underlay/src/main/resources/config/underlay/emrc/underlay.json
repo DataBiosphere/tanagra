@@ -15,6 +15,7 @@
     "emrc/gender",
     "emrc/race",
     "emrc/age",
+    "emrc/site",
     "emrc/datasetEmergeseq",
     "emrc/datasetExomechip",
     "emrc/datasetGwas",

@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-sitee",
+  "displayName": "Site",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Demographics",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "site.json",
+  "modifiers": null
+}

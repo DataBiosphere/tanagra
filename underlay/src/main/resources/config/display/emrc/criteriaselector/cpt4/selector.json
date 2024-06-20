@@ -12,5 +12,17 @@
   "pluginConfig": null,
   "pluginConfigFile": "cpt4.json",
   "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    },
+    {
+      "name": "idSeqGroupByCount",
+      "displayName": "Occurrence count",
+      "plugin": "unhinted-value",
+      "pluginConfigFile": "idSeqGroupByCount.json"
+    }
   ]
 }
