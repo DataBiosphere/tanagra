@@ -3,8 +3,8 @@ package bio.terra.tanagra.api.filter;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import jakarta.annotation.Nullable;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 public class TextSearchFilter extends EntityFilter {
   public enum TextSearchOperator {

@@ -4,13 +4,13 @@
         gender,
         T_DISP_gender,
         race,
-        CAST(FLOOR(TIMESTAMP_DIFF(@currentTimestamp0,
-        age,
-        DAY) / 365.25) AS INT64) AS age      
+        CAST(FLOOR(TIMESTAMP_DIFF(@currentTimestamp0, age, DAY) / 365.25) AS INT64) AS age      
     FROM
         ${ENT_person}      
     ORDER BY
         year_of_birth ASC,
         T_DISP_gender DESC,
         age ASC,
-        id DESC LIMIT 35
+        id DESC      
+    LIMIT
+        35

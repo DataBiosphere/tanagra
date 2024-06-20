@@ -1,7 +1,7 @@
 package bio.terra.tanagra.query.sql;
 
 import bio.terra.tanagra.api.query.PageMarker;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class SqlQueryRequest {
   private final String sql;

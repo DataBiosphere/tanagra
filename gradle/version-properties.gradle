@@ -1,10 +1,9 @@
 // Generate/clean the version properties file
 def generatedVersionFile = "${resourceDir}/generated/version.properties"
 
-
-task generateVersionProperties(type: Exec) {
-    description("Produce a version.properties file based on Git properties for use by the application.")
-    commandLine "${projectDir}/writeVersionProperties.sh", "${version}", "${generatedVersionFile}"
+tasks.register('generateVersionProperties', Exec) {
+    description('Produce a version.properties file based on Git properties for use by the application.')
+    commandLine "${rootDir}/scripts/writeVersionProperties.sh", "${version}", "${generatedVersionFile}"
     // This task should run every time, as Gradle has no knowledge of when git properties such as the
     // SHA change. This also means we should not mark generatedVersionFile as output. It might be
     // possible to add logic that calls git within this block for more accurate out-of-date checking
@@ -17,3 +16,5 @@ task generateVersionProperties(type: Exec) {
 clean.doFirst {
     delete(generatedVersionFile)
 }
+
+tasks.processResources.dependsOn(generateVersionProperties)

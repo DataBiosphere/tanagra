@@ -58,7 +58,7 @@ public class UnderlayServiceTest {
 
     // Get an invalid entity.
     assertThrows(
-        NotFoundException.class,
+        bio.terra.tanagra.exception.NotFoundException.class,
         () -> underlayService.getUnderlay("cmssynpuf").getEntity("invalid entity"));
   }
 }

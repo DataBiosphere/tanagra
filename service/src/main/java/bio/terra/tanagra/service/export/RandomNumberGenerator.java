@@ -1,4 +1,4 @@
-package bio.terra.tanagra.utils;
+package bio.terra.tanagra.service.export;
 
 import java.util.Random;
 import org.springframework.context.annotation.Bean;

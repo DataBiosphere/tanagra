@@ -44,7 +44,7 @@ public final class Context {
     // If this is a test, append the current runner's ID. This lets us run multiple tests in
     // parallel without clobbering context across runners.
     String isTest = System.getProperty(IS_TEST);
-    if (isTest != null && isTest.equals(IS_TEST_TRUE_VALUE)) {
+    if (IS_TEST_TRUE_VALUE.equals(isTest)) {
       // cleanupTestUserWorkspaces uses CLI Test Harness to call commands outside test context.
       // In this case IS_TEST is true, but "org.gradle.test.worker" is not set, causing testWorker
       // to be NULL.

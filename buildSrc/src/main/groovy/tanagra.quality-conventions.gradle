@@ -1,25 +1,26 @@
 /**
  * Configs for the Gradle quality plugin.
- *
- * See docs at http://xvik.github.io/gradle-quality-plugin/4.5.0/
+ * See docs at http://xvik.github.io/gradle-quality-plugin/5.0.0/
  *
  * For override files, see gradle/config/{toolName}/*.xml.
- *
  * To suppress a violation in code, use `@SuppressWarning("ViolationName")`.
  */
 plugins {
     id 'ru.vyarus.quality'
 }
+
 quality {
     strict = true
 
     pmd = true
     checkstyle = true
     spotbugs = true
-    pmdIncremental = false
-    pmdVersion = '6.31.0'
+    pmdIncremental = true
 
-    configDir = "$rootDir/gradle/config/"
+    spotbugsVersion = gradle.vSpotBugs
+    pmdVersion = gradle.vPmd
+
+    configDir = "${rootDir}/gradle/config/"
 
     sourceSets = [
             project.sourceSets.main,

@@ -5,9 +5,9 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Nullable;
 
 public class GroupHasItemsFilter extends EntityFilter {
   private final Underlay underlay;

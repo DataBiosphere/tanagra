@@ -2,7 +2,7 @@ package bio.terra.tanagra.api.query.list;
 
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.shared.OrderByDirection;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class OrderBy {
   private final @Nullable ValueDisplayField valueDisplayField;

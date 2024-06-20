@@ -16,7 +16,6 @@ import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
-import bio.terra.tanagra.utils.RandomNumberGenerator;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -31,10 +31,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Set up AdoptOpenJDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: 11
+          java-version: 17
           distribution: 'temurin'
       - name: Initialize Postgres DB
         env:

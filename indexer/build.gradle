@@ -2,10 +2,11 @@ plugins {
     id 'application'
     id 'java'
     id 'java-test-fixtures'
+    id 'pmd'
     id 'tanagra.java-conventions'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
 ext {
     resourceDir = "${projectDir}/src/main/resources"
@@ -14,114 +15,90 @@ ext {
 repositories {
     mavenCentral()
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
     }
     maven {
-        url "https://packages.confluent.io/maven/"
+        url 'https://packages.confluent.io/maven/'
     }
 }
 
 dependencies {
-    implementation project(":underlay")
-    testImplementation(testFixtures(project(":underlay")))
+    implementation project(':underlay')
+    testImplementation(testFixtures(project(':underlay')))
 
-    implementation group: "bio.terra", name: "terra-common-lib", version: "0.0.69-SNAPSHOT"
-    implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+    implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     // Command parsing
-    implementation project(":cli")
-    compileOnly group: "info.picocli", name: "picocli", version: "4.7.5"
-    annotationProcessor group: "info.picocli", name: "picocli-codegen", version: "4.7.5"
+    implementation project(':cli')
+    compileOnly "info.picocli:picocli:${gradle.vPicocliVersion}"
+    annotationProcessor "info.picocli:picocli-codegen:${gradle.vPicocliVersion}"
 
-    // GCP libraries. Versions are controlled by the BOM specified in buildSrc.
-    implementation group: "com.google.cloud", name: "google-cloud-bigquery"
-    implementation group: "com.google.guava", name: "guava"
+    // GCP libraries versions are controlled by the BOM specified in buildSrc.
+    implementation 'com.google.cloud:google-cloud-bigquery'
+    implementation 'com.google.guava:guava'
 
     // Apache Beam libraries
-    implementation group: "org.apache.beam", name: "beam-sdks-java-core", version: "2.56.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-io-google-cloud-platform", version: "2.56.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-io-jdbc", version: "2.56.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-extensions-google-cloud-platform-core", version: "2.56.0"
-    implementation group: "org.apache.beam", name: "beam-sdks-java-extensions-join-library", version: "2.56.0"
-    implementation group: "org.apache.beam", name: "beam-runners-google-cloud-dataflow-java", version: "2.56.0"
-    implementation group: "org.apache.beam", name: "beam-runners-direct-java", version: "2.56.0"
-    testRuntimeClasspath group: "org.apache.beam", name: "beam-runners-direct-java", version: "2.56.0"
+    String vApacheBeam = '2.56.0'
+    implementation "org.apache.beam:beam-sdks-java-core:${vApacheBeam}"
+    implementation "org.apache.beam:beam-sdks-java-io-google-cloud-platform:${vApacheBeam}"
+    implementation "org.apache.beam:beam-sdks-java-io-jdbc:${vApacheBeam}"
+    implementation "org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core:${vApacheBeam}"
+    implementation "org.apache.beam:beam-sdks-java-extensions-join-library:${vApacheBeam}"
+    implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${vApacheBeam}"
+    implementation "org.apache.beam:beam-runners-direct-java:${vApacheBeam}"
+    testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${vApacheBeam}"
 
-    // Apache Beam depends on JUnit 4.13.1, so this sub-project can't use JUnit 5 like the other sub-projects.
-    // https://github.com/apache/beam/blob/dd2f67bb8ec49e542635035743a754421cce3a75/buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy#L595
+    // Apache Beam depends on specific JUnit versions
+    // https://github.com/apache/beam/blob/release-2.56.0/buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy
     testImplementation "junit:junit:4.13.1"
-    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:5.8.2"
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
     // Static analysis
-    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
-    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
+    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
+    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
 }
 
-test {
-    useJUnitPlatform()
-}
-
-task noCloudAccessRequiredTests(type: Test) {
-    useJUnitPlatform {
-        excludeTags "requires-cloud-access"
-    }
-}
-
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     // These System properties are used for the generated SQL strings to compare against during tests.
     // See bio.terra.tanagra.testing.GeneratedSqlUtils for how they are used.
-    systemProperty("GRADLE_PROJECT_DIR", projectDir)
-    if (project.findProperty("generateSqlFiles")) {
-        systemProperty("GENERATE_SQL_FILES", "true")
+    systemProperty('GRADLE_PROJECT_DIR', projectDir)
+    if (project.findProperty('generateSqlFiles')) {
+        systemProperty('GENERATE_SQL_FILES', 'true')
     }
 }
 
 application {
-    mainClass = "bio.terra.tanagra.indexing.cli.Main"
-    applicationName = "tanagra"
-    executableDir = "bin"
+    mainClass = 'bio.terra.tanagra.indexing.cli.Main'
+    applicationName = 'tanagra'
+    executableDir = 'bin'
 
     // TODO: Suppress Jersey PATCH related warnings.
     applicationDefaultJvmArgs = [
-        "--add-opens",
-        "java.base/sun.net.www.protocol.https=ALL-UNNAMED",
-        "--add-opens",
-        "java.base/java.net=ALL-UNNAMED",
+        '--add-opens',
+        'java.base/sun.net.www.protocol.https=ALL-UNNAMED',
+        '--add-opens',
+        'java.base/java.net=ALL-UNNAMED',
         // Needed to avoid OOM in GHA. Not sure why this isn't needed for local runs.
         // https://github.com/DataBiosphere/tanagra/actions/runs/4547100642/jobs/8016560406
         // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-        "-Xmx7000m",
-        "-XX:+HeapDumpOnOutOfMemoryError"
+        '-Xmx7000m',
+        '-XX:+HeapDumpOnOutOfMemoryError'
     ]
 }
 
-task generateManpageAsciiDoc(type: JavaExec) {
+tasks.register('generateManpageAsciiDoc', JavaExec) {
     dependsOn(classes)
-    group = "documentation"
-    description = "Generate AsciiDoc manpage"
+    group = 'documentation'
+    description = 'Generate AsciiDoc manpage'
     classpath(configurations.compileClasspath, configurations.annotationProcessor, sourceSets.main.runtimeClasspath)
-    main "picocli.codegen.docgen.manpage.ManPageGenerator"
-    args "bio.terra.tanagra.indexing.cli.Main", "--outdir=$projectDir/../docs/generated/indexer-cli", "--verbose", "--force"
+    main 'picocli.codegen.docgen.manpage.ManPageGenerator'
+    args 'bio.terra.tanagra.indexing.cli.Main', '--outdir=$projectDir/../docs/generated/indexer-cli', '--verbose', '--force'
 }
 
-// Generate/clean the version properties file
-def generatedVersionFile = "${resourceDir}/generated/version.properties"
-task generateVersionProperties(type: Exec) {
-    description("Produce a version.properties file based on Git properties for use by the application.")
-    commandLine "${projectDir}/../service/writeVersionProperties.sh", "${version}", "${generatedVersionFile}"
-    // This task should run every time, as Gradle has no knowledge of when git properties such as the
-    // SHA change. This also means we should not mark generatedVersionFile as output. It might be
-    // possible to add logic that calls git within this block for more accurate out-of-date checking
-    // but this task takes very little time. The right way to do it might be to have three precursor
-    // tasks for the hash, build, and tag, and declare this task dependent on those.
-    outputs.upToDateWhen { false }
-    outputs.file(generatedVersionFile)
-}
-
-clean.doFirst {
-    delete(generatedVersionFile)
-}
-tasks.processResources.dependsOn(generateVersionProperties)
+apply from: "${rootDir}/gradle/spotless-dependencies.gradle"
+apply from: "${rootDir}/gradle/version-properties.gradle"
