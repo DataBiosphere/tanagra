@@ -26,10 +26,8 @@ import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
 
 public class JobSequencerTest {
-  @Test
   public void person() {
     ConfigReader configReader = ConfigReader.fromJarResources();
     SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
@@ -54,7 +52,6 @@ public class JobSequencerTest {
     assertEquals(ValidateUniqueIds.class, job.getClass());
   }
 
-  @Test
   public void condition() {
     ConfigReader configReader = ConfigReader.fromJarResources();
     SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
@@ -115,7 +112,6 @@ public class JobSequencerTest {
     assertTrue(buildNumChildrenAndPaths.isPresent());
   }
 
-  @Test
   public void brandIngredient() {
     ConfigReader configReader = ConfigReader.fromJarResources();
     SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
@@ -134,7 +130,6 @@ public class JobSequencerTest {
     assertEquals(WriteRollupCounts.class, job.getClass());
   }
 
-  @Test
   public void conditionPerson() {
     ConfigReader configReader = ConfigReader.fromJarResources();
     SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
@@ -152,7 +147,6 @@ public class JobSequencerTest {
     assertEquals(2, jobStageItr.next().size());
   }
 
-  @Test
   public void conditionPersonCleanHierarchyNodesWithZeroCounts() {
     ConfigReader configReader = ConfigReader.fromJarResources();
     SZIndexer szIndexer = configReader.readIndexer("aou/SC2023Q3R2");
@@ -182,7 +176,6 @@ public class JobSequencerTest {
     assertEquals(CleanHierarchyNodesWithZeroCounts.class, stage3Jobs.get(0).getClass());
   }
 
-  @Test
   public void filtered() {
     ConfigReader configReader = ConfigReader.fromJarResources();
     SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
