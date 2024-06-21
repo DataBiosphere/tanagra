@@ -21,29 +21,27 @@ plugins {
 repositories {
     mavenCentral()
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
     }
     google()
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
 // See https://docs.gradle.org/current/userguide/dependency_locking.html
 dependencyLocking {
     lockAllConfigurations()
-    lockMode = LockMode.STRICT
 }
 
 dependencies {
-    // GCP BOM version controlled libraries
-    // See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
-    implementation platform(group: "com.google.cloud", name: "libraries-bom", version: "26.18.0")
+    // GCP BOM - See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
+    implementation platform('com.google.cloud:libraries-bom:26.42.0')
     constraints {
         // "-jre" for Java 8 or higher
-        implementation group: "com.google.guava", name:"guava", version: "30.1.1-jre"
+        implementation 'com.google.guava:guava:33.2.1-jre'
     }
 }
 
@@ -59,15 +57,15 @@ java {
 // https://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
-        tasks.withType(Javadoc) {
+        tasks.withType(Javadoc).configureEach {
             options.addStringOption('Xdoclint:none', '-quiet')
         }
     }
 }
 
-if (hasProperty("buildScan")) {
+if (hasProperty('buildScan')) {
     buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
     }
 }

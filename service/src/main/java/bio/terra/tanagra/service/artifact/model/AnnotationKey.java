@@ -4,9 +4,9 @@ import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class AnnotationKey {

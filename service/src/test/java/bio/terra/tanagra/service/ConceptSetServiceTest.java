@@ -113,7 +113,9 @@ public class ConceptSetServiceTest {
     assertEquals(1, createdConceptSet.getExcludeOutputAttributesPerEntity().keySet().size());
     assertEquals(
         PERSON_ATTRIBUTES.stream().sorted().collect(Collectors.toList()),
-        createdConceptSet.getExcludeOutputAttributesPerEntity().get(GENDER_EQ_WOMAN.getKey())
+        createdConceptSet
+            .getExcludeOutputAttributesPerEntity()
+            .get(GENDER_EQ_WOMAN.getKey())
             .stream()
             .sorted()
             .collect(Collectors.toList()));

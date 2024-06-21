@@ -22,6 +22,8 @@ import javax.ws.rs.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.vumc.vda.tanagra.admin.api.AuthorizationApi;
 import org.vumc.vda.tanagra.admin.api.TestApi;
 import org.vumc.vda.tanagra.admin.api.UnauthenticatedApi;
@@ -52,15 +54,15 @@ public class VumcAdminAccessControl implements StudyAccessControl {
       String basePath,
       String oauthClientId,
       AccessControlHelper accessControlHelper) {
-    if (basePath == null || oauthClientId == null) {
-      throw new IllegalArgumentException(
-          "Base URL and OAuth client id are required for VUMC admin service API calls");
-    }
+    Assert.notNull(basePath, "Base URL is required for VUMC admin service API calls");
     this.basePath = basePath;
+
+    Assert.notNull(oauthClientId, "OAuth client id is required for VUMC admin service API calls");
     this.oauthClientId = oauthClientId;
 
     // Default is to use application default credentials.
-    this.useAdc = params.isEmpty() || USE_ADC.equalsIgnoreCase(params.get(0));
+    this.useAdc = CollectionUtils.isEmpty(params) || USE_ADC.equalsIgnoreCase(params.get(0));
+
     this.commonHttpClient = new ApiClient().getHttpClient();
   }
 
@@ -182,6 +184,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
         return Set.of();
     }
   }
+
   /** Admin service study permission -> Core service study permission. */
   private static Set<Action> fromStudyApiAction(ResourceAction apiAction) {
     switch (apiAction) {

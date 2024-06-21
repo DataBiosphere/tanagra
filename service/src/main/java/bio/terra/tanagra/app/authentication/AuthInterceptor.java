@@ -9,9 +9,9 @@ import bio.terra.tanagra.service.authentication.IapJwtUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.api.client.http.HttpMethods;
-import io.swagger.annotations.ApiOperation;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +49,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     // from a previous request.
     SpringAuthentication.clearCurrentUser();
 
-    if (request.getMethod().equals(HttpMethods.OPTIONS)) {
+    if (HttpMethods.OPTIONS.equals(request.getMethod())) {
       LOGGER.info("Authorization not required for OPTIONS methods requests");
       return true;
     }
@@ -61,7 +61,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     HandlerMethod method = (HandlerMethod) handler;
-    ApiOperation apiOp = AnnotationUtils.findAnnotation(method.getMethod(), ApiOperation.class);
+    Operation apiOp = AnnotationUtils.findAnnotation(method.getMethod(), Operation.class);
     if (apiOp != null) {
       for (String tag : apiOp.tags()) {
         if (OPENAPI_TAG_AUTH_NOT_REQUIRED.equals(tag)) {

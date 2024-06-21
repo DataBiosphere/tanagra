@@ -4,4 +4,6 @@
     FROM
         ${ENT_person}      
     ORDER BY
-        RAND() LIMIT 45
+        RAND()      
+    LIMIT
+        45

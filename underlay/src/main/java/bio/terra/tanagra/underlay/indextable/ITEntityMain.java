@@ -10,10 +10,10 @@ import bio.terra.tanagra.underlay.serialization.SZAttribute;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZHierarchy;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 public final class ITEntityMain extends IndexTable {
   public static final String TABLE_NAME = "ENT";

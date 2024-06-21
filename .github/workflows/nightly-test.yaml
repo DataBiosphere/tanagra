@@ -9,7 +9,7 @@ on:
 #  - cron: '0 7 * * *' # 7AM UTC = 2AM EST
 
 jobs:
-  test:
+  nightly-test:
     strategy:
       matrix:
         company-and-underlay: [ "broad/aou_synthetic", "broad/cms_synpuf" ]

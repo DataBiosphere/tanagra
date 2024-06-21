@@ -5,21 +5,18 @@
         ${ENT_conditionOccurrence}      
     WHERE
         (
-            condition IN (
-                SELECT
-                    descendant                  
-                FROM
-                    ${HAD_condition_default}                  
-                WHERE
-                    ancestor = @val0                  
-                UNION
-                ALL SELECT
-                    @val1             
-            )     
-    )      
-    OR (
-        condition IN (
-            SELECT
+            condition IN (SELECT
+                descendant              
+            FROM
+                ${HAD_condition_default}              
+            WHERE
+                ancestor = @val0              
+            UNION
+            ALL SELECT
+                @val1)         
+        )          
+        OR (
+            condition IN (SELECT
                 descendant              
             FROM
                 ${HAD_condition_default}              
@@ -27,6 +24,5 @@
                 ancestor = @val2              
             UNION
             ALL SELECT
-                @val3         
-        ) 
-)
+                @val3)         
+        )

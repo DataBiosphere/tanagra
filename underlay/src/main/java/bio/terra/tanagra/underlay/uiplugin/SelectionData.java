@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay.uiplugin;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public final class SelectionData {
   private final @Nullable String modifierName;

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ruleset name="Base ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+<ruleset name="Custom Rules"
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
     <description>
         General Java quality rules.
@@ -10,7 +11,7 @@
     <exclude-pattern>.*/build/generated/.*</exclude-pattern>
     <exclude-pattern>.*/build/openapi/.*</exclude-pattern>
 
-    <!-- Best practices (https://pmd.github.io/pmd-6.0.1/pmd_rules_java_bestpractices.html) -->
+    <!-- Best practices (https://docs.pmd-code.org/latest/pmd_rules_java_bestpractices.html) -->
     <rule ref="category/java/bestpractices.xml">
         <exclude name="AbstractClassWithoutAbstractMethod"/>
         <exclude name="AccessorMethodGeneration"/>
@@ -27,7 +28,7 @@
     </rule>
 
 
-    <!-- Code style (https://pmd.github.io/pmd-6.0.1/pmd_rules_java_codestyle.html) -->
+    <!-- Code style (https://docs.pmd-code.org/latest/pmd_rules_java_codestyle.html) -->
     <rule ref="category/java/codestyle.xml">
         <exclude name="AbstractNaming"/>
         <exclude name="AtLeastOneConstructor"/>
@@ -62,7 +63,7 @@
     </rule>
 
 
-    <!-- Design (https://pmd.github.io/pmd-6.0.1/pmd_rules_java_design.html) -->
+    <!-- Design (https://docs.pmd-code.org/latest/pmd_rules_java_design.html) -->
     <rule ref="category/java/design.xml">
         <exclude name="AvoidCatchingGenericException"/>
         <exclude name="AvoidUncheckedExceptionsInSignatures"/>
@@ -89,14 +90,14 @@
         </properties>
     </rule>
 
-    <!-- Documentation (https://pmd.github.io/pmd-6.0.1/pmd_rules_java_documentation.html) -->
+    <!-- Documentation (https://docs.pmd-code.org/latest/pmd_rules_java_documentation.html) -->
     <rule ref="category/java/documentation.xml">
         <exclude name="CommentRequired"/>
         <exclude name="CommentSize"/>
     </rule>
 
 
-    <!-- Error prone (https://pmd.github.io/pmd-6.0.1/pmd_rules_java_errorprone.html) -->
+    <!-- Error prone (https://docs.pmd-code.org/latest/pmd_rules_java_errorprone.html) -->
     <rule ref="category/java/errorprone.xml">
         <exclude name="AssignmentInOperand"/>
         <exclude name="AvoidCatchingThrowable"/>
@@ -133,7 +134,7 @@
     </rule>
 
 
-    <!-- Error prone (https://pmd.github.io/pmd-6.0.1/pmd_rules_java_multithreading.html) -->
+    <!-- Error prone (https://docs.pmd-code.org/latest/pmd_rules_java_multithreading.html) -->
     <rule ref="category/java/multithreading.xml">
         <exclude name="AvoidUsingVolatile"/>
         <exclude name="DoNotUseThreads"/> <!-- earlier j2ee group-->
@@ -141,7 +142,7 @@
     </rule>
 
 
-    <!-- Performance (https://pmd.github.io/pmd-6.0.1/pmd_rules_java_performance.html) -->
+    <!-- Performance (https://docs.pmd-code.org/latest/pmd_rules_java_performance.html) -->
     <rule ref="category/java/performance.xml">
         <!-- Mostly annoying because reacts on all instantiations, including unmovable -->
         <exclude name="AvoidInstantiatingObjectsInLoops"/>

@@ -1,6 +1,6 @@
 package bio.terra.tanagra.underlay.entitymodel;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class Relationship {
   private final Entity entityA;
