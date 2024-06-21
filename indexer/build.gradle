@@ -54,7 +54,7 @@ dependencies {
 
     // Apache Beam depends on specific JUnit versions
     // https://github.com/apache/beam/blob/release-2.56.0/buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy
-    testImplementation "junit:junit:4.13.1"
+    testImplementation 'junit:junit:4.13.1'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
     // Static analysis
@@ -86,9 +86,8 @@ application {
         // Compress Instance OOPs (manually set when max heap is over 32G
         // See - https://www.baeldung.com/jvm-compressed-oops
         // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-        "-Xmn7000m",
-        "-Xmx32000m",
-        '-XX:+UseCompressedOops',
+        "-Xmn7g",
+        "-Xmx14g",
         '-XX:+HeapDumpOnOutOfMemoryError'
     ]
 }

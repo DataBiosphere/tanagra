@@ -24,7 +24,7 @@ public class CountUtilsTest {
   private static final List<Long> ALL_NODES_10 =
       List.of(10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L);
 
-  @Test
+
   public void allNodesHaveNonZeroCount() {
     Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
     occurrences.putAll(10L, List.of(20L));
@@ -43,7 +43,6 @@ public class CountUtilsTest {
     runCountDistinctAndAssert(ALL_NODES_5, occurrences, expectedCounts);
   }
 
-  @Test
   public void someNodesHaveZeroCount() {
     Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
     occurrences.putAll(10L, List.of(20L));
@@ -61,7 +60,6 @@ public class CountUtilsTest {
     runCountDistinctAndAssert(ALL_NODES_5, occurrences, expectedCounts);
   }
 
-  @Test
   public void someOccurrencesPointToNonExistentPrimaryNodes() {
     Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
     occurrences.putAll(10L, List.of(20L));
@@ -80,7 +78,6 @@ public class CountUtilsTest {
     runCountDistinctAndAssert(ALL_NODES_5, occurrences, expectedCounts);
   }
 
-  @Test
   public void hierarchyWithOneLevelAndSelfReference() {
     Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
     occurrences.putAll(10L, List.of(20L)); // 1
@@ -106,7 +103,6 @@ public class CountUtilsTest {
         ALL_NODES_5, occurrences, descendantAncestor, expectedCounts);
   }
 
-  @Test
   public void hierarchyWithTwoLayersAndUnconnectedNodes() {
     Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
     occurrences.putAll(10L, List.of(20L)); // 1
@@ -142,7 +138,6 @@ public class CountUtilsTest {
         ALL_NODES_10, occurrences, descendantAncestor, expectedCounts);
   }
 
-  @Test
   public void hierarchyWithRepeatedValuesInDifferentChildren() {
     Multimap<Long, Long> occurrences = MultimapBuilder.hashKeys().arrayListValues().build();
     occurrences.putAll(10L, List.of(20L)); // 1

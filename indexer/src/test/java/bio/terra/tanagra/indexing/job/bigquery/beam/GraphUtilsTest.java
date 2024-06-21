@@ -24,12 +24,16 @@ public class GraphUtilsTest {
    */
   <T> void runTransitiveClosureAndAssert(
       Multimap<T, T> edges, Multimap<T, T> expectedEdges, int maxPathLength) {
+    System.out.println("Dex: start runTransitiveClosureAndAssert");
     PCollection<KV<T, T>> transitiveEdges =
         GraphUtils.transitiveClosure(
                 pipeline.apply(Create.of(KVUtils.convertToKvs(edges))), maxPathLength)
             .apply(Distinct.create()); // The transitiveClosure may output duplicates.
+    System.out.println("Dex: do assert");
     PAssert.that(transitiveEdges).containsInAnyOrder(KVUtils.convertToKvs(expectedEdges));
+    System.out.println("Dex: do wait");
     pipeline.run().waitUntilFinish();
+    System.out.println("Dex: end runTransitiveClosureAndAssert");
   }
 
   @Test
@@ -52,7 +56,9 @@ public class GraphUtilsTest {
     expectedEdges.putAll("D", List.of("E", "F", "G"));
     expectedEdges.putAll("E", List.of("F", "G"));
 
+    System.out.println("Dex: start transitiveClosureMultipleHeadsAndTails");
     runTransitiveClosureAndAssert(edges, expectedEdges, 4);
+    System.out.println("Dex: end transitiveClosureMultipleHeadsAndTails");
   }
 
   @Test
@@ -63,7 +69,9 @@ public class GraphUtilsTest {
     Multimap<String, String> expectedEdges = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedEdges.putAll("A", List.of("B"));
 
+    System.out.println("Dex: end transitiveClosureLengthOneGraph");
     runTransitiveClosureAndAssert(edges, expectedEdges, 1);
+    System.out.println("Dex: end transitiveClosureLengthOneGraph");
   }
 
   @Test
@@ -76,7 +84,9 @@ public class GraphUtilsTest {
     expectedEdges.putAll("A", List.of("B", "C"));
     expectedEdges.putAll("B", List.of("C"));
 
+    System.out.println("Dex: end transitiveClosureLengthTwoGraph");
     runTransitiveClosureAndAssert(edges, expectedEdges, 2);
+    System.out.println("Dex: end transitiveClosureLengthTwoGraph");
   }
 
   @Test
@@ -108,7 +118,9 @@ public class GraphUtilsTest {
     expectedEdges.putAll("I", List.of("J", "K", "L"));
     expectedEdges.putAll("J", List.of("K", "L"));
 
+    System.out.println("Dex: start transitiveClosureLongChain");
     runTransitiveClosureAndAssert(edges, expectedEdges, 10);
+    System.out.println("Dex: end transitiveClosureLongChain");
   }
 
   @Test
@@ -126,8 +138,10 @@ public class GraphUtilsTest {
     expectedEdges.putAll("C", List.of("D", "E"));
     expectedEdges.putAll("D", List.of("E"));
 
+    System.out.println("Dex: start transitiveClosureLargePathLengthOk");
     // Not an error to have maxPathLength be much greater than the longest path, just extra work.
     runTransitiveClosureAndAssert(edges, expectedEdges, 64);
+    System.out.println("Dex: end transitiveClosureLargePathLengthOk");
   }
 
   @Test
@@ -147,6 +161,8 @@ public class GraphUtilsTest {
     expectedEdges.putAll("D", List.of("A", "B", "C", "D", "E"));
     expectedEdges.putAll("E", List.of("A", "B", "C", "D", "E"));
 
+    System.out.println("Dex: end transitiveClosureCycle");
     runTransitiveClosureAndAssert(edges, expectedEdges, 5);
+    System.out.println("Dex: end transitiveClosureCycle");
   }
 }

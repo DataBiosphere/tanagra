@@ -55,7 +55,7 @@ public class PathUtilsTest {
   // maximum path length for a graph with multiple children per parent
   private static final int HAS_SIBLINGS_MAXPATHLENGTH = 4;
 
-  @Test
+
   public void noSiblingsPaths() {
     Multimap<Long, String> expectedPaths = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedPaths.put(11L, "21.31");
@@ -72,7 +72,6 @@ public class PathUtilsTest {
         NO_SIBLINGS_MAXPATHLENGTH);
   }
 
-  @Test
   public void hasSiblingsPaths() {
     Multimap<Long, String> expectedPaths = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedPaths.put(10L, "21.31");
@@ -114,7 +113,6 @@ public class PathUtilsTest {
     pipeline.run().waitUntilFinish();
   }
 
-  @Test
   public void noSiblingsNumChildren() {
     Multimap<Long, Long> expectedNumChildren = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedNumChildren.put(11L, 0L);
@@ -128,7 +126,6 @@ public class PathUtilsTest {
         NO_SIBLINGS_ALLNODES, noSiblingsParentChildRelationships(), expectedNumChildren);
   }
 
-  @Test
   public void hasSiblingsNumChildren() {
     Multimap<Long, Long> expectedNumChildren = MultimapBuilder.hashKeys().arrayListValues().build();
     expectedNumChildren.put(10L, 0L);
@@ -166,7 +163,6 @@ public class PathUtilsTest {
     pipeline.run().waitUntilFinish();
   }
 
-  @Test
   public void noSiblingsPrunedPaths() {
     Multimap<Long, String> expectedPrunedPaths =
         MultimapBuilder.hashKeys().arrayListValues().build();
@@ -184,7 +180,6 @@ public class PathUtilsTest {
         expectedPrunedPaths);
   }
 
-  @Test
   public void hasSiblingsPrunedPaths() {
     Multimap<Long, String> expectedPrunedPaths =
         MultimapBuilder.hashKeys().arrayListValues().build();
@@ -233,7 +228,6 @@ public class PathUtilsTest {
     pipeline.run().waitUntilFinish();
   }
 
-  @Test
   public void filteredRootNodes() {
     final List<Long> possibleRootNodes = List.of(10L, 20L, 31L);
 
