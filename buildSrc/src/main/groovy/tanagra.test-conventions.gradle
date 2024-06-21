@@ -8,9 +8,9 @@ tasks.withType(Test).configureEach {
         exceptionFormat = TestExceptionFormat.FULL
         reports {
             // Write XML file (used by CircleCI, Jenkins, etc) to build/test-results/*
-            junitXml.enabled = true
+            junitXml.required = true
             // Write human-readable test report to build/reports/tests/*
-            html.enabled = true
+            html.required = true
         }
     }
 }
