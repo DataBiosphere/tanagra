@@ -5,8 +5,6 @@ package tanagra.viz;
 option java_package = "bio.terra.tanagra.proto.viz";
 option java_outer_classname = "Viz";
 
-import "sort_order.proto";
-
 // The configuration of a underlay or cohort level visualization.
 message VizConfig {
   message Source {
@@ -87,12 +85,20 @@ message VizConfig {
         NumericBucketing numeric_bucketing = 2;
       }
 
-      // How to sort the data for display.
-      optional SortOrder sort_order = 3;
+      enum SortType {
+        UNKNOWN = 0;
+        NAME = 1;
+        VALUE = 2;
+      }
+      // How to sort this attribute for display. Defaults to NAME.
+      optional SortType sort_type = 3;
+
+      // Whether to sort in descending order.
+      optional bool sort_descending = 4;
 
       // Whether a limited amount of data should be returned (e.g. 10 most
       // common conditions).
-      optional int64 limit = 4;
+      optional int64 limit = 5;
     }
 
     // Which attributes should be returned from the selected data source (e.g.

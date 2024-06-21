@@ -86,6 +86,7 @@
     - [VizConfig.Source.Join](#tanagra-viz-VizConfig-Source-Join)
     - [VizConfig.Source.Join.Aggregation](#tanagra-viz-VizConfig-Source-Join-Aggregation)
   
+    - [VizConfig.Source.Attribute.SortType](#tanagra-viz-VizConfig-Source-Attribute-SortType)
     - [VizConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType)
   
 - [Scalar Value Types](#scalar-value-types)
@@ -985,7 +986,8 @@ The configuration of a underlay or cohort level visualization.
 | ----- | ---- | ----- | ----------- |
 | attribute | [string](#string) |  | The attribute to read. |
 | numeric_bucketing | [VizConfig.Source.Attribute.NumericBucketing](#tanagra-viz-VizConfig-Source-Attribute-NumericBucketing) |  |  |
-| sort_order | [tanagra.SortOrder](#tanagra-SortOrder) | optional | How to sort the data for display. |
+| sort_type | [VizConfig.Source.Attribute.SortType](#tanagra-viz-VizConfig-Source-Attribute-SortType) | optional | How to sort this attribute for display. Defaults to NAME. |
+| sort_descending | [bool](#bool) | optional | Whether to sort in descending order. |
 | limit | [int64](#int64) | optional | Whether a limited amount of data should be returned (e.g. 10 most common conditions). |
 
 
@@ -1061,6 +1063,19 @@ and [3, 5).
 
 
  
+
+
+<a name="tanagra-viz-VizConfig-Source-Attribute-SortType"></a>
+
+### VizConfig.Source.Attribute.SortType
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| UNKNOWN | 0 |  |
+| NAME | 1 |  |
+| VALUE | 2 |  |
+
 
 
 <a name="tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType"></a>

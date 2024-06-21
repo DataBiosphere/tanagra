@@ -57,7 +57,8 @@
   ],
   "visualizations": [
     "omop/gender",
-    "omop/raceAndAge"
+    "omop/raceAndAge",
+    "omop/topConditions"
   ],
   "metadata": {
     "displayName": "Centers for Medicare and Medicaid Services (CMS) Medicare Claims Synthetic Public Use Files (SynPUF)",
