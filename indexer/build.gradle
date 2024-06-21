@@ -50,7 +50,7 @@ dependencies {
     implementation "org.apache.beam:beam-sdks-java-extensions-join-library:${vApacheBeam}"
     implementation "org.apache.beam:beam-runners-google-cloud-dataflow-java:${vApacheBeam}"
     implementation "org.apache.beam:beam-runners-direct-java:${vApacheBeam}"
-    testRuntimeClasspath "org.apache.beam:beam-runners-direct-java:${vApacheBeam}"
+    testImplementation "org.apache.beam:beam-runners-direct-java:${vApacheBeam}"
 
     // Apache Beam depends on specific JUnit versions
     // https://github.com/apache/beam/blob/release-2.56.0/buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy
@@ -86,6 +86,7 @@ application {
         // Compress Instance OOPs (manually set when max heap is over 32G
         // See - https://www.baeldung.com/jvm-compressed-oops
         // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+        "-Xmx14000m",
         '-XX:+UseCompressedOops',
         '-XX:+HeapDumpOnOutOfMemoryError'
     ]
