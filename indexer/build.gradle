@@ -87,6 +87,7 @@ application {
         // See - https://www.baeldung.com/jvm-compressed-oops
         // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
         "-Xmn7000m",
+        "-Xmx32000m",
         '-XX:+UseCompressedOops',
         '-XX:+HeapDumpOnOutOfMemoryError'
     ]
