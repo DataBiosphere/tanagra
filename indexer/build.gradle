@@ -86,7 +86,7 @@ application {
         // Compress Instance OOPs (manually set when max heap is over 32G
         // See - https://www.baeldung.com/jvm-compressed-oops
         // https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-        "-Xmx14000m",
+        "-Xmn7000m",
         '-XX:+UseCompressedOops',
         '-XX:+HeapDumpOnOutOfMemoryError'
     ]
