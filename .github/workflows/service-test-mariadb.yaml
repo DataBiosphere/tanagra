@@ -10,9 +10,6 @@ on:
       - 'README.md'
       - 'docs/**'
 
-    paths-ignore:
-      - 'README.md'
-      - 'docs/**'
   workflow_dispatch:
 jobs:
   mariadb-test:
