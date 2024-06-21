@@ -13,7 +13,7 @@ quality {
     strict = true
 
     pmd = true
-    checkstyle = false
+    checkstyle = true
     spotbugs = true
     pmdIncremental = true
 
