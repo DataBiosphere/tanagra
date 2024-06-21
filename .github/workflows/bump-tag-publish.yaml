@@ -21,7 +21,7 @@ name: Bump, Tag, Publish
 on:
   push:
     branches:
-      - main
+      - dexamundsen-client-target
     paths-ignore:
       - 'README.md'
       - '.github/**'
