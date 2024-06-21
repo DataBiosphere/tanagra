@@ -1,0 +1,16 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "condition",
+      "joins": [],
+      "attributes": [
+        {
+          "attribute": "condition",
+          "sortType": "VALUE",
+          "sortDescending": true,
+          "limit": 10
+        }
+      ]
+    }
+  ]
+}

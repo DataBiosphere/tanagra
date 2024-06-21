@@ -115,7 +115,8 @@
   ],
   "visualizations": [
     "omop/gender",
-    "omop/raceAndAge"
+    "omop/raceAndAge",
+    "omop/topConditions"
   ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",

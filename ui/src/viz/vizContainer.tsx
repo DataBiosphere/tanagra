@@ -5,6 +5,7 @@ import Loading from "components/loading";
 import { VALUE_SUFFIX } from "data/configuration";
 import { Cohort, StudySource, UnderlaySource } from "data/source";
 import { useStudySource } from "data/studySourceContext";
+import { compareDataValues } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
@@ -99,6 +100,14 @@ export function VizContainer(props: VizContainerProps) {
   );
 }
 
+// TODO(tjennison): Since query generation has moved to the backend, the UI can
+// no longer determine these relationships. Hardcode them here until viz query
+// generation also moves to the backend.
+const selectorToEntity: { [key: string]: string } = {
+  outputUnfiltered: "person",
+  condition: "conditionOccurrence",
+};
+
 async function fetchVizData(
   vizConfig: configProto.VizConfig,
   underlaySource: UnderlaySource,
@@ -113,8 +122,14 @@ async function fetchVizData(
   if (!vizSource || vizConfig.sources.length > 1) {
     throw new Error("Only 1 visualization source is supported.");
   }
-  if (vizSource.criteriaSelector !== "outputUnfiltered") {
-    throw new Error("Only visualizations of the primary entity are supported.");
+  const entity = selectorToEntity[vizSource.criteriaSelector];
+  if (
+    !entity ||
+    (!process.env.REACT_APP_BACKEND_FILTERS && entity !== "person")
+  ) {
+    throw new Error(
+      `Visualizations of ${vizSource.criteriaSelector} are not supported.`
+    );
   }
   if (vizSource.joins?.length) {
     throw new Error("Joins are unsupported.");
@@ -129,7 +144,8 @@ async function fetchVizData(
         cohort.id,
         undefined,
         undefined,
-        vizSource.attributes.map((a) => a.attribute)
+        vizSource.attributes.map((a) => a.attribute),
+        entity
       )
     : await underlaySource.filterCount(
         generateCohortFilter(underlaySource, cohort),
@@ -223,5 +239,64 @@ async function fetchVizData(
     }
   });
 
-  return Array.from(dataMap.values());
+  const arr = Array.from(dataMap.values());
+  arr.sort((a, b) => {
+    for (let i = 0; i < vizSource.attributes.length; i++) {
+      const attrib = vizSource.attributes[i];
+      let sortValue = 0;
+      if (
+        !attrib.sortType ||
+        attrib.sortType === configProto.VizConfig_Source_Attribute_SortType.NAME
+      ) {
+        sortValue = compareDataValues(a.keys[i].name, b.keys[i].name);
+      } else if (
+        attrib.sortType ===
+        configProto.VizConfig_Source_Attribute_SortType.VALUE
+      ) {
+        sortValue = compareDataValues(a.values[i].numeric, b.values[i].numeric);
+      }
+
+      if (sortValue === 0) {
+        sortValue = compareDataValues(a.keys[i].numericId, b.keys[i].numericId);
+      }
+      if (sortValue === 0) {
+        sortValue = compareDataValues(a.keys[i].stringId, b.keys[i].stringId);
+      }
+
+      if (attrib.sortDescending) {
+        sortValue = -sortValue;
+      }
+
+      if (sortValue !== 0) {
+        return sortValue;
+      }
+    }
+    return 0;
+  });
+
+  for (let i = 1; i < vizSource.attributes.length; i++) {
+    if (vizSource.attributes[i].limit) {
+      throw new Error(
+        "A limit is only supported on the first visualization attribute."
+      );
+    }
+  }
+
+  const limit = vizSource.attributes[0].limit;
+  if (limit) {
+    let count = 0;
+    for (let i = 1; i < arr.length; i++) {
+      const ka = arr[i].keys[0];
+      const kb = arr[i - 1].keys[0];
+      if (ka.numericId !== kb.numericId || ka.stringId !== kb.stringId) {
+        count++;
+        if (count === limit) {
+          arr.splice(i);
+          break;
+        }
+      }
+    }
+  }
+
+  return arr;
 }
