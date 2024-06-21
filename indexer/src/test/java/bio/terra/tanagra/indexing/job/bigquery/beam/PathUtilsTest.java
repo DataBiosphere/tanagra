@@ -15,7 +15,6 @@ import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.junit.Rule;
-import org.junit.Test;
 
 public class PathUtilsTest {
   @Rule public final transient TestPipeline pipeline = TestPipeline.create();
@@ -54,7 +53,6 @@ public class PathUtilsTest {
 
   // maximum path length for a graph with multiple children per parent
   private static final int HAS_SIBLINGS_MAXPATHLENGTH = 4;
-
 
   public void noSiblingsPaths() {
     Multimap<Long, String> expectedPaths = MultimapBuilder.hashKeys().arrayListValues().build();
