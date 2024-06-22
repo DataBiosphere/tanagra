@@ -29,8 +29,6 @@ repositories {
     google()
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-
 // See https://docs.gradle.org/current/userguide/dependency_locking.html
 dependencyLocking {
     lockAllConfigurations()
@@ -43,12 +41,6 @@ dependencies {
         // "-jre" for Java 8 or higher
         implementation 'com.google.guava:guava:33.2.1-jre'
     }
-}
-
-// Javadoc
-java {
-    // Builds Javadoc into the published package as part of the 'assemble' task.
-    withJavadocJar()
 }
 
 // Use the approach described in the link below to turn off console output

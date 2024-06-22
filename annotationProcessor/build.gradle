@@ -1,11 +1,7 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 plugins {
     id 'java'
     id 'pmd'
     id 'tanagra.java-conventions'
-    id 'io.spring.dependency-management' version '1.1.5'
-    id 'org.springframework.boot' version '3.2.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -34,15 +30,6 @@ repositories {
             username = System.getenv('GITHUB_ACTOR')
             password = System.getenv('GITHUB_TOKEN')
         }
-    }
-}
-
-dependencyManagement {
-    imports {
-        mavenBom SpringBootPlugin.BOM_COORDINATES
-    }
-    dependencies {
-        dependency "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
     }
 }
 

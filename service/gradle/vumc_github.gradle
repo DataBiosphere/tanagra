@@ -15,7 +15,7 @@ publishing {
     }
     publications {
         tanagraApi(MavenPublication) {
-            groupId 'bio.terra'
+            groupId "${group}"
             artifactId 'tanagraapi'
             version "${version}"
             artifact("${rootDir}/service/build/libs/service-${version}.jar")
