@@ -9,11 +9,6 @@ on:
     paths-ignore:
       - 'README.md'
       - 'docs/**'
-  pull_request:
-    branches: [ '**' ]
-    paths-ignore:
-      - 'README.md'
-      - 'docs/**'
   workflow_dispatch:
 jobs:
   test:

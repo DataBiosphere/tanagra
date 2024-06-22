@@ -19,14 +19,14 @@ name: Bump, Tag, Publish
 # - GCR_PUBLISH_KEY   - key for publishing the docker to GCR
 # - BROADBOT_TOKEN - the broadbot token, so we can avoid two reviewer rule on GHA operations
 on:
-  push:
+  pull_request:
     branches:
-      - main
+    - dexamundsen-11-target
     paths-ignore:
-      - 'README.md'
-      - '.github/**'
-      - 'docs/**'
-      - 'service/local-dev/**'
+    - 'README.md'
+    - '.github/**'
+    - 'docs/**'
+    - 'service/local-dev/**'
   workflow_dispatch:
     inputs:
       bump:
@@ -35,100 +35,139 @@ on:
         default: 'patch'
         type: choice
         options:
-          - patch
-          - minor
-          - major
+        - patch
+        - minor
+        - major
       branch:
         description: 'Branch to run the workflow on'
         required: false
         default: 'main'
 env:
   SERVICE_NAME: ${{ github.event.repository.name }}
+
+# client uses Java 11 & service uses Java 17. Hence, client-publish &
+# service-image are separate jobs. Combine all three jobs into a single
+# `tag-publish-job` when client is migrated to Java 17 (BENCH-3210)
+
 jobs:
-  tag-publish-job:
+  bump-tag:
+    name: Bump Tag
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.tag.outputs.tag }}
+      checkout-branch: ${{ steps.controls.outputs.checkout-branch }}
       is-bump: ${{ steps.skiptest.outputs.is-bump }}
+      tag: ${{ steps.tag.outputs.tag }}
+
     steps:
-      - name: Set part of semantic version to bump
-        id: controls
-        run: |
-          SEMVER_PART=""
-          CHECKOUT_BRANCH="$GITHUB_REF"
-          if ${{github.event_name == 'push' }}; then
-            SEMVER_PART="patch"
-          elif ${{github.event_name == 'workflow_dispatch' }}; then
-            SEMVER_PART=${{ github.event.inputs.bump }}
-            CHECKOUT_BRANCH=${{ github.event.inputs.branch }}
-          fi
-          echo semver-part=$SEMVER_PART >> $GITHUB_OUTPUT
-          echo checkout-branch=$CHECKOUT_BRANCH >> $GITHUB_OUTPUT
-      - name: Checkout current code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.controls.outputs.checkout-branch }}
-          token: ${{ secrets.BROADBOT_TOKEN }}
-      - name: Skip version bump merges
-        id: skiptest
-        uses: ./.github/actions/bump-skip
-        with:
-          event-name: ${{ github.event_name }}
-      - name: Bump the tag to a new version
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
-        id: tag
-        env:
-          DEFAULT_BUMP: patch
-          GITHUB_TOKEN: ${{ secrets.BROADBOT_TOKEN }}
-          HOTFIX_BRANCHES: hotfix.*
-          OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
-          RELEASE_BRANCHES: main
-          VERSION_FILE_PATH: settings.gradle
-          VERSION_LINE_MATCH: "^gradle.ext.tanagraVersion\\s*=\\s*\".*\""
-          VERSION_SUFFIX: SNAPSHOT
+    - name: Set part of semantic version to bump
+      id: controls
+      run: |
+        SEMVER_PART=""
+        CHECKOUT_BRANCH="$GITHUB_REF"
+        if ${{github.event_name == 'push' }}; then
+          SEMVER_PART="patch"
+        elif ${{github.event_name == 'workflow_dispatch' }}; then
+          SEMVER_PART=${{ github.event.inputs.bump }}
+          CHECKOUT_BRANCH=${{ github.event.inputs.branch }}
+        fi
+        echo semver-part=$SEMVER_PART >> $GITHUB_OUTPUT
+        echo checkout-branch=$CHECKOUT_BRANCH >> $GITHUB_OUTPUT
+    - name: Checkout current code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.controls.outputs.checkout-branch }}
+        token: ${{ secrets.BROADBOT_TOKEN }}
+    - name: Skip version bump merges
+      id: skiptest
+      uses: ./.github/actions/bump-skip
+      with:
+        event-name: ${{ github.event_name }}
+    - name: Bump the tag to a new version
+      if: steps.skiptest.outputs.is-bump == 'no'
+      uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
+      id: tag
+      env:
+        DEFAULT_BUMP: patch
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_TOKEN }}
+        HOTFIX_BRANCHES: hotfix.*
+        OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
+        RELEASE_BRANCHES: main
+        VERSION_FILE_PATH: settings.gradle
+        VERSION_LINE_MATCH: "^gradle.ext.tanagraVersion\\s*=\\s*\".*\""
+        VERSION_SUFFIX: SNAPSHOT
 
-      - name: Set up AdoptOpenJDK
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 11
-      - name: Cache Gradle packages
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-      - name: Grant execute permission for gradlew
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: chmod +x gradlew
+  client-publish:
+    name: Publish client to Artifactory
+    if: needs.bump-tag.outputs.is-bump == 'no'
+    runs-on: ubuntu-latest
+    needs: bump-tag
 
-      - name: "Publish to Artifactory"
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: ./gradlew :client:artifactoryPublish --scan
-        env:
-          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - name: Checkout current code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ needs.bump-tag.outputs.checkout-branch }}
+        token: ${{ secrets.BROADBOT_TOKEN }}
+    - name: Set up JDK 11
+      uses: actions/setup-java@v4
+      with:
+        java-version: 11
+        distribution: 'temurin'
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: "Publish to Artifactory"
+      run: ./gradlew :client:artifactoryPublish --scan
+      env:
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build the OpenAPI interface
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: ./gradlew :service:generateSwaggerCodeServer --scan
-      - name: Where is the file
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: |
-          pwd
-          find . -name "service_openapi.yaml"
-      - name: Make release
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: ncipollo/release-action@v1
-        id: create_release
-        with:
-          tag: ${{ steps.tag.outputs.tag }}
-          generateReleaseNotes: true
-          artifacts: "./service/src/main/resources/api/service_openapi.yaml"
+  service-image:
+    name: Push service image to GCR
+    if: needs.bump-tag.outputs.is-bump == 'no'
+    runs-on: ubuntu-latest
+    needs: bump-tag
+
+    steps:
+    - name: Checkout current code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ needs.bump-tag.outputs.checkout-branch }}
+        token: ${{ secrets.BROADBOT_TOKEN }}
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build the OpenAPI interface
+      run: ./gradlew :service:generateSwaggerCodeServer --scan
+    - name: Where is the file
+      run: |
+        pwd
+        find . -name "service_openapi.yaml"
+    - name: Make release
+      uses: ncipollo/release-action@v1
+      id: create_release
+      with:
+        tag: ${{ needs.bump-tag.outputs.tag }}
+        generateReleaseNotes: true
+        artifacts: "./service/src/main/resources/api/service_openapi.yaml"
