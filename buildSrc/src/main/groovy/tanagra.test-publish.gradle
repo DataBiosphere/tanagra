@@ -1,0 +1,5 @@
+tasks.register('noCloudAccessRequiredTestsAlso', Test) {
+    useJUnitPlatform {
+        excludeTags 'requires-cloud-access-also'
+    }
+}
