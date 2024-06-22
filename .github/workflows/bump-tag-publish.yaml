@@ -20,13 +20,7 @@ name: Bump, Tag, Publish
 # - BROADBOT_TOKEN - the broadbot token, so we can avoid two reviewer rule on GHA operations
 on:
   pull_request:
-    branches:
-    - dexamundsen-11-target
-    paths-ignore:
-    - 'README.md'
-    - '.github/**'
-    - 'docs/**'
-    - 'service/local-dev/**'
+    branches: [ '**' ]
   workflow_dispatch:
     inputs:
       bump:
