@@ -123,7 +123,7 @@ jobs:
         restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: "Publish to Artifactory"
+    - name: Publish to Artifactory
       run: ./gradlew :client:artifactoryPublish --scan
       env:
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
@@ -159,7 +159,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build the OpenAPI interface
-      run: ./gradlew :service:generateSwaggerCodeServer --scan
+      run: ./gradlew :service:generateSwaggerCodeServer --scan --info
     - name: Where is the file
       run: |
         pwd
