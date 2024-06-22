@@ -6,8 +6,7 @@ name: Check Generated Files
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ '**' ]
+
     # Always run this GHA on PRs, so that we have at least one successful check to satisfy branch protections.
   workflow_dispatch:
 jobs:

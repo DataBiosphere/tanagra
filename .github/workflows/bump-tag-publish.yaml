@@ -19,7 +19,7 @@ name: Bump, Tag, Publish
 # - GCR_PUBLISH_KEY   - key for publishing the docker to GCR
 # - BROADBOT_TOKEN - the broadbot token, so we can avoid two reviewer rule on GHA operations
 on:
-  push:
+  pull_request:
     branches:
       - dexamundsen-client-target
     paths-ignore:
