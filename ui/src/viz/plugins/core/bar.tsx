@@ -49,7 +49,7 @@ const defaultColors = [
   "#448388",
 ];
 
-@registerVizPlugin("bar", [
+@registerVizPlugin("core/bar", [
   {
     keyTypes: [[VizKeyType.NumericId, VizKeyType.StringId]],
     valueTypes: [VizValueType.Numeric],
@@ -126,6 +126,7 @@ function BarViz(props: BarVizProps) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             type="number"
+            height={20}
             style={{
               ...theme.typography.body2,
             }}

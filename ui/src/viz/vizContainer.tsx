@@ -1,5 +1,8 @@
+import BarChartIcon from "@mui/icons-material/BarChart";
+import TableViewIcon from "@mui/icons-material/TableView";
 import Typography from "@mui/material/Typography";
 import { generateCohortFilter } from "cohort";
+import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { VALUE_SUFFIX } from "data/configuration";
@@ -9,10 +12,12 @@ import { compareDataValues } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
+import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/viz/viz_config";
 import { useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
+import { useImmer } from "use-immer";
 import { isValid } from "util/valid";
 import { getVizPlugin, VizData } from "viz/viz";
 
@@ -40,6 +45,10 @@ export function VizContainer(props: VizContainerProps) {
   const underlaySource = useUnderlaySource();
   const studyId = useStudyId();
   const studySource = useStudySource();
+
+  const [showTable, updateShowTable] = useImmer(
+    new Array(props.configs.length)
+  );
 
   const configs = useMemo(
     (): ParsedConfig[] =>
@@ -71,6 +80,11 @@ export function VizContainer(props: VizContainerProps) {
             config,
             data,
             plugin: getVizPlugin(config.plugin, config.pluginConfig),
+            tablePlugin: getVizPlugin("core/table", {
+              keyTitles: config.dataConfig.sources
+                .map((s) => s.attributes.map((a) => a.attribute))
+                .flat(),
+            }),
           };
         })
       )
@@ -82,9 +96,28 @@ export function VizContainer(props: VizContainerProps) {
         <GridLayout rows>
           {dataState.data?.map((d, i) => (
             <GridLayout key={i} rows>
-              <Typography variant="body1">{d.config.title}</Typography>
+              <GridLayout cols={3} fillCol={1} rowAlign="middle">
+                <Typography variant="body1">{d.config.title}</Typography>
+                <GridBox />
+                <Checkbox
+                  size="small"
+                  fontSize="inherit"
+                  checked={showTable[i]}
+                  onChange={() =>
+                    updateShowTable((showTable) => {
+                      showTable[i] = !showTable[i];
+                    })
+                  }
+                  checkedIcon={<BarChartIcon />}
+                  uncheckedIcon={<TableViewIcon />}
+                />
+              </GridLayout>
               {d.data?.length ? (
-                d.plugin.render(d.data ?? [])
+                showTable[i] ? (
+                  d.tablePlugin.render(d.data ?? [])
+                ) : (
+                  d.plugin.render(d.data ?? [])
+                )
               ) : (
                 <Empty
                   minHeight="150px"
