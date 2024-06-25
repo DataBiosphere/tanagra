@@ -2,5 +2,5 @@
   "name": "raceAndAge",
   "title": "Race and Age",
   "dataConfigFile": "raceAndAge.json",
-  "plugin": "bar"
+  "plugin": "core/bar"
 }

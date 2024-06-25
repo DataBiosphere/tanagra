@@ -53,8 +53,8 @@ export function registerVizPlugin(type: string, dataFormats: VizDataFormat[]) {
   };
 }
 
-export function getVizPlugin(type: string, config: object): VizPlugin {
-  return new (getVizEntry(type).constructor)(config);
+export function getVizPlugin(type: string, config?: object): VizPlugin {
+  return new (getVizEntry(type).constructor)(config ?? {});
 }
 
 export function useVizPlugin(type: string, config: object): VizPlugin {
