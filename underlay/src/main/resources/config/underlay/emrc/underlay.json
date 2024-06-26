@@ -6,13 +6,16 @@
     "emrc/cpt4",
     "emrc/cpt4Occurrence",
     "emrc/icd9",
-    "emrc/icd9Occurrence"
+    "emrc/icd9Occurrence",
+    "emrc/icd10cm",
+    "emrc/icd10cmOccurrence"
   ],
   "groupItemsEntityGroups": [
   ],
   "criteriaOccurrenceEntityGroups": [
     "emrc/cpt4Person",
-    "emrc/icd9Person"
+    "emrc/icd9Person",
+    "emrc/icd10cmPerson"
   ],
   "criteriaSelectors": [
     "emrc/gender",
@@ -28,6 +31,7 @@
     "emrc/datasetGira",
     "emrc/cpt4",
     "emrc/icd9",
+    "emrc/icd10cm",
     "emrc/outputUnfiltered"
   ],
   "prepackagedDataFeatures": [
