@@ -32,6 +32,7 @@ export type UIConfiguration = {
 
 export type FeatureConfig = {
   disableExportButton?: boolean;
+  overrideExportButton?: boolean;
 };
 
 export type DemographicChartConfig = {
