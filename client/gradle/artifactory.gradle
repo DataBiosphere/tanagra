@@ -4,10 +4,10 @@ import java.util.regex.Matcher
 publishing {
     publications {
         tanagraClientLibrary(MavenPublication) {
-            artifactId = "tanagra-client"
+            artifactId = 'tanagra-client'
             from components.java
             versionMapping {
-                usage("java-runtime") {
+                usage('java-runtime') {
                     fromResolutionResult()
                 }
             }
@@ -15,20 +15,20 @@ publishing {
     }
 }
 
-def artifactory_repo_key = System.getenv("ARTIFACTORY_REPO_KEY") != null ? System.getenv("ARTIFACTORY_REPO_KEY") : 'libs-snapshot-local'
-def artifactory_username = System.getenv("ARTIFACTORY_USERNAME")
-def artifactory_password = System.getenv("ARTIFACTORY_PASSWORD")
+String artifactory_repo_key = System.getenv('ARTIFACTORY_REPO_KEY') != null ? System.getenv('ARTIFACTORY_REPO_KEY') : 'libs-snapshot-local'
+String artifactory_username = System.getenv('ARTIFACTORY_USERNAME')
+String artifactory_password = System.getenv('ARTIFACTORY_PASSWORD')
 
 gradle.taskGraph.whenReady { taskGraph ->
     if (taskGraph.hasTask(artifactoryPublish) &&
-    (artifactory_username == null || artifactory_password == null)) {
-        throw new GradleException("Set env vars ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD to publish")
+            (artifactory_username == null || artifactory_password == null)) {
+        throw new GradleException('Set env vars ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD to publish')
     }
 }
 
 artifactory {
     publish {
-        contextUrl = "https://broadinstitute.jfrog.io/broadinstitute/"
+        contextUrl = 'https://broadinstitute.jfrog.io/broadinstitute/'
         repository {
             repoKey = "${artifactory_repo_key}" // The Artifactory repository key to publish to
             username = "${artifactory_username}" // The publisher user name
@@ -36,7 +36,7 @@ artifactory {
         }
         defaults {
             // Reference to Gradle Maven publications defined in the build script.
-            publications("tanagraClientLibrary")
+            publications('tanagraClientLibrary')
             publishArtifacts = true
             publishPom = true
         }
@@ -48,12 +48,12 @@ artifactory {
 tasks.withType(GenerateMavenPom).all {
     doLast {
         File file = new File("$buildDir/publications/tanagraClientLibrary/pom-default.xml")
-        def text = file.text
-        def pattern = "(?s)(<dependencyManagement>.+?<dependencies>)(.+?)(</dependencies>.+?</dependencyManagement>)"
+        String text = file.text
+        String pattern = '(?s)(<dependencyManagement>.+?<dependencies>)(.+?)(</dependencies>.+?</dependencyManagement>)'
         Matcher matcher = text =~ pattern
         if (matcher.find()) {
-            text = text.replaceFirst(pattern, "")
-            def firstDeps = matcher.group(2)
+            text = text.replaceFirst(pattern, '')
+            String firstDeps = matcher.group(2)
             text = text.replaceFirst(pattern, '$1$2' + firstDeps + '$3')
         }
         file.write(text)

@@ -1,6 +1,6 @@
 // OpenAPI/Swagger Server Generation
-def artifactGroup = "${gradle.tanagraArtifactGroup}"
-def openapiOutputDir = "${buildDir}/openapi"
+String artifactGroup = "${gradle.tanagraArtifactGroup}"
+String openapiOutputDir = "${buildDir}/openapi"
 
 swaggerSources {
     server {

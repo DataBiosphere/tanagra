@@ -1,5 +1,6 @@
 // Generate/clean the version properties file
-def generatedVersionFile = "${resourceDir}/generated/version.properties"
+String version = "${gradle.tanagraVersion}"
+String generatedVersionFile = "${resourceDir}/generated/version.properties"
 
 tasks.register('generateVersionProperties', Exec) {
     description('Produce a version.properties file based on Git properties for use by the application.')
