@@ -21,12 +21,12 @@ name: Bump, Tag, Publish
 on:
   push:
     branches:
-      - main
+    - main
     paths-ignore:
-      - 'README.md'
-      - '.github/**'
-      - 'docs/**'
-      - 'service/local-dev/**'
+    - 'README.md'
+    - '.github/**'
+    - 'docs/**'
+    - 'service/local-dev/**'
   workflow_dispatch:
     inputs:
       bump:
@@ -35,9 +35,9 @@ on:
         default: 'patch'
         type: choice
         options:
-          - patch
-          - minor
-          - major
+        - patch
+        - minor
+        - major
       branch:
         description: 'Branch to run the workflow on'
         required: false
@@ -45,12 +45,8 @@ on:
 env:
   SERVICE_NAME: ${{ github.event.repository.name }}
 
-# client uses Java 11 & service uses Java 17. Hence, client-publish &
-# service-image are separate jobs. Combine all three jobs into a single
-# `tag-publish-job` when client is migrated to Java 17 (BENCH-3210)
-
 jobs:
-  bump-tag:
+  bump-tag-job:
     name: Bump Tag
     runs-on: ubuntu-latest
     outputs:
@@ -96,43 +92,8 @@ jobs:
         VERSION_LINE_MATCH: "^gradle.ext.tanagraVersion\\s*=\\s*\".*\""
         VERSION_SUFFIX: SNAPSHOT
 
-  client-publish:
-    name: Publish client to Artifactory
-    if: needs.bump-tag.outputs.is-bump == 'no'
-    runs-on: ubuntu-latest
-    needs: bump-tag
-
-    steps:
-    - name: Checkout current code
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ needs.bump-tag.outputs.checkout-branch }}
-        token: ${{ secrets.BROADBOT_TOKEN }}
-    - name: Set up JDK 11
-      uses: actions/setup-java@v4
-      with:
-        java-version: 11
-        distribution: 'temurin'
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Publish to Artifactory
-      run: ./gradlew :client:artifactoryPublish --scan
-      env:
-        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-        ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  service-image:
-    name: Push service image to GCR
+  publish-job:
+    name: Publish client to Artifactory & Push service image to GCR
     if: needs.bump-tag.outputs.is-bump == 'no'
     runs-on: ubuntu-latest
     needs: bump-tag
@@ -158,13 +119,22 @@ jobs:
         restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    - name: Publish client to Artifactory
+      run: ./gradlew :client:artifactoryPublish --scan
+      env:
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        ARTIFACTORY_REPO_KEY: 'libs-snapshot-local'
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build the OpenAPI interface
       run: ./gradlew :service:generateSwaggerCodeServer --scan
     - name: Where is the file
       run: |
         pwd
         find . -name "service_openapi.yaml"
-    - name: Make release
+    - name: Create release & push image to GCR
       uses: ncipollo/release-action@v1
       id: create_release
       with:
