@@ -4,20 +4,16 @@
     FROM
         ${ENT_person}      
     WHERE
-        id IN (
-            SELECT
+        id IN (SELECT
+            person_id          
+        FROM
+            (SELECT
                 person_id              
             FROM
-                (SELECT
-                    person_id                  
-                FROM
-                    ${ENT_conditionOccurrence}                  
-                GROUP BY
-                    person_id,
-                    start_date,
-                    condition)              
+                ${ENT_conditionOccurrence}              
             GROUP BY
-                person_id              
-            HAVING
-                COUNT(*) > @groupByCount0             
-            )
+                person_id, start_date, condition)          
+        GROUP BY
+            person_id          
+        HAVING
+            COUNT(*) > @groupByCount0)

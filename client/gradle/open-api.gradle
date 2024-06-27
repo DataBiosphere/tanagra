@@ -1,5 +1,6 @@
 // OpenAPI/Swagger Client Generation
-def artifactGroup = "${group}.tanagra"
+def artifactGroup = "${gradle.tanagraArtifactGroup}"
+def version = "${gradle.tanagraVersion}"
 def openapiOutputDir = "${buildDir}/openapi"
 
 swaggerSources {

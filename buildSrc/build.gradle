@@ -6,7 +6,6 @@
 // https://docs.gradle.org/current/userguide/sharing_build_logic_between_subprojects.html
 // https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#sec:build_sources
 //
-
 plugins {
     id 'groovy-gradle-plugin'
 }
@@ -17,6 +16,6 @@ repositories {
 
 dependencies {
     // Specify the version of each plugin used in buildSrc/src/*.gradle.
-    implementation group: "com.diffplug.spotless", name: "spotless-plugin-gradle", version: "3.27.2"
-    implementation group: "ru.vyarus", name: "gradle-quality-plugin", version: "4.5.0"
+    implementation 'com.diffplug.spotless:spotless-plugin-gradle:6.25.0'
+    implementation 'ru.vyarus:gradle-quality-plugin:5.0.0'
 }

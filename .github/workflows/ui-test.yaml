@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  ui-unit-tests:
     runs-on: ubuntu-latest
 
     defaults:

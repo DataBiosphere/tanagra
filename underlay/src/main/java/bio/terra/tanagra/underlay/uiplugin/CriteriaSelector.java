@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay.uiplugin;
 
-import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.NotFoundException;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;

@@ -12,7 +12,7 @@ import bio.terra.tanagra.generated.model.ApiActivityLogEntryList;
 import bio.terra.tanagra.generated.model.ApiActivityType;
 import bio.terra.tanagra.generated.model.ApiProperties;
 import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
-import bio.terra.tanagra.generated.model.ApiResource;
+import bio.terra.tanagra.generated.model.ApiResourceObject;
 import bio.terra.tanagra.generated.model.ApiResourceType;
 import bio.terra.tanagra.generated.model.ApiSystemVersion;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
@@ -88,9 +88,9 @@ public class ActivityLogApiController implements ActivityLogApi {
                 .recordsCount(activityLog.getRecordsCount()));
   }
 
-  private ApiResource toApiObject(ActivityLogResource activityLogResource) {
-    ApiResource apiResource =
-        new ApiResource()
+  private ApiResourceObject toApiObject(ActivityLogResource activityLogResource) {
+    ApiResourceObject apiResource =
+        new ApiResourceObject()
             .type(ApiResourceType.valueOf(activityLogResource.getType().name()))
             .studyId(activityLogResource.getStudyId())
             .studyDisplayName(activityLogResource.getStudyDisplayName())
