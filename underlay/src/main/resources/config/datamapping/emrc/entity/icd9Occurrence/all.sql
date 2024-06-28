@@ -9,20 +9,15 @@ FROM `${omopDataset}.icd_codes` c
 JOIN (
     SELECT
         cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as concept_id,
-        regexp_extract(pc.name,r'.*-(.EX.*)') as name,
-        regexp_replace(pc.name, r'-.*', '') as concept_code,
+        case when pc.name like '%EXPIRED%' then regexp_extract(pc.name, '.*-(\\[EX.*)')
+             when pc.is_root = true then regexp_extract(pc.name, '.*[0-9] (.*)')
+             when pc.is_root = false then regexp_extract(name, '.*[0-9]-(.*)')
+        end as name,
+        case when pc.name like '%EXPIRED%' then regexp_extract(pc.name, '(.*)-[\\(A-Z0-9].*')
+             when pc.is_root = true then regexp_extract(pc.name, '(.*[0-9]) .*')
+             when pc.is_root = false then regexp_extract(name, '(.*[0-9])-.*')
+        end as concept_code,
         pc.is_leaf
     FROM `${omopDataset}.icd_criteria` pc
-    WHERE name like '%EXPIRED%'
-          and pc.is_root=false
-    UNION ALL
-    SELECT
-        cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as concept_id,
-        regexp_extract(pc.name,r'.*-(.*)') as name,
-        regexp_replace(pc.name, r'-.*', '') as concept_code,
-        pc.is_leaf
-    FROM `${omopDataset}.icd_criteria` pc
-    WHERE pc.name not like '%EXPIRED%'
-      and pc.is_root=false
-) cc ON c.code = cc.concept_code
-     and cc.is_leaf = true
+    ) cc ON c.code = cc.concept_code
+    and cc.is_leaf = true

@@ -3,3 +3,4 @@ SELECT
     pc.parent_seq AS parent
 FROM `${omopDataset}.cpt_criteria` pc
 WHERE pc.parent_seq != 0
+

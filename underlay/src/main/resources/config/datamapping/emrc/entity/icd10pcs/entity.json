@@ -1,5 +1,5 @@
 {
-  "name": "icd9",
+  "name": "icd10pcs",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64" },
