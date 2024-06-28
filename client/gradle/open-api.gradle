@@ -1,28 +1,37 @@
 // OpenAPI/Swagger Client Generation
-def artifactGroup = "${group}.tanagra"
-def openapiOutputDir = "${buildDir}/openapi"
+String artifactGroup = "${gradle.tanagraArtifactGroup}"
+String version = "${gradle.tanagraVersion}"
+String openapiOutputDir = "${buildDir}/openapi"
 
 swaggerSources {
     client {
-        inputFile = file('../service/src/main/resources/api/service_openapi.yaml')
+        inputFile = file("${rootDir}/service/src/main/resources/api/service_openapi.yaml")
         code {
-//            jvmArgs = ['--add-opens=java.base/java.util=ALL-UNNAMED'] // for Java 16+
-            language = "java"
-            library = "jersey2"
-//            templateDir = file("${projectDir}/src/main/resources/swaggercodegen")
+            jvmArgs = [
+                    '--add-opens=java.base/java.util=ALL-UNNAMED'] // for Java 16+
+            language = 'java'
+            library = 'jersey3'
             outputDir = file(openapiOutputDir)
             rawOptions = [
-                "--api-package", "${artifactGroup}.api",
-                "--model-package", "${artifactGroup}.model",
-                "--invoker-package", "${artifactGroup}.client",
-                "--group-id", "${artifactGroup}",
-                "--artifact-version", "${version}",
-                "--ignore-file-override", "${projectDir}/.swagger-codegen-ignore",
-                '-D', 'apiTests=false,' +
-                        'apiDocs=false,' +
-                        'modelTests=false,' +
-                        'modelDocs=false,' +
-                        'dateLibrary=java8,'
+                    '--model-package',
+                    "${artifactGroup}.model",
+                    '--api-package',
+                    "${artifactGroup}.api",
+                    '--invoker-package',
+                    "${artifactGroup}.client",
+                    '--group-id',
+                    "${artifactGroup}",
+                    '--artifact-version',
+                    "${version}",
+                    '--ignore-file-override',
+                    "${projectDir}/.swagger-codegen-ignore",
+                    '-D',
+                    'apiTests=false,' +
+                            'apiDocs=false,' +
+                            'modelTests=false,' +
+                            'modelDocs=false,' +
+                            'dateLibrary=java8,' +
+                            'jakarta=true'
             ]
         }
     }
@@ -30,8 +39,6 @@ swaggerSources {
 
 // Internal dependencies
 sourceSets.main.java.srcDir "${openapiOutputDir}/src/main/java"
-compileJava.dependsOn swaggerSources.client.code
-// This should not be dependency on client code for spotless, but there's an accidental implicit one.
-// Setting an explicit dependency here squashes deprecation warnings for Gradle 8.0, but masks the
-// root problem. Remove this once we find a way to get spotless out of the client project altogether.
-sourcesJar.dependsOn(generateSwaggerCodeClient)
+
+tasks.compileJava.dependsOn(swaggerSources.client.code)
+tasks.sourcesJar.dependsOn(generateSwaggerCodeClient)

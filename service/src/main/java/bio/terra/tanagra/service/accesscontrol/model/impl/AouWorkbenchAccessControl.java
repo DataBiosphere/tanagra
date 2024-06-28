@@ -8,9 +8,9 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.model.StudyAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 public class AouWorkbenchAccessControl implements StudyAccessControl {
@@ -37,9 +38,7 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
       AccessControlHelper accessControlHelper) {
     // Store the basePath, so we can use it when calling the workbench API.
     // oauthClientId not used for AoU RW call
-    if (basePath == null) {
-      throw new IllegalArgumentException("Base URL is required for Workbench API calls");
-    }
+    Assert.notNull(basePath, "Base URL is required for Workbench API calls");
     this.basePath = basePath;
   }
 
@@ -133,10 +132,12 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
         return null;
       }
     }
+
+    HttpStatus statusCode = (HttpStatus) responseEntity.getStatusCode();
     LOGGER.error(
         "AoU Workspace Access Level api error. Http status code: {}, Message: {}",
-        responseEntity.getStatusCodeValue(),
-        responseEntity.getStatusCode().getReasonPhrase());
+        statusCode,
+        statusCode.getReasonPhrase());
     return null;
   }
 }

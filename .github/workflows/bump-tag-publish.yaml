@@ -88,12 +88,12 @@ jobs:
         VERSION_LINE_MATCH: "^gradle.ext.tanagraVersion\\s*=\\s*\".*\""
         VERSION_SUFFIX: SNAPSHOT
 
-    - name: Set up AdoptOpenJDK
+    - name: Set up JDK 17
       if: steps.skiptest.outputs.is-bump == 'no'
       uses: actions/setup-java@v4
       with:
+        java-version: 17
         distribution: 'temurin'
-        java-version: 11
     - name: Cache Gradle packages
       if: steps.skiptest.outputs.is-bump == 'no'
       uses: actions/cache@v4
@@ -107,13 +107,13 @@ jobs:
       if: steps.skiptest.outputs.is-bump == 'no'
       run: chmod +x gradlew
 
-    - name: "Publish to Artifactory"
+    - name: Publish to Artifactory
       if: steps.skiptest.outputs.is-bump == 'no'
       run: ./gradlew :client:artifactoryPublish --scan
       env:
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-        ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
+        ARTIFACTORY_REPO_KEY: 'libs-snapshot-local'
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build the OpenAPI interface
@@ -131,4 +131,4 @@ jobs:
       with:
         tag: ${{ steps.tag.outputs.tag }}
         generateReleaseNotes: true
-        artifacts: "./service/src/main/resources/api/service_openapi.yaml"
+        artifacts: './service/src/main/resources/api/service_openapi.yaml'

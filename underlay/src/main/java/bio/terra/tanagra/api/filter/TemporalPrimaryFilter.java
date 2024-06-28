@@ -5,8 +5,8 @@ import bio.terra.tanagra.api.shared.ReducingOperator;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class TemporalPrimaryFilter extends EntityFilter {
   private final Underlay underlay;

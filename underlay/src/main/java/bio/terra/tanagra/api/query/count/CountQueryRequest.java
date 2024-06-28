@@ -8,8 +8,8 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class CountQueryRequest {
   // Choose a very large default page size for count queries because, unlike list queries, we expect

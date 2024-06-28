@@ -200,8 +200,7 @@ public class ExportApiController implements ExportApi {
     Underlay underlay = underlayService.getUnderlay(underlayName);
     Map<EntityOutputPreview, String> indexSqlForEntityOutputs = new HashMap<>();
     Map<EntityOutputPreview, String> sourceSqlForEntityOutputs = new HashMap<>();
-    entityOutputPreviews
-        .parallelStream()
+    entityOutputPreviews.parallelStream()
         .forEach(
             entityOutputPreview -> {
               if (entityOutputPreview.getEntityOutput().getEntity().supportsSourceQueries()) {

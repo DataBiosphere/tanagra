@@ -5,10 +5,10 @@ import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 public class ExportRequest {
   private final String model;

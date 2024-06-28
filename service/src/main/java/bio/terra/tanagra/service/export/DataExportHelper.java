@@ -15,7 +15,6 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
-import bio.terra.tanagra.utils.RandomNumberGenerator;
 import bio.terra.tanagra.utils.threadpool.Job;
 import bio.terra.tanagra.utils.threadpool.JobResult;
 import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;
@@ -148,7 +147,9 @@ public class DataExportHelper {
     return listQueryResult.getSqlNoParams();
   }
 
-  /** @return Map of (output entity name, total number of rows). */
+  /**
+   * @return Map of (output entity name, total number of rows).
+   */
   public Map<String, Long> getTotalNumRowsOfEntityData() {
     // Build set of list query requests with very small page size.
     List<ListQueryRequest> listQueryRequests =
