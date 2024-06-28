@@ -6,6 +6,9 @@ option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configsch
 option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
 option java_outer_classname = "CFOutputUnfiltered";
 
+// A UI-less criteria intended primarily for prepackaged data features that
+// include entire entities (e.g. demographics).
 message OutputUnfiltered {
+  // The entities to include.
   repeated string entities = 1;
 }

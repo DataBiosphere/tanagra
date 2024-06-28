@@ -1,0 +1,6 @@
+{
+  "name": "topConditions",
+  "title": "Top 10 conditions",
+  "dataConfigFile": "topConditions.json",
+  "plugin": "bar"
+}

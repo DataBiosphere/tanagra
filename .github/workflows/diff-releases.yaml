@@ -15,20 +15,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Generate git log diff file between two releases
-        run: |
-          .github/tools/diffReleases.sh $FIRST_RELEASE_TAG $LAST_RELEASE_TAG
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FIRST_RELEASE_TAG: ${{ github.event.inputs.first-release-tag }}
-          LAST_RELEASE_TAG: ${{ github.event.inputs.last-release-tag }}
-      - name: Save diff file
-        uses: actions/upload-artifact@v4
-        with:
-          name: diff-file
-          path: diffReleases.txt
-          retention-days: 1
-          compression-level: 0 # No compression
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Generate git log diff file between two releases
+      run: |
+        .github/tools/diffReleases.sh $FIRST_RELEASE_TAG $LAST_RELEASE_TAG
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        FIRST_RELEASE_TAG: ${{ github.event.inputs.first-release-tag }}
+        LAST_RELEASE_TAG: ${{ github.event.inputs.last-release-tag }}
+    - name: Save diff file
+      uses: actions/upload-artifact@v4
+      with:
+        name: diff-file
+        path: diffReleases.txt
+        retention-days: 1
+        compression-level: 0 # No compression

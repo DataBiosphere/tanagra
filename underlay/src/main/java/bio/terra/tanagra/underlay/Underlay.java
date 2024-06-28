@@ -19,6 +19,7 @@ import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
 import com.google.common.annotations.VisibleForTesting;
@@ -292,6 +293,26 @@ public final class Underlay {
           });
     }
 
+    // Build the visualizations.
+    List<SZVisualization> szVisualizations = new ArrayList<>();
+    if (szUnderlay.visualizations != null) {
+      szUnderlay.visualizations.forEach(
+          vizPath -> {
+            SZVisualization szViz = configReader.readViz(vizPath);
+
+            // Update the szViz with the contents of the plugin data files.
+            if (szViz.dataConfigFile != null && !szViz.dataConfigFile.isEmpty()) {
+              szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
+            }
+            if (szViz.pluginConfigFile != null && !szViz.pluginConfigFile.isEmpty()) {
+              szViz.pluginConfig =
+                  configReader.readVizPluginConfig(vizPath, szViz.pluginConfigFile);
+            }
+
+            szVisualizations.add(szViz);
+          });
+    }
+
     // Read the UI config.
     String uiConfig = configReader.readUIConfig(szUnderlay.uiConfigFile);
 
@@ -311,7 +332,8 @@ public final class Underlay {
             szGroupItemsEntityGroups,
             szCriteriaOccurrenceEntityGroups,
             szCriteriaSelectors,
-            szPrepackagedDataFeatures),
+            szPrepackagedDataFeatures,
+            szVisualizations),
         criteriaSelectors,
         prepackagedDataFeatures,
         uiConfig);

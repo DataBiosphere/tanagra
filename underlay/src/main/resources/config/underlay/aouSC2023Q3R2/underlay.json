@@ -143,6 +143,10 @@
     "aouSR2023Q3R2/_fitbit_sleep_level_id",
     "aouSC2023Q3R2/_zipcode_socioeconomic_id"
   ],
+  "visualizations": [
+    "omop/gender",
+    "omop/raceAndAge"
+  ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset Controlled Tier",
     "description": "SC2023Q3R2"

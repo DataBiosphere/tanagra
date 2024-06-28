@@ -9,13 +9,24 @@ option java_outer_classname = "DTEntityGroup";
 import "criteriaselector/key.proto";
 import "criteriaselector/value_data.proto";
 
+// Data for an entity group criteria is a list of selected values.
 message EntityGroup {
   message Selection {
+    // The key of the selected value, which references a related entity (e.g.
+    // condition for a condition_occurrence).
     Key key = 1;
+
+    // The visible name for the selection. This is stored to avoid extra lookups
+    // when rendering.
     string name = 2;
+
+    // The entity group is stored to differentiate between them when multiple
+    // are configured within a single criteria.
     string entityGroup = 3;
   }
   repeated Selection selected = 1;
 
+  // Data for an additional categorical or numeric value associated with the
+  // selection (e.g. a measurement value).
   ValueData value_data = 2;
 }

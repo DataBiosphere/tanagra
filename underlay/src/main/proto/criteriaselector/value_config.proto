@@ -4,8 +4,14 @@ package tanagra;
 
 option go_package = "github.com/DataBiosphere/tanagra/tanagrapb";
 
+// Configuration for a value that can be selected.
 message ValueConfig {
+  // The attribute of interest.
   string attribute = 1;
+
+  // The visble title to show for this value.
   string title = 2;
+
+  // An optional unit to show for this value.
   optional string unit = 3;
 }

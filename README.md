@@ -30,7 +30,7 @@ The dataset configuration language is based on this object model, so it's helpfu
 A dataset configuration is spread across multiple files, to improve readability and allow easier sharing across datasets.
 See an [overview of the different files and directory structure](./docs/CONFIG_FILES.md), as well as pointers to example files.
 Check the full [dataset configuration schema documentation](./docs/generated/UNDERLAY_CONFIG.md) to lookup specific properties.
-
+Documentation for protocol buffers used for visualizations and criteria plugins is [here](generated/PROTOCOL_BUFFERS.md).
 
 ## Set up a new deployment
 Choose a [deployment pattern](./docs/DEPLOYMENT_OVERVIEW.md) and configure the GCP project(s).

@@ -113,6 +113,11 @@
   "prepackagedDataFeatures": [
     "sd/_demographics"
   ],
+  "visualizations": [
+    "omop/gender",
+    "omop/raceAndAge",
+    "omop/topConditions"
+  ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",
     "description": "Dataset Updated August 31, 2023",

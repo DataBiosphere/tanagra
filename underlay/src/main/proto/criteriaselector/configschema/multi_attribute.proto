@@ -8,8 +8,17 @@ option java_outer_classname = "CFMultiAttribute";
 
 import "criteriaselector/value_config.proto";
 
+// A criteria based on one or more categorical (i.e. an enum) or numeric
+// attribute of an entity. Can be configured to show all attributes or switch
+// between them.
 message MultiAttribute {
+  // The entity to filter on.
   string entity = 1;
+
+  // Whether the user selects a single attribute to filter on or filters on all
+  // of them simultaneously.
   bool single_value = 2;
+
+  // Configuration for each filterable attribute.
   repeated ValueConfig value_configs = 3;
 }

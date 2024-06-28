@@ -1,0 +1,13 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "outputUnfiltered",
+      "joins": [],
+      "attributes": [
+        {
+          "attribute": "gender"
+        }
+      ]
+    }
+  ]
+}

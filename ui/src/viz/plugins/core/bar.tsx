@@ -3,7 +3,6 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
-import { compareDataValues } from "data/types";
 import { useMemo } from "react";
 import {
   Bar,
@@ -86,9 +85,9 @@ function BarViz(props: BarVizProps) {
 
   const stackedProperties = useMemo(
     () =>
-      Array.from(new Set(props.data.map((d) => d.keys[1]?.name)))
-        .filter(isValid)
-        .sort(),
+      Array.from(new Set(props.data.map((d) => d.keys[1]?.name))).filter(
+        isValid
+      ),
     [props.data]
   );
 
@@ -115,7 +114,7 @@ function BarViz(props: BarVizProps) {
         ...barData[k],
       });
     }
-    return arr.sort((a, b) => compareDataValues(a.name, b.name));
+    return arr;
   }, [props.data]);
 
   const barColors = props.config.colors ?? defaultColors;

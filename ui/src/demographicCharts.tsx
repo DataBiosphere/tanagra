@@ -7,55 +7,10 @@ import { useUnderlaySource } from "data/underlaySourceContext";
 import { useStudyId, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import * as configProto from "proto/viz/viz_config";
 import { ReactNode, useCallback } from "react";
 import useSWRImmutable from "swr/immutable";
 import { VizContainer } from "viz/vizContainer";
 import { generateCohortFilter } from "./cohort";
-
-const vizConfigs: configProto.VizConfig[] = [
-  {
-    sources: [
-      {
-        criteriaSelector: "outputUnfiltered",
-        joins: [],
-        attributes: [
-          {
-            attribute: "gender",
-          },
-        ],
-      },
-    ],
-    display: {
-      title: "Gender identity",
-    },
-    vizPlugin: "bar",
-  },
-  {
-    sources: [
-      {
-        criteriaSelector: "outputUnfiltered",
-        joins: [],
-        attributes: [
-          {
-            attribute: "race",
-          },
-          {
-            attribute: "age",
-            numericBucketing: {
-              thresholds: [18, 45, 65],
-              includeGreater: true,
-            },
-          },
-        ],
-      },
-    ],
-    display: {
-      title: "Race and Age",
-    },
-    vizPlugin: "bar",
-  },
-];
 
 export type DemographicChartsProps = {
   cohort: Cohort;
@@ -113,7 +68,7 @@ export function DemographicCharts({
             minHeight: "400px",
           }}
         >
-          {<VizContainer configs={vizConfigs} cohort={cohort} />}
+          {<VizContainer configs={underlay.visualizations} cohort={cohort} />}
         </Paper>
       </GridLayout>
     </>

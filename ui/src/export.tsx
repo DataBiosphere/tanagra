@@ -394,6 +394,20 @@ function Preview(props: PreviewProps) {
   const empty =
     props.selectedCohorts.size === 0 || props.selectedFeatureSets.size === 0;
 
+  const onExportClick = () =>
+    underlay.uiConfiguration.featureConfig?.overrideExportButton
+      ? window.parent.postMessage(
+          {
+            message: "EXPORT",
+            resources: {
+              cohorts: filteredCohorts.map((c) => c.id),
+              featureSets: filteredFeatureSets.map((fs) => fs.id),
+            },
+          },
+          process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
+        )
+      : showExportDialog();
+
   return (
     <Loading status={occurrenceFiltersState}>
       <TanagraTabs
@@ -441,7 +455,7 @@ function Preview(props: PreviewProps) {
                 underlay.uiConfiguration.featureConfig?.disableExportButton
               }
               onClick={() => {
-                showExportDialog();
+                onExportClick();
               }}
             >
               Export dataset

@@ -8,40 +8,40 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Launch the background process
-      id: launch
-      run: |
-        # The redirect magic provides null input to work around a gradle bug and sends
-        # both stdout and stderr to the log file.
-        ./service/local-dev/run_server.sh -a 2>&1 < /dev/null | tee tanagra.log &
-        tanagrapid=$!
-        disown $tanagrapid
-        echo "Launched Tanagra service pid $tanagrapid"
-        echo "tanagrapid=$tanagrapid" >> $GITHUB_OUTPUT
-      shell: bash
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
+  - name: Launch the background process
+    id: launch
+    run: |
+      # The redirect magic provides null input to work around a gradle bug and sends
+      # both stdout and stderr to the log file.
+      ./service/local-dev/run_server.sh -a 2>&1 < /dev/null | tee tanagra.log &
+      tanagrapid=$!
+      disown $tanagrapid
+      echo "Launched Tanagra service pid $tanagrapid"
+      echo "tanagrapid=$tanagrapid" >> $GITHUB_OUTPUT
+    shell: bash
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
 
-    - name: Wait for boot run to be ready
-      id: wait-for-ready
-      run: |
-        # Give it some time before starting to poll.
-        sleep 40
-        started=1
-        for i in `seq 1 50`;
-        do
-          echo "try server connect $i"
-          if echo > /dev/tcp/localhost/8080
-          then
-            echo "Server started successfully"
-            started=0
-            break
-          fi
-          sleep 1
-        done
-        if [ "${started}" -eq "1" ]
+  - name: Wait for boot run to be ready
+    id: wait-for-ready
+    run: |
+      # Give it some time before starting to poll.
+      sleep 40
+      started=1
+      for i in `seq 1 50`;
+      do
+        echo "try server connect $i"
+        if echo > /dev/tcp/localhost/8080
         then
-          echo "Server did not start successfully. Dumping log file"
-          cat tanagra.log
+          echo "Server started successfully"
+          started=0
+          break
         fi
-      shell: bash
+        sleep 1
+      done
+      if [ "${started}" -eq "1" ]
+      then
+        echo "Server did not start successfully. Dumping log file"
+        cat tanagra.log
+      fi
+    shell: bash

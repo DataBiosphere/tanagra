@@ -423,7 +423,8 @@ export interface StudySource {
     cohortId: string,
     groupSectionId?: string,
     groupId?: string,
-    groupByAttributes?: string[]
+    groupByAttributes?: string[],
+    entity?: string
   ): Promise<FilterCountValue[]>;
 
   getFeatureSetMetadata(
@@ -1409,7 +1410,8 @@ export class BackendStudySource implements StudySource {
     cohortId: string,
     groupSectionId?: string,
     groupId?: string,
-    groupByAttributes?: string[]
+    groupByAttributes?: string[],
+    entity?: string
   ): Promise<FilterCountValue[]> {
     let pageMarker: string | undefined;
     const instanceCounts: tanagra.InstanceCount[] = [];
@@ -1424,6 +1426,7 @@ export class BackendStudySource implements StudySource {
             criteriaGroupSectionId: groupSectionId,
             criteriaGroupId: groupId,
             pageMarker,
+            entity,
           },
         })
       );

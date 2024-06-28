@@ -6,8 +6,16 @@ option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configsch
 option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
 option java_outer_classname = "CFAttribute";
 
+// A criteria based on a categorical (i.e. an enum) or numeric attribute of the
+// primary entity.
 message Attribute {
+  // The attribute of interest.
   string attribute = 1;
+
+  // Whether multiple ranges can be simultaneously specified for the attribute
+  // within a single criteria.
   bool multiRange = 2;
+
+  // An optional unit to show in the criteria UI.
   optional string unit = 3;
 }

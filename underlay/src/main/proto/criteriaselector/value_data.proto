@@ -8,15 +8,26 @@ option go_package = "github.com/DataBiosphere/tanagra/tanagrapb";
 import "value.proto";
 import "criteriaselector/data_range.proto";
 
+// Configuration for a value that has been selected.
 message ValueData {
+  // The attribute that was selected.
   string attribute = 1;
+
+  // Whether this is a numeric or categorical value. Stored to avoid extra
+  // lookups when rendering.
   bool numeric = 2;
 
+  // A single selected categorical value (e.g. {value: 1234, name: "Diabetes"}.
   message Selection {
+    // The value used to build queries.
     Value value = 1;
+
+    // The visible name for the selection. This is stored to avoid extra lookups
+    // when rendering.
     string name = 2;
   }
   repeated Selection selected = 3;
 
+  // The selected numeric range when referencing a numeric value (e.g. age).
   DataRange range = 4;
 }

@@ -8,6 +8,8 @@ option java_outer_classname = "DTMultiAttribute";
 
 import "criteriaselector/value_data.proto";
 
+// Data for a multi attribute criteria is a list of categorical or numeric
+// values.
 message MultiAttribute {
   repeated ValueData value_data = 1;
 }

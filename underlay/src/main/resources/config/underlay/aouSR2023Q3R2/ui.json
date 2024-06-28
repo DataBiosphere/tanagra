@@ -1,4 +1,7 @@
 {
+  "featureConfig": {
+    "overrideExportButton": true
+  },
   "demographicChartConfigs": {
     "groupByAttributes": ["gender", "race", "age"],
     "chartConfigs": [

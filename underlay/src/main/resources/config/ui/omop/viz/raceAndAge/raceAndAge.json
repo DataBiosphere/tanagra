@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "outputUnfiltered",
+      "joins": [],
+      "attributes": [
+        {
+          "attribute": "race"
+        },
+        {
+          "attribute": "age",
+          "numericBucketing": {
+            "thresholds": [18, 45, 65],
+            "includeGreater": true
+          }
+        }
+      ]
+    }
+  ]
+}

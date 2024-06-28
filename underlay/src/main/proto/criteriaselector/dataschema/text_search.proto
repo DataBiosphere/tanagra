@@ -8,12 +8,20 @@ option java_outer_classname = "DTTextSearch";
 
 import "value.proto";
 
+// Data for a text search criteria is a list of selected categories and teh text
+// to search for.
 message TextSearch {
+  // A single selected category (e.g. {value: 1234, name: "Intake form"}.
   message Selection {
+    // The value used to build queries.
     Value value = 1;
+
+    // The visible name for the selection. This is stored to avoid extra lookups
+    // when rendering.
     string name = 2;
   }
   repeated Selection categories = 1;
 
+  // The text to search for.
   string query = 2;
 }

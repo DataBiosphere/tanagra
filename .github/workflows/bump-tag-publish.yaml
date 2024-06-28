@@ -21,12 +21,12 @@ name: Bump, Tag, Publish
 on:
   push:
     branches:
-      - main
+    - main
     paths-ignore:
-      - 'README.md'
-      - '.github/**'
-      - 'docs/**'
-      - 'service/local-dev/**'
+    - 'README.md'
+    - '.github/**'
+    - 'docs/**'
+    - 'service/local-dev/**'
   workflow_dispatch:
     inputs:
       bump:
@@ -35,9 +35,9 @@ on:
         default: 'patch'
         type: choice
         options:
-          - patch
-          - minor
-          - major
+        - patch
+        - minor
+        - major
       branch:
         description: 'Branch to run the workflow on'
         required: false
@@ -51,84 +51,84 @@ jobs:
       tag: ${{ steps.tag.outputs.tag }}
       is-bump: ${{ steps.skiptest.outputs.is-bump }}
     steps:
-      - name: Set part of semantic version to bump
-        id: controls
-        run: |
-          SEMVER_PART=""
-          CHECKOUT_BRANCH="$GITHUB_REF"
-          if ${{github.event_name == 'push' }}; then
-            SEMVER_PART="patch"
-          elif ${{github.event_name == 'workflow_dispatch' }}; then
-            SEMVER_PART=${{ github.event.inputs.bump }}
-            CHECKOUT_BRANCH=${{ github.event.inputs.branch }}
-          fi
-          echo semver-part=$SEMVER_PART >> $GITHUB_OUTPUT
-          echo checkout-branch=$CHECKOUT_BRANCH >> $GITHUB_OUTPUT
-      - name: Checkout current code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.controls.outputs.checkout-branch }}
-          token: ${{ secrets.BROADBOT_TOKEN }}
-      - name: Skip version bump merges
-        id: skiptest
-        uses: ./.github/actions/bump-skip
-        with:
-          event-name: ${{ github.event_name }}
-      - name: Bump the tag to a new version
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
-        id: tag
-        env:
-          DEFAULT_BUMP: patch
-          GITHUB_TOKEN: ${{ secrets.BROADBOT_TOKEN }}
-          HOTFIX_BRANCHES: hotfix.*
-          OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
-          RELEASE_BRANCHES: main
-          VERSION_FILE_PATH: settings.gradle
-          VERSION_LINE_MATCH: "^gradle.ext.tanagraVersion\\s*=\\s*\".*\""
-          VERSION_SUFFIX: SNAPSHOT
+    - name: Set part of semantic version to bump
+      id: controls
+      run: |
+        SEMVER_PART=""
+        CHECKOUT_BRANCH="$GITHUB_REF"
+        if ${{github.event_name == 'push' }}; then
+          SEMVER_PART="patch"
+        elif ${{github.event_name == 'workflow_dispatch' }}; then
+          SEMVER_PART=${{ github.event.inputs.bump }}
+          CHECKOUT_BRANCH=${{ github.event.inputs.branch }}
+        fi
+        echo semver-part=$SEMVER_PART >> $GITHUB_OUTPUT
+        echo checkout-branch=$CHECKOUT_BRANCH >> $GITHUB_OUTPUT
+    - name: Checkout current code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.controls.outputs.checkout-branch }}
+        token: ${{ secrets.BROADBOT_TOKEN }}
+    - name: Skip version bump merges
+      id: skiptest
+      uses: ./.github/actions/bump-skip
+      with:
+        event-name: ${{ github.event_name }}
+    - name: Bump the tag to a new version
+      if: steps.skiptest.outputs.is-bump == 'no'
+      uses: databiosphere/github-actions/actions/bumper@bumper-0.1.0
+      id: tag
+      env:
+        DEFAULT_BUMP: patch
+        GITHUB_TOKEN: ${{ secrets.BROADBOT_TOKEN }}
+        HOTFIX_BRANCHES: hotfix.*
+        OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
+        RELEASE_BRANCHES: main
+        VERSION_FILE_PATH: settings.gradle
+        VERSION_LINE_MATCH: "^gradle.ext.tanagraVersion\\s*=\\s*\".*\""
+        VERSION_SUFFIX: SNAPSHOT
 
-      - name: Set up AdoptOpenJDK
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 11
-      - name: Cache Gradle packages
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
-          restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
-      - name: Grant execute permission for gradlew
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: chmod +x gradlew
+    - name: Set up AdoptOpenJDK
+      if: steps.skiptest.outputs.is-bump == 'no'
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: 11
+    - name: Cache Gradle packages
+      if: steps.skiptest.outputs.is-bump == 'no'
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle') }}
+        restore-keys: v1-${{ runner.os }}-gradle-${{ hashfiles('**/gradle-wrapper.properties') }}
+    - name: Grant execute permission for gradlew
+      if: steps.skiptest.outputs.is-bump == 'no'
+      run: chmod +x gradlew
 
-      - name: "Publish to Artifactory"
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: ./gradlew :client:artifactoryPublish --scan
-        env:
-          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: "Publish to Artifactory"
+      if: steps.skiptest.outputs.is-bump == 'no'
+      run: ./gradlew :client:artifactoryPublish --scan
+      env:
+        ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+        ARTIFACTORY_REPO_KEY: "libs-snapshot-local"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build the OpenAPI interface
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: ./gradlew :service:generateSwaggerCodeServer --scan
-      - name: Where is the file
-        if: steps.skiptest.outputs.is-bump == 'no'
-        run: |
-          pwd
-          find . -name "service_openapi.yaml"
-      - name: Make release
-        if: steps.skiptest.outputs.is-bump == 'no'
-        uses: ncipollo/release-action@v1
-        id: create_release
-        with:
-          tag: ${{ steps.tag.outputs.tag }}
-          generateReleaseNotes: true
-          artifacts: "./service/src/main/resources/api/service_openapi.yaml"
+    - name: Build the OpenAPI interface
+      if: steps.skiptest.outputs.is-bump == 'no'
+      run: ./gradlew :service:generateSwaggerCodeServer --scan
+    - name: Where is the file
+      if: steps.skiptest.outputs.is-bump == 'no'
+      run: |
+        pwd
+        find . -name "service_openapi.yaml"
+    - name: Make release
+      if: steps.skiptest.outputs.is-bump == 'no'
+      uses: ncipollo/release-action@v1
+      id: create_release
+      with:
+        tag: ${{ steps.tag.outputs.tag }}
+        generateReleaseNotes: true
+        artifacts: "./service/src/main/resources/api/service_openapi.yaml"
