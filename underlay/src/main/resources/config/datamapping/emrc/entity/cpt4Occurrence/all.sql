@@ -8,4 +8,4 @@ SELECT
 FROM `${omopDataset}.cpt_codes` c
 JOIN `${omopDataset}.cpt_criteria` cc
   ON c.code = regexp_replace(cc.label, r'CPT Codes_Include_', '')
-      and cc.is_leaf = true
+  and cc.is_leaf = true

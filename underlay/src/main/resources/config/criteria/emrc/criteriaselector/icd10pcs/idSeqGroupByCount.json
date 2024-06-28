@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "icd10pcsOccurrence": {
+      "values": [
+        "id",
+        "icd10"
+      ]
+    }
+  }
+}

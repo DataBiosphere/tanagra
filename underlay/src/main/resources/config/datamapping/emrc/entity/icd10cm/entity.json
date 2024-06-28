@@ -11,7 +11,7 @@
   ],
   "idAttribute": "id",
   "textSearch": {
-    "attributes": [ "id", "name", "code" ]
+    "attributes": [ "id", "name", "concept_code" ]
   },
   "hierarchies": [
     {

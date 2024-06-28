@@ -3,4 +3,3 @@ SELECT c.ind_seq as person_id,
 FROM `${omopDataset}.cpt_codes` AS c
 JOIN `${omopDataset}.cpt_criteria` cc
     on c.code = regexp_replace(cc.label, r'CPT Codes_Include_', '')
-    where cc.is_leaf = true

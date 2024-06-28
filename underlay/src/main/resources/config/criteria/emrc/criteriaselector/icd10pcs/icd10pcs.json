@@ -1,7 +1,7 @@
 {
   "columns": [
     {
-      "key": "name",
+      "key": "label",
       "widthString": "100%",
       "title": "Name"
     },
@@ -28,7 +28,7 @@
   ],
   "hierarchyColumns": [
     {
-      "key": "name",
+      "key": "label",
       "widthString": "100%",
       "title": "Name"
     },
@@ -55,12 +55,18 @@
   ],
   "classificationEntityGroups": [
     {
-      "id": "icd10cmPerson",
+      "id": "icd10pcsPerson",
       "sortOrder": {
-        "attribute": "name",
+        "attribute": "concept_id",
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
       }
     }
   ],
+  "defaultSort": {
+    "sortOrder": {
+      "attribute": "concept_id",
+      "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+    }
+  },
   "multiSelect": true
 }

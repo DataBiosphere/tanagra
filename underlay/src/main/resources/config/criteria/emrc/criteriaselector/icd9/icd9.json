@@ -1,7 +1,7 @@
 {
   "columns": [
     {
-      "key": "name",
+      "key": "label",
       "widthString": "100%",
       "title": "Name"
     },
@@ -28,7 +28,7 @@
   ],
   "hierarchyColumns": [
     {
-      "key": "name",
+      "key": "label",
       "widthString": "100%",
       "title": "Name"
     },
@@ -57,7 +57,7 @@
     {
       "id": "icd9Person",
       "sortOrder": {
-        "attribute": "name",
+        "attribute": "label",
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
       }
     }
