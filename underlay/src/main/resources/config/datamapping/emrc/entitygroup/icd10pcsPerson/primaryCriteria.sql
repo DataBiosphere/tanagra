@@ -12,3 +12,4 @@ JOIN (
         where starts_with(label, 'ICD10PCS')
         )
     ) cc ON c.code = cc.concept_code
+    and cc.is_leaf = true

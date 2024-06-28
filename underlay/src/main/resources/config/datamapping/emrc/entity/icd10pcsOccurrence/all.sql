@@ -6,7 +6,7 @@ SELECT
     cc.concept_code as standard_code,
     CAST(FLOOR(cast(c.AGE_AT_EVENT as NUMERIC)) AS INT64) AS age_at_occurrence
 FROM `${omopDataset}.icd10_codes` c
-LEFT JOIN (
+JOIN (
     SELECT
         pc.criteria_meta_seq as concept_id,
         regexp_extract(pc.name, '.*-(.*)') as name,
