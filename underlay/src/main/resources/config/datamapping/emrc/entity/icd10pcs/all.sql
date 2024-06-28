@@ -11,7 +11,7 @@ SELECT
               concat(regexp_extract(pc.name, '^([A-Z0-9-]*) .*'),' ',regexp_extract(pc.name, '^[A-Z0-9-]* (.*)'))
          else concat(regexp_extract(pc.name, '(.*)-.*'),' ',regexp_extract(pc.name, '.*-(.*)')) end as label
 FROM `${omopDataset}.icd10_criteria` pc
-WHERE pc.parent_seq < (
+WHERE pc.parent_seq >= (
         select criteria_meta_seq from `${omopDataset}.icd10_criteria`
         where starts_with(label, 'ICD10PCS')
     )

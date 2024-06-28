@@ -1,34 +1,18 @@
 SELECT
     cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as id,
     cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as concept_id,
-    regexp_extract(pc.name,r'.*-(.EX.*)') as name,
+    case when pc.name like '%EXPIRED%' then regexp_extract(pc.name, '.*-(\\[EX.*)')
+         when pc.is_root = true then regexp_extract(pc.name, '.*[0-9] (.*)')
+         when pc.is_root = false then regexp_extract(name, '.*[0-9]-(.*)')
+    end as name,
     pc.type,
     'Source' as is_standard,
-    regexp_replace(pc.name, r'-.*', '') as concept_code,
-    concat(regexp_replace(pc.name, r'-.*', ''),' ',regexp_extract(pc.name,r'.*-(.EX.*)')) as label
+    case when pc.name like '%EXPIRED%' then regexp_extract(pc.name, '(.*)-[\\(A-Z0-9].*')
+         when pc.is_root = true then regexp_extract(pc.name, '(.*[0-9]) .*')
+         when pc.is_root = false then regexp_extract(name, '(.*[0-9])-.*')
+    end as concept_code,
+    case when pc.name like '%EXPIRED%' then regexp_replace(pc.name, 'EXPIRED]-','EXPIRED] ')
+         when pc.is_root = true then pc.name
+         when pc.is_root = false then regexp_replace(name,'(.*[0-9])-(.*)','\\1 \\2 ')
+    end as label,
 FROM `${omopDataset}.icd_criteria` pc
-WHERE name like '%EXPIRED%'
-UNION ALL
-SELECT
-    cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as id,
-    cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as concept_id,
-    regexp_extract(pc.name, '.* ([A-Z].*)') as name,
-    pc.type,
-    'Source' as is_standard,
-    regexp_extract(pc.name, '(.*) [A-Z].*') as concept_code,
-    concat(regexp_extract(pc.name, '(.*) [A-Z].*'),' ',regexp_extract(pc.name, '.* ([A-Z].*)')) as label
-FROM `${omopDataset}.icd_criteria` pc
-WHERE pc.name not like '%EXPIRED%'
-  and pc.is_root=true
-UNION ALL
-SELECT
-    cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as id,
-    cast(cast(pc.criteria_meta_seq as NUMERIC) as INT64) as concept_id,
-    regexp_extract(pc.name,r'.*-(.*)') as name,
-    pc.type,
-    'Source' as is_standard,
-    regexp_replace(pc.name, r'-.*', '') as concept_code,
-    concat(regexp_replace(pc.name, r'-.*', ''),' ',regexp_extract(pc.name, '.* ([A-Z].*)')) as label
-FROM `${omopDataset}.icd_criteria` pc
-WHERE pc.name not like '%EXPIRED%'
-  and pc.is_root=false
