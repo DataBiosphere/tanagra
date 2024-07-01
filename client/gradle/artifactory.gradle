@@ -1,10 +1,13 @@
 import java.util.regex.Matcher
 
+version = gradle.tanagraVersion
+
 /** Configs for publishing a maven package to artifactory. */
 publishing {
     publications {
         tanagraClientLibrary(MavenPublication) {
             artifactId = 'tanagra-client'
+            version "${version}"
             from components.java
             versionMapping {
                 usage('java-runtime') {

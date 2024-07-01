@@ -32,6 +32,10 @@ java {
     withSourcesJar()
 }
 
+javadoc {
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 dependencyManagement {
     imports {
         mavenBom SpringBootPlugin.BOM_COORDINATES
