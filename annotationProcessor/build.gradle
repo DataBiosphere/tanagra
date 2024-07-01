@@ -1,7 +1,14 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
     id 'java'
     id 'pmd'
     id 'tanagra.java-conventions'
+
+    // These plugins are needed to resolve versions of spring dependencies
+    // transitively added by terra-common-lib
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -31,10 +38,16 @@ repositories {
 }
 
 dependencies {
+    // added to address synk warnings
+    constraints {
+        implementation 'com.azure:azure-identity:1.12.2'
+    }
+
     implementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
 
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
         exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
     }
 
