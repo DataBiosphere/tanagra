@@ -1,5 +1,6 @@
 import java.util.regex.Matcher
 
+group = gradle.tanagraGroup
 version = gradle.tanagraVersion
 
 /** Configs for publishing a maven package to artifactory. */
