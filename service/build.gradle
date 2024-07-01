@@ -175,7 +175,7 @@ tasks.withType(Test).configureEach {
     if (project.findProperty('regressionTestUnderlays')) {
         systemProperty('REGRESSION_TEST_UNDERLAYS', project.findProperty('regressionTestUnderlays'))
     }
-    if (project.findProperty('regressionTestFile')) {
+    if (project.findProperty('regressionTestFiles')) {
         systemProperty('REGRESSION_TEST_FILES', project.findProperty('regressionTestFiles'))
     }
 }
