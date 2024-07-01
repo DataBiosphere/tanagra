@@ -1,8 +1,8 @@
 package bio.terra.tanagra.indexing.cli;
 
-import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.cli.BaseMain;
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.NotFoundException;
 import picocli.CommandLine;
 
 /**

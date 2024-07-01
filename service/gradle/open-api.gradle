@@ -1,14 +1,17 @@
 // OpenAPI/Swagger Server Generation
-def openapiOutputDir = "${buildDir}/openapi"
+String artifactGroup = "${gradle.tanagraArtifactGroup}"
+String openapiOutputDir = "${buildDir}/openapi"
 
 swaggerSources {
     server {
         inputFile = file("${resourceDir}/api/service_openapi.yaml")
         code {
-            language = "spring"
-            library = "spring-boot"
+            jvmArgs = [
+                '--add-opens=java.base/java.util=ALL-UNNAMED'] // for Java 16+
+            language = 'spring'
+            library = 'spring-boot'
             outputDir = file(openapiOutputDir)
-            components = ["models", "apis"]
+            components = ['models', 'apis']
             rawOptions = [
                 '--api-package',
                 "${artifactGroup}.generated.controller",
@@ -21,13 +24,16 @@ swaggerSources {
                 '-D',
                 'interfaceOnly=true,' +
                 'useTags=true,' +
-                'dateLibrary=java8,'
+                'dateLibrary=java8,' +
+                'jakarta=true'
             ]
         }
     }
 }
 
-compileJava.dependsOn swaggerSources.server.code
 sourceSets.main.java.srcDir "${openapiOutputDir}/src/main/java"
-// Spotless shouldn't apply to the swagger code, but this resolves an implicit dependency
-spotlessJava.dependsOn generateSwaggerCodeServer
+
+apply from: "${rootDir}/gradle/version-properties.gradle"
+
+tasks.compileJava.dependsOn(swaggerSources.server.code, generateVersionProperties)
+tasks.spotlessJava.dependsOn(generateSwaggerCodeServer)

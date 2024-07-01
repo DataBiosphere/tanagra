@@ -4,18 +4,14 @@
     FROM
         ${ENT_ingredient}      
     WHERE
-        id IN (
-            SELECT
-                entity_B_id              
+        id IN (SELECT
+            entity_B_id          
+        FROM
+            ${RIDS_brandIngredient_brand_ingredient}          
+        WHERE
+            entity_A_id IN (SELECT
+                id              
             FROM
-                ${RIDS_brandIngredient_brand_ingredient}              
+                ${ENT_brand}              
             WHERE
-                entity_A_id IN (
-                    SELECT
-                        id                      
-                    FROM
-                        ${ENT_brand}                      
-                    WHERE
-                        concept_code = @val0                 
-                )             
-            )
+                concept_code = @val0))

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.QueryRunner;
 import bio.terra.tanagra.query.bigquery.BQQueryRunner;
@@ -26,6 +26,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -35,7 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(

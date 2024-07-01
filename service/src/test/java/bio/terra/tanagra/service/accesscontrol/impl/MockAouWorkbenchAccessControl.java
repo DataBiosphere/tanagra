@@ -2,9 +2,9 @@ package bio.terra.tanagra.service.accesscontrol.impl;
 
 import bio.terra.tanagra.service.accesscontrol.model.impl.AouWorkbenchAccessControl;
 import bio.terra.tanagra.service.authentication.UserId;
+import jakarta.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nullable;
 
 public class MockAouWorkbenchAccessControl extends AouWorkbenchAccessControl {
   // Map of user email -> map of (workspace id -> role).

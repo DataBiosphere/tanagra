@@ -1,30 +1,28 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
     id 'java-library'
     id 'maven-publish'
 
-    id 'com.jfrog.artifactory' version '4.18.2'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'org.hidetake.swagger.generator' version '2.18.2'
-    id 'org.springframework.boot' version '2.5.1'
+    id 'com.jfrog.artifactory' version '5.2.2'
+    id 'io.spring.dependency-management' version '1.1.5'
+    id 'org.hidetake.swagger.generator' version '2.19.2'
+    id 'org.springframework.boot' version '3.2.5'
 }
 
 repositories {
     mavenCentral()
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
     }
     google()
 }
 
-group = "bio.terra"
-version = gradle.tanagraVersion
-
-//// Keep the client library at Java 11 for now
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 // Javadoc
 java {
@@ -34,37 +32,38 @@ java {
     withSourcesJar()
 }
 
+javadoc {
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 dependencyManagement {
     imports {
-        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+        mavenBom SpringBootPlugin.BOM_COORDINATES
     }
     dependencies {
-        dependency group: "io.swagger.core.v3", name: "swagger-annotations", version: "2.1.5"
-        dependency group: "io.swagger.codegen.v3", name: "swagger-codegen-cli", version: "3.0.22"
+        dependency "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
+        dependency "io.swagger.codegen.v3:swagger-codegen-cli:${gradle.vSwaggerCodegen}"
     }
 }
 
 dependencies {
-    ext {
-        jerseyVersion = "2.32"
-        jacksonDatatypeVersion = "2.11.3"
-    }
+    implementation "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
+    swaggerCodegen "io.swagger.codegen.v3:swagger-codegen-cli:${gradle.vSwaggerCodegen}"
 
-    // Swagger deps, versions controlled by dependencyManagement in root project
-    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: jacksonDatatypeVersion
-    implementation group: "org.glassfish.jersey.core", name: "jersey-client", version: jerseyVersion
-    implementation group: "org.glassfish.jersey.media", name: "jersey-media-json-jackson", version: jerseyVersion
-    implementation group: "org.glassfish.jersey.media", name: "jersey-media-multipart", version: jerseyVersion
-    implementation group: "org.glassfish.jersey.connectors", name: "jersey-jdk-connector", version:jerseyVersion
-    implementation group: "io.swagger.core.v3", name: "swagger-annotations"
-    implementation group: "io.swagger", name: "swagger-annotations", version: "1.6.2"
-    swaggerCodegen group: "io.swagger.codegen.v3", name: "swagger-codegen-cli"
+    implementation "com.fasterxml.jackson.core:jackson-core:${gradle.vJackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${gradle.vJackson}"
+
+    String vJersey3 = '3.1.7' // Java 17 compatible
+    implementation "org.glassfish.jersey.core:jersey-client:${vJersey3}"
+    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${vJersey3}"
+    implementation "org.glassfish.jersey.media:jersey-media-multipart:${vJersey3}"
+    implementation "org.glassfish.jersey.connectors:jersey-jdk-connector:${vJersey3}"
 }
 
 bootJar {
     enabled = false
 }
 
-def includeDir = "$projectDir/gradle"
-apply(from: "$includeDir/artifactory.gradle")
-apply(from: "$includeDir/open-api.gradle")
+String includeDir = "$projectDir/gradle"
+apply(from: "${includeDir}/artifactory.gradle")
+apply(from: "${includeDir}/open-api.gradle")

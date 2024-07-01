@@ -1,5 +1,10 @@
 rootProject.name = 'tanagra'
 include('annotationProcessor', 'service', 'client', 'indexer', 'underlay', 'cli')
 
+gradle.ext {
+    tanagraGroup = 'bio.terra'
+    tanagraArtifactGroup = "${gradle.tanagraGroup}.tanagra"
+}
+
 // This line needs to match the VERSION_LINE_MATCH regex in the bump-tag-publish GHA.
 gradle.ext.tanagraVersion = "0.0.520-SNAPSHOT"

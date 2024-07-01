@@ -2808,7 +2808,7 @@ components:
       type: string
       enum: ["STUDY", "COHORT", "REVIEW"]
 
-    Resource:
+    ResourceObject:
       type: object
       properties:
         type:
@@ -2866,7 +2866,7 @@ components:
         resources:
           type: array
           items:
-            $ref: "#/components/schemas/Resource"
+            $ref: "#/components/schemas/ResourceObject"
         additionalInfo:
           description: Additional information for specific activity types
           type: object

@@ -1,57 +1,42 @@
 plugins {
     id 'java'
     id 'java-test-fixtures'
+    id 'pmd'
     id 'tanagra.java-conventions'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-
-ext {
-    resourceDir = "${projectDir}/src/main/resources"
-}
+sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-release/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
     }
     maven {
-        url "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/"
+        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
     }
     maven {
-        url "https://packages.confluent.io/maven/"
+        url 'https://packages.confluent.io/maven/'
     }
 }
 
 dependencies {
-    implementation group: "org.apache.commons", name: "commons-text", version: "1.9"
+    implementation "com.fasterxml.jackson.core:jackson-core:${gradle.vJackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${gradle.vJackson}"
 
-    // GCP libraries. Versions are controlled by the BOM specified in buildSrc.
-    implementation group: "com.google.guava", name: "guava"
+    implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
+    implementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
+    implementation 'ch.qos.logback:logback-classic:1.5.6'
+
+    // GCP libraries versions are controlled by the BOM specified in buildSrc.
+    implementation 'com.google.guava:guava'
 
     // Command parsing
-    implementation group: "info.picocli", name: "picocli", version: "4.6.3"
-    annotationProcessor group: "info.picocli", name: "picocli-codegen", version: "4.6.3"
-
-    // Jackson serialization
-    implementation group: "com.fasterxml.jackson.core", name: "jackson-core", version: "2.12.3"
-    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.12.3"
-
-    // Logging
-    implementation group: "ch.qos.logback", name: "logback-classic", version: "1.4.0"
-    implementation group: "org.slf4j", name: "slf4j-api", version: "2.0.0"
+    implementation "info.picocli:picocli:${gradle.vPicocliVersion}"
+    annotationProcessor "info.picocli:picocli-codegen:${gradle.vPicocliVersion}"
 
     // Static analysis
-    compileOnly "com.google.code.findbugs:annotations:3.0.1u2"
-    testCompileOnly "com.google.code.findbugs:annotations:3.0.1u2"
-}
-
-test {
-    useJUnitPlatform()
-}
-
-task noCloudAccessRequiredTests(type: Test) {
-    useJUnitPlatform {
-        excludeTags "requires-cloud-access"
-    }
+    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
+    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
 }

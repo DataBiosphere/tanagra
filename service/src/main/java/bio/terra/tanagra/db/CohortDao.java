@@ -277,7 +277,9 @@ public class CohortDao {
     }
   }
 
-  /** @return the id of the frozen revision just created */
+  /**
+   * @return the id of the frozen revision just created
+   */
   @WriteTransaction
   public String createNextRevision(
       String cohortId, String reviewId, String userEmail, Long recordsCount) {
@@ -301,9 +303,7 @@ public class CohortDao {
 
     // Create a new revision.
     CohortRevision nextRevision =
-        cohort
-            .getMostRecentRevision()
-            .toBuilder()
+        cohort.getMostRecentRevision().toBuilder()
             .setIsEditable(true)
             .setIsMostRecent(true)
             .version(cohort.getMostRecentRevision().getVersion() + 1)

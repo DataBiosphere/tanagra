@@ -5,7 +5,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class RelatedEntityIdCountField extends ValueDisplayField {
   private final Underlay underlay;

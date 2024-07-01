@@ -29,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 public class VerilyGroupsAccessControl implements UnderlayAccessControl {
   private static final Logger LOGGER = LoggerFactory.getLogger(VerilyGroupsAccessControl.class);
@@ -53,18 +54,17 @@ public class VerilyGroupsAccessControl implements UnderlayAccessControl {
       String oauthClientId,
       AccessControlHelper accessControlHelper) {
     // Store the basePath and oauthClientId first, so we can use it when looking up group IDs.
-    if (basePath == null || oauthClientId == null) {
-      throw new IllegalArgumentException(
-          "Base URL and OAuth client id are required for VerilyGroup API calls");
-    }
+    Assert.notNull(basePath, "Base URL is required for VerilyGroup API calls");
     this.basePath = basePath;
+
+    Assert.notNull(oauthClientId, "OAuth client id is required for VerilyGroup API calls");
     this.oauthClientId = oauthClientId;
 
-    if (params.size() % 2 != 0) {
-      throw new IllegalArgumentException(
-          "Require even number of parameters to VerilyGroups access control implementation: underlay1,groupName1,underlay2,groupName2,...");
-    }
+    Assert.isTrue(
+        params.size() % 2 == 0,
+        "Require even number of parameters to VerilyGroups access control implementation: underlay1,groupName1,underlay2,groupName2,...");
     this.params = params;
+
     lookupGroupIds();
   }
 
