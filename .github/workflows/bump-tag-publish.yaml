@@ -83,7 +83,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.BROADBOT_TOKEN }}
         HOTFIX_BRANCHES: hotfix.*
         OVERRIDE_BUMP: ${{ steps.controls.outputs.semver-part }}
-        RELEASE_BRANCHES: main
+        RELEASE_BRANCHES: dexamundsen/build-17-client
         VERSION_FILE_PATH: settings.gradle
         VERSION_LINE_MATCH: "^gradle.ext.tanagraVersion\\s*=\\s*\".*\""
         VERSION_SUFFIX: SNAPSHOT
