@@ -81,7 +81,11 @@ export function RangeSlider(props: RangeSliderProps) {
 
   return (
     <GridBox
-      sx={{ width: "40%", minWidth: 600, height: "auto", mt: 0.5 }}
+      sx={{
+        maxWidth: "700px",
+        height: "auto",
+        mt: 0.5,
+      }}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();

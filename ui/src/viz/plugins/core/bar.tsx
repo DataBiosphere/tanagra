@@ -9,6 +9,7 @@ import {
   BarChart,
   CartesianGrid,
   ResponsiveContainer,
+  Text,
   Tooltip,
   TooltipProps,
   XAxis,
@@ -49,7 +50,7 @@ const defaultColors = [
   "#448388",
 ];
 
-@registerVizPlugin("bar", [
+@registerVizPlugin("core/bar", [
   {
     keyTypes: [[VizKeyType.NumericId, VizKeyType.StringId]],
     valueTypes: [VizValueType.Numeric],
@@ -121,11 +122,12 @@ function BarViz(props: BarVizProps) {
 
   return (
     <>
-      <ResponsiveContainer width="100%" height={40 + barData.length * 30}>
+      <ResponsiveContainer>
         <BarChart data={barData} layout="vertical">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             type="number"
+            height={20}
             style={{
               ...theme.typography.body2,
             }}
@@ -133,8 +135,13 @@ function BarViz(props: BarVizProps) {
           <YAxis
             dataKey="name"
             type="category"
-            width={150}
-            tickMargin={10}
+            interval={0}
+            width={160}
+            tick={(props) => (
+              <Text {...props} maxLines={1}>
+                {props.payload.value}
+              </Text>
+            )}
             style={{
               ...theme.typography.body2,
             }}
