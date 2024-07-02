@@ -13,64 +13,85 @@ import { VizContainer } from "viz/vizContainer";
 import { generateCohortFilter } from "./cohort";
 
 export type DemographicChartsProps = {
-  cohort: Cohort;
-  separateCharts?: boolean;
+  cohort?: Cohort;
   extraControls?: ReactNode;
 };
 
-export function DemographicCharts({
-  cohort,
-  extraControls,
-}: DemographicChartsProps) {
+export function DemographicCharts(props: DemographicChartsProps) {
   const underlay = useUnderlay();
   const underlaySource = useUnderlaySource();
   const studyId = useStudyId();
   const studySource = useStudySource();
 
   const fetchCount = useCallback(async () => {
+    if (!props.cohort) {
+      return 0;
+    }
+
     return (
       (process.env.REACT_APP_BACKEND_FILTERS
         ? await studySource.cohortCount(
             studyId,
-            cohort.id,
+            props.cohort.id,
             undefined,
             undefined,
             []
           )
         : await underlaySource.filterCount(
-            generateCohortFilter(underlaySource, cohort),
+            generateCohortFilter(underlaySource, props.cohort),
             []
           ))?.[0]?.count ?? 0
     );
-  }, [underlay, cohort]);
+  }, [underlay, props.cohort]);
 
   const countState = useSWRImmutable(
-    { component: "DemographicCharts", underlayName: underlay.name, cohort },
+    {
+      component: "DemographicCharts",
+      underlayName: underlay.name,
+      cohort: props.cohort,
+    },
     fetchCount
   );
 
   return (
-    <>
-      <GridLayout rows spacing={3}>
-        <GridLayout cols fillCol={2} rowAlign="bottom">
-          <Typography variant="h6">Total count:&nbsp;</Typography>
-          <Loading size="small" status={countState}>
-            <Typography variant="h6">
-              {countState.data?.toLocaleString()}
-            </Typography>
-          </Loading>
+    <Paper
+      sx={{
+        p: 2,
+        minHeight: "400px",
+      }}
+    >
+      <GridLayout rows spacing={2}>
+        <GridLayout cols fillCol={1} rowAlign="middle">
+          <GridLayout rows>
+            <Typography variant="h6">Cohort visualizations</Typography>
+            <GridLayout cols fillCol={2} rowAlign="bottom">
+              <Loading size="small" status={countState}>
+                <Typography variant="body1">
+                  {countState.data?.toLocaleString()} participants
+                </Typography>
+              </Loading>
+            </GridLayout>
+          </GridLayout>
           <GridBox />
-          {extraControls}
+          {props.extraControls}
         </GridLayout>
-        <Paper
+        <GridBox
           sx={{
-            p: 2,
-            minHeight: "400px",
+            display: "grid",
+            gridAutoRows: "380px",
+            gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
+            alignItems: "stretch",
+            justifyItems: "stretch",
+            gridGap: (theme) => theme.spacing(3),
           }}
         >
-          {<VizContainer configs={underlay.visualizations} cohort={cohort} />}
-        </Paper>
+          {underlay.visualizations.map((v) =>
+            props.cohort ? (
+              <VizContainer key={v.name} config={v} cohort={props.cohort} />
+            ) : null
+          )}
+        </GridBox>
       </GridLayout>
-    </>
+    </Paper>
   );
 }

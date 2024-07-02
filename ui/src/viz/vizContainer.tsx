@@ -1,5 +1,8 @@
+import BarChartIcon from "@mui/icons-material/BarChart";
+import TableViewIcon from "@mui/icons-material/TableView";
 import Typography from "@mui/material/Typography";
 import { generateCohortFilter } from "cohort";
+import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { VALUE_SUFFIX } from "data/configuration";
@@ -9,9 +12,10 @@ import { compareDataValues } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
+import { GridBox, GridBoxPaper } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/viz/viz_config";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import useSWRImmutable from "swr/immutable";
 import { isValid } from "util/valid";
 import { getVizPlugin, VizData } from "viz/viz";
@@ -31,7 +35,7 @@ type ParsedConfig = {
 };
 
 type VizContainerProps = {
-  configs: UnparsedConfig[];
+  config: UnparsedConfig;
   cohort: Cohort;
 };
 
@@ -41,62 +45,78 @@ export function VizContainer(props: VizContainerProps) {
   const studyId = useStudyId();
   const studySource = useStudySource();
 
-  const configs = useMemo(
-    (): ParsedConfig[] =>
-      props.configs.map((c) => ({
-        ...c,
-        dataConfig: configProto.VizConfig.fromJSON(JSON.parse(c.dataConfig)),
-        pluginConfig: JSON.parse(c.pluginConfig ?? "{}"),
-      })),
-    [props.configs]
+  const [showTable, setShowTable] = useState(false);
+
+  const config = useMemo(
+    (): ParsedConfig => ({
+      ...props.config,
+      dataConfig: configProto.VizConfig.fromJSON(
+        JSON.parse(props.config.dataConfig)
+      ),
+      pluginConfig: JSON.parse(props.config.pluginConfig ?? "{}"),
+    }),
+    [props.config]
   );
 
   const dataState = useSWRImmutable(
-    { type: "vizData", configs: configs, cohort: props.cohort },
+    { type: "vizData", config: config, cohort: props.cohort },
     async () =>
-      await Promise.all(
-        configs.map((c) =>
-          fetchVizData(
-            c.dataConfig,
-            underlaySource,
-            studySource,
-            studyId,
-            cohort
-          )
-        )
-      ).then((res) =>
-        res.map((data, i) => {
-          const config = configs[i];
-          return {
-            config,
-            data,
-            plugin: getVizPlugin(config.plugin, config.pluginConfig),
-          };
-        })
-      )
+      fetchVizData(
+        config.dataConfig,
+        underlaySource,
+        studySource,
+        studyId,
+        cohort
+      ).then((data) => ({
+        data,
+        plugin: getVizPlugin(config.plugin, config.pluginConfig),
+        tablePlugin: getVizPlugin("core/table", {
+          keyTitles: config.dataConfig.sources
+            .map((s) => s.attributes.map((a) => a.attribute))
+            .flat(),
+        }),
+      }))
   );
 
   return (
-    <GridLayout rows height="auto">
+    <GridBoxPaper
+      sx={{
+        p: 2,
+        borderWidth: "1px",
+        borderColor: (theme) => theme.palette.divider,
+        borderStyle: "solid",
+      }}
+    >
       <Loading status={dataState} immediate>
         <GridLayout rows>
-          {dataState.data?.map((d, i) => (
-            <GridLayout key={i} rows>
-              <Typography variant="body1">{d.config.title}</Typography>
-              {d.data?.length ? (
-                d.plugin.render(d.data ?? [])
-              ) : (
-                <Empty
-                  minHeight="150px"
-                  image={emptyImage}
-                  title="No data to display"
-                />
-              )}
-            </GridLayout>
-          ))}
+          <GridLayout cols={3} fillCol={1} rowAlign="middle">
+            <Typography variant="body2em">{config.title}</Typography>
+            <GridBox />
+            <Checkbox
+              size="small"
+              fontSize="inherit"
+              checked={showTable}
+              onChange={() => setShowTable(!showTable)}
+              checkedIcon={<BarChartIcon />}
+              uncheckedIcon={<TableViewIcon />}
+            />
+          </GridLayout>
+          {dataState.data?.data?.length ? (
+            showTable ? (
+              dataState.data.tablePlugin.render(dataState.data.data ?? [])
+            ) : (
+              dataState.data.plugin.render(dataState.data.data ?? [])
+            )
+          ) : (
+            <Empty
+              minHeight="150px"
+              image={emptyImage}
+              title="No data to display"
+            />
+          )}
         </GridLayout>
       </Loading>
-    </GridLayout>
+    </GridBoxPaper>
   );
 }
 
