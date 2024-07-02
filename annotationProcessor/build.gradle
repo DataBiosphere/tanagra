@@ -36,6 +36,11 @@ repositories {
 }
 
 dependencies {
+    // added to address synk warnings
+    constraints {
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
+    }
+
     implementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
 
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
