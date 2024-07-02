@@ -3,7 +3,7 @@
   "bigQuery": {
     "sourceData": {
       "projectId": "vumc-emerge-dev",
-      "datasetId": "em_20240603",
+      "datasetId": "emerge_20240603",
       "sqlSubstitutions": {
         "omopDataset": "vumc-emerge-dev.em_20240603",
         "staticTablesDataset": "vumc-emerge-dev.em_20240603"
@@ -11,7 +11,7 @@
     },
     "indexData": {
       "projectId": "vumc-emerge-dev",
-      "datasetId": "indexed_em_20240603"
+      "datasetId": "indexed_emerge_20240603"
     },
     "queryProjectId": "vumc-emerge-dev",
     "dataLocation": "us-central1"

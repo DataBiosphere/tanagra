@@ -2,122 +2,54 @@
   "name": "emerge",
   "primaryEntity": "person",
   "entities": [
-    "sd/person",
-
-    "omop/condition",
-    "sd/conditionOccurrence",
-    "omop/procedure",
-    "sd/procedureOccurrence",
-
-    "omop/brand",
-    "omop/ingredient",
-    "sd/ingredientOccurrence",
-
-    "omop/measurementLoinc",
-    "omop/measurementSnomed",
-    "sd/measurementOccurrence",
-
-    "omop/observation",
-    "sd/observationOccurrence",
-    "omop/device",
-    "sd/deviceOccurrence",
-    "omop/visit",
-    "sd/visitOccurrence",
-
-    "omop/note",
-    "sd/noteOccurrence",
-    "sd/familyHistory",
-
-    "sd/cpt4",
-    "omop/icd9cm",
-    "omop/icd9proc",
-    "omop/icd10cm",
-    "omop/icd10pcs",
-    "sd/phewas",
-
-    "sd/genotyping",
-    "sd/snp",
-
-    "sd/bloodPressure",
-    "sd/bmi",
-    "sd/height",
-    "sd/weight",
-    "sd/pulse",
-    "sd/respiratoryRate"
+    "emerge/person",
+    "emerge/cpt4",
+    "emerge/cpt4Occurrence",
+    "emerge/icd9",
+    "emerge/icd9Occurrence",
+    "emerge/icd10cm",
+    "emerge/icd10cmOccurrence",
+    "emerge/icd10pcs",
+    "emerge/icd10pcsOccurrence"
   ],
   "groupItemsEntityGroups": [
-    "omop/brandIngredient",
-
-    "sd/familyHistoryPerson",
-
-    "sd/genotypingPerson",
-    "sd/snpPerson",
-
-    "sd/bloodPressurePerson",
-    "sd/bmiPerson",
-    "sd/heightPerson",
-    "sd/weightPerson",
-    "sd/pulsePerson",
-    "sd/respiratoryRatePerson"
   ],
   "criteriaOccurrenceEntityGroups": [
-    "omop/conditionPerson",
-    "omop/procedurePerson",
-
-    "omop/ingredientPerson",
-
-    "omop/measurementLoincPerson",
-    "omop/measurementSnomedPerson",
-
-    "omop/observationPerson",
-    "omop/devicePerson",
-    "omop/visitPerson",
-
-    "omop/notePerson",
-
-    "sd/cpt4Person",
-    "omop/icd9cmPerson",
-    "omop/icd9procPerson",
-    "omop/icd10cmPerson",
-    "omop/icd10pcsPerson",
-    "sd/phewasPerson"
+    "emerge/cpt4Person",
+    "emerge/icd9Person",
+    "emerge/icd10cmPerson",
+    "emerge/icd10pcsPerson"
   ],
   "criteriaSelectors": [
-    "sd/ethnicity",
-    "sd/gender",
-    "sd/race",
-    "sd/age",
-    "sd/bioVU",
-    "sd/bioVUPlasma",
-    "sd/genotyping",
-    "sd/measurement",
-    "sd/documents",
-    "sd/conditions",
-    "sd/phewas",
-    "sd/cpt4",
-    "sd/icd9CM",
-    "sd/icd9Proc",
-    "sd/icd10CM",
-    "sd/icd10PCS",
-    "sd/procedures",
-    "sd/observations",
-    "sd/drugs",
-    "sd/bmi",
-    "sd/bloodPressure",
-    "sd/height",
-    "sd/weight",
-    "sd/pulse",
-    "sd/respRate",
-    "sd/outputUnfiltered"
+    "emerge/gender",
+    "emerge/race",
+    "emerge/age",
+    "emerge/site",
+    "emerge/datasetEmergeseq",
+    "emerge/datasetExomechip",
+    "emerge/datasetGwas",
+    "emerge/datasetPgrnseq",
+    "emerge/datasetWes",
+    "emerge/datasetWgs",
+    "emerge/datasetGira",
+    "emerge/cpt4",
+    "emerge/icd9",
+    "emerge/icd10cm",
+    "emerge/icd10pcs",
+    "emerge/outputUnfiltered"
   ],
   "prepackagedDataFeatures": [
-    "sd/_demographics"
+    "emerge/_demographics"
+  ],
+  "visualizations": [
+    "omop/gender",
+    "omop/raceAndAge"
   ],
   "metadata": {
-    "displayName": "Synthetic Derivative Discover Dataset",
-    "description": "Dataset Updated August 31, 2023",
+    "displayName": "eMerge Record Counter Dataset",
+    "description": "Dataset Updated June 03, 2024",
     "properties": {
-      "lastUpdated": "08/31/23"
+      "lastUpdated": "06/03/24"
     }
   },
   "uiConfigFile": "ui.json"
