@@ -57,11 +57,6 @@ dependencyManagement {
 }
 
 dependencies {
-    // added to address synk warnings
-    constraints {
-        implementation 'com.azure:azure-identity:1.12.2'
-    }
-
     implementation "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
     swaggerCodegen "io.swagger.codegen.v3:swagger-codegen-cli:${gradle.vSwaggerCodegen}"
 
@@ -81,7 +76,9 @@ dependencies {
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
 
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
+        exclude group: 'com.azure'
         exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
     }
 
