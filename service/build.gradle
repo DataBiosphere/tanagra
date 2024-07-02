@@ -57,6 +57,11 @@ dependencyManagement {
 }
 
 dependencies {
+    // added to address synk warnings
+    constraints {
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
+    }
+
     implementation "io.swagger.core.v3:swagger-annotations:${gradle.vSwaggerAnnotations}"
     swaggerCodegen "io.swagger.codegen.v3:swagger-codegen-cli:${gradle.vSwaggerCodegen}"
 
