@@ -84,7 +84,7 @@ public class ExportConfiguration {
                 + "Required if there are any export models that need to write to GCS.",
         environmentVariable = "TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES",
         optional = true,
-        exampleValue = "broad-tanagra-dev-bq-export-uscentral1,broad-tanagra-dev-bq-export-useast1")
+        exampleValue = "bq-export-uscentral1,bq-export-useast1")
     private List<String> gcsBucketNames;
 
     public String getGcpProjectId() {

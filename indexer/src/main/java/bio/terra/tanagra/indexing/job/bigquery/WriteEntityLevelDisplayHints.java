@@ -7,8 +7,7 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
-import bio.terra.tanagra.query.bigquery.BQExecutor;
-import bio.terra.tanagra.query.bigquery.BQTable;
+import bio.terra.tanagra.query.bigquery.*;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
@@ -199,8 +198,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       LOGGER.info("Skipping query dry run because output table does not exist yet.");
     } else {
       BQExecutor bqExecutor =
-          new BQExecutor(
-              indexerConfig.bigQuery.queryProjectId, indexerConfig.bigQuery.dataLocation);
+          new BQExecutor(BQExecutorInfrastructure.forQuery(indexerConfig.bigQuery.queryProjectId));
       SqlQueryRequest sqlQueryRequest =
           new SqlQueryRequest(insertLiteralsSql, sqlParams, null, null, isDryRun);
       bqExecutor.run(sqlQueryRequest);

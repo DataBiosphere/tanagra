@@ -44,8 +44,8 @@ import org.apache.commons.lang3.tuple.Pair;
 public class BQQueryRunner implements QueryRunner {
   private final BQExecutor bigQueryExecutor;
 
-  public BQQueryRunner(String queryProjectId, String datasetLocation) {
-    this.bigQueryExecutor = new BQExecutor(queryProjectId, datasetLocation);
+  public BQQueryRunner(BQExecutorInfrastructure queryInfrastructure) {
+    this.bigQueryExecutor = new BQExecutor(queryInfrastructure);
   }
 
   @Override

@@ -10,14 +10,13 @@ import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.OrderByDirection;
-import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
+import bio.terra.tanagra.app.configuration.*;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.serialization.SZService;
-import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.*;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,13 +34,28 @@ public class UnderlayService {
   private final ImmutableMap<String, CachedUnderlay> underlayCache;
 
   @Autowired
-  public UnderlayService(UnderlayConfiguration underlayConfiguration) {
+  public UnderlayService(
+      UnderlayConfiguration underlayConfiguration, ExportConfiguration exportConfiguration) {
     // Read in underlays from resource files.
     Map<String, CachedUnderlay> underlayCacheBuilder = new HashMap<>();
     for (String serviceConfig : underlayConfiguration.getFiles()) {
       ConfigReader configReader = ConfigReader.fromJarResources();
       SZService szService = configReader.readService(serviceConfig);
       SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
+
+      // Default the export infrastructure pointers to those set by the application properties.
+      if (szService.bigQuery.queryProjectId == null) {
+        szService.bigQuery.queryProjectId = exportConfiguration.getShared().getGcpProjectId();
+      }
+      if (szService.bigQuery.exportDatasetIds == null
+          || szService.bigQuery.exportDatasetIds.isEmpty()) {
+        szService.bigQuery.exportDatasetIds = exportConfiguration.getShared().getBqDatasetIds();
+      }
+      if (szService.bigQuery.exportBucketNames == null
+          || szService.bigQuery.exportBucketNames.isEmpty()) {
+        szService.bigQuery.exportBucketNames = exportConfiguration.getShared().getGcsBucketNames();
+      }
+
       Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
       underlayCacheBuilder.put(underlay.getName(), new CachedUnderlay(underlay));
     }

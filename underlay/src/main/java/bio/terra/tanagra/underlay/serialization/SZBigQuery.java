@@ -2,7 +2,9 @@ package bio.terra.tanagra.underlay.serialization;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
-import java.util.Map;
+import com.google.common.collect.*;
+import jakarta.annotation.*;
+import java.util.*;
 
 @AnnotatedClass(
     name = "SZBigQuery",
@@ -38,6 +40,31 @@ public class SZBigQuery {
           "Valid locations for BigQuery are listed in the GCP "
               + "[documentation](https://cloud.google.com/bigquery/docs/locations).")
   public String dataLocation;
+
+  @AnnotatedField(
+      name = "SZBigQuery.exportDatasetIds",
+      markdown =
+          "Comma separated list of all BQ dataset ids that all export models can use. "
+              + "Required if there are any export models that need to export from BQ to GCS.\n\n"
+              + "These datasets must live in the [query project](${SZBigQuery.queryProjectId}) specified above.\n\n"
+              + "You can also specify these export datasets per-deployment, instead of per-underlay, by using\n\n"
+              + "the service application properties.",
+      optional = true,
+      exampleValue = "service_export_us,service_export_uscentral1")
+  public List<String> exportDatasetIds;
+
+  @AnnotatedField(
+      name = "SZBigQuery.exportBucketNames",
+      markdown =
+          "Comma separated list of all GCS bucket names that all export models can use. "
+              + "Only include the bucket name, not the gs:// prefix. "
+              + "Required if there are any export models that need to write to GCS.\n\n"
+              + "These buckets must live in the [query project](${SZBigQuery.queryProjectId}) specified above.\n\n"
+              + "You can also specify these export buckets per-deployment, instead of per-underlay, by using\n\n"
+              + "the service application properties.",
+      optional = true,
+      exampleValue = "bq-export-uscentral1,bq-export-useast1")
+  public List<String> exportBucketNames;
 
   @AnnotatedClass(name = "SZSourceData", markdown = "Pointer to the source BigQuery dataset.")
   public static class SourceData {

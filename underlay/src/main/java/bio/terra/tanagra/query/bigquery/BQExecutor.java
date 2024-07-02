@@ -33,16 +33,13 @@ import org.slf4j.LoggerFactory;
 public class BQExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BQExecutor.class);
   private static final String TEMPORARY_TABLE_BASE_NAME = "export";
-
-  private final String queryProjectId;
-  private final String datasetLocation;
+  private final BQExecutorInfrastructure queryInfrastructure;
 
   private GoogleBigQuery bigQueryService;
   private GoogleCloudStorage cloudStorageService;
 
-  public BQExecutor(String queryProjectId, String datasetLocation) {
-    this.queryProjectId = queryProjectId;
-    this.datasetLocation = datasetLocation;
+  public BQExecutor(BQExecutorInfrastructure queryInfrastructure) {
+    this.queryInfrastructure = queryInfrastructure;
   }
 
   public SqlQueryResult run(SqlQueryRequest queryRequest) {
@@ -123,7 +120,8 @@ public class BQExecutor {
     }
     String exportDatasetId =
         getBigQueryService()
-            .findDatasetWithLocation(exportProjectId, exportDatasetIds, datasetLocation);
+            .findDatasetWithLocation(
+                exportProjectId, exportDatasetIds, queryInfrastructure.getDatasetLocation());
     TableId tempTableId = TableId.of(exportProjectId, exportDatasetId, tempTableName);
 
     // Build a BQ parameter value object for each SQL query parameter.
@@ -152,7 +150,8 @@ public class BQExecutor {
     // Export the temporary table to a compressed file.
     String bucketName =
         getCloudStorageService()
-            .findBucketForBigQueryExport(exportProjectId, exportBucketNames, datasetLocation);
+            .findBucketForBigQueryExport(
+                exportProjectId, exportBucketNames, queryInfrastructure.getDatasetLocation());
     String fileName = fileNamePrefix + ".csv.gzip";
     String gcsUrl = String.format("gs://%s/%s", bucketName, fileName);
     LOGGER.info("Exporting temporary table to GCS file: {}", gcsUrl);
@@ -254,7 +253,8 @@ public class BQExecutor {
   private GoogleBigQuery getBigQueryService() {
     // Lazy load the BigQuery service.
     if (bigQueryService == null) {
-      bigQueryService = GoogleBigQuery.forApplicationDefaultCredentials(queryProjectId);
+      bigQueryService =
+          GoogleBigQuery.forApplicationDefaultCredentials(queryInfrastructure.getQueryProjectId());
     }
     return bigQueryService;
   }
@@ -262,7 +262,9 @@ public class BQExecutor {
   private GoogleCloudStorage getCloudStorageService() {
     // Lazy load the GCS service.
     if (cloudStorageService == null) {
-      cloudStorageService = GoogleCloudStorage.forApplicationDefaultCredentials(queryProjectId);
+      cloudStorageService =
+          GoogleCloudStorage.forApplicationDefaultCredentials(
+              queryInfrastructure.getQueryProjectId());
     }
     return cloudStorageService;
   }

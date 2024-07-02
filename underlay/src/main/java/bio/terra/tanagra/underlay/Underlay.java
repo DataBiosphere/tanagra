@@ -4,7 +4,7 @@ import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.QueryRunner;
-import bio.terra.tanagra.query.bigquery.BQQueryRunner;
+import bio.terra.tanagra.query.bigquery.*;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
@@ -245,7 +245,12 @@ public final class Underlay {
 
     // Build the query executor.
     BQQueryRunner queryRunner =
-        new BQQueryRunner(szBigQuery.queryProjectId, szBigQuery.dataLocation);
+        new BQQueryRunner(
+            BQExecutorInfrastructure.forQueryAndExport(
+                szBigQuery.queryProjectId,
+                szBigQuery.dataLocation,
+                szBigQuery.exportDatasetIds,
+                szBigQuery.exportBucketNames));
 
     // Build the criteria selectors.
     List<SZCriteriaSelector> szCriteriaSelectors = new ArrayList<>();

@@ -256,8 +256,7 @@ public class BQRelationshipFilterTest extends BQRunnerTest {
     SZService szService = configReader.readService("sd20230331_verily");
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
-    BQQueryRunner bqQueryRunner =
-        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+    BQQueryRunner bqQueryRunner = (BQQueryRunner) underlay.getQueryRunner();
     GroupItems pulsePerson = (GroupItems) underlay.getEntityGroup("pulsePerson");
     relationshipFilter =
         new RelationshipFilter(
@@ -821,8 +820,7 @@ public class BQRelationshipFilterTest extends BQRunnerTest {
     SZService szService = configReader.readService("sd20230331_verily");
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
-    BQQueryRunner bqQueryRunner =
-        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+    BQQueryRunner bqQueryRunner = (BQQueryRunner) underlay.getQueryRunner();
 
     // e.g. SELECT conditionOccurrence FILTER ON (person FILTER ON HAS ANY bmi).
     CriteriaOccurrence criteriaOccurrence =
