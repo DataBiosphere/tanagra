@@ -298,9 +298,6 @@ public class DataExportHelper {
                       listQueryRequest,
                       entityOutput.getEntity().getName(),
                       substitutedFilename,
-                      sharedExportConfig.getGcpProjectId(),
-                      sharedExportConfig.getBqDatasetIds(),
-                      sharedExportConfig.getGcsBucketNames(),
                       true);
                 })
             .collect(Collectors.toList());

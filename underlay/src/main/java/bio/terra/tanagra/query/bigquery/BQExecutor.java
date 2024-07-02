@@ -99,12 +99,7 @@ public class BQExecutor {
    * @return pair of strings: GCS URL, file name
    */
   public Pair<String, String> export(
-      SqlQueryRequest queryRequest,
-      String fileNamePrefix,
-      String exportProjectId,
-      List<String> exportDatasetIds,
-      List<String> exportBucketNames,
-      boolean generateSignedUrl) {
+      SqlQueryRequest queryRequest, String fileNamePrefix, boolean generateSignedUrl) {
     LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
     // Create a temporary table with the results of the query.
@@ -121,8 +116,11 @@ public class BQExecutor {
     String exportDatasetId =
         getBigQueryService()
             .findDatasetWithLocation(
-                exportProjectId, exportDatasetIds, queryInfrastructure.getDatasetLocation());
-    TableId tempTableId = TableId.of(exportProjectId, exportDatasetId, tempTableName);
+                queryInfrastructure.getQueryProjectId(),
+                queryInfrastructure.getExportDatasetIds(),
+                queryInfrastructure.getDatasetLocation());
+    TableId tempTableId =
+        TableId.of(queryInfrastructure.getQueryProjectId(), exportDatasetId, tempTableName);
 
     // Build a BQ parameter value object for each SQL query parameter.
     Map<String, QueryParameterValue> bqQueryParams =
@@ -132,16 +130,20 @@ public class BQExecutor {
     Table tempTable =
         getBigQueryService()
             .pollForTableExistenceOrThrow(
-                exportProjectId, exportDatasetId, tempTableName, 10, Duration.ofSeconds(1));
+                queryInfrastructure.getQueryProjectId(),
+                exportDatasetId,
+                tempTableName,
+                10,
+                Duration.ofSeconds(1));
     LOGGER.info(
         "Temporary table created for export: {}.{}.{}",
-        exportProjectId,
+        queryInfrastructure.getQueryProjectId(),
         exportDatasetId,
         tempTableName);
     if (BigInteger.ZERO.equals(tempTable.getNumRows())) {
       LOGGER.info(
           "Temporary table has no rows, skipping export: {}.{}.{}",
-          exportProjectId,
+          queryInfrastructure.getQueryProjectId(),
           exportDatasetId,
           tempTableName);
       return Pair.of(null, null);
@@ -151,7 +153,9 @@ public class BQExecutor {
     String bucketName =
         getCloudStorageService()
             .findBucketForBigQueryExport(
-                exportProjectId, exportBucketNames, queryInfrastructure.getDatasetLocation());
+                queryInfrastructure.getQueryProjectId(),
+                queryInfrastructure.getExportBucketNames(),
+                queryInfrastructure.getDatasetLocation());
     String fileName = fileNamePrefix + ".csv.gzip";
     String gcsUrl = String.format("gs://%s/%s", bucketName, fileName);
     LOGGER.info("Exporting temporary table to GCS file: {}", gcsUrl);

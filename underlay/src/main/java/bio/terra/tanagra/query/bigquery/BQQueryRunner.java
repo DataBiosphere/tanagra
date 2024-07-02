@@ -584,9 +584,6 @@ public class BQQueryRunner implements QueryRunner {
         bigQueryExecutor.export(
             sqlQueryRequest,
             exportQueryRequest.getFileNamePrefix(),
-            exportQueryRequest.getGcsProjectId(),
-            exportQueryRequest.getAvailableBqDatasetIds(),
-            exportQueryRequest.getAvailableGcsBucketNames(),
             exportQueryRequest.isGenerateSignedUrl());
 
     return new ExportQueryResult(
