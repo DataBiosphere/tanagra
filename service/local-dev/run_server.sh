@@ -74,7 +74,7 @@ elif [[ ${useSdUnderlays} ]]; then
   # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
 elif [[ ${useEmergeUnderlays} ]]; then
   echo "Using eMerge underlay."
-  export TANAGRA_UNDERLAY_FILES=emerge/emerge_20230831_local
+  export TANAGRA_UNDERLAY_FILES=emerge/emerge_20240603_local.json
   export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=vumc-emerge-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=vumc-emerge-dev-exports
   # uncomment both lines below for emerge access-control model
