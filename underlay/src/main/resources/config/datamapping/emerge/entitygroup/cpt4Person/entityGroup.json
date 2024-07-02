@@ -5,9 +5,7 @@
     {
       "occurrenceEntity": "cpt4Occurrence",
       "criteriaRelationship": {
-        "idPairsSqlFile": "occurrenceCriteria_cpt4.sql",
-        "occurrenceEntityIdFieldName": "cpt4_occurrence_id",
-        "criteriaEntityIdFieldName": "cpt4_id"
+        "foreignKeyAttributeOccurrenceEntity": "cpt4"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"

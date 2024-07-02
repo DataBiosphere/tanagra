@@ -1,0 +1,13 @@
+{
+  "name": "labOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "lab_occurrence_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "lab", "dataType": "INT64", "valueFieldName": "lab_concept_id", "displayFieldName": "lab_concept_name" },
+    { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "lab" ]
+}

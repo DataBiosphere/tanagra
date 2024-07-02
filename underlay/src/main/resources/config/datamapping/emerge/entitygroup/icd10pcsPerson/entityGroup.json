@@ -5,9 +5,7 @@
     {
       "occurrenceEntity": "icd10pcsOccurrence",
       "criteriaRelationship": {
-        "idPairsSqlFile": "occurrenceCriteria_icd10pcs.sql",
-        "occurrenceEntityIdFieldName": "icd10_occurrence_id",
-        "criteriaEntityIdFieldName": "icd10_id"
+        "foreignKeyAttributeOccurrenceEntity": "icd10"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
