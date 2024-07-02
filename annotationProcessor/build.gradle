@@ -2,6 +2,11 @@ plugins {
     id 'java'
     id 'pmd'
     id 'tanagra.java-conventions'
+
+    // These plugins are needed to resolve versions of spring dependencies
+    // transitively added by terra-common-lib
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -34,7 +39,9 @@ dependencies {
     implementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
 
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
+        exclude group: 'com.azure'
         exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
     }
 
