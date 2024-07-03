@@ -450,11 +450,7 @@ public class DataExportHelper {
       String fileContents, String fileName, boolean generateSignedUrl) {
     ExportQueryRequest exportQueryRequest =
         ExportQueryRequest.forRawData(fileContents, fileName, generateSignedUrl);
-    return exportQueryRequest
-        .getListQueryRequest()
-        .getUnderlay()
-        .getQueryRunner()
-        .run(exportQueryRequest);
+    return exportRequest.getUnderlay().getQueryRunner().run(exportQueryRequest);
   }
 
   public static String urlEncode(String param) {
