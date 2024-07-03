@@ -16,6 +16,7 @@ import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.storage.*;
 import com.google.common.collect.Iterables;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -98,7 +99,7 @@ public class BQExecutor {
   /**
    * @return pair of strings: GCS URL, file name
    */
-  public Pair<String, String> export(
+  public Pair<String, String> exportQuery(
       SqlQueryRequest queryRequest, String fileNamePrefix, boolean generateSignedUrl) {
     LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
@@ -166,6 +167,29 @@ public class BQExecutor {
       throw new SystemException("BigQuery extract job failed: " + exportJob.getStatus().getError());
     }
     LOGGER.info("Export of temporary table completed: {}", exportJob.getStatus().getState());
+
+    if (!generateSignedUrl) {
+      return Pair.of(gcsUrl, fileName);
+    }
+
+    // Generate a signed URL to the file.
+    return Pair.of(getCloudStorageService().createSignedUrl(gcsUrl), fileName);
+  }
+
+  /**
+   * @return pair of strings: GCS URL, file name
+   */
+  public Pair<String, String> exportRawData(
+      String fileContents, String fileName, boolean generateSignedUrl) {
+    LOGGER.info("Exporting raw data: {}", fileName);
+
+    // Just pick the first GCS bucket name.
+    String bucketName = queryInfrastructure.getExportBucketNames().get(0);
+
+    // Write the file.
+    BlobId blobId = getCloudStorageService().writeFile(bucketName, fileName, fileContents);
+    String gcsUrl = blobId.toGsUtilUri();
+    LOGGER.info("Exported raw data to GCS: {}", gcsUrl);
 
     if (!generateSignedUrl) {
       return Pair.of(gcsUrl, fileName);

@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.export.impl;
 
+import bio.terra.tanagra.api.query.export.*;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportHelper;
-import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
@@ -11,7 +11,6 @@ import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
 import bio.terra.tanagra.utils.SqlFormatter;
-import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -25,7 +24,6 @@ public class IpynbFileDownload implements DataExport {
   private static final String IPYNB_TEMPLATE_FILE_GCS_URL_KEY = "IPYNB_TEMPLATE_FILE_GCS_URL";
   private static final String IPYNB_TEMPLATE_RESOURCE_FILE = "export/notebook_template.ipynb";
   public static final String IPYNB_FILE_KEY = "Notebook File:tanagra_export.ipynb";
-  private List<String> gcsBucketNames;
 
   @Override
   public Type getType() {
@@ -40,11 +38,6 @@ public class IpynbFileDownload implements DataExport {
   @Override
   public String getDescription() {
     return "Signed URL to an ipynb notebook file that includes SQL to get the list of primary entity instances.";
-  }
-
-  @Override
-  public void initialize(DeploymentConfig deploymentConfig) {
-    gcsBucketNames = deploymentConfig.getShared().getGcsBucketNames();
   }
 
   @Override
@@ -89,16 +82,12 @@ public class IpynbFileDownload implements DataExport {
             .build();
     String fileContents = StringSubstitutor.replace(ipynbTemplate, params);
 
-    // Write the ipynb file to GCS. Just pick the first bucket name.
+    // Write the ipynb file to GCS and generate a signed URL.
     String fileName = "tanagra_export_" + Instant.now() + ".ipynb";
-    BlobId blobId =
-        helper.getStorageService().writeFile(gcsBucketNames.get(0), fileName, fileContents);
-
-    // Generate a signed URL for the ipynb file.
-    String ipynbSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
+    ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName, true);
 
     ExportFileResult exportFileResult =
-        ExportFileResult.forFile(fileName, ipynbSignedUrl, null, null);
+        ExportFileResult.forFile(fileName, exportQueryResult.getFilePath(), null, null);
     exportFileResult.addTags(List.of("Notebook File"));
     return ExportResult.forFileResults(List.of(exportFileResult));
   }
