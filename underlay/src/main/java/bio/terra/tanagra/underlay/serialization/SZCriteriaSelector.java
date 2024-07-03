@@ -69,6 +69,11 @@ public class SZCriteriaSelector {
               + "If this property is specified, the value of the `pluginConfig` property is ignored.")
   public String pluginConfigFile;
 
+  @AnnotatedField(
+      name = "SZCriteriaSelector.supportsTemporalQueries",
+      markdown = "True if this criteria selector supports temporal queries.")
+  public boolean supportsTemporalQueries;
+
   @AnnotatedField(name = "SZCriteriaSelector.modifiers", markdown = "Configuration for modifiers.")
   public List<Modifier> modifiers;
 
@@ -131,5 +136,10 @@ public class SZCriteriaSelector {
                 + "This file should be in the same directory as the criteria selector (e.g. `visitType.json`).\n\n"
                 + "If this property is specified, the value of the `pluginConfig` property is ignored.")
     public String pluginConfigFile;
+
+    @AnnotatedField(
+        name = "SZCriteriaSelector.supportsTemporalQueries",
+        markdown = "True if this modifier supports temporal queries.")
+    public boolean supportsTemporalQueries;
   }
 }

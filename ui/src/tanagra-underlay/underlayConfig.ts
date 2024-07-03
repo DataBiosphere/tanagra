@@ -53,6 +53,7 @@ export type SZCriteriaSelector = {
   plugin: string;
   pluginConfig: string;
   pluginConfigFile: string;
+  supportsTemporalQueries: boolean;
 };
 
 export type SZCriteriaSelectorDisplay = {
@@ -61,6 +62,7 @@ export type SZCriteriaSelectorDisplay = {
 };
 
 export type SZCriteriaSelectorModifier = {
+  supportsTemporalQueries: boolean;
   displayName: string;
   name: string;
   plugin: string;

@@ -316,6 +316,11 @@ This file should be in the same directory as the criteria selector (e.g. `gender
 
 If this property is specified, the value of the `pluginConfig` property is ignored.
 
+### SZCriteriaSelector.supportsTemporalQueries
+**required** boolean
+
+True if this criteria selector supports temporal queries.
+
 
 
 ## SZCriteriaSelectorDisplay
@@ -339,6 +344,11 @@ criteria page. (e.g. "Source Codes")
 
 ## SZCriteriaSelectorModifier
 Criteria selector display configuration.
+
+### SZCriteriaSelector.supportsTemporalQueries
+**required** boolean
+
+True if this modifier supports temporal queries.
 
 ### SZCriteriaSelectorModifier.displayName
 **required** String
