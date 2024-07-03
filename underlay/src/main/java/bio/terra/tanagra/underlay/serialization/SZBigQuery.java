@@ -47,7 +47,7 @@ public class SZBigQuery {
           "Comma separated list of all BQ dataset ids that all export models can use. "
               + "Required if there are any export models that need to export from BQ to GCS.\n\n"
               + "These datasets must live in the [query project](${SZBigQuery.queryProjectId}) specified above.\n\n"
-              + "You can also specify these export datasets per-deployment, instead of per-underlay, by using\n\n"
+              + "You can also specify these export datasets per-deployment, instead of per-underlay, by using "
               + "the service application properties.",
       optional = true,
       exampleValue = "service_export_us,service_export_uscentral1")
@@ -60,7 +60,7 @@ public class SZBigQuery {
               + "Only include the bucket name, not the gs:// prefix. "
               + "Required if there are any export models that need to write to GCS.\n\n"
               + "These buckets must live in the [query project](${SZBigQuery.queryProjectId}) specified above.\n\n"
-              + "You can also specify these export buckets per-deployment, instead of per-underlay, by using\n\n"
+              + "You can also specify these export buckets per-deployment, instead of per-underlay, by using "
               + "the service application properties.",
       optional = true,
       exampleValue = "bq-export-uscentral1,bq-export-useast1")

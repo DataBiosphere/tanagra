@@ -134,9 +134,7 @@ Comma separated list of all GCS bucket names that all export models can use. Onl
 
 These buckets must live in the [query project](#szbigqueryqueryprojectid) specified above.
 
-You can also specify these export buckets per-deployment, instead of per-underlay, by using
-
-the service application properties.
+You can also specify these export buckets per-deployment, instead of per-underlay, by using the service application properties.
 
 *Example value:* `bq-export-uscentral1,bq-export-useast1`
 
@@ -147,9 +145,7 @@ Comma separated list of all BQ dataset ids that all export models can use. Requi
 
 These datasets must live in the [query project](#szbigqueryqueryprojectid) specified above.
 
-You can also specify these export datasets per-deployment, instead of per-underlay, by using
-
-the service application properties.
+You can also specify these export datasets per-deployment, instead of per-underlay, by using the service application properties.
 
 *Example value:* `service_export_us,service_export_uscentral1`
 
