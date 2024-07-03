@@ -28,9 +28,9 @@
   ],
   "hierarchyColumns": [
     {
-      "key": "name",
+      "key": "label",
       "widthString": "100%",
-      "title": "Name"
+      "title": "Label"
     },
     {
       "key": "id",
@@ -57,7 +57,7 @@
     {
       "id": "cpt4Person",
       "sortOrder": {
-        "attribute": "name",
+        "attribute": "label",
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
       }
     }

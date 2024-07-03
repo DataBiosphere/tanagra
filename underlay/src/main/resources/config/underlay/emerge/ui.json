@@ -40,7 +40,7 @@
     ]
   },
   "criteriaSearchConfig": {
-    "criteriaTypeWidth": 120,
+    "criteriaTypeWidth": 150,
     "columns": [
       { "key": "name", "width": "100%", "title": "Name" },
       { "key": "concept_code", "width": 120, "title": "Code" },

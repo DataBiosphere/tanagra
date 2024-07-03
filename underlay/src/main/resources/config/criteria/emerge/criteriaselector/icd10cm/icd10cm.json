@@ -1,7 +1,7 @@
 {
   "columns": [
     {
-      "key": "label",
+      "key": "name",
       "widthString": "100%",
       "title": "Name"
     },
@@ -30,7 +30,7 @@
     {
       "key": "label",
       "widthString": "100%",
-      "title": "Name"
+      "title": "Label"
     },
     {
       "key": "id",
