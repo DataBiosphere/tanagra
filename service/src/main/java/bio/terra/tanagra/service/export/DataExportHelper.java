@@ -18,7 +18,6 @@ import bio.terra.tanagra.utils.NameUtils;
 import bio.terra.tanagra.utils.threadpool.Job;
 import bio.terra.tanagra.utils.threadpool.JobResult;
 import bio.terra.tanagra.utils.threadpool.ThreadPoolUtils;
-import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableList;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 public class DataExportHelper {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportHelper.class);
   private final Integer maxChildThreads;
-  private final ExportConfiguration.Shared sharedExportConfig;
   private final RandomNumberGenerator randomNumberGenerator;
   private final ReviewService reviewService;
   private final ExportRequest exportRequest;
@@ -55,7 +53,6 @@ public class DataExportHelper {
       List<EntityOutput> entityOutputs,
       EntityFilter primaryEntityFilter) {
     this.maxChildThreads = maxChildThreads;
-    this.sharedExportConfig = sharedExportConfig;
     this.randomNumberGenerator = randomNumberGenerator;
     this.reviewService = reviewService;
     this.exportRequest = exportRequest;
@@ -294,13 +291,10 @@ public class DataExportHelper {
                           String.valueOf(randomNumberGenerator.getNext()));
                   String substitutedFilename =
                       StringSubstitutor.replace(fileNameTemplate, substitutions);
-                  return new ExportQueryRequest(
+                  return ExportQueryRequest.forListQuery(
                       listQueryRequest,
                       entityOutput.getEntity().getName(),
                       substitutedFilename,
-                      sharedExportConfig.getGcpProjectId(),
-                      sharedExportConfig.getBqDatasetIds(),
-                      sharedExportConfig.getGcsBucketNames(),
                       true);
                 })
             .collect(Collectors.toList());
@@ -407,9 +401,6 @@ public class DataExportHelper {
    *     gs://bucket/filename.csv).
    */
   public List<ExportFileResult> writeAnnotationDataToGcs(String fileNameTemplate) {
-    // Just pick the first GCS bucket name.
-    String bucketName = sharedExportConfig.getGcsBucketNames().get(0);
-
     // Write the annotations for each cohort to a separate file.
     List<ExportFileResult> exportFileResults = new ArrayList<>();
     exportRequest
@@ -440,10 +431,11 @@ public class DataExportHelper {
                   if (!fileName.endsWith(".csv")) {
                     fileName += ".csv";
                   }
-                  BlobId blobId = getStorageService().writeFile(bucketName, fileName, fileContents);
-                  String gcsUrl = getStorageService().createSignedUrl(blobId.toGsUtilUri());
+
+                  ExportQueryResult exportQueryResult = exportRawData(fileContents, fileName, true);
                   exportFileResults.add(
-                      ExportFileResult.forAnnotationData(fileName, gcsUrl, cohort, null, null));
+                      ExportFileResult.forAnnotationData(
+                          fileName, exportQueryResult.getFilePath(), cohort, null, null));
                 }
               } catch (Exception ex) {
                 exportFileResults.add(
@@ -454,13 +446,11 @@ public class DataExportHelper {
     return exportFileResults;
   }
 
-  /** Maintain a single reference to the GCS client object, so we don't keep recreating it. */
-  public GoogleCloudStorage getStorageService() {
-    if (googleCloudStorage == null) {
-      googleCloudStorage =
-          GoogleCloudStorage.forApplicationDefaultCredentials(sharedExportConfig.getGcpProjectId());
-    }
-    return googleCloudStorage;
+  public ExportQueryResult exportRawData(
+      String fileContents, String fileName, boolean generateSignedUrl) {
+    ExportQueryRequest exportQueryRequest =
+        ExportQueryRequest.forRawData(fileContents, fileName, generateSignedUrl);
+    return exportRequest.getUnderlay().getQueryRunner().run(exportQueryRequest);
   }
 
   public static String urlEncode(String param) {

@@ -207,8 +207,7 @@ public class BQGroupItemsFilterTest extends BQRunnerTest {
     SZService szService = configReader.readService("sd20230331_verily");
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
-    BQQueryRunner bqQueryRunner =
-        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+    BQQueryRunner bqQueryRunner = (BQQueryRunner) underlay.getQueryRunner();
 
     groupItems = (GroupItems) underlay.getEntityGroup("pulsePerson");
     groupHasItemsFilter = new GroupHasItemsFilter(underlay, groupItems, null, null, null, null);

@@ -16,6 +16,7 @@ import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
+import com.google.cloud.storage.*;
 import com.google.common.collect.Iterables;
 import java.math.BigInteger;
 import java.sql.Timestamp;
@@ -33,16 +34,13 @@ import org.slf4j.LoggerFactory;
 public class BQExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BQExecutor.class);
   private static final String TEMPORARY_TABLE_BASE_NAME = "export";
-
-  private final String queryProjectId;
-  private final String datasetLocation;
+  private final BQExecutorInfrastructure queryInfrastructure;
 
   private GoogleBigQuery bigQueryService;
   private GoogleCloudStorage cloudStorageService;
 
-  public BQExecutor(String queryProjectId, String datasetLocation) {
-    this.queryProjectId = queryProjectId;
-    this.datasetLocation = datasetLocation;
+  public BQExecutor(BQExecutorInfrastructure queryInfrastructure) {
+    this.queryInfrastructure = queryInfrastructure;
   }
 
   public SqlQueryResult run(SqlQueryRequest queryRequest) {
@@ -101,13 +99,8 @@ public class BQExecutor {
   /**
    * @return pair of strings: GCS URL, file name
    */
-  public Pair<String, String> export(
-      SqlQueryRequest queryRequest,
-      String fileNamePrefix,
-      String exportProjectId,
-      List<String> exportDatasetIds,
-      List<String> exportBucketNames,
-      boolean generateSignedUrl) {
+  public Pair<String, String> exportQuery(
+      SqlQueryRequest queryRequest, String fileNamePrefix, boolean generateSignedUrl) {
     LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
 
     // Create a temporary table with the results of the query.
@@ -123,8 +116,12 @@ public class BQExecutor {
     }
     String exportDatasetId =
         getBigQueryService()
-            .findDatasetWithLocation(exportProjectId, exportDatasetIds, datasetLocation);
-    TableId tempTableId = TableId.of(exportProjectId, exportDatasetId, tempTableName);
+            .findDatasetWithLocation(
+                queryInfrastructure.getQueryProjectId(),
+                queryInfrastructure.getExportDatasetIds(),
+                queryInfrastructure.getDatasetLocation());
+    TableId tempTableId =
+        TableId.of(queryInfrastructure.getQueryProjectId(), exportDatasetId, tempTableName);
 
     // Build a BQ parameter value object for each SQL query parameter.
     Map<String, QueryParameterValue> bqQueryParams =
@@ -134,16 +131,20 @@ public class BQExecutor {
     Table tempTable =
         getBigQueryService()
             .pollForTableExistenceOrThrow(
-                exportProjectId, exportDatasetId, tempTableName, 10, Duration.ofSeconds(1));
+                queryInfrastructure.getQueryProjectId(),
+                exportDatasetId,
+                tempTableName,
+                10,
+                Duration.ofSeconds(1));
     LOGGER.info(
         "Temporary table created for export: {}.{}.{}",
-        exportProjectId,
+        queryInfrastructure.getQueryProjectId(),
         exportDatasetId,
         tempTableName);
     if (BigInteger.ZERO.equals(tempTable.getNumRows())) {
       LOGGER.info(
           "Temporary table has no rows, skipping export: {}.{}.{}",
-          exportProjectId,
+          queryInfrastructure.getQueryProjectId(),
           exportDatasetId,
           tempTableName);
       return Pair.of(null, null);
@@ -152,7 +153,10 @@ public class BQExecutor {
     // Export the temporary table to a compressed file.
     String bucketName =
         getCloudStorageService()
-            .findBucketForBigQueryExport(exportProjectId, exportBucketNames, datasetLocation);
+            .findBucketForBigQueryExport(
+                queryInfrastructure.getQueryProjectId(),
+                queryInfrastructure.getExportBucketNames(),
+                queryInfrastructure.getDatasetLocation());
     String fileName = fileNamePrefix + ".csv.gzip";
     String gcsUrl = String.format("gs://%s/%s", bucketName, fileName);
     LOGGER.info("Exporting temporary table to GCS file: {}", gcsUrl);
@@ -163,6 +167,29 @@ public class BQExecutor {
       throw new SystemException("BigQuery extract job failed: " + exportJob.getStatus().getError());
     }
     LOGGER.info("Export of temporary table completed: {}", exportJob.getStatus().getState());
+
+    if (!generateSignedUrl) {
+      return Pair.of(gcsUrl, fileName);
+    }
+
+    // Generate a signed URL to the file.
+    return Pair.of(getCloudStorageService().createSignedUrl(gcsUrl), fileName);
+  }
+
+  /**
+   * @return pair of strings: GCS URL, file name
+   */
+  public Pair<String, String> exportRawData(
+      String fileContents, String fileName, boolean generateSignedUrl) {
+    LOGGER.info("Exporting raw data: {}", fileName);
+
+    // Just pick the first GCS bucket name.
+    String bucketName = queryInfrastructure.getExportBucketNames().get(0);
+
+    // Write the file.
+    BlobId blobId = getCloudStorageService().writeFile(bucketName, fileName, fileContents);
+    String gcsUrl = blobId.toGsUtilUri();
+    LOGGER.info("Exported raw data to GCS: {}", gcsUrl);
 
     if (!generateSignedUrl) {
       return Pair.of(gcsUrl, fileName);
@@ -254,7 +281,8 @@ public class BQExecutor {
   private GoogleBigQuery getBigQueryService() {
     // Lazy load the BigQuery service.
     if (bigQueryService == null) {
-      bigQueryService = GoogleBigQuery.forApplicationDefaultCredentials(queryProjectId);
+      bigQueryService =
+          GoogleBigQuery.forApplicationDefaultCredentials(queryInfrastructure.getQueryProjectId());
     }
     return bigQueryService;
   }
@@ -262,7 +290,9 @@ public class BQExecutor {
   private GoogleCloudStorage getCloudStorageService() {
     // Lazy load the GCS service.
     if (cloudStorageService == null) {
-      cloudStorageService = GoogleCloudStorage.forApplicationDefaultCredentials(queryProjectId);
+      cloudStorageService =
+          GoogleCloudStorage.forApplicationDefaultCredentials(
+              queryInfrastructure.getQueryProjectId());
     }
     return cloudStorageService;
   }

@@ -2,13 +2,13 @@ package bio.terra.tanagra.service.export.impl;
 
 import static bio.terra.tanagra.service.export.DataExportHelper.urlEncode;
 
+import bio.terra.tanagra.api.query.export.*;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import com.google.cloud.storage.BlobId;
 import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -20,7 +20,6 @@ import org.apache.commons.text.StringSubstitutor;
 
 public class VwbFileImport implements DataExport {
   private static final String FILE_FORMAT_SPECIFIER = "TsvHttpData-1.0";
-  private List<String> gcsBucketNames;
   private String redirectAwayUrl;
 
   @Override
@@ -40,7 +39,6 @@ public class VwbFileImport implements DataExport {
 
   @Override
   public void initialize(DeploymentConfig deploymentConfig) {
-    gcsBucketNames = deploymentConfig.getShared().getGcsBucketNames();
     redirectAwayUrl = deploymentConfig.getRedirectAwayUrl();
   }
 
@@ -90,24 +88,20 @@ public class VwbFileImport implements DataExport {
         .sorted()
         .forEach(tsvRow -> fileContents.append(tsvRow).append("\n"));
 
-    // Write the TSV file to GCS. Just pick the first bucket name.
+    // Write the TSV file to GCS and generate a signed URL.
     String fileName = "tanagra_vwb_export_" + Instant.now() + ".tsv";
-    BlobId blobId =
-        helper
-            .getStorageService()
-            .writeFile(gcsBucketNames.get(0), fileName, fileContents.toString());
+    ExportQueryResult exportQueryResult =
+        helper.exportRawData(fileContents.toString(), fileName, true);
 
-    // Generate a signed URL for the TSV file.
-    String tsvSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
     ExportFileResult tsvExportFileResult =
-        ExportFileResult.forFile(fileName, tsvSignedUrl, null, null);
+        ExportFileResult.forFile(fileName, exportQueryResult.getFilePath(), null, null);
     tsvExportFileResult.addTags(List.of("URL List"));
     allExportFileResults.add(tsvExportFileResult);
 
     // Generate the redirect URL to VWB.
     Map<String, String> urlParams =
         ImmutableMap.<String, String>builder()
-            .put("tsvFileUrl", urlEncode(tsvSignedUrl))
+            .put("tsvFileUrl", urlEncode(exportQueryResult.getFilePath()))
             .put("redirectBackUrl", urlEncode(request.getRedirectBackUrl()))
             .build();
     String expandedRedirectAwayUrl = StringSubstitutor.replace(redirectAwayUrl, urlParams);

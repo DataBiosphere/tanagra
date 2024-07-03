@@ -14,6 +14,8 @@ export type SZAttribute = {
 
 export type SZBigQuery = {
   dataLocation: string;
+  exportBucketNames?: string[];
+  exportDatasetIds?: string[];
   indexData: SZIndexData;
   queryProjectId: string;
   sourceData: SZSourceData;

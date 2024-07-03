@@ -44,8 +44,8 @@ import org.apache.commons.lang3.tuple.Pair;
 public class BQQueryRunner implements QueryRunner {
   private final BQExecutor bigQueryExecutor;
 
-  public BQQueryRunner(String queryProjectId, String datasetLocation) {
-    this.bigQueryExecutor = new BQExecutor(queryProjectId, datasetLocation);
+  public BQQueryRunner(BQExecutorInfrastructure queryInfrastructure) {
+    this.bigQueryExecutor = new BQExecutor(queryInfrastructure);
   }
 
   @Override
@@ -575,20 +575,26 @@ public class BQQueryRunner implements QueryRunner {
 
   @Override
   public ExportQueryResult run(ExportQueryRequest exportQueryRequest) {
-    // Build the SQL query.
-    SqlQueryRequest sqlQueryRequest =
-        buildListQuerySqlAgainstIndexData(exportQueryRequest.getListQueryRequest());
+    Pair<String, String> exportFileUrlAndFileName;
+    if (exportQueryRequest.isForRawData()) {
+      // Export the raw data to GCS.
+      exportFileUrlAndFileName =
+          bigQueryExecutor.exportRawData(
+              exportQueryRequest.getFileContents(),
+              exportQueryRequest.getFileDisplayName(),
+              exportQueryRequest.isGenerateSignedUrl());
+    } else {
+      // Build the SQL query.
+      SqlQueryRequest sqlQueryRequest =
+          buildListQuerySqlAgainstIndexData(exportQueryRequest.getListQueryRequest());
 
-    // Execute the SQL query and export the results to GCS.
-    Pair<String, String> exportFileUrlAndFileName =
-        bigQueryExecutor.export(
-            sqlQueryRequest,
-            exportQueryRequest.getFileNamePrefix(),
-            exportQueryRequest.getGcsProjectId(),
-            exportQueryRequest.getAvailableBqDatasetIds(),
-            exportQueryRequest.getAvailableGcsBucketNames(),
-            exportQueryRequest.isGenerateSignedUrl());
-
+      // Execute the SQL query and export the results to GCS.
+      exportFileUrlAndFileName =
+          bigQueryExecutor.exportQuery(
+              sqlQueryRequest,
+              exportQueryRequest.getFileNamePrefix(),
+              exportQueryRequest.isGenerateSignedUrl());
+    }
     return new ExportQueryResult(
         exportFileUrlAndFileName.getRight(), exportFileUrlAndFileName.getLeft());
   }

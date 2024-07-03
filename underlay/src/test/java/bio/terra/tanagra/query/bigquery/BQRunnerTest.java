@@ -20,8 +20,7 @@ public abstract class BQRunnerTest {
     szService = configReader.readService(getServiceConfigName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
-    bqQueryRunner =
-        new BQQueryRunner(szService.bigQuery.queryProjectId, szService.bigQuery.dataLocation);
+    bqQueryRunner = (BQQueryRunner) underlay.getQueryRunner();
   }
 
   protected String getServiceConfigName() {

@@ -286,7 +286,7 @@ Comma separated list of all GCS bucket names that all export models can use. Onl
 
 *Environment variable:* `TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES`
 
-*Example value:* `broad-tanagra-dev-bq-export-uscentral1,broad-tanagra-dev-bq-export-useast1`
+*Example value:* `bq-export-uscentral1,bq-export-useast1`
 
 
 

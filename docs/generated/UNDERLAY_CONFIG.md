@@ -127,6 +127,28 @@ Pointers to the source and index BigQuery datasets.
 
 Valid locations for BigQuery are listed in the GCP [documentation](https://cloud.google.com/bigquery/docs/locations).
 
+### SZBigQuery.exportBucketNames
+**optional** List [ String ]
+
+Comma separated list of all GCS bucket names that all export models can use. Only include the bucket name, not the gs:// prefix. Required if there are any export models that need to write to GCS.
+
+These buckets must live in the [query project](#szbigqueryqueryprojectid) specified above.
+
+You can also specify these export buckets per-deployment, instead of per-underlay, by using the service application properties.
+
+*Example value:* `bq-export-uscentral1,bq-export-useast1`
+
+### SZBigQuery.exportDatasetIds
+**optional** List [ String ]
+
+Comma separated list of all BQ dataset ids that all export models can use. Required if there are any export models that need to export from BQ to GCS.
+
+These datasets must live in the [query project](#szbigqueryqueryprojectid) specified above.
+
+You can also specify these export datasets per-deployment, instead of per-underlay, by using the service application properties.
+
+*Example value:* `service_export_us,service_export_uscentral1`
+
 ### SZBigQuery.indexData
 **required** [SZIndexData](#szindexdata)
 

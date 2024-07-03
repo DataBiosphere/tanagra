@@ -2,6 +2,7 @@ package bio.terra.tanagra.service.export.impl;
 
 import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
 
+import bio.terra.tanagra.api.query.export.*;
 import bio.terra.tanagra.proto.regressiontest.RTCohort;
 import bio.terra.tanagra.proto.regressiontest.RTCriteria;
 import bio.terra.tanagra.proto.regressiontest.RTDataFeatureSet;
@@ -12,7 +13,6 @@ import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportHelper;
-import bio.terra.tanagra.service.export.DeploymentConfig;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
@@ -20,15 +20,13 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.ProtobufUtils;
-import com.google.cloud.storage.BlobId;
+import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.TestClassWithoutTestCases")
 public class RegressionTest implements DataExport {
-  private List<String> gcsBucketNames;
-
   @Override
   public Type getType() {
     return Type.REGRESSION_TEST;
@@ -42,11 +40,6 @@ public class RegressionTest implements DataExport {
   @Override
   public String getDescription() {
     return "Signed URL to a regression test file that includes the total number of rows returned for each output entity.";
-  }
-
-  @Override
-  public void initialize(DeploymentConfig deploymentConfig) {
-    gcsBucketNames = deploymentConfig.getShared().getGcsBucketNames();
   }
 
   @Override
@@ -67,7 +60,7 @@ public class RegressionTest implements DataExport {
     totalNumRowsPerEntity.forEach(
         (key, value) -> exportCounts.addEntityOutputCounts(toRegressionTestObj(key, value)));
 
-    // Write the proto object in JSON format to a GCS file. Just pick the first bucket name.
+    // Write the proto object in JSON format to a GCS file and generate a signed URL.
     String cohortRef =
         simplifyStringForName(request.getCohorts().get(0).getDisplayName())
             + (request.getCohorts().size() > 1
@@ -82,14 +75,10 @@ public class RegressionTest implements DataExport {
                     : "");
     String fileName = "cohort" + cohortRef + "_datafeatureset" + dataFeatureSetRef + ".json";
     String fileContents = ProtobufUtils.serializeToPrettyJson(exportCounts.build());
-    BlobId blobId =
-        helper.getStorageService().writeFile(gcsBucketNames.get(0), fileName, fileContents);
-
-    // Generate a signed URL for the JSON file.
-    String jsonSignedUrl = helper.getStorageService().createSignedUrl(blobId.toGsUtilUri());
+    ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName, true);
 
     ExportFileResult exportFileResult =
-        ExportFileResult.forFile(fileName, jsonSignedUrl, null, null);
+        ExportFileResult.forFile(fileName, exportQueryResult.getFilePath(), null, null);
     exportFileResult.addTags(List.of("Regression Test File"));
     return ExportResult.forFileResults(List.of(exportFileResult));
   }
