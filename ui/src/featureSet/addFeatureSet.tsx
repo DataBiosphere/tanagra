@@ -20,7 +20,12 @@ import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback } from "react";
-import { absoluteFeatureSetURL, cohortURL, useBaseParams } from "router";
+import {
+  absoluteFeatureSetURL,
+  cohortURL,
+  useBaseParams,
+  useIsSecondBlock,
+} from "router";
 import useSWR from "swr";
 import { useNavigate } from "util/searchState";
 
@@ -42,6 +47,7 @@ export function AddFeatureSet() {
 
   const navigate = useNavigate();
   const params = useBaseParams();
+  const secondBlock = useIsSecondBlock();
 
   const featureSetsState = useSWR(
     {
@@ -85,7 +91,8 @@ export function AddFeatureSet() {
         section.id,
         produce(filteredCriteria, (fc) =>
           fc.forEach((c) => (c.id = generateId()))
-        )
+        ),
+        secondBlock
       );
       navigate("../../../" + cohortURL(cohort.id, section.id, group.id));
     },

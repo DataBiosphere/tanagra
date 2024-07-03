@@ -1,7 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import TuneIcon from "@mui/icons-material/Tune";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
@@ -11,6 +11,8 @@ import Link from "@mui/material/Link";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
@@ -33,6 +35,8 @@ import {
   Group,
   GroupSection,
   GroupSectionFilterKind,
+  GroupSectionReducingOperator,
+  isTemporalSection,
 } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -61,10 +65,10 @@ import { RouterLink, useNavigate } from "util/searchState";
 import { isValid } from "util/valid";
 import {
   createCriteria,
-  defaultFilter,
   generateCohortFilter,
   getCriteriaPlugin,
   getCriteriaTitle,
+  newSection,
 } from "./cohort";
 
 export function Overview() {
@@ -264,6 +268,15 @@ function ParticipantsGroupSection(props: {
     fetchSectionCount
   );
 
+  const showBlocks = isTemporalSection(props.groupSection);
+  const combinedGroups = [
+    ...props.groupSection.groups,
+    ...props.groupSection.secondBlockGroups,
+  ];
+  const firstBlockGroups = !showBlocks
+    ? combinedGroups
+    : props.groupSection.groups;
+
   return (
     <GridBoxPaper
       sx={{
@@ -283,15 +296,12 @@ function ParticipantsGroupSection(props: {
             <Select
               value={props.groupSection.filter.excluded ? 1 : 0}
               onChange={(event: SelectChangeEvent<number>) => {
-                updateCohortGroupSection(
-                  context,
-                  props.groupSection.id,
-                  undefined,
-                  {
+                updateCohortGroupSection(context, props.groupSection.id, {
+                  filter: {
                     ...props.groupSection.filter,
                     excluded: event.target.value === 1,
-                  }
-                );
+                  },
+                });
               }}
               sx={{
                 color: (theme) => theme.palette.primary.main,
@@ -312,15 +322,12 @@ function ParticipantsGroupSection(props: {
             <Select
               value={props.groupSection.filter.kind}
               onChange={(event: SelectChangeEvent<string>) => {
-                updateCohortGroupSection(
-                  context,
-                  props.groupSection.id,
-                  undefined,
-                  {
+                updateCohortGroupSection(context, props.groupSection.id, {
+                  filter: {
                     ...props.groupSection.filter,
                     kind: event.target.value as GroupSectionFilterKind,
-                  }
-                );
+                  },
+                });
               }}
               sx={{
                 color: (theme) => theme.palette.primary.main,
@@ -338,6 +345,26 @@ function ParticipantsGroupSection(props: {
               <MenuItem value={GroupSectionFilterKind.All}>
                 Meet all criteria
               </MenuItem>
+              {underlaySource.computedProperties().supportsTemporalQueries ? (
+                <MenuItem value={GroupSectionFilterKind.SameEncounter}>
+                  Same encounter as
+                </MenuItem>
+              ) : null}
+              {underlaySource.computedProperties().supportsTemporalQueries ? (
+                <MenuItem value={GroupSectionFilterKind.DaysBefore}>
+                  X or more days before
+                </MenuItem>
+              ) : null}
+              {underlaySource.computedProperties().supportsTemporalQueries ? (
+                <MenuItem value={GroupSectionFilterKind.DaysAfter}>
+                  X or more days after
+                </MenuItem>
+              ) : null}
+              {underlaySource.computedProperties().supportsTemporalQueries ? (
+                <MenuItem value={GroupSectionFilterKind.DaysWithin}>
+                  Within X days of
+                </MenuItem>
+              ) : null}
             </Select>
           </FormControl>
           <GridBox />
@@ -351,8 +378,11 @@ function ParticipantsGroupSection(props: {
         </GridLayout>
       </GridLayout>
       <GridLayout rows height="auto">
-        {props.groupSection.groups.length === 0 ? (
-          <GridLayout rows height="auto">
+        {showBlocks ? (
+          <ReducingOperator groupSection={props.groupSection} />
+        ) : null}
+        {firstBlockGroups.length === 0 ? (
+          !showBlocks ? (
             <Empty
               maxWidth="90%"
               title="Criteria are traits you select to define your cohort’s participant groups"
@@ -374,41 +404,81 @@ function ParticipantsGroupSection(props: {
                 </>
               }
             />
-            {cohort.groupSections.length > 1 ? (
-              <Divider sx={{ mx: 2, mb: 1 }} />
-            ) : null}
-          </GridLayout>
+          ) : (
+            <Empty
+              maxWidth="90%"
+              subtitle={
+                <>
+                  <Link
+                    variant="link"
+                    underline="hover"
+                    onClick={() =>
+                      navigate(
+                        `../${cohortURL(cohort.id, props.groupSection.id)}/add`
+                      )
+                    }
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Choose main criteria
+                  </Link>{" "}
+                  to compare against. Some criteria aren&apos;t eligible for
+                  this filter.
+                </>
+              }
+            />
+          )
         ) : (
-          props.groupSection.groups.map((group) => (
-            <GridLayout key={group.id} rows height="auto">
-              <Box>
-                <ParticipantsGroup
-                  groupSection={props.groupSection}
-                  group={group}
-                />
-              </Box>
-              <Divider variant="middle">
-                <Chip
-                  label={
-                    props.groupSection.filter.kind ===
-                    GroupSectionFilterKind.Any
-                      ? "OR"
-                      : "AND"
-                  }
-                />
-              </Divider>
-            </GridLayout>
+          firstBlockGroups.map((group) => (
+            <ParticipantsGroup
+              key={group.id}
+              groupSection={props.groupSection}
+              group={group}
+            />
           ))
         )}
-        {props.groupSection.groups.length !== 0 ||
-        cohort.groupSections.length > 1 ? (
+        {combinedGroups.length > 0 ? (
           <GridLayout
             cols
-            fillCol={1}
+            colAlign="left"
             height="auto"
             sx={{ px: 2, pt: 1, pb: 2 }}
           >
-            {props.groupSection.groups.length > 0 ? (
+            <Button
+              onClick={() =>
+                navigate(
+                  `../${cohortURL(
+                    cohort.id,
+                    props.groupSection.id,
+                    group?.id
+                  )}/add`
+                )
+              }
+              variant="contained"
+            >
+              Add criteria
+            </Button>
+          </GridLayout>
+        ) : null}
+        {showBlocks ? (
+          <ReducingOperator groupSection={props.groupSection} second />
+        ) : null}
+        {showBlocks
+          ? props.groupSection.secondBlockGroups.map((group) => (
+              <ParticipantsGroup
+                key={group.id}
+                groupSection={props.groupSection}
+                group={group}
+              />
+            ))
+          : null}
+        {showBlocks ? (
+          props.groupSection.secondBlockGroups.length > 0 ? (
+            <GridLayout
+              cols
+              colAlign="left"
+              height="auto"
+              sx={{ px: 2, pt: 1, pb: 2 }}
+            >
               <Button
                 onClick={() =>
                   navigate(
@@ -416,23 +486,50 @@ function ParticipantsGroupSection(props: {
                       cohort.id,
                       props.groupSection.id,
                       group?.id
-                    )}/add`
+                    )}/second/add`
                   )
                 }
                 variant="contained"
-                sx={{
-                  display:
-                    props.groupSection.groups.length === 0
-                      ? "hidden"
-                      : undefined,
-                }}
               >
                 Add criteria
               </Button>
-            ) : (
-              <GridBox />
-            )}
-            <GridBox />
+            </GridLayout>
+          ) : (
+            <Empty
+              maxWidth="90%"
+              subtitle={
+                <>
+                  <Link
+                    variant="link"
+                    underline="hover"
+                    onClick={() =>
+                      navigate(
+                        `../${cohortURL(
+                          cohort.id,
+                          props.groupSection.id
+                        )}/second/add`
+                      )
+                    }
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Choose secondary criteria
+                  </Link>{" "}
+                  to be compared against the main criteria.
+                </>
+              }
+            />
+          )
+        ) : null}
+        {combinedGroups.length !== 0 || cohort.groupSections.length > 1 ? (
+          <GridLayout
+            cols
+            colAlign="right"
+            height="auto"
+            sx={{
+              p: 2,
+              boxShadow: (theme) => `inset 0 1px 0 ${theme.palette.divider}`,
+            }}
+          >
             <Button
               color="error"
               variant="outlined"
@@ -447,6 +544,132 @@ function ParticipantsGroupSection(props: {
         ) : null}
       </GridLayout>
     </GridBoxPaper>
+  );
+}
+
+const filterKindValuePrefixText: { [x: string]: string } = {
+  [GroupSectionFilterKind.SameEncounter]: "During same encounter as",
+  [GroupSectionFilterKind.DaysWithin]: "On or within",
+};
+
+const filterKindValueSuffixText: { [x: string]: string } = {
+  [GroupSectionFilterKind.DaysBefore]: "or more days before",
+  [GroupSectionFilterKind.DaysAfter]: "or more days after",
+  [GroupSectionFilterKind.DaysWithin]: "days of",
+};
+
+function ReducingOperator(props: {
+  groupSection: GroupSection;
+  second?: boolean;
+}) {
+  const context = useCohortContext();
+  const showValue =
+    props.second &&
+    props.groupSection.filter.kind !== GroupSectionFilterKind.SameEncounter;
+  const prefixText = filterKindValuePrefixText[props.groupSection.filter.kind];
+  const suffixText = filterKindValueSuffixText[props.groupSection.filter.kind];
+
+  return (
+    <GridLayout
+      cols
+      spacing={1}
+      rowAlign="baseline"
+      sx={{
+        px: 2,
+        py: showValue ? 1.2 : 2,
+        backgroundColor: (theme) => theme.canvasColor,
+      }}
+    >
+      {props.second ? (
+        <GridLayout cols spacing={1} rowAlign="baseline">
+          {prefixText ? (
+            <Typography variant="body2">{prefixText}</Typography>
+          ) : null}
+          {showValue ? (
+            <TextField
+              value={props.groupSection.operatorValue}
+              size="small"
+              variant="outlined"
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                updateCohortGroupSection(context, props.groupSection.id, {
+                  operatorValue: parseInt(event.target.value) ?? 0,
+                });
+              }}
+              onClick={(e) => e.stopPropagation()}
+              inputProps={{
+                type: "number",
+                min: 1,
+                max: 9999,
+              }}
+              sx={{
+                "& .MuiOutlinedInput-input": (theme) => ({
+                  ...theme.typography.body2,
+                }),
+              }}
+            />
+          ) : null}
+          {suffixText ? (
+            <Typography variant="body2">{suffixText}</Typography>
+          ) : null}
+        </GridLayout>
+      ) : null}
+      <ReducingOperatorSelect
+        groupSection={props.groupSection}
+        second={props.second}
+      />
+      <GridBox />
+    </GridLayout>
+  );
+}
+
+function ReducingOperatorSelect(props: {
+  groupSection: GroupSection;
+  second?: boolean;
+}) {
+  const context = useCohortContext();
+  return (
+    <FormControl>
+      <Select
+        value={
+          props.second
+            ? props.groupSection.secondBlockReducingOperator
+            : props.groupSection.firstBlockReducingOperator
+        }
+        onChange={(event: SelectChangeEvent<string>) => {
+          updateCohortGroupSection(context, props.groupSection.id, {
+            firstBlockReducingOperator: !props.second
+              ? (event.target.value as GroupSectionReducingOperator)
+              : undefined,
+            secondBlockReducingOperator: props.second
+              ? (event.target.value as GroupSectionReducingOperator)
+              : undefined,
+          });
+        }}
+        sx={{
+          color: (theme) => theme.palette.primary.main,
+          "& .MuiOutlinedInput-input": {
+            px: 0,
+            py: "2px",
+          },
+          "& .MuiSelect-select": (theme) => ({
+            ...theme.typography.body2,
+          }),
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderStyle: "none",
+          },
+        }}
+      >
+        <MenuItem value={GroupSectionReducingOperator.Any}>
+          Any mention of
+        </MenuItem>
+        <MenuItem value={GroupSectionReducingOperator.First}>
+          First mention of
+        </MenuItem>
+        <MenuItem value={GroupSectionReducingOperator.Last}>
+          Last mention of
+        </MenuItem>
+      </Select>
+    </FormControl>
   );
 }
 
@@ -470,7 +693,11 @@ function ParticipantsGroup(props: {
   );
 
   const backendGroup = useMemo(
-    () => backendGroupSection?.groups?.find((g) => g.id === props.group.id),
+    () =>
+      backendGroupSection?.groups?.find((g) => g.id === props.group.id) ??
+      backendGroupSection?.secondBlockGroups?.find(
+        (g) => g.id === props.group.id
+      ),
     [backendCohort, backendGroupSection, props.group]
   );
 
@@ -492,11 +719,7 @@ function ParticipantsGroup(props: {
     const cohortForFilter: Cohort = {
       ...cohort,
       groupSections: [
-        {
-          id: backendGroupSection.id,
-          filter: defaultFilter,
-          groups: [backendGroup],
-        },
+        newSection(undefined, backendGroupSection.id, backendGroup),
       ],
     };
 
@@ -590,7 +813,7 @@ function ParticipantsGroup(props: {
   }
 
   return (
-    <GridBox key={props.group.id} sx={{ height: "auto" }}>
+    <GridLayout key={props.group.id} rows height="auto">
       <GridBox
         onClick={() => {
           navigate(
@@ -622,7 +845,18 @@ function ParticipantsGroup(props: {
         }}
       >
         <GridLayout key={props.group.id} rows height="auto">
-          <GridLayout cols fillCol={2} height="auto" rowAlign="middle">
+          <GridLayout cols fillCol={3} height="auto" rowAlign="middle">
+            {isTemporalSection(props.groupSection) &&
+            !selector.supportsTemporalQueries ? (
+              <Tooltip
+                title={`${title} is ineligible for temporal comparison`}
+                arrow={true}
+              >
+                <ErrorOutlineIcon color="error" sx={{ display: "block" }} />
+              </Tooltip>
+            ) : (
+              <GridBox />
+            )}
             <GridBox
               sx={{
                 textOverflow: "ellipsis",
@@ -638,43 +872,46 @@ function ParticipantsGroup(props: {
                 {title}
               </Typography>
             </GridBox>
-            <GridBox
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              sx={{ visibility: selected ? "visible" : "hidden" }}
-            >
-              {!!plugin.renderEdit ? (
-                <IconButton
-                  data-testid={title}
-                  onClick={() => navigate(criteriaURL())}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              ) : (
-                <GridBox />
-              )}
-              <IconButton
-                onClick={() => {
-                  deleteCohortGroup(
-                    context,
-                    props.groupSection.id,
-                    props.group.id
-                  );
+            {selected ? (
+              <GridBox
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                 }}
               >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-              {hasModifiers ? (
-                <Button
-                  startIcon={<TuneIcon fontSize="small" />}
-                  onClick={showMenu}
+                {!!plugin.renderEdit ? (
+                  <IconButton
+                    data-testid={title}
+                    onClick={() => navigate(criteriaURL())}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                ) : (
+                  <GridBox />
+                )}
+                <IconButton
+                  onClick={() => {
+                    deleteCohortGroup(
+                      context,
+                      props.groupSection.id,
+                      props.group.id
+                    );
+                  }}
                 >
-                  Modifiers
-                </Button>
-              ) : undefined}
-            </GridBox>
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+                {hasModifiers ? (
+                  <Button
+                    startIcon={<TuneIcon fontSize="small" />}
+                    onClick={showMenu}
+                  >
+                    Modifiers
+                  </Button>
+                ) : undefined}
+              </GridBox>
+            ) : (
+              <GridBox />
+            )}
             <GridBox />
             <Loading status={groupCountState} size="small">
               <Typography
@@ -723,6 +960,18 @@ function ParticipantsGroup(props: {
                         />
                       </GridLayout>
                       <GridLayout cols height="auto" rowAlign="middle">
+                        {isTemporalSection(props.groupSection) &&
+                        !modifierCriteria[i].config.supportsTemporalQueries ? (
+                          <Tooltip
+                            title={`${modifierCriteria[i].config.displayName} is ineligible for temporal comparison`}
+                            arrow={true}
+                          >
+                            <ErrorOutlineIcon
+                              color="error"
+                              sx={{ display: "block" }}
+                            />
+                          </Tooltip>
+                        ) : null}
                         <Typography variant="body2">
                           {modifierCriteria[i].config.displayName}
                         </Typography>
@@ -763,16 +1012,37 @@ function ParticipantsGroup(props: {
                     </GridLayout>
                   </GridLayout>
                 ) : (
-                  <GridBox sx={{ pl: 4 }}>
+                  <GridLayout cols rowAlign="middle" sx={{ pl: 4 }}>
+                    {isTemporalSection(props.groupSection) &&
+                    !modifierCriteria[i].config.supportsTemporalQueries ? (
+                      <Tooltip
+                        title={`${t} is ineligible for temporal comparison`}
+                        arrow={true}
+                      >
+                        <ErrorOutlineIcon
+                          color="error"
+                          sx={{ fontSize: 16, display: "block" }}
+                        />
+                      </Tooltip>
+                    ) : null}
                     <Typography variant="body2">{t}</Typography>
-                  </GridBox>
+                  </GridLayout>
                 )
               )}
             </GridLayout>
           ) : null}
         </GridLayout>
+        {menu}
       </GridBox>
-      {menu}
-    </GridBox>
+      <Divider variant="middle">
+        <Chip
+          label={
+            props.groupSection.filter.kind === GroupSectionFilterKind.All
+              ? "AND"
+              : "OR"
+          }
+        />
+      </Divider>
+    </GridLayout>
   );
 }

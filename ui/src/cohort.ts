@@ -13,8 +13,8 @@ import {
   FeatureSet,
   Group,
   GroupSection,
-  GroupSectionFilter,
   GroupSectionFilterKind,
+  GroupSectionReducingOperator,
   UnderlaySource,
 } from "data/source";
 import { DataEntry, GroupByCount } from "data/types";
@@ -116,19 +116,38 @@ export function sectionName(section: GroupSection, index: number) {
 
 const DEFAULT_SECTION_ID = "_default";
 
-function newSectionInternal(id: string, criteria?: Criteria): GroupSection {
+function newSectionInternal(
+  id: string,
+  criteria?: Criteria,
+  group?: Group
+): GroupSection {
+  const groups: Group[] = [];
+  if (criteria) {
+    groups.push(defaultGroup(criteria));
+  } else if (group) {
+    groups.push(group);
+  }
+
   return {
     id,
     filter: {
       kind: GroupSectionFilterKind.Any,
       excluded: false,
     },
-    groups: !!criteria ? [defaultGroup(criteria)] : [],
+    groups,
+    secondBlockGroups: [],
+    operatorValue: 3,
+    firstBlockReducingOperator: GroupSectionReducingOperator.Any,
+    secondBlockReducingOperator: GroupSectionReducingOperator.Any,
   };
 }
 
-export function newSection(criteria?: Criteria): GroupSection {
-  return newSectionInternal(generateId(), criteria);
+export function newSection(
+  criteria?: Criteria,
+  id?: string,
+  group?: Group
+): GroupSection {
+  return newSectionInternal(id ?? generateId(), criteria, group);
 }
 
 export function defaultSection(): GroupSection {
@@ -143,11 +162,6 @@ export function defaultGroup(criteria: Criteria): Group {
     criteria: [criteria],
   };
 }
-
-export const defaultFilter: GroupSectionFilter = {
-  kind: GroupSectionFilterKind.Any,
-  excluded: false,
-};
 
 // Having typed data here allows the registry to treat all data generically
 // while plugins can use an actual type internally.
