@@ -71,7 +71,8 @@ public class SZCriteriaSelector {
 
   @AnnotatedField(
       name = "SZCriteriaSelector.supportsTemporalQueries",
-      markdown = "True if this criteria selector supports temporal queries.")
+      markdown = "True if this criteria selector supports temporal queries.",
+      defaultValue = "false")
   public boolean supportsTemporalQueries;
 
   @AnnotatedField(name = "SZCriteriaSelector.modifiers", markdown = "Configuration for modifiers.")
@@ -138,8 +139,9 @@ public class SZCriteriaSelector {
     public String pluginConfigFile;
 
     @AnnotatedField(
-        name = "SZCriteriaSelector.supportsTemporalQueries",
-        markdown = "True if this modifier supports temporal queries.")
+        name = "SZCriteriaSelectorModifier.supportsTemporalQueries",
+        markdown = "True if this modifier supports temporal queries.",
+        defaultValue = "false")
     public boolean supportsTemporalQueries;
   }
 }

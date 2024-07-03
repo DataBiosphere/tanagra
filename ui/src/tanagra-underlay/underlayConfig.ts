@@ -62,12 +62,12 @@ export type SZCriteriaSelectorDisplay = {
 };
 
 export type SZCriteriaSelectorModifier = {
-  supportsTemporalQueries: boolean;
   displayName: string;
   name: string;
   plugin: string;
   pluginConfig: string;
   pluginConfigFile: string;
+  supportsTemporalQueries: boolean;
 };
 
 export enum SZDataType {

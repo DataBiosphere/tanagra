@@ -321,6 +321,8 @@ If this property is specified, the value of the `pluginConfig` property is ignor
 
 True if this criteria selector supports temporal queries.
 
+*Default value:* `false`
+
 
 
 ## SZCriteriaSelectorDisplay
@@ -344,11 +346,6 @@ criteria page. (e.g. "Source Codes")
 
 ## SZCriteriaSelectorModifier
 Criteria selector display configuration.
-
-### SZCriteriaSelector.supportsTemporalQueries
-**required** boolean
-
-True if this modifier supports temporal queries.
 
 ### SZCriteriaSelectorModifier.displayName
 **required** String
@@ -388,6 +385,13 @@ Name of the file that contains the serialized configuration of the modifier UI d
 This file should be in the same directory as the criteria selector (e.g. `visitType.json`).
 
 If this property is specified, the value of the `pluginConfig` property is ignored.
+
+### SZCriteriaSelectorModifier.supportsTemporalQueries
+**required** boolean
+
+True if this modifier supports temporal queries.
+
+*Default value:* `false`
 
 
 
