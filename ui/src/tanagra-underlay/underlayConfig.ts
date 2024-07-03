@@ -55,6 +55,7 @@ export type SZCriteriaSelector = {
   plugin: string;
   pluginConfig: string;
   pluginConfigFile: string;
+  supportsTemporalQueries: boolean;
 };
 
 export type SZCriteriaSelectorDisplay = {
@@ -68,6 +69,7 @@ export type SZCriteriaSelectorModifier = {
   plugin: string;
   pluginConfig: string;
   pluginConfigFile: string;
+  supportsTemporalQueries: boolean;
 };
 
 export enum SZDataType {

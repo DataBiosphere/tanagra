@@ -2308,13 +2308,35 @@ components:
           description: Name of the section
         criteriaGroups:
           type: array
-          description: Set of criteria groups in the section
+          description: |
+            For a temporal section, this is the set of groups that define the first block.
+            For a non-temporal section, the set of groups are the union of this list and the secondBlockCriteriaGroups list.
           items:
             $ref: "#/components/schemas/CriteriaGroup"
+        firstBlockReducingOperator:
+          description: |
+            Reducing operator for the first block of criteria groups.
+            Only applies for a temporal section.
+          $ref: "#/components/schemas/ReducingOperator"
+        secondBlockCriteriaGroups:
+          type: array
+          description: |
+            For a temporal section, this is the set of groups that define the second block.
+            For a non-temporal section, the set of groups are the union of this list and the criteriaGroups list.
+          items:
+            $ref: "#/components/schemas/CriteriaGroup"
+        secondBlockReducingOperator:
+          description: |
+            Reducing operator for the second block of criteria groups.
+            Only applies for a temporal section.
+          $ref: "#/components/schemas/ReducingOperator"
         operator:
           type: string
           description: Operator to use when combining the criteria groups in the section
-          enum: ["AND", "OR"]
+          enum: ["AND", "OR", "DURING_SAME_ENCOUNTER", "NUM_DAYS_BEFORE", "NUM_DAYS_AFTER", "WITHIN_NUM_DAYS"]
+        operatorValue:
+          type: integer
+          description: Value associated with the operator (e.g. num days)
         excluded:
           type: boolean
           description: True to exclude the section, false to include it
@@ -2324,6 +2346,10 @@ components:
         - criteriaGroups
         - operator
         - excluded
+
+    ReducingOperator:
+      type: string
+      enum: ["ANY", "FIRST_MENTION_OF", "LAST_MENTION_OF"]
 
     CriteriaGroup:
       type: object

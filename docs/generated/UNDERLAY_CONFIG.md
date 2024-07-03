@@ -338,6 +338,13 @@ This file should be in the same directory as the criteria selector (e.g. `gender
 
 If this property is specified, the value of the `pluginConfig` property is ignored.
 
+### SZCriteriaSelector.supportsTemporalQueries
+**required** boolean
+
+True if this criteria selector supports temporal queries.
+
+*Default value:* `false`
+
 
 
 ## SZCriteriaSelectorDisplay
@@ -400,6 +407,13 @@ Name of the file that contains the serialized configuration of the modifier UI d
 This file should be in the same directory as the criteria selector (e.g. `visitType.json`).
 
 If this property is specified, the value of the `pluginConfig` property is ignored.
+
+### SZCriteriaSelectorModifier.supportsTemporalQueries
+**required** boolean
+
+True if this modifier supports temporal queries.
+
+*Default value:* `false`
 
 
 
