@@ -2309,25 +2309,25 @@ components:
         criteriaGroups:
           type: array
           description: |
-            For a temporal section, this is the set of groups that define the first condition.
-            For a non-temporal section, the set of groups are the union of this list and the secondConditionCriteriaGroups list.
+            For a temporal section, this is the set of groups that define the first block.
+            For a non-temporal section, the set of groups are the union of this list and the secondBlockCriteriaGroups list.
           items:
             $ref: "#/components/schemas/CriteriaGroup"
-        firstConditionReducingOperator:
+        firstBlockReducingOperator:
           description: |
-            Reducing operator for the first set of criteria groups.
+            Reducing operator for the first block of criteria groups.
             Only applies for a temporal section.
           $ref: "#/components/schemas/ReducingOperator"
-        secondConditionCriteriaGroups:
+        secondBlockCriteriaGroups:
           type: array
           description: |
-            For a temporal section, this is the set of groups that define the second condition.
+            For a temporal section, this is the set of groups that define the second block.
             For a non-temporal section, the set of groups are the union of this list and the criteriaGroups list.
           items:
             $ref: "#/components/schemas/CriteriaGroup"
-        secondConditionReducingOperator:
+        secondBlockReducingOperator:
           description: |
-            Reducing operator for the second set of criteria groups.
+            Reducing operator for the second block of criteria groups.
             Only applies for a temporal section.
           $ref: "#/components/schemas/ReducingOperator"
         operator:
