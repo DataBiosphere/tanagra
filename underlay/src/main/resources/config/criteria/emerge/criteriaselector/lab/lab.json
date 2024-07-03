@@ -41,5 +41,5 @@
     "attribute": "t_item_count",
     "direction": "SORT_ORDER_DIRECTION_DESCENDING"
   },
-  "multiSelect": true
+  "multiSelect": false
 }
