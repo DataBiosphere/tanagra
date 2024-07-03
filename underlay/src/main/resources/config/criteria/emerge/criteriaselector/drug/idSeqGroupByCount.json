@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "drugOccurrence": {
+      "values": [
+        "id",
+        "drug"
+      ]
+    }
+  }
+}

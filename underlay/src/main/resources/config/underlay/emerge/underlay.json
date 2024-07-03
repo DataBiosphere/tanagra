@@ -12,7 +12,9 @@
     "emerge/icd10pcs",
     "emerge/icd10pcsOccurrence",
     "emerge/lab",
-    "emerge/labOccurrence"
+    "emerge/labOccurrence",
+    "emerge/drug",
+    "emerge/drugOccurrence"
   ],
   "groupItemsEntityGroups": [
   ],
@@ -21,7 +23,8 @@
     "emerge/icd9Person",
     "emerge/icd10cmPerson",
     "emerge/icd10pcsPerson",
-    "emerge/labPerson"
+    "emerge/labPerson",
+    "emerge/drugPerson"
   ],
   "criteriaSelectors": [
     "emerge/gender",
@@ -40,7 +43,8 @@
     "emerge/icd10cm",
     "emerge/icd10pcs",
     "emerge/outputUnfiltered",
-    "emerge/lab"
+    "emerge/lab",
+    "emerge/drug"
   ],
   "prepackagedDataFeatures": [
     "emerge/_demographics"

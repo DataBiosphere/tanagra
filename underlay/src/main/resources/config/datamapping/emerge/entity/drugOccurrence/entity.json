@@ -1,0 +1,12 @@
+{
+  "name": "drugOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "drug_occurrence_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "drug", "dataType": "INT64", "valueFieldName": "drug_concept_id", "displayFieldName": "drug_concept_name" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "lab" ]
+}

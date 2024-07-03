@@ -1,0 +1,39 @@
+{
+  "columns": [
+    {
+      "key": "label",
+      "widthString": "100%",
+      "title": "Label"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept Id"
+    },
+    {
+      "key": "is_standard",
+      "widthDouble": 180,
+      "title": "Source/Standard"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 150,
+      "title": "Count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "drugPerson"
+    }
+  ],
+  "defaultSort": {
+    "attribute": "t_item_count",
+    "direction": "SORT_ORDER_DIRECTION_DESCENDING"
+  },
+  "multiSelect": true
+}

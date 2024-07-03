@@ -1,6 +1,6 @@
 {
-  "name": "tanagra-lab",
-  "displayName": "Labs & Measurements",
+  "name": "tanagra-drug",
+  "displayName": "Drug",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
   "display": {
@@ -10,7 +10,7 @@
   "filterBuilder": "core.EntityGroupFilterBuilder",
   "plugin": "entityGroup",
   "pluginConfig": null,
-  "pluginConfigFile": "lab.json",
+  "pluginConfigFile": "drug.json",
   "modifiers": [
     {
       "name": "ageAtOccurrence",
