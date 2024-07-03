@@ -22,7 +22,7 @@ import {
   TreeGridRowData,
 } from "components/treegrid";
 import { MergedItem } from "data/mergeLists";
-import { Criteria } from "data/source";
+import { Criteria, isTemporalSection } from "data/source";
 import { DataEntry, DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import {
@@ -45,6 +45,7 @@ import {
   cohortURL,
   featureSetURL,
   newCriteriaURL,
+  useIsSecondBlock,
 } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
@@ -70,10 +71,16 @@ export function AddCohortCriteria() {
   const navigate = useNavigate();
   const context = useCohortContext();
   const { cohort, section, sectionIndex } = useCohortGroupSectionAndGroup();
+  const secondBlock = useIsSecondBlock();
 
   const onInsertCriteria = useCallback(
     (criteria: Criteria) => {
-      const group = insertCohortCriteria(context, section.id, criteria);
+      const group = insertCohortCriteria(
+        context,
+        section.id,
+        criteria,
+        secondBlock
+      );
       navigate("../../" + cohortURL(cohort.id, section.id, group.id));
     },
     [context, cohort.id, section.id, navigate]
@@ -85,6 +92,7 @@ export function AddCohortCriteria() {
     <AddCriteria
       title={`Adding criteria for group ${name}`}
       onInsertCriteria={onInsertCriteria}
+      temporal={isTemporalSection(section)}
     />
   );
 }
@@ -140,6 +148,7 @@ type AddCriteriaProps = {
   onInsertCriteria: (criteria: Criteria) => void;
   excludedPredefinedCriteria?: string[];
   onInsertPredefinedCriteria?: (criteria: string, title: string) => void;
+  temporal?: boolean;
 };
 
 function AddCriteria(props: AddCriteriaProps) {
@@ -242,6 +251,10 @@ function AddCriteria(props: AddCriteriaProps) {
           return false;
         }
 
+        if (props.temporal && !option.selector?.supportsTemporalQueries) {
+          return false;
+        }
+
         if (
           selectedTags.size &&
           option.tags?.length &&
@@ -313,7 +326,7 @@ function AddCriteria(props: AddCriteriaProps) {
           dataEntry
         );
         if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
-          navigate("../" + newCriteriaURL(option.name));
+          navigate(newCriteriaURL(option.name));
         } else {
           props.onInsertCriteria(criteria);
         }
@@ -441,6 +454,11 @@ function AddCriteria(props: AddCriteriaProps) {
             <Typography variant="body1">to explore.</Typography>
           </GridLayout>
         </GridLayout>
+        {props.temporal ? (
+          <Typography variant="body1">
+            Some criteria are ineligible for temporal comparisons.
+          </Typography>
+        ) : null}
         <GridLayout rows spacing={2} sx={{ height: "auto" }}>
           {categories.map((category) => (
             <GridLayout key={category[0].category} rows spacing={2}>

@@ -4,10 +4,12 @@ import { TypographyStyleOptions } from "@mui/material/styles/createTypography";
 declare module "@mui/material/styles" {
   interface Theme {
     highlightColor?: string;
+    canvasColor?: string;
   }
   // allow configuration using `createTheme`
   interface ThemeOptions {
     highlightColor?: string;
+    canvasColor?: string;
   }
 
   interface TypographyVariants {
@@ -36,6 +38,7 @@ declare module "@mui/material/Typography" {
 
 export const theme = createTheme({
   highlightColor: "#FFD54F",
+  canvasColor: "#F5F6F7",
 
   shape: {
     borderRadius: 16,

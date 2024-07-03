@@ -217,11 +217,25 @@ export type GroupSection = {
   name?: string;
   filter: GroupSectionFilter;
   groups: Group[];
+  secondBlockGroups: Group[];
+  operatorValue: number;
+  firstBlockReducingOperator: GroupSectionReducingOperator;
+  secondBlockReducingOperator: GroupSectionReducingOperator;
 };
 
 export enum GroupSectionFilterKind {
   Any = "ANY",
   All = "ALL",
+  SameEncounter = "DURING_SAME_ENCOUNTER",
+  DaysAfter = "NUM_DAYS_AFTER",
+  DaysBefore = "NUM_DAYS_BEFORE",
+  DaysWithin = "WITHIN_NUM_DAYS",
+}
+
+export enum GroupSectionReducingOperator {
+  Any = "ANY",
+  First = "FIRST_MENTION_OF",
+  Last = "LAST_MENTION_OF",
 }
 
 export type GroupSectionFilter = {
@@ -242,6 +256,7 @@ export type CommonSelectorConfig = {
   pluginConfig: string;
   isEnabledForCohorts?: boolean;
   isEnabledForDataFeatureSets?: boolean;
+  supportsTemporalQueries?: boolean;
 };
 
 export type Criteria = {
@@ -258,8 +273,14 @@ export type ConceptSet = {
   criteria: Criteria;
 };
 
+export type ComputedProperties = {
+  supportsTemporalQueries: boolean;
+};
+
 export interface UnderlaySource {
   underlay: Underlay;
+
+  computedProperties(): ComputedProperties;
 
   lookupEntityGroup(entityGroupId: string): EntityGroupData;
   lookupEntity(entityId: string): tanagraUnderlay.SZEntity;
@@ -503,7 +524,20 @@ export class BackendUnderlaySource implements UnderlaySource {
     private underlaysApi: tanagra.UnderlaysApi,
     private exportApi: tanagra.ExportApi,
     public underlay: Underlay
-  ) {}
+  ) {
+    this.computedProps = {
+      supportsTemporalQueries: underlay.criteriaSelectors.reduce(
+        (out: boolean, cs) => out || cs.supportsTemporalQueries,
+        false
+      ),
+    };
+  }
+
+  private computedProps: ComputedProperties;
+
+  computedProperties(): ComputedProperties {
+    return this.computedProps;
+  }
 
   lookupEntityGroup(entityGroupId: string): EntityGroupData {
     const criteriaOccurrence = this.underlay.criteriaOccurrences.find(
@@ -1427,6 +1461,7 @@ export class BackendStudySource implements StudySource {
             criteriaGroupId: groupId,
             pageMarker,
             entity,
+            limit: 1000000,
           },
         })
       );
@@ -1750,6 +1785,17 @@ export function dataValueFromProto(value?: valueProto.Value): DataValue {
     value.boolValue ??
     value.timestampValue;
   return res ?? null;
+}
+
+export function isTemporalSection(section: GroupSection) {
+  switch (section.filter.kind) {
+    case GroupSectionFilterKind.SameEncounter:
+    case GroupSectionFilterKind.DaysBefore:
+    case GroupSectionFilterKind.DaysAfter:
+    case GroupSectionFilterKind.DaysWithin:
+      return true;
+  }
+  return false;
 }
 
 function convertSortDirection(dir: SortDirection) {
@@ -2129,6 +2175,75 @@ function fromAPICohortInternal(
   };
 }
 
+function fromAPICriteriaGroupSectionOperator(
+  op: tanagra.CriteriaGroupSectionOperatorEnum
+): GroupSectionFilterKind {
+  switch (op) {
+    case tanagra.CriteriaGroupSectionOperatorEnum.Or:
+      return GroupSectionFilterKind.Any;
+    case tanagra.CriteriaGroupSectionOperatorEnum.And:
+      return GroupSectionFilterKind.All;
+    case tanagra.CriteriaGroupSectionOperatorEnum.DuringSameEncounter:
+      return GroupSectionFilterKind.SameEncounter;
+    case tanagra.CriteriaGroupSectionOperatorEnum.NumDaysBefore:
+      return GroupSectionFilterKind.DaysBefore;
+    case tanagra.CriteriaGroupSectionOperatorEnum.NumDaysAfter:
+      return GroupSectionFilterKind.DaysAfter;
+    case tanagra.CriteriaGroupSectionOperatorEnum.WithinNumDays:
+      return GroupSectionFilterKind.DaysWithin;
+  }
+  throw new Error(`Unknown criteria group section operator "${op}".`);
+}
+
+function toAPICriteriaGroupSectionOperator(
+  kind: GroupSectionFilterKind
+): tanagra.CriteriaGroupSectionOperatorEnum {
+  switch (kind) {
+    case GroupSectionFilterKind.Any:
+      return tanagra.CriteriaGroupSectionOperatorEnum.Or;
+    case GroupSectionFilterKind.All:
+      return tanagra.CriteriaGroupSectionOperatorEnum.And;
+    case GroupSectionFilterKind.SameEncounter:
+      return tanagra.CriteriaGroupSectionOperatorEnum.DuringSameEncounter;
+    case GroupSectionFilterKind.DaysBefore:
+      return tanagra.CriteriaGroupSectionOperatorEnum.NumDaysBefore;
+    case GroupSectionFilterKind.DaysAfter:
+      return tanagra.CriteriaGroupSectionOperatorEnum.NumDaysAfter;
+    case GroupSectionFilterKind.DaysWithin:
+      return tanagra.CriteriaGroupSectionOperatorEnum.WithinNumDays;
+  }
+  throw new Error(`Unhandled group section filter kind "${kind}".`);
+}
+
+function fromAPIReducingOperator(
+  op?: tanagra.ReducingOperator
+): GroupSectionReducingOperator {
+  switch (op) {
+    case tanagra.ReducingOperator.Any:
+    case undefined:
+      return GroupSectionReducingOperator.Any;
+    case tanagra.ReducingOperator.FirstMentionOf:
+      return GroupSectionReducingOperator.First;
+    case tanagra.ReducingOperator.LastMentionOf:
+      return GroupSectionReducingOperator.Last;
+  }
+  throw new Error(`Unknown criteria group section reducing operator "${op}".`);
+}
+
+function toAPIReducingOperator(
+  op: GroupSectionReducingOperator
+): tanagra.ReducingOperator {
+  switch (op) {
+    case GroupSectionReducingOperator.Any:
+      return tanagra.ReducingOperator.Any;
+    case GroupSectionReducingOperator.First:
+      return tanagra.ReducingOperator.FirstMentionOf;
+    case GroupSectionReducingOperator.Last:
+      return tanagra.ReducingOperator.LastMentionOf;
+  }
+  throw new Error(`Unhandled group section reducing operator "${op}".`);
+}
+
 function fromAPICriteriaGroupSections(
   underlaySource: UnderlaySource,
   sections?: tanagra.CriteriaGroupSection[]
@@ -2141,13 +2256,30 @@ function fromAPICriteriaGroupSections(
     id: section.id,
     name: section.displayName,
     filter: {
-      kind:
-        section.operator === tanagra.CriteriaGroupSectionOperatorEnum.And
-          ? GroupSectionFilterKind.All
-          : GroupSectionFilterKind.Any,
+      kind: fromAPICriteriaGroupSectionOperator(section.operator),
       excluded: section.excluded,
     },
-    groups: section.criteriaGroups.map((group) => ({
+    groups: fromAPICriteriaGroups(underlaySource, section.criteriaGroups),
+    secondBlockGroups: fromAPICriteriaGroups(
+      underlaySource,
+      section.secondBlockCriteriaGroups
+    ),
+    operatorValue: section.operatorValue ?? 3,
+    firstBlockReducingOperator: fromAPIReducingOperator(
+      section.firstBlockReducingOperator
+    ),
+    secondBlockReducingOperator: fromAPIReducingOperator(
+      section.secondBlockReducingOperator
+    ),
+  }));
+}
+
+function fromAPICriteriaGroups(
+  underlaySource: UnderlaySource,
+  groups?: tanagra.CriteriaGroup[]
+): Group[] {
+  return (
+    groups?.map((group) => ({
       id: group.id,
       entity: "",
       criteria: group.criteria.map((criteria, i) =>
@@ -2157,8 +2289,8 @@ function fromAPICriteriaGroupSections(
           i > 0 ? criteriaSelectorName(group.criteria[0]) : undefined
         )
       ),
-    })),
-  }));
+    })) ?? []
+  );
 }
 
 function fromAPICriteria(
@@ -2239,20 +2371,30 @@ function fromAPIFeatureSetInternal(
 function toAPICriteriaGroupSections(
   groupSections: GroupSection[]
 ): tanagra.CriteriaGroupSection[] {
-  return groupSections.map((section) => ({
+  const sections = groupSections.map((section) => ({
     id: section.id,
     displayName: section.name ?? "",
-    operator:
-      section.filter.kind === GroupSectionFilterKind.All
-        ? tanagra.CriteriaGroupSectionOperatorEnum.And
-        : tanagra.CriteriaGroupSectionOperatorEnum.Or,
+    operator: toAPICriteriaGroupSectionOperator(section.filter.kind),
     excluded: section.filter.excluded,
-    criteriaGroups: section.groups.map((group) => ({
-      id: group.id,
-      displayName: "",
-      entity: group.entity,
-      criteria: group.criteria.map((criteria) => toAPICriteria(criteria)),
-    })),
+    criteriaGroups: toAPICriteriaGroups(section.groups),
+    secondBlockCriteriaGroups: toAPICriteriaGroups(section.secondBlockGroups),
+    operatorValue: section.operatorValue,
+    firstBlockReducingOperator: toAPIReducingOperator(
+      section.firstBlockReducingOperator
+    ),
+    secondBlockReducingOperator: toAPIReducingOperator(
+      section.secondBlockReducingOperator
+    ),
+  }));
+  return sections;
+}
+
+function toAPICriteriaGroups(groups: Group[]): tanagra.CriteriaGroup[] {
+  return groups.map((group) => ({
+    id: group.id,
+    displayName: "",
+    entity: group.entity,
+    criteria: group.criteria.map((criteria) => toAPICriteria(criteria)),
   }));
 }
 

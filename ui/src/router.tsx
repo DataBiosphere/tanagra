@@ -56,7 +56,7 @@ export function createAppRouter() {
                       element: <Overview />,
                     },
                     {
-                      path: "add",
+                      path: "second?/add",
                       children: [
                         {
                           index: true,
@@ -206,6 +206,10 @@ export function useExitAction() {
   }, [location, params, navigate]);
 }
 
+export function useIsSecondBlock() {
+  return !!useLocation().pathname.match(/\/second\//);
+}
+
 function useMessageListener<T>(message: string, callback: (event: T) => void) {
   const listener = useCallback(
     (event) => {
@@ -340,7 +344,7 @@ export function criteriaURL() {
 }
 
 export function newCriteriaURL(configId: string) {
-  return `add/${configId}`;
+  return configId;
 }
 
 export function featureSetCriteriaURL(criteriaId: string) {

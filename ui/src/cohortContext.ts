@@ -1,5 +1,10 @@
 import { defaultGroup, newSection } from "cohort";
-import { Cohort, Criteria, GroupSectionFilter } from "data/source";
+import {
+  Cohort,
+  Criteria,
+  GroupSectionFilter,
+  GroupSectionReducingOperator,
+} from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
@@ -183,7 +188,8 @@ export function cohortUndoRedo(params: BaseParams, context: CohortContextData) {
 export function insertCohortCriteria(
   context: CohortContextData,
   sectionId: string,
-  criteria: Criteria | Criteria[]
+  criteria: Criteria | Criteria[],
+  secondBlock: boolean
 ) {
   const groups = (Array.isArray(criteria) ? criteria : [criteria]).map((c) =>
     defaultGroup(c)
@@ -202,7 +208,7 @@ export function insertCohortCriteria(
     }
 
     const section = present.groupSections[sectionIndex];
-    section.groups.push(...groups);
+    (secondBlock ? section.secondBlockGroups : section.groups).push(...groups);
 
     let title = `${groups.length} criteria`;
     if (groups.length === 1) {
@@ -233,7 +239,9 @@ export function insertCohortCriteriaModifier(
       );
     }
 
-    const group = section.groups.find((g) => g.id === groupId);
+    const group =
+      section.groups.find((g) => g.id === groupId) ??
+      section.secondBlockGroups.find((g) => g.id === groupId);
     if (!group) {
       throw new Error(
         `Group ${groupId} does not exist on group section ${JSON.stringify(
@@ -264,7 +272,9 @@ export function deleteCohortCriteriaModifier(
       );
     }
 
-    const group = section.groups.find((g) => g.id === groupId);
+    const group =
+      section.groups.find((g) => g.id === groupId) ??
+      section.secondBlockGroups.find((g) => g.id === groupId);
     if (!group) {
       throw new Error(
         `Group ${groupId} does not exist on group section ${JSON.stringify(
@@ -296,7 +306,9 @@ export function updateCohortCriteria(
       );
     }
 
-    const group = section.groups.find((g) => g.id === groupId);
+    const group =
+      section.groups.find((g) => g.id === groupId) ??
+      section.secondBlockGroups.find((g) => g.id === groupId);
     if (!group) {
       throw new Error(
         `Group ${groupId} does not exist on group section ${JSON.stringify(
@@ -327,7 +339,13 @@ export function deleteCohortGroup(
       );
     }
 
-    const index = section.groups.findIndex((g) => g.id === groupId);
+    let groups = section.groups;
+    let index = groups.findIndex((g) => g.id === groupId);
+    if (index === -1) {
+      groups = section.secondBlockGroups;
+      index = groups.findIndex((g) => g.id === groupId);
+    }
+
     if (index === -1) {
       throw new Error(
         `Group ${groupId} does not exist on group section ${JSON.stringify(
@@ -336,7 +354,7 @@ export function deleteCohortGroup(
       );
     }
 
-    section.groups.splice(index, 1);
+    groups.splice(index, 1);
   });
 }
 
@@ -374,11 +392,18 @@ export function deleteCohortGroupSection(
   });
 }
 
+export type UpdateCohortGroupSectionParams = {
+  name?: string;
+  filter?: GroupSectionFilter;
+  operatorValue?: number;
+  firstBlockReducingOperator?: GroupSectionReducingOperator;
+  secondBlockReducingOperator?: GroupSectionReducingOperator;
+};
+
 export function updateCohortGroupSection(
   context: CohortContextData,
   sectionId: string,
-  name?: string,
-  filter?: GroupSectionFilter
+  params: UpdateCohortGroupSectionParams
 ) {
   context.updatePresent((present) => {
     const section = present.groupSections.find(
@@ -392,8 +417,13 @@ export function updateCohortGroupSection(
       );
     }
 
-    section.name = name ?? section.name;
-    section.filter = filter ?? section.filter;
+    section.name = params.name ?? section.name;
+    section.filter = params.filter ?? section.filter;
+    section.operatorValue = params.operatorValue ?? section.operatorValue;
+    section.firstBlockReducingOperator =
+      params.firstBlockReducingOperator ?? section.firstBlockReducingOperator;
+    section.secondBlockReducingOperator =
+      params.secondBlockReducingOperator ?? section.secondBlockReducingOperator;
   });
 }
 

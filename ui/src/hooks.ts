@@ -13,6 +13,7 @@ import {
 } from "featureSet/featureSetContext";
 import { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useIsSecondBlock } from "router";
 
 export class PathError extends Error {}
 
@@ -59,7 +60,9 @@ export function useCohortGroupSectionAndGroup() {
     cohort,
     sectionIndex,
     section,
-    group: section.groups.find((g) => g.id === groupId),
+    group:
+      section.groups.find((g) => g.id === groupId) &&
+      section.secondBlockGroups.find((g) => g.id === groupId),
   };
 }
 
@@ -75,7 +78,9 @@ function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
     cohort?.groupSections?.findIndex((s) => s.id === groupSectionId) ?? -1
   );
   const section = cohort?.groupSections?.[sectionIndex];
-  const group = section?.groups.find((g) => g.id === groupId);
+  const group =
+    section?.groups.find((g) => g.id === groupId) ??
+    section?.secondBlockGroups.find((g) => g.id === groupId);
   if (throwOnUnknown && (!section || !group)) {
     throw new PathError(
       `Unknown section "${groupSectionId}" or group "${groupId}".`
@@ -175,6 +180,8 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   const cohortContext = useContext(CohortContext);
   const featureSetContext = useContext(FeatureSetContext);
 
+  const secondBlock = useIsSecondBlock();
+
   if (cohort && section) {
     if (!cohortContext) {
       throw new Error("Null cohort context when updating a cohort criteria.");
@@ -183,10 +190,15 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
     if (newCriteria) {
       return (data: string) => {
         if (newCriteria) {
-          insertCohortCriteria(cohortContext, section.id, {
-            ...newCriteria,
-            data: data,
-          });
+          insertCohortCriteria(
+            cohortContext,
+            section.id,
+            {
+              ...newCriteria,
+              data: data,
+            },
+            secondBlock
+          );
         }
       };
     }
