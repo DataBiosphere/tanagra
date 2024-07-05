@@ -31,6 +31,7 @@ export type UIConfiguration = {
 };
 
 export type FeatureConfig = {
+  enableInactivityTracker?: boolean;
   disableExportButton?: boolean;
   overrideExportButton?: boolean;
 };

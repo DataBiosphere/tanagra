@@ -210,6 +210,26 @@ export function useIsSecondBlock() {
   return !!useLocation().pathname.match(/\/second\//);
 }
 
+export function useActivityListener() {
+  const listener = useCallback(
+    () =>
+      window.parent.postMessage(
+        "USER_ACTIVITY_DETECTED",
+        process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
+      ),
+    []
+  );
+
+  const activityEvents = ["mousedown", "keypress", "scroll", "click"];
+
+  useEffect(() => {
+    activityEvents.forEach((e) => window.addEventListener(e, listener));
+    return () => {
+      activityEvents.forEach((e) => window.removeEventListener(e, listener));
+    };
+  }, [listener]);
+}
+
 function useMessageListener<T>(message: string, callback: (event: T) => void) {
   const listener = useCallback(
     (event) => {
