@@ -1,5 +1,5 @@
 {
-  "name": "icd9",
+  "name": "phewas",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64" },
@@ -11,15 +11,13 @@
   ],
   "idAttribute": "id",
   "textSearch": {
-    "attributes": [ "id", "name", "concept_code" ]
+    "attributes": [ "id", "name", "code" ]
   },
   "hierarchies": [
     {
       "childParentIdPairsSqlFile": "childParent.sql",
       "childIdFieldName": "child",
       "parentIdFieldName": "parent",
-      "rootNodeIdsSqlFile": "rootNode.sql",
-      "rootIdFieldName": "id",
       "maxDepth": 10,
       "keepOrphanNodes": true
     }

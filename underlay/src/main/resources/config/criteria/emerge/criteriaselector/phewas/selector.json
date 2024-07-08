@@ -1,6 +1,6 @@
 {
-  "name": "tanagra-icd9",
-  "displayName": "ICD-9",
+  "name": "tanagra-phewas",
+  "displayName": "PheWAS",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
   "display": {
@@ -10,7 +10,7 @@
   "filterBuilder": "core.EntityGroupFilterBuilder",
   "plugin": "entityGroup",
   "pluginConfig": null,
-  "pluginConfigFile": "icd9.json",
+  "pluginConfigFile": "phewas.json",
   "modifiers": [
     {
       "name": "ageAtOccurrence",

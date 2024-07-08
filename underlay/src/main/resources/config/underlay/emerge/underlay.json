@@ -14,7 +14,8 @@
     "emerge/lab",
     "emerge/labOccurrence",
     "emerge/drug",
-    "emerge/drugOccurrence"
+    "emerge/drugOccurrence",
+    "emerge/phewas"
   ],
   "groupItemsEntityGroups": [
   ],
@@ -24,7 +25,8 @@
     "emerge/icd10cmPerson",
     "emerge/icd10pcsPerson",
     "emerge/labPerson",
-    "emerge/drugPerson"
+    "emerge/drugPerson",
+    "emerge/phewasPerson"
   ],
   "criteriaSelectors": [
     "emerge/gender",
@@ -44,7 +46,8 @@
     "emerge/icd10pcs",
     "emerge/outputUnfiltered",
     "emerge/lab",
-    "emerge/drug"
+    "emerge/drug",
+    "emerge/phewas"
   ],
   "prepackagedDataFeatures": [
     "emerge/_demographics"
