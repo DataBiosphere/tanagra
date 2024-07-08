@@ -210,18 +210,27 @@ export function useIsSecondBlock() {
   return !!useLocation().pathname.match(/\/second\//);
 }
 
+function debounce(callback: () => void, delay: number) {
+  let timer: NodeJS.Timeout;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      callback();
+    }, delay);
+  };
+}
+
 export function useActivityListener() {
-  const listener = useCallback(
+  const listener = debounce(
     () =>
       window.parent.postMessage(
         "USER_ACTIVITY_DETECTED",
         process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
       ),
-    []
+    1000
   );
 
   const activityEvents = ["mousedown", "keypress", "scroll", "click"];
-
   useEffect(() => {
     activityEvents.forEach((e) => window.addEventListener(e, listener));
     return () => {
