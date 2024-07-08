@@ -1,8 +1,9 @@
 import BarChartIcon from "@mui/icons-material/BarChart";
 import TableViewIcon from "@mui/icons-material/TableView";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import { generateCohortFilter } from "cohort";
-import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { VALUE_SUFFIX } from "data/configuration";
@@ -45,7 +46,7 @@ export function VizContainer(props: VizContainerProps) {
   const studyId = useStudyId();
   const studySource = useStudySource();
 
-  const [showTable, setShowTable] = useState(false);
+  const [view, setView] = useState("plugin");
 
   const config = useMemo(
     (): ParsedConfig => ({
@@ -78,6 +79,13 @@ export function VizContainer(props: VizContainerProps) {
       }))
   );
 
+  const handleViewChange = (
+    event: React.MouseEvent<HTMLElement>,
+    view: string | null
+  ) => {
+    setView(view ?? "plugin");
+  };
+
   return (
     <GridBoxPaper
       sx={{
@@ -90,19 +98,24 @@ export function VizContainer(props: VizContainerProps) {
       <Loading status={dataState} immediate>
         <GridLayout rows>
           <GridLayout cols={3} fillCol={1} rowAlign="middle">
-            <Typography variant="body2em">{config.title}</Typography>
+            <Typography variant="body1em">{config.title}</Typography>
             <GridBox />
-            <Checkbox
+            <ToggleButtonGroup
+              value={view}
+              exclusive
               size="small"
-              fontSize="inherit"
-              checked={showTable}
-              onChange={() => setShowTable(!showTable)}
-              checkedIcon={<BarChartIcon />}
-              uncheckedIcon={<TableViewIcon />}
-            />
+              onChange={handleViewChange}
+            >
+              <ToggleButton value="plugin">
+                <BarChartIcon />
+              </ToggleButton>
+              <ToggleButton value="table">
+                <TableViewIcon />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </GridLayout>
           {dataState.data?.data?.length ? (
-            showTable ? (
+            view === "table" ? (
               dataState.data.tablePlugin.render(dataState.data.data ?? [])
             ) : (
               dataState.data.plugin.render(dataState.data.data ?? [])
