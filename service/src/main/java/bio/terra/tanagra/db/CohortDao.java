@@ -5,6 +5,7 @@ import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -68,7 +69,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria group section.
   private static final String CRITERIA_GROUP_SECTION_SELECT_SQL =
-      "SELECT cohort_revision_id, id, display_name, operator, is_excluded FROM criteria_group_section";
+      "SELECT cohort_revision_id, id, display_name, operator, is_excluded, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value FROM criteria_group_section";
   private static final RowMapper<Pair<String, CohortRevision.CriteriaGroupSection.Builder>>
       CRITERIA_GROUP_SECTION_ROW_MAPPER =
           (rs, rowNum) ->
@@ -79,18 +80,36 @@ public class CohortDao {
                       .displayName(rs.getString("display_name"))
                       .operator(
                           BooleanAndOrFilter.LogicalOperator.valueOf(rs.getString("operator")))
-                      .setIsExcluded(rs.getBoolean("is_excluded")));
+                      .setIsExcluded(rs.getBoolean("is_excluded"))
+                      .firstConditionReducingOperator(
+                          rs.getString("first_condition_reducing_operator") == null
+                              ? null
+                              : ReducingOperator.valueOf(
+                                  rs.getString("first_condition_reducing_operator")))
+                      .secondConditionReducingOperator(
+                          rs.getString("second_condition_reducing_operator") == null
+                              ? null
+                              : ReducingOperator.valueOf(
+                                  rs.getString("second_condition_reducing_operator")))
+                      .joinOperator(
+                          rs.getString("join_operator") == null
+                              ? null
+                              : JoinOperator.valueOf(rs.getString("join_operator")))
+                      .joinOperatorValue(rs.getObject("join_operator_value", Integer.class)));
 
   // SQL query and row mapper for reading a criteria group.
   private static final String CRITERIA_GROUP_SELECT_SQL =
-      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name FROM criteria_group";
-  private static final RowMapper<Pair<List<String>, CohortRevision.CriteriaGroup.Builder>>
+      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name, condition_index FROM criteria_group";
+  private static final RowMapper<
+          Pair<Pair<List<String>, Integer>, CohortRevision.CriteriaGroup.Builder>>
       CRITERIA_GROUP_ROW_MAPPER =
           (rs, rowNum) ->
               Pair.of(
-                  List.of(
-                      rs.getString("criteria_group_section_id"),
-                      rs.getString("cohort_revision_id")),
+                  Pair.of(
+                      List.of(
+                          rs.getString("criteria_group_section_id"),
+                          rs.getString("cohort_revision_id")),
+                      rs.getObject("condition_index", Integer.class)),
                   CohortRevision.CriteriaGroup.builder()
                       .id(rs.getString("id"))
                       .displayName(rs.getString("display_name")));
@@ -398,7 +417,7 @@ public class CohortDao {
         jdbcTemplate.query(sql, params, CRITERIA_GROUP_SECTION_ROW_MAPPER);
 
     // Fetch criteria groups. (criteria group section -> criteria group)
-    List<Pair<List<String>, CohortRevision.CriteriaGroup.Builder>> criteriaGroups;
+    List<Pair<Pair<List<String>, Integer>, CohortRevision.CriteriaGroup.Builder>> criteriaGroups;
     if (criteriaGroupSections.isEmpty()) {
       criteriaGroups = Collections.emptyList();
     } else {
@@ -507,7 +526,7 @@ public class CohortDao {
                     cg -> {
                       List<String> uniqueId = new ArrayList<>();
                       uniqueId.add(cg.getValue().getId());
-                      uniqueId.addAll(cg.getKey());
+                      uniqueId.addAll(cg.getKey().getLeft());
                       return uniqueId;
                     },
                     Pair::getValue));
@@ -529,10 +548,19 @@ public class CohortDao {
                       return uniqueId;
                     },
                     Pair::getValue));
-    for (Pair<List<String>, CohortRevision.CriteriaGroup.Builder> pair : criteriaGroups) {
-      List<String> criteriaGroupSectionId = pair.getKey();
+    for (Pair<Pair<List<String>, Integer>, CohortRevision.CriteriaGroup.Builder> pair :
+        criteriaGroups) {
+      List<String> criteriaGroupSectionId = pair.getKey().getLeft();
+      Integer criteriaGroupSectionConditionIndex = pair.getKey().getRight();
       CohortRevision.CriteriaGroup criteriaGroup = pair.getValue().build();
-      criteriaGroupSectionsMap.get(criteriaGroupSectionId).addCriteriaGroup(criteriaGroup);
+
+      if (criteriaGroupSectionConditionIndex == null || criteriaGroupSectionConditionIndex == 0) {
+        criteriaGroupSectionsMap.get(criteriaGroupSectionId).addCriteriaGroup(criteriaGroup);
+      } else {
+        criteriaGroupSectionsMap
+            .get(criteriaGroupSectionId)
+            .addSecondConditionCriteriaGroup(criteriaGroup);
+      }
     }
 
     // Put criteria group sections into their respective cohort revisions.
@@ -587,52 +615,44 @@ public class CohortDao {
               .addValue("id", cgs.getId())
               .addValue("display_name", cgs.getDisplayName())
               .addValue("operator", cgs.getOperator().name())
+              .addValue(
+                  "first_condition_reducing_operator",
+                  cgs.getFirstConditionReducingOperator() == null
+                      ? null
+                      : cgs.getFirstConditionReducingOperator().name())
+              .addValue(
+                  "second_condition_reducing_operator",
+                  cgs.getSecondConditionRedcuingOperator() == null
+                      ? null
+                      : cgs.getSecondConditionRedcuingOperator().name())
+              .addValue(
+                  "join_operator",
+                  cgs.getJoinOperator() == null ? null : cgs.getJoinOperator().name())
+              .addValue("join_operator_value", cgs.getJoinOperatorValue())
               .addValue("is_excluded", cgs.isExcluded())
               .addValue("list_index", cgsListIndex));
 
-      for (int cgListIndex = 0; cgListIndex < cgs.getCriteriaGroups().size(); cgListIndex++) {
-        CohortRevision.CriteriaGroup cg = cgs.getCriteriaGroups().get(cgListIndex);
-        groupParamSets.add(
-            new MapSqlParameterSource()
-                .addValue("cohort_revision_id", cohortRevisionId)
-                .addValue("criteria_group_section_id", cgs.getId())
-                .addValue("id", cg.getId())
-                .addValue("display_name", cg.getDisplayName())
-                .addValue("list_index", cgListIndex));
-
-        for (int cListIndex = 0; cListIndex < cg.getCriteria().size(); cListIndex++) {
-          Criteria c = cg.getCriteria().get(cListIndex);
-          criteriaParamSets.add(
-              new MapSqlParameterSource()
-                  .addValue("cohort_revision_id", cohortRevisionId)
-                  .addValue("criteria_group_section_id", cgs.getId())
-                  .addValue("criteria_group_id", cg.getId())
-                  .addValue("id", c.getId())
-                  .addValue("display_name", c.getDisplayName())
-                  .addValue("plugin_name", c.getPluginName())
-                  .addValue("plugin_version", c.getPluginVersion())
-                  .addValue("selector_or_modifier_name", c.getSelectorOrModifierName())
-                  .addValue("selection_data", c.getSelectionData())
-                  .addValue("ui_config", c.getUiConfig())
-                  .addValue("list_index", cListIndex));
-
-          for (Map.Entry<String, String> t : c.getTags().entrySet()) {
-            tagParamSets.add(
-                new MapSqlParameterSource()
-                    .addValue("cohort_revision_id", cohortRevisionId)
-                    .addValue("criteria_group_section_id", cgs.getId())
-                    .addValue("criteria_group_id", cg.getId())
-                    .addValue("criteria_id", c.getId())
-                    .addValue("key", t.getKey())
-                    .addValue("value", t.getValue()));
-          }
-        }
-      }
+      buildParamsForUpdateCriteriaHelper(
+          cohortRevisionId,
+          cgs.getId(),
+          cgs.getCriteriaGroups(),
+          0,
+          groupParamSets,
+          criteriaParamSets,
+          tagParamSets);
+      buildParamsForUpdateCriteriaHelper(
+          cohortRevisionId,
+          cgs.getId(),
+          cgs.getSecondConditionCriteriaGroups(),
+          1,
+          groupParamSets,
+          criteriaParamSets,
+          tagParamSets);
     }
 
     sql =
-        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, list_index) "
-            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :list_index)";
+        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
+            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
     LOGGER.debug("CREATE criteria_group_section: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -642,8 +662,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, list_index) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :list_index)";
+        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index)";
     LOGGER.debug("CREATE criteria_group: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -671,5 +691,54 @@ public class CohortDao {
                 jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
             .sum();
     LOGGER.debug("CREATE criteria_tag rowsAffected = {}", rowsAffected);
+  }
+
+  private void buildParamsForUpdateCriteriaHelper(
+      String cohortRevisionId,
+      String criteriaGroupSectionId,
+      List<CohortRevision.CriteriaGroup> criteriaGroups,
+      Integer criteriaGroupConditionIndex,
+      List<MapSqlParameterSource> groupParamSets,
+      List<MapSqlParameterSource> criteriaParamSets,
+      List<MapSqlParameterSource> tagParamSets) {
+    for (int cgListIndex = 0; cgListIndex < criteriaGroups.size(); cgListIndex++) {
+      CohortRevision.CriteriaGroup cg = criteriaGroups.get(cgListIndex);
+      groupParamSets.add(
+          new MapSqlParameterSource()
+              .addValue("cohort_revision_id", cohortRevisionId)
+              .addValue("criteria_group_section_id", criteriaGroupSectionId)
+              .addValue("id", cg.getId())
+              .addValue("display_name", cg.getDisplayName())
+              .addValue("list_index", cgListIndex)
+              .addValue("condition_index", criteriaGroupConditionIndex));
+
+      for (int cListIndex = 0; cListIndex < cg.getCriteria().size(); cListIndex++) {
+        Criteria c = cg.getCriteria().get(cListIndex);
+        criteriaParamSets.add(
+            new MapSqlParameterSource()
+                .addValue("cohort_revision_id", cohortRevisionId)
+                .addValue("criteria_group_section_id", criteriaGroupSectionId)
+                .addValue("criteria_group_id", cg.getId())
+                .addValue("id", c.getId())
+                .addValue("display_name", c.getDisplayName())
+                .addValue("plugin_name", c.getPluginName())
+                .addValue("plugin_version", c.getPluginVersion())
+                .addValue("selector_or_modifier_name", c.getSelectorOrModifierName())
+                .addValue("selection_data", c.getSelectionData())
+                .addValue("ui_config", c.getUiConfig())
+                .addValue("list_index", cListIndex));
+
+        for (Map.Entry<String, String> t : c.getTags().entrySet()) {
+          tagParamSets.add(
+              new MapSqlParameterSource()
+                  .addValue("cohort_revision_id", cohortRevisionId)
+                  .addValue("criteria_group_section_id", criteriaGroupSectionId)
+                  .addValue("criteria_group_id", cg.getId())
+                  .addValue("criteria_id", c.getId())
+                  .addValue("key", t.getKey())
+                  .addValue("value", t.getValue()));
+        }
+      }
+    }
   }
 }

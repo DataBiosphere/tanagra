@@ -2,6 +2,8 @@ package bio.terra.tanagra.service;
 
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_PROCEDURE;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_TEMPORAL_DURING_SAME_ENCOUNTER;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_TEMPORAL_WITHIN_NUM_DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -294,7 +296,7 @@ public class CohortServiceTest {
     Cohort updatedCohort2 =
         cohortService.updateCohort(
             study1.getId(),
-            cohort1.getId(),
+            cohort2.getId(),
             userEmail,
             null,
             null,
@@ -307,5 +309,41 @@ public class CohortServiceTest {
     assertEquals(
         List.of(CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION),
         updatedCohort2.getMostRecentRevision().getSections());
+
+    // Create cohort3 with temporal criteria group sections.
+    Cohort cohort3 =
+        cohortService.createCohort(
+            study1.getId(),
+            Cohort.builder()
+                .underlay(UNDERLAY_NAME)
+                .displayName("cohort 3")
+                .description("third cohort"),
+            userEmail,
+            List.of(CRITERIA_GROUP_SECTION_TEMPORAL_WITHIN_NUM_DAYS));
+    assertNotNull(cohort3);
+    LOGGER.info("Created cohort {} at {}", cohort3.getId(), cohort3.getCreated());
+    assertEquals(1, cohort3.getMostRecentRevision().getSections().size());
+    assertEquals(
+        List.of(CRITERIA_GROUP_SECTION_TEMPORAL_WITHIN_NUM_DAYS),
+        cohort3.getMostRecentRevision().getSections());
+
+    // Update cohort3 criteria only.
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the last modified and created timestamps differ.
+    Cohort updatedCohort3 =
+        cohortService.updateCohort(
+            study1.getId(),
+            cohort3.getId(),
+            userEmail,
+            null,
+            null,
+            List.of(CRITERIA_GROUP_SECTION_TEMPORAL_DURING_SAME_ENCOUNTER));
+    assertNotNull(updatedCohort3);
+    LOGGER.info(
+        "Updated cohort {} at {}", updatedCohort3.getId(), updatedCohort3.getLastModified());
+    assertTrue(updatedCohort3.getLastModified().isAfter(updatedCohort3.getCreated()));
+    assertEquals(1, updatedCohort3.getMostRecentRevision().getSections().size());
+    assertEquals(
+        List.of(CRITERIA_GROUP_SECTION_TEMPORAL_DURING_SAME_ENCOUNTER),
+        updatedCohort3.getMostRecentRevision().getSections());
   }
 }

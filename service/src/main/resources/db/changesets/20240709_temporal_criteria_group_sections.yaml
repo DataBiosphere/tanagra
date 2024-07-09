@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: temporal_criteria_group_sections
+      author: marikomedlock
+      dbms: postgresql,mariadb,mysql
+      changes:
+        - addColumn:
+            tableName: criteria_group_section
+            columns:
+              - column:
+                  name: first_condition_reducing_operator
+                  type: ${text.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: second_condition_reducing_operator
+                  type: ${text.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: join_operator
+                  type: ${text.type}
+                  constraints:
+                    nullable: true
+              - column:
+                  name: join_operator_value
+                  type: ${integer.type}
+                  constraints:
+                    nullable: true
+
+        - addColumn:
+            tableName: criteria_group
+            columns:
+              - column:
+                  name: condition_index
+                  type: ${integer.type}
+                  constraints:
+                    nullable: true
