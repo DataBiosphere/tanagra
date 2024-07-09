@@ -1,6 +1,4 @@
 plugins {
-    id 'java'
-    id 'pmd'
     id 'tanagra.java-conventions'
 
     // These plugins are needed to resolve versions of spring dependencies
