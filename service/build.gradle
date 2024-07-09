@@ -1,10 +1,6 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
-    id 'java'
-    id 'java-test-fixtures'
-    id 'maven-publish'
-    id 'pmd'
     id 'tanagra.java-conventions'
 
     id 'com.google.cloud.tools.jib' version '3.1.2'
