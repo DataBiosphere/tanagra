@@ -6,7 +6,7 @@ import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.underlay.Underlay;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
-import java.util.List;
+import java.util.*;
 
 public class TemporalPrimaryFilter extends EntityFilter {
   private final Underlay underlay;
@@ -63,5 +63,35 @@ public class TemporalPrimaryFilter extends EntityFilter {
 
   public List<EntityOutput> getSecondCondition() {
     return secondCondition;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TemporalPrimaryFilter that = (TemporalPrimaryFilter) o;
+    return underlay.equals(that.underlay)
+        && firstConditionReducingOperator == that.firstConditionReducingOperator
+        && firstCondition.equals(that.firstCondition)
+        && joinOperator == that.joinOperator
+        && Objects.equals(joinOperatorValue, that.joinOperatorValue)
+        && secondConditionReducingOperator == that.secondConditionReducingOperator
+        && secondCondition.equals(that.secondCondition);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        underlay,
+        firstConditionReducingOperator,
+        firstCondition,
+        joinOperator,
+        joinOperatorValue,
+        secondConditionReducingOperator,
+        secondCondition);
   }
 }

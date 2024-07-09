@@ -4,8 +4,7 @@ import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass;
-import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
-import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.*;
 import java.util.Map;
 
 public final class Criteria {
@@ -67,6 +66,21 @@ public final class Criteria {
                           .build()))
               .build();
 
+  public static final bio.terra.tanagra.service.artifact.model.Criteria CONDITION_COUNT_GTE_2 =
+      bio.terra.tanagra.service.artifact.model.Criteria.builder()
+          .selectorOrModifierName("startDateGroupByCount")
+          .pluginName("unhinted-value")
+          .pluginVersion(0)
+          .selectionData(
+              serializeToJson(
+                  DTUnhintedValue.UnhintedValue.newBuilder()
+                      .setOperator(
+                          DTUnhintedValue.UnhintedValue.ComparisonOperator
+                              .COMPARISON_OPERATOR_GREATER_THAN_EQUAL)
+                      .setMin(2)
+                      .build()))
+          .build();
+
   public static final bio.terra.tanagra.service.artifact.model.Criteria PROCEDURE_EQ_AMPUTATION =
       bio.terra.tanagra.service.artifact.model.Criteria.builder()
           .selectorOrModifierName("tanagra-procedures")
@@ -83,6 +97,24 @@ public final class Criteria {
                               .build())
                       .build()))
           .build();
+  public static final bio.terra.tanagra.service.artifact.model.Criteria
+      PROCEDURE_AGE_AT_OCCURRENCE_EQ_45 =
+          bio.terra.tanagra.service.artifact.model.Criteria.builder()
+              .selectorOrModifierName("ageAtOccurrence")
+              .pluginName("attribute")
+              .pluginVersion(0)
+              .selectionData(
+                  serializeToJson(
+                      DTAttribute.Attribute.newBuilder()
+                          .addSelected(
+                              DTAttribute.Attribute.Selection.newBuilder()
+                                  .setValue(
+                                      ValueOuterClass.Value.newBuilder().setInt64Value(45L).build())
+                                  .setName("age_at_occurrence")
+                                  .build())
+                          .build()))
+              .build();
+
   public static final bio.terra.tanagra.service.artifact.model.Criteria
       DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE =
           bio.terra.tanagra.service.artifact.model.Criteria.builder()

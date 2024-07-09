@@ -20,22 +20,22 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_GE
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_CONDITION_EXCLUDED;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_EMPTY;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_GENDER_AND_CONDITION;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_NON_TEMPORAL_GROUPS_IN_SECOND_CONDITION;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_MULTIPLE_GROUPS_PER_CONDITION;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_NO_SUPPORTED_GROUPS_IN_SECOND_CONDITION;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_SINGLE_GROUP_PER_CONDITION;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_UNSUPPORTED_CRITERIA_SELECTOR;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_UNSUPPORTED_MODIFIER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.filter.BooleanNotFilter;
-import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
-import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
-import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
-import bio.terra.tanagra.api.filter.RelationshipFilter;
-import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.filter.*;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.exception.*;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
@@ -44,6 +44,7 @@ import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
+import jakarta.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,16 +80,17 @@ public class FilterBuilderServiceTest {
   void criteriaGroup() {
     // No criteria = null filter on primary entity.
     EntityFilter cohortFilter =
-        filterBuilderService.buildFilterForCriteriaGroup(UNDERLAY_NAME, CG_EMPTY);
+        filterBuilderService.buildCohortFilterForCriteriaGroup(UNDERLAY_NAME, CG_EMPTY);
     assertNull(cohortFilter);
 
     // Single criteria = no modifiers.
-    cohortFilter = filterBuilderService.buildFilterForCriteriaGroup(UNDERLAY_NAME, CG_GENDER);
+    cohortFilter = filterBuilderService.buildCohortFilterForCriteriaGroup(UNDERLAY_NAME, CG_GENDER);
     assertEquals(genderEqWomanCohortFilter(), cohortFilter);
 
     // Multiple criteria = with modifiers.
     cohortFilter =
-        filterBuilderService.buildFilterForCriteriaGroup(UNDERLAY_NAME, CG_CONDITION_WITH_MODIFIER);
+        filterBuilderService.buildCohortFilterForCriteriaGroup(
+            UNDERLAY_NAME, CG_CONDITION_WITH_MODIFIER);
     assertEquals(conditionWithModifierCohortFilter(), cohortFilter);
   }
 
@@ -109,6 +111,43 @@ public class FilterBuilderServiceTest {
     cohortFilter =
         filterBuilderService.buildFilterForCriteriaGroupSection(
             UNDERLAY_NAME, CGS_GENDER_AND_CONDITION);
+    assertEquals(genderAndConditionWithModifierCohortFilter(), cohortFilter);
+
+    // Temporal section, single criteria group in each condition.
+    cohortFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSection(
+            UNDERLAY_NAME, CGS_TEMPORAL_SINGLE_GROUP_PER_CONDITION);
+    assertEquals(temporalSingleGroupPerCondition(), cohortFilter);
+
+    // Temporal section, multiple criteria groups in each condition.
+    cohortFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSection(
+            UNDERLAY_NAME, CGS_TEMPORAL_MULTIPLE_GROUPS_PER_CONDITION);
+    assertEquals(temporalMultipleGroupsPerCondition(), cohortFilter);
+
+    // Temporal section, criteria selectors that don't support temporal queries.
+    cohortFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSection(
+            UNDERLAY_NAME, CGS_TEMPORAL_UNSUPPORTED_CRITERIA_SELECTOR);
+    assertEquals(temporalSingleGroupPerCondition(), cohortFilter);
+
+    // Temporal section, modifiers that don't support temporal queries.
+    cohortFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSection(
+            UNDERLAY_NAME, CGS_TEMPORAL_UNSUPPORTED_MODIFIER);
+    assertEquals(temporalSingleGroupPerCondition(), cohortFilter);
+
+    // Temporal section, no supported criteria groups in second condition.
+    assertThrows(
+        InvalidQueryException.class,
+        () ->
+            filterBuilderService.buildFilterForCriteriaGroupSection(
+                UNDERLAY_NAME, CGS_TEMPORAL_NO_SUPPORTED_GROUPS_IN_SECOND_CONDITION));
+
+    // Non-temporal section, criteria groups in both temporal conditions.
+    cohortFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSection(
+            UNDERLAY_NAME, CGS_NON_TEMPORAL_GROUPS_IN_SECOND_CONDITION);
     assertEquals(genderAndConditionWithModifierCohortFilter(), cohortFilter);
   }
 
@@ -405,6 +444,54 @@ public class FilterBuilderServiceTest {
         List.of(genderEqWomanCohortFilter(), conditionWithModifierCohortFilter()));
   }
 
+  private EntityFilter temporalSingleGroupPerCondition() {
+    List<EntityOutput> firstCondition =
+        List.of(
+            EntityOutput.filtered(
+                underlay.getEntity("conditionOccurrence"),
+                conditionEqType2DiabetesDataFeatureFilter()));
+    List<EntityOutput> secondCondition =
+        List.of(
+            EntityOutput.filtered(
+                underlay.getEntity("procedureOccurrence"),
+                procedureEqAmputationDataFeatureFilter()));
+    return new TemporalPrimaryFilter(
+        underlay,
+        ReducingOperator.FIRST_MENTION_OF,
+        firstCondition,
+        JoinOperator.NUM_DAYS_BEFORE,
+        10,
+        null,
+        secondCondition);
+  }
+
+  private EntityFilter temporalMultipleGroupsPerCondition() {
+    List<EntityOutput> firstCondition =
+        List.of(
+            EntityOutput.filtered(
+                underlay.getEntity("conditionOccurrence"),
+                conditionEqType2DiabetesDataFeatureFilter()),
+            EntityOutput.filtered(
+                underlay.getEntity("procedureOccurrence"),
+                procedureEqAmputationAgeAtOccurrenceEq45DataFeatureFilter()));
+    List<EntityOutput> secondCondition =
+        List.of(
+            EntityOutput.filtered(
+                underlay.getEntity("procedureOccurrence"),
+                procedureEqAmputationDataFeatureFilter()),
+            EntityOutput.filtered(
+                underlay.getEntity("conditionOccurrence"),
+                conditionEqType2DiabetesAgeAtOccurrenceEq65DataFeatureFilter()));
+    return new TemporalPrimaryFilter(
+        underlay,
+        ReducingOperator.LAST_MENTION_OF,
+        firstCondition,
+        JoinOperator.DURING_SAME_ENCOUNTER,
+        null,
+        ReducingOperator.FIRST_MENTION_OF,
+        secondCondition);
+  }
+
   private EntityFilter conditionExcludedAndGenderCohortFilter() {
     return new BooleanAndOrFilter(
         BooleanAndOrFilter.LogicalOperator.AND,
@@ -426,6 +513,19 @@ public class FilterBuilderServiceTest {
         expectedCriteriaSubFilter);
   }
 
+  private EntityFilter conditionEqType2DiabetesAgeAtOccurrenceEq65DataFeatureFilter() {
+    EntityFilter expectedAgeAtOccurrenceSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("conditionOccurrence"),
+            underlay.getEntity("conditionOccurrence").getAttribute("age_at_occurrence"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(65L));
+    return new BooleanAndOrFilter(
+        BooleanAndOrFilter.LogicalOperator.AND,
+        List.of(conditionEqType2DiabetesDataFeatureFilter(), expectedAgeAtOccurrenceSubFilter));
+  }
+
   private EntityFilter procedureEqAmputationDataFeatureFilter() {
     EntityFilter expectedCriteriaSubFilter =
         new HierarchyHasAncestorFilter(
@@ -439,6 +539,19 @@ public class FilterBuilderServiceTest {
         underlay.getEntity("procedureOccurrence"),
         null,
         expectedCriteriaSubFilter);
+  }
+
+  private EntityFilter procedureEqAmputationAgeAtOccurrenceEq45DataFeatureFilter() {
+    EntityFilter expectedAgeAtOccurrenceSubFilter =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("procedureOccurrence"),
+            underlay.getEntity("procedureOccurrence").getAttribute("age_at_occurrence"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(45L));
+    return new BooleanAndOrFilter(
+        BooleanAndOrFilter.LogicalOperator.AND,
+        List.of(procedureEqAmputationDataFeatureFilter(), expectedAgeAtOccurrenceSubFilter));
   }
 
   private EntityFilter procCondGendCohortFilter() {

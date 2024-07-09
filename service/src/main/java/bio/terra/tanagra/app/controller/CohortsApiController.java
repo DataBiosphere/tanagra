@@ -149,7 +149,7 @@ public class CohortsApiController implements CohortsApi {
     EntityFilter cohortFilter;
     if (body.getCriteriaGroupId() != null) {
       cohortFilter =
-          filterBuilderService.buildFilterForCriteriaGroup(
+          filterBuilderService.buildCohortFilterForCriteriaGroup(
               cohort.getUnderlay(),
               cohort
                   .getMostRecentRevision()

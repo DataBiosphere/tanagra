@@ -559,7 +559,10 @@ public final class Underlay {
             }
             modifiers.add(
                 new CriteriaSelector.Modifier(
-                    szModifier.name, szModifier.plugin, modifierPluginConfig));
+                    szModifier.name,
+                    szModifier.supportsTemporalQueries,
+                    szModifier.plugin,
+                    modifierPluginConfig));
           });
     }
 
@@ -567,6 +570,7 @@ public final class Underlay {
         szCriteriaSelector.name,
         szCriteriaSelector.isEnabledForCohorts,
         szCriteriaSelector.isEnabledForDataFeatureSets,
+        szCriteriaSelector.supportsTemporalQueries,
         szCriteriaSelector.filterBuilder,
         szCriteriaSelector.plugin,
         pluginConfig,
