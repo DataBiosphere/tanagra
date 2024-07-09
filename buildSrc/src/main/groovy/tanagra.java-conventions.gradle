@@ -8,9 +8,12 @@
 //
 
 plugins {
+    id 'java'
     id 'idea'
+    id 'pmd'
     id 'jacoco'
     id 'maven-publish'
+    id 'java-test-fixtures'
 
     // Other tanagra plugin conventions.
     id 'tanagra.spotless-conventions'
