@@ -187,10 +187,6 @@ tasks.withType(Test).configureEach {
     }
 }
 
-bootJar {
-    enabled = false
-}
-
 String includeDir = "$projectDir/gradle"
 apply from: "${includeDir}/jib.gradle"
 apply from: "${includeDir}/open-api.gradle"
