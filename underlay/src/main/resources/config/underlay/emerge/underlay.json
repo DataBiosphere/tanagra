@@ -46,7 +46,8 @@
     "emerge/icd10pcs",
     "emerge/lab",
     "emerge/drug",
-    "emerge/phewas"
+    "emerge/phewas",
+    "emerge/outputUnfiltered"
   ],
   "visualizations": [
     "omop/gender",
