@@ -53,6 +53,9 @@
     "emerge/lab",
     "emerge/drug",
     "emerge/phewas",
+    "emerge/bmi",
+    "emerge/height",
+    "emerge/weight",
     "emerge/outputUnfiltered"
   ],
   "visualizations": [
