@@ -138,7 +138,7 @@ function BarViz(props: BarVizProps) {
             interval={0}
             width={160}
             tick={(props) => (
-              <Text {...props} maxLines={1}>
+              <Text {...props} maxLines={1} width={156}>
                 {props.payload.value}
               </Text>
             )}

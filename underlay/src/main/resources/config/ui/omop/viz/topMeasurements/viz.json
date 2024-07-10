@@ -1,0 +1,6 @@
+{
+  "name": "topMeasurements",
+  "title": "Top 10 labs",
+  "dataConfigFile": "topMeasurements.json",
+  "plugin": "core/bar"
+}

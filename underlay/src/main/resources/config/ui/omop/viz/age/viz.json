@@ -1,0 +1,6 @@
+{
+  "name": "age",
+  "title": "Age",
+  "dataConfigFile": "age.json",
+  "plugin": "core/bar"
+}

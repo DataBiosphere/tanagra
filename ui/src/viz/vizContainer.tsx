@@ -137,8 +137,11 @@ export function VizContainer(props: VizContainerProps) {
 // no longer determine these relationships. Hardcode them here until viz query
 // generation also moves to the backend.
 const selectorToEntity: { [key: string]: string } = {
-  outputUnfiltered: "person",
-  condition: "conditionOccurrence",
+  demographics: "person",
+  conditions: "conditionOccurrence",
+  procedures: "procedureOccurrence",
+  ingredients: "ingredientOccurrence",
+  measurements: "measurementOccurrence",
 };
 
 async function fetchVizData(

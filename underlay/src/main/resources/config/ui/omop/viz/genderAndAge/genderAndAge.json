@@ -6,6 +6,13 @@
       "attributes": [
         {
           "attribute": "gender"
+        },
+        {
+          "attribute": "age",
+          "numericBucketing": {
+            "thresholds": [18, 45, 65],
+            "includeGreater": true
+          }
         }
       ]
     }

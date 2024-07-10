@@ -143,8 +143,17 @@
     "aouSR2023Q3R2/_fitbit_sleep_level_id"
   ],
   "visualizations": [
+    "omop/genderAndAge",
+    "omop/raceAndAge",
+    "aou/sexAtBirthAndAge",
+    "omop/age",
+    "omop/race",
     "omop/gender",
-    "omop/raceAndAge"
+    "aou/sexAtBirth",
+    "omop/topConditions",
+    "omop/topProcedures",
+    "omop/topIngredients",
+    "omop/topMeasurements"
   ],
   "metadata": {
     "displayName": "All Of Us Synthetic Dataset Controlled Tier",

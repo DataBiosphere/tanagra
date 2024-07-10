@@ -1,6 +1,6 @@
 {
   "name": "gender",
-  "title": "Gender Identity",
+  "title": "Gender identity",
   "dataConfigFile": "gender.json",
   "plugin": "core/bar"
 }

@@ -1,11 +1,11 @@
 {
   "sources": [
     {
-      "criteriaSelector": "conditions",
+      "criteriaSelector": "procedures",
       "joins": [],
       "attributes": [
         {
-          "attribute": "condition",
+          "attribute": "procedure",
           "sortType": "VALUE",
           "sortDescending": true,
           "limit": 10
