@@ -6,7 +6,7 @@
     { "name": "person_id", "dataType": "INT64" },
     { "name": "standard_code", "dataType": "STRING"},
     { "name": "icd9", "dataType": "INT64", "valueFieldName": "icd9_concept_id", "displayFieldName": "icd9_concept_name" },
-    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100 }
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 1, "displayHintRangeMax": 120 }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "icd9" ]

@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-weight",
+  "displayName": "Weight",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Vitals",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "weight.json",
+  "modifiers": null
+}

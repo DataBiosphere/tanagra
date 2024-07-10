@@ -1,0 +1,9 @@
+{
+  "entity": "weight",
+  "valueConfigs": [
+    {
+      "attribute": "value_numeric",
+      "unit": "kg"
+    }
+  ]
+}
