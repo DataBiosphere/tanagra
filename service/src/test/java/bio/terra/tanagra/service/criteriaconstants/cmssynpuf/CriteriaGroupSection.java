@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.criteriaconstants.cmssynpuf;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import java.util.List;
 
@@ -40,4 +41,35 @@ public final class CriteriaGroupSection {
           .operator(BooleanAndOrFilter.LogicalOperator.AND)
           .setIsExcluded(true)
           .build();
+
+  public static final CohortRevision.CriteriaGroupSection
+      CRITERIA_GROUP_SECTION_TEMPORAL_WITHIN_NUM_DAYS =
+          CohortRevision.CriteriaGroupSection.builder()
+              .displayName("temporal section")
+              .criteriaGroups(List.of(CriteriaGroup.CRITERIA_GROUP_CONDITION))
+              .secondConditionCriteriaGroups(List.of(CriteriaGroup.CRITERIA_GROUP_PROCEDURE))
+              .operator(BooleanAndOrFilter.LogicalOperator.OR)
+              .firstConditionReducingOperator(ReducingOperator.FIRST_MENTION_OF)
+              .secondConditionReducingOperator(ReducingOperator.LAST_MENTION_OF)
+              .joinOperator(JoinOperator.WITHIN_NUM_DAYS)
+              .joinOperatorValue(5)
+              .setIsExcluded(false)
+              .build();
+
+  public static final CohortRevision.CriteriaGroupSection
+      CRITERIA_GROUP_SECTION_TEMPORAL_DURING_SAME_ENCOUNTER =
+          CohortRevision.CriteriaGroupSection.builder()
+              .displayName("temporal section")
+              .criteriaGroups(
+                  List.of(
+                      CriteriaGroup.CRITERIA_GROUP_CONDITION, CriteriaGroup.CRITERIA_GROUP_GENDER))
+              .secondConditionCriteriaGroups(
+                  List.of(CriteriaGroup.CRITERIA_GROUP_AGE, CriteriaGroup.CRITERIA_GROUP_PROCEDURE))
+              .operator(BooleanAndOrFilter.LogicalOperator.OR)
+              .firstConditionReducingOperator(ReducingOperator.FIRST_MENTION_OF)
+              .secondConditionReducingOperator(null)
+              .joinOperator(JoinOperator.DURING_SAME_ENCOUNTER)
+              .joinOperatorValue(null)
+              .setIsExcluded(false)
+              .build();
 }

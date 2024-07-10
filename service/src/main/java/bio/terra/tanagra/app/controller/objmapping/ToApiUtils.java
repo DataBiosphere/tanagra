@@ -10,29 +10,9 @@ import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.list.ListInstance;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
-import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.ValueDisplay;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.generated.model.ApiAnnotationValue;
-import bio.terra.tanagra.generated.model.ApiAttribute;
-import bio.terra.tanagra.generated.model.ApiCohort;
-import bio.terra.tanagra.generated.model.ApiCriteria;
-import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
-import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
-import bio.terra.tanagra.generated.model.ApiDataType;
-import bio.terra.tanagra.generated.model.ApiInstance;
-import bio.terra.tanagra.generated.model.ApiInstanceCount;
-import bio.terra.tanagra.generated.model.ApiInstanceCountList;
-import bio.terra.tanagra.generated.model.ApiInstanceHierarchyFields;
-import bio.terra.tanagra.generated.model.ApiInstanceListResult;
-import bio.terra.tanagra.generated.model.ApiInstanceRelationshipFields;
-import bio.terra.tanagra.generated.model.ApiLiteral;
-import bio.terra.tanagra.generated.model.ApiLiteralValueUnion;
-import bio.terra.tanagra.generated.model.ApiProperties;
-import bio.terra.tanagra.generated.model.ApiPropertyKeyValue;
-import bio.terra.tanagra.generated.model.ApiStudy;
-import bio.terra.tanagra.generated.model.ApiUnderlaySummary;
-import bio.terra.tanagra.generated.model.ApiValueDisplay;
+import bio.terra.tanagra.generated.model.*;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -118,17 +98,37 @@ public final class ToApiUtils {
 
   public static ApiCriteriaGroupSection toApiObject(
       CohortRevision.CriteriaGroupSection criteriaGroupSection) {
+    ApiCriteriaGroupSection.OperatorEnum operator =
+        criteriaGroupSection.getJoinOperator() == null
+            ? ApiCriteriaGroupSection.OperatorEnum.valueOf(
+                criteriaGroupSection.getOperator().name())
+            : ApiCriteriaGroupSection.OperatorEnum.valueOf(
+                criteriaGroupSection.getJoinOperator().name());
+
     return new ApiCriteriaGroupSection()
         .id(criteriaGroupSection.getId())
         .displayName(criteriaGroupSection.getDisplayName())
-        .operator(
-            ApiCriteriaGroupSection.OperatorEnum.fromValue(
-                criteriaGroupSection.getOperator().name()))
-        .excluded(criteriaGroupSection.isExcluded())
         .criteriaGroups(
             criteriaGroupSection.getCriteriaGroups().stream()
                 .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()))
+        .secondBlockCriteriaGroups(
+            criteriaGroupSection.getSecondConditionCriteriaGroups().stream()
+                .map(ToApiUtils::toApiObject)
+                .collect(Collectors.toList()))
+        .operator(operator)
+        .operatorValue(criteriaGroupSection.getJoinOperatorValue())
+        .firstBlockReducingOperator(
+            toApiObject(criteriaGroupSection.getFirstConditionReducingOperator()))
+        .secondBlockReducingOperator(
+            toApiObject(criteriaGroupSection.getSecondConditionRedcuingOperator()))
+        .excluded(criteriaGroupSection.isExcluded());
+  }
+
+  private static ApiReducingOperator toApiObject(ReducingOperator reducingOperator) {
+    return reducingOperator == null
+        ? ApiReducingOperator.ANY
+        : ApiReducingOperator.valueOf(reducingOperator.name());
   }
 
   private static ApiCriteriaGroup toApiObject(CohortRevision.CriteriaGroup criteriaGroup) {

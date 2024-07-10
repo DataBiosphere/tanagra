@@ -2,12 +2,14 @@ package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.shared.*;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.*;
 import org.apache.commons.lang3.RandomStringUtils;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
@@ -222,19 +224,35 @@ public final class CohortRevision {
     private final String id;
     private final @Nullable String displayName;
     private final List<CriteriaGroup> criteriaGroups;
+    private final List<CriteriaGroup> secondConditionCriteriaGroups;
     private final BooleanAndOrFilter.LogicalOperator operator;
+    private final ReducingOperator firstConditionReducingOperator;
+    private final ReducingOperator secondConditionRedcuingOperator;
+    private final JoinOperator joinOperator;
+    private final Integer joinOperatorValue;
     private final boolean isExcluded;
 
+    @SuppressWarnings("checkstyle:ParameterNumber")
     private CriteriaGroupSection(
         String id,
         String displayName,
         List<CriteriaGroup> criteriaGroups,
+        List<CriteriaGroup> secondConditionCriteriaGroups,
         BooleanAndOrFilter.LogicalOperator operator,
+        ReducingOperator firstConditionReducingOperator,
+        ReducingOperator secondConditionRedcuingOperator,
+        JoinOperator joinOperator,
+        Integer joinOperatorValue,
         boolean isExcluded) {
       this.id = id;
       this.displayName = displayName;
       this.criteriaGroups = criteriaGroups;
+      this.secondConditionCriteriaGroups = secondConditionCriteriaGroups;
       this.operator = operator;
+      this.firstConditionReducingOperator = firstConditionReducingOperator;
+      this.secondConditionRedcuingOperator = secondConditionRedcuingOperator;
+      this.joinOperator = joinOperator;
+      this.joinOperatorValue = joinOperatorValue;
       this.isExcluded = isExcluded;
     }
 
@@ -254,8 +272,12 @@ public final class CohortRevision {
       return Collections.unmodifiableList(criteriaGroups);
     }
 
+    public List<CriteriaGroup> getSecondConditionCriteriaGroups() {
+      return Collections.unmodifiableList(secondConditionCriteriaGroups);
+    }
+
     public CriteriaGroup getCriteriaGroup(String id) {
-      return criteriaGroups.stream()
+      return Stream.concat(criteriaGroups.stream(), secondConditionCriteriaGroups.stream())
           .filter(group -> id.equals(group.getId()))
           .findFirst()
           .orElseThrow(() -> new NotFoundException("Criteria group not found for id: " + id));
@@ -263,6 +285,22 @@ public final class CohortRevision {
 
     public BooleanAndOrFilter.LogicalOperator getOperator() {
       return operator;
+    }
+
+    public ReducingOperator getFirstConditionReducingOperator() {
+      return firstConditionReducingOperator;
+    }
+
+    public ReducingOperator getSecondConditionRedcuingOperator() {
+      return secondConditionRedcuingOperator;
+    }
+
+    public JoinOperator getJoinOperator() {
+      return joinOperator;
+    }
+
+    public Integer getJoinOperatorValue() {
+      return joinOperatorValue;
     }
 
     public boolean isExcluded() {
@@ -273,7 +311,12 @@ public final class CohortRevision {
       private String id;
       private String displayName;
       private List<CriteriaGroup> criteriaGroups = new ArrayList<>();
+      private List<CriteriaGroup> secondConditionCriteriaGroups = new ArrayList<>();
       private BooleanAndOrFilter.LogicalOperator operator = BooleanAndOrFilter.LogicalOperator.OR;
+      private ReducingOperator firstConditionReducingOperator;
+      private ReducingOperator secondConditionReducingOperator;
+      private JoinOperator joinOperator;
+      private Integer joinOperatorValue;
       private boolean isExcluded;
 
       public Builder id(String id) {
@@ -291,8 +334,36 @@ public final class CohortRevision {
         return this;
       }
 
+      public Builder secondConditionCriteriaGroups(
+          List<CriteriaGroup> secondConditionCriteriaGroups) {
+        this.secondConditionCriteriaGroups = secondConditionCriteriaGroups;
+        return this;
+      }
+
       public Builder operator(BooleanAndOrFilter.LogicalOperator operator) {
         this.operator = operator;
+        return this;
+      }
+
+      public Builder firstConditionReducingOperator(
+          ReducingOperator firstConditionReducingOperator) {
+        this.firstConditionReducingOperator = firstConditionReducingOperator;
+        return this;
+      }
+
+      public Builder secondConditionReducingOperator(
+          ReducingOperator secondConditionReducingOperator) {
+        this.secondConditionReducingOperator = secondConditionReducingOperator;
+        return this;
+      }
+
+      public Builder joinOperator(JoinOperator joinOperator) {
+        this.joinOperator = joinOperator;
+        return this;
+      }
+
+      public Builder joinOperatorValue(Integer joinOperatorValue) {
+        this.joinOperatorValue = joinOperatorValue;
         return this;
       }
 
@@ -305,7 +376,17 @@ public final class CohortRevision {
         if (id == null) {
           id = RandomStringUtils.randomAlphanumeric(10);
         }
-        return new CriteriaGroupSection(id, displayName, criteriaGroups, operator, isExcluded);
+        return new CriteriaGroupSection(
+            id,
+            displayName,
+            criteriaGroups,
+            secondConditionCriteriaGroups,
+            operator,
+            firstConditionReducingOperator,
+            secondConditionReducingOperator,
+            joinOperator,
+            joinOperatorValue,
+            isExcluded);
       }
 
       public String getId() {
@@ -314,6 +395,10 @@ public final class CohortRevision {
 
       public void addCriteriaGroup(CriteriaGroup criteriaGroup) {
         criteriaGroups.add(criteriaGroup);
+      }
+
+      public void addSecondConditionCriteriaGroup(CriteriaGroup criteriaGroup) {
+        secondConditionCriteriaGroups.add(criteriaGroup);
       }
     }
 
@@ -328,14 +413,29 @@ public final class CohortRevision {
       CriteriaGroupSection that = (CriteriaGroupSection) o;
       return isExcluded == that.isExcluded
           && id.equals(that.id)
-          && displayName.equals(that.displayName)
+          && Objects.equals(displayName, that.displayName)
           && criteriaGroups.equals(that.criteriaGroups)
-          && operator == that.operator;
+          && secondConditionCriteriaGroups.equals(that.secondConditionCriteriaGroups)
+          && operator == that.operator
+          && firstConditionReducingOperator == that.firstConditionReducingOperator
+          && secondConditionRedcuingOperator == that.secondConditionRedcuingOperator
+          && joinOperator == that.joinOperator
+          && Objects.equals(joinOperatorValue, that.joinOperatorValue);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(id, displayName, criteriaGroups, operator, isExcluded);
+      return Objects.hash(
+          id,
+          displayName,
+          criteriaGroups,
+          secondConditionCriteriaGroups,
+          operator,
+          firstConditionReducingOperator,
+          secondConditionRedcuingOperator,
+          joinOperator,
+          joinOperatorValue,
+          isExcluded);
     }
   }
 
