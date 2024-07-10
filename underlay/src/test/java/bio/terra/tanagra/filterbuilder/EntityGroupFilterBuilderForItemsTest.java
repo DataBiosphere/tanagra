@@ -48,11 +48,15 @@ public class EntityGroupFilterBuilderForItemsTest {
         CFAttribute.Attribute.newBuilder().setAttribute("systolic").build();
     CriteriaSelector.Modifier systolicModifier =
         new CriteriaSelector.Modifier(
-            "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
+            "systolic",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(systolicConfig));
     CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -110,12 +114,14 @@ public class EntityGroupFilterBuilderForItemsTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -163,7 +169,10 @@ public class EntityGroupFilterBuilderForItemsTest {
         CFAttribute.Attribute.newBuilder().setAttribute("systolic").build();
     CriteriaSelector.Modifier systolicModifier =
         new CriteriaSelector.Modifier(
-            "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
+            "systolic",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(systolicConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
         CFUnhintedValue.UnhintedValue.newBuilder()
             .putAttributes(
@@ -173,12 +182,14 @@ public class EntityGroupFilterBuilderForItemsTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -242,6 +253,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             "bloodPressure",
             true,
             true,
+            true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(bloodPressureConfig),
@@ -265,11 +277,15 @@ public class EntityGroupFilterBuilderForItemsTest {
         CFAttribute.Attribute.newBuilder().setAttribute("systolic").build();
     CriteriaSelector.Modifier systolicModifier =
         new CriteriaSelector.Modifier(
-            "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
+            "systolic",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(systolicConfig));
     CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -324,12 +340,14 @@ public class EntityGroupFilterBuilderForItemsTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -381,6 +399,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             "bloodPressure",
             true,
             true,
+            true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(config),
@@ -410,11 +429,15 @@ public class EntityGroupFilterBuilderForItemsTest {
         CFAttribute.Attribute.newBuilder().setAttribute("systolic").build();
     CriteriaSelector.Modifier systolicModifier =
         new CriteriaSelector.Modifier(
-            "systolic", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(systolicConfig));
+            "systolic",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(systolicConfig));
     CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.EntityGroupFilterBuilder",
@@ -468,6 +491,7 @@ public class EntityGroupFilterBuilderForItemsTest {
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.EntityGroupFilterBuilder",

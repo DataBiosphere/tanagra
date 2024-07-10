@@ -3,6 +3,7 @@
   "displayName": "Condition",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
+  "supportsTemporalQueries": true,
   "display": {
     "category": "Domains",
     "tags": null
@@ -16,6 +17,7 @@
     {
       "name": "ageAtOccurrence",
       "displayName": "Age at occurrence",
+      "supportsTemporalQueries": true,
       "plugin": "attribute",
       "pluginConfigFile": "ageAtOccurrence.json"
     },

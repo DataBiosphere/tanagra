@@ -3,6 +3,7 @@
   "displayName": "Condition",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
+  "supportsTemporalQueries": true,
   "display": {
     "category": "Domains",
     "tags": [
@@ -17,18 +18,21 @@
     {
       "name": "ageAtOccurrence",
       "displayName": "Age at occurrence",
+      "supportsTemporalQueries": true,
       "plugin": "attribute",
       "pluginConfigFile": "ageAtOccurrence.json"
     },
     {
       "name": "visitType",
       "displayName": "Visit type",
+      "supportsTemporalQueries": true,
       "plugin": "attribute",
       "pluginConfigFile": "visitType.json"
     },
     {
       "name": "startDateGroupByCount",
       "displayName": "Occurrence count",
+      "supportsTemporalQueries": false,
       "plugin": "unhinted-value",
       "pluginConfigFile": "startDateGroupByCount.json"
     }

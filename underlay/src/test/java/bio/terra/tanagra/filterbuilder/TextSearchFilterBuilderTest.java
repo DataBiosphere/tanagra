@@ -57,6 +57,7 @@ public class TextSearchFilterBuilderTest {
             "note_noAttribute",
             true,
             true,
+            true,
             "core.TextSearchFilterBuilder",
             SZCorePlugin.TEXT_SEARCH.getIdInConfig(),
             serializeToJson(config),
@@ -97,6 +98,7 @@ public class TextSearchFilterBuilderTest {
             "note_withAttribute",
             true,
             true,
+            true,
             "core.TextSearchFilterBuilder",
             SZCorePlugin.TEXT_SEARCH.getIdInConfig(),
             serializeToJson(config),
@@ -133,6 +135,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector criteriaSelectorNoAttr =
         new CriteriaSelector(
             "note_noAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -298,18 +301,23 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CFAttribute.Attribute visitTypeConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+            "visit_type",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(visitTypeConfig));
     CFTextSearch.TextSearch textSearchConfig =
         CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -429,6 +437,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFTextSearch.TextSearch textSearchConfig =
@@ -436,6 +445,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -491,13 +501,17 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CFAttribute.Attribute visitTypeConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+            "visit_type",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(visitTypeConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
         CFUnhintedValue.UnhintedValue.newBuilder()
             .putAttributes(
@@ -509,6 +523,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFTextSearch.TextSearch textSearchConfig =
@@ -516,6 +531,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -627,6 +643,7 @@ public class TextSearchFilterBuilderTest {
             "note_noAttribute",
             true,
             true,
+            true,
             "core.TextSearchFilterBuilder",
             SZCorePlugin.TEXT_SEARCH.getIdInConfig(),
             serializeToJson(configNoAttr),
@@ -651,6 +668,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CFTextSearch.TextSearch textSearchConfig =
@@ -658,6 +676,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -724,6 +743,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFTextSearch.TextSearch textSearchConfig =
@@ -731,6 +751,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -790,6 +811,7 @@ public class TextSearchFilterBuilderTest {
             "note_noAttribute",
             true,
             true,
+            true,
             "core.TextSearchFilterBuilder",
             SZCorePlugin.TEXT_SEARCH.getIdInConfig(),
             serializeToJson(configNoAttr),
@@ -801,6 +823,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector criteriaSelectorWithAttr =
         new CriteriaSelector(
             "note_withAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -920,18 +943,23 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CFAttribute.Attribute visitTypeConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+            "visit_type",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(visitTypeConfig));
     CFTextSearch.TextSearch textSearchConfig =
         CFTextSearch.TextSearch.newBuilder().setEntity("note").build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "note_noAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
@@ -1008,6 +1036,7 @@ public class TextSearchFilterBuilderTest {
     CriteriaSelector criteriaSelectorWithAttr =
         new CriteriaSelector(
             "note_withAttribute",
+            true,
             true,
             true,
             "core.TextSearchFilterBuilder",
