@@ -1,6 +1,5 @@
 {
   "featureConfig": {
-    "enableInactivityTracker": true,
     "overrideExportButton": true
   },
   "demographicChartConfigs": {

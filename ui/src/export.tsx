@@ -54,7 +54,6 @@ import {
   featureSetURL,
   redirect,
   RETURN_URL_PLACEHOLDER,
-  useActivityListener,
   useBaseParams,
   useExitAction,
 } from "router";
@@ -73,10 +72,6 @@ export function Export() {
   const exit = useExitAction();
   const navigate = useNavigate();
   const underlay = useUnderlay();
-
-  if (underlay.uiConfiguration.featureConfig?.enableInactivityTracker) {
-    useActivityListener();
-  }
 
   const cohortsState = useSWR(
     { type: "cohort", studyId, list: true },

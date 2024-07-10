@@ -3,6 +3,7 @@ import Loading from "components/loading";
 import { BackendUnderlaySource, UnderlaySource } from "data/source";
 import { createContext, useCallback, useContext } from "react";
 import { Outlet, useParams } from "react-router-dom";
+import { useActivityListener } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 
@@ -29,6 +30,8 @@ export function UnderlaySourceContextRoot() {
   if (!underlayName) {
     throw new Error("Underlay name not in URL when creating data source.");
   }
+
+  useActivityListener();
 
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
   const underlaysApi = useContext(UnderlaysApiContext) as tanagra.UnderlaysApi;
