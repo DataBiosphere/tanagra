@@ -54,6 +54,7 @@ public class MultiAttributeFilterBuilderTest {
             "bloodPressure",
             true,
             true,
+            true,
             "core.MultiAttributeFilterBuilder",
             SZCorePlugin.MULTI_ATTRIBUTE.getIdInConfig(),
             serializeToJson(config),
@@ -145,16 +146,21 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CFAttribute.Attribute visitTypeConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+            "visit_type",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(visitTypeConfig));
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",
@@ -292,11 +298,13 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",
@@ -401,13 +409,17 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CFAttribute.Attribute visitTypeConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+            "visit_type",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(visitTypeConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
         CFUnhintedValue.UnhintedValue.newBuilder()
             .putAttributes(
@@ -417,11 +429,13 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",
@@ -569,6 +583,7 @@ public class MultiAttributeFilterBuilderTest {
             "bloodPressure",
             true,
             true,
+            true,
             "core.MultiAttributeFilterBuilder",
             SZCorePlugin.MULTI_ATTRIBUTE.getIdInConfig(),
             serializeToJson(config),
@@ -595,11 +610,13 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",
@@ -664,11 +681,13 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",
@@ -727,6 +746,7 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",
@@ -817,16 +837,21 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
         new CriteriaSelector.Modifier(
             "age_at_occurrence",
+            true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
     CFAttribute.Attribute visitTypeConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("visit_type").build();
     CriteriaSelector.Modifier visitTypeModifier =
         new CriteriaSelector.Modifier(
-            "visit_type", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(visitTypeConfig));
+            "visit_type",
+            true,
+            SZCorePlugin.ATTRIBUTE.getIdInConfig(),
+            serializeToJson(visitTypeConfig));
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",
@@ -912,6 +937,7 @@ public class MultiAttributeFilterBuilderTest {
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
+            true,
             true,
             true,
             "core.MultiAttributeFilterBuilder",

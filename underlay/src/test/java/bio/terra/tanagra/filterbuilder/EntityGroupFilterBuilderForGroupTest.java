@@ -56,6 +56,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(config),
@@ -187,13 +188,14 @@ public class EntityGroupFilterBuilderForGroupTest {
         CFAttribute.Attribute.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier nameModifier =
         new CriteriaSelector.Modifier(
-            "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
+            "name", true, SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
     CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(genotypingConfig),
@@ -261,6 +263,7 @@ public class EntityGroupFilterBuilderForGroupTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
@@ -269,6 +272,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(genotypingConfig),
@@ -322,7 +326,7 @@ public class EntityGroupFilterBuilderForGroupTest {
         CFAttribute.Attribute.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier nameModifier =
         new CriteriaSelector.Modifier(
-            "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
+            "name", true, SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
     CFUnhintedValue.UnhintedValue groupByConfig =
         CFUnhintedValue.UnhintedValue.newBuilder()
             .putAttributes(
@@ -332,6 +336,7 @@ public class EntityGroupFilterBuilderForGroupTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
@@ -340,6 +345,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(genotypingConfig),
@@ -412,6 +418,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(config),
@@ -435,13 +442,14 @@ public class EntityGroupFilterBuilderForGroupTest {
         CFAttribute.Attribute.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier nameModifier =
         new CriteriaSelector.Modifier(
-            "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
+            "name", true, SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
     CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(genotypingConfig),
@@ -502,6 +510,7 @@ public class EntityGroupFilterBuilderForGroupTest {
     CriteriaSelector.Modifier groupByModifier =
         new CriteriaSelector.Modifier(
             "group_by_count",
+            false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
     CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
@@ -510,6 +519,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(genotypingConfig),
@@ -567,6 +577,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(config),
@@ -679,13 +690,14 @@ public class EntityGroupFilterBuilderForGroupTest {
         CFAttribute.Attribute.newBuilder().setAttribute("name").build();
     CriteriaSelector.Modifier nameModifier =
         new CriteriaSelector.Modifier(
-            "name", SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
+            "name", true, SZCorePlugin.ATTRIBUTE.getIdInConfig(), serializeToJson(nameConfig));
     CFEntityGroup.EntityGroup genotypingConfig = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(genotypingConfig),
@@ -753,6 +765,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             "genotyping",
             true,
             true,
+            false,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
             serializeToJson(config),

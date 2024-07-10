@@ -25,4 +25,6 @@
     <include file="changesets/20230922_initial_schema.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20231116_output_attribute.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20240304_selector_column.yaml" relativeToChangelogFile="true"/>
+    <include file="changesets/20240326_remove_criteria_group_columns.yaml" relativeToChangelogFile="true"/>
+    <include file="changesets/20240709_temporal_criteria_group_sections.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

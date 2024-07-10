@@ -2,16 +2,8 @@ package bio.terra.tanagra.service.filter;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.filter.BooleanNotFilter;
-import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
-import bio.terra.tanagra.api.filter.ItemInGroupFilter;
-import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
-import bio.terra.tanagra.api.filter.RelationshipFilter;
-import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.filter.*;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
@@ -28,8 +20,7 @@ import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
-import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
-import bio.terra.tanagra.underlay.uiplugin.SelectionData;
+import bio.terra.tanagra.underlay.uiplugin.*;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +45,7 @@ public class FilterBuilderService {
     this.underlayService = underlayService;
   }
 
-  public EntityFilter buildFilterForCriteriaGroup(
+  public EntityFilter buildCohortFilterForCriteriaGroup(
       String underlayName, CohortRevision.CriteriaGroup criteriaGroup) {
     if (criteriaGroup.getCriteria().isEmpty()) {
       return null;
@@ -75,30 +66,94 @@ public class FilterBuilderService {
     return filterBuilder.buildForCohort(underlay, selectionData);
   }
 
-  public EntityFilter buildFilterForCriteriaGroupSection(
-      String underlayName, CohortRevision.CriteriaGroupSection criteriaGroupSection) {
-    List<EntityFilter> criteriaGroupFilters = new ArrayList<>();
-    criteriaGroupSection
-        .getCriteriaGroups()
-        .forEach(
-            criteriaGroup -> {
-              EntityFilter criteriaGroupFilter =
-                  buildFilterForCriteriaGroup(underlayName, criteriaGroup);
-              if (criteriaGroupFilter != null) {
-                criteriaGroupFilters.add(criteriaGroupFilter);
-              }
-            });
-    if (criteriaGroupFilters.isEmpty()) {
-      return null;
+  private List<EntityOutput> buildDataFeatureOutputForTemporalCriteriaGroup(
+      String underlayName, CohortRevision.CriteriaGroup criteriaGroup) {
+    if (criteriaGroup.getCriteria().isEmpty()) {
+      return List.of();
     }
 
-    EntityFilter combinedFilter =
-        criteriaGroupFilters.size() == 1
-            ? criteriaGroupFilters.get(0)
-            : new BooleanAndOrFilter(criteriaGroupSection.getOperator(), criteriaGroupFilters);
-    return criteriaGroupSection.isExcluded()
-        ? new BooleanNotFilter(combinedFilter)
-        : combinedFilter;
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    String criteriaSelectorName = criteriaGroup.getCriteria().get(0).getSelectorOrModifierName();
+    CriteriaSelector criteriaSelector = underlay.getCriteriaSelector(criteriaSelectorName);
+    if (!criteriaSelector.isSupportsTemporalQueries()) {
+      return List.of();
+    }
+
+    List<SelectionData> selectionData = new ArrayList<>();
+    for (int i = 0; i < criteriaGroup.getCriteria().size(); i++) {
+      Criteria criteria = criteriaGroup.getCriteria().get(i);
+      if (i == 0
+          || criteriaSelector
+              .getModifier(criteria.getSelectorOrModifierName())
+              .isSupportsTemporalQueries()) {
+        selectionData.add(
+            new SelectionData(criteria.getSelectorOrModifierName(), criteria.getSelectionData()));
+      }
+    }
+    return criteriaSelector.getFilterBuilder().buildForDataFeature(underlay, selectionData);
+  }
+
+  public EntityFilter buildFilterForCriteriaGroupSection(
+      String underlayName, CohortRevision.CriteriaGroupSection criteriaGroupSection) {
+    EntityFilter includeFilter;
+    if (criteriaGroupSection.getJoinOperator() != null) {
+      // Temporal section.
+      List<EntityOutput> firstConditionEntityOutputs = new ArrayList<>();
+      criteriaGroupSection
+          .getCriteriaGroups()
+          .forEach(
+              criteriaGroup ->
+                  firstConditionEntityOutputs.addAll(
+                      buildDataFeatureOutputForTemporalCriteriaGroup(underlayName, criteriaGroup)));
+
+      List<EntityOutput> secondConditionEntityOutputs = new ArrayList<>();
+      criteriaGroupSection
+          .getSecondConditionCriteriaGroups()
+          .forEach(
+              criteriaGroup ->
+                  secondConditionEntityOutputs.addAll(
+                      buildDataFeatureOutputForTemporalCriteriaGroup(underlayName, criteriaGroup)));
+
+      if (firstConditionEntityOutputs.isEmpty() || secondConditionEntityOutputs.isEmpty()) {
+        throw new InvalidQueryException(
+            "Invalid temporal criteria group section. There must be at least one criteria in each condition that supports temporal queries. (id = "
+                + criteriaGroupSection.getId()
+                + ")");
+      }
+
+      Underlay underlay = underlayService.getUnderlay(underlayName);
+      includeFilter =
+          new TemporalPrimaryFilter(
+              underlay,
+              criteriaGroupSection.getFirstConditionReducingOperator(),
+              firstConditionEntityOutputs,
+              criteriaGroupSection.getJoinOperator(),
+              criteriaGroupSection.getJoinOperatorValue(),
+              criteriaGroupSection.getSecondConditionRedcuingOperator(),
+              secondConditionEntityOutputs);
+    } else {
+      // Regular, non-temporal section.
+      List<EntityFilter> criteriaGroupFilters = new ArrayList<>();
+      Stream.concat(
+              criteriaGroupSection.getCriteriaGroups().stream(),
+              criteriaGroupSection.getSecondConditionCriteriaGroups().stream())
+          .forEach(
+              criteriaGroup -> {
+                EntityFilter criteriaGroupFilter =
+                    buildCohortFilterForCriteriaGroup(underlayName, criteriaGroup);
+                if (criteriaGroupFilter != null) {
+                  criteriaGroupFilters.add(criteriaGroupFilter);
+                }
+              });
+      if (criteriaGroupFilters.isEmpty()) {
+        return null;
+      }
+      includeFilter =
+          criteriaGroupFilters.size() == 1
+              ? criteriaGroupFilters.get(0)
+              : new BooleanAndOrFilter(criteriaGroupSection.getOperator(), criteriaGroupFilters);
+    }
+    return criteriaGroupSection.isExcluded() ? new BooleanNotFilter(includeFilter) : includeFilter;
   }
 
   public EntityFilter buildFilterForCohortRevision(
