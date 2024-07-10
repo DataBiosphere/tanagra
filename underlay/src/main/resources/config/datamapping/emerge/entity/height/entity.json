@@ -2,12 +2,12 @@
   "name": "height",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "height_occurrence_id" },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "height_id" },
     { "name": "person_id", "dataType": "INT64" },
-    { "name": "height", "dataType": "INT64", "valueFieldName": "height_concept_id", "displayFieldName": "height_concept_name" },
-    { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number" },
+    { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 1000 },
+    { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name", "isComputeDisplayHint": true },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 1, "displayHintRangeMax": 120 }
   ],
-  "idAttribute": "id",
-  "optimizeGroupByAttributes": [ "bmi", "value_numeric", "age_at_occurrence" ]
+  "idAttribute": "id"
 }
+

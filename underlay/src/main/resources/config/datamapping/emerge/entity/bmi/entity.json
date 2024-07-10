@@ -2,12 +2,10 @@
   "name": "bmi",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "bmi_occurrence_id" },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "bmi_id" },
     { "name": "person_id", "dataType": "INT64" },
-    { "name": "bmi", "dataType": "INT64", "valueFieldName": "bmi_concept_id", "displayFieldName": "bmi_concept_name" },
-    { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number" },
+    { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isComputeDisplayHint": true },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 1, "displayHintRangeMax": 120 }
   ],
-  "idAttribute": "id",
-  "optimizeGroupByAttributes": [ "bmi", "value_numeric", "age_at_occurrence" ]
+  "idAttribute": "id"
 }
