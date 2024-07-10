@@ -121,12 +121,12 @@ dependencies {
     // The Jersey libraries are required to use the VUMC admin service client library.
     // Since the client library doesn't correctly expose these dependencies, we include them explicitly here.
     // Added before the client library to force specific versions
-    String vJersey2 = '2.43' // service: required for vumc_admin_client (Java 11)
-    implementation "org.glassfish.jersey.core:jersey-common:${vJersey2}"
-    implementation "org.glassfish.jersey.core:jersey-client:${vJersey2}"
-    implementation "org.glassfish.jersey.inject:jersey-hk2:${vJersey2}"
-    implementation "org.glassfish.jersey.media:jersey-media-multipart:${vJersey2}"
-    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${vJersey2}"
+    // Java11 compatible library versions needed for vumc_admin_client (java 11)
+    implementation "org.glassfish.jersey.core:jersey-common:${gradle.vJersey2}"
+    implementation "org.glassfish.jersey.core:jersey-client:${gradle.vJersey2}"
+    implementation "org.glassfish.jersey.inject:jersey-hk2:${gradle.vJersey2}"
+    implementation "org.glassfish.jersey.media:jersey-media-multipart:${gradle.vJersey2}"
+    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${gradle.vJersey2}"
 
     implementation 'org.vumc.vda.tanagra:admin-client:0.0.85-SNAPSHOT'
     // Remove java when admin client moves to jakarta namespace
