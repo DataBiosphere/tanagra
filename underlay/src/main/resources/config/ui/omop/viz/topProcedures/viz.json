@@ -1,0 +1,6 @@
+{
+  "name": "topProcedures",
+  "title": "Top 10 procedures",
+  "dataConfigFile": "topProcedures.json",
+  "plugin": "core/bar"
+}

@@ -1,11 +1,11 @@
 {
   "sources": [
     {
-      "criteriaSelector": "conditions",
+      "criteriaSelector": "ingredients",
       "joins": [],
       "attributes": [
         {
-          "attribute": "condition",
+          "attribute": "ingredient",
           "sortType": "VALUE",
           "sortDescending": true,
           "limit": 10

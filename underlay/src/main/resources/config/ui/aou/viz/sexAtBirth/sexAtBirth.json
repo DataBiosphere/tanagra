@@ -5,7 +5,7 @@
       "joins": [],
       "attributes": [
         {
-          "attribute": "gender"
+          "attribute": "sex_at_birth"
         }
       ]
     }
