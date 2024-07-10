@@ -1573,7 +1573,7 @@ components:
         orderByDirection:
           $ref: "#/components/schemas/OrderByDirection"
         limit:
-          $ref: "#/components/schemas/Limit"
+          type: integer
         pageSize:
           $ref: "#/components/schemas/PageSize"
         pageMarker:
