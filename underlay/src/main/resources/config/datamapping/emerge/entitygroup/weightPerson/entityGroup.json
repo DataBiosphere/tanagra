@@ -1,6 +1,6 @@
 {
   "name": "weightPerson",
-  "groupEntity": "weight",
-  "itemsEntity": "person",
+  "groupEntity": "person",
+  "itemsEntity": "weight",
   "foreignKeyAttributeItemsEntity":  "person_id"
 }

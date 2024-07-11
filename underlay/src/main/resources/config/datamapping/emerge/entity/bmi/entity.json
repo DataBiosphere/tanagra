@@ -2,7 +2,7 @@
   "name": "bmi",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "bmi_id" },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isComputeDisplayHint": true },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 1, "displayHintRangeMax": 120 }

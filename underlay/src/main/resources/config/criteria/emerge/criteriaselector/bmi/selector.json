@@ -11,5 +11,12 @@
   "plugin": "multiAttribute",
   "pluginConfig": null,
   "pluginConfigFile": "bmi.json",
-  "modifiers": null
+  "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    }
+  ]
 }
