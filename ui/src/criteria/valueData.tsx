@@ -18,6 +18,7 @@ import GridLayout from "layout/gridLayout";
 import * as dataProto from "proto/criteriaselector/value_data";
 import { ReactNode, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
+import * as underlayConfig from "tanagra-underlay/underlayConfig";
 import { isValid } from "util/valid";
 
 export type ValueConfig = {
@@ -103,8 +104,10 @@ export function ValueDataEdit(props: ValueDataEditProps) {
       (hint) => hint.attribute === attribute
     );
 
+    const entityAttribute = entity.attributes.find((a) => a.name === attribute);
+
     if (hintData) {
-      props.update([defaultValueData(hintData)]);
+      props.update([defaultValueData(hintData, entityAttribute)]);
     } else {
       props.update([ANY_VALUE_DATA]);
     }
@@ -120,6 +123,10 @@ export function ValueDataEdit(props: ValueDataEditProps) {
           return null;
         }
 
+        const attribute = entity.attributes.find(
+          (a) => a.name === hintData.attribute
+        );
+
         let valueData = props.valueData.find(
           (data) => data.attribute === valueConfig.attribute
         );
@@ -127,12 +134,8 @@ export function ValueDataEdit(props: ValueDataEditProps) {
           return null;
         }
         if (!valueData) {
-          valueData = defaultValueData(hintData);
+          valueData = defaultValueData(hintData, attribute);
         }
-
-        const attribute = entity.attributes.find(
-          (a) => a.name === hintData.attribute
-        );
 
         return {
           valueConfig,
@@ -184,14 +187,15 @@ export function ValueDataEdit(props: ValueDataEditProps) {
   ) => {
     props.update(
       produce(props.valueData, (data) => {
-        const hintData = selectedConfigs.find(
+        const config = selectedConfigs.find(
           (c) => c.hintData.attribute === valueData.attribute
-        )?.hintData;
+        );
+
         if (
           !props.singleValue &&
-          hintData?.integerHint &&
-          hintData.integerHint.min === min &&
-          hintData.integerHint.max === max
+          config?.hintData?.integerHint &&
+          minBound(config?.attribute, config?.hintData) === min &&
+          maxBound(config?.attribute, config?.hintData) === max
         ) {
           return data.filter(
             (vd) =>
@@ -269,14 +273,8 @@ export function ValueDataEdit(props: ValueDataEditProps) {
                 <RangeSlider
                   key={c.valueConfig.attribute}
                   index={0}
-                  minBound={
-                    c.attribute?.displayHintRangeMin ??
-                    c.hintData.integerHint.min
-                  }
-                  maxBound={
-                    c.attribute?.displayHintRangeMax ??
-                    c.hintData.integerHint.max
-                  }
+                  minBound={minBound(c.attribute, c.hintData)}
+                  maxBound={maxBound(c.attribute, c.hintData)}
                   range={c.valueData.range}
                   unit={c.valueConfig.unit}
                   onUpdate={(range, index, min, max) =>
@@ -371,15 +369,34 @@ export function encodeValueData(valueData: ValueData): dataProto.ValueData {
   };
 }
 
-function defaultValueData(hintData: HintData): ValueData {
+function defaultValueData(
+  hintData: HintData,
+  attribute?: underlayConfig.SZAttribute
+): ValueData {
   return {
     attribute: hintData.attribute,
     numeric: !!hintData?.integerHint,
     selected: [],
     range: {
       id: "",
-      min: hintData?.integerHint?.min ?? Number.MIN_SAFE_INTEGER,
-      max: hintData?.integerHint?.max ?? Number.MAX_SAFE_INTEGER,
+      min: minBound(attribute, hintData),
+      max: maxBound(attribute, hintData),
     },
   };
+}
+
+function minBound(attribute?: underlayConfig.SZAttribute, hintData?: HintData) {
+  return (
+    attribute?.displayHintRangeMin ??
+    hintData?.integerHint?.min ??
+    Number.MIN_SAFE_INTEGER
+  );
+}
+
+function maxBound(attribute?: underlayConfig.SZAttribute, hintData?: HintData) {
+  return (
+    attribute?.displayHintRangeMax ??
+    hintData?.integerHint?.max ??
+    Number.MAX_SAFE_INTEGER
+  );
 }

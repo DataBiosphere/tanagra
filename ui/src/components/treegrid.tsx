@@ -26,6 +26,7 @@ import {
   useState,
 } from "react";
 import { useImmer } from "use-immer";
+import { standardDateString } from "util/date";
 import { spacing } from "util/spacing";
 
 export type TreeGridId = string | number;
@@ -525,7 +526,7 @@ function renderChildren(
           let title = "";
           // Stringify values other than Elements.
           if (value instanceof Date) {
-            value = value.toDateString();
+            value = standardDateString(value);
             title = value;
           } else if (!(value instanceof Object)) {
             value = String(value);

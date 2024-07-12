@@ -340,9 +340,15 @@ export const theme = createTheme({
         },
       },
     },
+    // The label is also used as the placehold text so styling applies to both.
     MuiInputLabel: {
       defaultProps: {
         margin: "dense",
+      },
+      styleOverrides: {
+        root: {
+          color: "grey",
+        },
       },
     },
     MuiListItem: {

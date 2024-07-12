@@ -19,6 +19,7 @@ import GridLayout from "layout/gridLayout";
 import React, { useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { CohortReviewPageConfig } from "underlaysSlice";
+import { standardDateString } from "util/date";
 import { safeRegExp } from "util/safeRegExp";
 
 type Config = {
@@ -217,7 +218,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
 }
 
 function formatValue(value: DataValue) {
-  return value instanceof Date ? value.toDateString() : String(value);
+  return value instanceof Date ? standardDateString(value) : String(value);
 }
 
 type TextBlockProps = {

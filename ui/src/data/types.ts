@@ -1,3 +1,4 @@
+import { standardDateString } from "util/date";
 export type DataKey = string | number;
 export type DataValue = null | string | number | boolean | Date;
 
@@ -32,7 +33,7 @@ export function stringifyDataValue(v?: DataValue): string {
   } else if (v === undefined) {
     return "";
   } else if (v instanceof Date) {
-    return v.toDateString();
+    return standardDateString(v);
   }
   return String(v);
 }
