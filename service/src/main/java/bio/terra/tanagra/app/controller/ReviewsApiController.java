@@ -46,6 +46,7 @@ import bio.terra.tanagra.service.artifact.reviewquery.ReviewInstance;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
+import bio.terra.tanagra.service.filter.*;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -67,7 +68,7 @@ public class ReviewsApiController implements ReviewsApi {
   private final ReviewService reviewService;
   private final CohortService cohortService;
   private final AnnotationService annotationService;
-
+  private final FilterBuilderService filterBuilderService;
   private final AccessControlService accessControlService;
 
   @Autowired
@@ -76,11 +77,13 @@ public class ReviewsApiController implements ReviewsApi {
       ReviewService reviewService,
       CohortService cohortService,
       AnnotationService annotationService,
+      FilterBuilderService filterBuilderService,
       AccessControlService accessControlService) {
     this.underlayService = underlayService;
     this.reviewService = reviewService;
     this.cohortService = cohortService;
     this.annotationService = annotationService;
+    this.filterBuilderService = filterBuilderService;
     this.accessControlService = accessControlService;
   }
 
@@ -94,11 +97,8 @@ public class ReviewsApiController implements ReviewsApi {
 
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
     EntityFilter entityFilter =
-        body.getFilter() == null
-            ? null
-            : FromApiUtils.fromApiObject(
-                body.getFilter(), underlayService.getUnderlay(cohort.getUnderlay()));
-
+        filterBuilderService.buildFilterForCohortRevision(
+            cohort.getUnderlay(), cohort.getMostRecentRevision());
     Review createdReview =
         reviewService.createReview(
             studyId,
