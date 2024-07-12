@@ -90,7 +90,7 @@ export function AddCohortCriteria() {
 
   return (
     <AddCriteria
-      title={`Adding criteria for group ${name}`}
+      title={`Adding criteria for ${name}`}
       onInsertCriteria={onInsertCriteria}
       temporal={isTemporalSection(section)}
     />
