@@ -1,5 +1,5 @@
 {
-  "name": "phewas",
+  "name": "phenotype",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64" },
@@ -11,14 +11,14 @@
   ],
   "idAttribute": "id",
   "textSearch": {
-    "attributes": [ "id", "name", "concept_code" ]
+    "attributes": [ "name", "concept_code" ]
   },
   "hierarchies": [
     {
       "childParentIdPairsSqlFile": "childParent.sql",
       "childIdFieldName": "child",
       "parentIdFieldName": "parent",
-      "maxDepth": 10,
+      "maxDepth": 5,
       "keepOrphanNodes": true
     }
   ]

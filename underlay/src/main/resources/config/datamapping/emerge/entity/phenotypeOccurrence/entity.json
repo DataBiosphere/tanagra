@@ -1,0 +1,13 @@
+{
+  "name": "phenotypeOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "standard_code", "dataType": "STRING"},
+    { "name": "phenotype", "dataType": "INT64", "valueFieldName": "concept_id", "displayFieldName": "concept_name" },
+    { "name": "decade_birth", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 1, "displayHintRangeMax": 100 }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "phenotype" ]
+}

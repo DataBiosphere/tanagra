@@ -16,9 +16,16 @@
     "emerge/drug",
     "emerge/drugOccurrence",
     "emerge/phewas",
-    "emerge/bmi"
+    "emerge/bmi",
+    "emerge/height",
+    "emerge/weight",
+    "emerge/phenotype",
+    "emerge/phenotypeOccurrence"
   ],
   "groupItemsEntityGroups": [
+    "emerge/bmiPerson",
+    "emerge/heightPerson",
+    "emerge/weightPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "emerge/cpt4Person",
@@ -28,7 +35,7 @@
     "emerge/labPerson",
     "emerge/drugPerson",
     "emerge/phewasPerson",
-    "emerge/bmiPerson"
+    "emerge/phenotypePerson"
   ],
   "criteriaSelectors": [
     "emerge/gender",
@@ -49,6 +56,10 @@
     "emerge/lab",
     "emerge/drug",
     "emerge/phewas",
+    "emerge/bmi",
+    "emerge/height",
+    "emerge/weight",
+    "emerge/phenotype",
     "emerge/outputUnfiltered"
   ],
   "visualizations": [

@@ -1,0 +1,20 @@
+{
+  "name": "phenotypePerson",
+  "criteriaEntity": "phenotype",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "phenotypeOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "phenotype"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "phenotype_id"
+  }
+}
