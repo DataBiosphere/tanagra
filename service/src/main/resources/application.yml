@@ -48,8 +48,7 @@ tanagra:
         type: REGRESSION_TEST
 
 logging.pattern.level: '%X{requestId} %5p'
-#logging.level.bio.terra.tanagra: DEBUG
-
+logging.level.bio.terra.tanagra: DEBUG
 
 server:
   compression:
@@ -67,5 +66,3 @@ spring:
           must-revalidate: true
         use-last-modified: false
       static-locations: classpath:/api/
-
-
