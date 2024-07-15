@@ -28,9 +28,9 @@
   ],
   "hierarchyColumns": [
     {
-      "key": "label",
+      "key": "name",
       "widthString": "100%",
-      "title": "Label"
+      "title": "Name"
     },
     {
       "key": "id",
@@ -57,10 +57,15 @@
     {
       "id": "phewasPerson",
       "sortOrder": {
-        "attribute": "label",
+        "attribute": "name",
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
       }
     }
   ],
-  "multiSelect": true
+  "defaultSort": {
+    "attribute": "name",
+    "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+  },
+  "multiSelect": true,
+  "limit":1200
 }
