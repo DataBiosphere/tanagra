@@ -1,0 +1,20 @@
+{
+  "name": "cpt4Person",
+  "criteriaEntity": "cpt4",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "cpt4Occurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "cpt4"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "cpt4_id"
+  }
+}

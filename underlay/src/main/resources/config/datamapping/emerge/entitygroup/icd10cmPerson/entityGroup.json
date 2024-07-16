@@ -1,0 +1,20 @@
+{
+  "name": "icd10cmPerson",
+  "criteriaEntity": "icd10cm",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "icd10cmOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "icd10"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "icd10_id"
+  }
+}

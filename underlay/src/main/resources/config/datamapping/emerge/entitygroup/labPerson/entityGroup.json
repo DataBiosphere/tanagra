@@ -1,0 +1,21 @@
+{
+  "name": "labPerson",
+  "criteriaEntity": "lab",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "labOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "lab"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      },
+      "attributesWithInstanceLevelHints": [ "value_numeric" ]
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "lab_id"
+  }
+}

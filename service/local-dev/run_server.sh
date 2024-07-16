@@ -5,7 +5,7 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":avstmd" arg; do
+while getopts ":avstemd" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
@@ -18,6 +18,9 @@ while getopts ":avstmd" arg; do
       ;;
     t) # Use AoU test underlays
       useAouUnderlays=1
+      ;;
+    e) # Use eMerge test underlays
+      useEmergeUnderlays=1
       ;;
     m) # Use MariaDB.
       useMariaDB=1
@@ -68,6 +71,14 @@ elif [[ ${useSdUnderlays} ]]; then
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-test-tanagra-exports
   # uncomment both lines below for sd access-control model
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://sd-tanagra-test.victrvumc.org
+  # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
+elif [[ ${useEmergeUnderlays} ]]; then
+  echo "Using eMerge underlay."
+  export TANAGRA_UNDERLAY_FILES=emerge/emerge_20240603_local
+  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=vumc-emerge-dev
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=vumc-emerge-dev-exports
+  # uncomment both lines below for emerge access-control model
+  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-emerge-dev.victrvumc.org
   # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
 else
   echo "Using Broad underlays."

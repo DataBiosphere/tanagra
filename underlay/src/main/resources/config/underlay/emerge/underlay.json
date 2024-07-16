@@ -1,0 +1,77 @@
+{
+  "name": "emerge",
+  "primaryEntity": "person",
+  "entities": [
+    "emerge/person",
+    "emerge/cpt4",
+    "emerge/cpt4Occurrence",
+    "emerge/icd9",
+    "emerge/icd9Occurrence",
+    "emerge/icd10cm",
+    "emerge/icd10cmOccurrence",
+    "emerge/icd10pcs",
+    "emerge/icd10pcsOccurrence",
+    "emerge/lab",
+    "emerge/labOccurrence",
+    "emerge/drug",
+    "emerge/drugOccurrence",
+    "emerge/phewas",
+    "emerge/bmi",
+    "emerge/height",
+    "emerge/weight",
+    "emerge/phenotype",
+    "emerge/phenotypeOccurrence"
+  ],
+  "groupItemsEntityGroups": [
+    "emerge/bmiPerson",
+    "emerge/heightPerson",
+    "emerge/weightPerson"
+  ],
+  "criteriaOccurrenceEntityGroups": [
+    "emerge/cpt4Person",
+    "emerge/icd9Person",
+    "emerge/icd10cmPerson",
+    "emerge/icd10pcsPerson",
+    "emerge/labPerson",
+    "emerge/drugPerson",
+    "emerge/phewasPerson",
+    "emerge/phenotypePerson"
+  ],
+  "criteriaSelectors": [
+    "emerge/gender",
+    "emerge/race",
+    "emerge/age",
+    "emerge/site",
+    "emerge/datasetEmergeseq",
+    "emerge/datasetExomechip",
+    "emerge/datasetGwas",
+    "emerge/datasetPgrnseq",
+    "emerge/datasetWes",
+    "emerge/datasetWgs",
+    "emerge/datasetGira",
+    "emerge/cpt4",
+    "emerge/icd9",
+    "emerge/icd10cm",
+    "emerge/icd10pcs",
+    "emerge/lab",
+    "emerge/drug",
+    "emerge/phewas",
+    "emerge/bmi",
+    "emerge/height",
+    "emerge/weight",
+    "emerge/phenotype",
+    "emerge/outputUnfiltered"
+  ],
+  "visualizations": [
+    "omop/gender",
+    "omop/raceAndAge"
+  ],
+  "metadata": {
+    "displayName": "eMerge Record Counter Dataset",
+    "description": "Dataset Updated June 03, 2024",
+    "properties": {
+      "lastUpdated": "06/03/24"
+    }
+  },
+  "uiConfigFile": "ui.json"
+}
