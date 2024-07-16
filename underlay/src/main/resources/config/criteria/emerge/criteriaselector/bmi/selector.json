@@ -1,0 +1,22 @@
+{
+  "name": "tanagra-bmi",
+  "displayName": "BMI",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Vitals",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "bmi.json",
+  "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    }
+  ]
+}

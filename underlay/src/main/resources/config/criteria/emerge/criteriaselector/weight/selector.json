@@ -1,0 +1,22 @@
+{
+  "name": "tanagra-weight",
+  "displayName": "Weight",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Vitals",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "weight.json",
+  "modifiers": [
+    {
+      "name": "ageAtOccurrence",
+      "displayName": "Age at occurrence",
+      "plugin": "attribute",
+      "pluginConfigFile": "ageAtOccurrence.json"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "icd9Occurrence": {
+      "values": [
+        "id",
+        "icd9"
+      ]
+    }
+  }
+}
+

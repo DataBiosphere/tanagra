@@ -1,0 +1,25 @@
+{
+  "name": "phewas",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64" },
+    { "name": "name", "dataType": "STRING" },
+    { "name": "label", "dataType": "STRING" },
+    { "name": "vocabulary", "dataType": "STRING", "valueFieldName": "type" },
+    { "name": "concept_code", "dataType": "STRING" },
+    { "name": "numeric_code", "dataType": "DOUBLE" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "name", "code" ]
+  },
+  "hierarchies": [
+    {
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "maxDepth": 5,
+      "keepOrphanNodes": true
+    }
+  ]
+}

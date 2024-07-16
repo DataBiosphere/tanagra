@@ -1,0 +1,22 @@
+{
+  "name": "tanagra-phenotype",
+  "displayName": "Phenotype",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Source Codes",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "phenotype.json",
+  "modifiers": [
+    {
+      "name": "decadeBirth",
+      "displayName": "Birth decade",
+      "plugin": "attribute",
+      "pluginConfigFile": "decadeBirth.json"
+    }
+  ]
+}

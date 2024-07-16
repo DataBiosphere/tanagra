@@ -1,0 +1,50 @@
+{
+  "demographicChartConfigs": {
+    "groupByAttributes": ["gender", "race", "age"],
+    "chartConfigs": [
+      {
+        "title": "Gender identity",
+        "primaryProperties": [{ "key": "gender" }]
+      },
+      {
+        "title": "Gender identity, Current age, Race",
+        "primaryProperties": [
+          { "key": "gender" },
+          {
+            "key": "age",
+            "buckets": [
+              {
+                "min": 5,
+                "max": 25,
+                "displayName": "5-24"
+              },
+              {
+                "min": 25,
+                "max": 45,
+                "displayName": "25-44"
+              },
+              {
+                "min": 45,
+                "max": 65,
+                "displayName": "45-64"
+              },
+              {
+                "min": 65,
+                "displayName": "65+"
+              }
+            ]
+          }
+        ],
+        "stackedProperty": { "key": "race" }
+      }
+    ]
+  },
+  "criteriaSearchConfig": {
+    "criteriaTypeWidth": 150,
+    "columns": [
+      { "key": "name", "width": "100%", "title": "Name" },
+      { "key": "concept_code", "width": 120, "title": "Code" },
+      { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" }
+    ]
+  }
+}
