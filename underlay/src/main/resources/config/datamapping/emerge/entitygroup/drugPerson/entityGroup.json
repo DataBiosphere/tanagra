@@ -1,0 +1,20 @@
+{
+  "name": "drugPerson",
+  "criteriaEntity": "drug",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "drugOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "drug"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "drug_id"
+  }
+}

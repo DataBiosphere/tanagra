@@ -1,0 +1,21 @@
+{
+  "name": "person",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "ind_seq" },
+    { "name": "person_id", "dataType": "INT64", "valueFieldName": "ind_seq" },
+    { "name": "age", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 120 },
+    { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_id", "displayFieldName": "gender_name", "isComputeDisplayHint": true},
+    { "name": "race", "dataType": "INT64", "valueFieldName": "race_id", "displayFieldName": "race_name", "isComputeDisplayHint": true},
+    { "name": "site", "dataType": "INT64", "valueFieldName": "site_code", "displayFieldName": "site_name", "isComputeDisplayHint": true},
+    { "name": "dataset_gwas", "dataType": "BOOLEAN" },
+    { "name": "dataset_emergeseq", "dataType": "BOOLEAN" },
+    { "name": "dataset_pgrnseq", "dataType": "BOOLEAN" },
+    { "name": "dataset_exomechip", "dataType": "BOOLEAN" },
+    { "name": "dataset_wgs", "dataType": "BOOLEAN" },
+    { "name": "dataset_wes", "dataType": "BOOLEAN" },
+    { "name": "dataset_gira", "dataType": "BOOLEAN" }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "gender", "race", "age", "site" ]
+}
