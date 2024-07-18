@@ -44,6 +44,7 @@ import {
 import { DataEntry, DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
+import emptyImage from "images/empty.svg";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -56,7 +57,6 @@ import { useImmer } from "use-immer";
 import { base64ToBytes } from "util/base64";
 import { useLocalSearchState } from "util/searchState";
 import { isValid } from "util/valid";
-import emptyImage from "../images/empty.svg";
 
 type Selection = {
   key: DataKey;

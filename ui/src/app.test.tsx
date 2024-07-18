@@ -1,7 +1,7 @@
+import App from "app";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import App from "./app";
 
 test("render included datasets heading", async () => {
   render(<App />);

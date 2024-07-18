@@ -1,8 +1,8 @@
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import Typography from "@mui/material/Typography";
+import { OccurrenceFilters } from "cohort";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { OccurrenceFilters } from "./cohort";
 
 export type OccurrenceFiltersSummaryProps = {
   filters: OccurrenceFilters;

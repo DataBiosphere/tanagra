@@ -1,11 +1,11 @@
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
+import verilyLogo from "images/verily.png";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useBaseParams } from "router";
 import { StudyName } from "studyName";
 import { RouterLink } from "util/searchState";
-import verilyLogo from "../images/verily.png";
 
 export function Header() {
   const params = useBaseParams();

@@ -1,5 +1,5 @@
+import { DataKey, DataValue, GroupByCount } from "data/types";
 import { isValid } from "util/valid";
-import { DataKey, DataValue, GroupByCount } from "./types";
 
 export enum FilterType {
   Unary = "UNARY",

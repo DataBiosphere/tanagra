@@ -1,12 +1,12 @@
 import Typography from "@mui/material/Typography";
-import { Cohort, GroupSectionFilterKind } from "data/source";
-import { GridBox } from "layout/gridBox";
-import GridLayout from "layout/gridLayout";
 import {
   getCriteriaPlugin,
   getCriteriaTitle,
   getCriteriaTitleFull,
-} from "./cohort";
+} from "cohort";
+import { Cohort, GroupSectionFilterKind } from "data/source";
+import { GridBox } from "layout/gridBox";
+import GridLayout from "layout/gridLayout";
 
 export type CohortSummaryProps = {
   cohort: Cohort;

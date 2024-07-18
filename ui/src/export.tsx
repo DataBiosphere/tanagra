@@ -42,6 +42,7 @@ import {
 } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import { getEnvironment } from "environment";
 import { useStudyId, useUnderlay } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
@@ -404,7 +405,8 @@ function Preview(props: PreviewProps) {
               featureSets: filteredFeatureSets.map((fs) => fs.id),
             },
           },
-          process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
+          getEnvironment().REACT_APP_POST_MESSAGE_ORIGIN ??
+            window.location.origin
         )
       : showExportDialog();
 
@@ -500,7 +502,7 @@ function PreviewTable(props: PreviewTableProps) {
       return Promise.all(
         props.occurrenceFilters.map(async (filters) => {
           let res: ListDataResponse | undefined;
-          if (process.env.REACT_APP_BACKEND_FILTERS) {
+          if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
             res = await underlaySource.exportPreview(
               underlay.name,
               filters.id,

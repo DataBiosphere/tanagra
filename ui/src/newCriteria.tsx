@@ -1,8 +1,8 @@
+import { getCriteriaPlugin, sectionName } from "cohort";
 import CriteriaHolder from "criteriaHolder";
 import { useCohortGroupSectionAndGroup, useNewCriteria } from "hooks";
 import { absoluteCohortURL, useBaseParams } from "router";
 import { useNavigate } from "util/searchState";
-import { getCriteriaPlugin, sectionName } from "./cohort";
 
 export default function NewCriteria() {
   const params = useBaseParams();

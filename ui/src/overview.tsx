@@ -16,6 +16,13 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import {
+  createCriteria,
+  generateCohortFilter,
+  getCriteriaPlugin,
+  getCriteriaTitle,
+  newSection,
+} from "cohort";
+import {
   deleteCohortCriteriaModifier,
   deleteCohortGroup,
   deleteCohortGroupSection,
@@ -41,6 +48,7 @@ import {
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { DemographicCharts } from "demographicCharts";
+import { getEnvironment } from "environment";
 import {
   useBackendCohort,
   useCohort,
@@ -63,13 +71,6 @@ import useSWRImmutable from "swr/immutable";
 import UndoRedoToolbar from "undoRedoToolbar";
 import { RouterLink, useNavigate } from "util/searchState";
 import { isValid } from "util/valid";
-import {
-  createCriteria,
-  generateCohortFilter,
-  getCriteriaPlugin,
-  getCriteriaTitle,
-  newSection,
-} from "./cohort";
 
 export function Overview() {
   const context = useCohortContext();
@@ -239,7 +240,7 @@ function ParticipantsGroupSection(props: {
       return -1;
     }
 
-    if (process.env.REACT_APP_BACKEND_FILTERS) {
+    if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
       return (
         await studySource.cohortCount(
           studyId,
@@ -706,7 +707,7 @@ function ParticipantsGroup(props: {
       return undefined;
     }
 
-    if (process.env.REACT_APP_BACKEND_FILTERS) {
+    if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
       return (
         await studySource.cohortCount(
           studyId,

@@ -19,6 +19,7 @@ import {
 } from "data/source";
 import { DataEntry, GroupByCount } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import { getEnvironment } from "environment";
 import { useStudyId, useUnderlay } from "hooks";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
@@ -317,7 +318,7 @@ export function useOccurrenceList(
       featureSets,
     },
     async () => {
-      if (process.env.REACT_APP_BACKEND_FILTERS) {
+      if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
         const previewEntities = await underlaySource.exportPreviewEntities(
           underlay.name,
           studyId,
