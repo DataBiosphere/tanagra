@@ -16,5 +16,9 @@
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
   ],
   "idAttribute": "id",
-  "optimizeGroupByAttributes": [ "measurement" ]
+  "optimizeGroupByAttributes": [ "measurement" ],
+  "temporalQuery": {
+    "visitDateAttribute": "start_date",
+    "visitIdAttribute": "visit_occurrence_id"
+  }
 }

@@ -13,21 +13,18 @@
   "plugin": "entityGroup",
   "pluginConfig": null,
   "pluginConfigFile": "icd10CM.json",
-  "supportsTemporalQueries": true,
   "modifiers": [
     {
       "name": "ageAtOccurrence",
       "displayName": "Age at occurrence",
       "plugin": "attribute",
-      "pluginConfigFile": "ageAtOccurrence.json",
-      "supportsTemporalQueries": true
+      "pluginConfigFile": "ageAtOccurrence.json"
     },
     {
       "name": "visitType",
       "displayName": "Visit type",
       "plugin": "attribute",
-      "pluginConfigFile": "visitType.json",
-      "supportsTemporalQueries": true
+      "pluginConfigFile": "visitType.json"
     },
     {
       "name": "startDateGroupByCount",
