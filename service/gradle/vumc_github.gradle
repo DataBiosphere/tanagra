@@ -25,3 +25,5 @@ publishing {
         }
     }
 }
+
+tasks.publishTanagraApiPublicationToGitHubPackagesRepository.dependsOn(bootJar)
