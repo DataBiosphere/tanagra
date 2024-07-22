@@ -1,6 +1,11 @@
 import { CohortRevision } from "activityLog/cohortRevision";
 import { AddCohort } from "addCohort";
 import { AddCohortCriteria, AddFeatureSetCriteria } from "addCriteria";
+import {
+  Auth0ProviderWithOutlet,
+  LoginPage,
+  LogoutPage,
+} from "auth/auth0OAuth";
 import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
@@ -157,12 +162,14 @@ export function additionalRoutes() {
   return [
     {
       path: "/",
+      element: <Auth0ProviderWithOutlet />,
       errorElement: <ErrorPage />,
       children: [
         {
           index: true,
           element: <UnderlaySelect />,
         },
+        ...authRoutes(),
         ...studySourceContextRootRoute(),
       ],
     },
@@ -193,6 +200,19 @@ function studySourceContextRootRoute() {
           ],
         },
       ],
+    },
+  ];
+}
+
+function authRoutes() {
+  return [
+    {
+      path: "login",
+      element: <LoginPage />,
+    },
+    {
+      path: "logout",
+      element: <LogoutPage />,
     },
   ];
 }

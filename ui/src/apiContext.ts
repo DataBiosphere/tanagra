@@ -1,3 +1,4 @@
+import { getAuth0Token, isAuth0Enabled, isAuthenticated } from "auth/auth0OAuth";
 import { getEnvironment } from "environment";
 import React from "react";
 import * as tanagra from "tanagra-api";
@@ -285,18 +286,33 @@ class FakeExportAPI {}
 
 class FakeUsersAPI {}
 
-function getAccessToken() {
-  // For local dev, get the bearer token from the iframe url param. For all other envs, check parent window's localStorage for auth token
-  return (
-    (getEnvironment().REACT_APP_GET_LOCAL_AUTH_TOKEN
-      ? new URLSearchParams(window.location.href.split("?")[1]).get("token")
-      : window.parent.localStorage.getItem("tanagraAccessToken")) ?? ""
-  );
+export function getAccessToken(): () => Promise<string> {
+  // If Auth0 is enabled: fetch it from Auth0
+  // For local dev: get the bearer token from the iframe url param.
+  // For all other envs: check parent window's localStorage for auth token.
+  const env = getEnvironment();
+
+  if (isAuth0Enabled() && isAuthenticated) {
+    return getAuth0Token();
+  } else {
+    const token =
+      (env.REACT_APP_GET_LOCAL_AUTH_TOKEN
+        ? new URLSearchParams(window.location.href.split("?")[1]).get("token")
+        : window.parent.localStorage.getItem("tanagraAccessToken")) ?? "";
+
+    return () =>
+      new Promise<string>((resolve) => {
+        setTimeout(() => {
+          resolve(token);
+        });
+      });
+  }
 }
 
 function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
-  fake: { new (): Fake }
+  fake: { new (): Fake },
+  getAccessToken: () => Promise<string>
 ) {
   const env = getEnvironment();
   const fn = () => {
@@ -306,42 +322,57 @@ function apiForEnvironment<Real, Fake>(
 
     const config: tanagra.ConfigurationParameters = {
       basePath: env.REACT_APP_BACKEND_HOST || "",
-      accessToken: getAccessToken(),
+      accessToken: getAccessToken,
     };
     return new real(new tanagra.Configuration(config));
   };
   return React.createContext(fn());
 }
 
-export const UnderlaysApiContext = apiForEnvironment(
-  tanagra.UnderlaysApi,
-  FakeUnderlaysApi
-);
-export const StudiesApiContext = apiForEnvironment(
-  tanagra.StudiesApi,
-  FakeStudiesAPI
-);
-export const CohortsApiContext = apiForEnvironment(
-  tanagra.CohortsApi,
-  FakeCohortsAPI
-);
-export const ConceptSetsApiContext = apiForEnvironment(
-  tanagra.ConceptSetsApi,
-  FakeConceptSetsAPI
-);
-export const ReviewsApiContext = apiForEnvironment(
-  tanagra.ReviewsApi,
-  FakeReviewsAPI
-);
-export const AnnotationsApiContext = apiForEnvironment(
-  tanagra.AnnotationsApi,
-  FakeAnnotationsAPI
-);
-export const ExportApiContext = apiForEnvironment(
-  tanagra.ExportApi,
-  FakeExportAPI
-);
-export const UsersApiContext = apiForEnvironment(
-  tanagra.UsersApi,
-  FakeUsersAPI
-);
+export function getUnderlaysApiContext(getAccessToken: () => Promise<string>) {
+  return apiForEnvironment(
+    tanagra.UnderlaysApi,
+    FakeUnderlaysApi,
+    getAccessToken
+  );
+}
+
+export function getStudiesApiContext(getAccessToken: () => Promise<string>) {
+  return apiForEnvironment(tanagra.StudiesApi, FakeStudiesAPI, getAccessToken);
+}
+
+export function getCohortsApiContext(getAccessToken: () => Promise<string>) {
+  return apiForEnvironment(tanagra.CohortsApi, FakeCohortsAPI, getAccessToken);
+}
+
+export function getConceptSetsApiContext(
+  getAccessToken: () => Promise<string>
+) {
+  return apiForEnvironment(
+    tanagra.ConceptSetsApi,
+    FakeConceptSetsAPI,
+    getAccessToken
+  );
+}
+
+export function getReviewsApiContext(getAccessToken: () => Promise<string>) {
+  return apiForEnvironment(tanagra.ReviewsApi, FakeReviewsAPI, getAccessToken);
+}
+
+export function getAnnotationsApiContext(
+  getAccessToken: () => Promise<string>
+) {
+  return apiForEnvironment(
+    tanagra.AnnotationsApi,
+    FakeAnnotationsAPI,
+    getAccessToken
+  );
+}
+
+export function getExportApiContext(getAccessToken: () => Promise<string>) {
+  return apiForEnvironment(tanagra.ExportApi, FakeExportAPI, getAccessToken);
+}
+
+export function getUsersApiContext(getAccessToken: () => Promise<string>) {
+  return apiForEnvironment(tanagra.UsersApi, FakeUsersAPI, getAccessToken);
+}

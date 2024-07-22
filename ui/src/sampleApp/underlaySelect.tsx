@@ -2,7 +2,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import { UnderlaysApiContext } from "apiContext";
+import { getAccessToken, getUnderlaysApiContext } from "apiContext";
 import Loading from "components/loading";
 import GridLayout from "layout/gridLayout";
 import "plugins";
@@ -13,7 +13,7 @@ import useSWRImmutable from "swr/immutable";
 import { RouterLink } from "util/searchState";
 
 export function UnderlaySelect() {
-  const underlaysApi = useContext(UnderlaysApiContext);
+  const underlaysApi = useContext(getUnderlaysApiContext(getAccessToken()));
 
   const underlaysState = useSWRImmutable(
     { type: "underlay" },
