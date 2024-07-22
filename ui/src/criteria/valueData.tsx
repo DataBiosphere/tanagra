@@ -234,6 +234,9 @@ export function ValueDataEdit(props: ValueDataEditProps) {
                 e.preventDefault();
                 e.stopPropagation();
               }}
+              onMouseUp={(e) => {
+                e.stopPropagation();
+              }}
             >
               <Select
                 value={props.valueData[0].attribute}

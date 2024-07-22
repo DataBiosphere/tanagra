@@ -218,6 +218,9 @@ function BioVUInline(props: BioVUInlineProps) {
           e.preventDefault();
           e.stopPropagation();
         }}
+        onMouseUp={(e) => {
+          e.stopPropagation();
+        }}
       >
         <Select
           value={decodedData.sampleFilter}
@@ -235,6 +238,9 @@ function BioVUInline(props: BioVUInlineProps) {
         <GridBox
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
+          }}
+          onMouseUp={(e) => {
             e.stopPropagation();
           }}
         >
@@ -258,6 +264,9 @@ function BioVUInline(props: BioVUInlineProps) {
         <GridBox
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
+          }}
+          onMouseUp={(e) => {
             e.stopPropagation();
           }}
         >

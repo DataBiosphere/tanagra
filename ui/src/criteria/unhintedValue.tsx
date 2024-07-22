@@ -233,6 +233,9 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
           e.preventDefault();
           e.stopPropagation();
         }}
+        onMouseUp={(e) => {
+          e.stopPropagation();
+        }}
       >
         <Select
           value={decodedData.operator}

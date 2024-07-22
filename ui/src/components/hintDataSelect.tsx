@@ -63,6 +63,9 @@ export function HintDataSelect(props: HintDataSelectProps) {
         e.preventDefault();
         e.stopPropagation();
       }}
+      onMouseUp={(e) => {
+        e.stopPropagation();
+      }}
     >
       <Select
         multiple
@@ -81,6 +84,9 @@ export function HintDataSelect(props: HintDataSelectProps) {
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
+                    }}
+                    onMouseUp={(e) => {
+                      e.stopPropagation();
                     }}
                     onDelete={(e) => {
                       e.stopPropagation();
