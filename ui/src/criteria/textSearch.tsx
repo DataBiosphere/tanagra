@@ -217,6 +217,9 @@ function TextSearchInline(props: TextSearchInlineProps) {
             e.preventDefault();
             e.stopPropagation();
           }}
+          onMouseUp={(e) => {
+            e.stopPropagation();
+          }}
         >
           <GridLayout rows spacing={1} height="auto">
             <TextField
@@ -242,6 +245,9 @@ function TextSearchInline(props: TextSearchInlineProps) {
                         onMouseDown={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
+                        }}
+                        onMouseUp={(e) => {
+                          e.stopPropagation();
                         }}
                         onDelete={(e) => {
                           e.stopPropagation();

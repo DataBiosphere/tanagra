@@ -879,6 +879,9 @@ function ParticipantsGroup(props: {
                   e.preventDefault();
                   e.stopPropagation();
                 }}
+                onMouseUp={(e) => {
+                  e.stopPropagation();
+                }}
               >
                 {!!plugin.renderEdit ? (
                   <IconButton
@@ -979,6 +982,9 @@ function ParticipantsGroup(props: {
                         <GridBox
                           onClick={(e) => {
                             e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          onMouseUp={(e) => {
                             e.stopPropagation();
                           }}
                         >
