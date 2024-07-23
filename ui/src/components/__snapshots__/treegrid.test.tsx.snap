@@ -8,12 +8,25 @@ exports[`Table renders correctly 1`] = `
     <table
       style="table-layout: fixed; width: 100%; text-align: left; border-collapse: collapse;"
     >
+      <colgroup>
+        <col
+          style="width: 200px;"
+        />
+        <col />
+        <col
+          style="width: 150px;"
+        />
+        <col
+          style="width: 50px;"
+        />
+      </colgroup>
       <thead>
         <tr
           style="height: 48px;"
         >
           <th
-            style="position: sticky; top: 0px; max-width: 100%; width: 100%; min-width: 100%; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
+            colspan="2"
+            style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
               class="MuiBox-root css-1381h1c"
@@ -74,7 +87,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </th>
           <th
-            style="position: sticky; top: 0px; max-width: 150px; width: 150px; min-width: 150px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
+            style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
               class="MuiBox-root css-1381h1c"
@@ -135,7 +148,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </th>
           <th
-            style="position: sticky; top: 0px; max-width: 50px; width: 50px; min-width: 50px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
+            style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
               class="MuiBox-root css-1381h1c"
@@ -188,7 +201,8 @@ exports[`Table renders correctly 1`] = `
           style="height: 48px;"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-ttlwsw-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-141kssz-MuiTableCell-root"
+            colspan="2"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -202,7 +216,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-o3sd3r-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-141kssz-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -216,7 +230,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1gu6ett-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-141kssz-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -232,7 +246,8 @@ exports[`Table renders correctly 1`] = `
           style="display: none; height: 48px;"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
+            colspan="2"
           >
             <div
               class="MuiStack-root css-kv8qlv-MuiStack-root"
@@ -266,7 +281,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -280,7 +295,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -298,7 +313,8 @@ exports[`Table renders correctly 1`] = `
           style="height: 48px;"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
+            colspan="2"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -312,7 +328,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -326,7 +342,7 @@ exports[`Table renders correctly 1`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -364,12 +380,25 @@ exports[`Table renders correctly 2`] = `
     <table
       style="table-layout: fixed; width: 100%; text-align: left; border-collapse: collapse;"
     >
+      <colgroup>
+        <col
+          style="width: 200px;"
+        />
+        <col />
+        <col
+          style="width: 150px;"
+        />
+        <col
+          style="width: 50px;"
+        />
+      </colgroup>
       <thead>
         <tr
           style="height: 48px;"
         >
           <th
-            style="position: sticky; top: 0px; max-width: 100%; width: 100%; min-width: 100%; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
+            colspan="2"
+            style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
               class="MuiBox-root css-1381h1c"
@@ -439,7 +468,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </th>
           <th
-            style="position: sticky; top: 0px; max-width: 150px; width: 150px; min-width: 150px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
+            style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
               class="MuiBox-root css-1381h1c"
@@ -500,7 +529,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </th>
           <th
-            style="position: sticky; top: 0px; max-width: 50px; width: 50px; min-width: 50px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
+            style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
               class="MuiBox-root css-1381h1c"
@@ -553,7 +582,8 @@ exports[`Table renders correctly 2`] = `
           style="height: 48px;"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-ttlwsw-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-141kssz-MuiTableCell-root"
+            colspan="2"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -567,7 +597,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-o3sd3r-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-141kssz-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -581,7 +611,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1gu6ett-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-141kssz-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -597,7 +627,8 @@ exports[`Table renders correctly 2`] = `
           style="display: none; height: 48px;"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
+            colspan="2"
           >
             <div
               class="MuiStack-root css-kv8qlv-MuiStack-root"
@@ -631,7 +662,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -645,7 +676,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -663,7 +694,8 @@ exports[`Table renders correctly 2`] = `
           style="height: 48px;"
         >
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1fr3au9-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
+            colspan="2"
           >
             <div
               class="MuiStack-root css-1sg8hwy-MuiStack-root"
@@ -677,7 +709,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-km028r-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"
@@ -691,7 +723,7 @@ exports[`Table renders correctly 2`] = `
             </div>
           </td>
           <td
-            class="MuiTableCell-root MuiTableCell-sizeMedium css-1io7e9v-MuiTableCell-root"
+            class="MuiTableCell-root MuiTableCell-sizeMedium css-109mdx-MuiTableCell-root"
           >
             <div
               class="MuiStack-root css-1d9cypr-MuiStack-root"

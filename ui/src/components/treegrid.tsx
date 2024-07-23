@@ -258,6 +258,17 @@ export function TreeGrid(props: TreeGridProps) {
           borderCollapse: "collapse",
         }}
       >
+        <colgroup>
+          {props.columns.flatMap((col, i) => [
+            <col
+              key={i}
+              style={{
+                width: col.width === "100%" ? "200px" : col.width,
+              }}
+            />,
+            ...(col.width === "100%" ? [<col key="resize" />] : []),
+          ])}
+        </colgroup>
         <thead>
           <tr
             style={{
@@ -267,14 +278,10 @@ export function TreeGrid(props: TreeGridProps) {
             {props.columns.map((col, i) => (
               <th
                 key={i}
+                colSpan={col.width === "100%" ? 2 : undefined}
                 style={{
                   position: "sticky",
                   top: 0,
-                  ...(col.width && {
-                    maxWidth: col.width,
-                    width: col.width,
-                    minWidth: col.width,
-                  }),
                   backgroundColor: paperColor,
                   boxShadow: `inset 0 -2px 0 ${theme.palette.divider}`,
                   zIndex: 1,
@@ -542,13 +549,9 @@ function renderChildren(
           return (
             <TableCell
               key={i}
+              colSpan={col.width === "100%" ? 2 : undefined}
               sx={[
                 {
-                  ...(col.width && {
-                    maxWidth: col.width,
-                    width: col.width,
-                    minWidth: col.width,
-                  }),
                   boxShadow: !first
                     ? `inset 0 1px 0 ${theme.palette.divider}`
                     : undefined,
