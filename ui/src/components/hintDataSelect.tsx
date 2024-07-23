@@ -30,7 +30,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
           const value = props.hintData?.enumHintOptions?.find(
             (hint: EnumHintOption) => hint.name === name
           )?.value;
-          if (!isValid(value)) {
+          if (value === undefined) {
             return undefined;
           }
           return {
