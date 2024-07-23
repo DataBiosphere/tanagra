@@ -28,9 +28,5 @@
       "keepOrphanNodes": false,
       "cleanHierarchyNodesWithZeroCounts": true
     }
-  ],
-  "temporalQuery": {
-    "visitDateAttribute": "start_date",
-    "visitIdAttribute": "visit_occurrence_id"
-  }
+  ]
 }

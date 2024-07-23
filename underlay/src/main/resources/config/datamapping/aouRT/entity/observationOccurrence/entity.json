@@ -20,7 +20,7 @@
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "observation" ],
   "temporalQuery": {
-    "visitDateAttribute": "start_date",
+    "visitDateAttribute": "date",
     "visitIdAttribute": "visit_occurrence_id"
   }
 }

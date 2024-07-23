@@ -17,7 +17,7 @@
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "procedure" ],
   "temporalQuery": {
-    "visitDateAttribute": "start_date",
+    "visitDateAttribute": "date",
     "visitIdAttribute": "visit_occurrence_id"
   }
 }
