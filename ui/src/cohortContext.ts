@@ -1,4 +1,4 @@
-import { defaultGroup, newSection } from "cohort";
+import { defaultGroup, getCriteriaTitle, newSection } from "cohort";
 import {
   Cohort,
   Criteria,
@@ -13,7 +13,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortURL, BaseParams } from "router";
 import useSWR, { useSWRConfig } from "swr";
-import { getCriteriaTitle } from "./cohort";
 
 type CohortState = {
   past: Cohort[];

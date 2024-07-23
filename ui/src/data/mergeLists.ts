@@ -1,4 +1,4 @@
-import { SortDirection } from "./configuration";
+import { SortDirection } from "data/configuration";
 
 export function mergeLists<T, R>(
   lists: [string, T[]][],

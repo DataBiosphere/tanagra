@@ -1,5 +1,6 @@
+import { getEnvironment } from "environment";
 import React from "react";
-import * as tanagra from "./tanagra-api";
+import * as tanagra from "tanagra-api";
 
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
 class FakeUnderlaysApi {
@@ -287,7 +288,7 @@ class FakeUsersAPI {}
 function getAccessToken() {
   // For local dev, get the bearer token from the iframe url param. For all other envs, check parent window's localStorage for auth token
   return (
-    (process.env.REACT_APP_GET_LOCAL_AUTH_TOKEN
+    (getEnvironment().REACT_APP_GET_LOCAL_AUTH_TOKEN
       ? new URLSearchParams(window.location.href.split("?")[1]).get("token")
       : window.parent.localStorage.getItem("tanagraAccessToken")) ?? ""
   );
@@ -297,13 +298,14 @@ function apiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
 ) {
+  const env = getEnvironment();
   const fn = () => {
-    if (process.env.REACT_APP_USE_FAKE_API === "y") {
+    if (env.REACT_APP_USE_FAKE_API === "y") {
       return new fake();
     }
 
     const config: tanagra.ConfigurationParameters = {
-      basePath: process.env.REACT_APP_BACKEND_HOST || "",
+      basePath: env.REACT_APP_BACKEND_HOST || "",
       accessToken: getAccessToken(),
     };
     return new real(new tanagra.Configuration(config));

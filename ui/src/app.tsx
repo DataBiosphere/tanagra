@@ -4,8 +4,8 @@ import { enableMapSet } from "immer";
 import "plugins";
 import { RouterProvider } from "react-router-dom";
 import { createAppRouter } from "router";
+import theme from "theme";
 import "viz/plugins";
-import theme from "./theme";
 
 enableMapSet();
 

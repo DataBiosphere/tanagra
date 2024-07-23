@@ -10,6 +10,12 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
+import {
+  createCriteria,
+  getCriteriaPlugin,
+  searchCriteria,
+  sectionName,
+} from "cohort";
 import { insertCohortCriteria, useCohortContext } from "cohortContext";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -56,12 +62,6 @@ import {
   useNavigate,
 } from "util/searchState";
 import { isValid } from "util/valid";
-import {
-  createCriteria,
-  getCriteriaPlugin,
-  searchCriteria,
-  sectionName,
-} from "./cohort";
 
 type LocalSearchState = {
   search?: string;

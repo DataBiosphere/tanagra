@@ -1,5 +1,5 @@
+import { SortDirection } from "data/configuration";
 import { mergeLists } from "data/mergeLists";
-import { SortDirection } from "./configuration";
 
 type List = [string, { id: number; count: number }[]];
 

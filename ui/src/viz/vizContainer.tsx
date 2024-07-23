@@ -11,6 +11,7 @@ import { Cohort, StudySource, UnderlaySource } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { compareDataValues } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import { getEnvironment } from "environment";
 import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox, GridBoxPaper } from "layout/gridBox";
@@ -151,6 +152,7 @@ async function fetchVizData(
   studyId: string,
   cohort: Cohort
 ): Promise<VizData[]> {
+  const env = getEnvironment();
   const vizSource = vizConfig.sources[0];
 
   // TODO(tjennison): Remove these limitations once the backend sufficiently
@@ -159,10 +161,7 @@ async function fetchVizData(
     throw new Error("Only 1 visualization source is supported.");
   }
   const entity = selectorToEntity[vizSource.criteriaSelector];
-  if (
-    !entity ||
-    (!process.env.REACT_APP_BACKEND_FILTERS && entity !== "person")
-  ) {
+  if (!entity || (!env.REACT_APP_BACKEND_FILTERS && entity !== "person")) {
     throw new Error(
       `Visualizations of ${vizSource.criteriaSelector} are not supported.`
     );
@@ -174,7 +173,7 @@ async function fetchVizData(
     throw new Error("Only 1 or 2 attributes are supported.");
   }
 
-  const data = process.env.REACT_APP_BACKEND_FILTERS
+  const data = env.REACT_APP_BACKEND_FILTERS
     ? await studySource.cohortCount(
         studyId,
         cohort.id,

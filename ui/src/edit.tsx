@@ -1,6 +1,6 @@
+import { getCriteriaPlugin, getCriteriaTitle, sectionName } from "cohort";
 import CriteriaHolder from "criteriaHolder";
 import { useGroupSectionAndGroup } from "hooks";
-import { getCriteriaPlugin, getCriteriaTitle, sectionName } from "./cohort";
 
 export default function Edit() {
   const { group, section, sectionIndex } = useGroupSectionAndGroup();

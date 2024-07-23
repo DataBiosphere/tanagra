@@ -28,6 +28,7 @@ import { Criteria, ListDataResponse } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
+import { getEnvironment } from "environment";
 import {
   deleteFeatureSetCriteria,
   deletePredefinedFeatureSetCriteria,
@@ -37,6 +38,7 @@ import {
   useFeatureSetContext,
 } from "featureSet/featureSetContext";
 import { useFeatureSet, useStudyId, useUnderlay } from "hooks";
+import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useEffect, useMemo, useState } from "react";
@@ -52,7 +54,6 @@ import useSWRImmutable from "swr/immutable";
 import UndoRedoToolbar from "undoRedoToolbar";
 import { safeRegExp } from "util/safeRegExp";
 import { useGlobalSearchState, useNavigate } from "util/searchState";
-import emptyImage from "../images/empty.svg";
 
 export function FeatureSet() {
   const context = useFeatureSetContext();
@@ -315,7 +316,7 @@ function Preview() {
       return Promise.all(
         (occurrenceFiltersState.data ?? []).map(async (params) => {
           let res: ListDataResponse | undefined;
-          if (process.env.REACT_APP_BACKEND_FILTERS) {
+          if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
             res = await underlaySource.exportPreview(
               underlay.name,
               params.id,

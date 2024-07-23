@@ -1,18 +1,11 @@
 import { defaultSection, generateCohortFilter } from "cohort";
-import { getReasonPhrase } from "http-status-codes";
-import * as keyProto from "proto/criteriaselector/key";
-import * as valueProto from "proto/value";
-import * as tanagra from "tanagra-api";
-import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
-import { Underlay } from "underlaysSlice";
-import { isValid } from "util/valid";
 import {
   ITEM_COUNT_ATTRIBUTE,
   ROLLUP_COUNT_ATTRIBUTE,
   SortDirection,
   SortOrder,
   VALUE_SUFFIX,
-} from "./configuration";
+} from "data/configuration";
 import {
   ArrayFilter,
   Filter,
@@ -22,8 +15,15 @@ import {
   isRelationshipFilter,
   isTextFilter,
   isUnaryFilter,
-} from "./filter";
-import { ComparisonOperator, DataEntry, DataKey, DataValue } from "./types";
+} from "data/filter";
+import { ComparisonOperator, DataEntry, DataKey, DataValue } from "data/types";
+import { getReasonPhrase } from "http-status-codes";
+import * as keyProto from "proto/criteriaselector/key";
+import * as valueProto from "proto/value";
+import * as tanagra from "tanagra-api";
+import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
+import { Underlay } from "underlaysSlice";
+import { isValid } from "util/valid";
 
 export type EntityNode = {
   data: DataEntry;

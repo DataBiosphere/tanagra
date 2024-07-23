@@ -18,6 +18,7 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { generateId } from "cohort";
 import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
+import { useNewReviewDialog } from "cohortReview/newReviewDialog";
 import { useReviewAnnotations } from "cohortReview/reviewHooks";
 import { CohortSummary } from "cohortSummary";
 import Empty from "components/empty";
@@ -49,7 +50,6 @@ import {
 } from "router";
 import useSWR from "swr";
 import { RouterLink, useNavigate } from "util/searchState";
-import { useNewReviewDialog } from "./newReviewDialog";
 
 type PendingItem = {
   id: string;

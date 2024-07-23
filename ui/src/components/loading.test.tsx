@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import Loading from "components/loading";
 import React from "react";
-import Loading from "./loading";
 
 test("loading", async () => {
   const { rerender } = render(

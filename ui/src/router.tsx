@@ -1,190 +1,24 @@
-import Button from "@mui/material/Button";
-import { CohortRevision } from "activityLog/cohortRevision";
-import { AddCohort } from "addCohort";
-import { AddCohortCriteria, AddFeatureSetCriteria } from "addCriteria";
-import { CohortReview } from "cohortReview/cohortReview";
-import { CohortReviewList } from "cohortReview/cohortReviewList";
-import CohortRoot from "cohortRoot";
-import { StudySourceContextRoot } from "data/studySourceContext";
-import { UnderlaySourceContextRoot } from "data/underlaySourceContext";
-import Edit from "edit";
-import { Export } from "export";
-import { AddFeatureSet } from "featureSet/addFeatureSet";
-import { FeatureSet } from "featureSet/featureSet";
-import { FeatureSetEdit } from "featureSet/featureSetEdit";
-import FeatureSetRoot from "featureSet/featureSetRoot";
-import { NewFeatureSet } from "featureSet/newFeatureSet";
-import NewCriteria from "newCriteria";
-import { Overview } from "overview";
+import { additionalRoutes, underlaySourceContextRootRoutes } from "appRoutes";
+import { getEnvironment } from "environment";
 import { useCallback, useEffect } from "react";
 import {
   createHashRouter,
   generatePath,
-  isRouteErrorResponse,
   useLocation,
   useNavigate,
   useParams,
-  useRouteError,
 } from "react-router-dom";
-import { StudiesList } from "sampleApp/studiesList";
-import { StudyOverview } from "sampleApp/studyOverview";
-import { TanagraContainer } from "sampleApp/tanagraContainer";
-import { UnderlaySelect } from "sampleApp/underlaySelect";
 
 export function createAppRouter() {
   return createHashRouter([
-    {
-      path: "tanagra/underlays/:underlayName",
-      element: <UnderlaySourceContextRoot />,
-      children: [
-        {
-          path: "studies/:studyId/export?/",
-          element: <StudySourceContextRoot />,
-          children: [
-            {
-              index: true,
-              element: <Export />,
-            },
-            {
-              element: <CohortRoot />,
-              children: [
-                {
-                  path: "cohorts/:cohortId/:groupSectionId/:groupId",
-                  children: [
-                    {
-                      index: true,
-                      element: <Overview />,
-                    },
-                    {
-                      path: "second?/add",
-                      children: [
-                        {
-                          index: true,
-                          element: <AddCohortCriteria />,
-                        },
-                        {
-                          path: ":configId",
-                          element: <NewCriteria />,
-                        },
-                        {
-                          path: "tAddFeatureSet",
-                          element: <AddFeatureSet />,
-                        },
-                      ],
-                    },
-                    {
-                      path: "edit",
-                      element: <Edit />,
-                    },
-                  ],
-                },
-                {
-                  path: "reviews/:cohortId/:reviewId?",
-                  children: [
-                    {
-                      index: true,
-                      element: <CohortReviewList />,
-                    },
-                    {
-                      path: "review",
-                      element: <CohortReview />,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              element: <FeatureSetRoot />,
-              children: [
-                {
-                  path: "featureSets/:featureSetId",
-                  children: [
-                    {
-                      index: true,
-                      element: <FeatureSet />,
-                    },
-                    {
-                      path: "add",
-                      children: [
-                        {
-                          index: true,
-                          element: <AddFeatureSetCriteria />,
-                        },
-                        {
-                          path: ":configId",
-                          element: <NewFeatureSet />,
-                        },
-                        {
-                          path: "tAddCohort",
-                          element: <AddCohort />,
-                        },
-                      ],
-                    },
-                    {
-                      path: "edit/:criteriaId",
-                      element: <FeatureSetEdit />,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              path: "activityLog/cohorts/:cohortId/:revisionId",
-              element: <CohortRevision />,
-            },
-          ],
-        },
-      ],
-    },
+    ...underlaySourceContextRootRoutes(),
     ...additionalRoutes(),
   ]);
 }
 
-function additionalRoutes() {
-  switch (process.env.REACT_APP_ADDITIONAL_ROUTES) {
-    case "none":
-      return [];
-  }
-
-  return [
-    {
-      path: "/",
-      errorElement: <ErrorPage />,
-      children: [
-        {
-          index: true,
-          element: <UnderlaySelect />,
-        },
-        {
-          element: <StudySourceContextRoot />,
-          children: [
-            {
-              path: "underlays/:underlayName",
-              element: <UnderlaySourceContextRoot />,
-              children: [
-                {
-                  index: true,
-                  element: <StudiesList />,
-                },
-                {
-                  path: "studies/:studyId",
-                  element: <StudyOverview />,
-                },
-                {
-                  path: "studies/:studyId/*",
-                  element: <TanagraContainer />,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ];
-}
-
 // Used when navigating back from a root Tanagra page.
 export function useExitAction() {
+  const env = getEnvironment();
   const location = useLocation();
   const params = useBaseParams();
   const navigate = useNavigate();
@@ -194,12 +28,12 @@ export function useExitAction() {
     if (match) {
       navigate(match[1]);
     } else {
-      if (process.env.REACT_APP_USE_EXIT_URL) {
+      if (env.REACT_APP_USE_EXIT_URL) {
         navigate(exitURL(params));
       } else {
         window.parent.postMessage(
           { message: "CLOSE" },
-          process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
+          env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
         );
       }
     }
@@ -225,7 +59,7 @@ export function useActivityListener() {
     () =>
       window.parent.postMessage(
         "USER_ACTIVITY_DETECTED",
-        process.env.REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
+        getEnvironment().REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
       ),
     1000
   );
@@ -289,7 +123,7 @@ export function redirect(redirectURL: string, returnPath: string) {
 }
 
 export function exitURL(params: BaseParams) {
-  const url = process.env.REACT_APP_EXIT_URL;
+  const url = getEnvironment().REACT_APP_EXIT_URL;
   if (url) {
     return generatePath(url, params);
   }
@@ -386,33 +220,6 @@ export function absoluteCohortReviewListURL(
   reviewId?: string
 ) {
   return `${absolutePrefix(params)}reviews/${cohortId}/${reviewId ?? ""}`;
-}
-
-// TODO(tjennison): Make a prettier error page.
-function ErrorPage() {
-  const error = useRouteError();
-  const navigate = useNavigate();
-
-  let message = String(error);
-  if (isRouteErrorResponse(error)) {
-    message = `${error.status}: ${error.statusText}`;
-  } else if (typeof error === "object" && !!error && "message" in error) {
-    message = (error as Error).message;
-  }
-
-  return (
-    <>
-      <p>{message}</p>
-      <Button
-        variant="contained"
-        onClick={() => {
-          navigate("/");
-        }}
-      >
-        Return Home
-      </Button>
-    </>
-  );
 }
 
 export function getCurrentUrl(): string {

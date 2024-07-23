@@ -1,16 +1,17 @@
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import { generateCohortFilter } from "cohort";
 import Loading from "components/loading";
 import { Cohort } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import { getEnvironment } from "environment";
 import { useStudyId, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { ReactNode, useCallback } from "react";
 import useSWRImmutable from "swr/immutable";
 import { VizContainer } from "viz/vizContainer";
-import { generateCohortFilter } from "./cohort";
 
 export type DemographicChartsProps = {
   cohort?: Cohort;
@@ -29,7 +30,7 @@ export function DemographicCharts(props: DemographicChartsProps) {
     }
 
     return (
-      (process.env.REACT_APP_BACKEND_FILTERS
+      (getEnvironment().REACT_APP_BACKEND_FILTERS
         ? await studySource.cohortCount(
             studyId,
             props.cohort.id,

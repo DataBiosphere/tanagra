@@ -10,6 +10,7 @@ import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
 import { useStudySource } from "data/studySourceContext";
 import { DataKey } from "data/types";
 import { useStudyId, useUnderlay } from "hooks";
+import emptyImage from "images/empty.svg";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import React, { useCallback, useMemo } from "react";
@@ -22,7 +23,6 @@ import {
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
 import { useNavigate } from "util/searchState";
-import emptyImage from "../images/empty.svg";
 
 enum ArtifactType {
   Cohort = "Cohort",
