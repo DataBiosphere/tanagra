@@ -2555,6 +2555,7 @@ components:
     AnnotationDisplayName:
       type: string
       description: Human readable name of the annotation
+      maxLength: 35
 
     AnnotationDescription:
       type: string

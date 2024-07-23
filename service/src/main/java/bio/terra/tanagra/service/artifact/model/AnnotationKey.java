@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class AnnotationKey {
+  private static final int MAX_DISPLAY_NAME_LENGTH = 35;
   private final String id;
   private final String displayName;
   private final String description;
@@ -144,6 +145,10 @@ public final class AnnotationKey {
       }
       if (displayName == null) {
         throw new BadRequestException("Annotation key requires a display name");
+      }
+      if (displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
+        throw new BadRequestException(
+            "Annotation key cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
       }
       if (enumVals == null) {
         enumVals = new ArrayList<>();
