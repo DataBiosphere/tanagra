@@ -81,6 +81,16 @@ public interface ApiTranslator {
       Literal value,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
+    if (value.isNull()) {
+      return unaryFilterSql(
+          field,
+          BinaryOperator.EQUALS.equals(operator)
+              ? UnaryOperator.IS_NULL
+              : UnaryOperator.IS_NOT_NULL,
+          tableAlias,
+          sqlParams);
+    }
+
     String operatorTemplateSql =
         FUNCTION_TEMPLATE_FIELD_VAR_BRACES
             + ' '
