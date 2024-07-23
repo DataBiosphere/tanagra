@@ -5,8 +5,8 @@
       "projectId": "vumc-emerge-dev",
       "datasetId": "emerge_20240603",
       "sqlSubstitutions": {
-        "omopDataset": "vumc-emerge-dev.em_20240603",
-        "staticTablesDataset": "vumc-emerge-dev.em_20240603"
+        "omopDataset": "vumc-emerge-dev.emerge_20240603",
+        "staticTablesDataset": "vumc-emerge-dev.emerge_20240603"
       }
     },
     "indexData": {
