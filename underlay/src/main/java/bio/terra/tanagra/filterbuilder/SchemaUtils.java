@@ -1,7 +1,6 @@
 package bio.terra.tanagra.filterbuilder;
 
-import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
 import java.sql.Timestamp;
@@ -10,7 +9,7 @@ import java.time.Instant;
 public final class SchemaUtils {
   private SchemaUtils() {}
 
-  public static Literal toLiteral(Value value) {
+  public static Literal toLiteral(Value value, DataType dataType) {
     switch (value.getValueCase()) {
       case BOOL_VALUE:
         return Literal.forBoolean(value.getBoolValue());
@@ -24,8 +23,7 @@ public final class SchemaUtils {
                 Instant.ofEpochSecond(
                     value.getTimestampValue().getSeconds(), value.getTimestampValue().getNanos())));
       case VALUE_NOT_SET:
-        throw new InvalidConfigException(
-            "Cannot convert a value with no type to a literal: " + value.getValueCase());
+        return Literal.forGeneric(dataType, null, null, null, null, null);
     }
     throw new SystemException("Error converting value to literal: " + value);
   }

@@ -50,14 +50,14 @@ public final class AttributeSchemaUtils {
               entity,
               attribute,
               BinaryOperator.EQUALS,
-              toLiteral(data.getSelected(0).getValue()))
+              toLiteral(data.getSelected(0).getValue(), attribute.getDataType()))
           : new AttributeFilter(
               underlay,
               entity,
               attribute,
               NaryOperator.IN,
               data.getSelectedList().stream()
-                  .map(selected -> toLiteral(selected.getValue()))
+                  .map(selected -> toLiteral(selected.getValue(), attribute.getDataType()))
                   .collect(Collectors.toList()));
     } else {
       // Numeric range filter.

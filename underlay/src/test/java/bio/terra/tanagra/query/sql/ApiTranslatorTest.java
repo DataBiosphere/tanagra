@@ -2,6 +2,7 @@ package bio.terra.tanagra.query.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
@@ -56,6 +57,18 @@ public class ApiTranslatorTest {
     assertEquals("tableAlias.columnName <= @val0", sql);
     assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
 
+    // Null literal converts to a unary filter.
+    sqlParams = new SqlParams();
+    val = Literal.forInt64(null);
+    sql = apiTranslator.binaryFilterSql(field, BinaryOperator.EQUALS, val, tableAlias, sqlParams);
+    assertEquals("tableAlias.columnName IS NULL", sql);
+    assertTrue(sqlParams.getParams().isEmpty());
+    sql =
+        apiTranslator.binaryFilterSql(field, BinaryOperator.NOT_EQUALS, val, tableAlias, sqlParams);
+    assertEquals("tableAlias.columnName IS NOT NULL", sql);
+    assertTrue(sqlParams.getParams().isEmpty());
+
+    // SQL function wrapper.
     field =
         SqlField.of(
             "columnName",
