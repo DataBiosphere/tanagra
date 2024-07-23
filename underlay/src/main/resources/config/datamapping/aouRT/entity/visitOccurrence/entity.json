@@ -12,5 +12,9 @@
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100 }
   ],
   "idAttribute": "id",
-  "optimizeGroupByAttributes": [ "visit" ]
+  "optimizeGroupByAttributes": [ "visit" ],
+  "temporalQuery": {
+    "visitDateAttribute": "start_date",
+    "visitIdAttribute": "id"
+  }
 }
