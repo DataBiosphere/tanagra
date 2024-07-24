@@ -7,4 +7,4 @@ gradle.ext {
 }
 
 // This line needs to match the VERSION_LINE_MATCH regex in the bump-tag-publish GHA.
-gradle.ext.tanagraVersion = "0.0.557-SNAPSHOT"
+gradle.ext.tanagraVersion = "0.0.558-SNAPSHOT"
