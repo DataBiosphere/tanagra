@@ -141,7 +141,7 @@ class _ implements CriteriaPlugin<string> {
   }
 
   renderInline(groupId: string) {
-    if (!this.config.valueConfigs.length) {
+    if (this.config.multiSelect || !this.config.valueConfigs.length) {
       return null;
     }
 
@@ -166,7 +166,7 @@ class _ implements CriteriaPlugin<string> {
             ? `${sel[0].name} and ${sel.length - 1} more`
             : sel[0].name,
         standaloneTitle: true,
-        additionalText: decodedData.selected.slice(1).map((s) => s.name),
+        additionalText: decodedData.selected.map((s) => s.name),
       };
     }
 
