@@ -405,6 +405,9 @@ function AnnotationComponent(props: {
           <TextField
             variant="outlined"
             fullWidth
+            multiline
+            minRows={1}
+            maxRows={4}
             label={props.annotation.displayName}
             value={text}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
