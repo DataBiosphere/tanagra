@@ -76,12 +76,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Cypress run
-      uses: cypress-io/github-action@v5
+      uses: cypress-io/github-action@v6
       with:
         build: npm run codegen
         start: npm start
         wait-on: "http://localhost:3000"
         working-directory: ui
+        quiet: true
 
     # NOTE: screenshots will be generated only if E2E test failed
     # thus we store screenshots only on failures
