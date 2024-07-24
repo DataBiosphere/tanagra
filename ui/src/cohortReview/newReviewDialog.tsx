@@ -7,7 +7,10 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { generateCohortFilter } from "cohort";
 import Loading from "components/loading";
 import { Cohort } from "data/source";
+import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import { getEnvironment } from "environment";
+import { useStudyId } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { TextField } from "mui-rff";
@@ -48,6 +51,8 @@ export type NewReviewDialogProps = {
 
 export function NewReviewDialog(props: NewReviewDialogProps) {
   const underlaySource = useUnderlaySource();
+  const studyId = useStudyId();
+  const studySource = useStudySource();
 
   const countState = useSWRImmutable(
     {
@@ -55,13 +60,24 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
       cohort: props.cohort,
     },
     async () => {
-      return await underlaySource.filterCount(
-        generateCohortFilter(underlaySource, props.cohort)
+      return (
+        (getEnvironment().REACT_APP_BACKEND_FILTERS
+          ? await studySource.cohortCount(
+              studyId,
+              props.cohort.id,
+              undefined,
+              undefined,
+              []
+            )
+          : await underlaySource.filterCount(
+              generateCohortFilter(underlaySource, props.cohort),
+              []
+            ))?.[0]?.count ?? 0
       );
     }
   );
 
-  const cohortCount = countState.data?.[0]?.count;
+  const cohortCount = countState.data;
   const max = isValid(cohortCount) ? Math.min(MAX, cohortCount) : MAX;
 
   return (
