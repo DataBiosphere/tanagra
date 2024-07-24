@@ -133,6 +133,9 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
                       name="name"
                       label="Cohort Review Name"
                       autoComplete="off"
+                      inputProps={{
+                        maxlength: 50,
+                      }}
                     />
                   </GridBox>
                   <GridBox sx={{ height: (theme) => theme.spacing(9) }}>

@@ -19,6 +19,7 @@ type TextInputDialogConfig = {
   textLabel: string;
   buttonLabel: string;
   onConfirm: (name: string) => void;
+  maxLength?: number;
 };
 
 type TextInputDialogConfigInternal = TextInputDialogConfig & {
@@ -76,6 +77,9 @@ export function useTextInputDialog(): [
                       fullWidth
                       name="text"
                       label={config.textLabel}
+                      inputProps={{
+                        maxlength: config.maxLength ?? 50,
+                      }}
                     />
                   </GridBox>
                 </GridLayout>
