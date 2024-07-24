@@ -240,7 +240,7 @@ export function searchCriteria(
     data: mergeLists(
       responses,
       100,
-      SortDirection.Asc,
+      SortDirection.Desc,
       (value: DataEntry) => value[ROLLUP_COUNT_ATTRIBUTE]
     ),
   }));
