@@ -1,10 +1,10 @@
 import { CohortRevision } from "activityLog/cohortRevision";
 import { AddCohort } from "addCohort";
 import { AddCohortCriteria, AddFeatureSetCriteria } from "addCriteria";
+import { LoginPage, LogoutPage } from "auth/provider";
 import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";
-import { ErrorPage } from "components/errorPage";
 import { StudySourceContextRoot } from "data/studySourceContext";
 import { UnderlaySourceContextRoot } from "data/underlaySourceContext";
 import Edit from "edit";
@@ -22,7 +22,20 @@ import { StudyOverview } from "sampleApp/studyOverview";
 import { TanagraContainer } from "sampleApp/tanagraContainer";
 import { UnderlaySelect } from "sampleApp/underlaySelect";
 
-export function underlaySourceContextRootRoutes() {
+export function authRoutes() {
+  return [
+    {
+      path: "login",
+      element: <LoginPage />,
+    },
+    {
+      path: "logout",
+      element: <LogoutPage />,
+    },
+  ];
+}
+
+export function coreRoutes() {
   return [
     {
       path: "tanagra/underlays/:underlayName",
@@ -156,20 +169,14 @@ export function additionalRoutes() {
 
   return [
     {
-      path: "/",
-      errorElement: <ErrorPage />,
-      children: [
-        {
-          index: true,
-          element: <UnderlaySelect />,
-        },
-        ...studySourceContextRootRoute(),
-      ],
+      index: true,
+      element: <UnderlaySelect />,
     },
+    ...sampleAppRoutes(),
   ];
 }
 
-function studySourceContextRootRoute() {
+function sampleAppRoutes() {
   return [
     {
       element: <StudySourceContextRoot />,

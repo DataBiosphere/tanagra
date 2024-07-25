@@ -1,4 +1,6 @@
-import { additionalRoutes, underlaySourceContextRootRoutes } from "appRoutes";
+import { additionalRoutes, authRoutes, coreRoutes } from "appRoutes";
+import { AuthProvider, isAuthEnabled } from "auth/provider";
+import { ErrorPage } from "components/errorPage";
 import { getEnvironment } from "environment";
 import { useCallback, useEffect } from "react";
 import {
@@ -10,9 +12,23 @@ import {
 } from "react-router-dom";
 
 export function createAppRouter() {
+  if (isAuthEnabled()) {
+    return createHashRouter([
+      {
+        path: "/",
+        element: <AuthProvider />,
+        errorElement: <ErrorPage />,
+        children: [...authRoutes(), ...coreRoutes(), ...additionalRoutes()],
+      },
+    ]);
+  }
+
   return createHashRouter([
-    ...underlaySourceContextRootRoutes(),
-    ...additionalRoutes(),
+    {
+      path: "/",
+      errorElement: <ErrorPage />,
+      children: [...coreRoutes(), ...additionalRoutes()],
+    },
   ]);
 }
 
