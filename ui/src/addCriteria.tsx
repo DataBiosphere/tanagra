@@ -457,7 +457,14 @@ function AddCriteria(props: AddCriteriaProps) {
           {categories.map((category) => (
             <GridLayout key={category[0].category} rows spacing={2}>
               <Typography variant="h6">{category[0].category}</Typography>
-              <GridLayout cols spacing={2}>
+              <GridBox
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "flex-start",
+                  gap: 2,
+                }}
+              >
                 {category.flatMap((option, i) => {
                   const disabled =
                     (props.excludedPredefinedCriteria?.indexOf(option.name) ??
@@ -483,13 +490,17 @@ function AddCriteria(props: AddCriteriaProps) {
 
                   if (i > 0 && category[i - 1].showMore != option.showMore) {
                     return [
-                      <Divider key="t_divider" orientation="vertical" />,
+                      <Divider
+                        key="t_divider"
+                        orientation="vertical"
+                        flexItem
+                      />,
                       button,
                     ];
                   }
                   return button;
                 })}
-              </GridLayout>
+              </GridBox>
             </GridLayout>
           ))}
           {!!query ? <Divider /> : null}
