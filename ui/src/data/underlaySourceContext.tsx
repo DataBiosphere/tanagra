@@ -1,8 +1,8 @@
 import {
-  loginAccessType,
+  LoginAccessType,
   useAccessTokenProvider,
-  useExportApiContext,
-  useUnderlaysApiContext,
+  useExportApi,
+  useUnderlaysApi,
 } from "apiContext";
 import Loading from "components/loading";
 import { BackendUnderlaySource, UnderlaySource } from "data/source";
@@ -38,14 +38,10 @@ export function UnderlaySourceContextRoot() {
 
   useActivityListener();
 
-  const tokenProvider = useAccessTokenProvider(loginAccessType.RedirectUrl);
+  const tokenProvider = useAccessTokenProvider(LoginAccessType.REDIRECT_URL);
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
-  const underlaysApi = useContext(
-    useUnderlaysApiContext(tokenProvider)
-  ) as tanagra.UnderlaysApi;
-  const exportApi = useContext(
-    useExportApiContext(tokenProvider)
-  ) as tanagra.ExportApi;
+  const underlaysApi = useUnderlaysApi(tokenProvider) as tanagra.UnderlaysApi;
+  const exportApi = useExportApi(tokenProvider) as tanagra.ExportApi;
 
   const sourceState = useSWRImmutable(
     { type: "underlay", underlayName },

@@ -3,22 +3,22 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import {
-  loginAccessType,
+  LoginAccessType,
   useAccessTokenProvider,
-  useUnderlaysApiContext,
+  useUnderlaysApi,
 } from "apiContext";
 import Loading from "components/loading";
 import GridLayout from "layout/gridLayout";
 import "plugins";
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import { underlayURL } from "router";
 import { Header } from "sampleApp/header";
 import useSWRImmutable from "swr/immutable";
 import { RouterLink } from "util/searchState";
 
 export function UnderlaySelect() {
-  const underlaysApi = useContext(
-    useUnderlaysApiContext(useAccessTokenProvider(loginAccessType.NavigatePath))
+  const underlaysApi = useUnderlaysApi(
+    useAccessTokenProvider(LoginAccessType.NAVIGATE_PATH)
   );
 
   const underlaysState = useSWRImmutable(

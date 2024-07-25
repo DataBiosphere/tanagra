@@ -1,4 +1,4 @@
-import { loginAccessType } from "apiContext";
+import { LoginAccessType } from "apiContext";
 import {
   Auth0AuthProvider,
   Auth0LoginPage,
@@ -21,15 +21,15 @@ export function AuthProvider() {
 }
 
 export function LoginPage() {
-  return isAuth0Enabled() ? Auth0LoginPage() : null;
+  return isAuth0Enabled() ? <Auth0LoginPage /> : null;
 }
 
 export function LogoutPage() {
-  return isAuth0Enabled() ? Auth0LogoutPage() : null;
+  return isAuth0Enabled() ? <Auth0LogoutPage /> : null;
 }
 
 export function useAuthToken(
-  loginType: loginAccessType
-): string | (() => Promise<string>) {
-  return isAuth0Enabled() ? useAuth0Token(loginType) : "";
+  loginType: LoginAccessType
+): (() => Promise<string>) | null {
+  return useAuth0Token(loginType);
 }

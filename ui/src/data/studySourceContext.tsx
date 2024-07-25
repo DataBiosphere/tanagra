@@ -1,12 +1,12 @@
 import {
-  loginAccessType,
+  LoginAccessType,
   useAccessTokenProvider,
-  useAnnotationsApiContext,
-  useCohortsApiContext,
-  useConceptSetsApiContext,
-  useReviewsApiContext,
-  useStudiesApiContext,
-  useUsersApiContext,
+  useAnnotationsApi,
+  useCohortsApi,
+  useConceptSetsApi,
+  useReviewsApi,
+  useStudiesApi,
+  useUsersApi,
 } from "apiContext";
 import { BackendStudySource, StudySource } from "data/source";
 import { createContext, useContext, useMemo } from "react";
@@ -30,26 +30,18 @@ export function useStudySource() {
 }
 
 export function StudySourceContextRoot() {
-  const tokenProvider = useAccessTokenProvider(loginAccessType.RedirectUrl);
+  const tokenProvider = useAccessTokenProvider(LoginAccessType.REDIRECT_URL);
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
-  const studiesApi = useContext(
-    useStudiesApiContext(tokenProvider)
-  ) as tanagra.StudiesApi;
-  const cohortsApi = useContext(
-    useCohortsApiContext(tokenProvider)
-  ) as tanagra.CohortsApi;
-  const conceptSetsApi = useContext(
-    useConceptSetsApiContext(tokenProvider)
+  const studiesApi = useStudiesApi(tokenProvider) as tanagra.StudiesApi;
+  const cohortsApi = useCohortsApi(tokenProvider) as tanagra.CohortsApi;
+  const conceptSetsApi = useConceptSetsApi(
+    tokenProvider
   ) as tanagra.ConceptSetsApi;
-  const reviewsApi = useContext(
-    useReviewsApiContext(tokenProvider)
-  ) as tanagra.ReviewsApi;
-  const annotationsApi = useContext(
-    useAnnotationsApiContext(tokenProvider)
+  const reviewsApi = useReviewsApi(tokenProvider) as tanagra.ReviewsApi;
+  const annotationsApi = useAnnotationsApi(
+    tokenProvider
   ) as tanagra.AnnotationsApi;
-  const usersApi = useContext(
-    useUsersApiContext(tokenProvider)
-  ) as tanagra.UsersApi;
+  const usersApi = useUsersApi(tokenProvider) as tanagra.UsersApi;
 
   const context = useMemo(() => {
     return {

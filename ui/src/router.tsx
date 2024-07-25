@@ -12,22 +12,13 @@ import {
 } from "react-router-dom";
 
 export function createAppRouter() {
-  if (isAuthEnabled()) {
-    return createHashRouter([
-      {
-        path: "/",
-        element: <AuthProvider />,
-        errorElement: <ErrorPage />,
-        children: [...authRoutes(), ...coreRoutes(), ...additionalRoutes()],
-      },
-    ]);
-  }
-
+  const authEnabled = isAuthEnabled();
   return createHashRouter([
     {
       path: "/",
+      element: authEnabled ? <AuthProvider /> : undefined,
       errorElement: <ErrorPage />,
-      children: [...coreRoutes(), ...additionalRoutes()],
+      children: [...(authEnabled ? authRoutes() : []), ...coreRoutes(), ...additionalRoutes()],
     },
   ]);
 }
