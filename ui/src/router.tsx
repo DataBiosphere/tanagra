@@ -18,7 +18,11 @@ export function createAppRouter() {
       path: "/",
       element: authEnabled ? <AuthProvider /> : undefined,
       errorElement: <ErrorPage />,
-      children: [...(authEnabled ? authRoutes() : []), ...coreRoutes(), ...additionalRoutes()],
+      children: [
+        ...(authEnabled ? authRoutes() : []),
+        ...coreRoutes(),
+        ...additionalRoutes(),
+      ],
     },
   ]);
 }
