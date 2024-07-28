@@ -49,12 +49,10 @@ export function AuthProvider() {
   return isAuth0Enabled() ? <Auth0AuthProvider /> : null;
 }
 
-export function CheckAuthorization(){
-  const { loaded, expired, profile, signIn } = useAuth();
-  const location = useLocation();
+export function CheckAuthorization() {
+  const { loaded, expired, profile } = useAuth();
 
   if (!isAuthEnabled()) {
-
     return <Outlet />;
   }
 
@@ -62,20 +60,15 @@ export function CheckAuthorization(){
     return <Loading status={{ isLoading: true }} />;
   }
   if (expired) {
-    return <LoginPage />
+    console.info("Login expired");
+    return <LoginPage />;
   }
 
   if (!profile) {
-    return <LoginPage />
-/*
-    const from = {
-      pathname: location.pathname,
-      search: location.search,
-      hash: location.hash,
-    };
-    return <Navigate to="/login" replace state={{ from }} />;
- */
+    console.info("Login not found");
+    return <LoginPage />;
   }
+
   return <Outlet />;
 }
 
@@ -120,7 +113,7 @@ export function LoginPage() {
       </GridLayout>
     </GridLayout>
   );
-};
+}
 
 export const LogoutPage = () => {
   const { loaded, error, signOut } = useAuth();

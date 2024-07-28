@@ -1,5 +1,5 @@
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
-import { AuthContext, CheckAuthorization } from "auth/provider";
+import { AuthContext } from "auth/provider";
 import { getEnvironment } from "environment";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Outlet } from "react-router-dom";
@@ -55,7 +55,6 @@ function Auth0ProviderWithClient() {
 
   // This is needed for user state to get updated.
   useEffect(() => {
-    console.trace();
     getAccessTokenSilently();
   }, [getAccessTokenSilently]);
 
@@ -64,22 +63,17 @@ function Auth0ProviderWithClient() {
     isAuthenticatedRef.current = isAuthenticated;
   }, [isAuthenticated]);
   const getAuth0Token = useCallback(async () => {
-    try {
-      return await getAccessTokenSilently();
-    } catch (e: unknown) {
-      console.info("Error getting access token", e, isAuthenticatedRef);
-      throw e;
-    }
+    return await getAccessTokenSilently();
   }, [getAccessTokenSilently]);
 
   if (user && !user.email) {
-    throw new Error("user profile has no email address");
+    throw new Error("User profile has no email address");
   }
 
   const auth = useMemo(
     () => ({
       loaded: !isLoading,
-      expired: !isAuthenticated,
+      expired: !isAuthenticatedRef,
       profile: user && {
         sub: user.sub || "",
         email: user.email || "",

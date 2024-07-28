@@ -15,7 +15,7 @@ export function createAppRouter() {
   const authEnabled = isAuthEnabled();
   return createHashRouter([
     {
-      path: "/*",
+      path: "/",
       element: authEnabled ? <AuthProvider /> : undefined,
       errorElement: <ErrorPage />,
       children: [
@@ -29,9 +29,6 @@ export function createAppRouter() {
         }
 
       ]
-
-
-
     },
   ]);
 }
