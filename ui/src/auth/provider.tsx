@@ -1,35 +1,161 @@
-import { LoginAccessType } from "apiContext";
-import {
-  Auth0AuthProvider,
-  Auth0LoginPage,
-  Auth0LogoutPage,
-  isAuth0Enabled,
-  useAuth0Token,
-} from "auth/auth0OAuth";
+import Button from "@mui/material/Button";
+import { Auth0AuthProvider, isAuth0Enabled } from "auth/auth0OAuth";
+import { ErrorList } from "components/errorPage";
+import verilyImage from "images/verily.png";
+import GridLayout from "layout/gridLayout";
+import React, { createContext, useContext, useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { useNavigate } from "util/searchState";
+import Loading from "../components/loading";
 
+const imageAltText = "Verily Data Explorer";
+
+/** Profile is like BasicProfile except with properties instead of getter methods. */
+export type Profile = {
+  readonly sub: string;
+  readonly email: string;
+};
+
+export type AuthContextType = {
+  /** Set to true when the 'SignIn with Google' library is initialized. */
+  loaded: boolean;
+  /** Set to true when the user's access token is expired. */
+  expired: boolean;
+  /** When logged in, contains the user's Google profile information. */
+  profile?: Profile;
+  /** When set, contains an error that occurred during login. */
+  error?: Error;
+  /** Invokes the sign in process. */
+  signIn: (from?: string) => void;
+  /** Invokes the sign out process. */
+  signOut: () => void;
+  /** Provides an id token for use in API calls. */
+  getAuthToken: () => Promise<string>;
+};
+
+export const AuthContext = createContext<AuthContextType>(
+  {} as AuthContextType
+);
+
+export function useAuth(): AuthContextType {
+  return useContext(AuthContext);
+}
 export function isAuthEnabled(): boolean {
   return isAuth0Enabled();
 }
 
 export function AuthProvider() {
-  if (isAuth0Enabled()) {
-    // TODO:dexamundsen add mocks for testing
-    return <Auth0AuthProvider />;
+  // TODO:dexamundsen add mocks for testing
+  return isAuth0Enabled() ? <Auth0AuthProvider /> : null;
+}
+
+export function CheckAuthorization(){
+  const { loaded, expired, profile, signIn } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthEnabled()) {
+
+    return <Outlet />;
   }
 
-  return null;
+  if (!loaded) {
+    return <Loading status={{ isLoading: true }} />;
+  }
+  if (expired) {
+    return <LoginPage />
+  }
+
+  if (!profile) {
+    return <LoginPage />
+/*
+    const from = {
+      pathname: location.pathname,
+      search: location.search,
+      hash: location.hash,
+    };
+    return <Navigate to="/login" replace state={{ from }} />;
+ */
+  }
+  return <Outlet />;
 }
 
 export function LoginPage() {
-  return isAuth0Enabled() ? <Auth0LoginPage /> : null;
-}
+  const { loaded, profile, error, signIn } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-export function LogoutPage() {
-  return isAuth0Enabled() ? <Auth0LogoutPage /> : null;
-}
+  useEffect(() => {
+    if (profile) {
+      console.info("Already authenticated, return to previous page");
+      navigate(location.state?.from.toString() || "/", { replace: true });
+    }
+  }, [location, navigate]);
 
-export function useAuthToken(
-  loginType: LoginAccessType
-): (() => Promise<string>) | null {
-  return useAuth0Token(loginType);
+  return (
+    <GridLayout
+      cols
+      rowAlign="middle"
+      colAlign="center"
+      sx={{ px: 2, py: 1, minHeight: "200px" }}
+    >
+      <GridLayout
+        colAlign="center"
+        spacing={1}
+        height="auto"
+        sx={{ textAlign: "center" }}
+      >
+        <img
+          src={verilyImage}
+          style={{ width: "100px", height: "auto" }}
+          alt={imageAltText}
+        />
+        <ErrorList errors={error} />
+        <Button
+          variant="contained"
+          onClick={() => signIn(location.state?.from)}
+          disabled={!loaded}
+        >
+          Sign in to Data Explorer
+        </Button>
+      </GridLayout>
+    </GridLayout>
+  );
+};
+
+export const LogoutPage = () => {
+  const { loaded, error, signOut } = useAuth();
+  return (
+    <GridLayout
+      cols
+      rowAlign="middle"
+      colAlign="center"
+      sx={{ px: 2, py: 1, minHeight: "200px" }}
+    >
+      <GridLayout
+        colAlign="center"
+        spacing={1}
+        height="auto"
+        sx={{ textAlign: "center" }}
+      >
+        <img
+          src={verilyImage}
+          style={{ width: "100px", height: "auto" }}
+          alt={imageAltText}
+        />
+        <ErrorList errors={error} />
+        <Button
+          variant="contained"
+          onClick={() => signOut()}
+          disabled={!loaded}
+        >
+          Sign out of Data Explorer
+        </Button>
+      </GridLayout>
+    </GridLayout>
+  );
+};
+
+export function useAuthToken(): () => Promise<string> {
+  const { getAuthToken } = useAuth();
+  return getAuthToken;
 }

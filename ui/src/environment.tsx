@@ -19,3 +19,7 @@ type Environment = {
 export function getEnvironment(): Environment {
   return process.env as unknown as Environment;
 }
+
+export function isTestEnvironment(): boolean {
+  return getEnvironment().REACT_APP_USE_FAKE_API === "y";
+}

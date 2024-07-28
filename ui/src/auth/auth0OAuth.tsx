@@ -1,15 +1,9 @@
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
-import Button from "@mui/material/Button";
-import { LoginAccessType } from "apiContext";
-import { ErrorList } from "components/errorPage";
+import { AuthContext, CheckAuthorization } from "auth/provider";
 import { getEnvironment } from "environment";
-import verilyImage from "images/verily.png";
-import GridLayout from "layout/gridLayout";
-import React, { useEffect } from "react";
-import { Outlet, redirect, useLocation } from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { Outlet } from "react-router-dom";
 import { useNavigate } from "util/searchState";
-
-const imageAltText = "Verily Data Explorer";
 
 export function isAuth0Enabled(): boolean {
   return !!getEnvironment().REACT_APP_AUTH0_DOMAIN;
@@ -32,109 +26,75 @@ export function Auth0AuthProvider() {
         redirect_uri: window.location.origin,
       }}
     >
-      <Outlet />
+      <Auth0ProviderWithClient />
     </Auth0Provider>
   );
 }
 
-export const Auth0LoginPage = () => {
-  const { error, isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
-  const location = useLocation();
-  const navigate = useNavigate();
+function Auth0ProviderWithClient() {
+  const {
+    error,
+    user,
+    isLoading,
+    isAuthenticated,
+    getAccessTokenSilently,
+    loginWithRedirect,
+    logout,
+  } = useAuth0();
 
+  const signIn = useCallback(
+    async (from?: string) => {
+      await loginWithRedirect({ appState: { returnTo: from } });
+    },
+    [loginWithRedirect]
+  );
+
+  const signOut = useCallback(() => {
+    logout({ logoutParams: { returnTo: window.location.origin } });
+  }, [logout]);
+
+  // This is needed for user state to get updated.
   useEffect(() => {
-    if (isAuthenticated) {
-      console.info("Already authenticated, return to previous page");
-      navigate(location.state?.from.toString() || "/", { replace: true });
+    console.trace();
+    getAccessTokenSilently();
+  }, [getAccessTokenSilently]);
+
+  const isAuthenticatedRef = useRef(isAuthenticated);
+  useEffect(() => {
+    isAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated]);
+  const getAuth0Token = useCallback(async () => {
+    try {
+      return await getAccessTokenSilently();
+    } catch (e: unknown) {
+      console.info("Error getting access token", e, isAuthenticatedRef);
+      throw e;
     }
-  }, [location, navigate]);
+  }, [getAccessTokenSilently]);
 
-  return (
-    <GridLayout
-      cols
-      rowAlign="middle"
-      colAlign="center"
-      sx={{ px: 2, py: 1, minHeight: "200px" }}
-    >
-      <GridLayout
-        colAlign="center"
-        spacing={1}
-        height="auto"
-        sx={{ textAlign: "center" }}
-      >
-        <img
-          src={verilyImage}
-          style={{ width: "100px", height: "auto" }}
-          alt={imageAltText}
-        />
-        <ErrorList errors={error} />
-        <Button
-          variant="contained"
-          onClick={() =>
-            loginWithRedirect({ appState: { returnTo: location.state?.from } })
-          }
-          disabled={isLoading}
-        >
-          Sign in to Data Explorer
-        </Button>
-      </GridLayout>
-    </GridLayout>
-  );
-};
-
-export const Auth0LogoutPage = () => {
-  const { error, isLoading, logout } = useAuth0();
-
-  return (
-    <GridLayout
-      cols
-      rowAlign="middle"
-      colAlign="center"
-      sx={{ px: 2, py: 1, minHeight: "200px" }}
-    >
-      <GridLayout
-        colAlign="center"
-        spacing={1}
-        height="auto"
-        sx={{ textAlign: "center" }}
-      >
-        <img
-          src={verilyImage}
-          style={{ width: "100px", height: "auto" }}
-          alt={imageAltText}
-        />
-        <ErrorList errors={error} />
-        <Button
-          variant="contained"
-          onClick={() =>
-            logout({ logoutParams: { returnTo: window.location.origin } })
-          }
-          disabled={isLoading}
-        >
-          Sign out of Data Explorer
-        </Button>
-      </GridLayout>
-    </GridLayout>
-  );
-};
-
-export function useAuth0Token(
-  loginType: LoginAccessType
-): (() => Promise<string>) | null {
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const navigate = useNavigate();
-
-  if (!isAuth0Enabled()) {
-    return null;
+  if (user && !user.email) {
+    throw new Error("user profile has no email address");
   }
 
-  if (!isAuthenticated) {
-    if (loginType == LoginAccessType.REDIRECT_URL) {
-      redirect("/login");
-    } else if (loginType == LoginAccessType.NAVIGATE_PATH) {
-      // TODO:dexamundsen needs to be within useEffect
-      navigate("login", { replace: true });
-    }
-  }
-  return getAccessTokenSilently;
+  const auth = useMemo(
+    () => ({
+      loaded: !isLoading,
+      expired: !isAuthenticated,
+      profile: user && {
+        sub: user.sub || "",
+        email: user.email || "",
+      },
+      error: error,
+      signIn: signIn,
+      signOut: signOut,
+      getAuthToken: getAuth0Token,
+    }),
+    [isLoading, isAuthenticated, user, error, getAuth0Token, signIn, signOut]
+  );
+
+  return (
+    <AuthContext.Provider value={auth}>
+      <Outlet />
+    </AuthContext.Provider>
+  );
 }

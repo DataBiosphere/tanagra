@@ -1,5 +1,5 @@
-import { useAuthToken } from "auth/provider";
-import { getEnvironment } from "environment";
+import { useAuth, useAuthToken } from "auth/provider";
+import { getEnvironment, isTestEnvironment } from "environment";
 import * as tanagra from "tanagra-api";
 
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
@@ -285,19 +285,13 @@ class FakeExportAPI {}
 
 class FakeUsersAPI {}
 
-export enum LoginAccessType {
-  REDIRECT_URL, // used in actions and loaders
-  NAVIGATE_PATH, // used in react components
-}
-
 export function useAccessTokenProvider(
-  loginType: LoginAccessType = LoginAccessType.REDIRECT_URL
 ): (() => Promise<string>) | string {
   // If Auth0 is enabled: fetch it from Auth0
   // For local dev: get the bearer token from the iframe url param.
   // For all other envs: check parent window's localStorage for auth token.
   return (
-    useAuthToken(loginType) ??
+    useAuthToken() ??
     (getEnvironment().REACT_APP_GET_LOCAL_AUTH_TOKEN
       ? new URLSearchParams(window.location.href.split("?")[1]).get("token")
       : window.parent.localStorage.getItem("tanagraAccessToken")) ??
@@ -307,79 +301,70 @@ export function useAccessTokenProvider(
 
 function useApiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
-  fake: { new (): Fake },
-  tokenProvider: string | (() => Promise<string>)
+  fake: { new (): Fake }
 ) {
+  const {getAuthToken} = useAuth();
   const env = getEnvironment();
-  if (env.REACT_APP_USE_FAKE_API === "y") {
+
+  if (isTestEnvironment()) {
     return new fake();
   }
 
   const config: tanagra.ConfigurationParameters = {
     basePath: env.REACT_APP_BACKEND_HOST || "",
-    accessToken: tokenProvider,
+    accessToken: getAuthToken,
   };
   return new real(new tanagra.Configuration(config));
 }
 
-export function useUnderlaysApi(
-  tokenProvider: string | (() => Promise<string>)
-) {
+export function useUnderlaysApi() {
   return useApiForEnvironment(
     tanagra.UnderlaysApi,
-    FakeUnderlaysApi,
-    tokenProvider
+    FakeUnderlaysApi
   );
 }
 
-export function useStudiesApi(tokenProvider: string | (() => Promise<string>)) {
+export function useStudiesApi() {
   return useApiForEnvironment(
     tanagra.StudiesApi,
-    FakeStudiesAPI,
-    tokenProvider
+    FakeStudiesAPI
   );
 }
 
-export function useCohortsApi(tokenProvider: string | (() => Promise<string>)) {
+export function useCohortsApi() {
   return useApiForEnvironment(
     tanagra.CohortsApi,
-    FakeCohortsAPI,
-    tokenProvider
+    FakeCohortsAPI
   );
 }
 
 export function useConceptSetsApi(
-  tokenProvider: string | (() => Promise<string>)
 ) {
   return useApiForEnvironment(
     tanagra.ConceptSetsApi,
-    FakeConceptSetsAPI,
-    tokenProvider
+    FakeConceptSetsAPI
   );
 }
 
-export function useReviewsApi(tokenProvider: string | (() => Promise<string>)) {
+export function useReviewsApi() {
   return useApiForEnvironment(
     tanagra.ReviewsApi,
-    FakeReviewsAPI,
-    tokenProvider
+    FakeReviewsAPI
   );
 }
 
 export function useAnnotationsApi(
-  tokenProvider: string | (() => Promise<string>)
 ) {
   return useApiForEnvironment(
     tanagra.AnnotationsApi,
-    FakeAnnotationsAPI,
-    tokenProvider
+    FakeAnnotationsAPI
   );
 }
 
-export function useExportApi(tokenProvider: string | (() => Promise<string>)) {
-  return useApiForEnvironment(tanagra.ExportApi, FakeExportAPI, tokenProvider);
+export function useExportApi() {
+  return useApiForEnvironment(tanagra.ExportApi, FakeExportAPI);
 }
 
-export function useUsersApi(tokenProvider: string | (() => Promise<string>)) {
-  return useApiForEnvironment(tanagra.UsersApi, FakeUsersAPI, tokenProvider);
+export function useUsersApi() {
+  return useApiForEnvironment(tanagra.UsersApi, FakeUsersAPI);
 }
