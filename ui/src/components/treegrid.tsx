@@ -469,6 +469,8 @@ function renderChildren(
             {value}
           </Link>
         );
+      } else if (typeof value === "object" && !(value instanceof Date)) {
+        content = value;
       } else {
         content = (
           <Typography

@@ -2,7 +2,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
@@ -121,11 +120,7 @@ export function StudyOverview() {
 
       const item = {
         data: {
-          type: (
-            <Stack direction="row" justifyContent="center">
-              <Chip label={String(artifact.type)} size="small" />
-            </Stack>
-          ),
+          type: <Chip label={String(artifact.type)} size="small" />,
           name: artifact.name,
           controls: (
             <GridLayout colAlign="center">
