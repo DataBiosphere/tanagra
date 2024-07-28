@@ -22,7 +22,7 @@ export function Auth0AuthProvider() {
         navigate(appState?.returnTo || "/", { replace: true })
       }
       authorizationParams={{
-        scope: "profile email",
+        scope: "openid profile email",
         redirect_uri: window.location.origin,
       }}
     >

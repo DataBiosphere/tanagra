@@ -1,12 +1,12 @@
 import Button from "@mui/material/Button";
 import { Auth0AuthProvider, isAuth0Enabled } from "auth/auth0OAuth";
 import { ErrorList } from "components/errorPage";
+import Loading from "components/loading";
 import verilyImage from "images/verily.png";
 import GridLayout from "layout/gridLayout";
 import React, { createContext, useContext, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useNavigate } from "util/searchState";
-import Loading from "../components/loading";
 
 const imageAltText = "Verily Data Explorer";
 
@@ -72,7 +72,7 @@ export function CheckAuthorization() {
   return <Outlet />;
 }
 
-export function LoginPage() {
+export const LoginPage = () => {
   const { loaded, profile, error, signIn } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -113,7 +113,7 @@ export function LoginPage() {
       </GridLayout>
     </GridLayout>
   );
-}
+};
 
 export const LogoutPage = () => {
   const { loaded, error, signOut } = useAuth();
