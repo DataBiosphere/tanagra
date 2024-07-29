@@ -78,7 +78,7 @@ export function useTextInputDialog(): [
                       name="text"
                       label={config.textLabel}
                       inputProps={{
-                        maxlength: config.maxLength ?? 50,
+                        maxLength: config.maxLength ?? 50,
                       }}
                     />
                   </GridBox>

@@ -134,7 +134,7 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
                       label="Cohort Review Name"
                       autoComplete="off"
                       inputProps={{
-                        maxlength: 50,
+                        maxLength: 50,
                       }}
                     />
                   </GridBox>
