@@ -27,6 +27,16 @@ You will also see any lint errors in the console.
 By default, the app assumes the Tanagra service is running at
 [http://localhost:8080](http://localhost:8080).
 
+### Auth0 setup
+
+Set the below environment variables in the .env files to enable Auth0 OAuth2 integration
+```sh
+  REACT_APP_AUTH0_DOMAIN: string; # required
+  REACT_APP_AUTH0_CLIENT_ID: string; # required
+```
+The auth0 flow will be enabled only if the domain is set, and overrides any other authentication mechanism that might be otherwise enabled.
+User's auth token will be sent in the request header for all calls to the backend server.
+
 #### Integration tests
 To run the UI integration tests, first start the service and UI, then open Cypress.
 ```

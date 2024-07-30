@@ -1,10 +1,10 @@
 import {
-  AnnotationsApiContext,
-  CohortsApiContext,
-  ConceptSetsApiContext,
-  ReviewsApiContext,
-  StudiesApiContext,
-  UsersApiContext,
+  useAnnotationsApi,
+  useCohortsApi,
+  useConceptSetsApi,
+  useReviewsApi,
+  useStudiesApi,
+  useUsersApi,
 } from "apiContext";
 import { BackendStudySource, StudySource } from "data/source";
 import { createContext, useContext, useMemo } from "react";
@@ -29,16 +29,12 @@ export function useStudySource() {
 
 export function StudySourceContextRoot() {
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
-  const studiesApi = useContext(StudiesApiContext) as tanagra.StudiesApi;
-  const cohortsApi = useContext(CohortsApiContext) as tanagra.CohortsApi;
-  const conceptSetsApi = useContext(
-    ConceptSetsApiContext
-  ) as tanagra.ConceptSetsApi;
-  const reviewsApi = useContext(ReviewsApiContext) as tanagra.ReviewsApi;
-  const annotationsApi = useContext(
-    AnnotationsApiContext
-  ) as tanagra.AnnotationsApi;
-  const usersApi = useContext(UsersApiContext) as tanagra.UsersApi;
+  const studiesApi = useStudiesApi() as tanagra.StudiesApi;
+  const cohortsApi = useCohortsApi() as tanagra.CohortsApi;
+  const conceptSetsApi = useConceptSetsApi() as tanagra.ConceptSetsApi;
+  const reviewsApi = useReviewsApi() as tanagra.ReviewsApi;
+  const annotationsApi = useAnnotationsApi() as tanagra.AnnotationsApi;
+  const usersApi = useUsersApi() as tanagra.UsersApi;
 
   const context = useMemo(() => {
     return {
