@@ -140,7 +140,35 @@ When true, the application database will have Liquibase changesets applied on se
 ## Authentication
 Configure the authentication model.
 
-There are four separate flags that control which model is used: `tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`. In the future these will be combined into a single flag. For now, **you must set all four flags and only one should be true**. 
+There are five separate flags that control which model is used: `tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`, `tanagra.auth.auth0Jwt`. In the future these will be combined into a single flag. For now, **you must set all five flags and only one should be true**. 
+
+### tanagra.auth.accessToken
+**required** boolean
+
+When true, the service expects a JWT access token. The service verifies the access and decodes the user informationWhen this flag is set, you must also define the [Public key file](#tanagraauthaccessTokenpublicKeyFile) and [Issuer](#tanagraauthaccessTokenissuer). [Algorithm](#tanagraauthaccessTokenalgorithm) defaults to RSA256. 
+
+*Environment variable:* `TANAGRA_AUTH_ACCESS_TOKEN`
+
+### tanagra.auth.accessToken.algorithm
+**required** String
+
+The algorithm used to verify the JWT access token. Defaults to RSA256 
+
+*Environment variable:* `TANAGRA_AUTH_ACCESS_TOKEN_ALGORITHM`
+
+### tanagra.auth.accessToken.issuer
+**required** String
+
+The issuer of JWT access token used for its verification. 
+
+*Environment variable:* `TANAGRA_AUTH_ACCESS_TOKEN_ISSUER`
+
+### tanagra.auth.accessToken.publicKeyFile
+**required** String
+
+The PEM public key file name used to verify the JWT access token. 
+
+*Environment variable:* `TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE`
 
 ### tanagra.auth.bearerToken
 **required** boolean

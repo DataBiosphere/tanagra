@@ -5,10 +5,13 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":avstemd" arg; do
+while getopts ":aovstemd" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
+      ;;
+    o) # Oauth2 Auth0 JWT
+      oauth2Auth0Jwt=1
       ;;
     v) # Use Verily underlays.
       useVerilyUnderlays=1
@@ -89,18 +92,27 @@ else
 fi
 
 export TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED=true
+
+# Set defaults
+export TANAGRA_AUTH_DISABLE_CHECKS=false
 export TANAGRA_AUTH_IAP_GKE_JWT=false
+export TANAGRA_AUTH_IAP_APP_ENGINE_JWT=false
+export TANAGRA_AUTH_BEARER_TOKEN=false
+export TANAGRA_AUTH_ACCESS_TOKEN=false
 
 if [[ ${disableAuthChecks} ]]; then
   echo "Disabling auth checks."
   export TANAGRA_AUTH_DISABLE_CHECKS=true
-  export TANAGRA_AUTH_BEARER_TOKEN=false
-  export TANAGRA_AUTH_IAP_GKE_JWT=false
+elif [[ ${oauth2Auth0Jwt} ]]; then
+  echo "Enabling auth checks: Auth0 JWT"
+  export TANAGRA_AUTH_ACCESS_TOKEN=true
+  # set issuer and public key file.
+  export TANAGRA_AUTH_ACCESS_TOKEN_ISSUER="https://verily-terra-dev.us.auth0.com/"
+  export TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE="src/main/resources/verily-terra-dev.pem"
+  export TANAGRA_AUTH_ACCESS_TOKEN_ALGORITHM="RSA"
 else
-  echo "Enabling auth checks. bearer-token"
-  export TANAGRA_AUTH_DISABLE_CHECKS=false
+  echo "Enabling auth checks: bearer-token"
   export TANAGRA_AUTH_BEARER_TOKEN=true
-  export TANAGRA_AUTH_IAP_GKE_JWT=false
 fi
 
 echo

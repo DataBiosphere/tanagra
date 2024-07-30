@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
     name = "Authentication",
     markdown =
         "Configure the authentication model.\n\n"
-            + "There are four separate flags that control which model is used: "
-            + "`tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`. "
+            + "There are five separate flags that control which model is used: "
+            + "`tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`, `tanagra.auth.auth0Jwt`. "
             + "In the future these will be combined into a single flag. "
-            + "For now, **you must set all four flags and only one should be true**. ")
+            + "For now, **you must set all five flags and only one should be true**. ")
 public class AuthenticationConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationConfiguration.class);
 
@@ -60,6 +60,15 @@ public class AuthenticationConfiguration {
   private boolean bearerToken;
 
   @AnnotatedField(
+      name = "tanagra.auth.accessToken",
+      markdown =
+          "When true, the service expects a JWT access token. The service verifies the access and decodes the user information"
+              + "When this flag is set, you must also define the [Public key file](#tanagraauthaccessTokenpublicKeyFile) and "
+              + "[Issuer](#tanagraauthaccessTokenissuer). [Algorithm](#tanagraauthaccessTokenalgorithm) defaults to RSA256. ",
+      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN")
+  private boolean accessToken;
+
+  @AnnotatedField(
       name = "tanagra.auth.gcpProjectNumber",
       markdown =
           "The GCP project number, which is different from the project id. "
@@ -96,6 +105,24 @@ public class AuthenticationConfiguration {
       environmentVariable = "TANAGRA_AUTH_GKE_BACKEND_SERVICE_ID")
   private String gkeBackendServiceId;
 
+  @AnnotatedField(
+      name = "tanagra.auth.accessToken.issuer",
+      markdown = "The issuer of JWT access token used for its verification. ",
+      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN_ISSUER")
+  private String accessTokenIssuer;
+
+  @AnnotatedField(
+      name = "tanagra.auth.accessToken.publicKeyFile",
+      markdown = "The PEM public key file name used to verify the JWT access token. ",
+      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE")
+  private String accessTokenPublicKeyFile;
+
+  @AnnotatedField(
+      name = "tanagra.auth.accessToken.algorithm",
+      markdown = "The algorithm used to verify the JWT access token. Defaults to RSA256 ",
+      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN_ALGORITHM")
+  private String accessTokenAlgorithm = "RSA";
+
   public boolean isDisableChecks() {
     return disableChecks;
   }
@@ -110,6 +137,10 @@ public class AuthenticationConfiguration {
 
   public boolean isBearerToken() {
     return bearerToken;
+  }
+
+  public boolean isAccessToken() {
+    return accessToken;
   }
 
   public long getGcpProjectNumber() {
@@ -136,6 +167,18 @@ public class AuthenticationConfiguration {
     }
   }
 
+  public String getAccessTokenIssuer() {
+    return accessTokenIssuer;
+  }
+
+  public String getAccessTokenPublicKeyFile() {
+    return accessTokenPublicKeyFile;
+  }
+
+  public String getAccessTokenAlgorithm() {
+    return accessTokenAlgorithm;
+  }
+
   public void setDisableChecks(boolean disableChecks) {
     this.disableChecks = disableChecks;
   }
@@ -152,6 +195,10 @@ public class AuthenticationConfiguration {
     this.bearerToken = bearerToken;
   }
 
+  public void setAccessToken(boolean accessToken) {
+    this.accessToken = accessToken;
+  }
+
   public void setGcpProjectNumber(String gcpProjectNumber) {
     this.gcpProjectNumber = gcpProjectNumber;
   }
@@ -164,13 +211,29 @@ public class AuthenticationConfiguration {
     this.gkeBackendServiceId = gkeBackendServiceId;
   }
 
+  public void setAccessTokenIssuer(String accessTokenIssuer) {
+    this.accessTokenIssuer = accessTokenIssuer;
+  }
+
+  public void setAccessTokenPublicKeyFile(String accessTokenPublicKeyFile) {
+    this.accessTokenPublicKeyFile = accessTokenPublicKeyFile;
+  }
+
+  public void setAccessTokenAlgorithm(String accessTokenAlgorithm) {
+    this.accessTokenAlgorithm = accessTokenAlgorithm;
+  }
+
   public void log() {
     LOGGER.info("Authentication: disable-checks: {}", isDisableChecks());
     LOGGER.info("Authentication: iap-gke-jwt: {}", isIapGkeJwt());
     LOGGER.info("Authentication: iap-appengine-jwt: {}", isIapAppEngineJwt());
     LOGGER.info("Authentication: bearer-token: {}", isBearerToken());
+    LOGGER.info("Authentication: access-token: {}", isAccessToken());
     LOGGER.info("Authentication: gcp-project-number: {}", getGcpProjectNumber());
     LOGGER.info("Authentication: gcp-project-id: {}", getGcpProjectId());
     LOGGER.info("Authentication: gke-backend-service-id: {}", getGkeBackendServiceId());
+    LOGGER.info("Authentication: access-token-issuer: {}", getAccessTokenIssuer());
+    LOGGER.info("Authentication: access-token-public-key-file: {}", getAccessTokenPublicKeyFile());
+    LOGGER.info("Authentication: access-token-algorithm: {}", getAccessTokenAlgorithm());
   }
 }

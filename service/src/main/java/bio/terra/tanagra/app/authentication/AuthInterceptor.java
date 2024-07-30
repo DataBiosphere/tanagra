@@ -7,11 +7,13 @@ import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.service.authentication.BearerTokenUtils;
 import bio.terra.tanagra.service.authentication.IapJwtUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
+import bio.terra.tanagra.service.authentication.JWTAccessTokenUtils;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.api.client.http.HttpMethods;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +34,20 @@ public class AuthInterceptor implements HandlerInterceptor {
   private static final String OPENAPI_TAG_AUTH_NOT_REQUIRED = "Unauthenticated";
 
   private final AuthenticationConfiguration authenticationConfiguration;
+  private final JWTAccessTokenUtils JWTAccessTokenUtils;
 
   @Autowired
-  public AuthInterceptor(AuthenticationConfiguration authenticationConfiguration) {
+  public AuthInterceptor(AuthenticationConfiguration authenticationConfiguration)
+      throws IOException {
     this.authenticationConfiguration = authenticationConfiguration;
+    this.JWTAccessTokenUtils =
+        authenticationConfiguration.isAccessToken()
+            ? new JWTAccessTokenUtils(
+                authenticationConfiguration.getAccessTokenIssuer(),
+                authenticationConfiguration.getAccessTokenPublicKeyFile(),
+                authenticationConfiguration.getAccessTokenAlgorithm())
+            : null;
+    // "src/main/resources/verily-terra-dev.pem", "https://verily-terra-dev.us.auth0.com/", "RSA");
   }
 
   /**
@@ -54,13 +66,12 @@ public class AuthInterceptor implements HandlerInterceptor {
       return true;
     }
 
-    if (!(handler instanceof HandlerMethod)) {
+    if (!(handler instanceof HandlerMethod method)) {
       LOGGER.error(
           "Unexpected handler class: {}, {}", request.getRequestURL(), request.getMethod());
       return false;
     }
 
-    HandlerMethod method = (HandlerMethod) handler;
     Operation apiOp = AnnotationUtils.findAnnotation(method.getMethod(), Operation.class);
     if (apiOp != null) {
       for (String tag : apiOp.tags()) {
@@ -82,6 +93,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 jwt,
                 authenticationConfiguration.getGcpProjectNumber(),
                 authenticationConfiguration.getGkeBackendServiceId());
+
       } else if (authenticationConfiguration.isIapAppEngineJwt()) {
         String jwt = IapJwtUtils.getJwtFromHeader(request);
         userId =
@@ -89,13 +101,20 @@ public class AuthInterceptor implements HandlerInterceptor {
                 jwt,
                 authenticationConfiguration.getGcpProjectNumber(),
                 authenticationConfiguration.getGcpProjectId());
+
       } else if (authenticationConfiguration.isBearerToken()) {
         BearerToken bearerToken = new BearerTokenFactory().from(request);
         userId = BearerTokenUtils.getUserIdFromToken(bearerToken);
+
+      } else if (authenticationConfiguration.isAccessToken()) {
+        String accessToken = new BearerTokenFactory().from(request).getToken();
+        userId = JWTAccessTokenUtils.getUserIdFromToken(accessToken);
+
       } else if (authenticationConfiguration.isDisableChecks()) {
         LOGGER.warn(
             "Authentication checks are disabled. This should only happen for local development.");
         userId = UserId.forDisabledAuthentication();
+
       } else {
         throw new InternalServerErrorException("Invalid auth configuration");
       }
