@@ -94,7 +94,7 @@ dependencies {
 
     // JWT dependencies (used to parse access token)
     implementation 'com.auth0:java-jwt:4.4.0'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
 
     // [Application DB] MySQL/MariaDB
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
