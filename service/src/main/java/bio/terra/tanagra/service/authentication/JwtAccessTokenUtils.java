@@ -94,7 +94,7 @@ public class JwtAccessTokenUtils {
         sub = sub.substring(idx + 1);
       }
 
-      return UserId.fromToken(sub, email, null);
+      return UserId.fromToken(sub, email, accessToken);
     } catch (JWTVerificationException | IllegalArgumentException | JsonProcessingException e) {
       throw new InvalidCredentialsException("Error decoding user info from JWT access token", e);
     }
