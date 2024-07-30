@@ -44,14 +44,6 @@ public class JWTAccessTokenUtils {
   }
 
   private static PublicKey getPublicKey(byte[] keyBytes, String algorithm) {
-    /*
-     if the file contains certificate, public key must be extracted from it
-     # cat <cert.file> | openssl x509 -pubkey -noout > pub.file
-
-     CertificateFactory cf = CertificateFactory.getInstance("X.509");
-     X509Certificate certificate = (X509Certificate)f.generateCertificate(fileInputStream);
-     return certificate.getPublicKey();
-    */
     try {
       KeyFactory kf = KeyFactory.getInstance(algorithm);
       EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
@@ -64,7 +56,7 @@ public class JWTAccessTokenUtils {
     }
   }
 
-  public static PublicKey readPublicKeyFromFile(String publicKeyPemFilePath, String algorithm)
+  private static PublicKey readPublicKeyFromFile(String publicKeyPemFilePath, String algorithm)
       throws IOException {
     byte[] bytes = parsePEMFile(new File(publicKeyPemFilePath));
     return getPublicKey(bytes, algorithm);
