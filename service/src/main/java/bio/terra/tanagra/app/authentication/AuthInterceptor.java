@@ -47,7 +47,6 @@ public class AuthInterceptor implements HandlerInterceptor {
                 authenticationConfiguration.getAccessTokenPublicKeyFile(),
                 authenticationConfiguration.getAccessTokenAlgorithm())
             : null;
-    // "src/main/resources/verily-terra-dev.pem", "https://verily-terra-dev.us.auth0.com/", "RSA");
   }
 
   /**

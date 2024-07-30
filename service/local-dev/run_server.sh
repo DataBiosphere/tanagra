@@ -107,8 +107,8 @@ elif [[ ${oauth2Auth0Jwt} ]]; then
   echo "Enabling auth checks: Auth0 JWT"
   export TANAGRA_AUTH_ACCESS_TOKEN=true
   # set issuer and public key file.
-  export TANAGRA_AUTH_ACCESS_TOKEN_ISSUER="https://verily-terra-dev.us.auth0.com/"
-  export TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE="src/main/resources/verily-terra-dev.pem"
+  export TANAGRA_AUTH_ACCESS_TOKEN_ISSUER=
+  export TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE=
   export TANAGRA_AUTH_ACCESS_TOKEN_ALGORITHM="RSA"
 else
   echo "Enabling auth checks: bearer-token"
