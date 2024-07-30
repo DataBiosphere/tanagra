@@ -59,8 +59,7 @@ public final class FileUtils {
    */
   public static File getResourceFile(Path resourceFilePath) throws IOException {
     try {
-      URL url =
-          FileUtils.class.getClassLoader().getResource(resourceFilePath.toString());
+      URL url = FileUtils.class.getClassLoader().getResource(resourceFilePath.toString());
       if (url == null) {
         throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
       }
