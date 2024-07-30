@@ -27,7 +27,7 @@ import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.util.Assert;
 
 public class JWTAccessTokenUtils {
-  private final JWTVerifier JWTVerifier;
+  private final JWTVerifier jwtVerifier;
   private final ObjectMapper mapper = new ObjectMapper();
   private final Base64.Decoder decoder = Base64.getUrlDecoder();
 
@@ -77,14 +77,14 @@ public class JWTAccessTokenUtils {
         Algorithm.RSA256(
             (RSAPublicKey) readPublicKeyFromFile(publicKeyPemFilePath, algorithmName),
             /* RSAPrivateKey= */ null);
-    JWTVerifier = JWT.require(algorithm).withIssuer(issuer).build();
+    jwtVerifier = JWT.require(algorithm).withIssuer(issuer).build();
   }
 
   public UserId getUserIdFromToken(String accessToken) {
     Assert.isTrue(StringUtils.isNotBlank(accessToken), "user accessToken empty");
 
     try {
-      DecodedJWT verifiedJWT = JWTVerifier.verify(accessToken);
+      DecodedJWT verifiedJWT = jwtVerifier.verify(accessToken);
       String payloadJSON = new String(decoder.decode(verifiedJWT.getPayload()));
       Map<String, String> payloadMap = mapper.readValue(payloadJSON, new TypeReference<>() {});
 

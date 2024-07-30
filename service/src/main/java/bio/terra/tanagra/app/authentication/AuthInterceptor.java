@@ -34,13 +34,13 @@ public class AuthInterceptor implements HandlerInterceptor {
   private static final String OPENAPI_TAG_AUTH_NOT_REQUIRED = "Unauthenticated";
 
   private final AuthenticationConfiguration authenticationConfiguration;
-  private final JWTAccessTokenUtils JWTAccessTokenUtils;
+  private final JWTAccessTokenUtils jwtAccessTokenUtils;
 
   @Autowired
   public AuthInterceptor(AuthenticationConfiguration authenticationConfiguration)
       throws IOException {
     this.authenticationConfiguration = authenticationConfiguration;
-    this.JWTAccessTokenUtils =
+    this.jwtAccessTokenUtils =
         authenticationConfiguration.isAccessToken()
             ? new JWTAccessTokenUtils(
                 authenticationConfiguration.getAccessTokenIssuer(),
@@ -107,7 +107,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
       } else if (authenticationConfiguration.isAccessToken()) {
         String accessToken = new BearerTokenFactory().from(request).getToken();
-        userId = JWTAccessTokenUtils.getUserIdFromToken(accessToken);
+        userId = jwtAccessTokenUtils.getUserIdFromToken(accessToken);
 
       } else if (authenticationConfiguration.isDisableChecks()) {
         LOGGER.warn(
