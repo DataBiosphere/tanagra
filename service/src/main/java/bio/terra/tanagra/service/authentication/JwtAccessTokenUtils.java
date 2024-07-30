@@ -81,17 +81,10 @@ public class JwtAccessTokenUtils {
       String email = payloadMap.getOrDefault("email", "");
       String sub = payloadMap.getOrDefault("sub", "");
 
-      // if IDP is prefixed to sub, remove it
-      int idx = sub.indexOf("|");
-
-      if (email.isEmpty() || sub.isEmpty() || (idx == sub.length() - 1)) {
+      if (email.isEmpty() || sub.isEmpty()) {
         throw new InvalidCredentialsException(
             String.format(
                 "Error decoding user email: '%s', sub: '%s' in access token", email, sub));
-      }
-
-      if (idx > -1) {
-        sub = sub.substring(idx + 1);
       }
 
       return UserId.fromToken(sub, email, accessToken);
