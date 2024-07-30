@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.authentication;
 
+import bio.terra.tanagra.utils.FileUtils;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -9,9 +10,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -26,16 +27,13 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.util.Assert;
 
-public class JWTAccessTokenUtils {
+public class JwtAccessTokenUtils {
   private final JWTVerifier jwtVerifier;
   private final ObjectMapper mapper = new ObjectMapper();
   private final Base64.Decoder decoder = Base64.getUrlDecoder();
 
-  private static byte[] parsePEMFile(File pemFile) throws IOException {
-    if (!pemFile.isFile() || !pemFile.exists()) {
-      throw new FileNotFoundException(
-          "Public key pem file not found: " + pemFile.getAbsolutePath());
-    }
+  private static byte[] parsePEMFile(String pemFileName) throws IOException {
+    File pemFile = FileUtils.getResourceFile(Path.of("keys/" + pemFileName));
     PemReader reader = new PemReader(new FileReader(pemFile));
     PemObject pemObject = reader.readPemObject();
     byte[] content = pemObject.getContent();
@@ -56,18 +54,18 @@ public class JWTAccessTokenUtils {
     }
   }
 
-  private static PublicKey readPublicKeyFromFile(String publicKeyPemFilePath, String algorithm)
+  private static PublicKey readPublicKeyFromFile(String publicKeyPemFileName, String algorithm)
       throws IOException {
-    byte[] bytes = parsePEMFile(new File(publicKeyPemFilePath));
+    byte[] bytes = parsePEMFile(publicKeyPemFileName);
     return getPublicKey(bytes, algorithm);
   }
 
-  public JWTAccessTokenUtils(String issuer, String publicKeyPemFilePath, String algorithmName)
+  public JwtAccessTokenUtils(String issuer, String publicKeyPemFileName, String algorithmName)
       throws IOException {
     Assert.isTrue(StringUtils.isNotBlank(issuer), "JWT issuer empty");
     Algorithm algorithm =
         Algorithm.RSA256(
-            (RSAPublicKey) readPublicKeyFromFile(publicKeyPemFilePath, algorithmName),
+            (RSAPublicKey) readPublicKeyFromFile(publicKeyPemFileName, algorithmName),
             /* RSAPrivateKey= */ null);
     jwtVerifier = JWT.require(algorithm).withIssuer(issuer).build();
   }

@@ -7,7 +7,7 @@ import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.service.authentication.BearerTokenUtils;
 import bio.terra.tanagra.service.authentication.IapJwtUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
-import bio.terra.tanagra.service.authentication.JWTAccessTokenUtils;
+import bio.terra.tanagra.service.authentication.JwtAccessTokenUtils;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.api.client.http.HttpMethods;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +34,7 @@ public class AuthInterceptor implements HandlerInterceptor {
   private static final String OPENAPI_TAG_AUTH_NOT_REQUIRED = "Unauthenticated";
 
   private final AuthenticationConfiguration authenticationConfiguration;
-  private final JWTAccessTokenUtils jwtAccessTokenUtils;
+  private final JwtAccessTokenUtils jwtAccessTokenUtils;
 
   @Autowired
   public AuthInterceptor(AuthenticationConfiguration authenticationConfiguration)
@@ -42,7 +42,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     this.authenticationConfiguration = authenticationConfiguration;
     this.jwtAccessTokenUtils =
         authenticationConfiguration.isAccessToken()
-            ? new JWTAccessTokenUtils(
+            ? new JwtAccessTokenUtils(
                 authenticationConfiguration.getAccessTokenIssuer(),
                 authenticationConfiguration.getAccessTokenPublicKeyFile(),
                 authenticationConfiguration.getAccessTokenAlgorithm())

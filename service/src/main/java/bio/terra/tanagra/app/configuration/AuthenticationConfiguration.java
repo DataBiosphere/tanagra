@@ -113,7 +113,9 @@ public class AuthenticationConfiguration {
 
   @AnnotatedField(
       name = "tanagra.auth.accessToken.publicKeyFile",
-      markdown = "The PEM public key file name used to verify the JWT access token. ",
+      markdown =
+          "Name of the PEM public key file in the 'resources/keys' directory "
+              + "used to verify the JWT access token. ",
       environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE")
   private String accessTokenPublicKeyFile;
 

@@ -104,7 +104,7 @@ if [[ ${disableAuthChecks} ]]; then
   echo "Disabling auth checks."
   export TANAGRA_AUTH_DISABLE_CHECKS=true
 elif [[ ${oauth2Auth0Jwt} ]]; then
-  echo "Enabling auth checks: Access Token"
+  echo "Enabling auth checks: access-token"
   export TANAGRA_AUTH_ACCESS_TOKEN=true
   # set issuer and public key file.
   export TANAGRA_AUTH_ACCESS_TOKEN_ISSUER=

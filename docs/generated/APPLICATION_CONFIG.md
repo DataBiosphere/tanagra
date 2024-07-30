@@ -166,7 +166,7 @@ The issuer of JWT access token used for its verification.
 ### tanagra.auth.accessToken.publicKeyFile
 **required** String
 
-The PEM public key file name used to verify the JWT access token. 
+Name of the PEM public key file in the 'resources/keys' directory used to verify the JWT access token. 
 
 *Environment variable:* `TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE`
 
