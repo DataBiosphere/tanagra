@@ -98,7 +98,7 @@ export TANAGRA_AUTH_DISABLE_CHECKS=false
 export TANAGRA_AUTH_IAP_GKE_JWT=false
 export TANAGRA_AUTH_IAP_APP_ENGINE_JWT=false
 export TANAGRA_AUTH_BEARER_TOKEN=false
-export TANAGRA_AUTH_ACCESS_TOKEN=false
+export TANAGRA_AUTH_UNVERIFIED_JWT=false
 
 if [[ ${disableAuthChecks} ]]; then
   echo "Disabling auth checks."
