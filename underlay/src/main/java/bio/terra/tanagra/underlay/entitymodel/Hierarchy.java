@@ -11,18 +11,21 @@ public class Hierarchy {
   private final boolean isKeepOrphanNodes;
   private final ImmutableSet<Long> rootNodeIds;
   private final boolean isCleanHierarchyNodesWithZeroCounts;
+  private final boolean isShowHierarchySearchResultsOnly;
 
   public Hierarchy(
       String name,
       int maxDepth,
       boolean isKeepOrphanNodes,
       @Nullable Set<Long> rootNodeIds,
-      boolean isCleanZeroCountNodes) {
+      boolean isCleanZeroCountNodes,
+      boolean isShowHierarchySearchResultsOnly) {
     this.name = name;
     this.maxDepth = maxDepth;
     this.isKeepOrphanNodes = isKeepOrphanNodes;
     this.rootNodeIds = rootNodeIds == null ? ImmutableSet.of() : ImmutableSet.copyOf(rootNodeIds);
     this.isCleanHierarchyNodesWithZeroCounts = isCleanZeroCountNodes;
+    this.isShowHierarchySearchResultsOnly = isShowHierarchySearchResultsOnly;
   }
 
   public String getName() {

@@ -100,4 +100,13 @@ public class SZHierarchy {
       optional = true,
       defaultValue = "false")
   public boolean cleanHierarchyNodesWithZeroCounts;
+
+  @AnnotatedField(
+      name = "SZHierarchy.showHierarchySearchResultsOnly",
+      markdown =
+          "When false, UI routing to search results uses default behavior. "
+              + "When true, UI routing to search results will route to hierarchy view.",
+      optional = true,
+      defaultValue = "false")
+  public boolean showHierarchySearchResultsOnly;
 }

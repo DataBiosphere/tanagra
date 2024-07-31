@@ -125,6 +125,7 @@ export type SZHierarchy = {
   rootIdFieldName?: string;
   rootNodeIds?: number[];
   rootNodeIdsSqlFile?: string;
+  showHierarchySearchResultsOnly?: boolean;
 };
 
 export type SZIndexData = {

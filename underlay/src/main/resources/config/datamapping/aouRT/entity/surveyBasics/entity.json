@@ -21,7 +21,8 @@
       "rootNodeIds": [ 1000 ],
       "maxDepth": 5,
       "keepOrphanNodes": false,
-      "cleanHierarchyNodesWithZeroCounts": true
+      "cleanHierarchyNodesWithZeroCounts": true,
+      "showHierarchySearchResultsOnly": true
     }
   ]
 }
