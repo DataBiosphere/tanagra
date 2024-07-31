@@ -28,9 +28,11 @@ import org.bouncycastle.util.io.pem.PemReader;
 import org.springframework.util.Assert;
 
 public class UnverifiedJwtUtils {
-  private static final ObjectMapper mapper = new ObjectMapper();
-  private static final Base64.Decoder decoder = Base64.getUrlDecoder();
+  private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
   private static JWTVerifier jwtVerifier;
+
+  private UnverifiedJwtUtils() {}
 
   /**
    * Get a UserId object from an unverified JWT. Verifies the token if the tokenVerifier is provided
@@ -54,8 +56,8 @@ public class UnverifiedJwtUtils {
     }
 
     try {
-      String payloadJSON = new String(decoder.decode(idToken.split("\\.")[1]));
-      Map<String, String> payloadMap = mapper.readValue(payloadJSON, new TypeReference<>() {});
+      String payloadJSON = new String(DECODER.decode(idToken.split("\\.")[1]));
+      Map<String, String> payloadMap = MAPPER.readValue(payloadJSON, new TypeReference<>() {});
 
       String email = payloadMap.getOrDefault("email", "");
       String sub = payloadMap.getOrDefault("sub", "");
