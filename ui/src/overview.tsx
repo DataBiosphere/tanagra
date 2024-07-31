@@ -116,9 +116,9 @@ export function Overview() {
       />
       <GridLayout
         rows="minmax(max-content, 100%)"
-        cols="auto 450px"
+        cols="minmax(440px, auto) 450px"
         spacing={2}
-        sx={{ px: 5, overflowY: "auto" }}
+        sx={{ px: 5, overflow: "auto" }}
       >
         <GridBox
           sx={{
