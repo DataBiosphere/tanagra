@@ -104,7 +104,7 @@ if [[ ${disableAuthChecks} ]]; then
   echo "Disabling auth checks."
   export TANAGRA_AUTH_DISABLE_CHECKS=true
 elif [[ ${unverifiedJwt} ]]; then
-  echo "Enabling auth checks: unverified jwt"
+  echo "Enabling auth checks: unverified-jwt"
   export TANAGRA_AUTH_UNVERIFIED_JWT=true
   # set issuer and public key file if token verification is needed
   # export TANAGRA_AUTH_UNVERIFIED_JWT_ISSUER=
