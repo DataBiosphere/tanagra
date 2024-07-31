@@ -102,11 +102,11 @@ public class SZHierarchy {
   public boolean cleanHierarchyNodesWithZeroCounts;
 
   @AnnotatedField(
-      name = "SZHierarchy.showHierarchySearchResultsOnly",
+      name = "SZHierarchy.showHierarchyOnly",
       markdown =
           "When false, UI routing to search results uses default behavior. "
-              + "When true, UI routing to search results will route to hierarchy view.",
+              + "When true, UI routing will skip search results and default to hierarchy view.",
       optional = true,
       defaultValue = "false")
-  public boolean showHierarchySearchResultsOnly;
+  public boolean showHierarchyOnly;
 }

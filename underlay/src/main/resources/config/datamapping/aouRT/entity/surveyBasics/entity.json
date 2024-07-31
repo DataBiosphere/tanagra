@@ -22,7 +22,7 @@
       "maxDepth": 5,
       "keepOrphanNodes": false,
       "cleanHierarchyNodesWithZeroCounts": true,
-      "showHierarchySearchResultsOnly": true
+      "showHierarchyOnly": true
     }
   ]
 }

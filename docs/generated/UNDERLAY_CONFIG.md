@@ -740,10 +740,10 @@ There can be other columns selected in the SQL file (e.g. `SELECT * FROM roots`)
 
 *Example value:* `rootNode.sql`
 
-### SZHierarchy.showHierarchySearchResultsOnly
+### SZHierarchy.showHierarchyOnly
 **optional** boolean
 
-When false, UI routing to search results uses default behavior. When true, UI routing to search results will route to hierarchy view.
+When false, UI routing to search results uses default behavior. When true, UI routing will skip search results and default to hierarchy view.
 
 *Default value:* `false`
 

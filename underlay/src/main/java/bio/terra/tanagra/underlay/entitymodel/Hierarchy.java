@@ -11,7 +11,7 @@ public class Hierarchy {
   private final boolean isKeepOrphanNodes;
   private final ImmutableSet<Long> rootNodeIds;
   private final boolean isCleanHierarchyNodesWithZeroCounts;
-  private final boolean isShowHierarchySearchResultsOnly;
+  private final boolean isShowHierarchyOnly;
 
   public Hierarchy(
       String name,
@@ -25,7 +25,7 @@ public class Hierarchy {
     this.isKeepOrphanNodes = isKeepOrphanNodes;
     this.rootNodeIds = rootNodeIds == null ? ImmutableSet.of() : ImmutableSet.copyOf(rootNodeIds);
     this.isCleanHierarchyNodesWithZeroCounts = isCleanZeroCountNodes;
-    this.isShowHierarchySearchResultsOnly = isShowHierarchySearchResultsOnly;
+    this.isShowHierarchyOnly = isShowHierarchySearchResultsOnly;
   }
 
   public String getName() {

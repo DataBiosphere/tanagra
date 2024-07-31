@@ -414,7 +414,7 @@ public final class Underlay {
                           szHierarchy.keepOrphanNodes,
                           szHierarchy.rootNodeIds,
                           szHierarchy.cleanHierarchyNodesWithZeroCounts,
-                          szHierarchy.showHierarchySearchResultsOnly))
+                          szHierarchy.showHierarchyOnly))
               .collect(Collectors.toList());
     }
     return new Entity(
