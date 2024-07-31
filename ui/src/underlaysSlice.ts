@@ -1,5 +1,4 @@
 import { TreeGridColumn } from "components/treegrid";
-import { Filter } from "data/filter";
 import * as underlayConfig from "tanagra-underlay/underlayConfig";
 
 export type PrepackagedConceptSet = {
@@ -8,7 +7,6 @@ export type PrepackagedConceptSet = {
   category?: string;
   tags?: string[];
   entity: string;
-  filter?: Filter;
 };
 
 export type Underlay = {

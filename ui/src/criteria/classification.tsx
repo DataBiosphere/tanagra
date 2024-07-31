@@ -22,7 +22,6 @@ import {
   ANY_VALUE_DATA,
   decodeValueData,
   encodeValueData,
-  generateValueDataFilter,
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
@@ -31,7 +30,6 @@ import {
   SortDirection,
   SortOrder,
 } from "data/configuration";
-import { Filter, FilterType, makeArrayFilter } from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
 import {
   CommonSelectorConfig,
@@ -173,45 +171,6 @@ class _ implements CriteriaPlugin<string> {
     return {
       title: "(any)",
     };
-  }
-
-  generateFilter(entityId: string, underlaySource: UnderlaySource) {
-    const decodedData = decodeData(this.data);
-    const filters: Filter[] = [];
-
-    configEntityGroups(this.config).forEach((c) => {
-      const keys = decodedData.selected.filter((s) => s.entityGroup === c.id);
-      if (keys.length > 0) {
-        const entityGroup = underlaySource.lookupEntityGroup(c.id);
-        filters.push({
-          type: FilterType.EntityGroup,
-          entityGroupId: c.id,
-          entityId: entityGroup.relatedEntityId ?? entityGroup.entityId,
-          keys: keys.map(({ key }) => key),
-        });
-      }
-    });
-
-    const keyFilter = makeArrayFilter({ min: 1 }, filters);
-
-    const valueDataFilter = generateValueDataFilter([decodedData.valueData]);
-    if (valueDataFilter) {
-      return makeArrayFilter({}, [keyFilter, valueDataFilter]);
-    }
-
-    return keyFilter;
-  }
-
-  filterEntityIds(underlaySource: UnderlaySource) {
-    return [
-      ...new Set(
-        configEntityGroups(this.config)
-          .map((eg) => {
-            return underlaySource.lookupEntityGroup(eg.id).occurrenceEntityIds;
-          })
-          .flat()
-      ),
-    ];
   }
 }
 

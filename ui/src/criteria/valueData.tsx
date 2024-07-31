@@ -8,7 +8,6 @@ import Typography from "@mui/material/Typography";
 import { HintDataSelect } from "components/hintDataSelect";
 import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
-import { FilterType, makeArrayFilter } from "data/filter";
 import { dataValueFromProto, HintData, protoFromDataValue } from "data/source";
 import { DataKey, DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -312,26 +311,6 @@ export function ValueDataEdit(props: ValueDataEditProps) {
         </GridLayout>
       ) : null}
     </Loading>
-  );
-}
-
-export function generateValueDataFilter(valueData: ValueData[]) {
-  if (!valueData.length || valueData[0].attribute === ANY_VALUE) {
-    return {
-      type: FilterType.Attribute,
-      attribute: "id",
-      nonNull: true,
-    };
-  }
-
-  return makeArrayFilter(
-    {},
-    valueData.map((vd) => ({
-      type: FilterType.Attribute,
-      attribute: vd.attribute,
-      values: !vd.numeric ? vd.selected.map((s) => s.value) : undefined,
-      ranges: vd.numeric ? [vd.range] : undefined,
-    }))
   );
 }
 

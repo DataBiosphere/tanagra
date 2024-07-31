@@ -4,12 +4,9 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { generateCohortFilter } from "cohort";
 import Loading from "components/loading";
 import { Cohort } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { useUnderlaySource } from "data/underlaySourceContext";
-import { getEnvironment } from "environment";
 import { useStudyId } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -50,7 +47,6 @@ export type NewReviewDialogProps = {
 } & UseNewReviewDialogProps;
 
 export function NewReviewDialog(props: NewReviewDialogProps) {
-  const underlaySource = useUnderlaySource();
   const studyId = useStudyId();
   const studySource = useStudySource();
 
@@ -59,22 +55,16 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
       type: "count",
       cohort: props.cohort,
     },
-    async () => {
-      return (
-        (getEnvironment().REACT_APP_BACKEND_FILTERS
-          ? await studySource.cohortCount(
-              studyId,
-              props.cohort.id,
-              undefined,
-              undefined,
-              []
-            )
-          : await underlaySource.filterCount(
-              generateCohortFilter(underlaySource, props.cohort),
-              []
-            ))?.[0]?.count ?? 0
-      );
-    }
+    async () =>
+      (
+        await studySource.cohortCount(
+          studyId,
+          props.cohort.id,
+          undefined,
+          undefined,
+          []
+        )
+      )?.[0]?.count ?? 0
   );
 
   const cohortCount = countState.data;

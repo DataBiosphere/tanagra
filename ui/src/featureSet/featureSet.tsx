@@ -23,12 +23,10 @@ import { SaveStatus } from "components/saveStatus";
 import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
-import { Filter, FilterType, makeArrayFilter } from "data/filter";
-import { Criteria, ListDataResponse } from "data/source";
+import { Criteria } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
-import { getEnvironment } from "environment";
 import {
   deleteFeatureSetCriteria,
   deletePredefinedFeatureSetCriteria,
@@ -295,13 +293,6 @@ function Preview() {
     }
   }, [occurrenceFiltersState.data]);
 
-  // TODO(tjennison): Look at supporting a "true" filter instead.
-  const cohortFilter: Filter = {
-    type: FilterType.Attribute,
-    attribute: underlaySource.primaryEntity().idAttribute,
-    ranges: [{ min: Number.MIN_SAFE_INTEGER, max: Number.MAX_SAFE_INTEGER }],
-  };
-
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
     () => {
       if (!occurrenceFiltersState.data) {
@@ -315,24 +306,14 @@ function Preview() {
     async () => {
       return Promise.all(
         (occurrenceFiltersState.data ?? []).map(async (params) => {
-          let res: ListDataResponse | undefined;
-          if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
-            res = await underlaySource.exportPreview(
-              underlay.name,
-              params.id,
-              studyId,
-              [],
-              [featureSet.id],
-              true
-            );
-          } else {
-            res = await underlaySource.listData(
-              params.attributes,
-              params.id,
-              cohortFilter,
-              makeArrayFilter({ min: 1 }, params.filters)
-            );
-          }
+          const res = await underlaySource.exportPreview(
+            underlay.name,
+            params.id,
+            studyId,
+            [],
+            [featureSet.id],
+            true
+          );
 
           const data: TreeGridData = {
             root: { data: {}, children: [] },

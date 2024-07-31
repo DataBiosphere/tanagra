@@ -1,4 +1,4 @@
-import { defaultSection, generateCohortFilter } from "cohort";
+import { defaultSection } from "cohort";
 import {
   ITEM_COUNT_ATTRIBUTE,
   ROLLUP_COUNT_ATTRIBUTE,
@@ -6,17 +6,7 @@ import {
   SortOrder,
   VALUE_SUFFIX,
 } from "data/configuration";
-import {
-  ArrayFilter,
-  Filter,
-  isArrayFilter,
-  isAttributeFilter,
-  isEntityGroupFilter,
-  isRelationshipFilter,
-  isTextFilter,
-  isUnaryFilter,
-} from "data/filter";
-import { ComparisonOperator, DataEntry, DataKey, DataValue } from "data/types";
+import { DataEntry, DataKey, DataValue } from "data/types";
 import { getReasonPhrase } from "http-status-codes";
 import * as keyProto from "proto/criteriaselector/key";
 import * as valueProto from "proto/value";
@@ -122,13 +112,6 @@ export type ExportModel = {
 
   inputs: { [key: string]: string };
   outputs: { [key: string]: string };
-};
-
-export type ExportRequestEntity = {
-  requestedAttributes: string[];
-  entityId: string;
-  cohort: Filter;
-  conceptSet: Filter | null;
 };
 
 export type ExportSourceCriteria = {
@@ -299,14 +282,6 @@ export interface UnderlaySource {
 
   listAttributes(occurrenceID: string): string[];
 
-  listData(
-    requestedAttributes: string[],
-    occurrenceID: string,
-    cohort: Filter,
-    conceptSet: Filter | null,
-    limit?: number
-  ): Promise<ListDataResponse>;
-
   listDataForPrimaryEntity(
     requestedAttributes: string[],
     entityId: string,
@@ -325,11 +300,6 @@ export interface UnderlaySource {
     relatedEntity?: string,
     relatedID?: DataKey
   ): Promise<HintData[]>;
-
-  filterCount(
-    filter: Filter | null,
-    groupByAttributes?: string[]
-  ): Promise<FilterCountValue[]>;
 
   listExportModels(underlayName: string): Promise<ExportModel[]>;
 
@@ -356,8 +326,7 @@ export interface UnderlaySource {
     modelId: string,
     returnURL: string,
     cohorts: string[],
-    conceptSets: string[],
-    entities: ExportRequestEntity[]
+    conceptSets: string[]
   ): Promise<ExportResult>;
 }
 
@@ -701,56 +670,6 @@ export class BackendUnderlaySource implements UnderlaySource {
     );
   }
 
-  async listData(
-    requestedAttributes: string[],
-    entityId: string,
-    cohort: Filter,
-    conceptSet: Filter | null,
-    limit?: number
-  ): Promise<ListDataResponse> {
-    const entity = this.lookupEntity(entityId);
-    const ra = normalizeRequestedAttributes(
-      requestedAttributes,
-      entity.idAttribute
-    );
-
-    let pageMarker: string | undefined;
-    let sql: string | undefined;
-    const data: DataEntry[] = [];
-    while (true) {
-      const res = await parseAPIError(
-        this.underlaysApi.listInstances({
-          entityName: entity.name,
-          underlayName: this.underlay.name,
-          query: this.makeQuery(
-            ra,
-            entityId,
-            cohort,
-            conceptSet,
-            limit,
-            pageMarker
-          ),
-        })
-      );
-
-      data.push(
-        ...(res.instances?.map((instance) =>
-          makeDataEntry(entity.idAttribute, instance.attributes)
-        ) ?? [])
-      );
-
-      sql = res.sql;
-      pageMarker = res.pageMarker;
-      if (!pageMarker?.length || !res.instances?.length) {
-        break;
-      }
-    }
-    return {
-      data: data,
-      sql: sql ?? "",
-    };
-  }
-
   async listDataForPrimaryEntity(
     requestedAttributes: string[],
     entityId: string,
@@ -856,43 +775,6 @@ export class BackendUnderlaySource implements UnderlaySource {
     return res.displayHints?.map((hint) => fromAPIDisplayHint(hint)) ?? [];
   }
 
-  async filterCount(
-    filter: Filter | null,
-    groupByAttributes?: string[]
-  ): Promise<FilterCountValue[]> {
-    let pageMarker: string | undefined;
-    const instanceCounts: tanagra.InstanceCount[] = [];
-
-    while (true) {
-      const data = await parseAPIError(
-        this.underlaysApi.countInstances({
-          underlayName: this.underlay.name,
-          entityName: this.underlay.underlayConfig.primaryEntity,
-          countQuery: {
-            attributes: groupByAttributes,
-            filter: generateFilter(this, filter) ?? undefined,
-            pageMarker,
-          },
-        })
-      );
-
-      pageMarker = data.pageMarker;
-      instanceCounts.push(...(data.instanceCounts ?? []));
-
-      if (!pageMarker?.length) {
-        break;
-      }
-    }
-
-    return (instanceCounts ?? []).map((count) => {
-      const value: FilterCountValue = {
-        count: count.count ?? 0,
-      };
-      processAttributes(value, count.attributes);
-      return value;
-    });
-  }
-
   public async listExportModels(underlayName: string): Promise<ExportModel[]> {
     return await parseAPIError(
       this.exportApi
@@ -980,8 +862,7 @@ export class BackendUnderlaySource implements UnderlaySource {
     modelId: string,
     returnURL: string,
     cohorts: string[],
-    conceptSets: string[],
-    entities: ExportRequestEntity[]
+    conceptSets: string[]
   ): Promise<ExportResult> {
     return await parseAPIError(
       this.exportApi
@@ -994,16 +875,7 @@ export class BackendUnderlaySource implements UnderlaySource {
             includeAnnotations: true,
             cohorts,
             conceptSets,
-            instanceQuerys: entities.map((e) => ({
-              entity: this.lookupEntity(e.entityId).name,
-              query: this.makeQuery(
-                e.requestedAttributes,
-                e.entityId,
-                e.cohort,
-                e.conceptSet,
-                0
-              ),
-            })),
+            instanceQuerys: [],
           },
         })
         .then((res) => {
@@ -1023,52 +895,6 @@ export class BackendUnderlaySource implements UnderlaySource {
           };
         })
     );
-  }
-
-  private makeQuery(
-    requestedAttributes: string[],
-    entityId: string,
-    cohort: Filter,
-    conceptSet: Filter | null,
-    limit?: number,
-    pageMarker?: string
-  ): tanagra.Query {
-    let cohortFilter = generateFilter(this, cohort);
-    if (!cohortFilter) {
-      throw new Error("Cohort filter is empty.");
-    }
-
-    const primaryEntity = this.underlay.underlayConfig.primaryEntity;
-    if (entityId && entityId != primaryEntity) {
-      cohortFilter = {
-        filterType: tanagra.FilterFilterTypeEnum.Relationship,
-        filterUnion: {
-          relationshipFilter: {
-            entity: primaryEntity,
-            subfilter: cohortFilter,
-          },
-        },
-      };
-    }
-
-    let filter = cohortFilter;
-    const conceptSetFilter = generateFilter(this, conceptSet);
-    if (conceptSetFilter) {
-      const combined = makeBooleanLogicFilter(
-        tanagra.BooleanLogicFilterOperatorEnum.And,
-        [cohortFilter, conceptSetFilter]
-      );
-      if (combined) {
-        filter = combined;
-      }
-    }
-
-    return {
-      includeAttributes: requestedAttributes,
-      filter,
-      limit: limit === 0 ? undefined : limit ?? 50,
-      pageMarker,
-    };
   }
 
   private searchRequest(
@@ -1232,11 +1058,7 @@ export class BackendStudySource implements StudySource {
           reviewCreateInfo: {
             displayName,
             size,
-            filter:
-              generateFilter(
-                underlaySource,
-                generateCohortFilter(underlaySource, cohort)
-              ) ?? {},
+            filter: {},
           },
         })
         .then((r) => fromAPICohortReview(r, underlaySource))
@@ -1869,199 +1691,6 @@ function makeDataEntry(
   return data;
 }
 
-function generateFilter(
-  underlaySource: UnderlaySource,
-  filter: Filter | null
-): tanagra.Filter | null {
-  if (!filter) {
-    return null;
-  }
-
-  if (isArrayFilter(filter)) {
-    const operands = filter.operands
-      .map((o) => generateFilter(underlaySource, o))
-      .filter(isValid);
-    if (operands.length === 0) {
-      return null;
-    }
-
-    return makeBooleanLogicFilter(arrayFilterOperator(filter), operands);
-  }
-  if (isUnaryFilter(filter)) {
-    const operand = generateFilter(underlaySource, filter.operand);
-    if (!operand) {
-      return null;
-    }
-
-    return {
-      filterType: tanagra.FilterFilterTypeEnum.BooleanLogic,
-      filterUnion: {
-        booleanLogicFilter: {
-          operator: tanagra.BooleanLogicFilterOperatorEnum.Not,
-          subfilters: [operand],
-        },
-      },
-    };
-  }
-
-  if (isRelationshipFilter(filter)) {
-    const subfilter = generateFilter(underlaySource, filter.subfilter);
-
-    return {
-      filterType: tanagra.FilterFilterTypeEnum.Relationship,
-      filterUnion: {
-        relationshipFilter: {
-          entity: filter.entityId,
-          subfilter: subfilter,
-          groupByCountAttributes: filter.groupByCount
-            ? filter.groupByCount.attributes
-            : [],
-          groupByCountOperator: filter.groupByCount
-            ? toAPIBinaryOperator(filter.groupByCount.operator)
-            : undefined,
-          groupByCountValue: filter.groupByCount?.value,
-        },
-      },
-    };
-  }
-
-  if (isEntityGroupFilter(filter)) {
-    const entity = underlaySource.lookupEntity(filter.entityId);
-
-    const classificationFilter = (key: DataKey): tanagra.Filter => {
-      if (entity.hierarchies?.length) {
-        return {
-          filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
-          filterUnion: {
-            hierarchyFilter: {
-              hierarchy: entity.hierarchies[0].name,
-              operator:
-                tanagra.HierarchyFilterOperatorEnum.DescendantOfInclusive,
-              values: [literalFromDataValue(key)],
-            },
-          },
-        };
-      }
-
-      return {
-        filterType: tanagra.FilterFilterTypeEnum.Attribute,
-        filterUnion: {
-          attributeFilter: {
-            attribute: entity.idAttribute,
-            operator: tanagra.AttributeFilterOperatorEnum.Equals,
-            values: [literalFromDataValue(key)],
-          },
-        },
-      };
-    };
-
-    const operands = filter.keys.map(classificationFilter);
-
-    let subfilter: tanagra.Filter | undefined;
-    if (operands.length > 0) {
-      subfilter =
-        makeBooleanLogicFilter(
-          tanagra.BooleanLogicFilterOperatorEnum.Or,
-          operands
-        ) ?? undefined;
-    }
-
-    return {
-      filterType: tanagra.FilterFilterTypeEnum.Relationship,
-      filterUnion: {
-        relationshipFilter: {
-          entity: entity.name,
-          subfilter,
-        },
-      },
-    };
-  }
-  if (isAttributeFilter(filter)) {
-    if (filter.nonNull) {
-      return null;
-    }
-    if (filter.ranges?.length) {
-      return makeBooleanLogicFilter(
-        tanagra.BooleanLogicFilterOperatorEnum.Or,
-        filter.ranges.map(({ min, max }) =>
-          makeBooleanLogicFilter(tanagra.BooleanLogicFilterOperatorEnum.And, [
-            {
-              filterType: tanagra.FilterFilterTypeEnum.Attribute,
-              filterUnion: {
-                attributeFilter: {
-                  attribute: filter.attribute,
-                  operator: tanagra.AttributeFilterOperatorEnum.LessThanOrEqual,
-                  values: [literalFromDataValue(max)],
-                },
-              },
-            },
-            {
-              filterType: tanagra.FilterFilterTypeEnum.Attribute,
-              filterUnion: {
-                attributeFilter: {
-                  attribute: filter.attribute,
-                  operator:
-                    tanagra.AttributeFilterOperatorEnum.GreaterThanOrEqual,
-                  values: [literalFromDataValue(min)],
-                },
-              },
-            },
-          ])
-        )
-      );
-    }
-    if (filter.values?.length) {
-      return makeBooleanLogicFilter(
-        tanagra.BooleanLogicFilterOperatorEnum.Or,
-        filter.values.map((value) => ({
-          filterType: tanagra.FilterFilterTypeEnum.Attribute,
-          filterUnion: {
-            attributeFilter: {
-              attribute: filter.attribute,
-              operator: tanagra.AttributeFilterOperatorEnum.Equals,
-              values: [literalFromDataValue(value)],
-            },
-          },
-        }))
-      );
-    }
-
-    return null;
-  }
-
-  if (isTextFilter(filter)) {
-    if (filter.text.length === 0) {
-      return null;
-    }
-
-    return {
-      filterType: tanagra.FilterFilterTypeEnum.Text,
-      filterUnion: {
-        textFilter: {
-          matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
-          text: filter.text,
-          attribute: filter.attribute,
-        },
-      },
-    };
-  }
-
-  throw new Error(`Unknown filter type: ${JSON.stringify(filter)}`);
-}
-
-function arrayFilterOperator(
-  filter: ArrayFilter
-): tanagra.BooleanLogicFilterOperatorEnum {
-  if (!isValid(filter.operator.min) && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterOperatorEnum.And;
-  }
-  if (filter.operator.min === 1 && !isValid(filter.operator.max)) {
-    return tanagra.BooleanLogicFilterOperatorEnum.Or;
-  }
-
-  throw new Error("Only AND and OR equivalent operators are supported.");
-}
-
 function processAttributes(
   obj: { [x: string]: DataValue },
   attributes?: { [x: string]: tanagra.ValueDisplay }
@@ -2505,21 +2134,6 @@ function fromAPIDisplayHint(hint?: tanagra.DisplayHint): HintData {
       })
       ?.filter(isValid),
   };
-}
-
-function toAPIBinaryOperator(
-  operator: ComparisonOperator
-): tanagra.BinaryOperator {
-  switch (operator) {
-    case ComparisonOperator.Equal:
-      return tanagra.BinaryOperator.Equals;
-    case ComparisonOperator.GreaterThanEqual:
-      return tanagra.BinaryOperator.GreaterThanOrEqual;
-    case ComparisonOperator.LessThanEqual:
-      return tanagra.BinaryOperator.LessThanOrEqual;
-  }
-
-  throw new Error(`Unhandled comparison operator: ${operator}`);
 }
 
 function parseAPIError<T>(p: Promise<T>) {
