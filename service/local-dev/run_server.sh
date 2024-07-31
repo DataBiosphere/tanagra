@@ -5,13 +5,13 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":aovstemd" arg; do
+while getopts ":auvstemd" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
       ;;
-    o) # Oauth2 Auth0 JWT
-      oauth2Auth0Jwt=1
+    u) # Unverified JWT
+      unverifiedJwt=1
       ;;
     v) # Use Verily underlays.
       useVerilyUnderlays=1
@@ -103,13 +103,13 @@ export TANAGRA_AUTH_ACCESS_TOKEN=false
 if [[ ${disableAuthChecks} ]]; then
   echo "Disabling auth checks."
   export TANAGRA_AUTH_DISABLE_CHECKS=true
-elif [[ ${oauth2Auth0Jwt} ]]; then
-  echo "Enabling auth checks: access-token"
-  export TANAGRA_AUTH_ACCESS_TOKEN=true
-  # set issuer and public key file.
-  export TANAGRA_AUTH_ACCESS_TOKEN_ISSUER=
-  export TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE=
-  export TANAGRA_AUTH_ACCESS_TOKEN_ALGORITHM="RSA"
+elif [[ ${unverifiedJwt} ]]; then
+  echo "Enabling auth checks: unverified jwt"
+  export TANAGRA_AUTH_UNVERIFIED_JWT=true
+  # set issuer and public key file if token verification is needed
+  # export TANAGRA_AUTH_UNVERIFIED_JWT_ISSUER=
+  # export TANAGRA_AUTH_UNVERIFIED_JWT_PUBLIC_KEY_FILE=
+  # export TANAGRA_AUTH_UNVERIFIED_JWT_ALGORITHM="RSA"
 else
   echo "Enabling auth checks: bearer-token"
   export TANAGRA_AUTH_BEARER_TOKEN=true

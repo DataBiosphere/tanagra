@@ -7,13 +7,12 @@ import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.service.authentication.BearerTokenUtils;
 import bio.terra.tanagra.service.authentication.IapJwtUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
-import bio.terra.tanagra.service.authentication.JwtAccessTokenUtils;
+import bio.terra.tanagra.service.authentication.UnverifiedJwtUtils;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.api.client.http.HttpMethods;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,19 +33,10 @@ public class AuthInterceptor implements HandlerInterceptor {
   private static final String OPENAPI_TAG_AUTH_NOT_REQUIRED = "Unauthenticated";
 
   private final AuthenticationConfiguration authenticationConfiguration;
-  private final JwtAccessTokenUtils jwtAccessTokenUtils;
 
   @Autowired
-  public AuthInterceptor(AuthenticationConfiguration authenticationConfiguration)
-      throws IOException {
+  public AuthInterceptor(AuthenticationConfiguration authenticationConfiguration) {
     this.authenticationConfiguration = authenticationConfiguration;
-    this.jwtAccessTokenUtils =
-        authenticationConfiguration.isAccessToken()
-            ? new JwtAccessTokenUtils(
-                authenticationConfiguration.getAccessTokenIssuer(),
-                authenticationConfiguration.getAccessTokenPublicKeyFile(),
-                authenticationConfiguration.getAccessTokenAlgorithm())
-            : null;
   }
 
   /**
@@ -105,9 +95,14 @@ public class AuthInterceptor implements HandlerInterceptor {
         BearerToken bearerToken = new BearerTokenFactory().from(request);
         userId = BearerTokenUtils.getUserIdFromToken(bearerToken);
 
-      } else if (authenticationConfiguration.isAccessToken()) {
-        String accessToken = new BearerTokenFactory().from(request).getToken();
-        userId = jwtAccessTokenUtils.getUserIdFromToken(accessToken);
+      } else if (authenticationConfiguration.isUnverifiedJwt()) {
+        String idToken = new BearerTokenFactory().from(request).getToken();
+        userId =
+            UnverifiedJwtUtils.getUserIdFromToken(
+                authenticationConfiguration.getUnverifiedJwtIssuer(),
+                authenticationConfiguration.getUnverifiedJwtPublicKeyFile(),
+                authenticationConfiguration.getUnverifiedJwtAlgorithm(),
+                idToken);
 
       } else if (authenticationConfiguration.isDisableChecks()) {
         LOGGER.warn(

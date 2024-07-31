@@ -60,13 +60,13 @@ public class AuthenticationConfiguration {
   private boolean bearerToken;
 
   @AnnotatedField(
-      name = "tanagra.auth.accessToken",
+      name = "tanagra.auth.unverifiedJwt",
       markdown =
-          "When true, the service expects a JWT access token. The service verifies the access and decodes the user information"
-              + "When this flag is set, you must also define the [Public key file](#tanagraauthaccessTokenpublicKeyFile) and "
-              + "[Issuer](#tanagraauthaccessTokenissuer). [Algorithm](#tanagraauthaccessTokenalgorithm) defaults to RSA256. ",
-      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN")
-  private boolean accessToken;
+          "When true, the service expects a JWT, which may be unverified. The service decides the decodes the user information from the payload. "
+              + "When this flag is set, opt to verify the token by setting [Issuer](#tanagraauthunverifiedjwtissuer), "
+              + "[Public key file](#tanagraauthunverifiedjwtpublicKeyFile). [Algorithm](#tanagraauthunverifiedjwtalgorithm) defaults to RSA256. ",
+      environmentVariable = "TANAGRA_AUTH_UNVERIFIED_JWT")
+  private boolean unverifiedJwt;
 
   @AnnotatedField(
       name = "tanagra.auth.gcpProjectNumber",
@@ -106,24 +106,23 @@ public class AuthenticationConfiguration {
   private String gkeBackendServiceId;
 
   @AnnotatedField(
-      name = "tanagra.auth.accessToken.issuer",
-      markdown = "The issuer of JWT access token used for its verification. ",
-      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN_ISSUER")
-  private String accessTokenIssuer;
+      name = "tanagra.auth.unverifiedJwt.issuer",
+      markdown = "The issuer of JWT used for its verification. ",
+      environmentVariable = "TANAGRA_AUTH_UNVERIFIED_JWT_ISSUER")
+  private String unverifiedJwtIssuer;
 
   @AnnotatedField(
-      name = "tanagra.auth.accessToken.publicKeyFile",
+      name = "tanagra.auth.unverifiedJwt.publicKeyFile",
       markdown =
-          "Name of the PEM public key file in the 'resources/keys' directory "
-              + "used to verify the JWT access token. ",
-      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN_PUBLIC_KEY_FILE")
-  private String accessTokenPublicKeyFile;
+          "Name of the PEM public key file in the 'resources/keys' directory used to verify the JWT. ",
+      environmentVariable = "TANAGRA_AUTH_UNVERIFIED_JWT_PUBLIC_KEY_FILE")
+  private String unverifiedJwtPublicKeyFile;
 
   @AnnotatedField(
-      name = "tanagra.auth.accessToken.algorithm",
-      markdown = "The algorithm used to verify the JWT access token. Defaults to RSA256 ",
-      environmentVariable = "TANAGRA_AUTH_ACCESS_TOKEN_ALGORITHM")
-  private String accessTokenAlgorithm = "RSA";
+      name = "tanagra.auth.unverifiedJwt.algorithm",
+      markdown = "The algorithm used to verify the JWT. Defaults to RSA256 ",
+      environmentVariable = "TANAGRA_AUTH_UNVERIFIED_JWT_ALGORITHM")
+  private String unverifiedJwtAlgorithm = "RSA";
 
   public boolean isDisableChecks() {
     return disableChecks;
@@ -141,8 +140,8 @@ public class AuthenticationConfiguration {
     return bearerToken;
   }
 
-  public boolean isAccessToken() {
-    return accessToken;
+  public boolean isUnverifiedJwt() {
+    return unverifiedJwt;
   }
 
   public long getGcpProjectNumber() {
@@ -169,16 +168,16 @@ public class AuthenticationConfiguration {
     }
   }
 
-  public String getAccessTokenIssuer() {
-    return accessTokenIssuer;
+  public String getUnverifiedJwtIssuer() {
+    return unverifiedJwtIssuer;
   }
 
-  public String getAccessTokenPublicKeyFile() {
-    return accessTokenPublicKeyFile;
+  public String getUnverifiedJwtPublicKeyFile() {
+    return unverifiedJwtPublicKeyFile;
   }
 
-  public String getAccessTokenAlgorithm() {
-    return accessTokenAlgorithm;
+  public String getUnverifiedJwtAlgorithm() {
+    return unverifiedJwtAlgorithm;
   }
 
   public void setDisableChecks(boolean disableChecks) {
@@ -197,8 +196,8 @@ public class AuthenticationConfiguration {
     this.bearerToken = bearerToken;
   }
 
-  public void setAccessToken(boolean accessToken) {
-    this.accessToken = accessToken;
+  public void setUnverifiedJwt(boolean unverifiedJwt) {
+    this.unverifiedJwt = unverifiedJwt;
   }
 
   public void setGcpProjectNumber(String gcpProjectNumber) {
@@ -213,16 +212,16 @@ public class AuthenticationConfiguration {
     this.gkeBackendServiceId = gkeBackendServiceId;
   }
 
-  public void setAccessTokenIssuer(String accessTokenIssuer) {
-    this.accessTokenIssuer = accessTokenIssuer;
+  public void setUnverifiedJwtIssuer(String unverifiedJwtIssuer) {
+    this.unverifiedJwtIssuer = unverifiedJwtIssuer;
   }
 
-  public void setAccessTokenPublicKeyFile(String accessTokenPublicKeyFile) {
-    this.accessTokenPublicKeyFile = accessTokenPublicKeyFile;
+  public void setUnverifiedJwtPublicKeyFile(String unverifiedJwtPublicKeyFile) {
+    this.unverifiedJwtPublicKeyFile = unverifiedJwtPublicKeyFile;
   }
 
-  public void setAccessTokenAlgorithm(String accessTokenAlgorithm) {
-    this.accessTokenAlgorithm = accessTokenAlgorithm;
+  public void setUnverifiedJwtAlgorithm(String unverifiedJwtAlgorithm) {
+    this.unverifiedJwtAlgorithm = unverifiedJwtAlgorithm;
   }
 
   public void log() {
@@ -230,12 +229,13 @@ public class AuthenticationConfiguration {
     LOGGER.info("Authentication: iap-gke-jwt: {}", isIapGkeJwt());
     LOGGER.info("Authentication: iap-appengine-jwt: {}", isIapAppEngineJwt());
     LOGGER.info("Authentication: bearer-token: {}", isBearerToken());
-    LOGGER.info("Authentication: access-token: {}", isAccessToken());
+    LOGGER.info("Authentication: unverified-jwt: {}", isUnverifiedJwt());
     LOGGER.info("Authentication: gcp-project-number: {}", getGcpProjectNumber());
     LOGGER.info("Authentication: gcp-project-id: {}", getGcpProjectId());
     LOGGER.info("Authentication: gke-backend-service-id: {}", getGkeBackendServiceId());
-    LOGGER.info("Authentication: access-token-issuer: {}", getAccessTokenIssuer());
-    LOGGER.info("Authentication: access-token-public-key-file: {}", getAccessTokenPublicKeyFile());
-    LOGGER.info("Authentication: access-token-algorithm: {}", getAccessTokenAlgorithm());
+    LOGGER.info("Authentication: unverified-jwt-issuer: {}", getUnverifiedJwtIssuer());
+    LOGGER.info(
+        "Authentication: unverified-jwt-public-key-file: {}", getUnverifiedJwtPublicKeyFile());
+    LOGGER.info("Authentication: unverified-jwt-algorithm: {}", getUnverifiedJwtAlgorithm());
   }
 }
