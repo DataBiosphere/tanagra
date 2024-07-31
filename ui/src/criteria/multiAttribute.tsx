@@ -3,7 +3,6 @@ import {
   ANY_VALUE_DATA,
   decodeValueData,
   encodeValueData,
-  generateValueDataFilter,
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
@@ -140,15 +139,6 @@ class _ implements CriteriaPlugin<string> {
       title,
       additionalText,
     };
-  }
-
-  generateFilter() {
-    const decodedData = decodeData(this.data);
-    return generateValueDataFilter(decodedData.valueData);
-  }
-
-  filterEntityIds() {
-    return [this.config.entity];
   }
 }
 

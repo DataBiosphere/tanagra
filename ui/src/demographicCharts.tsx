@@ -1,11 +1,8 @@
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import { generateCohortFilter } from "cohort";
 import Loading from "components/loading";
 import { Cohort } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { useUnderlaySource } from "data/underlaySourceContext";
-import { getEnvironment } from "environment";
 import { useStudyId, useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -20,7 +17,6 @@ export type DemographicChartsProps = {
 
 export function DemographicCharts(props: DemographicChartsProps) {
   const underlay = useUnderlay();
-  const underlaySource = useUnderlaySource();
   const studyId = useStudyId();
   const studySource = useStudySource();
 
@@ -30,18 +26,15 @@ export function DemographicCharts(props: DemographicChartsProps) {
     }
 
     return (
-      (getEnvironment().REACT_APP_BACKEND_FILTERS
-        ? await studySource.cohortCount(
-            studyId,
-            props.cohort.id,
-            undefined,
-            undefined,
-            []
-          )
-        : await underlaySource.filterCount(
-            generateCohortFilter(underlaySource, props.cohort),
-            []
-          ))?.[0]?.count ?? 0
+      (
+        await studySource.cohortCount(
+          studyId,
+          props.cohort.id,
+          undefined,
+          undefined,
+          []
+        )
+      )?.[0]?.count ?? 0
     );
   }, [underlay, props.cohort]);
 

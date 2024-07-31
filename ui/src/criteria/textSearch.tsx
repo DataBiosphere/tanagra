@@ -7,7 +7,6 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Loading from "components/loading";
-import { FilterType, makeArrayFilter } from "data/filter";
 import {
   CommonSelectorConfig,
   dataValueFromProto,
@@ -93,27 +92,6 @@ class _ implements CriteriaPlugin<string> {
       title,
       additionalText,
     };
-  }
-
-  generateFilter() {
-    const decodedData = decodeData(this.data);
-
-    return makeArrayFilter({}, [
-      {
-        type: FilterType.Text,
-        attribute: this.config.searchAttribute,
-        text: decodedData.query,
-      },
-      {
-        type: FilterType.Attribute,
-        attribute: this.config.categoryAttribute ?? "",
-        values: decodedData.categories.map((c) => c.value),
-      },
-    ]);
-  }
-
-  filterEntityIds() {
-    return [this.config.entity];
   }
 }
 

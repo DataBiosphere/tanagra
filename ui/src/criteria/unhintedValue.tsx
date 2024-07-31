@@ -5,7 +5,6 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
-import { FilterType, makeArrayFilter } from "data/filter";
 import { CommonSelectorConfig } from "data/source";
 import { ComparisonOperator } from "data/types";
 import { useUpdateCriteria } from "hooks";
@@ -20,27 +19,6 @@ interface Data {
   operator: ComparisonOperator;
   min: number;
   max: number;
-}
-
-function rangeFromData(data: Data) {
-  if (data.operator === ComparisonOperator.Equal) {
-    return { min: data.min, max: data.min };
-  }
-
-  if (data.operator === ComparisonOperator.Between) {
-    return { min: data.min, max: data.max };
-  }
-
-  return {
-    min:
-      data.operator === ComparisonOperator.LessThanEqual
-        ? Number.MIN_SAFE_INTEGER
-        : data.min,
-    max:
-      data.operator === ComparisonOperator.GreaterThanEqual
-        ? Number.MAX_SAFE_INTEGER
-        : data.min,
-  };
 }
 
 const operatorTitles = {
@@ -103,48 +81,6 @@ class _ implements CriteriaPlugin<string> {
     return {
       title,
     };
-  }
-
-  generateFilter(occurrenceId: string) {
-    const decodedData = decodeData(this.data);
-
-    if (this.config.groupByCount) {
-      return null;
-    }
-
-    const attributes = this.config.attributes[occurrenceId];
-    if (!attributes || !attributes.values.length) {
-      throw new Error(`No attributes found for occurrence: ${occurrenceId}`);
-    }
-
-    return makeArrayFilter(
-      {},
-      attributes.values.map((a) => ({
-        type: FilterType.Attribute,
-        attribute: a,
-        ranges: [rangeFromData(decodedData)],
-      }))
-    );
-  }
-
-  groupByCountFilter(occurrenceId: string) {
-    const decodedData = decodeData(this.data);
-
-    if (!this.config.groupByCount) {
-      return null;
-    }
-
-    const attributes = this.config.attributes[occurrenceId];
-
-    return {
-      attributes: attributes?.values ?? [],
-      operator: decodedData.operator,
-      value: decodedData.min,
-    };
-  }
-
-  filterEntityIds() {
-    return Object.keys(this.config.attributes);
   }
 }
 

@@ -15,13 +15,7 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import {
-  createCriteria,
-  generateCohortFilter,
-  getCriteriaPlugin,
-  getCriteriaTitle,
-  newSection,
-} from "cohort";
+import { createCriteria, getCriteriaPlugin, getCriteriaTitle } from "cohort";
 import {
   deleteCohortCriteriaModifier,
   deleteCohortGroup,
@@ -38,7 +32,6 @@ import { useMenu } from "components/menu";
 import { SaveStatus } from "components/saveStatus";
 import { useTextInputDialog } from "components/textInputDialog";
 import {
-  Cohort,
   Group,
   GroupSection,
   GroupSectionFilterKind,
@@ -48,7 +41,6 @@ import {
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { DemographicCharts } from "demographicCharts";
-import { getEnvironment } from "environment";
 import {
   useBackendCohort,
   useCohort,
@@ -240,22 +232,9 @@ function ParticipantsGroupSection(props: {
       return -1;
     }
 
-    if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
-      return (
-        await studySource.cohortCount(
-          studyId,
-          cohort.id,
-          backendGroupSection.id
-        )
-      )[0].count;
-    }
-    const cohortForFilter: Cohort = {
-      ...cohort,
-      groupSections: [backendGroupSection],
-    };
-
-    const filter = generateCohortFilter(underlaySource, cohortForFilter);
-    return (await underlaySource.filterCount(filter))[0].count;
+    return (
+      await studySource.cohortCount(studyId, cohort.id, backendGroupSection.id)
+    )[0].count;
   }, [studyId, cohort.id, cohort.underlayName, backendGroupSection]);
 
   const sectionCountState = useSWRImmutable(
@@ -707,25 +686,14 @@ function ParticipantsGroup(props: {
       return undefined;
     }
 
-    if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
-      return (
-        await studySource.cohortCount(
-          studyId,
-          cohort.id,
-          backendGroupSection.id,
-          backendGroup.id
-        )
-      )[0].count;
-    }
-    const cohortForFilter: Cohort = {
-      ...cohort,
-      groupSections: [
-        newSection(undefined, backendGroupSection.id, backendGroup),
-      ],
-    };
-
-    const filter = generateCohortFilter(underlaySource, cohortForFilter);
-    return (await underlaySource.filterCount(filter))[0].count;
+    return (
+      await studySource.cohortCount(
+        studyId,
+        cohort.id,
+        backendGroupSection.id,
+        backendGroup.id
+      )
+    )[0].count;
   }, [
     studyId,
     cohort.id,
@@ -756,13 +724,7 @@ function ParticipantsGroup(props: {
   const modifierPlugins = useMemo(
     () =>
       modifierCriteria.map((c) => {
-        // TODO: Multiple occurrence: This assumes modifiers can apply to all
-        // occurrence entities. There's no way around this without rethinking
-        // how modifiers work.
-        const p = getCriteriaPlugin(
-          c,
-          plugin.filterEntityIds(underlaySource)[0]
-        );
+        const p = getCriteriaPlugin(c);
         return { title: getCriteriaTitle(c, p), plugin: p };
       }),
     [modifierCriteria, props.group.entity]
