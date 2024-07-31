@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -32,9 +33,9 @@ public class UnverifiedJwtUtils {
   private static JWTVerifier jwtVerifier;
 
   /**
-   * Get a UserId object from a JWT (id token). Verifies the token if the tokenVerifier is provided
+   * Get a UserId object from an unverified JWT. Verifies the token if the tokenVerifier is provided
    *
-   * @param idToken JWT (id token)
+   * @param idToken Unverified JWT
    * @param issuer Token issuer, used to verily the token
    * @param publicKeyPemFileName Public key file name (under `resources/keys` folder), used to
    *     verily the token
@@ -77,19 +78,17 @@ public class UnverifiedJwtUtils {
   private static JWTVerifier getJwtVerifier(
       String issuer, String publicKeyPemFileName, String algorithmName) throws IOException {
     if (jwtVerifier == null) {
-      Algorithm algorithm =
-          Algorithm.RSA256(
-              (RSAPublicKey) readPublicKeyFromFile(publicKeyPemFileName, algorithmName),
-              /* RSAPrivateKey= */ null);
+
+      if (!"RSA".equals(algorithmName)) {
+        throw new UnsupportedEncodingException("Unsupported algorithm: " + algorithmName);
+      }
+
+      byte[] bytes = parsePEMFile(publicKeyPemFileName);
+      RSAPublicKey rsaPublicKey = (RSAPublicKey) getPublicKey(bytes, algorithmName);
+      Algorithm algorithm = Algorithm.RSA256(rsaPublicKey, /* RSAPrivateKey= */ null);
       jwtVerifier = JWT.require(algorithm).withIssuer(issuer).build();
     }
     return jwtVerifier;
-  }
-
-  private static PublicKey readPublicKeyFromFile(String publicKeyPemFileName, String algorithm)
-      throws IOException {
-    byte[] bytes = parsePEMFile(publicKeyPemFileName);
-    return getPublicKey(bytes, algorithm);
   }
 
   private static byte[] parsePEMFile(String pemFileName) throws IOException {

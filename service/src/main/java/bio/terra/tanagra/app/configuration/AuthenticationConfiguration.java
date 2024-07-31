@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
     markdown =
         "Configure the authentication model.\n\n"
             + "There are five separate flags that control which model is used: "
-            + "`tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`, `tanagra.auth.auth0Jwt`. "
+            + "`tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`, `tanagra.auth.unverifiedJwt`. "
             + "In the future these will be combined into a single flag. "
             + "For now, **you must set all five flags and only one should be true**. ")
 public class AuthenticationConfiguration {
@@ -62,7 +62,7 @@ public class AuthenticationConfiguration {
   @AnnotatedField(
       name = "tanagra.auth.unverifiedJwt",
       markdown =
-          "When true, the service expects a JWT, which may be unverified. The service decides the decodes the user information from the payload. "
+          "When true, the service expects a JWT, which may be unverified. The service decodes the user information from the token payload. "
               + "When this flag is set, opt to verify the token by setting [Issuer](#tanagraauthunverifiedjwtissuer), "
               + "[Public key file](#tanagraauthunverifiedjwtpublicKeyFile). [Algorithm](#tanagraauthunverifiedjwtalgorithm) defaults to RSA256. ",
       environmentVariable = "TANAGRA_AUTH_UNVERIFIED_JWT")
