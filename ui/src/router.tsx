@@ -1,18 +1,26 @@
-import { additionalRoutes, underlaySourceContextRootRoutes } from "appRoutes";
+import { additionalRoutes, coreRoutes } from "appRoutes";
+import { ErrorPage } from "components/errorPage";
 import { getEnvironment } from "environment";
 import { useCallback, useEffect } from "react";
 import {
   createHashRouter,
   generatePath,
   useLocation,
-  useNavigate,
   useParams,
 } from "react-router-dom";
+import { useNavigate } from "util/searchState";
 
 export function createAppRouter() {
   return createHashRouter([
-    ...underlaySourceContextRootRoutes(),
-    ...additionalRoutes(),
+    {
+      path: "/",
+      errorElement: <ErrorPage />,
+      children: [
+        {
+          children: [...coreRoutes(), ...additionalRoutes()],
+        },
+      ],
+    },
   ]);
 }
 
