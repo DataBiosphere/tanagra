@@ -4,7 +4,7 @@ import bio.terra.common.exception.InternalServerErrorException;
 import bio.terra.common.iam.BearerToken;
 import bio.terra.common.iam.BearerTokenFactory;
 import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
-import bio.terra.tanagra.service.authentication.BearerTokenUtils;
+import bio.terra.tanagra.service.authentication.GcpAccessTokenUtils;
 import bio.terra.tanagra.service.authentication.IapJwtUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
 import bio.terra.tanagra.service.authentication.UserId;
@@ -89,9 +89,9 @@ public class AuthInterceptor implements HandlerInterceptor {
                 jwt,
                 authenticationConfiguration.getGcpProjectNumber(),
                 authenticationConfiguration.getGcpProjectId());
-      } else if (authenticationConfiguration.isBearerToken()) {
+      } else if (authenticationConfiguration.isGcpAccessToken()) {
         BearerToken bearerToken = new BearerTokenFactory().from(request);
-        userId = BearerTokenUtils.getUserIdFromToken(bearerToken);
+        userId = GcpAccessTokenUtils.getUserIdFromToken(bearerToken.getToken());
       } else if (authenticationConfiguration.isDisableChecks()) {
         LOGGER.warn(
             "Authentication checks are disabled. This should only happen for local development.");
