@@ -1,5 +1,4 @@
-import { getEnvironment } from "environment";
-import React from "react";
+import { getEnvironment, isTestEnvironment } from "environment";
 import * as tanagra from "tanagra-api";
 
 // TODO(tjennison): Figure out a more comprehensive solutions for faking APIs.
@@ -286,7 +285,8 @@ class FakeExportAPI {}
 class FakeUsersAPI {}
 
 function getAccessToken() {
-  // For local dev, get the bearer token from the iframe url param. For all other envs, check parent window's localStorage for auth token
+  // For local dev: get the bearer token from the iframe url param.
+  // For all other envs: check parent window's localStorage for auth token.
   return (
     (getEnvironment().REACT_APP_GET_LOCAL_AUTH_TOKEN
       ? new URLSearchParams(window.location.href.split("?")[1]).get("token")
@@ -294,54 +294,53 @@ function getAccessToken() {
   );
 }
 
-function apiForEnvironment<Real, Fake>(
+function useApiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
 ) {
+  //TODO-dex const { getAuthToken } = useAuth();
   const env = getEnvironment();
-  const fn = () => {
-    if (env.REACT_APP_USE_FAKE_API === "y") {
-      return new fake();
-    }
 
-    const config: tanagra.ConfigurationParameters = {
-      basePath: env.REACT_APP_BACKEND_HOST || "",
-      accessToken: getAccessToken(),
-    };
-    return new real(new tanagra.Configuration(config));
+  if (isTestEnvironment()) {
+    return new fake();
+  }
+
+  const config: tanagra.ConfigurationParameters = {
+    basePath: env.REACT_APP_BACKEND_HOST || "",
+    accessToken: getAccessToken(),
+    //TODO-dex accessToken: getAuthToken ?? getAccessToken(),
   };
-  return React.createContext(fn());
+  return new real(new tanagra.Configuration(config));
 }
 
-export const UnderlaysApiContext = apiForEnvironment(
-  tanagra.UnderlaysApi,
-  FakeUnderlaysApi
-);
-export const StudiesApiContext = apiForEnvironment(
-  tanagra.StudiesApi,
-  FakeStudiesAPI
-);
-export const CohortsApiContext = apiForEnvironment(
-  tanagra.CohortsApi,
-  FakeCohortsAPI
-);
-export const ConceptSetsApiContext = apiForEnvironment(
-  tanagra.ConceptSetsApi,
-  FakeConceptSetsAPI
-);
-export const ReviewsApiContext = apiForEnvironment(
-  tanagra.ReviewsApi,
-  FakeReviewsAPI
-);
-export const AnnotationsApiContext = apiForEnvironment(
-  tanagra.AnnotationsApi,
-  FakeAnnotationsAPI
-);
-export const ExportApiContext = apiForEnvironment(
-  tanagra.ExportApi,
-  FakeExportAPI
-);
-export const UsersApiContext = apiForEnvironment(
-  tanagra.UsersApi,
-  FakeUsersAPI
-);
+export function useUnderlaysApi() {
+  return useApiForEnvironment(tanagra.UnderlaysApi, FakeUnderlaysApi);
+}
+
+export function useStudiesApi() {
+  return useApiForEnvironment(tanagra.StudiesApi, FakeStudiesAPI);
+}
+
+export function useCohortsApi() {
+  return useApiForEnvironment(tanagra.CohortsApi, FakeCohortsAPI);
+}
+
+export function useConceptSetsApi() {
+  return useApiForEnvironment(tanagra.ConceptSetsApi, FakeConceptSetsAPI);
+}
+
+export function useReviewsApi() {
+  return useApiForEnvironment(tanagra.ReviewsApi, FakeReviewsAPI);
+}
+
+export function useAnnotationsApi() {
+  return useApiForEnvironment(tanagra.AnnotationsApi, FakeAnnotationsAPI);
+}
+
+export function useExportApi() {
+  return useApiForEnvironment(tanagra.ExportApi, FakeExportAPI);
+}
+
+export function useUsersApi() {
+  return useApiForEnvironment(tanagra.UsersApi, FakeUsersAPI);
+}
