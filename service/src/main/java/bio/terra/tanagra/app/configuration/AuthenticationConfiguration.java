@@ -15,9 +15,9 @@ import org.springframework.context.annotation.Configuration;
     name = "Authentication",
     markdown =
         "Configure the authentication model.\n\n"
-            + "There are five separate flags that control which model is used: "
-            + "`tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.bearerToken`, `tanagra.auth.unverifiedJwt`. "
-            + "In the future these will be combined into a single flag. "
+            + "There are five separate flags that control which model is used: `tanagra.auth.disableChecks`, "
+            + "`tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.gcpAccessToken`, "
+            + "`tanagra.auth.unverifiedJwt`. In the future these will be combined into a single flag. "
             + "For now, **you must set all five flags and only one should be true**. ")
 public class AuthenticationConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationConfiguration.class);
@@ -51,13 +51,13 @@ public class AuthenticationConfiguration {
   private boolean iapAppEngineJwt;
 
   @AnnotatedField(
-      name = "tanagra.auth.bearerToken",
+      name = "tanagra.auth.gcpAccessToken",
       markdown =
-          "When true, the service expects a Google OAuth bearer token. "
+          "When true, the service expects a Google OAuth access token. "
               + "The service calls Google's `https://www.googleapis.com/oauth2/v2/userinfo` endpoint to get the email address of the user from the token. "
               + "More details in the [GCP documentation](https://developers.google.com/identity/openid-connect/openid-connect#obtaininguserprofileinformation).",
-      environmentVariable = "TANAGRA_AUTH_BEARER_TOKEN")
-  private boolean bearerToken;
+      environmentVariable = "TANAGRA_AUTH_GCP_ACCESS_TOKEN")
+  private boolean gcpAccessToken;
 
   @AnnotatedField(
       name = "tanagra.auth.unverifiedJwt",
@@ -136,8 +136,8 @@ public class AuthenticationConfiguration {
     return iapAppEngineJwt;
   }
 
-  public boolean isBearerToken() {
-    return bearerToken;
+  public boolean isGcpAccessToken() {
+    return gcpAccessToken;
   }
 
   public boolean isUnverifiedJwt() {
@@ -192,8 +192,8 @@ public class AuthenticationConfiguration {
     this.iapAppEngineJwt = iapAppEngineJwt;
   }
 
-  public void setBearerToken(boolean bearerToken) {
-    this.bearerToken = bearerToken;
+  public void setGcpAccessToken(boolean gcpAccessToken) {
+    this.gcpAccessToken = gcpAccessToken;
   }
 
   public void setUnverifiedJwt(boolean unverifiedJwt) {
@@ -228,7 +228,7 @@ public class AuthenticationConfiguration {
     LOGGER.info("Authentication: disable-checks: {}", isDisableChecks());
     LOGGER.info("Authentication: iap-gke-jwt: {}", isIapGkeJwt());
     LOGGER.info("Authentication: iap-appengine-jwt: {}", isIapAppEngineJwt());
-    LOGGER.info("Authentication: bearer-token: {}", isBearerToken());
+    LOGGER.info("Authentication: gcp-access-token: {}", isGcpAccessToken());
     LOGGER.info("Authentication: unverified-jwt: {}", isUnverifiedJwt());
     LOGGER.info("Authentication: gcp-project-number: {}", getGcpProjectNumber());
     LOGGER.info("Authentication: gcp-project-id: {}", getGcpProjectId());

@@ -97,7 +97,7 @@ export TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED=true
 export TANAGRA_AUTH_DISABLE_CHECKS=false
 export TANAGRA_AUTH_IAP_GKE_JWT=false
 export TANAGRA_AUTH_IAP_APP_ENGINE_JWT=false
-export TANAGRA_AUTH_BEARER_TOKEN=false
+export TANAGRA_AUTH_GCP_ACCESS_TOKEN=false
 export TANAGRA_AUTH_UNVERIFIED_JWT=false
 
 if [[ ${disableAuthChecks} ]]; then
@@ -111,8 +111,8 @@ elif [[ ${unverifiedJwt} ]]; then
   # export TANAGRA_AUTH_UNVERIFIED_JWT_PUBLIC_KEY_FILE=
   # export TANAGRA_AUTH_UNVERIFIED_JWT_ALGORITHM="RSA"
 else
-  echo "Enabling auth checks: bearer-token"
-  export TANAGRA_AUTH_BEARER_TOKEN=true
+  echo "Enabling auth checks: gcp-access-token"
+  export TANAGRA_AUTH_GCP_ACCESS_TOKEN=true
 fi
 
 echo
