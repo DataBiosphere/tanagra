@@ -140,19 +140,7 @@ When true, the application database will have Liquibase changesets applied on se
 ## Authentication
 Configure the authentication model.
 
-There are five separate flags that control which model is used. In the future these will be combined into a single flag. For now, **you must set all five flags and only one should be true**.
-- `tanagra.auth.disableChecks`
-- `tanagra.auth.gcpAccessToken`
-- `tanagra.auth.iapGkeJwt`
-- `tanagra.auth.iapAppEngineJwt`
-- `tanagra.auth.unverifiedJwt`
-
-### tanagra.auth.bearerToken
-**required** boolean
-
-When true, the service expects a Google OAuth bearer token. The service calls Google's `https://www.googleapis.com/oauth2/v2/userinfo` endpoint to get the email address of the user from the token. More details in the [GCP documentation](https://developers.google.com/identity/openid-connect/openid-connect#obtaininguserprofileinformation).
-
-*Environment variable:* `TANAGRA_AUTH_BEARER_TOKEN`
+There are five separate flags that control which model is used: `tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.gcpAccessToken`, `tanagra.auth.unverifiedJwt`. In the future these will be combined into a single flag. For now, **you must set all five flags and only one should be true**. 
 
 ### tanagra.auth.disableChecks
 **required** boolean
