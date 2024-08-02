@@ -44,8 +44,10 @@ function Auth0ProviderWithClient() {
 
   // This is needed for user state to get updated.
   useEffect(() => {
-    getAccessTokenSilently();
-  }, [getAccessTokenSilently]);
+    if (isAuthenticated) {
+      getAccessTokenSilently();
+    }
+  }, [isAuthenticated, getAccessTokenSilently]);
 
   if (user && !user.email) {
     throw new Error("User profile has no email address");

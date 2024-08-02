@@ -1,7 +1,7 @@
 import { CohortRevision } from "activityLog/cohortRevision";
 import { AddCohort } from "addCohort";
 import { AddCohortCriteria, AddFeatureSetCriteria } from "addCriteria";
-import { LoginPage, LogoutPage } from "auth/provider";
+import { LoginPage, LogoutPage} from "auth/provider";
 import { CohortReview } from "cohortReview/cohortReview";
 import { CohortReviewList } from "cohortReview/cohortReviewList";
 import CohortRoot from "cohortRoot";

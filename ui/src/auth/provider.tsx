@@ -7,8 +7,13 @@ import GridLayout from "layout/gridLayout";
 import React, { createContext, useContext, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useNavigate } from "util/searchState";
+import {isTestEnvironment} from "environment";
+import {FakeAuthProvider} from "auth/fakeProvider";
 
 const imageAltText = "Verily Data Explorer";
+export const imageTitle = "Verily WorkBench Data Explorer";
+export const signInText = "Sign in";
+export const signOutText = "Sign out";
 
 export type Profile = {
   readonly sub: string;
@@ -44,8 +49,11 @@ export function isAuthEnabled(): boolean {
 }
 
 export function AuthProvider() {
-  // TODO:dexamundsen add mocks for testing
-  return isAuth0Enabled() ? <Auth0AuthProvider /> : null;
+  return isAuthEnabled() ? (
+    (isTestEnvironment() ?
+     <FakeAuthProvider /> :
+      <Auth0AuthProvider />
+  )) : null;
 }
 
 export function CheckAuthorization() {
@@ -71,7 +79,7 @@ export function CheckAuthorization() {
   return <Outlet />;
 }
 
-export const LoginPage = () => {
+export const LoginPage = ()=> {
   const { loaded, profile, error, signIn } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -100,9 +108,10 @@ export const LoginPage = () => {
           style={{ width: "100px", height: "auto" }}
           alt={imageAltText}
         />
+        {imageTitle}
         <ErrorList errors={error} />
         <Button variant="contained" onClick={() => signIn()} disabled={!loaded}>
-          Sign in to Data Explorer
+          {signInText}
         </Button>
       </GridLayout>
     </GridLayout>
@@ -129,20 +138,17 @@ export const LogoutPage = () => {
           style={{ width: "100px", height: "auto" }}
           alt={imageAltText}
         />
+        {imageTitle}
         <ErrorList errors={error} />
         <Button
           variant="contained"
           onClick={() => signOut()}
           disabled={!loaded}
         >
-          Sign out of Data Explorer
+          {signOutText}
         </Button>
       </GridLayout>
     </GridLayout>
   );
 };
 
-export function useAuthToken(): () => Promise<string> {
-  const { getAuthToken } = useAuth();
-  return getAuthToken;
-}
