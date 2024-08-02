@@ -93,7 +93,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
       } else if (authenticationConfiguration.isGcpAccessToken()) {
         BearerToken bearerToken = new BearerTokenFactory().from(request);
-        userId = GcpAccessTokenUtils.getUserIdFromToken(bearerToken);
+        userId = GcpAccessTokenUtils.getUserIdFromToken(bearerToken.getToken());
 
       } else if (authenticationConfiguration.isUnverifiedJwt()) {
         String idToken = new BearerTokenFactory().from(request).getToken();
