@@ -143,8 +143,3 @@ export const LogoutPage = () => {
     </GridLayout>
   );
 };
-
-export function useAuthToken(): () => Promise<string> {
-  const { getAuthToken } = useAuth();
-  return getAuthToken;
-}
