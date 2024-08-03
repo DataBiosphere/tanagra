@@ -1,3 +1,4 @@
+import { useAuth } from "auth/provider";
 import { getEnvironment, isTestEnvironment } from "environment";
 import * as tanagra from "tanagra-api";
 
@@ -298,7 +299,7 @@ function useApiForEnvironment<Real, Fake>(
   real: { new (c: tanagra.Configuration): Real },
   fake: { new (): Fake }
 ) {
-  //TODO-dex const { getAuthToken } = useAuth();
+  const { getAuthToken } = useAuth();
   const env = getEnvironment();
 
   if (isTestEnvironment()) {
@@ -307,8 +308,7 @@ function useApiForEnvironment<Real, Fake>(
 
   const config: tanagra.ConfigurationParameters = {
     basePath: env.REACT_APP_BACKEND_HOST || "",
-    accessToken: getAccessToken(),
-    //TODO-dex accessToken: getAuthToken ?? getAccessToken(),
+    accessToken: getAuthToken ?? getAccessToken(),
   };
   return new real(new tanagra.Configuration(config));
 }

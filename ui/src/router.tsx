@@ -1,4 +1,5 @@
-import { additionalRoutes, coreRoutes } from "appRoutes";
+import { additionalRoutes, authRoutes, coreRoutes } from "appRoutes";
+import { AuthProvider, CheckAuthorization, isAuthEnabled } from "auth/provider";
 import { ErrorPage } from "components/errorPage";
 import { getEnvironment } from "environment";
 import { useCallback, useEffect } from "react";
@@ -11,13 +12,20 @@ import {
 import { useNavigate } from "util/searchState";
 
 export function createAppRouter() {
+  const authEnabled = isAuthEnabled();
   return createHashRouter([
     {
       path: "/",
+      element: authEnabled ? <AuthProvider /> : undefined,
       errorElement: <ErrorPage />,
       children: [
         {
-          children: [...coreRoutes(), ...additionalRoutes()],
+          element: <CheckAuthorization />,
+          children: [
+            ...(authEnabled ? authRoutes() : []),
+            ...coreRoutes(),
+            ...additionalRoutes(),
+          ],
         },
       ],
     },
