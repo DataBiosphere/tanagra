@@ -184,8 +184,8 @@ the associated service or dao classes.
 ### Authentication
 **`service` Gradle sub-project `authentication` package**
 
-We support four types of authentication tokens: GCP access token, JWT from IAP in front of GKE, JWT from IAP in
-front of AppEngine and Unverified JWT. Utilities for processing these tokens lives in this package.
+We support four types of authentication tokens: GCP access token, generic JWT, JWT from IAP in front of GKE, 
+JWT from IAP in front of AppEngine. Utilities for processing these tokens lives in this package.
 
 ### Data export
 **`service` Gradle sub-project `export` package**

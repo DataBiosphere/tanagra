@@ -75,6 +75,7 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api'
     implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
 
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
         exclude group: 'com.azure'
@@ -91,10 +92,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.security:spring-security-core'
-
-    // Libraries to verify and decode JWT
-    implementation 'com.auth0:java-jwt:4.4.0'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
 
     // [Application DB] MySQL/MariaDB
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'

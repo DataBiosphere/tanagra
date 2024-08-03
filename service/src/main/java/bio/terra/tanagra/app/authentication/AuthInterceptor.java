@@ -5,9 +5,9 @@ import bio.terra.common.iam.BearerToken;
 import bio.terra.common.iam.BearerTokenFactory;
 import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.service.authentication.GcpAccessTokenUtils;
-import bio.terra.tanagra.service.authentication.IapJwtUtils;
+import bio.terra.tanagra.service.authentication.GcpIapUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
-import bio.terra.tanagra.service.authentication.UnverifiedJwtUtils;
+import bio.terra.tanagra.service.authentication.JwtUtils;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.api.client.http.HttpMethods;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,17 +76,17 @@ public class AuthInterceptor implements HandlerInterceptor {
     UserId userId;
     try {
       if (authenticationConfiguration.isIapGkeJwt()) {
-        String jwt = IapJwtUtils.getJwtFromHeader(request);
+        String jwt = GcpIapUtils.getJwtFromHeader(request);
         userId =
-            IapJwtUtils.verifyJwtForComputeEngineOrGKE(
+            GcpIapUtils.verifyJwtForComputeEngineOrGKE(
                 jwt,
                 authenticationConfiguration.getGcpProjectNumber(),
                 authenticationConfiguration.getGkeBackendServiceId());
 
       } else if (authenticationConfiguration.isIapAppEngineJwt()) {
-        String jwt = IapJwtUtils.getJwtFromHeader(request);
+        String jwt = GcpIapUtils.getJwtFromHeader(request);
         userId =
-            IapJwtUtils.verifyJwtForAppEngine(
+            GcpIapUtils.verifyJwtForAppEngine(
                 jwt,
                 authenticationConfiguration.getGcpProjectNumber(),
                 authenticationConfiguration.getGcpProjectId());
@@ -95,14 +95,18 @@ public class AuthInterceptor implements HandlerInterceptor {
         BearerToken bearerToken = new BearerTokenFactory().from(request);
         userId = GcpAccessTokenUtils.getUserIdFromToken(bearerToken.getToken());
 
-      } else if (authenticationConfiguration.isUnverifiedJwt()) {
+      } else if (authenticationConfiguration.isJwt()) {
         String idToken = new BearerTokenFactory().from(request).getToken();
         userId =
-            UnverifiedJwtUtils.getUserIdFromToken(
-                authenticationConfiguration.getUnverifiedJwtIssuer(),
-                authenticationConfiguration.getUnverifiedJwtPublicKeyFile(),
-                authenticationConfiguration.getUnverifiedJwtAlgorithm(),
-                idToken);
+            (authenticationConfiguration.getJwtIssuer() == null)
+                ? JwtUtils.getUserIdFromJwt(idToken)
+                : JwtUtils.verifyJwtAndGetUserid(
+                    idToken,
+                    authenticationConfiguration.getJwtIssuer(),
+                    authenticationConfiguration.getJwtAudience(),
+                    JwtUtils.getPublicKey(
+                        authenticationConfiguration.getJwtPublicKeyFile(),
+                        authenticationConfiguration.getJwtAlgorithm()));
 
       } else if (authenticationConfiguration.isDisableChecks()) {
         LOGGER.warn(

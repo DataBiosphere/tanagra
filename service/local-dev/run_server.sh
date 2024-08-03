@@ -5,13 +5,13 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":auvstemd" arg; do
+while getopts ":ajvstemd" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
       ;;
-    u) # Unverified JWT
-      unverifiedJwt=1
+    j) # Generic JWT
+      jwt=1
       ;;
     v) # Use Verily underlays.
       useVerilyUnderlays=1
@@ -98,18 +98,19 @@ export TANAGRA_AUTH_DISABLE_CHECKS=false
 export TANAGRA_AUTH_IAP_GKE_JWT=false
 export TANAGRA_AUTH_IAP_APP_ENGINE_JWT=false
 export TANAGRA_AUTH_GCP_ACCESS_TOKEN=false
-export TANAGRA_AUTH_UNVERIFIED_JWT=false
+export TANAGRA_AUTH_JWT=false
 
 if [[ ${disableAuthChecks} ]]; then
   echo "Disabling auth checks."
   export TANAGRA_AUTH_DISABLE_CHECKS=true
-elif [[ ${unverifiedJwt} ]]; then
-  echo "Enabling auth checks: unverified-jwt"
-  export TANAGRA_AUTH_UNVERIFIED_JWT=true
-  # set issuer and public key file if token verification is needed
-  # export TANAGRA_AUTH_UNVERIFIED_JWT_ISSUER=
-  # export TANAGRA_AUTH_UNVERIFIED_JWT_PUBLIC_KEY_FILE=
-  # export TANAGRA_AUTH_UNVERIFIED_JWT_ALGORITHM="RSA"
+elif [[ ${jwt} ]]; then
+  echo "Enabling auth checks: jwt"
+  export TANAGRA_AUTH_JWT=true
+  # set issuer, audience and public key file if token verification is needed
+  # export TANAGRA_AUTH_JWT_ISSUER=
+  # export TANAGRA_AUTH_JWT_AUDIENCE=
+  # export TANAGRA_AUTH_JWT_PUBLIC_KEY_FILE=
+  # export TANAGRA_AUTH_JWT_ALGORITHM="RSA"
 else
   echo "Enabling auth checks: gcp-access-token"
   export TANAGRA_AUTH_GCP_ACCESS_TOKEN=true
