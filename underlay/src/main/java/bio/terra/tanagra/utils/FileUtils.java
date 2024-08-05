@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +25,7 @@ public final class FileUtils {
   /**
    * Build a stream to a resource file.
    *
+   * @param resourceFilePath resource file path
    * @return the new file stream
    * @throws RuntimeException if the resource file doesn't exist
    */
@@ -39,11 +42,32 @@ public final class FileUtils {
   /**
    * Build a stream to a file on disk.
    *
+   * @param filePath file path
    * @return the new file stream
    * @throws RuntimeException if the file doesn't exist
    */
   public static InputStream getFileStream(Path filePath) throws IOException {
     return Files.newInputStream(Path.of(filePath.toAbsolutePath().toString()));
+  }
+
+  /**
+   * Get resource as a file
+   *
+   * @param resourceFilePath resource file path
+   * @return the new file object
+   * @throws RuntimeException if the file doesn't exist
+   */
+  public static File getResourceFile(Path resourceFilePath) throws IOException {
+    try {
+      URL url = FileUtils.class.getClassLoader().getResource(resourceFilePath.toString());
+      if (url == null) {
+        throw new FileNotFoundException("Resource file not found: " + resourceFilePath);
+      }
+
+      return new File(url.toURI());
+    } catch (URISyntaxException e) {
+      throw new SystemException("Resource file read failed: " + resourceFilePath, e);
+    }
   }
 
   /** Create the file and any parent directories if they don't already exist. */

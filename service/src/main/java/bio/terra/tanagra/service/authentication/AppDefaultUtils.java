@@ -11,13 +11,16 @@ import java.util.List;
 
 /** Utilities for working with Google application default credentials. */
 public final class AppDefaultUtils {
+
+  private static final String GCP_ADC_JWT_ISSUER_URL = "https://accounts.google.com";
+
   private AppDefaultUtils() {}
 
   public static UserId getUserIdFromAdc(String targetAudience) {
     IdToken idToken =
         getIdTokenFromAdc(ImmutableList.of("openid", "email", "profile"), targetAudience);
-    return IapJwtUtils.verifyJwt(
-        idToken.getTokenValue(), targetAudience, "https://accounts.google.com");
+    return JwtUtils.verifyJwtAndGetUserid(
+        idToken.getTokenValue(), GCP_ADC_JWT_ISSUER_URL, targetAudience);
   }
 
   /** Get an ID token from the application default credentials. */

@@ -5,8 +5,9 @@ import bio.terra.common.iam.BearerToken;
 import bio.terra.common.iam.BearerTokenFactory;
 import bio.terra.tanagra.app.configuration.AuthenticationConfiguration;
 import bio.terra.tanagra.service.authentication.GcpAccessTokenUtils;
-import bio.terra.tanagra.service.authentication.IapJwtUtils;
+import bio.terra.tanagra.service.authentication.GcpIapUtils;
 import bio.terra.tanagra.service.authentication.InvalidCredentialsException;
+import bio.terra.tanagra.service.authentication.JwtUtils;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.api.client.http.HttpMethods;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,13 +55,12 @@ public class AuthInterceptor implements HandlerInterceptor {
       return true;
     }
 
-    if (!(handler instanceof HandlerMethod)) {
+    if (!(handler instanceof HandlerMethod method)) {
       LOGGER.error(
           "Unexpected handler class: {}, {}", request.getRequestURL(), request.getMethod());
       return false;
     }
 
-    HandlerMethod method = (HandlerMethod) handler;
     Operation apiOp = AnnotationUtils.findAnnotation(method.getMethod(), Operation.class);
     if (apiOp != null) {
       for (String tag : apiOp.tags()) {
@@ -76,26 +76,43 @@ public class AuthInterceptor implements HandlerInterceptor {
     UserId userId;
     try {
       if (authenticationConfiguration.isIapGkeJwt()) {
-        String jwt = IapJwtUtils.getJwtFromHeader(request);
+        String jwt = GcpIapUtils.getJwtFromHeader(request);
         userId =
-            IapJwtUtils.verifyJwtForComputeEngineOrGKE(
+            GcpIapUtils.verifyJwtForComputeEngineOrGKE(
                 jwt,
                 authenticationConfiguration.getGcpProjectNumber(),
                 authenticationConfiguration.getGkeBackendServiceId());
+
       } else if (authenticationConfiguration.isIapAppEngineJwt()) {
-        String jwt = IapJwtUtils.getJwtFromHeader(request);
+        String jwt = GcpIapUtils.getJwtFromHeader(request);
         userId =
-            IapJwtUtils.verifyJwtForAppEngine(
+            GcpIapUtils.verifyJwtForAppEngine(
                 jwt,
                 authenticationConfiguration.getGcpProjectNumber(),
                 authenticationConfiguration.getGcpProjectId());
+
       } else if (authenticationConfiguration.isGcpAccessToken()) {
         BearerToken bearerToken = new BearerTokenFactory().from(request);
         userId = GcpAccessTokenUtils.getUserIdFromToken(bearerToken.getToken());
+
+      } else if (authenticationConfiguration.isJwt()) {
+        String idToken = new BearerTokenFactory().from(request).getToken();
+        userId =
+            (authenticationConfiguration.getJwtIssuer() == null)
+                ? JwtUtils.getUserIdFromJwt(idToken)
+                : JwtUtils.verifyJwtAndGetUserid(
+                    idToken,
+                    authenticationConfiguration.getJwtIssuer(),
+                    authenticationConfiguration.getJwtAudience(),
+                    JwtUtils.getPublicKey(
+                        authenticationConfiguration.getJwtPublicKeyFile(),
+                        authenticationConfiguration.getJwtAlgorithm()));
+
       } else if (authenticationConfiguration.isDisableChecks()) {
         LOGGER.warn(
             "Authentication checks are disabled. This should only happen for local development.");
         userId = UserId.forDisabledAuthentication();
+
       } else {
         throw new InternalServerErrorException("Invalid auth configuration");
       }
