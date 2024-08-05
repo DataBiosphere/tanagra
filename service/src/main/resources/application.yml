@@ -11,7 +11,8 @@ tanagra:
     disable-checks: false
     iap-gke-jwt: true
     iap-appengine-jwt: false
-    bearer-token: false
+    gcp-access-token: false
+    jwt: false
 
   db:
     initialize-on-start: false
