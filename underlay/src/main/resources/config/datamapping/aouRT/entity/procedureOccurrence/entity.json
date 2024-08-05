@@ -4,7 +4,7 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "procedure_occurrence_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
-    { "name": "procedure_concept_id", "dataType": "INT64", "displayFieldName": "standard_concept_name" },
+    { "name": "procedure_concept_id", "dataType": "INT64" },
     { "name": "standard_concept_name", "dataType": "STRING"},
     { "name": "standard_concept_code", "dataType": "STRING"},
     { "name": "standard_vocabulary", "dataType": "STRING"},
