@@ -2,7 +2,7 @@
   "name": "measurementOccurrence",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id" },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "measurement_concept_id", "dataType": "INT64" },
     { "name": "standard_concept_name", "dataType": "STRING" },
