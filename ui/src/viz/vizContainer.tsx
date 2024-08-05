@@ -3,7 +3,6 @@ import TableViewIcon from "@mui/icons-material/TableView";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
-import { generateCohortFilter } from "cohort";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { VALUE_SUFFIX } from "data/configuration";
@@ -11,7 +10,6 @@ import { Cohort, StudySource, UnderlaySource } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { compareDataValues } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
-import { getEnvironment } from "environment";
 import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox, GridBoxPaper } from "layout/gridBox";
@@ -152,7 +150,6 @@ async function fetchVizData(
   studyId: string,
   cohort: Cohort
 ): Promise<VizData[]> {
-  const env = getEnvironment();
   const vizSource = vizConfig.sources[0];
 
   // TODO(tjennison): Remove these limitations once the backend sufficiently
@@ -161,7 +158,7 @@ async function fetchVizData(
     throw new Error("Only 1 visualization source is supported.");
   }
   const entity = selectorToEntity[vizSource.criteriaSelector];
-  if (!entity || (!env.REACT_APP_BACKEND_FILTERS && entity !== "person")) {
+  if (!entity) {
     throw new Error(
       `Visualizations of ${vizSource.criteriaSelector} are not supported.`
     );
@@ -173,19 +170,14 @@ async function fetchVizData(
     throw new Error("Only 1 or 2 attributes are supported.");
   }
 
-  const data = env.REACT_APP_BACKEND_FILTERS
-    ? await studySource.cohortCount(
-        studyId,
-        cohort.id,
-        undefined,
-        undefined,
-        vizSource.attributes.map((a) => a.attribute),
-        entity
-      )
-    : await underlaySource.filterCount(
-        generateCohortFilter(underlaySource, cohort),
-        vizSource.attributes.map((a) => a.attribute)
-      );
+  const data = await studySource.cohortCount(
+    studyId,
+    cohort.id,
+    undefined,
+    undefined,
+    vizSource.attributes.map((a) => a.attribute),
+    entity
+  );
 
   const dataMap = new Map<string, VizData>();
   data.forEach((d) => {

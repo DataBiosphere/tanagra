@@ -7,7 +7,6 @@ import { HintDataSelect } from "components/hintDataSelect";
 import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
 import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
-import { FilterType } from "data/filter";
 import {
   CommonSelectorConfig,
   dataValueFromProto,
@@ -130,21 +129,6 @@ class _ implements CriteriaPlugin<string> {
     return {
       title: "(any)",
     };
-  }
-
-  generateFilter() {
-    const decodedData = decodeData(this.data);
-
-    return {
-      type: FilterType.Attribute,
-      attribute: this.config.attribute,
-      values: decodedData.selected?.map(({ value }) => value),
-      ranges: decodedData.dataRanges,
-    };
-  }
-
-  filterEntityIds() {
-    return [""];
   }
 }
 

@@ -44,9 +44,3 @@ export enum ComparisonOperator {
   LessThanEqual = "GREATER_THAN_EQUAL",
   Between = "BETWEEN",
 }
-
-export type GroupByCount = {
-  attributes: string[];
-  operator: ComparisonOperator;
-  value: number;
-};

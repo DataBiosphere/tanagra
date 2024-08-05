@@ -21,25 +21,14 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import {
-  generateCohortFilter,
-  OccurrenceFilters,
-  useOccurrenceList,
-} from "cohort";
+import { OccurrenceFilters, useOccurrenceList } from "cohort";
 import { CohortSummary } from "cohortSummary";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { Tabs as TanagraTabs } from "components/tabs";
 import { TreeGrid, TreeGridData } from "components/treegrid";
-import { Filter, makeArrayFilter } from "data/filter";
-import {
-  Cohort,
-  ExportModel,
-  ExportResultLink,
-  FeatureSet,
-  ListDataResponse,
-} from "data/source";
+import { Cohort, ExportModel, ExportResultLink, FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { getEnvironment } from "environment";
@@ -353,7 +342,6 @@ type PreviewProps = {
 
 function Preview(props: PreviewProps) {
   const underlay = useUnderlay();
-  const underlaySource = useUnderlaySource();
 
   const filteredCohorts = useMemo(
     () =>
@@ -361,17 +349,6 @@ function Preview(props: PreviewProps) {
         props.selectedCohorts.has(cohort.id)
       ),
     [props.cohorts, props.selectedCohorts]
-  );
-
-  const cohortsFilter = useMemo(
-    () =>
-      makeArrayFilter(
-        { min: 1 },
-        filteredCohorts.map((cohort) =>
-          generateCohortFilter(underlaySource, cohort)
-        )
-      ),
-    [filteredCohorts]
   );
 
   const filteredFeatureSets = useMemo(
@@ -387,7 +364,6 @@ function Preview(props: PreviewProps) {
 
   const [exportDialog, showExportDialog] = useExportDialog({
     cohorts: filteredCohorts.map((c) => c.id),
-    cohortsFilter: cohortsFilter,
     featureSets: filteredFeatureSets.map((fs) => fs.id),
     occurrenceFilters: occurrenceFiltersState.data ?? [],
   });
@@ -420,7 +396,6 @@ function Preview(props: PreviewProps) {
             render: () => (
               <PreviewSummary
                 cohorts={filteredCohorts}
-                cohortsFilter={cohortsFilter}
                 featureSets={filteredFeatureSets.map((fs) => fs.id)}
                 occurrenceFilters={occurrenceFiltersState.data ?? []}
                 empty={empty}
@@ -433,7 +408,6 @@ function Preview(props: PreviewProps) {
             render: () => (
               <PreviewTable
                 cohorts={filteredCohorts.map((c) => c.id)}
-                cohortsFilter={cohortsFilter}
                 featureSets={filteredFeatureSets.map((fs) => fs.id)}
                 occurrenceFilters={occurrenceFiltersState.data ?? []}
                 empty={empty}
@@ -478,7 +452,6 @@ type PreviewTabData = {
 
 type PreviewTableProps = {
   cohorts: string[];
-  cohortsFilter: Filter | null;
   featureSets: string[];
   occurrenceFilters: OccurrenceFilters[];
   empty: boolean;
@@ -495,33 +468,18 @@ function PreviewTable(props: PreviewTableProps) {
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
     {
       type: "previewData",
-      cohortsFilter: props.cohortsFilter,
       occurrences: props.occurrenceFilters,
     },
     async () => {
       return Promise.all(
         props.occurrenceFilters.map(async (filters) => {
-          let res: ListDataResponse | undefined;
-          if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
-            res = await underlaySource.exportPreview(
-              underlay.name,
-              filters.id,
-              studyId,
-              props.cohorts,
-              props.featureSets
-            );
-          } else {
-            if (!props.cohortsFilter) {
-              throw new Error("No selected cohort contain any criteria.");
-            }
-
-            res = await underlaySource.listData(
-              filters.attributes,
-              filters.id,
-              props.cohortsFilter,
-              makeArrayFilter({ min: 1 }, filters.filters)
-            );
-          }
+          const res = await underlaySource.exportPreview(
+            underlay.name,
+            filters.id,
+            studyId,
+            props.cohorts,
+            props.featureSets
+          );
 
           const data: TreeGridData = {
             root: { data: {}, children: [] },
@@ -640,7 +598,6 @@ function PreviewTable(props: PreviewTableProps) {
 
 type PreviewSummaryProps = {
   cohorts: Cohort[];
-  cohortsFilter: Filter | null;
   featureSets: string[];
   occurrenceFilters: OccurrenceFilters[];
   empty: boolean;
@@ -700,7 +657,6 @@ function PreviewSummary(props: PreviewSummaryProps) {
 
 type ExportDialogProps = {
   cohorts: string[];
-  cohortsFilter: Filter | null;
   featureSets: string[];
   occurrenceFilters: OccurrenceFilters[];
 };
@@ -766,7 +722,6 @@ function ExportDialog(
       underlayName: underlay.name,
       modelId: model?.id,
       cohorts: props.cohorts,
-      cohortsFilter: props.cohortsFilter,
       featureSets: props.featureSets,
       occurrenceFilters: props.occurrenceFilters,
     },
@@ -775,24 +730,13 @@ function ExportDialog(
         throw new Error("Export models not loaded.");
       }
 
-      const cohortsFilter = key.cohortsFilter;
-      if (!cohortsFilter) {
-        throw new Error("All selected cohorts are empty.");
-      }
-
       const res = await underlaySource.export(
         underlay.name,
         studyId,
         key.modelId,
         RETURN_URL_PLACEHOLDER,
         key.cohorts,
-        key.featureSets,
-        key.occurrenceFilters.map((filters) => ({
-          requestedAttributes: filters.attributes,
-          entityId: filters.id,
-          cohort: cohortsFilter,
-          conceptSet: makeArrayFilter({ min: 1 }, filters.filters),
-        }))
+        key.featureSets
       );
 
       if (res.redirectURL) {

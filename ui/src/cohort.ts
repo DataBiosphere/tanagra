@@ -1,10 +1,4 @@
 import { ROLLUP_COUNT_ATTRIBUTE, SortDirection } from "data/configuration";
-import {
-  Filter,
-  FilterType,
-  makeArrayFilter,
-  UnaryFilterOperator,
-} from "data/filter";
 import { MergedItem, mergeLists } from "data/mergeLists";
 import {
   Cohort,
@@ -17,9 +11,8 @@ import {
   GroupSectionReducingOperator,
   UnderlaySource,
 } from "data/source";
-import { DataEntry, GroupByCount } from "data/types";
+import { DataEntry } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
-import { getEnvironment } from "environment";
 import { useStudyId, useUnderlay } from "hooks";
 import { generate } from "randomstring";
 import { ReactNode } from "react";
@@ -28,87 +21,6 @@ import { isValid } from "util/valid";
 
 export function generateId(): string {
   return generate(8);
-}
-
-export function generateCohortFilter(
-  underlaySource: UnderlaySource,
-  cohort: Cohort
-): Filter | null {
-  return makeArrayFilter(
-    {},
-    cohort.groupSections
-      .map((section) => generateSectionFilter(underlaySource, section))
-      .filter(isValid)
-  );
-}
-
-function generateSectionFilter(
-  underlaySource: UnderlaySource,
-  section: GroupSection
-): Filter | null {
-  const filter = makeArrayFilter(
-    section.filter.kind === GroupSectionFilterKind.Any ? { min: 1 } : {},
-    section.groups
-      .map((group) => generateGroupSectionFilter(underlaySource, group))
-      .filter(isValid)
-  );
-
-  if (!filter || !section.filter.excluded) {
-    return filter;
-  }
-  return {
-    type: FilterType.Unary,
-    operator: UnaryFilterOperator.Not,
-    operand: filter,
-  };
-}
-
-function generateGroupSectionFilter(
-  underlaySource: UnderlaySource,
-  group: Group
-): Filter | null {
-  const plugins = group.criteria.map((c) => getCriteriaPlugin(c));
-
-  // There should always be a primary criteria.
-  if (!plugins.length) {
-    return null;
-  }
-
-  // For a person to be selected, the criteria can match any related occurrence.
-  const entityFilters = plugins[0]
-    .filterEntityIds(underlaySource)
-    .map((entity) => {
-      const filter = makeArrayFilter(
-        {},
-        plugins
-          .map((p) => p.generateFilter(entity, underlaySource))
-          .filter(isValid)
-      );
-
-      if (!filter || !entity) {
-        return filter;
-      }
-
-      const groupByCountFilters = plugins
-        .map((p) => p.groupByCountFilter?.(entity))
-        .filter(isValid);
-      if (groupByCountFilters.length > 1) {
-        throw new Error(
-          `Criteria groups may not have multiple group by count filters: ${JSON.stringify(
-            groupByCountFilters
-          )}`
-        );
-      }
-
-      return {
-        type: FilterType.Relationship,
-        entityId: entity,
-        subfilter: filter,
-        groupByCount:
-          groupByCountFilters.length > 0 ? groupByCountFilters[0] : undefined,
-      };
-    });
-  return makeArrayFilter({ min: 1 }, entityFilters);
 }
 
 export function sectionName(section: GroupSection, index: number) {
@@ -175,13 +87,6 @@ export interface CriteriaPlugin<DataType> {
   ) => JSX.Element;
   renderInline: (groupId: string) => ReactNode;
   displayDetails: () => DisplayDetails;
-  generateFilter: (
-    occurrenceId: string,
-    underlaySource: UnderlaySource
-  ) => Filter | null;
-  groupByCountFilter?: (occurrenceId: string) => GroupByCount | null;
-  filterEntityIds: (underlaySource: UnderlaySource) => string[];
-  outputEntityIds?: () => string[];
 }
 
 export type DisplayDetails = {
@@ -250,57 +155,9 @@ export type OccurrenceFilters = {
   id: string;
   name: string;
   attributes: string[];
-  filters: Filter[];
   sourceCriteria: string[];
   sql?: string;
 };
-
-export function getOccurrenceList(
-  underlaySource: UnderlaySource,
-  selectedCriteria: Set<string>,
-  userCriteria?: Criteria[]
-): OccurrenceFilters[] {
-  const occurrences = new Map<string, Filter[]>();
-  const sourceCriteria: string[] = [];
-  const addFilter = (occurrence: string, filter?: Filter | null) => {
-    if (!occurrences.has(occurrence)) {
-      occurrences.set(occurrence, []);
-    }
-    if (filter) {
-      occurrences.get(occurrence)?.push(filter);
-    }
-  };
-
-  const pc = underlaySource.underlay.prepackagedDataFeatures
-    ?.filter((criteria) => selectedCriteria.has(criteria.name))
-    ?.map((criteria) => underlaySource.createPredefinedCriteria(criteria.name));
-
-  [...pc, ...(userCriteria ?? [])]
-    ?.filter((criteria) => selectedCriteria.has(criteria.id))
-    ?.forEach((criteria) => {
-      const plugin = getCriteriaPlugin(criteria);
-      sourceCriteria.push(getCriteriaTitle(criteria, plugin));
-
-      const occurrenceIds =
-        plugin.outputEntityIds?.() ?? plugin.filterEntityIds(underlaySource);
-      occurrenceIds.forEach((o) => {
-        addFilter(o, plugin.generateFilter(o, underlaySource));
-      });
-    });
-
-  return Array.from(occurrences)
-    .sort()
-    .map(([id, filters]) => {
-      const entity = underlaySource.lookupEntity(id);
-      return {
-        id,
-        name: entity.displayName ?? entity.name,
-        attributes: underlaySource.listAttributes(id),
-        filters,
-        sourceCriteria,
-      };
-    });
-}
 
 export function useOccurrenceList(
   cohorts: Cohort[],
@@ -318,92 +175,50 @@ export function useOccurrenceList(
       featureSets,
     },
     async () => {
-      if (getEnvironment().REACT_APP_BACKEND_FILTERS) {
-        const previewEntities = await underlaySource.exportPreviewEntities(
-          underlay.name,
-          studyId,
-          cohorts.map((c) => c.id),
-          featureSets.map((fs) => fs.id),
-          includeAllAttributes
-        );
+      const previewEntities = await underlaySource.exportPreviewEntities(
+        underlay.name,
+        studyId,
+        cohorts.map((c) => c.id),
+        featureSets.map((fs) => fs.id),
+        includeAllAttributes
+      );
 
-        return previewEntities.map((pe) => {
-          const sourceCriteria = pe.sourceCriteria.map((sc) => {
-            const featureSet = featureSets.find(
-              (fs) => fs.id === sc.conceptSetId
-            );
-            if (!featureSet) {
-              throw new Error(
-                `Unexpected source feature set: ${sc.conceptSetId}`
-              );
-            }
-
-            let criteria: Criteria | undefined;
-            if (featureSet.predefinedCriteria.includes(sc.criteriaId)) {
-              criteria = underlaySource.createPredefinedCriteria(sc.criteriaId);
-            } else {
-              criteria = featureSet?.criteria?.find(
-                (c) => c.id === sc.criteriaId
-              );
-            }
-            if (!criteria) {
-              throw new Error(
-                `Unexpected source criteria: feature set: ${sc.conceptSetId}, criteria: ${sc.criteriaId}`
-              );
-            }
-
-            return getCriteriaTitle(criteria);
-          });
-
-          return {
-            id: pe.id,
-            name: pe.name,
-            attributes: pe.attributes,
-            filters: [],
-            sourceCriteria,
-            sql: pe.sql,
-          };
-        });
-      } else {
-        const occurrenceLists = featureSets.map((fs) => {
-          const ol = getOccurrenceList(
-            underlaySource,
-            new Set(fs.criteria.map((c) => c.id).concat(fs.predefinedCriteria)),
-            fs.criteria
+      return previewEntities.map((pe) => {
+        const sourceCriteria = pe.sourceCriteria.map((sc) => {
+          const featureSet = featureSets.find(
+            (fs) => fs.id === sc.conceptSetId
           );
-
-          ol.forEach((of) => {
-            const output = fs.output.find((o) => o.occurrence === of.id);
-            if (!output) {
-              return;
-            }
-
-            of.attributes = of.attributes.filter(
-              (a) => output.excludedAttributes.indexOf(a) < 0
+          if (!featureSet) {
+            throw new Error(
+              `Unexpected source feature set: ${sc.conceptSetId}`
             );
-          });
-          return ol;
+          }
+
+          let criteria: Criteria | undefined;
+          if (featureSet.predefinedCriteria.includes(sc.criteriaId)) {
+            criteria = underlaySource.createPredefinedCriteria(sc.criteriaId);
+          } else {
+            criteria = featureSet?.criteria?.find(
+              (c) => c.id === sc.criteriaId
+            );
+          }
+          if (!criteria) {
+            throw new Error(
+              `Unexpected source criteria: feature set: ${sc.conceptSetId}, criteria: ${sc.criteriaId}`
+            );
+          }
+
+          return getCriteriaTitle(criteria);
         });
 
-        const merged: OccurrenceFilters[] = [];
-        occurrenceLists.forEach((ol) => {
-          ol.forEach((of) => {
-            const cur = merged.find((f) => f.id === of.id);
-            if (!cur) {
-              merged.push(of);
-              return;
-            }
-
-            cur.attributes = Array.from(
-              new Set(cur.attributes.concat(of.attributes))
-            );
-            cur.filters = cur.filters.concat(of.filters);
-            cur.sourceCriteria = cur.sourceCriteria.concat(of.sourceCriteria);
-          });
-        });
-
-        return merged;
-      }
+        return {
+          id: pe.id,
+          name: pe.name,
+          attributes: pe.attributes,
+          sourceCriteria,
+          sql: pe.sql,
+        };
+      });
     },
     { keepPreviousData: true }
   );

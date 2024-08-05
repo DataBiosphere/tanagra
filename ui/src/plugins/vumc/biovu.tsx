@@ -7,12 +7,6 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
-import {
-  Filter,
-  FilterType,
-  makeArrayFilter,
-  UnaryFilterOperator,
-} from "data/filter";
 import { CommonSelectorConfig, UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
@@ -35,24 +29,6 @@ const sampleFilterDescriptions = {
   [SampleFilter.ANY]: "Any BioVU DNA (no minimum amount or concentration)",
   [SampleFilter.ONE_HUNDRED]: "At least 100ng with at least 2 ng/µL BioVU DNA",
   [SampleFilter.FIVE_HUNDRED]: "At least 500ng with at least 2 ng/µL BioVU DNA",
-};
-
-const sampleFilterFilters: { [key: string]: Filter } = {
-  [SampleFilter.ANY]: {
-    type: FilterType.Attribute,
-    attribute: "has_biovu_sample",
-    values: [true],
-  },
-  [SampleFilter.ONE_HUNDRED]: {
-    type: FilterType.Attribute,
-    attribute: "biovu_sample_dna_yield",
-    ranges: [{ min: 100, max: Number.MAX_SAFE_INTEGER }],
-  },
-  [SampleFilter.FIVE_HUNDRED]: {
-    type: FilterType.Attribute,
-    attribute: "biovu_sample_dna_yield",
-    ranges: [{ min: 500, max: Number.MAX_SAFE_INTEGER }],
-  },
 };
 
 const EXCLUDE_COMPROMISED = "Exclude Compromised DNA";
@@ -135,49 +111,6 @@ class _ implements CriteriaPlugin<string> {
     return {
       title: title,
     };
-  }
-
-  generateFilter() {
-    const decodedData = decodeData(this.data);
-
-    const filters: (Filter | null)[] = [
-      sampleFilterFilters[decodedData.sampleFilter] ?? null,
-    ];
-    if (decodedData.excludeCompromised) {
-      filters.push({
-        type: FilterType.Unary,
-        operator: UnaryFilterOperator.Not,
-        operand: {
-          type: FilterType.Attribute,
-          attribute: "biovu_sample_is_compromised",
-          values: [true],
-        },
-      });
-    }
-    if (decodedData.excludeInternal) {
-      filters.push({
-        type: FilterType.Unary,
-        operator: UnaryFilterOperator.Not,
-        operand: {
-          type: FilterType.Attribute,
-          attribute: "biovu_sample_is_nonshippable",
-          values: [true],
-        },
-      });
-    }
-    if (this.config.plasmaFilter) {
-      filters.push({
-        type: FilterType.Attribute,
-        attribute: "biovu_sample_has_plasma",
-        values: [true],
-      });
-    }
-
-    return makeArrayFilter({}, filters);
-  }
-
-  filterEntityIds() {
-    return [""];
   }
 }
 
