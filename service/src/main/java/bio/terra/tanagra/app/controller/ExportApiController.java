@@ -292,12 +292,16 @@ public class ExportApiController implements ExportApi {
             .collect(Collectors.toList());
 
     List<ListQueryRequest> listQueryRequests =
-        body.getInstanceQuerys().stream()
-            .map(
-                apiQuery ->
-                    FromApiUtils.fromApiObject(
-                        apiQuery.getQuery(), underlay.getEntity(apiQuery.getEntity()), underlay))
-            .collect(Collectors.toList());
+        body.getInstanceQuerys() == null
+            ? new ArrayList<>()
+            : body.getInstanceQuerys().stream()
+                .map(
+                    apiQuery ->
+                        FromApiUtils.fromApiObject(
+                            apiQuery.getQuery(),
+                            underlay.getEntity(apiQuery.getEntity()),
+                            underlay))
+                .collect(Collectors.toList());
     EntityFilter primaryEntityFilter;
     if (body.getPrimaryEntityFilter() != null) {
       primaryEntityFilter =
