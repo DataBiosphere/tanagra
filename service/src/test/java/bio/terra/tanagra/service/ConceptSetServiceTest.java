@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.common.exception.NotFoundException;
+import bio.terra.common.exception.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -18,8 +18,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.ConceptSetService;
 import bio.terra.tanagra.service.artifact.StudyService;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
-import bio.terra.tanagra.service.artifact.model.Study;
+import bio.terra.tanagra.service.artifact.model.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -279,6 +278,17 @@ public class ConceptSetServiceTest {
         () ->
             conceptSetService.createConceptSet(
                 study1.getId(), ConceptSet.builder().underlay("invalid_underlay"), "abc@123.com"));
+
+    // Display name length exceeds maximum.
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            conceptSetService.createConceptSet(
+                study1.getId(),
+                ConceptSet.builder()
+                    .underlay(UNDERLAY_NAME)
+                    .displayName("123456789012345678901234567890123456789012345678901"),
+                "abc@123.com"));
 
     // TODO: Put this validation test back once the UI config overhaul is complete.
     //    // Specify invalid attribute.

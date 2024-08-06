@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
+
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
@@ -10,7 +12,6 @@ import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 
 public final class AnnotationKey {
-  private static final int MAX_DISPLAY_NAME_LENGTH = 35;
   private final String id;
   private final String displayName;
   private final String description;
