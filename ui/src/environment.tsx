@@ -15,7 +15,16 @@ type Environment = {
   REACT_APP_AUTH0_CLIENT_ID?: string;
 };
 
+declare global {
+  interface Window {
+    environment: Environment;
+  }
+}
+
 export function getEnvironment(): Environment {
+  if (typeof window !== "undefined" && window?.environment) {
+    return window.environment;
+  }
   return process.env as unknown as Environment;
 }
 
