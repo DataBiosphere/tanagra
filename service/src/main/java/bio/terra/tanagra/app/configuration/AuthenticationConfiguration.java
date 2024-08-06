@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
     name = "Authentication",
     markdown =
         "Configure the authentication model.\n\n"
-            + "There are four separate flags that control which model is used: "
-            + "`tanagra.auth.disableChecks`, `tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.gcpAccessToken`. "
-            + "In the future these will be combined into a single flag. "
-            + "For now, **you must set all four flags and only one should be true**. ")
+            + "There are five separate flags that control which model is used: `tanagra.auth.disableChecks`, "
+            + "`tanagra.auth.iapGkeJwt`, `tanagra.auth.iapAppEngineJwt`, `tanagra.auth.gcpAccessToken`, "
+            + "`tanagra.auth.jwt`. In the future these will be combined into a single flag. "
+            + "For now, **you must set all five flags and only one should be true**. ")
 public class AuthenticationConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationConfiguration.class);
 
@@ -60,6 +60,16 @@ public class AuthenticationConfiguration {
   private boolean gcpAccessToken;
 
   @AnnotatedField(
+      name = "tanagra.auth.jwt",
+      markdown =
+          "When true, the service expects a JWT. The service decodes the user information from the token payload. "
+              + "When this flag is set, optionally verify the token by setting [Issuer](#tanagraauthjwtissuer), "
+              + "[Audience](#tanagraauthjwtaudience), [Public key file](#tanagraauthjwtpublicKeyFile). "
+              + "[Algorithm](#tanagraauthjwtalgorithm) defaults to RSA256. ",
+      environmentVariable = "TANAGRA_AUTH_JWT")
+  private boolean jwt;
+
+  @AnnotatedField(
       name = "tanagra.auth.gcpProjectNumber",
       markdown =
           "The GCP project number, which is different from the project id. "
@@ -96,6 +106,31 @@ public class AuthenticationConfiguration {
       environmentVariable = "TANAGRA_AUTH_GKE_BACKEND_SERVICE_ID")
   private String gkeBackendServiceId;
 
+  @AnnotatedField(
+      name = "tanagra.auth.jwt.issuer",
+      markdown = "The issuer of JWT used for its verification. ",
+      environmentVariable = "TANAGRA_AUTH_JWT_ISSUER")
+  private String jwtIssuer;
+
+  @AnnotatedField(
+      name = "tanagra.auth.jwt.audience",
+      markdown = "The audience of JWT used for its verification. ",
+      environmentVariable = "TANAGRA_AUTH_JWT_AUDIENCE")
+  private String jwtAudience;
+
+  @AnnotatedField(
+      name = "tanagra.auth.jwt.publicKeyFile",
+      markdown =
+          "Name of the PEM public key file in the 'resources/keys' directory used to verify the JWT. ",
+      environmentVariable = "TANAGRA_AUTH_JWT_PUBLIC_KEY_FILE")
+  private String jwtPublicKeyFile;
+
+  @AnnotatedField(
+      name = "tanagra.auth.jwt.algorithm",
+      markdown = "The algorithm used to verify the JWT. Defaults to RSA256 ",
+      environmentVariable = "TANAGRA_AUTH_JWT_ALGORITHM")
+  private String jwtAlgorithm = "RSA";
+
   public boolean isDisableChecks() {
     return disableChecks;
   }
@@ -110,6 +145,10 @@ public class AuthenticationConfiguration {
 
   public boolean isGcpAccessToken() {
     return gcpAccessToken;
+  }
+
+  public boolean isJwt() {
+    return jwt;
   }
 
   public long getGcpProjectNumber() {
@@ -136,6 +175,22 @@ public class AuthenticationConfiguration {
     }
   }
 
+  public String getJwtIssuer() {
+    return jwtIssuer;
+  }
+
+  public String getJwtAudience() {
+    return jwtAudience;
+  }
+
+  public String getJwtPublicKeyFile() {
+    return jwtPublicKeyFile;
+  }
+
+  public String getJwtAlgorithm() {
+    return jwtAlgorithm;
+  }
+
   public void setDisableChecks(boolean disableChecks) {
     this.disableChecks = disableChecks;
   }
@@ -152,6 +207,10 @@ public class AuthenticationConfiguration {
     this.gcpAccessToken = gcpAccessToken;
   }
 
+  public void setJwt(boolean jwt) {
+    this.jwt = jwt;
+  }
+
   public void setGcpProjectNumber(String gcpProjectNumber) {
     this.gcpProjectNumber = gcpProjectNumber;
   }
@@ -164,13 +223,30 @@ public class AuthenticationConfiguration {
     this.gkeBackendServiceId = gkeBackendServiceId;
   }
 
+  public void setJwtIssuer(String jwtIssuer) {
+    this.jwtIssuer = jwtIssuer;
+  }
+
+  public void setJwtPublicKeyFile(String jwtPublicKeyFile) {
+    this.jwtPublicKeyFile = jwtPublicKeyFile;
+  }
+
+  public void setJwtAlgorithm(String jwtAlgorithm) {
+    this.jwtAlgorithm = jwtAlgorithm;
+  }
+
   public void log() {
     LOGGER.info("Authentication: disable-checks: {}", isDisableChecks());
     LOGGER.info("Authentication: iap-gke-jwt: {}", isIapGkeJwt());
     LOGGER.info("Authentication: iap-appengine-jwt: {}", isIapAppEngineJwt());
     LOGGER.info("Authentication: gcp-access-token: {}", isGcpAccessToken());
+    LOGGER.info("Authentication: jwt: {}", isJwt());
     LOGGER.info("Authentication: gcp-project-number: {}", getGcpProjectNumber());
     LOGGER.info("Authentication: gcp-project-id: {}", getGcpProjectId());
     LOGGER.info("Authentication: gke-backend-service-id: {}", getGkeBackendServiceId());
+    LOGGER.info("Authentication: jwt-issuer: {}", getJwtIssuer());
+    LOGGER.info("Authentication: jwt-audience: {}", getJwtAudience());
+    LOGGER.info("Authentication: jwt-public-key-file: {}", getJwtPublicKeyFile());
+    LOGGER.info("Authentication: jwt-algorithm: {}", getJwtAlgorithm());
   }
 }

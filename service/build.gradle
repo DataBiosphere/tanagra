@@ -75,6 +75,7 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api'
     implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
 
     implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
         exclude group: 'com.azure'
