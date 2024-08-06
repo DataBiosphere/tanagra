@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import bio.terra.common.exception.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import jakarta.annotation.Nullable;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 @JsonDeserialize(builder = Study.Builder.class)
 public class Study {
+  static final int MAX_DISPLAY_NAME_LENGTH = 50;
   private final String id;
   private final @Nullable String displayName;
   private final @Nullable String description;
@@ -197,6 +199,10 @@ public class Study {
       // true if the id is empty or null
       if (StringUtils.isEmpty(id)) {
         id = RandomStringUtils.randomAlphanumeric(10);
+      }
+      if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
+        throw new BadRequestException(
+            "Study name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
       }
       return new Study(this);
     }

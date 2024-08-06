@@ -311,7 +311,7 @@ public class AnnotationServiceTest {
                 cohort1.getId(),
                 AnnotationKey.builder()
                     .dataType(DataType.INT64)
-                    .displayName("123456789012345678901234567890123456")));
+                    .displayName("123456789012345678901234567890123456789012345678901")));
   }
 
   @Test
