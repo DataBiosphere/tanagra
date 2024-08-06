@@ -6,7 +6,6 @@ import { Outlet } from "react-router-dom";
 import { useNavigate } from "util/searchState";
 
 export function isAuth0Enabled(): boolean {
-  console.log("Auth Domain is " + getEnvironment().REACT_APP_AUTH0_DOMAIN);
   return !!getEnvironment().REACT_APP_AUTH0_DOMAIN;
 }
 
@@ -23,7 +22,7 @@ export function Auth0AuthProvider() {
         navigate(appState?.returnTo || "/", { replace: true })
       }
       authorizationParams={{
-        scope: "openid profile email",
+        scope: "profile email",
         redirect_uri: window.location.origin,
       }}
     >
