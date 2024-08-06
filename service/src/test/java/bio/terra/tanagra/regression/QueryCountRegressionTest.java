@@ -100,7 +100,10 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                       study1.getId(),
                       Cohort.builder()
                           .underlay(rtExportCounts.getUnderlay())
-                          .displayName(rtCohort.getDisplayName().substring(0, 50))
+                          .displayName(
+                              rtCohort
+                                  .getDisplayName()
+                                  .substring(0, Math.min(rtCohort.getDisplayName().length(), 50)))
                           .description(rtCohort.getDisplayName()),
                       "abc@123.com",
                       rtCohort.getCriteriaGroupSectionsList().stream()
