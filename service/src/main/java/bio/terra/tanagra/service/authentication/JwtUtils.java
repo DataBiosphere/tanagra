@@ -80,9 +80,11 @@ public final class JwtUtils {
   public static UserId getUserIdFromJwt(String jwt) {
     try {
       String payloadJSON = new String(DECODER.decode(jwt.split("\\.")[1]));
-      Map<String, String> payloadMap = MAPPER.readValue(payloadJSON, new TypeReference<>() {});
+      Map<String, Object> payloadMap = MAPPER.readValue(payloadJSON, new TypeReference<>() {});
       return makeUserId(
-          payloadMap.getOrDefault("sub", null), payloadMap.getOrDefault("email", null), jwt);
+          (String) payloadMap.getOrDefault("sub", null),
+          (String) payloadMap.getOrDefault("email", null),
+          jwt);
 
     } catch (IllegalArgumentException | JsonProcessingException | IndexOutOfBoundsException e) {
       throw new InvalidCredentialsException("Error decoding user info from JWT access token", e);
