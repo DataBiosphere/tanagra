@@ -8,6 +8,7 @@ type Environment = {
   REACT_APP_USE_EXIT_URL?: boolean;
   REACT_APP_EXIT_URL?: string;
 
+  REACT_APP_API_ENVIRONMENT?: string;
   REACT_APP_USE_FAKE_API?: string;
   REACT_APP_GET_LOCAL_AUTH_TOKEN?: string;
 
