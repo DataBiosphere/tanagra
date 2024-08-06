@@ -37,7 +37,7 @@ function Auth0ProviderWithClient() {
     user,
     isLoading,
     isAuthenticated,
-    getAccessTokenSilently,
+    getIdTokenClaims,
     loginWithRedirect,
     logout,
   } = useAuth0();
@@ -45,9 +45,9 @@ function Auth0ProviderWithClient() {
   // This is needed for user state to get updated.
   useEffect(() => {
     if (isAuthenticated) {
-      getAccessTokenSilently();
+      getIdTokenClaims();
     }
-  }, [isAuthenticated, getAccessTokenSilently]);
+  }, [isAuthenticated, getIdTokenClaims]);
 
   if (user && !user.email) {
     throw new Error("User profile has no email address");
@@ -69,10 +69,19 @@ function Auth0ProviderWithClient() {
         logout({ logoutParams: { returnTo: window.location.origin } });
       },
       getAuthToken: async () => {
-        return await getAccessTokenSilently();
+        const claims = await getIdTokenClaims();
+        return claims?.__raw || "";
       },
     }),
-    [isLoading, isAuthenticated, user, error, loginWithRedirect, logout, getAccessTokenSilently]
+    [
+      isLoading,
+      isAuthenticated,
+      user,
+      error,
+      getIdTokenClaims,
+      loginWithRedirect,
+      logout,
+    ]
   );
 
   return (
