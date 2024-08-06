@@ -129,7 +129,7 @@ dependencies {
     implementation "org.glassfish.jersey.media:jersey-media-multipart:${gradle.vJersey2}"
     implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${gradle.vJersey2}"
 
-    implementation 'org.vumc.vda.tanagra:admin-client:0.0.85-SNAPSHOT'
+    implementation 'org.vumc.vda.tanagra:admin-client:0.0.98-SNAPSHOT'
     // Remove java when admin client moves to jakarta namespace
     implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
 
