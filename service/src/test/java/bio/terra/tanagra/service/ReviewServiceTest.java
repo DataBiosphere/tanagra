@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.common.exception.NotFoundException;
+import bio.terra.common.exception.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -269,5 +269,19 @@ public class ReviewServiceTest {
                 "abc@123.com",
                 List.of(),
                 0));
+
+    // Display name length exceeds maximum.
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            reviewService.createReviewHelper(
+                study1.getId(),
+                cohort1.getId(),
+                Review.builder()
+                    .displayName("123456789012345678901234567890123456789012345678901")
+                    .size(11),
+                "abc@123.com",
+                List.of(123L, 456L, 789L),
+                27));
   }
 }

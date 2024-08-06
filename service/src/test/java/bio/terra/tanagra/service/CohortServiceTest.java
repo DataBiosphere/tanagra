@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.common.exception.NotFoundException;
+import bio.terra.common.exception.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -235,6 +235,17 @@ public class CohortServiceTest {
         () ->
             cohortService.createCohort(
                 study1.getId(), Cohort.builder().underlay("invalid_underlay"), "abc@123.com"));
+
+    // Display name length exceeds maximum.
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            cohortService.createCohort(
+                study1.getId(),
+                Cohort.builder()
+                    .underlay(UNDERLAY_NAME)
+                    .displayName("123456789012345678901234567890123456789012345678901"),
+                "abc@123.com"));
   }
 
   @Test
