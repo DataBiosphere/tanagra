@@ -53,10 +53,10 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:${gradle.vJackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${gradle.vJackson}"
 
-    implementation "org.glassfish.jersey.core:jersey-client:${gradle.vJersey3}"
-    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${gradle.vJersey3}"
-    implementation "org.glassfish.jersey.media:jersey-media-multipart:${gradle.vJersey3}"
-    implementation "org.glassfish.jersey.connectors:jersey-jdk-connector:${gradle.vJersey3}"
+    implementation "org.glassfish.jersey.core:jersey-client:${gradle.vJersey}"
+    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${gradle.vJersey}"
+    implementation "org.glassfish.jersey.media:jersey-media-multipart:${gradle.vJersey}"
+    implementation "org.glassfish.jersey.connectors:jersey-jdk-connector:${gradle.vJersey}"
 }
 
 bootJar {
