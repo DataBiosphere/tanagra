@@ -1,7 +1,7 @@
 package bio.terra.tanagra.query.sql.translator;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.CountDistinctField;
 import bio.terra.tanagra.api.field.HierarchyIsMemberField;
 import bio.terra.tanagra.api.field.HierarchyIsRootField;
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
@@ -283,7 +283,7 @@ public interface ApiTranslator {
 
   ApiFieldTranslator translator(AttributeField attributeField);
 
-  ApiFieldTranslator translator(EntityIdCountField entityIdCountField);
+  ApiFieldTranslator translator(CountDistinctField countDistinctField);
 
   ApiFieldTranslator translator(HierarchyIsMemberField hierarchyIsMemberField);
 
@@ -298,8 +298,8 @@ public interface ApiTranslator {
   default ApiFieldTranslator translator(ValueDisplayField valueDisplayField) {
     if (valueDisplayField instanceof AttributeField) {
       return translator((AttributeField) valueDisplayField);
-    } else if (valueDisplayField instanceof EntityIdCountField) {
-      return translator((EntityIdCountField) valueDisplayField);
+    } else if (valueDisplayField instanceof CountDistinctField) {
+      return translator((CountDistinctField) valueDisplayField);
     } else if (valueDisplayField instanceof HierarchyIsMemberField) {
       return translator((HierarchyIsMemberField) valueDisplayField);
     } else if (valueDisplayField instanceof HierarchyIsRootField) {

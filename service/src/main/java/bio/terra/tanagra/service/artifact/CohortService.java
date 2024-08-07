@@ -147,6 +147,7 @@ public class CohortService {
         new CountQueryRequest(
             underlay,
             underlay.getPrimaryEntity(),
+            null,
             List.of(),
             entityFilter,
             OrderByDirection.DESCENDING,

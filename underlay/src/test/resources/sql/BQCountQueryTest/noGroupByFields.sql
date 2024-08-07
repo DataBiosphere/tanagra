@@ -1,7 +1,7 @@
 
     SELECT
-        COUNT(id) AS T_IDCT      
+        COUNT(id) AS T_CTDT      
     FROM
         ${ENT_person}      
     ORDER BY
-        T_IDCT DESC
+        T_CTDT DESC

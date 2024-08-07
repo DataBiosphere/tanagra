@@ -1,6 +1,6 @@
 
     SELECT
-        COUNT(id) AS T_IDCT,
+        COUNT(id) AS T_CTDT,
         year_of_birth      
     FROM
         ${ENT_person}      
@@ -9,4 +9,4 @@
     GROUP BY
         year_of_birth      
     ORDER BY
-        T_IDCT DESC
+        T_CTDT DESC

@@ -65,6 +65,7 @@ public class BQCountQueryPaginationTest {
                 new CountQueryRequest(
                     underlay,
                     entity,
+                    null,
                     groupBys,
                     null,
                     OrderByDirection.DESCENDING,
@@ -108,6 +109,7 @@ public class BQCountQueryPaginationTest {
                 new CountQueryRequest(
                     underlay,
                     entity,
+                    null,
                     groupBys,
                     null,
                     OrderByDirection.DESCENDING,
@@ -131,6 +133,7 @@ public class BQCountQueryPaginationTest {
                 new CountQueryRequest(
                     underlay,
                     entity,
+                    null,
                     groupBys,
                     null,
                     OrderByDirection.DESCENDING,

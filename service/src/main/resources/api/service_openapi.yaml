@@ -1563,7 +1563,12 @@ components:
         entity:
           description: Entity to count. Defaults to primary entity.
           type: string
-        attributes:
+        countDistinctAttribute:
+          description: |
+            Attribute to count (e.g. person_id will return counts for the number of distinct person_ids 
+            per group by combination). Defaults to id attribute.
+          type: string
+        groupByAttributes:
           description: |
             Attributes to group by. One count will be returned for each possible combination of attribute values 
             (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
@@ -1578,6 +1583,8 @@ components:
           $ref: "#/components/schemas/PageSize"
         pageMarker:
           $ref: "#/components/schemas/PageMarker"
+      required:
+        - groupByAttributes
 
     ReviewQuery:
       type: object

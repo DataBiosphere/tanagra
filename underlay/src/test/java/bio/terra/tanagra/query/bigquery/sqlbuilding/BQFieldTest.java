@@ -1,7 +1,7 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.CountDistinctField;
 import bio.terra.tanagra.api.field.HierarchyIsMemberField;
 import bio.terra.tanagra.api.field.HierarchyIsRootField;
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
@@ -161,10 +161,11 @@ public class BQFieldTest extends BQRunnerTest {
   @Test
   void entityIdCountField() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
-    EntityIdCountField entityIdCountField = new EntityIdCountField(underlay, entity);
+    CountDistinctField countDistinctField =
+        new CountDistinctField(underlay, entity, entity.getIdAttribute());
 
-    List<ValueDisplayField> selectAttributes = List.of(entityIdCountField);
-    List<OrderBy> orderBys = List.of(new OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
+    List<ValueDisplayField> selectAttributes = List.of(countDistinctField);
+    List<OrderBy> orderBys = List.of(new OrderBy(countDistinctField, OrderByDirection.DESCENDING));
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
             ListQueryRequest.dryRunAgainstIndexData(

@@ -102,6 +102,7 @@ public class DataExportService {
         underlayService.runCountQuery(
             request.getUnderlay(),
             request.getUnderlay().getPrimaryEntity(),
+            null,
             List.of(),
             helper.getPrimaryEntityFilter(),
             OrderByDirection.DESCENDING,

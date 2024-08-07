@@ -1276,7 +1276,9 @@ export class BackendStudySource implements StudySource {
           studyId,
           cohortId,
           cohortCountQuery: {
-            attributes: groupByAttributes,
+            countDistinctAttribute: undefined,
+            groupByAttributes:
+              groupByAttributes == null ? [] : groupByAttributes,
             criteriaGroupSectionId: groupSectionId,
             criteriaGroupId: groupId,
             pageMarker,

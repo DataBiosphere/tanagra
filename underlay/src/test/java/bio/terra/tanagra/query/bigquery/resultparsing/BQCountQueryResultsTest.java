@@ -64,6 +64,7 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 entity,
+                null,
                 groupBys,
                 null,
                 OrderByDirection.DESCENDING,
@@ -137,6 +138,7 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 entity,
+                null,
                 groupBys,
                 null,
                 OrderByDirection.DESCENDING,
@@ -201,6 +203,7 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 countForEntity,
+                null,
                 groupBys,
                 null,
                 OrderByDirection.DESCENDING,

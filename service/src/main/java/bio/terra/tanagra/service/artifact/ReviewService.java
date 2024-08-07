@@ -409,6 +409,7 @@ public class ReviewService {
         new CountQueryRequest(
             underlay,
             entity,
+            null,
             groupByAttributeFields,
             entityFilter,
             OrderByDirection.DESCENDING,
