@@ -42,16 +42,6 @@ public class FeatureConfiguration {
       optional = true)
   private String maxChildThreads;
 
-  @AnnotatedField(
-      name = "tanagra.feature.backendFiltersEnabled",
-      markdown =
-          "When true, we generate filters from criteria selectors on the backend. "
-              + "This is intended to support a transition from frontend to backend filter building.",
-      environmentVariable = "TANAGRA_FEATURE_BACKEND_FILTERS_ENABLED",
-      optional = true,
-      defaultValue = "false")
-  private boolean backendFiltersEnabled;
-
   public boolean isActivityLogEnabled() {
     return activityLogEnabled;
   }
@@ -72,10 +62,6 @@ public class FeatureConfiguration {
     return getMaxChildThreads() != null;
   }
 
-  public boolean isBackendFiltersEnabled() {
-    return backendFiltersEnabled;
-  }
-
   public void setActivityLogEnabled(boolean activityLogEnabled) {
     this.activityLogEnabled = activityLogEnabled;
   }
@@ -84,25 +70,14 @@ public class FeatureConfiguration {
     this.maxChildThreads = maxChildThreads;
   }
 
-  public void setBackendFiltersEnabled(boolean backendFiltersEnabled) {
-    this.backendFiltersEnabled = backendFiltersEnabled;
-  }
-
   public void activityLogEnabledCheck() {
     if (!isActivityLogEnabled()) {
       throw new NotImplementedException("Activity log is not enabled");
     }
   }
 
-  public void backendFiltersEnabledCheck() {
-    if (!isBackendFiltersEnabled()) {
-      throw new NotImplementedException("Backend filter building is not enabled");
-    }
-  }
-
   public void log() {
     LOGGER.info("Feature: activity-log-enabled: {}", isActivityLogEnabled());
     LOGGER.info("Feature: max-child-threads: {}", getMaxChildThreads());
-    LOGGER.info("Feature: backend-filters-enabled: {}", isBackendFiltersEnabled());
   }
 }

@@ -1,9 +1,7 @@
 package bio.terra.tanagra.service.export;
 
-import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
-import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.ExportConfiguration.PerModel;
@@ -15,7 +13,6 @@ import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
-import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,10 +80,7 @@ public class DataExportService {
     return new ArrayList<>(nameToModel.values());
   }
 
-  public ExportResult run(
-      ExportRequest request,
-      List<ListQueryRequest> frontendListQueryRequests,
-      EntityFilter frontendPrimaryEntityFilter) {
+  public ExportResult run(ExportRequest request) {
     // Make the current cohort revisions un-editable, and create the next version.
     Map<String, String> cohortToRevisionIdMap = new HashMap<>();
     request
@@ -101,8 +95,7 @@ public class DataExportService {
 
     // Build the helper object that implementation classes can use. This object contains utility
     // methods on the specific cohorts and concept sets specified in the request.
-    DataExportHelper helper =
-        buildHelper(request, frontendListQueryRequests, frontendPrimaryEntityFilter);
+    DataExportHelper helper = buildHelper(request);
 
     // Calculate the number of primary entity instances that are included in this export request.
     CountQueryResult countQueryResult =
@@ -152,45 +145,18 @@ public class DataExportService {
   }
 
   @VisibleForTesting
-  public DataExportHelper buildHelper(
-      ExportRequest request,
-      List<ListQueryRequest> frontendListQueryRequests,
-      EntityFilter frontendPrimaryEntityFilter) {
+  public DataExportHelper buildHelper(ExportRequest request) {
     // Build the helper object that implementation classes can use. This object contains utility
     // methods on the specific cohorts and concept sets specified in the request.
-    List<EntityOutput> entityOutputs;
-    EntityFilter primaryEntityFilter;
-    if (featureConfiguration.isBackendFiltersEnabled()) {
-      entityOutputs =
-          filterBuilderService.buildOutputsForExport(
-              request.getCohorts(), request.getConceptSets());
-      primaryEntityFilter =
-          filterBuilderService.buildFilterForCohortRevisions(
-              request.getUnderlay().getName(),
-              request.getCohorts().stream()
-                  .map(Cohort::getMostRecentRevision)
-                  .collect(Collectors.toList()));
-    } else {
-      entityOutputs =
-          frontendListQueryRequests.stream()
-              .map(
-                  listQueryRequest -> {
-                    List<Attribute> attributes = new ArrayList<>();
-                    listQueryRequest.getSelectFields().stream()
-                        .filter(selectField -> selectField instanceof AttributeField)
-                        .forEach(
-                            selectField ->
-                                attributes.add(((AttributeField) selectField).getAttribute()));
-                    if (listQueryRequest.getFilter() == null) {
-                      return EntityOutput.unfiltered(listQueryRequest.getEntity(), attributes);
-                    } else {
-                      return EntityOutput.filtered(
-                          listQueryRequest.getEntity(), listQueryRequest.getFilter(), attributes);
-                    }
-                  })
-              .collect(Collectors.toList());
-      primaryEntityFilter = frontendPrimaryEntityFilter;
-    }
+    List<EntityOutput> entityOutputs =
+        filterBuilderService.buildOutputsForExport(request.getCohorts(), request.getConceptSets());
+    EntityFilter primaryEntityFilter =
+        filterBuilderService.buildFilterForCohortRevisions(
+            request.getUnderlay().getName(),
+            request.getCohorts().stream()
+                .map(Cohort::getMostRecentRevision)
+                .collect(Collectors.toList()));
+
     return new DataExportHelper(
         featureConfiguration.getMaxChildThreads(),
         shared,

@@ -875,7 +875,6 @@ export class BackendUnderlaySource implements UnderlaySource {
             includeAnnotations: true,
             cohorts,
             conceptSets,
-            instanceQuerys: [],
           },
         })
         .then((res) => {
@@ -1058,7 +1057,6 @@ export class BackendStudySource implements StudySource {
           reviewCreateInfo: {
             displayName,
             size,
-            filter: {},
           },
         })
         .then((r) => fromAPICohortReview(r, underlaySource))

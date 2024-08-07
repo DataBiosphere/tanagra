@@ -9,11 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.query.list.ListQueryRequest;
-import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
@@ -215,16 +210,6 @@ public class ActivityLogServiceTest {
         .forEach(
             attribute ->
                 selectFields.add(new AttributeField(underlay, primaryEntity, attribute, false)));
-    EntityFilter primaryEntityFilter =
-        new AttributeFilter(
-            underlay,
-            primaryEntity,
-            primaryEntity.getAttribute("gender"),
-            BinaryOperator.EQUALS,
-            Literal.forInt64(8_532L));
-    ListQueryRequest listQueryRequest =
-        ListQueryRequest.againstIndexData(
-            underlay, primaryEntity, selectFields, primaryEntityFilter, null, null, null, null);
     String exportModel = "IPYNB_FILE_DOWNLOAD";
     ExportRequest exportRequest =
         new ExportRequest(
@@ -237,8 +222,7 @@ public class ActivityLogServiceTest {
             study1,
             List.of(cohort1),
             List.of(conceptSet1));
-    ExportResult exportResult =
-        dataExportService.run(exportRequest, List.of(listQueryRequest), primaryEntityFilter);
+    ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
