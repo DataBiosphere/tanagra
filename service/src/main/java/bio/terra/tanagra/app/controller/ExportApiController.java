@@ -7,11 +7,9 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
-import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.generated.controller.ExportApi;
@@ -50,7 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -291,31 +288,6 @@ public class ExportApiController implements ExportApi {
             .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
             .collect(Collectors.toList());
 
-    List<ListQueryRequest> listQueryRequests =
-        body.getInstanceQuerys() == null
-            ? new ArrayList<>()
-            : body.getInstanceQuerys().stream()
-                .map(
-                    apiQuery ->
-                        FromApiUtils.fromApiObject(
-                            apiQuery.getQuery(),
-                            underlay.getEntity(apiQuery.getEntity()),
-                            underlay))
-                .collect(Collectors.toList());
-    EntityFilter primaryEntityFilter;
-    if (body.getPrimaryEntityFilter() != null) {
-      primaryEntityFilter =
-          FromApiUtils.fromApiObject(
-              body.getPrimaryEntityFilter(), underlayService.getUnderlay(underlayName));
-    } else {
-      Optional<ListQueryRequest> primaryEntityListQueryRequest =
-          listQueryRequests.stream()
-              .filter(listQueryRequest -> listQueryRequest.getEntity().isPrimary())
-              .findFirst();
-      primaryEntityFilter =
-          primaryEntityListQueryRequest.map(ListQueryRequest::getFilter).orElse(null);
-    }
-
     ExportRequest exportRequest =
         new ExportRequest(
             body.getExportModel(),
@@ -327,8 +299,7 @@ public class ExportApiController implements ExportApi {
             study,
             cohorts,
             conceptSets);
-    ExportResult exportResult =
-        dataExportService.run(exportRequest, listQueryRequests, primaryEntityFilter);
+    ExportResult exportResult = dataExportService.run(exportRequest);
     return ResponseEntity.ok(toApiObject(exportResult));
   }
 
