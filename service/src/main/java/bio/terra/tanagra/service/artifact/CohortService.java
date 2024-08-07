@@ -8,7 +8,6 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.OrderByDirection;
-import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -32,7 +31,6 @@ public class CohortService {
   private static final Logger LOGGER = LoggerFactory.getLogger(CohortService.class);
 
   private final CohortDao cohortDao;
-  private final FeatureConfiguration featureConfiguration;
   private final UnderlayService underlayService;
   private final StudyService studyService;
   private final FilterBuilderService filterBuilderService;
@@ -41,13 +39,11 @@ public class CohortService {
   @Autowired
   public CohortService(
       CohortDao cohortDao,
-      FeatureConfiguration featureConfiguration,
       UnderlayService underlayService,
       StudyService studyService,
       FilterBuilderService filterBuilderService,
       ActivityLogService activityLogService) {
     this.cohortDao = cohortDao;
-    this.featureConfiguration = featureConfiguration;
     this.underlayService = underlayService;
     this.studyService = studyService;
     this.filterBuilderService = filterBuilderService;
@@ -65,8 +61,6 @@ public class CohortService {
       Cohort.Builder cohortBuilder,
       String userEmail,
       List<CohortRevision.CriteriaGroupSection> sections) {
-    featureConfiguration.artifactStorageEnabledCheck();
-
     // Make sure underlay name and study id are valid.
     underlayService.getUnderlay(cohortBuilder.getUnderlay());
     studyService.getStudy(studyId);
@@ -91,7 +85,6 @@ public class CohortService {
 
   /** Delete a cohort and all its revisions. */
   public void deleteCohort(String studyId, String cohortId, String userEmail) {
-    featureConfiguration.artifactStorageEnabledCheck();
     Cohort cohort = cohortDao.getCohort(cohortId);
     cohortDao.deleteCohort(cohortId);
     activityLogService.logCohort(ActivityLog.Type.DELETE_COHORT, userEmail, studyId, cohort);
@@ -99,7 +92,6 @@ public class CohortService {
 
   /** List cohorts with their most recent revisions. */
   public List<Cohort> listCohorts(ResourceCollection authorizedCohortIds, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
     String studyId = authorizedCohortIds.getParent().getStudy();
     if (authorizedCohortIds.isAllResources()) {
       return cohortDao.getAllCohorts(studyId, offset, limit);
@@ -119,7 +111,6 @@ public class CohortService {
 
   /** Retrieve a cohort with its most recent revision. */
   public Cohort getCohort(String studyId, String cohortId) {
-    featureConfiguration.artifactStorageEnabledCheck();
     return cohortDao.getCohort(cohortId);
   }
 
@@ -132,7 +123,6 @@ public class CohortService {
       @Nullable String displayName,
       @Nullable String description,
       @Nullable List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
-    featureConfiguration.artifactStorageEnabledCheck();
     cohortDao.updateCohort(cohortId, userEmail, displayName, description, criteriaGroupSections);
     return cohortDao.getCohort(cohortId);
   }

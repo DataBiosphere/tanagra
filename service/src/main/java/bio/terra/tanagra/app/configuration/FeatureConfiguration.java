@@ -17,16 +17,6 @@ public class FeatureConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureConfiguration.class);
 
   @AnnotatedField(
-      name = "tanagra.feature.artifactStorageEnabled",
-      markdown =
-          "When true, artifacts can be created, updated and deleted. "
-              + "Artifacts include studies, cohorts, concept sets, reviews, and annotations.",
-      environmentVariable = "TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED",
-      optional = true,
-      defaultValue = "false")
-  private boolean artifactStorageEnabled;
-
-  @AnnotatedField(
       name = "tanagra.feature.activityLogEnabled",
       markdown =
           "When true, we store activity log events in the application database. "
@@ -52,10 +42,6 @@ public class FeatureConfiguration {
       optional = true)
   private String maxChildThreads;
 
-  public boolean isArtifactStorageEnabled() {
-    return artifactStorageEnabled;
-  }
-
   public boolean isActivityLogEnabled() {
     return activityLogEnabled;
   }
@@ -76,22 +62,12 @@ public class FeatureConfiguration {
     return getMaxChildThreads() != null;
   }
 
-  public void setArtifactStorageEnabled(boolean artifactStorageEnabled) {
-    this.artifactStorageEnabled = artifactStorageEnabled;
-  }
-
   public void setActivityLogEnabled(boolean activityLogEnabled) {
     this.activityLogEnabled = activityLogEnabled;
   }
 
   public void setMaxChildThreads(String maxChildThreads) {
     this.maxChildThreads = maxChildThreads;
-  }
-
-  public void artifactStorageEnabledCheck() {
-    if (!isArtifactStorageEnabled()) {
-      throw new NotImplementedException("Artifact storage is not enabled");
-    }
   }
 
   public void activityLogEnabledCheck() {
@@ -101,7 +77,6 @@ public class FeatureConfiguration {
   }
 
   public void log() {
-    LOGGER.info("Feature: artifact-storage-enabled: {}", isArtifactStorageEnabled());
     LOGGER.info("Feature: activity-log-enabled: {}", isActivityLogEnabled());
     LOGGER.info("Feature: max-child-threads: {}", getMaxChildThreads());
   }
