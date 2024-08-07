@@ -69,19 +69,20 @@ elif [[ ${useAouUnderlays} ]]; then
   # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
 elif [[ ${useSdUnderlays} ]]; then
   echo "Using sd underlay."
-  export TANAGRA_UNDERLAY_FILES=sd/sd020230831_local
+  export TANAGRA_UNDERLAY_FILES=sd/sd_local
   export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=sd-vumc-tanagra-test
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-test-tanagra-exports
   # uncomment both lines below for sd access-control model
-  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://sd-tanagra-test.victrvumc.org
+  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org
   # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
 elif [[ ${useEmergeUnderlays} ]]; then
   echo "Using eMerge underlay."
-  export TANAGRA_UNDERLAY_FILES=emerge/emerge_20240603_local,sd/sd020230831_local
+  export TANAGRA_UNDERLAY_FILES=emerge/emerge_local,sd/sd_local
   export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=vumc-emerge-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=vumc-emerge-dev-exports
   # uncomment both lines below for emerge access-control model
-  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-emerge-dev.victrvumc.org
+  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org
+  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org
   # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
 else
   echo "Using Broad underlays."
