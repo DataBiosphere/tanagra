@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.json.webtoken.JsonWebToken;
 import com.google.auth.oauth2.TokenVerifier;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -31,6 +32,8 @@ public final class JwtUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(JwtUtils.class);
   private static final Base64.Decoder DECODER = Base64.getUrlDecoder();
   private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final String CLAIM_EMAIL = "email";
+  private static final String CLAIM_SUB = "sub";
   private static PublicKey publicKey;
 
   private JwtUtils() {}
@@ -71,6 +74,18 @@ public final class JwtUtils {
     }
   }
 
+  // Check and cast the object
+  @SuppressWarnings("unchecked")
+  private static <T> T castObject(String objName, @Nullable Object obj, Class<T> clazz) {
+    if ((obj != null) && !clazz.equals(obj.getClass())) {
+      throw new IllegalArgumentException(
+          String.format(
+              "objName: '%s', obj: '%s', expectedType: '%s', actualType: '%s'",
+              objName, obj, clazz, obj.getClass()));
+    }
+    return (T) obj;
+  }
+
   /**
    * Get UserId from JWT (no verification)
    *
@@ -82,12 +97,13 @@ public final class JwtUtils {
       String payloadJSON = new String(DECODER.decode(jwt.split("\\.")[1]));
       Map<String, Object> payloadMap = MAPPER.readValue(payloadJSON, new TypeReference<>() {});
       return makeUserId(
-          (String) payloadMap.getOrDefault("sub", null),
-          (String) payloadMap.getOrDefault("email", null),
+          castObject(CLAIM_SUB, payloadMap.getOrDefault(CLAIM_SUB, null), String.class),
+          castObject(CLAIM_EMAIL, payloadMap.getOrDefault(CLAIM_EMAIL, null), String.class),
           jwt);
 
     } catch (IllegalArgumentException | JsonProcessingException | IndexOutOfBoundsException e) {
-      throw new InvalidCredentialsException("Error decoding user info from JWT access token", e);
+      throw new InvalidCredentialsException(
+          "Error decoding user info from JWT access token: " + jwt, e);
     }
   }
 
