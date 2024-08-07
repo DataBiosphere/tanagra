@@ -346,15 +346,6 @@ When true, artifacts can be created, updated and deleted. Artifacts include stud
 
 *Default value:* `false`
 
-### tanagra.feature.backendFiltersEnabled
-**optional** boolean
-
-When true, we generate filters from criteria selectors on the backend. This is intended to support a transition from frontend to backend filter building.
-
-*Environment variable:* `TANAGRA_FEATURE_BACKEND_FILTERS_ENABLED`
-
-*Default value:* `false`
-
 ### tanagra.feature.maxChildThreads
 **optional** String
 
