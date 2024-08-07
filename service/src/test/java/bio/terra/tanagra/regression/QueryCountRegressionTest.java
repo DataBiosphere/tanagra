@@ -123,7 +123,12 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                       study1.getId(),
                       ConceptSet.builder()
                           .underlay(rtExportCounts.getUnderlay())
-                          .displayName(rtDataFeatureSet.getDisplayName())
+                          .displayName(
+                              rtDataFeatureSet
+                                  .getDisplayName()
+                                  .substring(
+                                      0, Math.min(rtDataFeatureSet.getDisplayName().length(), 50)))
+                          .description(rtDataFeatureSet.getDisplayName())
                           .criteria(
                               rtDataFeatureSet.getCriteriaList().stream()
                                   .map(QueryCountRegressionTest::fromRegressionTestObj)
