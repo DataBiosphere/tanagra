@@ -96,7 +96,7 @@ public class ReviewService {
           "Review size " + reviewBuilder.getSize() + " exceeds maximum allowed " + MAX_REVIEW_SIZE);
     }
     List<Long> randomSampleQueryResult =
-        cohortService.getRandomSample(studyId, cohortId, reviewBuilder.getSize(), entityFilter);
+        cohortService.getRandomSample(studyId, cohortId, reviewBuilder.getSize());
     long cohortRecordsCount =
         cohortService.getRecordsCount(
             cohortService.getCohort(studyId, cohortId).getUnderlay(), entityFilter);

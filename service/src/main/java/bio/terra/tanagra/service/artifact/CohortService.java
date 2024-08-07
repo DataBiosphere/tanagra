@@ -141,17 +141,12 @@ public class CohortService {
    * @return the id of the frozen revision just created
    */
   public String createNextRevision(String studyId, String cohortId, String userEmail) {
-    Long recordsCount;
-    if (featureConfiguration.isBackendFiltersEnabled()) {
-      Cohort cohort = getCohort(studyId, cohortId);
-      recordsCount =
-          getRecordsCount(
-              cohort.getUnderlay(),
-              filterBuilderService.buildFilterForCohortRevision(
-                  cohort.getUnderlay(), cohort.getMostRecentRevision()));
-    } else {
-      recordsCount = null;
-    }
+    Cohort cohort = getCohort(studyId, cohortId);
+    Long recordsCount =
+        getRecordsCount(
+            cohort.getUnderlay(),
+            filterBuilderService.buildFilterForCohortRevision(
+                cohort.getUnderlay(), cohort.getMostRecentRevision()));
     return cohortDao.createNextRevision(cohortId, null, userEmail, recordsCount);
   }
 
@@ -180,17 +175,14 @@ public class CohortService {
   }
 
   /** Build a query of a random sample of primary entity instance ids in the cohort. */
-  public List<Long> getRandomSample(
-      String studyId, String cohortId, int sampleSize, EntityFilter entityFilter) {
+  public List<Long> getRandomSample(String studyId, String cohortId, int sampleSize) {
     Cohort cohort = getCohort(studyId, cohortId);
     Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
 
     // Build the cohort filter for the primary entity.
     EntityFilter primaryEntityFilter =
-        featureConfiguration.isBackendFiltersEnabled()
-            ? filterBuilderService.buildFilterForCohortRevision(
-                cohort.getUnderlay(), cohort.getMostRecentRevision())
-            : entityFilter;
+        filterBuilderService.buildFilterForCohortRevision(
+            cohort.getUnderlay(), cohort.getMostRecentRevision());
 
     // Build a query of a random sample of primary entity instance ids in the cohort.
     AttributeField idAttributeField =
