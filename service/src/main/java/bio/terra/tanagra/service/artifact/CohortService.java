@@ -65,8 +65,6 @@ public class CohortService {
       Cohort.Builder cohortBuilder,
       String userEmail,
       List<CohortRevision.CriteriaGroupSection> sections) {
-    featureConfiguration.artifactStorageEnabledCheck();
-
     // Make sure underlay name and study id are valid.
     underlayService.getUnderlay(cohortBuilder.getUnderlay());
     studyService.getStudy(studyId);
@@ -91,7 +89,6 @@ public class CohortService {
 
   /** Delete a cohort and all its revisions. */
   public void deleteCohort(String studyId, String cohortId, String userEmail) {
-    featureConfiguration.artifactStorageEnabledCheck();
     Cohort cohort = cohortDao.getCohort(cohortId);
     cohortDao.deleteCohort(cohortId);
     activityLogService.logCohort(ActivityLog.Type.DELETE_COHORT, userEmail, studyId, cohort);
@@ -99,7 +96,6 @@ public class CohortService {
 
   /** List cohorts with their most recent revisions. */
   public List<Cohort> listCohorts(ResourceCollection authorizedCohortIds, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
     String studyId = authorizedCohortIds.getParent().getStudy();
     if (authorizedCohortIds.isAllResources()) {
       return cohortDao.getAllCohorts(studyId, offset, limit);
@@ -119,7 +115,6 @@ public class CohortService {
 
   /** Retrieve a cohort with its most recent revision. */
   public Cohort getCohort(String studyId, String cohortId) {
-    featureConfiguration.artifactStorageEnabledCheck();
     return cohortDao.getCohort(cohortId);
   }
 
@@ -132,7 +127,6 @@ public class CohortService {
       @Nullable String displayName,
       @Nullable String description,
       @Nullable List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
-    featureConfiguration.artifactStorageEnabledCheck();
     cohortDao.updateCohort(cohortId, userEmail, displayName, description, criteriaGroupSections);
     return cohortDao.getCohort(cohortId);
   }

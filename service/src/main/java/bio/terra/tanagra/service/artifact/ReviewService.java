@@ -15,7 +15,6 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
-import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ReviewDao;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.service.UnderlayService;
@@ -64,7 +63,6 @@ public class ReviewService {
 
   private final AnnotationService annotationService;
   private final ReviewDao reviewDao;
-  private final FeatureConfiguration featureConfiguration;
   private final ActivityLogService activityLogService;
 
   @Autowired
@@ -73,13 +71,11 @@ public class ReviewService {
       UnderlayService underlayService,
       AnnotationService annotationService,
       ReviewDao reviewDao,
-      FeatureConfiguration featureConfiguration,
       ActivityLogService activityLogService) {
     this.cohortService = cohortService;
     this.underlayService = underlayService;
     this.annotationService = annotationService;
     this.reviewDao = reviewDao;
-    this.featureConfiguration = featureConfiguration;
     this.activityLogService = activityLogService;
   }
 
@@ -90,7 +86,6 @@ public class ReviewService {
       Review.Builder reviewBuilder,
       String userEmail,
       EntityFilter entityFilter) {
-    featureConfiguration.artifactStorageEnabledCheck();
     if (reviewBuilder.getSize() > MAX_REVIEW_SIZE) {
       throw new InvalidQueryException(
           "Review size " + reviewBuilder.getSize() + " exceeds maximum allowed " + MAX_REVIEW_SIZE);
@@ -113,7 +108,6 @@ public class ReviewService {
       String userEmail,
       List<Long> primaryEntityIds,
       long cohortRecordsCount) {
-    featureConfiguration.artifactStorageEnabledCheck();
     if (primaryEntityIds.isEmpty()) {
       throw new IllegalArgumentException("Cannot create a review with an empty query result");
     }
@@ -130,7 +124,6 @@ public class ReviewService {
 
   /** Delete a review and all the primary entity instance ids and annotation values it contains. */
   public void deleteReview(String studyId, String cohortId, String reviewId, String userEmail) {
-    featureConfiguration.artifactStorageEnabledCheck();
     Review review = reviewDao.getReview(reviewId);
     reviewDao.deleteReview(reviewId);
     activityLogService.logReview(
@@ -139,7 +132,6 @@ public class ReviewService {
 
   /** List reviews with their cohort revisions. */
   public List<Review> listReviews(ResourceCollection authorizedReviewIds, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
     String cohortId = authorizedReviewIds.getParent().getCohort();
     if (authorizedReviewIds.isAllResources()) {
       return reviewDao.getAllReviews(cohortId, offset, limit);
@@ -159,7 +151,6 @@ public class ReviewService {
 
   /** Retrieve a review with its cohort revision. */
   public Review getReview(String studyId, String cohortId, String reviewId) {
-    featureConfiguration.artifactStorageEnabledCheck();
     return reviewDao.getReview(reviewId);
   }
 
@@ -172,7 +163,6 @@ public class ReviewService {
       String userEmail,
       @Nullable String displayName,
       @Nullable String description) {
-    featureConfiguration.artifactStorageEnabledCheck();
     reviewDao.updateReview(reviewId, userEmail, displayName, description);
     return reviewDao.getReview(reviewId);
   }
@@ -185,8 +175,6 @@ public class ReviewService {
   @VisibleForTesting
   public List<AnnotationValue> listAnnotationValues(
       String studyId, String cohortId, @Nullable String reviewId) {
-    featureConfiguration.artifactStorageEnabledCheck();
-
     int selectedVersion;
     if (reviewId != null) {
       // Look up the cohort revision associated with the specified review.
