@@ -337,24 +337,6 @@ When true, we store activity log events in the application database. This is int
 
 *Default value:* `false`
 
-### tanagra.feature.artifactStorageEnabled
-**optional** boolean
-
-When true, artifacts can be created, updated and deleted. Artifacts include studies, cohorts, concept sets, reviews, and annotations.
-
-*Environment variable:* `TANAGRA_FEATURE_ARTIFACT_STORAGE_ENABLED`
-
-*Default value:* `false`
-
-### tanagra.feature.backendFiltersEnabled
-**optional** boolean
-
-When true, we generate filters from criteria selectors on the backend. This is intended to support a transition from frontend to backend filter building.
-
-*Environment variable:* `TANAGRA_FEATURE_BACKEND_FILTERS_ENABLED`
-
-*Default value:* `false`
-
 ### tanagra.feature.maxChildThreads
 **optional** String
 

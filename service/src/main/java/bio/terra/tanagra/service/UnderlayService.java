@@ -15,9 +15,10 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.serialization.*;
 import com.google.common.collect.ImmutableMap;
+import jakarta.annotation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -104,6 +105,7 @@ public class UnderlayService {
   public CountQueryResult runCountQuery(
       Underlay underlay,
       Entity entity,
+      @Nullable String countDistinctAttributeName,
       List<String> groupByAttributeNames,
       EntityFilter entityFilter,
       OrderByDirection orderByDirection,
@@ -134,6 +136,9 @@ public class UnderlayService {
         new CountQueryRequest(
             underlay,
             entity,
+            countDistinctAttributeName == null
+                ? null
+                : entity.getAttribute(countDistinctAttributeName),
             attributeFields,
             entityFilter,
             orderByDirection,

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.query.bigquery.translator;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.CountDistinctField;
 import bio.terra.tanagra.api.field.HierarchyIsMemberField;
 import bio.terra.tanagra.api.field.HierarchyIsRootField;
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
@@ -17,7 +17,7 @@ import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TemporalPrimaryFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
-import bio.terra.tanagra.query.bigquery.translator.field.BQEntityIdCountFieldTranslator;
+import bio.terra.tanagra.query.bigquery.translator.field.BQCountDistinctFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyIsMemberFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyIsRootFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyNumChildrenFieldTranslator;
@@ -43,8 +43,8 @@ public final class BQApiTranslator implements ApiTranslator {
   }
 
   @Override
-  public ApiFieldTranslator translator(EntityIdCountField entityIdCountField) {
-    return new BQEntityIdCountFieldTranslator(entityIdCountField);
+  public ApiFieldTranslator translator(CountDistinctField countDistinctField) {
+    return new BQCountDistinctFieldTranslator(countDistinctField);
   }
 
   @Override

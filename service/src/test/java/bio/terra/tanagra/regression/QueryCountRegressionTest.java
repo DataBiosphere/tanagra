@@ -2,7 +2,6 @@ package bio.terra.tanagra.regression;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.app.configuration.FeatureConfiguration;
@@ -123,7 +122,12 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                       study1.getId(),
                       ConceptSet.builder()
                           .underlay(rtExportCounts.getUnderlay())
-                          .displayName(rtDataFeatureSet.getDisplayName())
+                          .displayName(
+                              rtDataFeatureSet
+                                  .getDisplayName()
+                                  .substring(
+                                      0, Math.min(rtDataFeatureSet.getDisplayName().length(), 50)))
+                          .description(rtDataFeatureSet.getDisplayName())
                           .criteria(
                               rtDataFeatureSet.getCriteriaList().stream()
                                   .map(QueryCountRegressionTest::fromRegressionTestObj)
@@ -150,8 +154,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
             study1,
             cohorts,
             conceptSets);
-    assertTrue(featureConfiguration.isBackendFiltersEnabled());
-    DataExportHelper dataExportHelper = dataExportService.buildHelper(exportRequest, null, null);
+    DataExportHelper dataExportHelper = dataExportService.buildHelper(exportRequest);
     Map<String, Long> totalNumRowsPerEntity = dataExportHelper.getTotalNumRowsOfEntityData();
 
     // Compare the counts with those saved in the exported regression file.

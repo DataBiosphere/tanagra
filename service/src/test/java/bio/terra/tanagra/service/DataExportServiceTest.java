@@ -293,9 +293,7 @@ public class DataExportServiceTest {
             study1,
             List.of(cohort1),
             List.of(conceptSet1));
-    ExportResult exportResult =
-        dataExportService.run(
-            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertFalse(exportResult.isSuccessful());
     assertNotNull(exportResult.getError());
@@ -320,9 +318,7 @@ public class DataExportServiceTest {
             study1,
             List.of(cohort1),
             List.of(conceptSet1));
-    ExportResult exportResult =
-        dataExportService.run(
-            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
@@ -384,9 +380,7 @@ public class DataExportServiceTest {
             study1,
             List.of(cohort1),
             List.of(conceptSet1));
-    ExportResult exportResult =
-        dataExportService.run(
-            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
     LOGGER.info("redirect away url: {}", exportResult.getRedirectAwayUrl());
@@ -485,9 +479,7 @@ public class DataExportServiceTest {
             study1,
             List.of(cohort1),
             List.of(conceptSet1));
-    ExportResult exportResult =
-        dataExportService.run(
-            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
     assertNull(exportResult.getRedirectAwayUrl());
@@ -530,9 +522,7 @@ public class DataExportServiceTest {
             study1,
             List.of(cohort1),
             List.of(conceptSet1));
-    ExportResult exportResult =
-        dataExportService.run(
-            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertFalse(exportResult.isSuccessful());
     assertNotNull(exportResult.getError());
@@ -553,9 +543,7 @@ public class DataExportServiceTest {
             study1,
             List.of(cohort2),
             List.of(conceptSet2));
-    ExportResult exportResult =
-        dataExportService.run(
-            exportRequest, List.of(buildListQueryRequest()), buildPrimaryEntityFilter());
+    ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
     assertEquals(1, exportResult.getFileResults().size());

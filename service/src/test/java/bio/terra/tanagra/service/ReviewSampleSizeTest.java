@@ -94,10 +94,7 @@ public class ReviewSampleSizeTest {
   void lessThanOneDefaultPageSize() {
     List<Long> randomSample =
         cohortService.getRandomSample(
-            study1.getId(),
-            cohort1.getId(),
-            ListQueryRequest.DEFAULT_PAGE_SIZE - 1,
-            getCohortFilter());
+            study1.getId(), cohort1.getId(), ListQueryRequest.DEFAULT_PAGE_SIZE - 1);
     assertEquals(ListQueryRequest.DEFAULT_PAGE_SIZE - 1, randomSample.size());
   }
 
@@ -105,10 +102,7 @@ public class ReviewSampleSizeTest {
   void multipleDefaultPageSizes() {
     List<Long> randomSample =
         cohortService.getRandomSample(
-            study1.getId(),
-            cohort1.getId(),
-            ListQueryRequest.DEFAULT_PAGE_SIZE * 2 + 1,
-            getCohortFilter());
+            study1.getId(), cohort1.getId(), ListQueryRequest.DEFAULT_PAGE_SIZE * 2 + 1);
     assertEquals(ListQueryRequest.DEFAULT_PAGE_SIZE * 2 + 1, randomSample.size());
   }
 

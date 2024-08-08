@@ -1,7 +1,7 @@
 package bio.terra.tanagra.query.bigquery;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.CountDistinctField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountInstance;
@@ -318,9 +318,12 @@ public class BQQueryRunner implements QueryRunner {
 
     // The select fields are the COUNT(id) field + the GROUP BY fields (values only).
     List<ValueDisplayField> selectValueDisplayFields = new ArrayList<>();
-    EntityIdCountField entityIdCountField =
-        new EntityIdCountField(countQueryRequest.getUnderlay(), countQueryRequest.getEntity());
-    selectValueDisplayFields.add(entityIdCountField);
+    CountDistinctField countDistinctField =
+        new CountDistinctField(
+            countQueryRequest.getUnderlay(),
+            countQueryRequest.getEntity(),
+            countQueryRequest.getCountDistinctAttribute());
+    selectValueDisplayFields.add(countDistinctField);
     selectValueDisplayFields.addAll(countQueryRequest.getGroupByFields());
     List<String> selectFields = new ArrayList<>();
     selectValueDisplayFields.forEach(
@@ -381,7 +384,7 @@ public class BQQueryRunner implements QueryRunner {
 
     // ORDER BY [id count field]
     List<String> orderByFields =
-        bqTranslator.translator(entityIdCountField).buildSqlFieldsForOrderBy().stream()
+        bqTranslator.translator(countDistinctField).buildSqlFieldsForOrderBy().stream()
             .map(sqlQueryField -> sqlQueryField.renderForOrderBy(null, true))
             .collect(Collectors.toList());
     sql.append(" ORDER BY ")
@@ -444,7 +447,7 @@ public class BQQueryRunner implements QueryRunner {
                       });
               long count =
                   bqTranslator
-                      .translator(entityIdCountField)
+                      .translator(countDistinctField)
                       .parseValueDisplayFromResult(sqlRowResult)
                       .getValue()
                       .getInt64Val();

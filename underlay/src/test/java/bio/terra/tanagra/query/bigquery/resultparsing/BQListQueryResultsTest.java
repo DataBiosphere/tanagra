@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.CountDistinctField;
 import bio.terra.tanagra.api.field.HierarchyIsMemberField;
 import bio.terra.tanagra.api.field.HierarchyIsRootField;
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
@@ -98,10 +98,11 @@ public class BQListQueryResultsTest extends BQRunnerTest {
   @Test
   void entityIdCountField() {
     Entity entity = underlay.getPrimaryEntity();
-    EntityIdCountField entityIdCountField = new EntityIdCountField(underlay, entity);
+    CountDistinctField countDistinctField =
+        new CountDistinctField(underlay, entity, entity.getIdAttribute());
 
-    List<ValueDisplayField> selectAttributes = List.of(entityIdCountField);
-    List<OrderBy> orderBys = List.of(new OrderBy(entityIdCountField, OrderByDirection.DESCENDING));
+    List<ValueDisplayField> selectAttributes = List.of(countDistinctField);
+    List<OrderBy> orderBys = List.of(new OrderBy(countDistinctField, OrderByDirection.DESCENDING));
     int limit = 11;
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
@@ -116,7 +117,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
         .getListInstances()
         .forEach(
             listInstance -> {
-              ValueDisplay entityIdCount = listInstance.getEntityFieldValue(entityIdCountField);
+              ValueDisplay entityIdCount = listInstance.getEntityFieldValue(countDistinctField);
               assertNotNull(entityIdCount);
               assertEquals(DataType.INT64, entityIdCount.getValue().getDataType());
               assertNotNull(entityIdCount.getValue().getInt64Val());

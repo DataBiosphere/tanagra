@@ -181,7 +181,8 @@ public class CohortsApiController implements CohortsApi {
         underlayService.runCountQuery(
             underlay,
             outputEntity,
-            body.getAttributes() == null ? List.of() : body.getAttributes(),
+            body.getCountDistinctAttribute(),
+            body.getGroupByAttributes() == null ? List.of() : body.getGroupByAttributes(),
             outputEntityFilteredOnCohort,
             body.getOrderByDirection() == null
                 ? OrderByDirection.DESCENDING

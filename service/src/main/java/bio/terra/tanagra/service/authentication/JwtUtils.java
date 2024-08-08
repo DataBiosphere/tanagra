@@ -86,7 +86,10 @@ public final class JwtUtils {
           (String) payloadMap.getOrDefault("email", null),
           jwt);
 
-    } catch (IllegalArgumentException | JsonProcessingException | IndexOutOfBoundsException e) {
+    } catch (IllegalArgumentException
+        | JsonProcessingException
+        | IndexOutOfBoundsException
+        | ClassCastException e) {
       throw new InvalidCredentialsException("Error decoding user info from JWT access token", e);
     }
   }

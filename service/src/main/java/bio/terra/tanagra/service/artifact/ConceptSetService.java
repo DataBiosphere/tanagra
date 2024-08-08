@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service.artifact;
 
-import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.ConceptSetDao;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -18,26 +17,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConceptSetService {
   private final ConceptSetDao conceptSetDao;
-  private final FeatureConfiguration featureConfiguration;
   private final UnderlayService underlayService;
   private final StudyService studyService;
 
   @Autowired
   public ConceptSetService(
-      ConceptSetDao conceptSetDao,
-      FeatureConfiguration featureConfiguration,
-      UnderlayService underlayService,
-      StudyService studyService) {
+      ConceptSetDao conceptSetDao, UnderlayService underlayService, StudyService studyService) {
     this.conceptSetDao = conceptSetDao;
-    this.featureConfiguration = featureConfiguration;
     this.underlayService = underlayService;
     this.studyService = studyService;
   }
 
   public ConceptSet createConceptSet(
       String studyId, ConceptSet.Builder conceptSetBuilder, String userEmail) {
-    featureConfiguration.artifactStorageEnabledCheck();
-
     // Make sure study and underlay are valid.
     studyService.getStudy(studyId);
     underlayService.getUnderlay(conceptSetBuilder.getUnderlay());
@@ -59,13 +51,11 @@ public class ConceptSetService {
   }
 
   public void deleteConceptSet(String studyId, String conceptSetId) {
-    featureConfiguration.artifactStorageEnabledCheck();
     conceptSetDao.deleteConceptSet(conceptSetId);
   }
 
   public List<ConceptSet> listConceptSets(
       ResourceCollection authorizedConceptSetIds, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
     String studyId = authorizedConceptSetIds.getParent().getStudy();
     if (authorizedConceptSetIds.isAllResources()) {
       return conceptSetDao.getAllConceptSets(studyId, offset, limit);
@@ -84,7 +74,6 @@ public class ConceptSetService {
   }
 
   public ConceptSet getConceptSet(String studyId, String conceptSetId) {
-    featureConfiguration.artifactStorageEnabledCheck();
     return conceptSetDao.getConceptSet(conceptSetId);
   }
 
@@ -97,8 +86,6 @@ public class ConceptSetService {
       @Nullable String description,
       @Nullable List<Criteria> criteria,
       @Nullable Map<String, List<String>> outputAttributesPerEntity) {
-    featureConfiguration.artifactStorageEnabledCheck();
-
     // TODO: Put this validation back once the UI config overhaul is complete.
     //    // Make sure any entity-attribute pairs are valid.
     //    if (outputAttributesPerEntity != null) {

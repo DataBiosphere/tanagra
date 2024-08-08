@@ -1,7 +1,6 @@
 package bio.terra.tanagra.service.artifact;
 
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.db.AnnotationDao;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -18,29 +17,24 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("PMD.UseObjectForClearerAPI")
 public class AnnotationService {
   private final AnnotationDao annotationDao;
-  private final FeatureConfiguration featureConfiguration;
 
   @Autowired
-  public AnnotationService(AnnotationDao annotationDao, FeatureConfiguration featureConfiguration) {
+  public AnnotationService(AnnotationDao annotationDao) {
     this.annotationDao = annotationDao;
-    this.featureConfiguration = featureConfiguration;
   }
 
   public AnnotationKey createAnnotationKey(
       String studyId, String cohortId, AnnotationKey.Builder annotationKeyBuilder) {
-    featureConfiguration.artifactStorageEnabledCheck();
     annotationDao.createAnnotationKey(cohortId, annotationKeyBuilder.build());
     return annotationDao.getAnnotationKey(cohortId, annotationKeyBuilder.getId());
   }
 
   public void deleteAnnotationKey(String studyId, String cohortId, String annotationKeyId) {
-    featureConfiguration.artifactStorageEnabledCheck();
     annotationDao.deleteAnnotationKey(cohortId, annotationKeyId);
   }
 
   public List<AnnotationKey> listAnnotationKeys(
       ResourceCollection authorizedAnnotationKeyIds, int offset, int limit) {
-    featureConfiguration.artifactStorageEnabledCheck();
     String cohortId = authorizedAnnotationKeyIds.getParent().getCohort();
     if (authorizedAnnotationKeyIds.isAllResources()) {
       return annotationDao.getAllAnnotationKeys(cohortId, offset, limit);
@@ -60,7 +54,6 @@ public class AnnotationService {
   }
 
   public AnnotationKey getAnnotationKey(String studyId, String cohortId, String annotationKeyId) {
-    featureConfiguration.artifactStorageEnabledCheck();
     return annotationDao.getAnnotationKey(cohortId, annotationKeyId);
   }
 
@@ -70,7 +63,6 @@ public class AnnotationService {
       String annotationKeyId,
       @Nullable String displayName,
       @Nullable String description) {
-    featureConfiguration.artifactStorageEnabledCheck();
     annotationDao.updateAnnotationKey(cohortId, annotationKeyId, displayName, description);
     return annotationDao.getAnnotationKey(cohortId, annotationKeyId);
   }
@@ -83,7 +75,6 @@ public class AnnotationService {
       String reviewId,
       String instanceId,
       List<Literal> annotationValues) {
-    featureConfiguration.artifactStorageEnabledCheck();
     AnnotationKey annotationKey = annotationDao.getAnnotationKey(cohortId, annotationKeyId);
     annotationValues.forEach(annotationKey::validateValue);
     annotationDao.updateAnnotationValues(

@@ -378,6 +378,8 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Studies: Cohorts ---------------
+
   "/v2/studies/{studyId}/cohorts":
     parameters:
       - $ref: "#/components/parameters/StudyId"
@@ -416,8 +418,6 @@ paths:
                 $ref: "#/components/schemas/Cohort"
         500:
           $ref: "#/components/responses/ServerError"
-
-  # --------------- Studies: Cohorts ---------------
 
   "/v2/studies/{studyId}/cohorts/{cohortId}":
     parameters:
@@ -1563,7 +1563,12 @@ components:
         entity:
           description: Entity to count. Defaults to primary entity.
           type: string
-        attributes:
+        countDistinctAttribute:
+          description: |
+            Attribute to count (e.g. person_id will return counts for the number of distinct person_ids 
+            per group by combination). Defaults to id attribute.
+          type: string
+        groupByAttributes:
           description: |
             Attributes to group by. One count will be returned for each possible combination of attribute values 
             (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
@@ -1578,6 +1583,8 @@ components:
           $ref: "#/components/schemas/PageSize"
         pageMarker:
           $ref: "#/components/schemas/PageMarker"
+      required:
+        - groupByAttributes
 
     ReviewQuery:
       type: object
@@ -2460,16 +2467,9 @@ components:
           $ref: "#/components/schemas/ReviewDescription"
         size:
           $ref: "#/components/schemas/ReviewSize"
-        filter:
-          # TODO: Remove this filter property from the service API once we fully support UI plugins, because the
-          # plugin-specific backend code will generate it from the cohort definition. For now, the UI builds the
-          # cohort filter and passes it to the backend when we create a review, so the backend can take a random
-          # sample and preserve it.
-          $ref: "#/components/schemas/Filter"
       required:
         - displayName
         - size
-        - filter
 
     ReviewUpdateInfo:
       type: object
@@ -2680,7 +2680,7 @@ components:
         sourceSql:
           type: string
           description: |
-            SQL string against the index tables.
+            SQL string against the source tables.
             This will be populated if source queries are configured for this entity.
       required:
         - entity
@@ -2728,23 +2728,6 @@ components:
         includeAnnotations:
           description: Include the annotation data when true
           type: boolean
-        instanceQuerys:
-          # TODO: Replace this with a list of concept set ids once we can build the entity filters on the backend.
-          type: array
-          items:
-            type: object
-            properties:
-              entity:
-                type: string
-                nullable: false
-              query:
-                $ref: "#/components/schemas/Query"
-        primaryEntityFilter:
-          # TODO: Remove this filter property from the service API once we fully support UI plugins, because the
-          # plugin-specific backend code will generate it from the cohort definition. For now, the UI builds the
-          # cohort filter and passes it to the backend when we export a cohort(s), so the backend can count the
-          # number of records and store it in the activity log.
-          $ref: "#/components/schemas/Filter"
 
     ExportResult:
       type: object
