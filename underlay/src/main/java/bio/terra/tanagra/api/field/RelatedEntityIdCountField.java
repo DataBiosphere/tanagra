@@ -52,6 +52,11 @@ public class RelatedEntityIdCountField extends ValueDisplayField {
   }
 
   @Override
+  public Entity getEntity() {
+    return getCountForEntity();
+  }
+
+  @Override
   public DataType getDataType() {
     return DataType.INT64;
   }

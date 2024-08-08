@@ -3,6 +3,7 @@ package bio.terra.tanagra.query.bigquery;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.CountDistinctField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.*;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
@@ -12,9 +13,7 @@ import bio.terra.tanagra.api.query.export.ExportQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.api.query.list.ListInstance;
-import bio.terra.tanagra.api.query.list.ListQueryRequest;
-import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.api.query.list.*;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
@@ -28,17 +27,16 @@ import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.query.sql.SqlQueryRequest;
 import bio.terra.tanagra.query.sql.SqlQueryResult;
-import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.*;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
+import org.apache.commons.lang3.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class BQQueryRunner implements QueryRunner {
@@ -96,226 +94,8 @@ public class BQQueryRunner implements QueryRunner {
         sqlQueryResult.getTotalNumRows());
   }
 
-  public SqlQueryRequest buildListQuerySqlAgainstIndexData(ListQueryRequest listQueryRequest) {
-    return buildListQuerySqlAgainstIndexData(listQueryRequest, Instant.now());
-  }
-
-  @VisibleForTesting
-  public SqlQueryRequest buildListQuerySqlAgainstIndexData(
-      ListQueryRequest listQueryRequest, Instant queryInstant) {
-    // Build the SQL query.
-    StringBuilder sql = new StringBuilder();
-    SqlParams sqlParams = new SqlParams();
-    BQApiTranslator bqTranslator = new BQApiTranslator();
-
-    // All the select fields come from the index entity main table.
-    if (listQueryRequest.getSelectFields().isEmpty()) {
-      throw new InvalidQueryException("List query must include at least one select field");
-    }
-    ITEntityMain entityMain =
-        listQueryRequest
-            .getUnderlay()
-            .getIndexSchema()
-            .getEntityMain(listQueryRequest.getEntity().getName());
-    List<String> selectFields = new ArrayList<>();
-    listQueryRequest
-        .getSelectFields()
-        .forEach(
-            valueDisplayField ->
-                bqTranslator
-                    .translator(valueDisplayField)
-                    .buildSqlFieldsForListSelect()
-                    .forEach(sqlField -> selectFields.add(sqlField.renderForSelect())));
-
-    // SELECT [select fields] FROM [entity main]
-    sql.append("SELECT ")
-        .append(String.join(", ", selectFields))
-        .append(" FROM ")
-        .append(entityMain.getTablePointer().render());
-
-    // WHERE [filter]
-    if (listQueryRequest.getFilter() != null) {
-      sql.append(" WHERE ")
-          .append(bqTranslator.translator(listQueryRequest.getFilter()).buildSql(sqlParams, null));
-    }
-
-    // ORDER BY [order by fields]
-    if (!listQueryRequest.getOrderBys().isEmpty()) {
-      // All the order by fields come from the index entity main table.
-      List<String> orderByFields = new ArrayList<>();
-      listQueryRequest
-          .getOrderBys()
-          .forEach(
-              orderBy -> {
-                if (orderBy.isRandom()) {
-                  orderByFields.add(bqTranslator.orderByRandSql());
-                } else {
-                  bqTranslator
-                      .translator(orderBy.getEntityField())
-                      .buildSqlFieldsForOrderBy()
-                      .forEach(
-                          sqlField ->
-                              orderByFields.add(
-                                  sqlField.renderForOrderBy(
-                                          null,
-                                          listQueryRequest
-                                              .getSelectFields()
-                                              .contains(orderBy.getEntityField()))
-                                      + ' '
-                                      + bqTranslator.orderByDirectionSql(orderBy.getDirection())));
-                }
-              });
-      sql.append(" ORDER BY ").append(String.join(", ", orderByFields));
-    }
-
-    // LIMIT [limit]
-    if (listQueryRequest.getLimit() != null) {
-      sql.append(" LIMIT ").append(listQueryRequest.getLimit());
-    }
-
-    // Swap out any un-cacheable functions with SQL parameters.
-    String sqlWithOnlyCacheableFunctions =
-        BQExecutor.replaceFunctionsThatPreventCaching(sql.toString(), sqlParams, queryInstant);
-
-    return new SqlQueryRequest(
-        sqlWithOnlyCacheableFunctions,
-        sqlParams,
-        listQueryRequest.getPageMarker(),
-        listQueryRequest.getPageSize(),
-        listQueryRequest.isDryRun());
-  }
-
-  @VisibleForTesting
-  public SqlQueryRequest buildListQuerySqlAgainstSourceData(ListQueryRequest listQueryRequest) {
-    // Make sure the entity is enabled for source queries, and all the selected fields are
-    // attributes.
-    if (!listQueryRequest.getEntity().supportsSourceQueries()) {
-      throw new InvalidConfigException(
-          "Entity " + listQueryRequest.getEntity().getName() + " does not support source queries");
-    }
-    listQueryRequest
-        .getSelectFields()
-        .forEach(
-            selectField -> {
-              if (!(selectField instanceof AttributeField)) {
-                throw new InvalidQueryException(
-                    "Only attribute fields can be selected in a query against the source data");
-              }
-            });
-
-    // Build the inner SQL query against the index data first.
-    // Select only the id attribute, which we need to JOIN to the source table.
-    // SELECT id FROM [index table] WHERE [filter]
-    StringBuilder sql = new StringBuilder(50);
-    BQApiTranslator bqTranslator = new BQApiTranslator();
-    AttributeField indexIdAttributeField =
-        new AttributeField(
-            listQueryRequest.getUnderlay(),
-            listQueryRequest.getEntity(),
-            listQueryRequest.getEntity().getIdAttribute(),
-            true);
-    ListQueryRequest indexDataQueryRequest =
-        ListQueryRequest.dryRunAgainstIndexData(
-            listQueryRequest.getUnderlay(),
-            listQueryRequest.getEntity(),
-            List.of(indexIdAttributeField),
-            listQueryRequest.getFilter(),
-            null,
-            null);
-    Instant queryInstant =
-        listQueryRequest.getPageMarker() == null
-            ? Instant.now()
-            : listQueryRequest.getPageMarker().getInstant();
-    SqlQueryRequest indexDataSqlRequest =
-        buildListQuerySqlAgainstIndexData(indexDataQueryRequest, queryInstant);
-    SqlParams sqlParams = indexDataSqlRequest.getSqlParams();
-
-    // Now build the outer SQL query against the source data.
-    final String sourceTableAlias = "st";
-    List<String> selectFields = new ArrayList<>();
-    List<String> displayTableJoins = new ArrayList<>();
-    listQueryRequest
-        .getSelectFields()
-        .forEach(
-            valueDisplayField -> {
-              AttributeField attrFieldAgainstSourceData =
-                  AttributeField.againstSourceDataset((AttributeField) valueDisplayField);
-              Attribute.SourceQuery attrSourcePointer =
-                  attrFieldAgainstSourceData.getAttribute().getSourceQuery();
-
-              List<SqlQueryField> valueAndDisplayFields =
-                  bqTranslator.translator(attrFieldAgainstSourceData).buildSqlFieldsForListSelect();
-              SqlQueryField valueSqlField = valueAndDisplayFields.get(0);
-              selectFields.add(valueSqlField.renderForSelect(sourceTableAlias));
-
-              if (valueAndDisplayFields.size() > 1) {
-                SqlQueryField displaySqlField = valueAndDisplayFields.get(1);
-                if (attrSourcePointer.hasDisplayFieldTableJoin()) {
-                  SqlQueryField displayTableJoinField =
-                      SqlQueryField.of(
-                          SqlField.of(attrSourcePointer.getDisplayFieldTableJoinFieldName()));
-                  String joinTableAlias = "dt" + displayTableJoins.size();
-
-                  StringBuilder joinSql = new StringBuilder();
-                  joinSql
-                      .append(" LEFT JOIN ")
-                      .append(fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
-                      .append(" AS ")
-                      .append(joinTableAlias)
-                      .append(" ON ")
-                      .append(displayTableJoinField.renderForSelect(joinTableAlias))
-                      .append(" = ")
-                      .append(valueSqlField.renderForSelect(sourceTableAlias));
-                  displayTableJoins.add(joinSql.toString());
-                  selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
-                } else {
-                  selectFields.add(displaySqlField.renderForSelect(sourceTableAlias));
-                }
-              }
-            });
-    if (selectFields.isEmpty()) {
-      throw new InvalidQueryException("List query must include at least one select field");
-    }
-    AttributeField sourceIdAttrField = AttributeField.againstSourceDataset(indexIdAttributeField);
-    SqlQueryField sourceIdAttrSqlField =
-        bqTranslator.translator(sourceIdAttrField).buildSqlFieldsForListSelect().get(0);
-
-    // SELECT [select fields] FROM [source table]
-    // JOIN [display table] ON [display join field]
-    // WHERE [source id field] IN [inner query against index data]
-    sql.append("SELECT ")
-        .append(String.join(", ", selectFields))
-        .append(" FROM ")
-        .append(fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render())
-        .append(" AS ")
-        .append(sourceTableAlias)
-        .append(String.join("", displayTableJoins))
-        .append(" WHERE ")
-        .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
-        .append(" IN (")
-        .append(indexDataSqlRequest.getSql())
-        .append(')');
-    return new SqlQueryRequest(
-        sql.toString(),
-        sqlParams,
-        listQueryRequest.getPageMarker(),
-        listQueryRequest.getPageSize(),
-        listQueryRequest.isDryRun());
-  }
-
-  @VisibleForTesting
-  public static BQTable fromFullTablePath(String fullTablePath) {
-    String[] bqDatasetParsed = fullTablePath.split("\\.");
-    return new BQTable(bqDatasetParsed[0], bqDatasetParsed[1], bqDatasetParsed[2]);
-  }
-
   @Override
   public CountQueryResult run(CountQueryRequest countQueryRequest) {
-    // Build the SQL query.
-    StringBuilder sql = new StringBuilder(24);
-    SqlParams sqlParams = new SqlParams();
-    BQApiTranslator bqTranslator = new BQApiTranslator();
-
     // The select fields are the COUNT(id) field + the GROUP BY fields (values only).
     List<ValueDisplayField> selectValueDisplayFields = new ArrayList<>();
     CountDistinctField countDistinctField =
@@ -325,97 +105,38 @@ public class BQQueryRunner implements QueryRunner {
             countQueryRequest.getCountDistinctAttribute());
     selectValueDisplayFields.add(countDistinctField);
     selectValueDisplayFields.addAll(countQueryRequest.getGroupByFields());
-    List<String> selectFields = new ArrayList<>();
-    selectValueDisplayFields.forEach(
-        valueDisplayField -> {
-          List<SqlQueryField> sqlQueryFields;
-          if (valueDisplayField instanceof AttributeField) {
-            sqlQueryFields =
-                ((BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField))
-                    .buildSqlFieldsForCountSelectAndGroupBy(
-                        countQueryRequest.getEntityLevelHints());
-          } else {
-            sqlQueryFields =
-                bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect();
-          }
-          sqlQueryFields.forEach(
-              sqlQueryField -> selectFields.add(sqlQueryField.renderForSelect()));
-        });
 
-    // SELECT [id count field],[group by fields] FROM [entity main]
-    // All the select fields come from the index entity main table.
-    ITEntityMain entityMain =
-        countQueryRequest
-            .getUnderlay()
-            .getIndexSchema()
-            .getEntityMain(countQueryRequest.getEntity().getName());
-    sql.append("SELECT ")
-        .append(String.join(", ", selectFields))
-        .append(" FROM ")
-        .append(entityMain.getTablePointer().render());
+    // Always order by the count field.
+    OrderBy orderBy = new OrderBy(countDistinctField, countQueryRequest.getOrderByDirection());
 
-    // WHERE [filter]
-    if (countQueryRequest.getFilter() != null) {
-      sql.append(" WHERE ")
-          .append(bqTranslator.translator(countQueryRequest.getFilter()).buildSql(sqlParams, null));
-    }
-
-    // GROUP BY [group by fields]
-    if (!countQueryRequest.getGroupByFields().isEmpty()) {
-      List<String> groupByFields = new ArrayList<>();
-      countQueryRequest
-          .getGroupByFields()
-          .forEach(
-              groupBy -> {
-                List<SqlQueryField> sqlQueryFields;
-                if (groupBy instanceof AttributeField) {
-                  sqlQueryFields =
-                      ((BQAttributeFieldTranslator) bqTranslator.translator(groupBy))
-                          .buildSqlFieldsForCountSelectAndGroupBy(
-                              countQueryRequest.getEntityLevelHints());
-                } else {
-                  sqlQueryFields = bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy();
-                }
-                sqlQueryFields.forEach(
-                    sqlQueryField -> groupByFields.add(sqlQueryField.renderForGroupBy(null, true)));
-              });
-      sql.append(" GROUP BY ").append(String.join(", ", groupByFields));
-    }
-
-    // ORDER BY [id count field]
-    List<String> orderByFields =
-        bqTranslator.translator(countDistinctField).buildSqlFieldsForOrderBy().stream()
-            .map(sqlQueryField -> sqlQueryField.renderForOrderBy(null, true))
-            .collect(Collectors.toList());
-    sql.append(" ORDER BY ")
-        .append(String.join(", ", orderByFields))
-        .append(' ')
-        .append(bqTranslator.orderByDirectionSql(countQueryRequest.getOrderByDirection()));
-
-    // LIMIT [limit]
-    if (countQueryRequest.getLimit() != null) {
-      sql.append(" LIMIT ").append(countQueryRequest.getLimit());
-    }
-
-    // Swap out any un-cacheable functions with SQL parameters.
     Instant queryInstant =
         countQueryRequest.getPageMarker() == null
             ? Instant.now()
             : countQueryRequest.getPageMarker().getInstant();
-    String sqlWithOnlyCacheableFunctions =
-        BQExecutor.replaceFunctionsThatPreventCaching(sql.toString(), sqlParams, queryInstant);
 
-    // Execute the SQL query.
     SqlQueryRequest sqlQueryRequest =
-        new SqlQueryRequest(
-            sqlWithOnlyCacheableFunctions,
-            sqlParams,
+        buildQuerySqlAgainstIndexData(
+            countQueryRequest.getUnderlay(),
+            selectValueDisplayFields,
+            countQueryRequest.getFilter() == null
+                ? Map.of()
+                : Map.of(countQueryRequest.getEntity(), countQueryRequest.getFilter()),
+            countQueryRequest.getGroupByFields(),
+            List.of(orderBy),
+            countQueryRequest.getLimit(),
             countQueryRequest.getPageMarker(),
             countQueryRequest.getPageSize(),
+            queryInstant,
+            countQueryRequest.getEntityLevelHints() == null
+                ? Map.of()
+                : Map.of(countQueryRequest.getEntity(), countQueryRequest.getEntityLevelHints()),
             countQueryRequest.isDryRun());
+
+    // Execute the SQL query.
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // Process the rows returned.
+    BQApiTranslator bqTranslator = new BQApiTranslator();
     List<CountInstance> countInstances = new ArrayList<>();
     sqlQueryResult
         .getRowResults()
@@ -455,7 +176,7 @@ public class BQQueryRunner implements QueryRunner {
             });
 
     return new CountQueryResult(
-        sql.toString(),
+        sqlQueryRequest.getSql(),
         countInstances,
         sqlQueryResult.getNextPageMarker() == null
             ? null
@@ -600,5 +321,274 @@ public class BQQueryRunner implements QueryRunner {
     }
     return new ExportQueryResult(
         exportFileUrlAndFileName.getRight(), exportFileUrlAndFileName.getLeft());
+  }
+
+  public SqlQueryRequest buildListQuerySqlAgainstIndexData(ListQueryRequest listQueryRequest) {
+    return buildListQuerySqlAgainstIndexData(listQueryRequest, Instant.now());
+  }
+
+  @VisibleForTesting
+  public SqlQueryRequest buildListQuerySqlAgainstIndexData(
+      ListQueryRequest listQueryRequest, Instant queryInstant) {
+    return buildQuerySqlAgainstIndexData(
+        listQueryRequest.getUnderlay(),
+        listQueryRequest.getSelectFields(),
+        listQueryRequest.getFilter() == null
+            ? Map.of()
+            : Map.of(listQueryRequest.getEntity(), listQueryRequest.getFilter()),
+        List.of(),
+        listQueryRequest.getOrderBys(),
+        listQueryRequest.getLimit(),
+        listQueryRequest.getPageMarker(),
+        listQueryRequest.getPageSize(),
+        queryInstant,
+        Map.of(),
+        listQueryRequest.isDryRun());
+  }
+
+  @SuppressWarnings("checkstyle:ParameterNumber")
+  private SqlQueryRequest buildQuerySqlAgainstIndexData(
+      Underlay underlay,
+      List<ValueDisplayField> selectFields,
+      Map<Entity, EntityFilter> filters,
+      List<ValueDisplayField> groupByFields,
+      List<OrderBy> orderBys,
+      @Nullable Integer limit,
+      @Nullable PageMarker pageMarker,
+      @Nullable Integer pageSize,
+      Instant queryInstant,
+      Map<Entity, HintQueryResult> entityLevelHints,
+      boolean isDryRun) {
+    if (selectFields.isEmpty()) {
+      throw new InvalidQueryException("Query must include at least one select field");
+    }
+
+    // Build the SQL query.
+    StringBuilder sql = new StringBuilder();
+    SqlParams sqlParams = new SqlParams();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
+
+    // Build the list of entities we need for the select fields and filters.
+    Set<Entity> entities = new HashSet<>();
+    selectFields.forEach(selectField -> entities.add(selectField.getEntity()));
+    filters.keySet().forEach(filterEntity -> entities.add(filterEntity));
+    if (entities.size() > 1) {
+      throw new NotImplementedException("Queries with more than one entity are not yet supported");
+    }
+
+    // Build the list of entity main tables we need to query or join.
+    Entity singleEntity = entities.iterator().next();
+    ITEntityMain entityMain = underlay.getIndexSchema().getEntityMain(singleEntity.getName());
+
+    List<String> selectFieldSqls = new ArrayList<>();
+    selectFields.forEach(
+        valueDisplayField -> {
+          List<SqlQueryField> sqlQueryFields;
+          if (groupByFields.contains(valueDisplayField)
+              && valueDisplayField instanceof AttributeField) {
+            sqlQueryFields =
+                ((BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField))
+                    .buildSqlFieldsForCountSelectAndGroupBy(entityLevelHints.get(singleEntity));
+          } else {
+            sqlQueryFields =
+                bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect();
+          }
+
+          sqlQueryFields.forEach(
+              sqlQueryField -> selectFieldSqls.add(sqlQueryField.renderForSelect()));
+        });
+
+    // SELECT [select fields] FROM [entity main]
+    sql.append("SELECT ")
+        .append(String.join(", ", selectFieldSqls))
+        .append(" FROM ")
+        .append(entityMain.getTablePointer().render());
+
+    // WHERE [filter]
+    EntityFilter singleEntityFilter = filters.get(singleEntity);
+    if (singleEntityFilter != null) {
+      sql.append(" WHERE ")
+          .append(bqTranslator.translator(singleEntityFilter).buildSql(sqlParams, null));
+    }
+
+    // GROUP BY [group by fields]
+    if (!groupByFields.isEmpty()) {
+      List<String> groupByFieldSqls = new ArrayList<>();
+      groupByFields.forEach(
+          groupBy -> {
+            List<SqlQueryField> sqlQueryFields;
+            if (groupBy instanceof AttributeField) {
+              sqlQueryFields =
+                  ((BQAttributeFieldTranslator) bqTranslator.translator(groupBy))
+                      .buildSqlFieldsForCountSelectAndGroupBy(
+                          entityLevelHints.get(groupBy.getEntity()));
+            } else {
+              sqlQueryFields = bqTranslator.translator(groupBy).buildSqlFieldsForGroupBy();
+            }
+            sqlQueryFields.forEach(
+                sqlQueryField -> groupByFieldSqls.add(sqlQueryField.renderForGroupBy(null, true)));
+          });
+      sql.append(" GROUP BY ").append(String.join(", ", groupByFieldSqls));
+    }
+
+    // ORDER BY [order by fields]
+    if (!orderBys.isEmpty()) {
+      // All the order by fields come from the index entity main table.
+      List<String> orderByFields = new ArrayList<>();
+      orderBys.forEach(
+          orderBy -> {
+            if (orderBy.isRandom()) {
+              orderByFields.add(bqTranslator.orderByRandSql());
+            } else {
+              bqTranslator
+                  .translator(orderBy.getEntityField())
+                  .buildSqlFieldsForOrderBy()
+                  .forEach(
+                      sqlField ->
+                          orderByFields.add(
+                              sqlField.renderForOrderBy(
+                                      null, selectFields.contains(orderBy.getEntityField()))
+                                  + ' '
+                                  + bqTranslator.orderByDirectionSql(orderBy.getDirection())));
+            }
+          });
+      sql.append(" ORDER BY ").append(String.join(", ", orderByFields));
+    }
+
+    // LIMIT [limit]
+    if (limit != null) {
+      sql.append(" LIMIT ").append(limit);
+    }
+
+    // Swap out any un-cacheable functions with SQL parameters.
+    String sqlWithOnlyCacheableFunctions =
+        BQExecutor.replaceFunctionsThatPreventCaching(sql.toString(), sqlParams, queryInstant);
+
+    return new SqlQueryRequest(
+        sqlWithOnlyCacheableFunctions, sqlParams, pageMarker, pageSize, isDryRun);
+  }
+
+  @VisibleForTesting
+  public SqlQueryRequest buildListQuerySqlAgainstSourceData(ListQueryRequest listQueryRequest) {
+    // Make sure the entity is enabled for source queries, and all the selected fields are
+    // attributes.
+    if (!listQueryRequest.getEntity().supportsSourceQueries()) {
+      throw new InvalidConfigException(
+          "Entity " + listQueryRequest.getEntity().getName() + " does not support source queries");
+    }
+    listQueryRequest
+        .getSelectFields()
+        .forEach(
+            selectField -> {
+              if (!(selectField instanceof AttributeField)) {
+                throw new InvalidQueryException(
+                    "Only attribute fields can be selected in a query against the source data");
+              }
+            });
+
+    // Build the inner SQL query against the index data first.
+    // Select only the id attribute, which we need to JOIN to the source table.
+    // SELECT id FROM [index table] WHERE [filter]
+    StringBuilder sql = new StringBuilder(50);
+    BQApiTranslator bqTranslator = new BQApiTranslator();
+    AttributeField indexIdAttributeField =
+        new AttributeField(
+            listQueryRequest.getUnderlay(),
+            listQueryRequest.getEntity(),
+            listQueryRequest.getEntity().getIdAttribute(),
+            true);
+    ListQueryRequest indexDataQueryRequest =
+        ListQueryRequest.dryRunAgainstIndexData(
+            listQueryRequest.getUnderlay(),
+            listQueryRequest.getEntity(),
+            List.of(indexIdAttributeField),
+            listQueryRequest.getFilter(),
+            null,
+            null);
+    Instant queryInstant =
+        listQueryRequest.getPageMarker() == null
+            ? Instant.now()
+            : listQueryRequest.getPageMarker().getInstant();
+    SqlQueryRequest indexDataSqlRequest =
+        buildListQuerySqlAgainstIndexData(indexDataQueryRequest, queryInstant);
+    SqlParams sqlParams = indexDataSqlRequest.getSqlParams();
+
+    // Now build the outer SQL query against the source data.
+    final String sourceTableAlias = "st";
+    List<String> selectFields = new ArrayList<>();
+    List<String> displayTableJoins = new ArrayList<>();
+    listQueryRequest
+        .getSelectFields()
+        .forEach(
+            valueDisplayField -> {
+              AttributeField attrFieldAgainstSourceData =
+                  AttributeField.againstSourceDataset((AttributeField) valueDisplayField);
+              Attribute.SourceQuery attrSourcePointer =
+                  attrFieldAgainstSourceData.getAttribute().getSourceQuery();
+
+              List<SqlQueryField> valueAndDisplayFields =
+                  bqTranslator.translator(attrFieldAgainstSourceData).buildSqlFieldsForListSelect();
+              SqlQueryField valueSqlField = valueAndDisplayFields.get(0);
+              selectFields.add(valueSqlField.renderForSelect(sourceTableAlias));
+
+              if (valueAndDisplayFields.size() > 1) {
+                SqlQueryField displaySqlField = valueAndDisplayFields.get(1);
+                if (attrSourcePointer.hasDisplayFieldTableJoin()) {
+                  SqlQueryField displayTableJoinField =
+                      SqlQueryField.of(
+                          SqlField.of(attrSourcePointer.getDisplayFieldTableJoinFieldName()));
+                  String joinTableAlias = "dt" + displayTableJoins.size();
+
+                  StringBuilder joinSql = new StringBuilder();
+                  joinSql
+                      .append(" LEFT JOIN ")
+                      .append(fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
+                      .append(" AS ")
+                      .append(joinTableAlias)
+                      .append(" ON ")
+                      .append(displayTableJoinField.renderForSelect(joinTableAlias))
+                      .append(" = ")
+                      .append(valueSqlField.renderForSelect(sourceTableAlias));
+                  displayTableJoins.add(joinSql.toString());
+                  selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
+                } else {
+                  selectFields.add(displaySqlField.renderForSelect(sourceTableAlias));
+                }
+              }
+            });
+    if (selectFields.isEmpty()) {
+      throw new InvalidQueryException("List query must include at least one select field");
+    }
+    AttributeField sourceIdAttrField = AttributeField.againstSourceDataset(indexIdAttributeField);
+    SqlQueryField sourceIdAttrSqlField =
+        bqTranslator.translator(sourceIdAttrField).buildSqlFieldsForListSelect().get(0);
+
+    // SELECT [select fields] FROM [source table]
+    // JOIN [display table] ON [display join field]
+    // WHERE [source id field] IN [inner query against index data]
+    sql.append("SELECT ")
+        .append(String.join(", ", selectFields))
+        .append(" FROM ")
+        .append(fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render())
+        .append(" AS ")
+        .append(sourceTableAlias)
+        .append(String.join("", displayTableJoins))
+        .append(" WHERE ")
+        .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
+        .append(" IN (")
+        .append(indexDataSqlRequest.getSql())
+        .append(')');
+    return new SqlQueryRequest(
+        sql.toString(),
+        sqlParams,
+        listQueryRequest.getPageMarker(),
+        listQueryRequest.getPageSize(),
+        listQueryRequest.isDryRun());
+  }
+
+  @VisibleForTesting
+  public static BQTable fromFullTablePath(String fullTablePath) {
+    String[] bqDatasetParsed = fullTablePath.split("\\.");
+    return new BQTable(bqDatasetParsed[0], bqDatasetParsed[1], bqDatasetParsed[2]);
   }
 }

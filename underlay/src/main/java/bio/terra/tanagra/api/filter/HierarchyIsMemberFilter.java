@@ -19,6 +19,7 @@ public class HierarchyIsMemberFilter extends EntityFilter {
     return underlay;
   }
 
+  @Override
   public Entity getEntity() {
     return entity;
   }
