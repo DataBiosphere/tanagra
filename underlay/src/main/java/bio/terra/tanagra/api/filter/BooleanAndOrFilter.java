@@ -1,5 +1,7 @@
 package bio.terra.tanagra.api.filter;
 
+import bio.terra.tanagra.exception.*;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +26,19 @@ public class BooleanAndOrFilter extends EntityFilter {
 
   public ImmutableList<EntityFilter> getSubFilters() {
     return ImmutableList.copyOf(subFilters);
+  }
+
+  @Override
+  public Entity getEntity() {
+    Entity entity = subFilters.get(0).getEntity();
+    if (subFilters.stream()
+        .filter(subFilter -> !subFilter.getEntity().equals(entity))
+        .findAny()
+        .isPresent()) {
+      throw new InvalidQueryException(
+          "All sub-filters of a boolean and/or filter must be for the same entity.");
+    }
+    return entity;
   }
 
   @Override

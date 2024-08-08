@@ -34,6 +34,7 @@ public class HierarchyHasAncestorFilter extends EntityFilter {
     return underlay;
   }
 
+  @Override
   public Entity getEntity() {
     return entity;
   }

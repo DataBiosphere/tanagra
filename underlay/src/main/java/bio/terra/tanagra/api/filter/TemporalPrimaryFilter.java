@@ -4,6 +4,7 @@ import bio.terra.tanagra.api.shared.JoinOperator;
 import bio.terra.tanagra.api.shared.ReducingOperator;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
 import java.util.*;
@@ -63,6 +64,11 @@ public class TemporalPrimaryFilter extends EntityFilter {
 
   public List<EntityOutput> getSecondCondition() {
     return secondCondition;
+  }
+
+  @Override
+  public Entity getEntity() {
+    return underlay.getPrimaryEntity();
   }
 
   @Override

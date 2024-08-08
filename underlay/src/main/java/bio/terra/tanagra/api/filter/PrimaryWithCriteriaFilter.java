@@ -106,6 +106,11 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
   }
 
   @Override
+  public Entity getEntity() {
+    return underlay.getPrimaryEntity();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

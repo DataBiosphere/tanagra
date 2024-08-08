@@ -43,6 +43,7 @@ public class AttributeField extends ValueDisplayField {
     return underlay;
   }
 
+  @Override
   public Entity getEntity() {
     return entity;
   }

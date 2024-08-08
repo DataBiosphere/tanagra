@@ -108,6 +108,11 @@ public class RelationshipFilter extends EntityFilter {
   }
 
   @Override
+  public Entity getEntity() {
+    return getSelectEntity();
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
