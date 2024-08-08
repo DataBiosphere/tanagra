@@ -1,7 +1,9 @@
 import Button from "@mui/material/Button";
 import { Auth0AuthProvider, isAuth0Enabled } from "auth/auth0OAuth";
+import { FakeAuthProvider, useFakeAuth } from "auth/fakeProvider";
 import { ErrorList } from "components/errorPage";
 import Loading from "components/loading";
+import { isTestEnvironment } from "environment";
 import verilyImage from "images/verily.png";
 import GridLayout from "layout/gridLayout";
 import React, { createContext, useContext, useEffect } from "react";
@@ -9,6 +11,9 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useNavigate } from "util/searchState";
 
 const imageTitle = "Verily WorkBench Data Explorer";
+
+export const signInText = "Sign in";
+export const signOutText = "Sign out";
 
 export type Profile = {
   readonly sub: string;
@@ -37,15 +42,20 @@ export const AuthContext = createContext<AuthContextType>(
 );
 
 export function useAuth(): AuthContextType {
-  return useContext(AuthContext);
+  return isTestEnvironment() ? useFakeAuth() : useContext(AuthContext);
 }
 export function isAuthEnabled(): boolean {
   return isAuth0Enabled();
 }
 
 export function AuthProvider() {
-  // TODO:dexamundsen add mocks for testing
-  return isAuth0Enabled() ? <Auth0AuthProvider /> : null;
+  return isAuthEnabled() ? (
+    isTestEnvironment() ? (
+      <FakeAuthProvider />
+    ) : (
+      <Auth0AuthProvider />
+    )
+  ) : null;
 }
 
 export function CheckAuthorization() {
@@ -103,7 +113,7 @@ export const LoginPage = () => {
         {imageTitle}
         <ErrorList errors={error} />
         <Button variant="contained" onClick={() => signIn()} disabled={!loaded}>
-          Sign in
+          {signInText}
         </Button>
       </GridLayout>
     </GridLayout>
@@ -137,7 +147,7 @@ export const LogoutPage = () => {
           onClick={() => signOut()}
           disabled={!loaded}
         >
-          Sign out
+          {signOutText}
         </Button>
       </GridLayout>
     </GridLayout>

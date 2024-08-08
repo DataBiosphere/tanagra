@@ -1,5 +1,6 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
+import type { Router } from "@remix-run/router";
 import { enableMapSet } from "immer";
 import "plugins";
 import { RouterProvider } from "react-router-dom";
@@ -9,11 +10,15 @@ import "viz/plugins";
 
 enableMapSet();
 
-export default function App() {
+export function App() {
+  return AppWithRouter({ appRouter: createAppRouter() });
+}
+
+export function AppWithRouter({ appRouter }: { appRouter: Router }) {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <RouterProvider router={createAppRouter()} />
+      <RouterProvider router={appRouter} />
     </ThemeProvider>
   );
 }
