@@ -388,7 +388,8 @@ public class BQQueryRunner implements QueryRunner {
               && valueDisplayField instanceof AttributeField) {
             sqlQueryFields =
                 ((BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField))
-                    .buildSqlFieldsForCountSelectAndGroupBy(entityLevelHints.get(singleEntity));
+                    .buildSqlFieldsForCountSelectAndGroupBy(
+                        entityLevelHints.get(valueDisplayField.getEntity()));
           } else {
             sqlQueryFields =
                 bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect();
