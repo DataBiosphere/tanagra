@@ -9,6 +9,8 @@ SELECT p.person_id,
        ec.concept_name AS ethnicity_concept_name,
        p.sex_at_birth_concept_id,
        sc.concept_name AS sex_at_birth_concept_name,
+       p.self_reported_category_concept_id,
+       sr.concept_name as self_reported_category,
        CASE
            WHEN asum.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_activity_summary,
        CASE
@@ -33,6 +35,7 @@ LEFT JOIN `${omopDataset}.concept` gc ON gc.concept_id = p.gender_concept_id
 LEFT JOIN `${omopDataset}.concept` rc ON rc.concept_id = p.race_concept_id
 LEFT JOIN `${omopDataset}.concept` ec ON ec.concept_id = p.ethnicity_concept_id
 LEFT JOIN `${omopDataset}.concept` sc ON sc.concept_id = p.sex_at_birth_concept_id
+LEFT JOIN `${omopDataset}.concept` sr ON sr.concept_id = p.self_reported_category_concept_id
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.activity_summary`) asum ON (p.person_id = asum.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_minute_level`) hrml ON (p.person_id = hrml.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_summary`) hrs ON (p.person_id = hrs.person_id)
