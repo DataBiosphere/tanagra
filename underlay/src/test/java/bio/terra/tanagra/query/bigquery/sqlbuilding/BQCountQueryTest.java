@@ -37,6 +37,7 @@ public class BQCountQueryTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 entity,
+                null,
                 List.of(groupByAttribute),
                 attributeFilter,
                 OrderByDirection.DESCENDING,
@@ -60,6 +61,7 @@ public class BQCountQueryTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 entity,
+                null,
                 List.of(groupByAttribute),
                 null,
                 OrderByDirection.DESCENDING,
@@ -81,6 +83,7 @@ public class BQCountQueryTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 entity,
+                null,
                 List.of(),
                 null,
                 OrderByDirection.DESCENDING,
@@ -105,6 +108,7 @@ public class BQCountQueryTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 entity,
+                null,
                 List.of(groupByAttribute),
                 null,
                 OrderByDirection.DESCENDING,
@@ -137,6 +141,7 @@ public class BQCountQueryTest extends BQRunnerTest {
             new CountQueryRequest(
                 underlay,
                 entity,
+                null,
                 List.of(groupByAttributeField),
                 null,
                 OrderByDirection.DESCENDING,
@@ -149,5 +154,39 @@ public class BQCountQueryTest extends BQRunnerTest {
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "groupByValueDisplayField", countQueryResult.getSql(), entityMainTable);
+  }
+
+  @Test
+  void countDistinctAttributeNotId() throws IOException {
+    Entity entity = underlay.getEntity("conditionOccurrence");
+    Attribute countDistinctAttribute = entity.getAttribute("person_id");
+    Attribute groupByAttribute = entity.getAttribute("condition");
+    AttributeField groupByAttributeField =
+        new AttributeField(underlay, entity, groupByAttribute, false);
+    HintQueryResult hintQueryResult =
+        new HintQueryResult(
+            "",
+            List.of(
+                new HintInstance(
+                    groupByAttribute,
+                    Map.of(new ValueDisplay(Literal.forInt64(8_532L), "Female"), 100L))));
+    CountQueryResult countQueryResult =
+        bqQueryRunner.run(
+            new CountQueryRequest(
+                underlay,
+                entity,
+                countDistinctAttribute,
+                List.of(groupByAttributeField),
+                null,
+                OrderByDirection.DESCENDING,
+                null,
+                null,
+                null,
+                hintQueryResult,
+                true));
+    BQTable entityMainTable =
+        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "countDistinctAttributeNotId", countQueryResult.getSql(), entityMainTable);
   }
 }

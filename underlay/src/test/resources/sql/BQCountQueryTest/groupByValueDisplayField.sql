@@ -1,10 +1,10 @@
 
     SELECT
-        COUNT(id) AS T_IDCT,
+        COUNT(id) AS T_CTDT,
         gender      
     FROM
         ${ENT_person}      
     GROUP BY
         gender      
     ORDER BY
-        T_IDCT DESC
+        T_CTDT DESC

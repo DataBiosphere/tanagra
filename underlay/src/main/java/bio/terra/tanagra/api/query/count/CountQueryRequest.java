@@ -6,7 +6,7 @@ import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
 import java.util.List;
@@ -18,6 +18,7 @@ public class CountQueryRequest {
 
   private final Underlay underlay;
   private final Entity entity;
+  private final @Nullable Attribute countDistinctAttribute;
   private final ImmutableList<ValueDisplayField> groupByFields;
   private final @Nullable EntityFilter filter;
   private final OrderByDirection orderByDirection;
@@ -31,6 +32,7 @@ public class CountQueryRequest {
   public CountQueryRequest(
       Underlay underlay,
       Entity entity,
+      @Nullable Attribute countDistinctAttribute,
       List<ValueDisplayField> groupByFields,
       @Nullable EntityFilter filter,
       OrderByDirection orderByDirection,
@@ -41,6 +43,7 @@ public class CountQueryRequest {
       boolean isDryRun) {
     this.underlay = underlay;
     this.entity = entity;
+    this.countDistinctAttribute = countDistinctAttribute;
     this.groupByFields = ImmutableList.copyOf(groupByFields);
     this.filter = filter;
     this.orderByDirection = orderByDirection;
@@ -57,6 +60,10 @@ public class CountQueryRequest {
 
   public Entity getEntity() {
     return entity;
+  }
+
+  public Attribute getCountDistinctAttribute() {
+    return countDistinctAttribute == null ? entity.getIdAttribute() : countDistinctAttribute;
   }
 
   public ImmutableList<ValueDisplayField> getGroupByFields() {

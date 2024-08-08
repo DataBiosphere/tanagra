@@ -1,6 +1,6 @@
 package bio.terra.tanagra.query.bigquery.translator.field;
 
-import bio.terra.tanagra.api.field.EntityIdCountField;
+import bio.terra.tanagra.api.field.CountDistinctField;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.sql.SqlField;
@@ -11,12 +11,12 @@ import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.List;
 
-public class BQEntityIdCountFieldTranslator implements ApiFieldTranslator {
-  private static final String FIELD_ALIAS = "IDCT";
-  private final EntityIdCountField entityIdCountField;
+public class BQCountDistinctFieldTranslator implements ApiFieldTranslator {
+  private static final String FIELD_ALIAS = "CTDT";
+  private final CountDistinctField countDistinctField;
 
-  public BQEntityIdCountFieldTranslator(EntityIdCountField entityIdCountField) {
-    this.entityIdCountField = entityIdCountField;
+  public BQCountDistinctFieldTranslator(CountDistinctField countDistinctField) {
+    this.countDistinctField = countDistinctField;
   }
 
   @Override
@@ -36,14 +36,16 @@ public class BQEntityIdCountFieldTranslator implements ApiFieldTranslator {
 
   private List<SqlQueryField> buildSqlFields() {
     ITEntityMain indexTable =
-        entityIdCountField
+        countDistinctField
             .getUnderlay()
             .getIndexSchema()
-            .getEntityMain(entityIdCountField.getEntity().getName());
-    final String countFnStr = "COUNT";
+            .getEntityMain(countDistinctField.getEntity().getName());
+
+    final String countFnStr =
+        countDistinctField.getAttribute().isId() ? "COUNT" : "COUNT(DISTINCT ${fieldSql})";
     SqlField field =
         indexTable
-            .getAttributeValueField(entityIdCountField.getEntity().getIdAttribute().getName())
+            .getAttributeValueField(countDistinctField.getAttribute().getName())
             .cloneWithFunctionWrapper(countFnStr);
     return List.of(SqlQueryField.of(field, getFieldAlias()));
   }

@@ -216,6 +216,7 @@ public class UnderlaysApiController implements UnderlaysApi {
         underlayService.runCountQuery(
             underlay,
             entity,
+            null,
             body.getAttributes() == null ? List.of() : body.getAttributes(),
             filter,
             OrderByDirection.DESCENDING,
