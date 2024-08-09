@@ -42,4 +42,4 @@ LEFT JOIN `${omopDataset}.survey_conduct` AS sv
 LEFT JOIN `${omopDataset}.concept` AS svc
     ON svc.concept_id = sv.survey_concept_id
 
-WHERE ps.survey = 'Basics'
+WHERE ps.survey IN ('Basics', 'Lifestyle')
