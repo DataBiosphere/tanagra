@@ -33,6 +33,7 @@ public class HierarchyHasParentFilter extends EntityFilter {
     return underlay;
   }
 
+  @Override
   public Entity getEntity() {
     return entity;
   }

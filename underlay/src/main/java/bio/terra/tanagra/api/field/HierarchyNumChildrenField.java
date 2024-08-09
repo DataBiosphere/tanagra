@@ -20,6 +20,7 @@ public class HierarchyNumChildrenField extends ValueDisplayField {
     return underlay;
   }
 
+  @Override
   public Entity getEntity() {
     return entity;
   }

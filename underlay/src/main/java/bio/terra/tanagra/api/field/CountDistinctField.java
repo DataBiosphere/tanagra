@@ -19,6 +19,7 @@ public class CountDistinctField extends ValueDisplayField {
     return underlay;
   }
 
+  @Override
   public Entity getEntity() {
     return entity;
   }

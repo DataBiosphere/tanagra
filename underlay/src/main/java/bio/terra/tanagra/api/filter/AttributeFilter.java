@@ -69,6 +69,7 @@ public class AttributeFilter extends EntityFilter {
     return attribute;
   }
 
+  @Override
   public Entity getEntity() {
     return entity;
   }

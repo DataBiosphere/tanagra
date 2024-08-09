@@ -56,6 +56,11 @@ public class OccurrenceForPrimaryFilter extends EntityFilter {
   }
 
   @Override
+  public Entity getEntity() {
+    return occurrenceEntity;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

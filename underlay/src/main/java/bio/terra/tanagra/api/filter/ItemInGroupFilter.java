@@ -2,7 +2,7 @@ package bio.terra.tanagra.api.filter;
 
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
@@ -60,6 +60,11 @@ public class ItemInGroupFilter extends EntityFilter {
   @Nullable
   public Integer getGroupByCountValue() {
     return groupByCountValue;
+  }
+
+  @Override
+  public Entity getEntity() {
+    return groupItems.getItemsEntity();
   }
 
   @Override
