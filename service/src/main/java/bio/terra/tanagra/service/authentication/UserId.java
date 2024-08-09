@@ -17,7 +17,8 @@ public final class UserId implements Serializable {
 
   /** Build a default user object for when authentication is disabled. */
   public static UserId forDisabledAuthentication() {
-    return new UserId(DISABLED_AUTHENTICATION_USER_ID, DISABLED_AUTHENTICATION_USER_ID, "");
+    //return new UserId(DISABLED_AUTHENTICATION_USER_ID, DISABLED_AUTHENTICATION_USER_ID, "");
+    return new UserId("Chenchal Subraveti", "c.subraveti@vumc.org", "");
   }
 
   /** Build a user object with information from an authentication token. */

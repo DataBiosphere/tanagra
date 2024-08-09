@@ -18,7 +18,7 @@ public final class AppDefaultUtils {
 
   public static UserId getUserIdFromAdc(String targetAudience) {
     IdToken idToken =
-        getIdTokenFromAdc(ImmutableList.of("openid", "email", "profile"), targetAudience);
+        getIdTokenFromAdc(ImmutableList.of("openid", "email", "profile",""), targetAudience);
     return JwtUtils.verifyJwtAndGetUserid(
         idToken.getTokenValue(), GCP_ADC_JWT_ISSUER_URL, targetAudience);
   }

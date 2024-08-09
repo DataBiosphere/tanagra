@@ -72,6 +72,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start-vumc-local": "PORT=3001  REACT_APP_POST_MESSAGE_ORIGIN=http://localhost:3000 REACT_APP_GET_LOCAL_AUTH_TOKEN=true react-scripts start",
     "fake": "REACT_APP_USE_FAKE_API=y react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

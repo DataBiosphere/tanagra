@@ -80,10 +80,9 @@ elif [[ ${useEmergeUnderlays} ]]; then
   export TANAGRA_UNDERLAY_FILES=emerge/emerge_local,sd/sd_local
   export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=vumc-emerge-dev
   export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=vumc-emerge-dev-exports
-  # uncomment both lines below for emerge access-control model
-  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org
-  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org
+  # echo "Using ACL model VUMC_ADMIN"
   # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
+  # export TANAGRA_ACCESS_CONTROL_BASE_PATH=http://localhost:8081
 else
   echo "Using Broad underlays."
   export TANAGRA_UNDERLAY_FILES=cmssynpuf_broad,aouSR2019q4r4_broad
