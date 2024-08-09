@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyLifestyle",
+  "displayName": "Lifestyle",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyLifestyle.json",
+  "modifiers": []
+}
