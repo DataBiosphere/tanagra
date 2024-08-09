@@ -1,6 +1,6 @@
 import Button from "@mui/material/Button";
 import { Auth0AuthProvider, isAuth0Enabled } from "auth/auth0OAuth";
-import { FakeAuthProvider, useFakeAuth } from "auth/fakeProvider";
+import { FakeAuthProvider } from "auth/fakeProvider";
 import { ErrorList } from "components/errorPage";
 import Loading from "components/loading";
 import { isTestEnvironment } from "environment";
@@ -37,21 +37,25 @@ export type AuthContextType = {
   getAuthToken: () => Promise<string>;
 };
 
+export interface AuthProviderProps {
+  authCtx: AuthContextType;
+}
+
 export const AuthContext = createContext<AuthContextType>(
   {} as AuthContextType
 );
 
 export function useAuth(): AuthContextType {
-  return isTestEnvironment() ? useFakeAuth() : useContext(AuthContext);
+  return useContext(AuthContext);
 }
 export function isAuthEnabled(): boolean {
   return isAuth0Enabled();
 }
 
-export function AuthProvider() {
+export function AuthProvider(authProps: AuthProviderProps) {
   return isAuthEnabled() ? (
     isTestEnvironment() ? (
-      <FakeAuthProvider />
+      <FakeAuthProvider {...authProps} />
     ) : (
       <Auth0AuthProvider />
     )

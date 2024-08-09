@@ -1,46 +1,55 @@
-import { AuthContext, AuthContextType } from "auth/provider";
+import {
+  AuthContext,
+  AuthContextType,
+  AuthProviderProps,
+  Profile,
+} from "auth/provider";
 import { Outlet } from "react-router-dom";
 
-const FakeProfile = {
+export const FakeProfile = {
   sub: "fakesub",
   email: "fakeemail",
-};
+} as Profile;
 
-export function useFakeAuth(
-  loaded = true,
-  expired = true,
-  profile = undefined,
-  error = undefined,
-  signIn = () => {
-    return;
-  },
-  signOut = () => {
-    return;
-  },
-  getAuthToken = () => Promise.resolve("fakeauthtoken")
-) {
+export function makeFakeAuth({
+  loaded,
+  expired,
+  profile,
+  error,
+  signIn,
+  signOut,
+  getAuthToken,
+}: {
+  loaded?: boolean;
+  expired?: boolean;
+  profile?: Profile;
+  error?: Error;
+  signIn?: () => void;
+  signOut?: () => void;
+  getAuthToken?: () => Promise<string>;
+}) {
   return {
-    loaded: loaded,
-    expired: expired,
+    loaded: loaded ?? true,
+    expired: expired ?? false,
     profile: profile,
     error: error,
-    signIn: signIn,
-    signOut: signOut,
-    getAuthToken: getAuthToken,
+    signIn:
+      signIn ??
+      (() => {
+        console.info("fake sign in");
+      }),
+    signOut:
+      signOut ??
+      (() => {
+        console.info("fake sign in");
+      }),
+    getAuthToken: getAuthToken ?? (() => Promise.resolve("fake-auth-token")),
   } as AuthContextType;
 }
 
-export function FakeAuthProvider() {
-  const auth = {
-    loaded: true,
-    expired: false,
-    FakeProfile,
-    signIn: () => console.info("fake sign in"),
-    signOut: () => console.info("fake sign out"),
-    getAuthToken: () => Promise.resolve("fakeauthtoken"),
-  };
+export function FakeAuthProvider(authProps?: AuthProviderProps) {
   return (
-    <AuthContext.Provider value={auth}>
+    <AuthContext.Provider value={authProps?.authCtx ?? makeFakeAuth({})}>
       <Outlet />
     </AuthContext.Provider>
   );

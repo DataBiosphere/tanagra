@@ -1,6 +1,5 @@
 import { useAuth } from "auth/provider";
 import { getEnvironment, isTestEnvironment } from "environment";
-import * as tanagra from "tanagra-api";
 import {
   FakeAnnotationsAPI,
   FakeCohortsAPI,
@@ -10,7 +9,8 @@ import {
   FakeStudiesAPI,
   FakeUnderlaysApi,
   FakeUsersAPI,
-} from "./fakeApi";
+} from "fakeApis";
+import * as tanagra from "tanagra-api";
 
 function getAccessToken() {
   // For local dev: get the bearer token from the iframe url param.
