@@ -1,7 +1,18 @@
+plugins {
+    id 'java'
+}
 // Required by spotless. https://github.com/diffplug/spotless/issues/747
 buildscript {
     repositories {
         mavenCentral()
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 

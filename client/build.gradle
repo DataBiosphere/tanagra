@@ -21,11 +21,13 @@ repositories {
     google()
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-// Javadoc
 java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    // Javadoc
     // Builds Javadoc into the published package as part of the 'assemble' task.
     withJavadocJar()
     // Builds sources into the published package as part of the 'assemble' task.
