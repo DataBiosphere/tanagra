@@ -52,7 +52,6 @@
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
     "aouRT/surveyOccurrence",
-    "aouRT/surveyLifestyleOccurrence"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",

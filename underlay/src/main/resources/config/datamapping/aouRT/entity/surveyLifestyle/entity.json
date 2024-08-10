@@ -18,7 +18,7 @@
       "childParentIdPairsSqlFile": "childParent.sql",
       "childIdFieldName": "child",
       "parentIdFieldName": "parent",
-      "rootNodeIds": [ 1000 ],
+      "rootNodeIds": [ 4000 ],
       "maxDepth": 5,
       "keepOrphanNodes": false,
       "cleanHierarchyNodesWithZeroCounts": true
