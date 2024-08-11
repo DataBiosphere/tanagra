@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyOverallHealth",
+  "displayName": "Overall Health",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyOverallHealth.json",
+  "modifiers": []
+}

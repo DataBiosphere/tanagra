@@ -51,6 +51,7 @@
 
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
+    "aouRT/surveyOverallHealth",
     "aouRT/surveyOccurrence"
   ],
   "groupItemsEntityGroups": [
@@ -96,7 +97,8 @@
     "aouRT/icd10pcsPerson",
 
     "aouRT/surveyBasicsPerson",
-    "aouRT/surveyLifestylePerson"
+    "aouRT/surveyLifestylePerson",
+    "aouRT/surveyOverallHealthPerson"
   ],
   "criteriaSelectors": [
     "aouSR2023Q3R2/conditions",
@@ -134,7 +136,8 @@
     "aouSR2023Q3R2/hipCircumference",
     "aouSR2023Q3R2/outputUnfiltered",
     "aouSR2023Q3R2/surveyBasics",
-    "aouSR2023Q3R2/surveyLifestyle"
+    "aouSR2023Q3R2/surveyLifestyle",
+    "aouSR2023Q3R2/surveyOverallHealth"
   ],
   "prepackagedDataFeatures": [
     "aouSR2023Q3R2/_demographics",
