@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyHealthCareAccess",
+  "displayName": "Healthcare Access & Utilization",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyHealthCareAccess.json",
+  "modifiers": []
+}

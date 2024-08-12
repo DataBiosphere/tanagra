@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyPersonalAndFamilyHealth",
+  "displayName": "Personal And Family Health History",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyPersonalAndFamilyHealth.json",
+  "modifiers": []
+}
