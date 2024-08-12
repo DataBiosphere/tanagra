@@ -53,6 +53,8 @@
     "aouRT/surveyLifestyle",
     "aouRT/surveyOverallHealth",
     "aouRT/surveyPersonalAndFamilyHealth",
+    "aouRT/surveyHealthCareAccess",
+    "aouRT/surveySocialDeterminantsOfHealth",
     "aouRT/surveyOccurrence"
   ],
   "groupItemsEntityGroups": [
@@ -100,7 +102,9 @@
     "aouRT/surveyBasicsPerson",
     "aouRT/surveyLifestylePerson",
     "aouRT/surveyOverallHealthPerson",
-    "aouRT/surveyPersonalAndFamilyHealthPerson"
+    "aouRT/surveyPersonalAndFamilyHealthPerson",
+    "aouRT/surveyHealthCareAccessPerson",
+    "aouRT/surveySocialDeterminantsOfHealthPerson"
   ],
   "criteriaSelectors": [
     "aouSR2023Q3R2/conditions",
@@ -140,7 +144,9 @@
     "aouSR2023Q3R2/surveyBasics",
     "aouSR2023Q3R2/surveyLifestyle",
     "aouSR2023Q3R2/surveyOverallHealth",
-    "aouSR2023Q3R2/surveyPersonalAndFamilyHealth"
+    "aouSR2023Q3R2/surveyPersonalAndFamilyHealth",
+    "aouSR2023Q3R2/surveyHealthCareAccess",
+    "aouSR2023Q3R2/surveySocialDeterminantsOfHealth"
   ],
   "prepackagedDataFeatures": [
     "aouSR2023Q3R2/_demographics",
