@@ -37,17 +37,18 @@ function Auth0ProviderWithClient() {
     user,
     isLoading,
     isAuthenticated,
+    getAccessTokenSilently,
     getIdTokenClaims,
     loginWithRedirect,
     logout,
   } = useAuth0();
 
-  // This is needed for user state to get updated.
+  // Needed for user state to get updated: calls auth0 if token is expired
   useEffect(() => {
     if (isAuthenticated) {
-      getIdTokenClaims();
+      getAccessTokenSilently();
     }
-  }, [isAuthenticated, getIdTokenClaims]);
+  }, [isAuthenticated, getAccessTokenSilently]);
 
   if (user && !user.email) {
     throw new Error("User profile has no email address");
@@ -69,6 +70,7 @@ function Auth0ProviderWithClient() {
         logout({ logoutParams: { returnTo: window.location.origin } });
       },
       getAuthToken: async () => {
+        await getAccessTokenSilently();
         const claims = await getIdTokenClaims();
         return claims?.__raw || "";
       },
@@ -78,6 +80,7 @@ function Auth0ProviderWithClient() {
       isAuthenticated,
       user,
       error,
+      getAccessTokenSilently,
       getIdTokenClaims,
       loginWithRedirect,
       logout,
