@@ -3,7 +3,7 @@
   "attributes": {
     "measurementOccurrence": {
       "values": [
-        "start_date",
+        "date",
         "measurement"
       ]
     }
