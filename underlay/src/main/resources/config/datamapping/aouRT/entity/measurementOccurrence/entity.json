@@ -29,6 +29,7 @@
     { "name": "source_vocabulary", "dataType": "STRING" },
     { "name": "unit_source_value", "dataType": "STRING" },
     { "name": "value_source_value", "dataType": "STRING" },
+    { "name": "measurement", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "standard_concept_name", "isSuppressedForExport": true },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "measurement_source_value", "isSuppressedForExport": true },
     { "name": "unit", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name", "isSuppressedForExport": true },
     { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name", "isSuppressedForExport": true },
