@@ -86,7 +86,7 @@ export function CheckAuthorization() {
 }
 
 export const LoginPage = () => {
-  const { loaded, profile, error, signIn } = useAuth();
+  const { loaded, profile, signIn } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -115,7 +115,6 @@ export const LoginPage = () => {
           alt={imageTitle}
         />
         {imageTitle}
-        <ErrorList errors={error} />
         <Button variant="contained" onClick={() => signIn()} disabled={!loaded}>
           {signInText}
         </Button>

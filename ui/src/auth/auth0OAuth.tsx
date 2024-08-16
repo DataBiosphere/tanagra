@@ -1,7 +1,7 @@
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 import { AuthContext } from "auth/provider";
 import { getEnvironment } from "environment";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useNavigate } from "util/searchState";
 
@@ -54,10 +54,11 @@ function Auth0ProviderWithClient() {
     throw new Error("User profile has no email address");
   }
 
+  const [tokenExpired, setTokenExpired] = useState(false);
   const auth = useMemo(
     () => ({
       loaded: !isLoading,
-      expired: !isAuthenticated,
+      expired: !isAuthenticated && tokenExpired,
       profile: user && {
         sub: user.sub || "",
         email: user.email || "",
@@ -70,18 +71,19 @@ function Auth0ProviderWithClient() {
         logout({ logoutParams: { returnTo: window.location.origin } });
       },
       getAuthToken: async () => {
-        await getAccessTokenSilently();
-        const claims = await getIdTokenClaims();
-        return claims?.__raw || "";
+        const idToken = await getIdTokenClaims();
+        if (hasExpired(idToken?.exp)) {
+          setTokenExpired(true);
+        }
+        return idToken?.__raw || "";
       },
     }),
     [
       isLoading,
       isAuthenticated,
+      tokenExpired,
       user,
       error,
-      getAccessTokenSilently,
-      getIdTokenClaims,
       loginWithRedirect,
       logout,
     ]
@@ -92,4 +94,9 @@ function Auth0ProviderWithClient() {
       <Outlet />
     </AuthContext.Provider>
   );
+}
+
+export function hasExpired(expAt: number | undefined): boolean {
+  // Consider the token expired within 60 seconds of expiry.
+  return expAt ? expAt - 60 * 1000 - Date.now() <= 0 : false;
 }
