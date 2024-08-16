@@ -43,7 +43,8 @@ function Auth0ProviderWithClient() {
     logout,
   } = useAuth0();
 
-  // Needed for user state to get updated: calls auth0 if token is expired
+  // Needed for user state to get updated. getAccessTokenSilently: calls auth0
+  // if there is no valid token in the cache, does not check expiry
   useEffect(() => {
     if (isAuthenticated) {
       getAccessTokenSilently();
