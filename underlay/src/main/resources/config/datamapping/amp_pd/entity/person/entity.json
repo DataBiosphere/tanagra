@@ -1,0 +1,13 @@
+{
+  "name": "person",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "participant_id" },
+    { "name": "age", "dataType": "INT64" },
+    { "name": "sex", "dataType": "STRING" },
+    { "name": "race", "dataType": "STRING" },
+    { "name": "ethnicity", "dataType": "STRING" },
+  ],
+  "idAttribute": "id",
+  "sourceQueryTableName": "${dataset}.Demographics"
+}

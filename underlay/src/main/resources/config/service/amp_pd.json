@@ -1,0 +1,20 @@
+{
+  "underlay": "amp_pd",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "amp-pd-research",
+      "datasetId": "2023_v4release_1027",
+      "sqlSubstitutions": {
+        "dataset": "amp-pd-research.2023_v4release_1027",
+        "staticTablesDataset": ""
+      }
+    },
+    "indexData": {
+      "projectId": "aaa-willyn-test",
+      "datasetId": "amp_pd_index_081624"
+    },
+    "queryProjectId": "aaa-willyn-test",
+    "dataLocation": "us"
+  },
+  "uiConfigFile": "ui.json"
+}
