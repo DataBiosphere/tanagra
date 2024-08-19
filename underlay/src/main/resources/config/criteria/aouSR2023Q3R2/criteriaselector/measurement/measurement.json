@@ -77,7 +77,6 @@
       "id": "measurementNonHierarchyPerson"
     }
   ],
-  "multiSelect": true,
   "valueConfigs": [
     {
       "attribute": "value_enum",

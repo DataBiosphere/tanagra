@@ -5,7 +5,7 @@
     {
       "occurrenceEntity": "observationOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "observation_concept_id"
+        "foreignKeyAttributeOccurrenceEntity": "observation"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
