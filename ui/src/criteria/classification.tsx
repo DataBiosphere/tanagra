@@ -172,6 +172,18 @@ class _ implements CriteriaPlugin<string> {
       title: "(any)",
     };
   }
+
+  filterEntityIds(underlaySource: UnderlaySource) {
+    return [
+      ...new Set(
+        configEntityGroups(this.config)
+          .map((eg) => {
+            return underlaySource.lookupEntityGroup(eg.id).occurrenceEntityIds;
+          })
+          .flat()
+      ),
+    ];
+  }
 }
 
 function dataKey(key: DataKey, entityGroup: string): string {
