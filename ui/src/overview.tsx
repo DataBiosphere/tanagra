@@ -724,7 +724,10 @@ function ParticipantsGroup(props: {
   const modifierPlugins = useMemo(
     () =>
       modifierCriteria.map((c) => {
-        const p = getCriteriaPlugin(c);
+        const p = getCriteriaPlugin(
+          c,
+          plugin.filterEntityIds?.(underlaySource)?.[0] ?? ""
+        );
         return { title: getCriteriaTitle(c, p), plugin: p };
       }),
     [modifierCriteria, props.group.entity]

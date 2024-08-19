@@ -87,6 +87,7 @@ export interface CriteriaPlugin<DataType> {
   ) => JSX.Element;
   renderInline: (groupId: string) => ReactNode;
   displayDetails: () => DisplayDetails;
+  filterEntityIds?: (underlaySource: UnderlaySource) => string[];
 }
 
 export type DisplayDetails = {

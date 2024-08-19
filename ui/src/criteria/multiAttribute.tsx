@@ -140,6 +140,10 @@ class _ implements CriteriaPlugin<string> {
       additionalText,
     };
   }
+
+  filterEntityIds() {
+    return [this.config.entity];
+  }
 }
 
 type MultiAttributeInlineProps = {

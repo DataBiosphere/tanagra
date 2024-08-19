@@ -82,6 +82,10 @@ class _ implements CriteriaPlugin<string> {
       title,
     };
   }
+
+  filterEntityIds() {
+    return Object.keys(this.config.attributes);
+  }
 }
 
 type UnhintedValueInlineProps = {
