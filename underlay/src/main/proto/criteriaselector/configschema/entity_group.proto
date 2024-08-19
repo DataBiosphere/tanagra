@@ -6,38 +6,15 @@ option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configsch
 option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
 option java_outer_classname = "CFEntityGroup";
 
-import "sort_order.proto";
+import "column.proto";
 import "criteriaselector/value_config.proto";
+import "sort_order.proto";
 
 // A criteria based on one or more entity groups. This allows the selection of
 // primary entities which are related to one or more of another entity which
 // match certain characteristics (e.g. people related to condition_occurrences
 // which have condition_name of "Diabetes").
 message EntityGroup {
-  // Defines a column in the UI.
-  message Column {
-    // A unique key for the column. By default, used to look up attributes in
-    // the displayed data.
-    string key = 1;
-
-    oneof width {
-      // Passed directly to the style of the column. "100%" can be used to take
-      // up space remaining after laying out fixed columns.
-      string width_string = 2;
-      // Units used by the UI library to standardize dimensions.
-      double width_double = 3;
-    }
-
-    // The visible title of the column.
-    string title = 4;
-
-    // Whether the column supports sorting.
-    bool sortable = 5;
-
-    // Whether the column supports filtering.
-    bool filterable = 6;
-  }
-
   // Columns displayed in the list view.
   repeated Column columns = 1;
   // Columns displayed in the hierarchy view.

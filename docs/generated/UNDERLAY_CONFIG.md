@@ -193,6 +193,11 @@ Use `plugin: "multiAttribute"`.
 
 Use `plugin: "outputUnfiltered"`.
 
+### SZCorePlugin.SURVEY
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "survey"`.
+
 ### SZCorePlugin.TEXT_SEARCH
 **required** [SZCorePlugin](#szcoreplugin)
 
