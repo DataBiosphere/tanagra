@@ -68,7 +68,6 @@
       "id": "observationPerson"
     }
   ],
-  "multiSelect": true,
   "valueConfigs": [
     {
       "attribute": "value",
