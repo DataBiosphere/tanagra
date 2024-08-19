@@ -3,6 +3,9 @@
 
 ## Table of Contents
 
+- [column.proto](#column-proto)
+    - [Column](#tanagra-Column)
+  
 - [criteriaselector/configschema/attribute.proto](#criteriaselector_configschema_attribute-proto)
     - [Attribute](#tanagra-configschema-Attribute)
   
@@ -11,7 +14,6 @@
   
 - [criteriaselector/configschema/entity_group.proto](#criteriaselector_configschema_entity_group-proto)
     - [EntityGroup](#tanagra-configschema-EntityGroup)
-    - [EntityGroup.Column](#tanagra-configschema-EntityGroup-Column)
     - [EntityGroup.EntityGroupConfig](#tanagra-configschema-EntityGroup-EntityGroupConfig)
   
 - [criteriaselector/configschema/multi_attribute.proto](#criteriaselector_configschema_multi_attribute-proto)
@@ -19,6 +21,10 @@
   
 - [criteriaselector/configschema/output_unfiltered.proto](#criteriaselector_configschema_output_unfiltered-proto)
     - [OutputUnfiltered](#tanagra-configschema-OutputUnfiltered)
+  
+- [criteriaselector/configschema/survey.proto](#criteriaselector_configschema_survey-proto)
+    - [Survey](#tanagra-configschema-Survey)
+    - [Survey.EntityGroupConfig](#tanagra-configschema-Survey-EntityGroupConfig)
   
 - [criteriaselector/configschema/text_search.proto](#criteriaselector_configschema_text_search-proto)
     - [TextSearch](#tanagra-configschema-TextSearch)
@@ -49,6 +55,10 @@
   
 - [criteriaselector/dataschema/output_unfiltered.proto](#criteriaselector_dataschema_output_unfiltered-proto)
     - [OutputUnfiltered](#tanagra-dataschema-OutputUnfiltered)
+  
+- [criteriaselector/dataschema/survey.proto](#criteriaselector_dataschema_survey-proto)
+    - [Survey](#tanagra-dataschema-Survey)
+    - [Survey.Selection](#tanagra-dataschema-Survey-Selection)
   
 - [criteriaselector/dataschema/text_search.proto](#criteriaselector_dataschema_text_search-proto)
     - [TextSearch](#tanagra-dataschema-TextSearch)
@@ -90,6 +100,42 @@
     - [VizConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType)
   
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="column-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## column.proto
+
+
+
+<a name="tanagra-Column"></a>
+
+### Column
+Defines a column in the UI.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  | A unique key for the column. By default, used to look up attributes in the displayed data. |
+| width_string | [string](#string) |  | Passed directly to the style of the column. &#34;100%&#34; can be used to take up space remaining after laying out fixed columns. |
+| width_double | [double](#double) |  | Units used by the UI library to standardize dimensions. |
+| title | [string](#string) |  | The visible title of the column. |
+| sortable | [bool](#bool) |  | Whether the column supports sorting. |
+| filterable | [bool](#bool) |  | Whether the column supports filtering. |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
 
 
 
@@ -176,8 +222,8 @@ which have condition_name of &#34;Diabetes&#34;).
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| columns | [EntityGroup.Column](#tanagra-configschema-EntityGroup-Column) | repeated | Columns displayed in the list view. |
-| hierarchy_columns | [EntityGroup.Column](#tanagra-configschema-EntityGroup-Column) | repeated | Columns displayed in the hierarchy view. |
+| columns | [tanagra.Column](#tanagra-Column) | repeated | Columns displayed in the list view. |
+| hierarchy_columns | [tanagra.Column](#tanagra-Column) | repeated | Columns displayed in the hierarchy view. |
 | name_column_index | [int32](#int32) |  | This has been replaced by nameAttribute for determining stored names. Now this only determines which is the primary column for checkboxes, etc. |
 | classification_entity_groups | [EntityGroup.EntityGroupConfig](#tanagra-configschema-EntityGroup-EntityGroupConfig) | repeated | Entity groups where the related entity is what is selected (e.g. condition when filtering condition_occurrences). |
 | grouping_entity_groups | [EntityGroup.EntityGroupConfig](#tanagra-configschema-EntityGroup-EntityGroupConfig) | repeated | Entity groups where the related entity is not what is selected (e.g. brands when filtering ingredients or genotyping platforms when filtering people). |
@@ -186,26 +232,6 @@ which have condition_name of &#34;Diabetes&#34;).
 | default_sort | [tanagra.SortOrder](#tanagra-SortOrder) |  | The sort order to use in the list view, or in hierarchies where no sort order has been specified. |
 | limit | [int32](#int32) | optional | Number of values to display in the list view for each entity group. Otherwise, a default value is applied. |
 | nameAttribute | [string](#string) | optional | The attribute used to name selections if not the first column. This can be used to include extra context with the selected values that&#39;s not visible in the table view. |
-
-
-
-
-
-
-<a name="tanagra-configschema-EntityGroup-Column"></a>
-
-### EntityGroup.Column
-Defines a column in the UI.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| key | [string](#string) |  | A unique key for the column. By default, used to look up attributes in the displayed data. |
-| width_string | [string](#string) |  | Passed directly to the style of the column. &#34;100%&#34; can be used to take up space remaining after laying out fixed columns. |
-| width_double | [double](#double) |  | Units used by the UI library to standardize dimensions. |
-| title | [string](#string) |  | The visible title of the column. |
-| sortable | [bool](#bool) |  | Whether the column supports sorting. |
-| filterable | [bool](#bool) |  | Whether the column supports filtering. |
 
 
 
@@ -292,6 +318,57 @@ include entire entities (e.g. demographics).
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | entities | [string](#string) | repeated | The entities to include. |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+<a name="criteriaselector_configschema_survey-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## criteriaselector/configschema/survey.proto
+
+
+
+<a name="tanagra-configschema-Survey"></a>
+
+### Survey
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| columns | [tanagra.Column](#tanagra-Column) | repeated | Columns displayed in the list view. |
+| entity_groups | [Survey.EntityGroupConfig](#tanagra-configschema-Survey-EntityGroupConfig) | repeated | Entity groups where the related entity is what is selected (e.g. surveyBasics when filtering surveyOccurrence). |
+| value_configs | [tanagra.ValueConfig](#tanagra-ValueConfig) | repeated | Optional configuration of a categorical or numeric value associated with the selection (e.g. a numeric answer). Applied to the entire selection so generally not compatible with multi_select. Currently only one is supported. |
+| default_sort | [tanagra.SortOrder](#tanagra-SortOrder) |  | The sort order to use in the list view, or in hierarchies where no sort order has been specified. |
+| nameAttribute | [string](#string) | optional | The attribute used to name selections if not the first column. This can be used to include extra context with the selected values that&#39;s not visible in the table view. |
+
+
+
+
+
+
+<a name="tanagra-configschema-Survey-EntityGroupConfig"></a>
+
+### Survey.EntityGroupConfig
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  | The id of the entity group. |
+| sort_order | [tanagra.SortOrder](#tanagra-SortOrder) |  | The sort order applied to this entity group when displayed in the hierarchy view. |
 
 
 
@@ -629,6 +706,57 @@ values.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | entities | [string](#string) | repeated |  |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+<a name="criteriaselector_dataschema_survey-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## criteriaselector/dataschema/survey.proto
+
+
+
+<a name="tanagra-dataschema-Survey"></a>
+
+### Survey
+Data for an entity group criteria is a list of selected values.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| selected | [Survey.Selection](#tanagra-dataschema-Survey-Selection) | repeated |  |
+| value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for an additional categorical or numeric value associated with the selection (e.g. a numeric answer). |
+
+
+
+
+
+
+<a name="tanagra-dataschema-Survey-Selection"></a>
+
+### Survey.Selection
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [tanagra.Key](#tanagra-Key) |  | The key of the selected value, which references a related entity (e.g. surveyBasics when filtering surveyOccurrence). |
+| name | [string](#string) |  | The visible name for the selection. This is stored to avoid extra lookups when rendering. |
+| entityGroup | [string](#string) |  | The entity group is stored to differentiate between them when multiple are configured within a single criteria. |
+| question_key | [tanagra.Key](#tanagra-Key) |  | If the selected item is an answer, the key of the question it belongs to. |
+| question_name | [string](#string) |  | If the selected item is an answer, the visible name of the question it belongs to. |
 
 
 

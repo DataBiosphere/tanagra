@@ -14,10 +14,10 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
+import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
-import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -189,7 +189,7 @@ public final class EntityGroupFilterUtils {
       Underlay underlay,
       List<Entity> occurrenceEntities,
       CriteriaSelector criteriaSelector,
-      DTEntityGroup.EntityGroup entityGroupSelectionData,
+      ValueDataOuterClass.ValueData valueData,
       List<SelectionData> modifiersSelectionData,
       Map<Entity, List<EntityFilter>> filtersPerEntity) {
     // Build the attribute modifier filters.
@@ -206,9 +206,8 @@ public final class EntityGroupFilterUtils {
         });
 
     // Build the instance-level modifier filters.
-    if (entityGroupSelectionData.hasValueData()
-        && !IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY.equalsIgnoreCase(
-            entityGroupSelectionData.getValueData().getAttribute())) {
+    if (valueData != null
+        && !IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY.equalsIgnoreCase(valueData.getAttribute())) {
       if (occurrenceEntities.size() > 1) {
         throw new InvalidQueryException(
             "Instance-level modifiers are not supported for entity groups with multiple occurrence entities");
@@ -219,8 +218,8 @@ public final class EntityGroupFilterUtils {
           AttributeSchemaUtils.buildForEntity(
               underlay,
               occurrenceEntity,
-              occurrenceEntity.getAttribute(entityGroupSelectionData.getValueData().getAttribute()),
-              entityGroupSelectionData.getValueData());
+              occurrenceEntity.getAttribute(valueData.getAttribute()),
+              valueData);
       List<EntityFilter> subFilters =
           filtersPerEntity.containsKey(occurrenceEntity)
               ? filtersPerEntity.get(occurrenceEntity)

@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @SuppressWarnings("PMD.ImmutableField")
-public final class Literal {
+public final class Literal implements Comparable<Literal> {
   private final boolean isNull;
   private final DataType dataType;
   private String stringVal;

@@ -123,7 +123,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             underlay,
             underlay.getEntity("condition"),
             underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+            List.of(Literal.forInt64(201_254L), Literal.forInt64(201_826L)));
     expectedCohortFilter =
         new PrimaryWithCriteriaFilter(
             underlay,
@@ -871,7 +871,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             underlay,
             underlay.getEntity("condition"),
             underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+            List.of(Literal.forInt64(201_254L), Literal.forInt64(201_826L)));
     expectedDataFeatureFilter =
         new OccurrenceForPrimaryFilter(
             underlay,

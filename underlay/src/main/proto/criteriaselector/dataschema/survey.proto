@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package tanagra.dataschema;
+
+option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/dataschemapb";
+option java_package = "bio.terra.tanagra.proto.criteriaselector.dataschema";
+option java_outer_classname = "DTSurvey";
+
+import "criteriaselector/key.proto";
+import "criteriaselector/value_data.proto";
+
+// Data for an entity group criteria is a list of selected values.
+message Survey {
+  message Selection {
+    // The key of the selected value, which references a related entity (e.g.
+    // surveyBasics when filtering surveyOccurrence).
+    Key key = 1;
+
+    // The visible name for the selection. This is stored to avoid extra lookups
+    // when rendering.
+    string name = 2;
+
+    // The entity group is stored to differentiate between them when multiple
+    // are configured within a single criteria.
+    string entityGroup = 3;
+
+    // If the selected item is an answer, the key of the question it belongs to.
+    Key question_key = 4;
+
+    // If the selected item is an answer, the visible name of the question it
+    // belongs to.
+    string question_name = 5;
+  }
+  repeated Selection selected = 1;
+
+  // Data for an additional categorical or numeric value associated with the
+  // selection (e.g. a numeric answer).
+  ValueData value_data = 2;
+}

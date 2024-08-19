@@ -52,7 +52,13 @@ public class EntityGroupFilterBuilderForItemsTest {
             true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(systolicConfig));
-    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -72,13 +78,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             .build();
     SelectionData systolicSelectionData =
         new SelectionData("systolic", serializeToJson(systolicData));
-    DTEntityGroup.EntityGroup entityGroupData =
-        DTEntityGroup.EntityGroup.newBuilder()
-            .addSelected(
-                DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setEntityGroup("bloodPressurePerson")
-                    .build())
-            .build();
+    DTEntityGroup.EntityGroup entityGroupData = DTEntityGroup.EntityGroup.newBuilder().build();
     SelectionData entityGroupSelectionData =
         new SelectionData("bloodPressure", serializeToJson(entityGroupData));
     EntityFilter cohortFilter =
@@ -117,7 +117,13 @@ public class EntityGroupFilterBuilderForItemsTest {
             false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -139,13 +145,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             .build();
     SelectionData groupBySelectionData =
         new SelectionData("group_by_count", serializeToJson(groupByData));
-    DTEntityGroup.EntityGroup entityGroupData =
-        DTEntityGroup.EntityGroup.newBuilder()
-            .addSelected(
-                DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setEntityGroup("bloodPressurePerson")
-                    .build())
-            .build();
+    DTEntityGroup.EntityGroup entityGroupData = DTEntityGroup.EntityGroup.newBuilder().build();
     SelectionData entityGroupSelectionData =
         new SelectionData("bloodPressure", serializeToJson(entityGroupData));
     EntityFilter cohortFilter =
@@ -185,7 +185,13 @@ public class EntityGroupFilterBuilderForItemsTest {
             false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -213,13 +219,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             .build();
     SelectionData groupBySelectionData =
         new SelectionData("group_by_count", serializeToJson(groupByData));
-    DTEntityGroup.EntityGroup entityGroupData =
-        DTEntityGroup.EntityGroup.newBuilder()
-            .addSelected(
-                DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setEntityGroup("bloodPressurePerson")
-                    .build())
-            .build();
+    DTEntityGroup.EntityGroup entityGroupData = DTEntityGroup.EntityGroup.newBuilder().build();
     SelectionData entityGroupSelectionData =
         new SelectionData("bloodPressure", serializeToJson(entityGroupData));
     EntityFilter cohortFilter =
@@ -247,7 +247,13 @@ public class EntityGroupFilterBuilderForItemsTest {
 
   @Test
   void emptyCriteriaCohortFilter() {
-    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -287,7 +293,13 @@ public class EntityGroupFilterBuilderForItemsTest {
             true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(systolicConfig));
-    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -300,13 +312,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             List.of(systolicModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
-    DTEntityGroup.EntityGroup entityGroupData =
-        DTEntityGroup.EntityGroup.newBuilder()
-            .addSelected(
-                DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setEntityGroup("bloodPressurePerson")
-                    .build())
-            .build();
+    DTEntityGroup.EntityGroup entityGroupData = DTEntityGroup.EntityGroup.newBuilder().build();
     SelectionData entityGroupSelectionData =
         new SelectionData("bloodPressure", serializeToJson(entityGroupData));
     EntityFilter expectedCohortFilter =
@@ -349,7 +355,13 @@ public class EntityGroupFilterBuilderForItemsTest {
             false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -362,13 +374,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             List.of(groupByModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
-    DTEntityGroup.EntityGroup entityGroupData =
-        DTEntityGroup.EntityGroup.newBuilder()
-            .addSelected(
-                DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setEntityGroup("bloodPressurePerson")
-                    .build())
-            .build();
+    DTEntityGroup.EntityGroup entityGroupData = DTEntityGroup.EntityGroup.newBuilder().build();
     SelectionData entityGroupSelectionData =
         new SelectionData("bloodPressure", serializeToJson(entityGroupData));
     EntityFilter expectedCohortFilter =
@@ -399,7 +405,13 @@ public class EntityGroupFilterBuilderForItemsTest {
 
   @Test
   void criteriaOnlyDataFeatureFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -408,18 +420,12 @@ public class EntityGroupFilterBuilderForItemsTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(bloodPressureConfig),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
     // No ids.
-    DTEntityGroup.EntityGroup data =
-        DTEntityGroup.EntityGroup.newBuilder()
-            .addSelected(
-                DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setEntityGroup("bloodPressurePerson")
-                    .build())
-            .build();
+    DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
     SelectionData selectionData = new SelectionData("bloodPressure", serializeToJson(data));
     List<EntityOutput> dataFeatureOutputs =
         filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
@@ -439,7 +445,13 @@ public class EntityGroupFilterBuilderForItemsTest {
             true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(systolicConfig));
-    CFEntityGroup.EntityGroup bloodPressureConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup bloodPressureConfig =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("bloodPressurePerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "bloodPressure",
@@ -459,13 +471,7 @@ public class EntityGroupFilterBuilderForItemsTest {
             .build();
     SelectionData systolicSelectionData =
         new SelectionData("systolic", serializeToJson(systolicData));
-    DTEntityGroup.EntityGroup entityGroupData =
-        DTEntityGroup.EntityGroup.newBuilder()
-            .addSelected(
-                DTEntityGroup.EntityGroup.Selection.newBuilder()
-                    .setEntityGroup("bloodPressurePerson")
-                    .build())
-            .build();
+    DTEntityGroup.EntityGroup entityGroupData = DTEntityGroup.EntityGroup.newBuilder().build();
     SelectionData entityGroupSelectionData =
         new SelectionData("bloodPressure", serializeToJson(entityGroupData));
     List<EntityOutput> dataFeatureOutputs =
