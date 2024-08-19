@@ -6,8 +6,9 @@
     { "name": "age", "dataType": "INT64" },
     { "name": "sex", "dataType": "STRING" },
     { "name": "race", "dataType": "STRING" },
-    { "name": "ethnicity", "dataType": "STRING" },
+    { "name": "ethnicity", "dataType": "STRING" }
   ],
   "idAttribute": "id",
   "sourceQueryTableName": "${dataset}.Demographics"
 }
+

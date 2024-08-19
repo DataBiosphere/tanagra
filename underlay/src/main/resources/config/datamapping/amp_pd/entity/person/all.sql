@@ -6,3 +6,4 @@ SELECT
     ethnicity
 
 FROM `${omopDataset}.Demographics` d
+

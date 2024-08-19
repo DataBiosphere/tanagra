@@ -2,7 +2,7 @@
   "name": "amp_pd",
   "primaryEntity": "person",
   "entities": [
-    "amp_pd/person",
+    "amp_pd/person"
   ],
   "groupItemsEntityGroups": [],
   "criteriaOccurrenceEntityGroups": [],
@@ -18,3 +18,4 @@
   },
   "uiConfigFile": "ui.json"
 }
+
