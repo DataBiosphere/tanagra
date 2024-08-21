@@ -301,7 +301,10 @@ public class FilterBuilderService {
                                       .getRight()
                                   : new HashSet<>();
                           entityOutput.getEntity().getAttributes().stream()
-                              .filter(attribute -> !excludeAttrNames.contains(attribute.getName()))
+                              .filter(
+                                  attribute ->
+                                      !excludeAttrNames.contains(attribute.getName())
+                                          && !attribute.isSuppressedForExport())
                               .forEach(includeAttributes::add);
 
                           outputEntitiesAndFiltersAndAttributes.put(
