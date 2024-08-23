@@ -2,7 +2,6 @@
 type Environment = {
   REACT_APP_ADDITIONAL_ROUTES?: string;
   REACT_APP_BACKEND_HOST?: string;
-  REACT_APP_CLIENT_ID?: string;
   REACT_APP_POST_MESSAGE_ORIGIN?: string;
 
   REACT_APP_USE_EXIT_URL?: boolean;
