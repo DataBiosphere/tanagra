@@ -290,23 +290,35 @@ public class FilterBuilderServiceTest {
   void suppressedAttribute() {
     Underlay cmssynpuf = underlayService.getUnderlay("cmssynpuf");
 
-    // One suppressed attribute.
-    List<EntityOutputPreview> entityOutputs =
+    // One suppressed attribute, includeAllAttributes=true for data feature set page.
+    List<EntityOutputPreview> entityOutputsForDataFeatureSetPage =
         filterBuilderService.buildOutputPreviewsForConceptSets(
             List.of(
                 bio.terra.tanagra.service.criteriaconstants.cmssynpuf.ConceptSet.CS_DEMOGRAPHICS),
             true);
-    assertEquals(1, entityOutputs.size());
+    assertEquals(1, entityOutputsForDataFeatureSetPage.size());
     assertEquals(
         cmssynpuf.getPrimaryEntity().getAttributes().size() - 1,
-        entityOutputs.get(0).getEntityOutput().getAttributes().size());
+        entityOutputsForDataFeatureSetPage.get(0).getEntityOutput().getAttributes().size());
     EntityOutput expectedOutput =
         EntityOutput.unfiltered(
             cmssynpuf.getPrimaryEntity(),
             cmssynpuf.getPrimaryEntity().getAttributes().stream()
                 .filter(attribute -> !attribute.isSuppressedForExport())
                 .collect(Collectors.toList()));
-    assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
+    assertEquals(expectedOutput, entityOutputsForDataFeatureSetPage.get(0).getEntityOutput());
+
+    // One suppressed attribute, includeAllAttributes=false for export page.
+    List<EntityOutputPreview> entityOutputsForExportPage =
+        filterBuilderService.buildOutputPreviewsForConceptSets(
+            List.of(
+                bio.terra.tanagra.service.criteriaconstants.cmssynpuf.ConceptSet.CS_DEMOGRAPHICS),
+            false);
+    assertEquals(1, entityOutputsForExportPage.size());
+    assertEquals(
+        cmssynpuf.getPrimaryEntity().getAttributes().size() - 1,
+        entityOutputsForExportPage.get(0).getEntityOutput().getAttributes().size());
+    assertEquals(expectedOutput, entityOutputsForExportPage.get(0).getEntityOutput());
   }
 
   @Test
