@@ -14,7 +14,7 @@
     "@mui/lab": "^5.0.0-alpha.122",
     "@mui/material": "^5.11.12",
     "@mui/x-data-grid": "^5.0.0-beta.2",
-    "@openapitools/openapi-generator-cli": "^2.6.0",
+    "@openapitools/openapi-generator-cli": "^2.13.5",
     "@protobuf-ts/protoc": "^2.9.3",
     "@testing-library/dom": "^8.11.1",
     "@testing-library/jest-dom": "^5.14.1",
