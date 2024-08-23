@@ -93,6 +93,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.security:spring-security-core'
 
+    // explicity declare libs and version to address synk warnings
+    implementation 'org.springframework:spring-web:6.1.12'
+    testFixturesImplementation 'org.springframework:spring-web:6.1.12'
+
     // [Application DB] MySQL/MariaDB
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
     implementation 'com.mysql:mysql-connector-j:8.4.0'
