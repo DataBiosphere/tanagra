@@ -46,10 +46,15 @@ dependencies {
         exclude group: 'io.swagger', module: 'swagger-annotations'
         exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
+        exclude group: 'org.springframework', module: 'spring-web'
     }
 
     implementation project(path: ':underlay')
     implementation project(path: ':service')
+
+    // explicity declare libs and version to address synk warnings
+    implementation 'org.springframework:spring-web:6.1.12'
+    testFixturesImplementation 'org.springframework:spring-web:6.1.12'
 
     // Static analysis
     pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
