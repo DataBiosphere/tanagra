@@ -42,7 +42,9 @@ SELECT p.person_id,
        CASE
            WHEN ehr.person_id IS NULL THEN FALSE ELSE TRUE END has_ehr_data,
        CASE
-           WHEN d.death_date is null THEN FALSE ELSE TRUE END is_deceased
+           WHEN d.death_date is null THEN FALSE ELSE TRUE END is_deceased,
+       CASE
+           WHEN d.death_date IS NOT NULL THEN CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), p.birth_datetime, DAY) / 365.25) AS INT64) END age
 FROM `${omopDataset}.person` p
 LEFT JOIN `${omopDataset}.concept` gc ON gc.concept_id = p.gender_concept_id
 LEFT JOIN `${omopDataset}.concept` rc ON rc.concept_id = p.race_concept_id
