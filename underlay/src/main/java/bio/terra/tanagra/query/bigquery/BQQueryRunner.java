@@ -516,11 +516,13 @@ public class BQQueryRunner implements QueryRunner {
 
     // Now build the outer SQL query against the source data.
     final String sourceTableAlias = "st";
-    // Using a set since source queries can reuse the same join key with many columns from joined table.
+    // Using a set since source queries can reuse the same join key with many columns from joined
+    // table.
     Set<String> selectFields = new LinkedHashSet<>();
     // Map of all joins which allows for removal of repeating join conditions
     Map<String, String> displayTableJoins = new LinkedHashMap<>();
-    // Map of table join aliases allows for multiple columns from same join condition to reuse aliases.
+    // Map of table join aliases allows for multiple columns from same join condition to reuse
+    // aliases.
     Map<String, String> tableJoinAliases = new HashMap<>();
     listQueryRequest
         .getSelectFields()
@@ -545,7 +547,7 @@ public class BQQueryRunner implements QueryRunner {
                   String joinTableAlias = "dt" + displayTableJoins.size();
 
                   if (displayTableJoins.get(attrSourcePointer.getValueFieldName()) == null) {
-                      // Add new table joins and aliases
+                    // Add new table joins and aliases
                     StringBuilder joinSql = new StringBuilder();
                     joinSql
                         .append(" LEFT JOIN ")
@@ -563,7 +565,7 @@ public class BQQueryRunner implements QueryRunner {
                     tableJoinAliases.put(attrSourcePointer.getValueFieldName(), joinTableAlias);
                     selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
                   } else {
-                      // Use existing table joins and aliases
+                    // Use existing table joins and aliases
                     selectFields.add(
                         displaySqlField.renderForSelect(
                             tableJoinAliases.get(attrSourcePointer.getValueFieldName())));
