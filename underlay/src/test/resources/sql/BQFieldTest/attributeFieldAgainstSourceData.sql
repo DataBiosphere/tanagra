@@ -6,7 +6,6 @@
         st.race_concept_id,
         st.birth_datetime,
         st.person_id,
-        st.gender_concept_id,
         dt1.concept_name AS T_DISP_genderSuppressed,
         st.person_source_value,
         st.ethnicity_concept_id AS T_DISP_ethnicityNoDisplayJoin      
