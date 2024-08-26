@@ -13,10 +13,7 @@
         ${person} AS st      
     LEFT JOIN
         ${concept} AS dt0              
-            ON dt0.concept_id = st.gender_concept_id      
-    LEFT JOIN
-        ${concept} AS dt1              
-            ON dt1.concept_id = st.gender_concept_id      
+            ON dt0.concept_id = st.gender_concept_id
     WHERE
         st.person_id IN (SELECT
             id          
