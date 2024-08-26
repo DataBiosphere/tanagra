@@ -516,8 +516,12 @@ public class BQQueryRunner implements QueryRunner {
 
     // Now build the outer SQL query against the source data.
     final String sourceTableAlias = "st";
-    List<String> selectFields = new ArrayList<>();
-    List<String> displayTableJoins = new ArrayList<>();
+    // Using a set since source queries can reuse the same join key with many columns from joined table.
+    Set<String> selectFields = new LinkedHashSet<>();
+    // Map of all joins which allows for removal of repeating join conditions
+    Map<String, String> displayTableJoins = new LinkedHashMap<>();
+    // Map of table join aliases allows for multiple columns from same join condition to reuse aliases.
+    Map<String, String> tableJoinAliases = new HashMap<>();
     listQueryRequest
         .getSelectFields()
         .forEach(
@@ -540,18 +544,31 @@ public class BQQueryRunner implements QueryRunner {
                           SqlField.of(attrSourcePointer.getDisplayFieldTableJoinFieldName()));
                   String joinTableAlias = "dt" + displayTableJoins.size();
 
-                  StringBuilder joinSql = new StringBuilder();
-                  joinSql
-                      .append(" LEFT JOIN ")
-                      .append(fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
-                      .append(" AS ")
-                      .append(joinTableAlias)
-                      .append(" ON ")
-                      .append(displayTableJoinField.renderForSelect(joinTableAlias))
-                      .append(" = ")
-                      .append(valueSqlField.renderForSelect(sourceTableAlias));
-                  displayTableJoins.add(joinSql.toString());
-                  selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
+                  if (displayTableJoins.get(attrSourcePointer.getValueFieldName()) == null) {
+                      // Add new table joins and aliases
+                    StringBuilder joinSql = new StringBuilder();
+                    joinSql
+                        .append(" LEFT JOIN ")
+                        .append(
+                            fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
+                        .append(" AS ")
+                        .append(joinTableAlias)
+                        .append(" ON ")
+                        .append(displayTableJoinField.renderForSelect(joinTableAlias))
+                        .append(" = ")
+                        .append(valueSqlField.renderForSelect(sourceTableAlias));
+
+                    displayTableJoins.put(
+                        attrSourcePointer.getValueFieldName(), joinSql.toString());
+                    tableJoinAliases.put(attrSourcePointer.getValueFieldName(), joinTableAlias);
+                    selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
+                  } else {
+                      // Use existing table joins and aliases
+                    selectFields.add(
+                        displaySqlField.renderForSelect(
+                            tableJoinAliases.get(attrSourcePointer.getValueFieldName())));
+                  }
+
                 } else {
                   selectFields.add(displaySqlField.renderForSelect(sourceTableAlias));
                 }
@@ -573,7 +590,9 @@ public class BQQueryRunner implements QueryRunner {
         .append(fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render())
         .append(" AS ")
         .append(sourceTableAlias)
-        .append(String.join("", displayTableJoins))
+        .append(
+            String.join(
+                "", displayTableJoins.entrySet().stream().map(entry -> entry.getValue()).toList()))
         .append(" WHERE ")
         .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
         .append(" IN (")

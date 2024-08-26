@@ -5,24 +5,72 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "condition_occurrence_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "condition_concept_id", "dataType": "INT64" },
-    { "name": "standard_concept_name", "dataType": "STRING"},
-    { "name": "standard_concept_code", "dataType": "STRING"},
-    { "name": "standard_vocabulary", "dataType": "STRING"},
+    { "name": "standard_concept_name", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "standard_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_concept_code", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "standard_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_vocabulary", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "standard_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "condition_start_datetime", "dataType": "TIMESTAMP" },
     { "name": "condition_end_datetime", "dataType": "TIMESTAMP" },
     { "name": "condition_type_concept_id", "dataType": "INT64" },
-    { "name": "condition_type_concept_name", "dataType": "STRING" },
+    { "name": "condition_type_concept_name", "dataType": "INT64", "valueFieldName": "condition_type_concept_id", "displayFieldName": "condition_type_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "stop_reason", "dataType": "STRING" },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
-    { "name": "visit_occurrence_concept_name", "dataType": "STRING" },
+    { "name": "visit_occurrence_concept_name", "dataType": "STRING", "isSuppressedForExport": true },
     { "name": "condition_source_value", "dataType": "STRING" },
     { "name": "condition_source_concept_id", "dataType": "INT64" },
-    { "name": "source_concept_name", "dataType": "STRING" },
-    { "name": "source_concept_code", "dataType": "STRING" },
-    { "name": "source_vocabulary", "dataType": "STRING" },
+    { "name": "source_concept_name", "dataType": "INT64", "valueFieldName": "condition_source_concept_id", "displayFieldName": "source_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_concept_code", "dataType": "INT64", "valueFieldName": "condition_source_concept_id", "displayFieldName": "source_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_vocabulary", "dataType": "INT64", "valueFieldName": "condition_source_concept_id", "displayFieldName": "source_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "condition_status_source_value", "dataType": "STRING" },
     { "name": "condition_status_concept_id", "dataType": "INT64" },
-    { "name": "condition_status_concept_name", "dataType": "STRING" },
+    { "name": "condition_status_concept_name", "dataType": "INT64", "valueFieldName": "condition_status_concept_id", "displayFieldName": "condition_status_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "condition_source_value", "isSuppressedForExport": true },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "condition_source_concept_id", "isSuppressedForExport": true },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
@@ -33,5 +81,6 @@
   "temporalQuery": {
     "visitDateAttribute": "start_date",
     "visitIdAttribute": "visit_occurrence_id"
-  }
+  },
+  "sourceQueryTableName": "${omopDataset}.condition_occurrence"
 }
