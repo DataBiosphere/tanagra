@@ -521,10 +521,16 @@ public class BQQueryRunner implements QueryRunner {
     // Using a set since source queries can reuse the same join key with many columns from joined
     // table.
     Set<String> selectFields = new LinkedHashSet<>();
-    // Map of all joins which allows for removal of repeating join conditions
+    // Map of all joins which allows for removal of repeating join conditions. Key contains both
+    // valueFieldName and displayFieldTable which supports joins to different tables on the same
+    // attribute value.
+    // e.g. displayTableJoins: sourceQuery.valueFieldName, sourceQuery.displayFieldTable -> joinSql
     Table<String, String, String> displayTableJoins = HashBasedTable.create();
     // Map of table join aliases allows for multiple columns from same join condition to reuse
-    // aliases.
+    // aliases. Key contains both valueFieldName and displayFieldTable which supports joins to
+    // different tables on the same attribute value.
+    // e.g. tableJoinAliases: sourceQuery.valueFieldName, sourceQuery.displayFieldTable ->
+    // joinTableAlias
     Table<String, String, String> tableJoinAliases = HashBasedTable.create();
     listQueryRequest
         .getSelectFields()
