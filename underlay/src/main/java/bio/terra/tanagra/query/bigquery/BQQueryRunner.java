@@ -33,6 +33,8 @@ import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import jakarta.annotation.*;
 import java.time.Instant;
 import java.util.*;
@@ -520,10 +522,10 @@ public class BQQueryRunner implements QueryRunner {
     // table.
     Set<String> selectFields = new LinkedHashSet<>();
     // Map of all joins which allows for removal of repeating join conditions
-    Map<String, String> displayTableJoins = new LinkedHashMap<>();
+    Table<String, String, String> displayTableJoins = HashBasedTable.create();
     // Map of table join aliases allows for multiple columns from same join condition to reuse
     // aliases.
-    Map<String, String> tableJoinAliases = new HashMap<>();
+    Table<String, String, String> tableJoinAliases = HashBasedTable.create();
     listQueryRequest
         .getSelectFields()
         .forEach(
@@ -546,7 +548,13 @@ public class BQQueryRunner implements QueryRunner {
                           SqlField.of(attrSourcePointer.getDisplayFieldTableJoinFieldName()));
                   String joinTableAlias = "dt" + displayTableJoins.size();
 
-                  if (displayTableJoins.get(attrSourcePointer.getValueFieldName()) == null) {
+                  String valueFieldName = attrSourcePointer.getValueFieldName();
+                  String displayFieldTable =
+                      attrFieldAgainstSourceData
+                          .getAttribute()
+                          .getSourceQuery()
+                          .getDisplayFieldTable();
+                  if (displayTableJoins.get(valueFieldName, displayFieldTable) == null) {
                     // Add new table joins and aliases
                     StringBuilder joinSql = new StringBuilder();
                     joinSql
@@ -560,15 +568,14 @@ public class BQQueryRunner implements QueryRunner {
                         .append(" = ")
                         .append(valueSqlField.renderForSelect(sourceTableAlias));
 
-                    displayTableJoins.put(
-                        attrSourcePointer.getValueFieldName(), joinSql.toString());
-                    tableJoinAliases.put(attrSourcePointer.getValueFieldName(), joinTableAlias);
+                    displayTableJoins.put(valueFieldName, displayFieldTable, joinSql.toString());
+                    tableJoinAliases.put(valueFieldName, displayFieldTable, joinTableAlias);
                     selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
                   } else {
                     // Use existing table joins and aliases
                     selectFields.add(
                         displaySqlField.renderForSelect(
-                            tableJoinAliases.get(attrSourcePointer.getValueFieldName())));
+                            tableJoinAliases.get(valueFieldName, displayFieldTable)));
                   }
 
                 } else {
@@ -592,9 +599,7 @@ public class BQQueryRunner implements QueryRunner {
         .append(fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render())
         .append(" AS ")
         .append(sourceTableAlias)
-        .append(
-            String.join(
-                "", displayTableJoins.entrySet().stream().map(entry -> entry.getValue()).toList()))
+        .append(String.join("", displayTableJoins.values().stream().toList()))
         .append(" WHERE ")
         .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
         .append(" IN (")
