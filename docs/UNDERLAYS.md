@@ -1,6 +1,6 @@
 # Underlays
 
-### CMSSynpuf
+### CMSSynPUF
 The Synthetic Patient Data in OMOP Dataset is a synthetic database released by
 the Centers for Medicare and Medicaid Services (CMS) Medicare Claims Synthetic Public Use Files (SynPUF).
 More details at [Synthetic Patient Data in OMOP](https://console.cloud.google.com/marketplace/product/hhs/synpuf).
