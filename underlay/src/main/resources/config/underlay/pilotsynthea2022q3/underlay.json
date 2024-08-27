@@ -59,6 +59,14 @@
     "pilotsynthea2022q3/gender",
     "pilotsynthea2022q3/race",
     "pilotsynthea2022q3/yearOfBirth",
+    "pilotsynthea2022q3/measurements",
+    "pilotsynthea2022q3/devices",
+    "pilotsynthea2022q3/visits",
+    "pilotsynthea2022q3/cpt4",
+    "pilotsynthea2022q3/icd9CM",
+    "pilotsynthea2022q3/icd9Proc",
+    "pilotsynthea2022q3/icd10CM",
+    "pilotsynthea2022q3/icd10PCS",
     "pilotsynthea2022q3/outputUnfiltered"
   ],
   "prepackagedDataFeatures": [
@@ -66,7 +74,10 @@
   ],
   "visualizations": [
     "omop/gender",
-    "omop/raceAndAge"
+    "omop/raceAndAge",
+    "omop/genderAndAge",
+    "omop/age",
+    "omop/race"
   ],
   "metadata": {
     "displayName": "Pilot Synthetic Dataset 2022q3",
