@@ -1,0 +1,30 @@
+# User APIs, parameters & schema objects
+
+paths:
+  /getMe:
+    get:
+      description: Returns the current user's profile information
+      operationId: getMe
+      tags: [ Users ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  schemas:
+    UserProfile:
+      description: User profile
+      type: object
+      required: [ email, subjectId ]
+      properties:
+        email:
+          type: string
+        subjectId:
+          type: string
+

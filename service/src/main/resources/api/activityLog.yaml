@@ -1,0 +1,167 @@
+# Activity Log APIs, parameters & schema objects
+
+paths:
+  /listActivityLogEntries:
+    parameters:
+    - $ref: '#/components/parameters/ActivityLogFilterUserEmail'
+    - $ref: '#/components/parameters/ActivityLogFilterExactMatch'
+    - $ref: '#/components/parameters/ActivityLogFilterResourceType'
+    - $ref: '#/components/parameters/ActivityLogFilterActivityType'
+    - $ref: './common.yaml#/components/parameters/Offset'
+    - $ref: './common.yaml#/components/parameters/Limit'
+    get:
+      description: List the activity log entries
+      operationId: listActivityLogEntries
+      tags: [ ActivityLog ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityLogEntryList'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        401:
+          $ref: './common.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /getActivityLogEntry:
+    parameters:
+    - $ref: '#/components/parameters/ActivityLogEntryId'
+    get:
+      description: Get an activity log entry
+      operationId: getActivityLogEntry
+      tags: [ ActivityLog ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityLogEntry'
+        401:
+          $ref: './common.yaml#/components/responses/Unauthorized'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  parameters:
+    ActivityLogEntryId:
+      description: ID of the activity log entry
+      name: activityLogEntryId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    ActivityLogFilterUserEmail:
+      description: Text search on the activity log entry user email
+      name: userEmail
+      in: query
+      required: false
+      schema:
+        type: string
+
+    ActivityLogFilterExactMatch:
+      description: True if the user email filter should check for an exact match
+      name: exactMatch
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
+
+    ActivityLogFilterResourceType:
+      description: Filter on the activity log entry resource type
+      name: resourceType
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/ResourceType'
+
+    ActivityLogFilterActivityType:
+      name: activityType
+      in: query
+      description: Filter on the activity log entry activity type
+      required: false
+      schema:
+        $ref: '#/components/schemas/ActivityType'
+
+  schemas:
+    ActivityLogEntryList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ActivityLogEntry'
+
+    ActivityLogEntry:
+      type: object
+      required: [ id, userEmail, logged, systemVersion, activityType ]
+      properties:
+        id:
+          type: string
+          nullable: false
+        userEmail:
+          type: string
+          nullable: false
+        logged:
+          type: string
+          format: date-time
+          nullable: false
+        systemVersion:
+          $ref: './common.yaml#/components/schemas/SystemVersion'
+        activityType:
+          $ref: '#/components/schemas/ActivityType'
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResourceObject'
+        additionalInfo:
+          description: Additional information for specific activity types
+          type: object
+          properties:
+            exportModel:
+              description: (EXPORT_COHORT) Name of the export model used
+              type: string
+              nullable: true
+            recordsCount:
+              description: (EXPORT_COHORT, CREATE_REVIEW) Number of primary
+                entity records involved
+              type: integer
+              format: int64
+              nullable: true
+
+    ActivityType:
+      type: string
+      enum: [ 'CREATE_STUDY', 'DELETE_STUDY', 'CREATE_COHORT', 'DELETE_COHORT',
+              'EXPORT_COHORT', 'CREATE_REVIEW', 'DELETE_REVIEW' ]
+
+    ResourceObject:
+      type: object
+      required: [ type, studyId ]
+      properties:
+        type:
+          $ref: '#/components/schemas/ResourceType'
+        studyId:
+          $ref: './studies.yaml#/components/schemas/StudyId'
+        studyDisplayName:
+          $ref: './studies.yaml#/components/schemas/StudyDisplayName'
+        studyProperties:
+          $ref: './common.yaml#/components/schemas/Properties'
+        cohortId:
+          $ref: './cohorts.yaml#/components/schemas/CohortId'
+        cohortDisplayName:
+          $ref: './cohorts.yaml#/components/schemas/CohortDisplayName'
+        cohortRevisionId:
+          $ref: './cohorts.yaml#/components/schemas/CohortRevisionId'
+        reviewId:
+          $ref: './reviews.yaml#/components/schemas/ReviewId'
+        reviewDisplayName:
+          $ref: './reviews.yaml#/components/schemas/ReviewDisplayName'
+
+    ResourceType:
+      type: string
+      enum: [ 'STUDY', 'COHORT', 'REVIEW' ]

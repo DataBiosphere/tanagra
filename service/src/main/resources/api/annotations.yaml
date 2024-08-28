@@ -1,0 +1,235 @@
+# Study-Cohort-Annotation APIs, parameters & schema objects
+
+paths:
+  /createListAnnotationKey:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: './cohorts.yaml#/components/parameters/CohortId'
+    get:
+      description: List all annotation keys for a cohort
+      operationId: listAnnotationKeys
+      tags: [ Annotations ]
+      parameters:
+      - $ref: './common.yaml#/components/parameters/Offset'
+      - $ref: './common.yaml#/components/parameters/Limit'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnotationList'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    post:
+      description: Create a new annotation key
+      operationId: createAnnotationKey
+      tags: [ Annotations ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnotationCreateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annotation'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /getUpdateDeleteAnnotationKey:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: './cohorts.yaml#/components/parameters/CohortId'
+    - $ref: '#/components/parameters/AnnotationId'
+    get:
+      description: Get an existing annotation key
+      operationId: getAnnotationKey
+      tags: [ Annotations ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annotation'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    patch:
+      description: Update an existing annotation key
+      operationId: updateAnnotationKey
+      tags: [ Annotations ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnotationUpdateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Annotation'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    delete:
+      description: Delete a annotation key
+      operationId: deleteAnnotationKey
+      tags: [ Annotations ]
+      responses:
+        204:
+          $ref: './common.yaml#/components/responses/NoContent'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /createDeleteAnnotationValue:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: './cohorts.yaml#/components/parameters/CohortId'
+    - $ref: '#/components/parameters/AnnotationId'
+    - $ref: './reviews.yaml#/components/parameters/ReviewId'
+    - $ref: './underlays_entity.yaml#/components/parameters/PrimaryEntityInstanceId'
+    post:
+      description: Create or update an annotation value
+      operationId: updateAnnotationValue
+      tags: [ Annotations ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './common.yaml#/components/schemas/Literal'
+      responses:
+        200:
+          $ref: './common.yaml#/components/responses/OK'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    delete:
+      description: Delete a annotation value
+      operationId: deleteAnnotationValues
+      tags: [ Annotations ]
+      responses:
+        204:
+          $ref: './common.yaml#/components/responses/NoContent'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  parameters:
+    AnnotationId:
+      description: ID of the annotation
+      name: annotationId
+      in: path
+      required: true
+      schema:
+        type: string
+
+
+
+  schemas:
+    AnnotationList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Annotation'
+
+    Annotation:
+      type: object
+      required: [ id, displayName, dataType ]
+      properties:
+        id:
+          description: ID of the annotation, immutable
+          type: string
+        displayName:
+          $ref: '#/components/schemas/AnnotationDisplayName'
+        description:
+          $ref: '#/components/schemas/AnnotationDescription'
+        dataType:
+          $ref: './common.yaml#/components/schemas/DataType'
+        enumVals:
+          description: May only be set if dataType=STRING. Annotation value 
+            must be one of enumVals
+          type: array
+          items:
+            type: string
+
+    AnnotationDisplayName:
+      description: Human readable name of the annotation
+      type: string
+      maxLength: 35
+
+    AnnotationDescription:
+      description: Description of the annotation
+      type: string
+
+    AnnotationCreateInfo:
+      type: object
+      required: [ displayName, dataType ]
+      properties:
+        displayName:
+          $ref: '#/components/schemas/AnnotationDisplayName'
+        description:
+          $ref: '#/components/schemas/AnnotationDescription'
+        dataType:
+          $ref: './common.yaml#/components/schemas/DataType'
+        enumVals:
+          description: May only be set if dataType=STRING. Annotation value 
+            must be one of enumVals
+          type: array
+          items:
+            type: string
+
+    AnnotationUpdateInfo:
+      type: object
+      properties:
+        displayName:
+          $ref: '#/components/schemas/AnnotationDisplayName'
+        description:
+          $ref: '#/components/schemas/AnnotationDescription'
+          
+    AnnotationFilter:
+      description: Filter on an annotation value (e.g. reviewStatus=complete)
+      type: object
+      properties:
+        annotation:
+          type: string
+        operator:
+          type: string
+          enum: [ 'EQUALS', 'NOT_EQUALS', 'LESS_THAN', 'GREATER_THAN' ]
+        value:
+          $ref: './common.yaml#/components/schemas/Literal'
+
+    AnnotationValue:
+      type: object
+      required: [ instanceId, value, isMostRecent, isPartOfSelectedReview ]
+      properties:
+        instanceId:
+          description: ID of the annotation value, immutable
+          type: string
+        value:
+          $ref: './common.yaml#/components/schemas/Literal'
+        isMostRecent:
+          type: boolean
+        isPartOfSelectedReview:
+          type: boolean

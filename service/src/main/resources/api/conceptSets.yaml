@@ -1,0 +1,202 @@
+# Study-ConceptSet APIs, parameters & schema objects
+
+paths:
+  /createListConceptSet:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    get:
+      description: List all concept sets in a study
+      operationId: listConceptSets
+      tags: [ ConceptSets ]
+      parameters:
+      - $ref: './common.yaml#/components/parameters/Offset'
+      - $ref: './common.yaml#/components/parameters/Limit'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSetList'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    post:
+      description: Create a new concept set
+      operationId: createConceptSet
+      tags: [ ConceptSets ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConceptSetCreateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSet'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /getUpdateDeleteConceptSet:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: '#/components/parameters/ConceptSetId'
+    get:
+      description: Get an existing concept set
+      operationId: getConceptSet
+      tags: [ ConceptSets ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSet'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    patch:
+      description: Update an existing concept set
+      operationId: updateConceptSet
+      tags: [ ConceptSets ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConceptSetUpdateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptSet'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    delete:
+      description: Delete a concept set
+      operationId: deleteConceptSet
+      tags: [ ConceptSets ]
+      responses:
+        204:
+          $ref: './common.yaml#/components/responses/NoContent'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  parameters:
+    ConceptSetId:
+      description: ID of the concept set
+      name: conceptSetId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    ConceptSetList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ConceptSet'
+
+    ConceptSet:
+      type: object
+      required: [ id, underlayName, displayName, criteria, entityOutputs,
+                  created, createdBy, lastModified ]
+      properties:
+        id:
+          $ref: '#/components/schemas/ConceptSetId'
+        underlayName:
+          $ref: './underlays.yaml#/components/schemas/UnderlayName'
+        displayName:
+          $ref: '#/components/schemas/ConceptSetDisplayName'
+        description:
+          $ref: '#/components/schemas/ConceptSetDescription'
+        criteria:
+          description: Criteria that define the entity filter
+          type: array
+          items:
+            $ref: './underlays_entity.yaml#/components/schemas/Criteria'
+        entityOutputs:
+          type: array
+          description: Outputs per entity
+          items:
+            $ref: '#/components/schemas/EntityOutput'
+        created:
+          description: Timestamp of when the concept set was created
+          type: string
+          format: date-time
+        createdBy:
+          description: Email of user who created the concept set
+          type: string
+        lastModified:
+          description: Timestamp of when the concept set was last modified
+          type: string
+          format: date-time
+
+    ConceptSetId:
+      description: ID of the concept set, immutable
+      type: string
+
+    ConceptSetDisplayName:
+      description: Human readable name of the concept set
+      type: string
+
+    ConceptSetDescription:
+      description: Description of the concept set
+      type: string
+
+    EntityOutput:
+      type: object
+      properties:
+        entity:
+          description: Entity name
+          type: string
+        excludeAttributes:
+          description: Names of attributes to exclude from output
+          type: array
+          items:
+            type: string
+      required:
+      - entity
+    
+    ConceptSetCreateInfo:
+      type: object
+      properties:
+        underlayName:
+          $ref: './underlays.yaml#/components/schemas/UnderlayName'
+        displayName:
+          $ref: '#/components/schemas/ConceptSetDisplayName'
+        description:
+          $ref: '#/components/schemas/ConceptSetDescription'
+
+    ConceptSetUpdateInfo:
+      type: object
+      properties:
+        displayName:
+          $ref: '#/components/schemas/ConceptSetDisplayName'
+        description:
+          $ref: '#/components/schemas/ConceptSetDescription'
+        criteria:
+          description: Criteria that define the entity filter
+          type: array
+          items:
+            $ref: './underlays_entity.yaml#/components/schemas/Criteria'
+        entityOutputs:
+          description: Outputs per entity
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityOutput'

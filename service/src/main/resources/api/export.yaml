@@ -1,0 +1,288 @@
+# Underlay-Export APIs, parameters & schema objects
+
+paths:
+  /listExportModels:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    get:
+      description: List the available export models
+      operationId: listExportModels
+      tags: [ Export ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportModelList'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /previewExportInstances:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    - $ref: './underlays_entity.yaml#/components/parameters/EntityName'
+    get:
+      description: List entity instances that will be included in an export
+      operationId: previewExportInstances
+      tags: [ Export ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportPreviewRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './underlays_entity.yaml#/components/schemas/InstanceListResult'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /describeExport:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    get:
+      description: Describe the entities and attributes that will be included
+        in an export
+      operationId: describeExport
+      tags: [ Export ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportPreviewRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityOutputPreviewList'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /exportInstancesAndAnnotations:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    get:
+      description: Export entity instances and review annotations
+      operationId: exportInstancesAndAnnotations
+      tags: [ Export ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResult'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  schemas:
+    ExportModelList:
+      type: array
+      items:
+        $ref: '#/components/schemas/ExportModel'
+
+    ExportModel:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+        displayName:
+          type: string
+          nullable: false
+        description:
+          type: string
+          nullable: true
+        numPrimaryEntityCap:
+          description: Maximum number of primary entity instances, across all
+            selected cohorts, that this model can export
+          type: integer
+        inputs:
+          description: Map of input parameter names to descriptions
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+        outputs:
+          description: Map of output parameters names to descriptions
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+
+    ExportPreviewRequest:
+      type: object
+      required: [ study, cohorts, conceptSets ]
+      properties:
+        study:
+          type: string
+        cohorts:
+          description: List of cohort ids
+          type: array
+          items:
+            type: string
+        conceptSets:
+          description: List of concept set ids
+          type: array
+          items:
+            type: string
+        limit:
+          type: integer
+        includeAllAttributes:
+          description: When true, ignore the selected attributes in the data feature
+            set definitions and include all attributes for each output entity
+          type: boolean
+          default: false
+
+    EntityOutputPreviewList:
+      type: object
+      required: [ entityOutputs ]
+      properties:
+        entityOutputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityOutputPreview'
+
+    EntityOutputPreview:
+      type: object
+      required: [ entity, includedAttributes, criteria ]
+      properties:
+        entity:
+          description: Entity name
+          type: string
+        includedAttributes:
+          description: Names of attributes included in the output
+          type: array
+          items:
+            type: string
+        criteria:
+          type: array
+          items:
+            type: object
+            properties:
+              conceptSetId:
+                type: string
+              criteriaId:
+                type: string
+            required:
+            - conceptSetId
+            - criteriaId
+        indexSql:
+          description: SQL string against the index tables. This will be
+            populated if source queries are not configured for this entity
+          type: string
+        sourceSql:
+          description: SQL string against the source tables. This will be
+            populated if source queries are configured for this entity
+          type: string
+
+    ExportRequest:
+      type: object
+      properties:
+        exportModel:
+          description: Name of the export model to use
+          type: string
+        inputs:
+          description: Key-value map of the export model inputs 
+            (e.g. filenamePrefix=test)
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+        redirectBackUrl:
+          type: string
+          nullable: true
+        study:
+          type: string
+          nullable: false
+        cohorts:
+          description: List of cohort ids
+          type: array
+          items:
+            type: string
+        conceptSets:
+          description: List of concept set ids
+          type: array
+          items:
+            type: string
+        includeAnnotations:
+          description: Include the annotation data when true
+          type: boolean
+
+    ExportResult:
+      type: object
+      required: [ status, outputs, links ]
+      properties:
+        status:
+          type: string
+          enum: [ "SUCCEEDED", "FAILED" ]
+        redirectAwayUrl:
+          type: string
+        outputs:
+          # TODO: Remove this outputs property from the service API once the UI is using the links.
+          description: Key-value map of output data generated by the export model
+          type: object
+          additionalProperties:
+            type: string
+        links:
+          description: Output link results generated by the export model
+          type: array
+          items:
+            $ref: "#/components/schemas/ExportLinkResult"
+        error:
+          description: Error message if this export failed outside of individual
+            link generation
+          type: string
+
+    ExportLinkResult:
+      type: object
+      required: [ tags ]
+      properties:
+        displayName:
+          type: string
+        url:
+          type: string
+        tags:
+          description: Ordered list of tags that indicate how this link result
+            should be displayed to the user. The first tag is the top-level
+            section, the second tag is a sub-section, etc. e.g. ["Annotations",
+            "Cohort 123"] means this link result will be displayed in the 
+            Annotations section, Cohort 123 sub-section
+          type: array
+          items:
+            type: string
+        message:
+          description: Optional message (e.g. "No entity data. File not generated.")
+          type: string
+        error:
+          description: Error message if generating this link result failed
+          type: string

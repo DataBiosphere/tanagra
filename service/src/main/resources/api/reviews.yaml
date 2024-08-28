@@ -1,0 +1,326 @@
+# Study-Cohort-Review APIs, parameters & schema objects
+
+paths:
+  /createListReview:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: './cohorts.yaml#/components/parameters/CohortId'
+    get:
+      description: List all reviews for a cohort
+      operationId: listReviews
+      tags: [ Reviews ]
+      parameters:
+      - $ref: './common.yaml#/components/parameters/Offset'
+      - $ref: './common.yaml#/components/parameters/Limit'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewList'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    post:
+      description: Create a new review
+      operationId: createReview
+      tags: [ Reviews ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /getUpdateDeleteReview:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: './cohorts.yaml#/components/parameters/CohortId'
+    - $ref: '#/components/parameters/ReviewId'
+    get:
+      description: Get an existing review
+      operationId: getReview
+      tags: [ Reviews ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    patch:
+      description: Update an existing review
+      operationId: updateReview
+      tags: [ Reviews ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewUpdateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    delete:
+      description: Delete a review
+      operationId: deleteReview
+      tags: [ Reviews ]
+      responses:
+        204:
+          $ref: './common.yaml#/components/responses/NoContent'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+
+  /listReviewInstancesAndAnnotations:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: './cohorts.yaml#/components/parameters/CohortId'
+    - $ref: '#/components/parameters/ReviewId'
+    post:
+      description: List primary entity instances in a review and any associated
+        annotation values
+      operationId: listReviewInstancesAndAnnotations
+      tags: [ Reviews ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewQuery'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewInstanceListResult'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /countReviewInstances:
+    parameters:
+    - $ref: './studies.yaml#/components/parameters/StudyId'
+    - $ref: './cohorts.yaml#/components/parameters/CohortId'
+    - $ref: '#/components/parameters/ReviewId'
+    post:
+      description: Count primary entity instances in a review
+      operationId: countReviewInstances
+      tags: [ Reviews ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCountQuery'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './underlays_entity.yaml#/components/schemas/InstanceCountList'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  parameters:
+    ReviewId:
+      description: ID of the review
+      name: reviewId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    ReviewList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Review'
+
+    Review:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ReviewId'
+        displayName:
+          $ref: '#/components/schemas/ReviewDisplayName'
+        description:
+          $ref: '#/components/schemas/ReviewDescription'
+        size:
+          $ref: '#/components/schemas/ReviewSize'
+        cohort:
+          $ref: './cohorts.yaml#/components/schemas/Cohort'
+        created:
+          description: Timestamp of when the review was created
+          type: string
+          format: date-time
+        createdBy:
+          description: Email of user who created the review
+          type: string
+        lastModified:
+          description: Timestamp of when the review was last modified
+          type: string
+          format: date-time
+      required:
+      - id
+      - displayName
+      - size
+      - cohortRevision
+      - created
+      - createdBy
+      - lastModified
+
+    ReviewId:
+      description: ID of the review, immutable
+      type: string
+
+    ReviewDisplayName:
+      description: Human readable name of the review
+      type: string
+
+    ReviewDescription:
+      description: Description of the review
+      type: string
+
+    ReviewSize:
+      description: Number of primary entity instances included in the review
+      type: integer
+
+    ReviewCreateInfo:
+      type: object
+      properties:
+        displayName:
+          $ref: '#/components/schemas/ReviewDisplayName'
+        description:
+          $ref: '#/components/schemas/ReviewDescription'
+        size:
+          $ref: '#/components/schemas/ReviewSize'
+      required:
+      - displayName
+      - size
+
+    ReviewUpdateInfo:
+      type: object
+      properties:
+        displayName:
+          $ref: '#/components/schemas/ReviewDisplayName'
+        description:
+          $ref: '#/components/schemas/ReviewDescription'
+
+    ReviewQuery:
+      type: object
+      description: Query for review instances and annotations
+      properties:
+        includeAttributes:
+          description: Attributes to include in the returned instances
+          type: array
+          items:
+            type: string
+        entityFilter:
+          $ref: './underlays_entity.yaml#/components/schemas/Filter'
+        annotationFilter:
+          $ref: './annotations.yaml#/components/schemas/AnnotationFilter'
+        orderBys:
+          type: array
+          description: Attributes or annotations, and direction to order the results by
+          items:
+            type: object
+            description: Attribute or annotation and the direction
+            properties:
+              attribute:
+                type: string
+                description: Name of the attribute
+              annotation:
+                type: string
+                description: ID of the annotation
+              direction:
+                $ref: './common.yaml#/components/schemas/OrderByDirection'
+        limit:
+          $ref: './common.yaml#/components/schemas/Limit'
+        pageSize:
+          $ref: './common.yaml#/components/schemas/PageSize'
+        pageMarker:
+          $ref: './common.yaml#/components/schemas/PageMarker'
+
+#filter
+
+    ReviewInstanceListResult:
+      type: object
+      description: List of instances
+      properties:
+        sql:
+          type: string
+        instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewInstance'
+        pageMarker:
+          $ref: './common.yaml#/components/schemas/PageMarker'
+
+    ReviewInstance:
+      type: object
+      properties:
+        stableIndex:
+          description: Index of the instance, unchanged when sorting
+          type: integer
+        attributes:
+          description: A map of entity attribute names to their value for this
+            instance. The id attribute will always be included
+          type: object
+          additionalProperties:
+            $ref: './common.yaml#/components/schemas/ValueDisplay'
+        annotations:
+          description: A map of annotation ids to their values for this instance
+            in this review
+          type: object
+          additionalProperties:
+            type: array
+            nullable: true
+            items:
+              $ref: './annotations.yaml#/components/schemas/AnnotationValue'
+
+    ReviewCountQuery:
+      description: Count review instances
+      type: object
+      properties:
+        attributes:
+          description: Attributes to group by. One count will be returned for 
+            each possible combination of attribute values (e.g. [gender,
+            hair_color] will return counts for man+red, man+black, woman+red,
+            woman+black)
+          type: array
+          items:
+            type: string

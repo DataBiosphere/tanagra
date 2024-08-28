@@ -1,0 +1,132 @@
+# Underlay APIs, parameters & schema objects
+
+paths:
+  /listUnderlaySummaries:
+    get:
+      description: List the underlay summaries
+      operationId: listUnderlaySummaries
+      tags: [ Underlays ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnderlaySummaryList'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /getUnderlay:
+    parameters:
+    - $ref: '#/components/parameters/UnderlayName'
+    get:
+      description: Get an underlay
+      operationId: getUnderlay
+      tags: [ Underlays ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Underlay'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  parameters:
+    UnderlayName:
+      description: Name of the underlay
+      name: underlayName
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    UnderlaySummaryList:
+      description: List of underlay summaries
+      type: object
+      properties:
+        underlays:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnderlaySummary'
+
+    UnderlaySummary:
+      description: Underlay summary
+      type: object
+      required: [ name, displayName, primaryEntity ]
+      properties:
+        name:
+          description: Name
+          type: string
+        displayName:
+          description: Display name
+          type: string
+        description:
+          description: Description
+          type: string
+        primaryEntity:
+          description: Primary entity name
+          type: string
+
+    Underlay:
+      description: Underlay
+      type: object
+      required: [ summary, serializedConfiguration, uiConfiguration ]
+      properties:
+        summary:
+          $ref: '#/components/schemas/UnderlaySummary'
+        serializedConfiguration:
+          $ref: '#/components/schemas/UnderlaySerializedConfiguration'
+        # TODO: Remove this uiConfiguration property from the service API once the UI config overhaul is done.
+        uiConfiguration:
+          description: UI configuration
+          type: string
+
+    UnderlaySerializedConfiguration:
+      description: Contents of the underlay config files
+      type: object
+      required: [ underlay, entities,groupItemsEntityGroups,
+                  criteriaOccurrenceEntityGroups ]
+      properties:
+        underlay:
+          description: Contents of the underlay.json file
+          type: string
+        entities:
+          description: Contents of the entity.json files
+          type: array
+          items:
+            type: string
+        groupItemsEntityGroups:
+          description: Contents of the group-items type entityGroup.json files
+          type: array
+          items:
+            type: string
+        criteriaOccurrenceEntityGroups:
+          description: Contents of the criteria-occurrence type entityGroup.json files
+          type: array
+          items:
+            type: string
+        criteriaSelectors:
+          description: Contents of the criteria selector json files
+          type: array
+          items:
+            type: string
+        prepackagedDataFeatures:
+          description: Contents of the prepackaged data feature json files
+          type: array
+          items:
+            type: string
+        visualizations:
+          description: Contents of the visualization json files
+          type: array
+          items:
+            type: string
+
+    UnderlayName:
+      description: Name of the underlay, immutable
+      type: string

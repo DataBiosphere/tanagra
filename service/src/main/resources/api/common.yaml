@@ -1,0 +1,188 @@
+# Common schema and response definitions
+
+components:
+  parameters:
+    # --------------- Pagination ---------------
+
+    Offset:
+      description: The number of items to skip before starting to collect the
+        result set
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    Limit:
+      description: The maximum number of items to return. Defaults to 50
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 50
+
+  schemas:
+    # --------------- Application ---------------
+
+    SystemVersion:
+      type: object
+      required: [ gitTag, gitHash, github, build ]
+      properties:
+        gitTag:
+          description: Git tag of currently deployed app
+          type: string
+        gitHash:
+          description: Git hash of currently deployed app
+          type: string
+        github:
+          description: Github link to currently deployed commit
+          type: string
+        build:
+          description: Version of the currently deployed app declared in
+            build.gradle. Client and server versions are linked
+          type: string
+
+    OrderByDirection:
+      description: Defaults to ascending
+      type: string
+      enum: [ 'ASCENDING', 'DESCENDING' ]
+
+    Limit:
+      description: Maximum number of results to return. Defaults to 250
+      type: integer
+      default: 250
+
+    PageSize:
+      type: integer
+
+    PageMarker:
+      type: string
+
+    NumRowsAcrossAllPages:
+      type: integer
+
+    Literal:
+      description: Union of references to each value type. Exactly one will be
+        populated based on the dataType
+      type: object
+      nullable: true
+      properties:
+        dataType:
+          $ref: '#/components/schemas/DataType'
+        valueUnion:
+          type: object
+          properties:
+            boolVal:
+              type: boolean
+            int64Val:
+              type: integer
+              format: int64
+            stringVal:
+              type: string
+            dateVal:
+              description: Format YYYY-MM-DD
+              type: string
+            timestampVal:
+              description: Format YYYY-MM-DD hh:mm:ss
+              type: string
+            doubleVal:
+              type: number
+              format: double
+
+    DataType:
+      type: string
+      enum: [ 'INT64', 'STRING', 'BOOLEAN', 'DATE', 'TIMESTAMP', 'DOUBLE' ]
+
+    ValueDisplay:
+      description: Attribute value and optional display string
+      type: object
+      properties:
+        value:
+          $ref: '#/components/schemas/Literal'
+        display:
+          description: Optional display string
+          type: string
+          nullable: true
+
+    # --------------- Errors ---------------
+
+    ErrorReport:
+      type: object
+      required: [ message, statusCode, causes ]
+      properties:
+        message:
+          type: string
+        statusCode:
+          type: integer
+        causes:
+          type: array
+          items:
+            type: string
+
+    # --------------- Properties ---------------
+
+    PropertyKeyValue:
+      type: object
+      required: [ key, value ]
+      properties:
+        key:
+          description: String to identify the key. Keys must be 1-1024 
+            characters, using letters, numbers, dashes, and underscores and 
+            must not start with a dash or underscore
+          type: string
+        value:
+          description: Arbitrary string value
+          type: string
+
+    PropertyKeys:
+      description: List of property keys
+      type: array
+      items:
+        type: string
+
+    Properties:
+      description: List of key-value pairs of strings
+      type: array
+      items:
+        $ref: '#/components/schemas/PropertyKeyValue'
+
+  responses:
+    OK: # 200
+      description: OK
+
+    NoContent: # 204
+      description: OK (No Content)
+
+    # --------------- Errors ---------------
+
+    BadRequest: # 400
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReport'
+
+    Unauthorized: # 401
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReport'
+
+    NotFound: # 404
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReport'
+
+    ServerError: # 500
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorReport'

@@ -1,0 +1,808 @@
+# Underlay-Entity APIs, parameters & schema objects
+
+paths:
+  /listEntities:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    get:
+      description: List the entities in an underlay
+      operationId: listEntities
+      tags: [ Underlays ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityList'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /getEntity:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    - $ref: '#/components/parameters/EntityName'
+    get:
+      description: Get an entity
+      operationId: getEntity
+      tags: [ Underlays ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  # --------------- Query Instances ---------------
+
+  /listInstances:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    - $ref: '#/components/parameters/EntityName'
+    post:
+      description: List entity instances
+      operationId: listInstances
+      tags: [ Underlays ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Query'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceListResult'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /listInstancesForPrimaryEntity:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    - $ref: '#/components/parameters/EntityName'
+    post:
+      description: List entity instances filtered for a single primary entity id
+      operationId: listInstancesForPrimaryEntity
+      tags: [ Underlays ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryFilterOnPrimaryEntity'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceListResult'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  # --------------- Query Count ---------------
+
+  /countInstances:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    - $ref: '#/components/parameters/EntityName'
+    post:
+      description: Count entity instances
+      operationId: countInstances
+      tags: [ Underlays ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountQuery'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstanceCountList'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  # --------------- Query Hints ---------------
+
+  /queryHints:
+    parameters:
+    - $ref: './underlays.yaml#/components/parameters/UnderlayName'
+    - $ref: '#/components/parameters/EntityName'
+    post:
+      description: Query entity display hints
+      operationId: queryHints
+      tags: [ Underlays ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HintQuery'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DisplayHintList'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  parameters:
+    EntityName:
+      description: Name of the entity
+      name: entityName
+      in: path
+      required: true
+      schema:
+        type: string
+
+    PrimaryEntityInstanceId:
+      description: ID of the primary entity instance that the annotation value
+        is associated with
+      name: instanceId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    EntityList:
+      description: List of entities
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+
+    Entity:
+      description: Entity
+      type: object
+      required: [ name, idAttribute ]
+      properties:
+        name:
+          description: Name
+          type: string
+        idAttribute:
+          description: ID attribute name
+          type: string
+        attributes:
+          description: List of attributes
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+
+    Attribute:
+      type: object
+      description: Entity attribute
+      properties:
+        name:
+          description: Name
+          type: string
+        type:
+          description: Attribute type
+          type: string
+          enum: [ 'SIMPLE', 'KEY_AND_DISPLAY' ]
+        dataType:
+          $ref: './common.yaml#/components/schemas/DataType'
+
+    # --------------- Query Filters ---------------
+
+    Filter:
+      description: Union of references to each filter type. Exactly one should
+        be specified based on the filterType
+      type: object
+      nullable: true
+      properties:
+        filterType:
+          type: string
+          enum: [ 'ATTRIBUTE', 'TEXT', 'HIERARCHY', 'RELATIONSHIP',
+                  'BOOLEAN_LOGIC', 'ITEM_IN_GROUP', 'GROUP_HAS_ITEMS',
+                  'OCCURRENCE_FOR_PRIMARY', 'PRIMARY_WITH_CRITERIA' ]
+        filterUnion:
+          type: object
+          properties:
+            attributeFilter:
+              $ref: '#/components/schemas/AttributeFilter'
+            textFilter:
+              $ref: '#/components/schemas/TextFilter'
+            hierarchyFilter:
+              $ref: '#/components/schemas/HierarchyFilter'
+            relationshipFilter:
+              $ref: '#/components/schemas/RelationshipFilter'
+            booleanLogicFilter:
+              $ref: '#/components/schemas/BooleanLogicFilter'
+            itemInGroupFilter:
+              $ref: '#/components/schemas/ItemInGroupFilter'
+            groupHasItemsFilter:
+              $ref: '#/components/schemas/GroupHasItemsFilter'
+            occurrenceForPrimaryFilter:
+              $ref: '#/components/schemas/OccurrenceForPrimaryFilter'
+            primaryWithCriteriaFilter:
+              $ref: '#/components/schemas/PrimaryWithCriteriaFilter'
+
+    AttributeFilter:
+      description: Filter on an attribute value (e.g. color=red)
+      type: object
+      properties:
+        attribute:
+          type: string
+        operator:
+          type: string
+          enum: [ 'IS_NULL', 'IS_NOT_NULL', 'IS_EMPTY_STRING', 'EQUALS',
+                  'NOT_EQUALS', 'LESS_THAN', 'GREATER_THAN', 'LESS_THAN_OR_EQUAL',
+                  'GREATER_THAN_OR_EQUAL', 'IN', 'NOT_IN', 'BETWEEN' ]
+        values:
+          type: array
+          items:
+            $ref: './common.yaml#/components/schemas/Literal'
+
+    TextFilter:
+      description: Filter on a text search (e.g. person sounds like Joe)
+      type: object
+      properties:
+        matchType:
+          type: string
+          enum: [ 'EXACT_MATCH', 'FUZZY_MATCH' ]
+        attribute:
+          description: Attribute to match on. If not specified, then we match
+            on whatever is specified in the text search mapping config.
+            Currently, fuzzy match only works on a single attribute
+            (i.e. you must specify this field for fuzzy match)
+          type: string
+        text:
+          type: string
+
+    HierarchyFilter:
+      description: Filter on a hierarchy (e.g. descendant of id=12)
+      type: object
+      properties:
+        hierarchy:
+          description: Name of the hierarchy
+          type: string
+        operator:
+          type: string
+          enum: [ 'CHILD_OF', 'DESCENDANT_OF_INCLUSIVE', 'IS_ROOT', 'IS_MEMBER' ]
+        values:
+          type: array
+          items:
+            $ref: './common.yaml#/components/schemas/Literal'
+
+    RelationshipFilter:
+      description: Filter on a relationship between entities (e.g. condition 
+        occurrences where condition=diabetes). If the group_by_count_operator
+        is set, then the group_by_count_value must also be set. The 
+        group_by_count_attribute is optional. If undefined, we group by the id 
+        only. When group_by fields are set, we filter on the number of related
+        entity instances. e.g. filter person instances with >2 related 
+        condition_occurrence instances
+      type: object
+      properties:
+        entity:
+          type: string
+        subfilter:
+          $ref: '#/components/schemas/Filter'
+        groupByCountAttributes:
+          type: array
+          items:
+            type: string
+        groupByCountOperator:
+          $ref: '#/components/schemas/BinaryOperator'
+        groupByCountValue:
+          type: integer
+          nullable: true
+
+    BooleanLogicFilter:
+      description: Compose multiple filters (e.g. color=red AND capacity=3,
+        NOT color=red). The NOT operator only allows a single subfilter. 
+        The OR and AND operators require more than one subfilter
+      type: object
+      properties:
+        operator:
+          type: string
+          enum: [ 'AND', 'OR', 'NOT' ]
+        subfilters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+
+    ItemInGroupFilter:
+      description: Filter an items entity with a group-items entity group. 
+        (e.g. ingredients in a brand, blood pressure readings for a person).
+        If the groupByCountOperator is set, then the groupByCountValue must 
+        also be set. The groupByCountAttribute is optional. If undefined, we 
+        group by the id only. When group by fields are set, we filter on the 
+        number of related entity instances. e.g. filter ingredients that are 
+        included in >2 brands
+      type: object
+      required: [ entityGroup ]
+      properties:
+        entityGroup:
+          type: string
+        groupSubfilter:
+          $ref: '#/components/schemas/Filter'
+        groupByCountAttributes:
+          type: array
+          items:
+            type: string
+        groupByCountOperator:
+          $ref: '#/components/schemas/BinaryOperator'
+        groupByCountValue:
+          type: integer
+
+    GroupHasItemsFilter:
+      description: Filter a group entity with any related items entities using
+        a group-items entity group. (e.g. brand with at least one ingredient,
+        person with at least one blood pressure reading)
+      type: object
+      required: [ entityGroup ]
+      properties:
+        entityGroup:
+          type: string
+        itemsSubfilter:
+          $ref: '#/components/schemas/Filter'
+        groupByCountAttributes:
+          type: array
+          items:
+            type: string
+        groupByCountOperator:
+          $ref: '#/components/schemas/BinaryOperator'
+        groupByCountValue:
+          type: integer
+
+    OccurrenceForPrimaryFilter:
+      description: Filters an occurrence entity with a criteria-occurrence
+        entity group (e.g. condition occurrences for people with gender=female,
+        condition=diabetes)
+      type: object
+      required: [ entityGroup, occurrenceEntity ]
+      properties:
+        entityGroup:
+          type: string
+        occurrenceEntity:
+          type: string
+        primarySubfilter:
+          $ref: '#/components/schemas/Filter'
+        criteriaSubfilter:
+          $ref: '#/components/schemas/Filter'
+
+    PrimaryWithCriteriaFilter:
+      description: Filter the primary entity with a criteria-occurrence entity
+        group (e.g. people where condition=diabetes and visit_type=inpatient).
+        If the groupByCountOperator is set, then the groupByCountValue must also
+        be set. The groupByCountAttributes are optional. If undefined, we group
+        by the id only. When group by fields are set, we filter on the number
+        of related occurrence instances. e.g. filter person instances with >2
+        related condition_occurrence instances
+      type: object
+      required: [ entityGroup ]
+      properties:
+        entityGroup:
+          type: string
+        criteriaSubfilter:
+          $ref: '#/components/schemas/Filter'
+        occurrenceSubfiltersAndGroupByAttributes:
+          description: Set of sub-filter and group by attributes per occurrence
+            entity. Map key is the occurrence entity name
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              subfilters:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Filter'
+              group_by_count_attributes:
+                type: array
+                items:
+                  type: string
+        groupByCountOperator:
+          $ref: '#/components/schemas/BinaryOperator'
+        groupByCountValue:
+          type: integer
+
+    BinaryOperator:
+      type: string
+      enum: [ 'EQUALS', 'NOT_EQUALS', 'LESS_THAN', 'GREATER_THAN',
+              'LESS_THAN_OR_EQUAL', 'GREATER_THAN_OR_EQUAL' ]
+
+    # --------------- Query Instances ---------------
+
+    Query:
+      description: Query for entity instances
+      type: object
+      properties:
+        includeAttributes:
+          description: Attributes to include in the returned instances
+          type: array
+          items:
+            type: string
+        includeHierarchyFields:
+          description: Hierarchy fields to include in the returned instances. 
+            All fields will be returned for each hierarchy specified
+          type: object
+          properties:
+            hierarchies:
+              description: Hierarchy names
+              type: array
+              items:
+                type: string
+            fields:
+              type: array
+              items:
+                type: string
+                enum: [ 'IS_MEMBER', 'PATH', 'NUM_CHILDREN', 'IS_ROOT' ]
+        includeRelationshipFields:
+          description: Relationship (count) fields to include in the 
+            returned instances
+          type: array
+          items:
+            description: Related entity and optional hierarchies. Per-node
+              rollups are always returned
+            type: object
+            properties:
+              relatedEntity:
+                type: string
+              hierarchies:
+                description: Hierarchy names
+                type: array
+                items:
+                  type: string
+        filter:
+          $ref: '#/components/schemas/Filter'
+        orderBys:
+          description: Attributes and direction to order the results by
+          type: array
+          items:
+            description: Attribute or relationship (count) field and the direction
+            type: object
+            properties:
+              attribute:
+                type: string
+              relationshipField:
+                type: object
+                properties:
+                  relatedEntity:
+                    type: string
+                  hierarchy:
+                    type: string
+              direction:
+                $ref: './common.yaml#/components/schemas/OrderByDirection'
+        limit:
+          $ref: './common.yaml#/components/schemas/Limit'
+        pageSize:
+          $ref: './common.yaml#/components/schemas/PageSize'
+        pageMarker:
+          $ref: './common.yaml#/components/schemas/PageMarker'
+
+    InstanceListResult:
+      description: List of instances
+      type: object
+      properties:
+        sql:
+          type: string
+        instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/Instance'
+        pageMarker:
+          $ref: './common.yaml#/components/schemas/PageMarker'
+        numRowsAcrossAllPages:
+          $ref: './common.yaml#/components/schemas/NumRowsAcrossAllPages'
+
+    Instance:
+      type: object
+      properties:
+        attributes:
+          description: A map of entity attribute names to their value for this 
+            instance. Only the attributes requested are populated
+          type: object
+          additionalProperties:
+            $ref: './common.yaml#/components/schemas/ValueDisplay'
+        hierarchyFields:
+          description: Hierarchy field values for this instance. One set of 
+            values per hierarchy. Only the values requested are populated
+          type: array
+          items:
+            type: object
+            properties:
+              hierarchy:
+                type: string
+              isMember:
+                type: boolean
+              path:
+                type: string
+              numChildren:
+                type: integer
+              isRoot:
+                type: boolean
+        relationshipFields:
+          description: Relationship field values for this instance. Only the 
+            values requested are populated
+          type: array
+          items:
+            type: object
+            properties:
+              relatedEntity:
+                type: string
+              hierarchy:
+                type: string
+              count:
+                type: integer
+              displayHints:
+                type: string
+
+    QueryFilterOnPrimaryEntity:
+      description: Query for entity instances filtered for a single primary entity id
+      type: object
+      required: [ includeAttributes, orderBys, primaryEntityId ]
+      properties:
+        includeAttributes:
+          description: Attributes to include in the returned instances. Empty 
+            array means to include all attributes
+          type: array
+          items:
+            type: string
+        orderBys:
+          description: Attributes and direction to order the results by
+          type: array
+          items:
+            description: Attribute field and the direction
+            type: object
+            properties:
+              attribute:
+                type: string
+              direction:
+                $ref: './common.yaml#/components/schemas/OrderByDirection'
+        primaryEntityId:
+          $ref: './common.yaml#/components/schemas/Literal'
+        pageSize:
+          $ref: './common.yaml#/components/schemas/PageSize'
+        pageMarker:
+          $ref: './common.yaml#/components/schemas/PageMarker'
+
+    # --------------- Query Count ---------------
+
+    CountQuery:
+      description: Count entity instances
+      type: object
+      properties:
+        attributes:
+          description: Attributes to group by. One count will be returned for each
+            possible combination of attribute values (e.g. [gender, hair_color]
+            will return counts for man+red, man+black, woman+red, woman+black)
+          type: array
+          items:
+            type: string
+        filter:
+          $ref: '#/components/schemas/Filter'
+        pageSize:
+          $ref: './common.yaml#/components/schemas/PageSize'
+        pageMarker:
+          $ref: './common.yaml#/components/schemas/PageMarker'
+
+    InstanceCountList:
+      description: List of instance counts
+      type: object
+      properties:
+        sql:
+          type: string
+        instanceCounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstanceCount'
+        pageMarker:
+          $ref: './common.yaml#/components/schemas/PageSize'
+        numRowsAcrossAllPages:
+          $ref: './common.yaml#/components/schemas/NumRowsAcrossAllPages'
+
+    InstanceCount:
+      type: object
+      properties:
+        count:
+          type: integer
+        attributes:
+          description: A map of entity attribute names to their value for this group
+          type: object
+          additionalProperties:
+            $ref: './common.yaml#/components/schemas/ValueDisplay'
+
+  # --------------- Query Hints ---------------
+
+    HintQuery:
+      description: Get display hints
+      type: object
+      properties:
+        relatedEntity:
+          description: Optional related entity. If specified, then we return
+            hints computed across related instances (e.g. condition occurrences
+            where condition id=11). Otherwise, we return hints computed across 
+            all instances (e.g. all persons)
+          type: object
+          properties:
+            name:
+              description: Related entity name
+              type: string
+            id:
+              $ref: './common.yaml#/components/schemas/Literal'
+
+    DisplayHintList:
+      description: List of display hints
+      type: object
+      properties:
+        sql:
+          type: string
+        displayHints:
+          type: array
+          items:
+            $ref: '#/components/schemas/DisplayHint'
+
+    DisplayHint:
+      description: Display hint for entity attribute
+      type: object
+      properties:
+        attribute:
+          $ref: '#/components/schemas/Attribute'
+        displayHint:
+          description: Display hint calculated from source data
+          type: object
+          properties:
+            enumHint:
+              $ref: '#/components/schemas/DisplayHintEnum'
+            numericRangeHint:
+              $ref: '#/components/schemas/DisplayHintNumericRange'
+
+    DisplayHintEnum:
+      description: Enumeration of possible values, display strings, and counts
+      type: object
+      properties:
+        enumHintValues:
+          type: array
+          items:
+            description: Enum value and count
+            type: object
+            properties:
+              enumVal:
+                $ref: './common.yaml#/components/schemas/ValueDisplay'
+              count:
+                type: integer
+
+    DisplayHintNumericRange:
+      description: Maximum and minimum values
+      type: object
+      properties:
+        min:
+          description: Max value
+          type: number
+          format: double
+        max:
+          description: Min value
+          type: number
+          format: double
+
+  # --------------- Criteria ---------------
+
+    CriteriaGroupSection:
+      description: Section of criteria groups and boolean logic operators to
+        combine them
+      type: object
+      required: [ id, displayName, criteriaGroups, operator, excluded ]
+      properties:
+        id:
+          description: ID of the section, immutable
+          type: string
+        displayName:
+          description: Name of the section
+          type: string
+        criteriaGroups:
+          description: For a temporal section, this is the set of groups that
+            define the first block. For a non-temporal section, the set of
+            groups is the union of this list and the secondBlockCriteriaGroups list
+          type: array
+          items:
+            $ref: '#/components/schemas/CriteriaGroup'
+        firstBlockReducingOperator:
+          $ref: '#/components/schemas/ReducingOperator'
+        secondBlockCriteriaGroups:
+          description: For a temporal section, this is the set of groups that
+            define the second block. For a non-temporal section, the set of
+            groups are the union of this list and the criteriaGroups list
+          type: array
+          items:
+            $ref: '#/components/schemas/CriteriaGroup'
+        secondBlockReducingOperator:
+          $ref: '#/components/schemas/ReducingOperator'
+        operator:
+          description: Operator to use when combining the criteria groups in the section
+          type: string
+          enum: [ 'AND', 'OR', 'DURING_SAME_ENCOUNTER', 'NUM_DAYS_BEFORE',
+                  'NUM_DAYS_AFTER', 'WITHIN_NUM_DAYS']
+        operatorValue:
+          description: Value associated with the operator (e.g. num days)
+          type: integer
+        excluded:
+          description: True to exclude the section, false to include it
+          type: boolean
+
+    CriteriaGroup:
+      description: Group of related criteria (primary + modifiers)
+      type: object
+      required: [ id, displayName, criteria ]
+      properties:
+        id:
+          type: string
+          description: ID of the group, immutable
+        displayName:
+          type: string
+          description: Name of the group
+        criteria:
+          type: array
+          description: Set of criteria in the group
+          items:
+            $ref: '#/components/schemas/Criteria'
+
+    Criteria:
+      description: Single criteria for a cohort or concept set definition
+      type: object
+      required: [ id, displayName, pluginName, selectionData, uiConfig, tags ]
+      properties:
+        id:
+          description: ID of the criteria, immutable
+          type: string
+        displayName:
+          description: Name of the criteria
+          type: string
+        pluginName:
+          description: Name of the plugin that generated this criteria
+          type: string
+        pluginVersion:
+          description: Version of the plugin that generated this criteria
+          type: integer
+        predefinedId:
+          description: Id of the predefined criteria in the config
+          type: string
+        selectorOrModifierName:
+          description: Name of the selector or modifier used by this config
+          type: string
+        selectionData:
+          description: Serialized plugin-specific representation of the user's selection
+          type: string # JSON formatted, previously base64 Protobuf formatted
+        uiConfig:
+          description: Serialized plugin-specific UI configuration for the criteria
+          type: string # JSON formatted
+        tags:
+          description: Unstructured key-value tags for the criteria
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+
+    ReducingOperator:
+      description: Reducing operator for the criteria groups blocks. Only
+        applies for a temporal section
+      type: string
+      enum: [ 'ANY', 'FIRST_MENTION_OF', 'LAST_MENTION_OF']
