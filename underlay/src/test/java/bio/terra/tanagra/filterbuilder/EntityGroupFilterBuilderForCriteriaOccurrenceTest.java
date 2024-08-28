@@ -651,6 +651,12 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
     selectionData = new SelectionData("condition", "");
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNull(cohortFilter);
+
+    // Empty list selection.
+    DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
+    selectionData = new SelectionData("condition", serializeToJson(data));
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
   }
 
   @Test
@@ -1258,6 +1264,14 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
     // Empty string selection data.
     selectionData = new SelectionData("icd9proc", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(2, dataFeatureOutputs.size());
+    assertTrue(dataFeatureOutputs.contains(expectedEntityOutput1));
+    assertTrue(dataFeatureOutputs.contains(expectedEntityOutput2));
+
+    // Empty list selection.
+    DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
+    selectionData = new SelectionData("icd9proc", serializeToJson(data));
     dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
     assertEquals(2, dataFeatureOutputs.size());
     assertTrue(dataFeatureOutputs.contains(expectedEntityOutput1));
