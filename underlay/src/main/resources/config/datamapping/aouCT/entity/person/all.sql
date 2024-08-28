@@ -2,7 +2,7 @@ SELECT p.person_id,
        p.year_of_birth,
        p.birth_datetime,
        CASE
-           WHEN d.death_date IS NOT NULL THEN p.birth_datetime END birth_datetime_not_deceased,
+           WHEN d.death_date IS NULL THEN p.birth_datetime END birth_datetime_not_deceased,
        p.gender_concept_id,
        CASE
            WHEN gc.concept_name = 'Male' THEN 'Man'
