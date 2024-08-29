@@ -616,7 +616,7 @@ components:
           items:
             $ref: '#/components/schemas/InstanceCount'
         pageMarker:
-          $ref: './common.yaml#/components/schemas/PageSize'
+          $ref: './common.yaml#/components/schemas/PageMarker'
         numRowsAcrossAllPages:
           $ref: './common.yaml#/components/schemas/NumRowsAcrossAllPages'
 

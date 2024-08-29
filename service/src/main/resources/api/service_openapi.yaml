@@ -33,7 +33,7 @@ paths:
       security: [ ]
       description: Returns the deployed version of the service
       operationId: serviceVersion
-      tags: [ Public ]
+      tags: [ Unauthenticated ]
       responses:
         200:
           description: Version properties
