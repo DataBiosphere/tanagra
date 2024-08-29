@@ -1,0 +1,30 @@
+# Test APIs, parameters & schema objects
+
+paths:
+  /vumcAdminServiceTest:
+    get:
+      description: Temporary endpoint to test service-to-service communication
+        with the VUMC admin service.
+      operationId: vumcAdminServiceTest
+      tags: [ Test ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VumcAdminServiceTest'
+        401:
+          $ref: './common.yaml#/components/responses/Unauthorized'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  schemas:
+    VumcAdminServiceTest:
+      type: object
+      properties:
+        version:
+          type: string
+        round-trip:
+          type: string

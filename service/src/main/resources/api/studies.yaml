@@ -1,0 +1,259 @@
+# Study APIs, parameters & schema objects
+
+paths:
+  /createListStudy:
+    get:
+      description: List all studies a user can read
+      operationId: listStudies
+      tags: [ Studies ]
+      parameters:
+      - $ref: '#/components/parameters/StudyFilterDisplayName'
+      - $ref: '#/components/parameters/StudyFilterDescription'
+      - $ref: '#/components/parameters/StudyFilterCreatedBy'
+      - $ref: '#/components/parameters/StudyFilterIncludeDeleted'
+      - $ref: '#/components/parameters/StudyFilterProperties'
+      - $ref: './common.yaml#/components/parameters/Offset'
+      - $ref: './common.yaml#/components/parameters/Limit'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudyList'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    post:
+      description: Create a new study
+      operationId: createStudy
+      tags: [ Studies ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudyCreateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Study'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /getUpdateDeleteStudy:
+    parameters:
+    - $ref: '#/components/parameters/StudyId'
+    get:
+      description: Get an existing study
+      operationId: getStudy
+      tags: [ Studies ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Study'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    patch:
+      description: Update an existing study
+      operationId: updateStudy
+      tags: [ Studies ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudyUpdateInfo'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Study'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    delete:
+      description: Delete a study
+      operationId: deleteStudy
+      tags: [ Studies ]
+      responses:
+        204:
+          $ref: './common.yaml#/components/responses/NoContent'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+  /updateDeleteStudyProperties:
+    parameters:
+    - $ref: '#/components/parameters/StudyId'
+    post:
+      description: Update the properties in a study. Only properties with keys
+        in request are updated. Properties with keys not in request are not updated
+      operationId: updateStudyProperties
+      tags: [ Studies ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './common.yaml#/components/schemas/Properties'
+      responses:
+        204:
+          $ref: './common.yaml#/components/responses/NoContent'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+    patch:
+      description: Delete properties in a study. Only properties with keys in
+        request are deleted. Properties with keys not in request are not deleted
+      operationId: deleteStudyProperties
+      tags: [ Studies ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './common.yaml#/components/schemas/PropertyKeys'
+      responses:
+        204:
+          $ref: './common.yaml#/components/responses/NoContent'
+        400:
+          $ref: './common.yaml#/components/responses/BadRequest'
+        404:
+          $ref: './common.yaml#/components/responses/NotFound'
+        500:
+          $ref: './common.yaml#/components/responses/ServerError'
+
+components:
+  parameters:
+    StudyId:
+      description: ID of the study
+      name: studyId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    StudyFilterDisplayName:
+      description: Text search on the study display name
+      name: displayName
+      in: query
+      required: false
+      schema:
+        type: string
+
+    StudyFilterDescription:
+      description: Text search on the study description
+      name: description
+      in: query
+      required: false
+      schema:
+        type: string
+
+    StudyFilterCreatedBy:
+      description: Text search on the study created by email
+      name: createdBy
+      in: query
+      required: false
+      schema:
+        type: string
+
+    StudyFilterIncludeDeleted:
+      description: True to include studies that have been deleted
+      name: includeDeleted
+      in: query
+      required: false
+      schema:
+        type: boolean
+
+    StudyFilterProperties:
+      description: Text search on the study metadata properties. The list 
+        must alternate key1, value1, key2, value2
+      name: properties
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+
+  schemas:
+    StudyList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Study'
+
+    Study:
+      type: object
+      required: [ id, created, createdBy, lastModified ]
+      properties:
+        id:
+          $ref: '#/components/schemas/StudyId'
+        displayName:
+          $ref: '#/components/schemas/StudyDisplayName'
+        description:
+          $ref: '#/components/schemas/StudyDescription'
+        properties:
+          $ref: './common.yaml#/components/schemas/Properties'
+        created:
+          type: string
+          format: date-time
+        createdBy:
+          description: Email of user who created the study
+          type: string
+        lastModified:
+          type: string
+          format: date-time
+        isDeleted:
+          type: boolean
+          nullable: false
+
+    StudyId:
+      description: ID of the study, immutable
+      type: string
+
+    StudyDisplayName:
+      description: Human readable name of the study
+      type: string
+
+    StudyDescription:
+      description: Description of the study
+      type: string
+
+    StudyCreateInfo:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/StudyId'
+        displayName:
+          $ref: '#/components/schemas/StudyDisplayName'
+        description:
+          $ref: '#/components/schemas/StudyDescription'
+        properties:
+          $ref: './common.yaml#/components/schemas/Properties'
+
+    StudyUpdateInfo:
+      type: object
+      properties:
+        displayName:
+          $ref: '#/components/schemas/StudyDisplayName'
+        description:
+          $ref: '#/components/schemas/StudyDescription'
