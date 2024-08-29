@@ -261,12 +261,18 @@ public class EntityGroupFilterBuilderForItemsTest {
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
     // Null selection data.
-    SelectionData selectionData = new SelectionData("genotyping", null);
+    SelectionData selectionData = new SelectionData("bloodPressure", null);
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNull(cohortFilter);
 
     // Empty string selection data.
-    selectionData = new SelectionData("genotyping", "");
+    selectionData = new SelectionData("bloodPressure", "");
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
+
+    // Empty list selection.
+    DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
+    selectionData = new SelectionData("bloodPressure", serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNull(cohortFilter);
   }
@@ -511,6 +517,13 @@ public class EntityGroupFilterBuilderForItemsTest {
 
     // Empty string selection data.
     selectionData = new SelectionData("bloodPressure", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
+
+    // Empty list selection.
+    DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
+    selectionData = new SelectionData("bloodPressure", serializeToJson(data));
     dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
     assertEquals(1, dataFeatureOutputs.size());
     assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));

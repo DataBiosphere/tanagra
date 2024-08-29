@@ -434,6 +434,12 @@ public class EntityGroupFilterBuilderForGroupTest {
     selectionData = new SelectionData("genotyping", "");
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNull(cohortFilter);
+
+    // Empty list selection.
+    DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
+    selectionData = new SelectionData("genotyping", serializeToJson(data));
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertNull(cohortFilter);
   }
 
   @Test
@@ -782,6 +788,13 @@ public class EntityGroupFilterBuilderForGroupTest {
 
     // Empty string selection data.
     selectionData = new SelectionData("genotyping", "");
+    dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
+    assertEquals(1, dataFeatureOutputs.size());
+    assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
+
+    // Empty list selection.
+    DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
+    selectionData = new SelectionData("genotyping", serializeToJson(data));
     dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
     assertEquals(1, dataFeatureOutputs.size());
     assertEquals(expectedEntityOutput, dataFeatureOutputs.get(0));
