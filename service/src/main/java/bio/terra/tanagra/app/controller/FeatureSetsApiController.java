@@ -91,7 +91,8 @@ public class FeatureSetsApiController implements FeatureSetsApi {
             offset,
             limit);
     ApiFeatureSetList apiFeatureSets = new ApiFeatureSetList();
-    featureSetService.listFeatureSets(authorizedFeatureSetIds, offset, limit)
+    featureSetService
+        .listFeatureSets(authorizedFeatureSetIds, offset, limit)
         .forEach(featureSet -> apiFeatureSets.add(toApiObject(featureSet)));
     return ResponseEntity.ok(apiFeatureSets);
   }
