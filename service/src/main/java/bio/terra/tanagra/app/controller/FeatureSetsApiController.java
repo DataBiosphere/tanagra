@@ -33,13 +33,13 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class FeatureSetsApiController implements FeatureSetsApi {
-  private final FeatureSetService FeatureSetService;
+  private final FeatureSetService featureSetService;
   private final AccessControlService accessControlService;
 
   @Autowired
   public FeatureSetsApiController(
-      FeatureSetService FeatureSetService, AccessControlService accessControlService) {
-    this.FeatureSetService = FeatureSetService;
+      FeatureSetService featureSetService, AccessControlService accessControlService) {
+    this.featureSetService = featureSetService;
     this.accessControlService = accessControlService;
   }
 
@@ -51,7 +51,7 @@ public class FeatureSetsApiController implements FeatureSetsApi {
         Permissions.forActions(STUDY, CREATE_FEATURE_SET),
         ResourceId.forStudy(studyId));
     FeatureSet createdFeatureSet =
-        FeatureSetService.createFeatureSet(
+        featureSetService.createFeatureSet(
             studyId,
             FeatureSet.builder()
                 .displayName(body.getDisplayName())
@@ -62,22 +62,22 @@ public class FeatureSetsApiController implements FeatureSetsApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteFeatureSet(String studyId, String FeatureSetId) {
+  public ResponseEntity<Void> deleteFeatureSet(String studyId, String featureSetId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(FEATURE_SET, DELETE),
-        ResourceId.forFeatureSet(studyId, FeatureSetId));
-    FeatureSetService.deleteFeatureSet(studyId, FeatureSetId);
+        ResourceId.forFeatureSet(studyId, featureSetId));
+    featureSetService.deleteFeatureSet(studyId, featureSetId);
     return new ResponseEntity<>(HttpStatus.NO_CONTENT);
   }
 
   @Override
-  public ResponseEntity<ApiFeatureSet> getFeatureSet(String studyId, String FeatureSetId) {
+  public ResponseEntity<ApiFeatureSet> getFeatureSet(String studyId, String featureSetId) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(FEATURE_SET, READ),
-        ResourceId.forFeatureSet(studyId, FeatureSetId));
-    return ResponseEntity.ok(toApiObject(FeatureSetService.getFeatureSet(studyId, FeatureSetId)));
+        ResourceId.forFeatureSet(studyId, featureSetId));
+    return ResponseEntity.ok(toApiObject(featureSetService.getFeatureSet(studyId, featureSetId)));
   }
 
   @Override
@@ -91,18 +91,18 @@ public class FeatureSetsApiController implements FeatureSetsApi {
             offset,
             limit);
     ApiFeatureSetList apiFeatureSets = new ApiFeatureSetList();
-    FeatureSetService.listFeatureSets(authorizedFeatureSetIds, offset, limit)
-        .forEach(FeatureSet -> apiFeatureSets.add(toApiObject(FeatureSet)));
+    featureSetService.listFeatureSets(authorizedFeatureSetIds, offset, limit)
+        .forEach(featureSet -> apiFeatureSets.add(toApiObject(featureSet)));
     return ResponseEntity.ok(apiFeatureSets);
   }
 
   @Override
   public ResponseEntity<ApiFeatureSet> updateFeatureSet(
-      String studyId, String FeatureSetId, ApiFeatureSetUpdateInfo body) {
+      String studyId, String featureSetId, ApiFeatureSetUpdateInfo body) {
     accessControlService.throwIfUnauthorized(
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(FEATURE_SET, UPDATE),
-        ResourceId.forFeatureSet(studyId, FeatureSetId));
+        ResourceId.forFeatureSet(studyId, featureSetId));
     List<Criteria> criteria =
         body.getCriteria() == null
             ? null
@@ -118,9 +118,9 @@ public class FeatureSetsApiController implements FeatureSetsApi {
                     Collectors.toMap(
                         ApiEntityOutput::getEntity, ApiEntityOutput::getExcludeAttributes));
     FeatureSet updatedFeatureSet =
-        FeatureSetService.updateFeatureSet(
+        featureSetService.updateFeatureSet(
             studyId,
-            FeatureSetId,
+            featureSetId,
             SpringAuthentication.getCurrentUser().getEmail(),
             body.getDisplayName(),
             body.getDescription(),
@@ -129,25 +129,25 @@ public class FeatureSetsApiController implements FeatureSetsApi {
     return ResponseEntity.ok(toApiObject(updatedFeatureSet));
   }
 
-  private static ApiFeatureSet toApiObject(FeatureSet FeatureSet) {
+  private static ApiFeatureSet toApiObject(FeatureSet featureSet) {
     return new ApiFeatureSet()
-        .id(FeatureSet.getId())
-        .underlayName(FeatureSet.getUnderlay())
-        .displayName(FeatureSet.getDisplayNameOrDefault())
-        .description(FeatureSet.getDescription())
-        .created(FeatureSet.getCreated())
-        .createdBy(FeatureSet.getCreatedBy())
-        .lastModified(FeatureSet.getLastModified())
+        .id(featureSet.getId())
+        .underlayName(featureSet.getUnderlay())
+        .displayName(featureSet.getDisplayNameOrDefault())
+        .description(featureSet.getDescription())
+        .created(featureSet.getCreated())
+        .createdBy(featureSet.getCreatedBy())
+        .lastModified(featureSet.getLastModified())
         .criteria(
-            FeatureSet.getCriteria() == null
+            featureSet.getCriteria() == null
                 ? null
-                : FeatureSet.getCriteria().stream()
+                : featureSet.getCriteria().stream()
                     .map(ToApiUtils::toApiObject)
                     .collect(Collectors.toList()))
         .entityOutputs(
-            FeatureSet.getExcludeOutputAttributesPerEntity() == null
+            featureSet.getExcludeOutputAttributesPerEntity() == null
                 ? null
-                : FeatureSet.getExcludeOutputAttributesPerEntity().entrySet().stream()
+                : featureSet.getExcludeOutputAttributesPerEntity().entrySet().stream()
                     .map(
                         entry ->
                             new ApiEntityOutput()
