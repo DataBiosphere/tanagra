@@ -14,12 +14,12 @@ import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.Cohort;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.authentication.UserId;
@@ -47,7 +47,7 @@ public class BaseAccessControlTest {
   @Autowired protected UnderlayService underlayService;
   @Autowired protected StudyService studyService;
   @Autowired protected CohortService cohortService;
-  @Autowired protected ConceptSetService conceptSetService;
+  @Autowired protected FeatureSetService featureSetService;
   @Autowired protected ReviewService reviewService;
   @Autowired protected AnnotationService annotationService;
 
@@ -65,8 +65,8 @@ public class BaseAccessControlTest {
   protected Study study2;
   protected Cohort cohort1;
   protected Cohort cohort2;
-  protected ConceptSet conceptSet1;
-  protected ConceptSet conceptSet2;
+  protected FeatureSet featureSet1;
+  protected FeatureSet featureSet2;
   protected Review review1;
   protected Review review2;
   protected AnnotationKey annotationKey1;
@@ -109,34 +109,34 @@ public class BaseAccessControlTest {
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
 
-    // Create 2 concept sets.
-    conceptSet1 =
-        conceptSetService.createConceptSet(
+    // Create 2 feature sets.
+    featureSet1 =
+        featureSetService.createFeatureSet(
             study1.getId(),
-            ConceptSet.builder()
+            FeatureSet.builder()
                 .underlay(CMS_SYNPUF)
-                .displayName("concept set 1")
-                .description("first concept set")
+                .displayName("feature set 1")
+                .description("first feature set")
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue()))
                 .excludeOutputAttributesPerEntity(
                     Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), List.of("gender"))),
             USER_1.getEmail());
-    assertNotNull(conceptSet1);
-    LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
+    assertNotNull(featureSet1);
+    LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
-    conceptSet2 =
-        conceptSetService.createConceptSet(
+    featureSet2 =
+        featureSetService.createFeatureSet(
             study2.getId(),
-            ConceptSet.builder()
+            FeatureSet.builder()
                 .underlay(CMS_SYNPUF)
-                .displayName("concept set 2")
-                .description("second concept set")
+                .displayName("feature set 2")
+                .description("second feature set")
                 .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
                 .excludeOutputAttributesPerEntity(
                     Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
             USER_2.getEmail());
-    assertNotNull(conceptSet2);
-    LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
+    assertNotNull(featureSet2);
+    LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 
     // Create 2 reviews.
     List<Long> randomSampleQueryResult = List.of(123L, 456L, 789L);
@@ -272,10 +272,10 @@ public class BaseAccessControlTest {
                 .map(c -> ResourceId.forCohort(parent.getStudy(), c.getId()))
                 .collect(Collectors.toSet());
         break;
-      case CONCEPT_SET:
+      case FEATURE_SET:
         actual =
-            conceptSetService.listConceptSets(resources, 0, Integer.MAX_VALUE).stream()
-                .map(c -> ResourceId.forConceptSet(parent.getStudy(), c.getId()))
+            featureSetService.listFeatureSets(resources, 0, Integer.MAX_VALUE).stream()
+                .map(c -> ResourceId.forFeatureSet(parent.getStudy(), c.getId()))
                 .collect(Collectors.toSet());
         break;
       case REVIEW:

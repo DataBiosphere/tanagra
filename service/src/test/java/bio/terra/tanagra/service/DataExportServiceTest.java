@@ -23,12 +23,12 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.Cohort;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
@@ -81,7 +81,7 @@ public class DataExportServiceTest {
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
-  @Autowired private ConceptSetService conceptSetService;
+  @Autowired private FeatureSetService featureSetService;
   @Autowired private AnnotationService annotationService;
   @Autowired private ReviewService reviewService;
   @Autowired private DataExportService dataExportService;
@@ -89,39 +89,39 @@ public class DataExportServiceTest {
   private Study study1;
   private Cohort cohort1;
   private Cohort cohort2;
-  private ConceptSet conceptSet1;
-  private ConceptSet conceptSet2;
+  private FeatureSet featureSet1;
+  private FeatureSet featureSet2;
 
   @BeforeEach
   void createAnnotationValues() {
-    // Build a study, concept set, cohort, review, and annotation data.
+    // Build a study, feature set, cohort, review, and annotation data.
     String userEmail = "abc@123.com";
 
     study1 = studyService.createStudy(Study.builder(), userEmail);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
-    conceptSet1 =
-        conceptSetService.createConceptSet(
+    featureSet1 =
+        featureSetService.createFeatureSet(
             study1.getId(),
-            ConceptSet.builder()
+            FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("First Concept Set")
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight())),
             userEmail);
-    assertNotNull(conceptSet1);
-    LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
+    assertNotNull(featureSet1);
+    LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
-    conceptSet2 =
-        conceptSetService.createConceptSet(
+    featureSet2 =
+        featureSetService.createFeatureSet(
             study1.getId(),
-            ConceptSet.builder()
+            FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("Second Concept Set")
                 .criteria(List.of(ICD9CM_EQ_DIABETES.getRight())),
             userEmail);
-    assertNotNull(conceptSet2);
-    LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
+    assertNotNull(featureSet2);
+    LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 
     cohort1 =
         cohortService.createCohort(
@@ -292,7 +292,7 @@ public class DataExportServiceTest {
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertFalse(exportResult.isSuccessful());
@@ -317,7 +317,7 @@ public class DataExportServiceTest {
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
@@ -379,7 +379,7 @@ public class DataExportServiceTest {
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
@@ -478,7 +478,7 @@ public class DataExportServiceTest {
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
@@ -521,7 +521,7 @@ public class DataExportServiceTest {
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertFalse(exportResult.isSuccessful());
@@ -542,7 +542,7 @@ public class DataExportServiceTest {
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort2),
-            List.of(conceptSet2));
+            List.of(featureSet2));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());

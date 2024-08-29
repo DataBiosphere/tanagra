@@ -193,7 +193,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
       case READ:
         return Set.of(Action.READ);
       case UPDATE:
-        return Set.of(Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_CONCEPT_SET);
+        return Set.of(Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET);
       case CREATE:
         return Set.of(Action.CREATE);
       case DELETE:

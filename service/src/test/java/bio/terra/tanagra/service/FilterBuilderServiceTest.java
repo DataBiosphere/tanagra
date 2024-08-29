@@ -7,11 +7,6 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.C_CO
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.C_CONDITION_EXCLUDED_AND_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.C_EMPTY;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.C_PROCEDURE;
-import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_CONDITION_AND_PROCEDURE;
-import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_DEMOGRAPHICS;
-import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_DEMOGRAPHICS_EXCLUDE_ID_AGE;
-import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER;
-import static bio.terra.tanagra.service.criteriaconstants.sd.ConceptSet.CS_EMPTY;
 import static bio.terra.tanagra.service.criteriaconstants.sd.Criteria.CONDITION_EQ_TYPE_2_DIABETES;
 import static bio.terra.tanagra.service.criteriaconstants.sd.Criteria.PROCEDURE_EQ_AMPUTATION;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_CONDITION_WITH_MODIFIER;
@@ -26,6 +21,11 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSectio
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_SINGLE_GROUP_PER_CONDITION;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_UNSUPPORTED_CRITERIA_SELECTOR;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_UNSUPPORTED_MODIFIER;
+import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_CONDITION_AND_PROCEDURE;
+import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_DEMOGRAPHICS;
+import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_DEMOGRAPHICS_EXCLUDE_ID_AGE;
+import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_DEMOGRAPHICS_EXCLUDE_ID_GENDER;
+import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_EMPTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -37,14 +37,13 @@ import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.exception.*;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.filter.EntityOutputPreview;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
-import jakarta.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -181,40 +180,40 @@ public class FilterBuilderServiceTest {
   }
 
   @Test
-  void conceptSet() {
-    // No concept sets = no entity outputs.
+  void featureSet() {
+    // No feature sets = no entity outputs.
     List<EntityOutputPreview> entityOutputs =
-        filterBuilderService.buildOutputPreviewsForConceptSets(List.of(), false);
+        filterBuilderService.buildOutputPreviewsForFeatureSets(List.of(), false);
     assertTrue(entityOutputs.isEmpty());
 
-    // Single empty concept set, no excluded attributes.
+    // Single empty feature set, no excluded attributes.
     entityOutputs =
-        filterBuilderService.buildOutputPreviewsForConceptSets(List.of(CS_EMPTY), false);
+        filterBuilderService.buildOutputPreviewsForFeatureSets(List.of(CS_EMPTY), false);
     assertTrue(entityOutputs.isEmpty());
 
-    // Single concept set, no excluded attributes.
+    // Single feature set, no excluded attributes.
     entityOutputs =
-        filterBuilderService.buildOutputPreviewsForConceptSets(List.of(CS_DEMOGRAPHICS), false);
+        filterBuilderService.buildOutputPreviewsForFeatureSets(List.of(CS_DEMOGRAPHICS), false);
     assertEquals(1, entityOutputs.size());
     EntityOutput expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
-    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria = new ArrayList<>();
+    List<Pair<FeatureSet, Criteria>> expectedAttributedCriteria = new ArrayList<>();
     CS_DEMOGRAPHICS
         .getCriteria()
         .forEach(criteria -> expectedAttributedCriteria.add(Pair.of(CS_DEMOGRAPHICS, criteria)));
     assertEquals(expectedAttributedCriteria, entityOutputs.get(0).getAttributedCriteria());
 
-    // Single concept set, excluded attributes but with override flag to include all attributes.
+    // Single feature set, excluded attributes but with override flag to include all attributes.
     entityOutputs =
-        filterBuilderService.buildOutputPreviewsForConceptSets(
+        filterBuilderService.buildOutputPreviewsForFeatureSets(
             List.of(CS_DEMOGRAPHICS_EXCLUDE_ID_AGE), true);
     assertEquals(1, entityOutputs.size());
     expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
 
-    // Multiple concept sets, with overlapping excluded attributes.
+    // Multiple feature sets, with overlapping excluded attributes.
     entityOutputs =
-        filterBuilderService.buildOutputPreviewsForConceptSets(
+        filterBuilderService.buildOutputPreviewsForFeatureSets(
             List.of(
                 CS_EMPTY,
                 CS_DEMOGRAPHICS_EXCLUDE_ID_AGE,
@@ -236,7 +235,7 @@ public class FilterBuilderServiceTest {
                     entityOutputPreview.getEntityOutput().equals(expectedOutput1))
             .findAny();
     assertTrue(entityOutputAndAttributedCriteria1.isPresent());
-    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria1 = new ArrayList<>();
+    List<Pair<FeatureSet, Criteria>> expectedAttributedCriteria1 = new ArrayList<>();
     CS_DEMOGRAPHICS_EXCLUDE_ID_AGE
         .getCriteria()
         .forEach(
@@ -262,7 +261,7 @@ public class FilterBuilderServiceTest {
                     entityOutputPreview.getEntityOutput().equals(expectedOutput2))
             .findAny();
     assertTrue(entityOutputAndAttributedCriteria2.isPresent());
-    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria2 =
+    List<Pair<FeatureSet, Criteria>> expectedAttributedCriteria2 =
         List.of(Pair.of(CS_CONDITION_AND_PROCEDURE, CONDITION_EQ_TYPE_2_DIABETES));
     assertEquals(
         expectedAttributedCriteria2,
@@ -278,7 +277,7 @@ public class FilterBuilderServiceTest {
                     entityOutputPreview.getEntityOutput().equals(expectedOutput3))
             .findAny();
     assertTrue(entityOutputAndAttributedCriteria3.isPresent());
-    List<Pair<ConceptSet, Criteria>> expectedAttributedCriteria3 =
+    List<Pair<FeatureSet, Criteria>> expectedAttributedCriteria3 =
         List.of(Pair.of(CS_CONDITION_AND_PROCEDURE, PROCEDURE_EQ_AMPUTATION));
     assertEquals(
         expectedAttributedCriteria3,
@@ -292,9 +291,9 @@ public class FilterBuilderServiceTest {
 
     // One suppressed attribute, includeAllAttributes=true for data feature set page.
     List<EntityOutputPreview> entityOutputsForDataFeatureSetPage =
-        filterBuilderService.buildOutputPreviewsForConceptSets(
+        filterBuilderService.buildOutputPreviewsForFeatureSets(
             List.of(
-                bio.terra.tanagra.service.criteriaconstants.cmssynpuf.ConceptSet.CS_DEMOGRAPHICS),
+                bio.terra.tanagra.service.criteriaconstants.cmssynpuf.FeatureSet.CS_DEMOGRAPHICS),
             true);
     assertEquals(1, entityOutputsForDataFeatureSetPage.size());
     assertEquals(
@@ -310,9 +309,9 @@ public class FilterBuilderServiceTest {
 
     // One suppressed attribute, includeAllAttributes=false for export page.
     List<EntityOutputPreview> entityOutputsForExportPage =
-        filterBuilderService.buildOutputPreviewsForConceptSets(
+        filterBuilderService.buildOutputPreviewsForFeatureSets(
             List.of(
-                bio.terra.tanagra.service.criteriaconstants.cmssynpuf.ConceptSet.CS_DEMOGRAPHICS),
+                bio.terra.tanagra.service.criteriaconstants.cmssynpuf.FeatureSet.CS_DEMOGRAPHICS),
             false);
     assertEquals(1, entityOutputsForExportPage.size());
     assertEquals(
@@ -323,25 +322,25 @@ public class FilterBuilderServiceTest {
 
   @Test
   void export() {
-    // No cohorts or concept sets = no entity outputs.
+    // No cohorts or feature sets = no entity outputs.
     List<EntityOutput> entityOutputs =
         filterBuilderService.buildOutputsForExport(List.of(), List.of());
     assertTrue(entityOutputs.isEmpty());
 
-    // One cohort, no concept sets = no entity outputs.
+    // One cohort, no feature sets = no entity outputs.
     entityOutputs =
         filterBuilderService.buildOutputsForExport(
             List.of(C_EMPTY, C_CONDITION_EXCLUDED), List.of());
     assertTrue(entityOutputs.isEmpty());
 
-    // No cohorts, one concept set.
+    // No cohorts, one feature set.
     entityOutputs =
         filterBuilderService.buildOutputsForExport(List.of(), List.of(CS_EMPTY, CS_DEMOGRAPHICS));
     assertEquals(1, entityOutputs.size());
     EntityOutput expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
     assertEquals(expectedOutput, entityOutputs.get(0));
 
-    // Cohort with null filter, concept set with not-null filter.
+    // Cohort with null filter, feature set with not-null filter.
     entityOutputs =
         filterBuilderService.buildOutputsForExport(
             List.of(C_EMPTY), List.of(CS_CONDITION_AND_PROCEDURE));
@@ -355,7 +354,7 @@ public class FilterBuilderServiceTest {
     assertTrue(entityOutputs.contains(expectedOutput1));
     assertTrue(entityOutputs.contains(expectedOutput2));
 
-    // Both cohort and concept set with not-null filters.
+    // Both cohort and feature set with not-null filters.
     entityOutputs =
         filterBuilderService.buildOutputsForExport(
             List.of(C_PROCEDURE, C_CONDITION_EXCLUDED_AND_GENDER),

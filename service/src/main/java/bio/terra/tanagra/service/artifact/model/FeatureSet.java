@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public final class ConceptSet {
+public final class FeatureSet {
   private final String id;
   private final String underlay;
   private final List<Criteria> criteria;
@@ -29,7 +29,7 @@ public final class ConceptSet {
   private final String lastModifiedBy;
   private final boolean isDeleted;
 
-  private ConceptSet(Builder builder) {
+  private FeatureSet(Builder builder) {
     this.id = builder.id;
     this.underlay = builder.underlay;
     this.criteria = builder.criteria;
@@ -181,7 +181,7 @@ public final class ConceptSet {
       return this;
     }
 
-    public ConceptSet build() {
+    public FeatureSet build() {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
@@ -199,7 +199,7 @@ public final class ConceptSet {
                   Collectors.toMap(
                       Entry::getKey,
                       entry -> entry.getValue().stream().sorted().collect(Collectors.toList())));
-      return new ConceptSet(this);
+      return new FeatureSet(this);
     }
 
     public String getId() {
