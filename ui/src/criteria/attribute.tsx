@@ -58,7 +58,18 @@ interface Data {
         : attribute?.dataType === tanagraUnderlay.SZDataType.BOOLEAN
         ? [{ value: true, name: attribute.name }]
         : [],
-      dataRanges: [],
+      dataRanges:
+        attribute?.runtimeSqlFunctionWrapper &&
+        attribute?.displayHintRangeMin &&
+        attribute?.displayHintRangeMax
+          ? [
+              {
+                id: generateId(),
+                min: attribute.displayHintRangeMin,
+                max: attribute.displayHintRangeMax,
+              },
+            ]
+          : [],
     });
   },
   search
