@@ -27,4 +27,3 @@ components:
           type: string
         subjectId:
           type: string
-
