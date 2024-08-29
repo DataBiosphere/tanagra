@@ -161,6 +161,7 @@ components:
 
     EntityOutput:
       type: object
+      required: [ entity ]
       properties:
         entity:
           description: Entity name
@@ -170,9 +171,7 @@ components:
           type: array
           items:
             type: string
-      required:
-      - entity
-    
+
     ConceptSetCreateInfo:
       type: object
       properties:

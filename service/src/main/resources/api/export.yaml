@@ -188,14 +188,12 @@ components:
           type: array
           items:
             type: object
+            required: [ conceptSetId, criteriaId ]
             properties:
               conceptSetId:
                 type: string
               criteriaId:
                 type: string
-            required:
-            - conceptSetId
-            - criteriaId
         indexSql:
           description: SQL string against the index tables. This will be
             populated if source queries are not configured for this entity

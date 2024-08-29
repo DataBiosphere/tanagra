@@ -194,14 +194,8 @@ components:
           description: Timestamp of when the review was last modified
           type: string
           format: date-time
-      required:
-      - id
-      - displayName
-      - size
-      - cohortRevision
-      - created
-      - createdBy
-      - lastModified
+      required: [ id, displayName, size, cohortRevision, created, createdBy,
+                  lastModified ]
 
     ReviewId:
       description: ID of the review, immutable
@@ -221,6 +215,7 @@ components:
 
     ReviewCreateInfo:
       type: object
+      required: [ displayName, size ]
       properties:
         displayName:
           $ref: '#/components/schemas/ReviewDisplayName'
@@ -228,9 +223,7 @@ components:
           $ref: '#/components/schemas/ReviewDescription'
         size:
           $ref: '#/components/schemas/ReviewSize'
-      required:
-      - displayName
-      - size
+
 
     ReviewUpdateInfo:
       type: object
