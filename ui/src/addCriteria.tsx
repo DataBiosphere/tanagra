@@ -119,7 +119,7 @@ export function AddFeatureSetCriteria() {
 
   return (
     <AddCriteria
-      conceptSet
+      featureSet
       title={`Adding criteria for ${featureSet.name}`}
       onInsertCriteria={onInsertCriteria}
       excludedPredefinedCriteria={featureSet.predefinedCriteria}
@@ -135,13 +135,13 @@ type AddCriteriaOption = {
   category?: string;
   tags?: string[];
   cohort?: boolean;
-  conceptSet?: boolean;
+  featureSet?: boolean;
   selector?: tanagraUnderlay.SZCriteriaSelector;
   fn?: () => void;
 };
 
 type AddCriteriaProps = {
-  conceptSet?: boolean;
+  featureSet?: boolean;
   title: string;
   backAction?: () => void;
   onInsertCriteria: (criteria: Criteria) => void;
@@ -170,7 +170,7 @@ function AddCriteria(props: AddCriteriaProps) {
           name: p.name,
           title: p.displayName,
           category: "Predefined",
-          conceptSet: true,
+          featureSet: true,
           showMore: false,
         })
       );
@@ -184,7 +184,7 @@ function AddCriteria(props: AddCriteriaProps) {
         tags: s.display.tags,
         selector: s,
         cohort: s.isEnabledForCohorts,
-        conceptSet: s.isEnabledForDataFeatureSets,
+        featureSet: s.isEnabledForDataFeatureSets,
         showMore: !!getCriteriaPlugin(createCriteria(underlaySource, s))
           .renderEdit,
       })
@@ -207,7 +207,7 @@ function AddCriteria(props: AddCriteriaProps) {
       title: "Add cohort criteria",
       category: "Other",
       tags: [],
-      conceptSet: true,
+      featureSet: true,
       showMore: false,
       fn: () => {
         navigate(addCohortCriteriaURL());
@@ -244,8 +244,8 @@ function AddCriteria(props: AddCriteriaProps) {
     () =>
       options.filter((option) => {
         if (
-          (props.conceptSet && !option.conceptSet) ||
-          (!props.conceptSet && !option.cohort)
+          (props.featureSet && !option.featureSet) ||
+          (!props.featureSet && !option.cohort)
         ) {
           return false;
         }

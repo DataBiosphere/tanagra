@@ -187,11 +187,11 @@ export function useOccurrenceList(
       return previewEntities.map((pe) => {
         const sourceCriteria = pe.sourceCriteria.map((sc) => {
           const featureSet = featureSets.find(
-            (fs) => fs.id === sc.conceptSetId
+            (fs) => fs.id === sc.featureSetId
           );
           if (!featureSet) {
             throw new Error(
-              `Unexpected source feature set: ${sc.conceptSetId}`
+              `Unexpected source feature set: ${sc.featureSetId}`
             );
           }
 
@@ -205,7 +205,7 @@ export function useOccurrenceList(
           }
           if (!criteria) {
             throw new Error(
-              `Unexpected source criteria: feature set: ${sc.conceptSetId}, criteria: ${sc.criteriaId}`
+              `Unexpected source criteria: feature set: ${sc.featureSetId}, criteria: ${sc.criteriaId}`
             );
           }
 
