@@ -84,7 +84,10 @@ A service deployment lives in a GCP project configured with the items below.
    ]
    ```
     - The files stored in this bucket are either exported to VWB or downloaded to the user's computer, 
-      depending on the export model configured and selected. If desired they can be set to be automatically deleted
+      depending on the export model configured and selected. It is recommended to configure the bucket 
+      to automatically delete objects after some expiration time. 
+      See [lifecycle configuration](https://cloud.google.com/storage/docs/lifecycle)
+    - If desired they can be set to be automatically deleted
       as part of the bucket's lifecyle configuration.
 - **"Application"** service account with the below permissions.
     - Read the source BigQuery dataset. `roles/bigquery.dataViewer` granted at the dataset-level (on the source dataset)
