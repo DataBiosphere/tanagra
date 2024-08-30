@@ -2,16 +2,16 @@ WITH blood_pressure AS (
     SELECT person_id,
            measurement_datetime,
            CASE
-               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) BETWEEN 121 AND 139) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) BETWEEN 81 AND 89) THEN '1'
+               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) BETWEEN 120 AND 139) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) BETWEEN 81 AND 89) THEN '1'
                WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) >= 140) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) >= 90) THEN '2'
                WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) <= 90) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) <= 60) THEN '3'
-               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) BETWEEN 91 AND 120) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) BETWEEN 61 AND 80) THEN '4'
+               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) <= 120) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) <= 80) THEN '4'
                END AS status_code,
            CASE
-               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) BETWEEN 121 AND 139) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) BETWEEN 81 AND 89) THEN 'Pre Hypertensive'
+               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) BETWEEN 120 AND 139) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) BETWEEN 81 AND 89) THEN 'Pre Hypertensive'
                WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) >= 140) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) >= 90) THEN 'Hypertensive'
                WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) <= 90) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) <= 60) THEN 'Hypotensive'
-               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) BETWEEN 91 AND 120) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) BETWEEN 61 AND 80) THEN 'Normal'
+               WHEN (CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) <= 120) AND (CAST(SPLIT(values, ',')[offset(1)] AS FLOAT64) <= 80) THEN 'Normal'
                ELSE 'Unknown Range'
                END AS status_code_name,
            CAST(SPLIT(values, ',')[offset(0)] AS FLOAT64) AS systolic,
