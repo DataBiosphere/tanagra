@@ -42,9 +42,8 @@ export function StudiesList() {
   });
 
   const listStudies = useCallback(async () => {
-    const domain = userState.data?.email?.split("@")[1];
     return await studySource.listStudies({
-      createdBy: domain ? "@" + domain : undefined,
+      createdBy: userState.data?.email,
     });
   }, [studySource, userState.data?.email]);
 
