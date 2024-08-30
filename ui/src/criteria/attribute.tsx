@@ -59,9 +59,8 @@ interface Data {
         ? [{ value: true, name: attribute.name }]
         : [],
       dataRanges:
-        attribute?.runtimeSqlFunctionWrapper &&
-        attribute?.displayHintRangeMin &&
-        attribute?.displayHintRangeMax
+        attribute?.displayHintRangeMin !== undefined &&
+        attribute?.displayHintRangeMax !== undefined
           ? [
               {
                 id: generateId(),
