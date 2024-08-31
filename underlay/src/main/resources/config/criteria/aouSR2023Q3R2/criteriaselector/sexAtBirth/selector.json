@@ -1,6 +1,6 @@
 {
   "name": "tanagra-sex-at-birth",
-  "displayName": "Sex At Birth",
+  "displayName": "Sex Assigned at Birth",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {

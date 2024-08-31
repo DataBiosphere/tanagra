@@ -1,6 +1,6 @@
 {
-  "name": "tanagra-fitbit-heart-rate-level",
-  "displayName": "Fitbit Heart Rate Minute Level",
+  "name": "tanagra-wear-consent",
+  "displayName": "Wear Consent",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
@@ -10,6 +10,6 @@
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
   "plugin": "attribute",
   "pluginConfig": null,
-  "pluginConfigFile": "fitbitHeartRateLevel.json",
+  "pluginConfigFile": "wearConsent.json",
   "modifiers": null
 }
