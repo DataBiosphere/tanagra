@@ -12,7 +12,7 @@
     "@material-ui/icons": "^4.11.2",
     "@mui/icons-material": "^5.0.1",
     "@mui/lab": "^5.0.0-alpha.122",
-    "@mui/material": "^5.11.12",
+    "@mui/material": "^5.16.7",
     "@mui/x-data-grid": "^5.0.0-beta.2",
     "@openapitools/openapi-generator-cli": "^2.13.5",
     "@protobuf-ts/protoc": "^2.9.3",
