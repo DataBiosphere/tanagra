@@ -31,8 +31,7 @@ public class BooleanAndOrFilter extends EntityFilter {
   @Override
   public Entity getEntity() {
     Entity entity = subFilters.get(0).getEntity();
-    if (subFilters.stream()
-        .anyMatch(subFilter -> !subFilter.getEntity().equals(entity))) {
+    if (subFilters.stream().anyMatch(subFilter -> !subFilter.getEntity().equals(entity))) {
       throw new InvalidQueryException(
           "All sub-filters of a boolean and/or filter must be for the same entity.");
     }

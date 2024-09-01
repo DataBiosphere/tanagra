@@ -95,8 +95,7 @@ public final class JacksonMapper {
 
     // Enable any Jackson features specified.
     mapperFeatures.forEach(objectMapper::enable);
-    deserializationFeatures
-        .forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
+    deserializationFeatures.forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
 
     try (inputStream) {
       return objectMapper.readValue(inputStream, javaObjectClass);

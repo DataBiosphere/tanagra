@@ -42,7 +42,7 @@ public abstract class EntityGroup extends BaseCommand {
             ? underlay.getEntityGroups()
             : entityGroupNames.names.stream()
                 .map(underlay::getEntityGroup)
-                .collect(Collectors.toList());
+                .toList();
     List<SequencedJobSet> jobSets =
         entityGroups.stream()
             .map(

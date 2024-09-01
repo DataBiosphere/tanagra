@@ -24,10 +24,12 @@ public class BQRowResult implements SqlRowResult {
       case BOOLEAN -> Literal.forBoolean(fieldValue.isNull() ? null : fieldValue.getBooleanValue());
       case DOUBLE -> Literal.forDouble(fieldValue.isNull() ? null : fieldValue.getDoubleValue());
       case DATE -> Literal.forDate(fieldValue.isNull() ? null : fieldValue.getStringValue());
-      case TIMESTAMP -> Literal.forTimestamp(
-          fieldValue.isNull() ? null : Timestamp.from(fieldValue.getTimestampInstant()));
-      default -> throw new InvalidQueryException(
-          "Unsupported data type for BigQuery row result: " + expectedDataType);
+      case TIMESTAMP ->
+          Literal.forTimestamp(
+              fieldValue.isNull() ? null : Timestamp.from(fieldValue.getTimestampInstant()));
+      default ->
+          throw new InvalidQueryException(
+              "Unsupported data type for BigQuery row result: " + expectedDataType);
     };
   }
 

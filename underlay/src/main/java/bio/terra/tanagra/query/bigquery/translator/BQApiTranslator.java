@@ -36,7 +36,6 @@ import bio.terra.tanagra.query.bigquery.translator.filter.BQTextSearchFilterTran
 import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
-import java.util.Objects;
 
 public final class BQApiTranslator implements ApiTranslator {
   @Override
@@ -122,7 +121,7 @@ public final class BQApiTranslator implements ApiTranslator {
   @SuppressWarnings("PMD.TooFewBranchesForASwitchStatement")
   @Override
   public String textSearchOperatorTemplateSql(TextSearchFilter.TextSearchOperator operator) {
-    if ( TextSearchOperator.FUZZY_MATCH.equals(operator)) {
+    if (TextSearchOperator.FUZZY_MATCH.equals(operator)) {
       return "bqutil.fn.levenshtein(UPPER("
           + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
           + "), UPPER("

@@ -241,14 +241,16 @@ public class BQExecutor {
       case INT64 -> QueryParameterValue.int64(literal.getInt64Val());
       case STRING -> QueryParameterValue.string(literal.getStringVal());
       case BOOLEAN -> QueryParameterValue.bool(literal.getBooleanVal());
-      case DATE -> QueryParameterValue.date(
-          literal.getDateVal() == null ? null : literal.getDateVal().toString());
+      case DATE ->
+          QueryParameterValue.date(
+              literal.getDateVal() == null ? null : literal.getDateVal().toString());
       case DOUBLE -> QueryParameterValue.float64(literal.getDoubleVal());
-      case TIMESTAMP -> QueryParameterValue.timestamp(
-          literal.getTimestampVal() == null
-              ? null
-              : DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS")
-                  .format(literal.getTimestampVal().toLocalDateTime()));
+      case TIMESTAMP ->
+          QueryParameterValue.timestamp(
+              literal.getTimestampVal() == null
+                  ? null
+                  : DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss.SSS")
+                      .format(literal.getTimestampVal().toLocalDateTime()));
       default ->
           throw new SystemException("Unsupported data type for BigQuery: " + literal.getDataType());
     };
@@ -261,8 +263,9 @@ public class BQExecutor {
       case STRING -> "'" + queryParameterValue.getValue() + "'";
       case DATE -> "DATE('" + queryParameterValue.getValue() + "')";
       case TIMESTAMP -> "TIMESTAMP('" + queryParameterValue.getValue() + "')";
-      default -> throw new SystemException(
-          "Unsupported data type for BigQuery: " + queryParameterValue.getType());
+      default ->
+          throw new SystemException(
+              "Unsupported data type for BigQuery: " + queryParameterValue.getType());
     };
   }
 

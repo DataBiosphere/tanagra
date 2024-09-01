@@ -190,11 +190,12 @@ public interface ApiTranslator {
 
   default String textSearchOperatorTemplateSql(TextSearchFilter.TextSearchOperator operator) {
     return switch (operator) {
-      case EXACT_MATCH -> "REGEXP_CONTAINS(UPPER("
-          + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-          + "), UPPER("
-          + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
-          + "))";
+      case EXACT_MATCH ->
+          "REGEXP_CONTAINS(UPPER("
+              + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+              + "), UPPER("
+              + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+              + "))";
       case FUZZY_MATCH -> throw new InvalidQueryException("Fuzzy text match not supported");
       default -> throw new SystemException("Unknown text search operator: " + operator);
     };

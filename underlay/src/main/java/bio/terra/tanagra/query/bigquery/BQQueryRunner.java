@@ -563,16 +563,17 @@ public class BQQueryRunner implements QueryRunner {
                   if (displayTableJoins.get(valueFieldName, displayFieldTable) == null) {
                     // Add new table joins and aliases
                     StringBuilder joinSql =
-                    new StringBuilder()
-                        .append(" LEFT JOIN ")
-                        .append(
-                            fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
-                        .append(" AS ")
-                        .append(joinTableAlias)
-                        .append(" ON ")
-                        .append(displayTableJoinField.renderForSelect(joinTableAlias))
-                        .append(" = ")
-                        .append(valueSqlField.renderForSelect(sourceTableAlias));
+                        new StringBuilder()
+                            .append(" LEFT JOIN ")
+                            .append(
+                                fromFullTablePath(attrSourcePointer.getDisplayFieldTable())
+                                    .render())
+                            .append(" AS ")
+                            .append(joinTableAlias)
+                            .append(" ON ")
+                            .append(displayTableJoinField.renderForSelect(joinTableAlias))
+                            .append(" = ")
+                            .append(valueSqlField.renderForSelect(sourceTableAlias));
 
                     displayTableJoins.put(valueFieldName, displayFieldTable, joinSql.toString());
                     tableJoinAliases.put(valueFieldName, displayFieldTable, joinTableAlias);

@@ -93,8 +93,9 @@ public final class GroupByCountSchemaUtils {
       case COMPARISON_OPERATOR_EQUAL -> BinaryOperator.EQUALS;
       case COMPARISON_OPERATOR_LESS_THAN_EQUAL -> BinaryOperator.LESS_THAN_OR_EQUAL;
       case COMPARISON_OPERATOR_GREATER_THAN_EQUAL -> BinaryOperator.GREATER_THAN_OR_EQUAL;
-      default -> throw new SystemException(
-          "Unsupported unhinted-value comparison operator: " + comparisonOperator);
+      default ->
+          throw new SystemException(
+              "Unsupported unhinted-value comparison operator: " + comparisonOperator);
     };
   }
 }

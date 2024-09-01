@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
@@ -203,11 +202,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
               + ORDER_RANK_ALIAS;
       selectFieldsFromUnionSql.add(orderRankField);
       innerSelectFromUnionSql =
-          "SELECT "
-              + String.join(", ", selectFieldsFromUnionSql)
-              + " FROM ("
-              + unionSql
-              + ")";
+          "SELECT " + String.join(", ", selectFieldsFromUnionSql) + " FROM (" + unionSql + ")";
     }
 
     // Wrap to filter on orderRank.
@@ -255,21 +250,22 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
     SqlQueryField visitDate = SqlQueryField.of(SqlField.of(VISIT_DATE_ALIAS));
     SqlQueryField visitOccurrenceId = SqlQueryField.of(SqlField.of(VISIT_OCCURRENCE_ID_ALIAS));
     return switch (joinOperator) {
-      case DURING_SAME_ENCOUNTER -> joinSql
-          + primaryEntityId.renderForSelect(firstConditionAlias)
-          + " = "
-          + primaryEntityId.renderForSelect(secondConditionAlias)
-          + " AND "
-          + visitDate.renderForSelect(firstConditionAlias)
-          + " = "
-          + visitDate.renderForSelect(secondConditionAlias)
-          + " AND "
-          + visitOccurrenceId.renderForSelect(firstConditionAlias)
-          + " = "
-          + visitOccurrenceId.renderForSelect(secondConditionAlias);
+      case DURING_SAME_ENCOUNTER ->
+          joinSql
+              + primaryEntityId.renderForSelect(firstConditionAlias)
+              + " = "
+              + primaryEntityId.renderForSelect(secondConditionAlias)
+              + " AND "
+              + visitDate.renderForSelect(firstConditionAlias)
+              + " = "
+              + visitDate.renderForSelect(secondConditionAlias)
+              + " AND "
+              + visitOccurrenceId.renderForSelect(firstConditionAlias)
+              + " = "
+              + visitOccurrenceId.renderForSelect(secondConditionAlias);
       case NUM_DAYS_BEFORE ->
-        // e.g. firstCondition >=2 days before secondCondition.
-        // --> secondCondition - firstCondition >= 2.
+          // e.g. firstCondition >=2 days before secondCondition.
+          // --> secondCondition - firstCondition >= 2.
           joinSql
               + primaryEntityId.renderForSelect(firstConditionAlias)
               + " = "
@@ -281,8 +277,8 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
               + ", DAY) >= "
               + joinOperatorValue;
       case NUM_DAYS_AFTER ->
-        // e.g. firstCondition >=3 days after secondCondition.
-        // --> firstCondition - secondCondition >= 3
+          // e.g. firstCondition >=3 days after secondCondition.
+          // --> firstCondition - secondCondition >= 3
           joinSql
               + primaryEntityId.renderForSelect(firstConditionAlias)
               + " = "
@@ -294,8 +290,8 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
               + ", DAY) >= "
               + joinOperatorValue;
       case WITHIN_NUM_DAYS ->
-        // e.g. firstCondition within 4 days of secondCondition.
-        // --> abs(firstCondition - secondCondition) <= 4
+          // e.g. firstCondition within 4 days of secondCondition.
+          // --> abs(firstCondition - secondCondition) <= 4
           joinSql
               + primaryEntityId.renderForSelect(firstConditionAlias)
               + " = "
@@ -313,12 +309,15 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
   private static List<SqlQueryField> getJoinFields(
       Underlay underlay, Entity entity, JoinOperator joinOperator) {
     return switch (joinOperator) {
-      case DURING_SAME_ENCOUNTER -> List.of(
-          getJoinFieldPrimaryEntityId(underlay, entity),
-          getJoinFieldVisitDate(underlay, entity),
-          getJoinFieldVisitOccurrenceId(underlay, entity));
-      case NUM_DAYS_BEFORE, NUM_DAYS_AFTER, WITHIN_NUM_DAYS -> List.of(
-          getJoinFieldPrimaryEntityId(underlay, entity), getJoinFieldVisitDate(underlay, entity));
+      case DURING_SAME_ENCOUNTER ->
+          List.of(
+              getJoinFieldPrimaryEntityId(underlay, entity),
+              getJoinFieldVisitDate(underlay, entity),
+              getJoinFieldVisitOccurrenceId(underlay, entity));
+      case NUM_DAYS_BEFORE, NUM_DAYS_AFTER, WITHIN_NUM_DAYS ->
+          List.of(
+              getJoinFieldPrimaryEntityId(underlay, entity),
+              getJoinFieldVisitDate(underlay, entity));
       default -> throw new SystemException("Unsupported JoinOperator: " + joinOperator);
     };
   }
@@ -345,12 +344,14 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
 
   private static SqlQueryField getJoinFieldVisitDate(Underlay underlay, Entity entity) {
     Attribute visitDateAttribute = entity.getVisitDateAttributeForTemporalQuery();
-    String sqlFunctionWrapper = switch (visitDateAttribute.getDataType()) {
-      case TIMESTAMP -> null;
-      case DATE -> "TIMESTAMP(${fieldSql})";
-      default -> throw new SystemException(
-          "Only DATE and TIMESTAMP data types are supported for the visit date attribute for temporal queries");
-    };
+    String sqlFunctionWrapper =
+        switch (visitDateAttribute.getDataType()) {
+          case TIMESTAMP -> null;
+          case DATE -> "TIMESTAMP(${fieldSql})";
+          default ->
+              throw new SystemException(
+                  "Only DATE and TIMESTAMP data types are supported for the visit date attribute for temporal queries");
+        };
     return getJoinField(underlay, entity, visitDateAttribute, VISIT_DATE_ALIAS, sqlFunctionWrapper);
   }
 
