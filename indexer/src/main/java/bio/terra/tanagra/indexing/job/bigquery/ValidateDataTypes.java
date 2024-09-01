@@ -67,16 +67,18 @@ public class ValidateDataTypes extends BigQueryJob {
     boolean foundError = false;
     for (Attribute attribute : entity.getAttributes()) {
       ColumnSchema sourceTableSchema = sourceTable.getAttributeValueColumnSchema(attribute);
-      Set<LegacySQLTypeName> sourceTableBQDataTypes = switch (sourceTableSchema.getDataType()) {
-        case STRING -> Set.of(LegacySQLTypeName.STRING);
-        case INT64 -> Set.of(LegacySQLTypeName.INTEGER);
-        case BOOLEAN -> Set.of(LegacySQLTypeName.BOOLEAN);
-        case DATE -> Set.of(LegacySQLTypeName.DATE);
-        case DOUBLE -> Set.of(LegacySQLTypeName.NUMERIC, LegacySQLTypeName.FLOAT);
-        case TIMESTAMP -> Set.of(LegacySQLTypeName.TIMESTAMP);
-        default -> throw new SystemException(
-            "SQL data type not supported for BigQuery: " + sourceTableSchema.getDataType());
-      };
+      Set<LegacySQLTypeName> sourceTableBQDataTypes =
+          switch (sourceTableSchema.getDataType()) {
+            case STRING -> Set.of(LegacySQLTypeName.STRING);
+            case INT64 -> Set.of(LegacySQLTypeName.INTEGER);
+            case BOOLEAN -> Set.of(LegacySQLTypeName.BOOLEAN);
+            case DATE -> Set.of(LegacySQLTypeName.DATE);
+            case DOUBLE -> Set.of(LegacySQLTypeName.NUMERIC, LegacySQLTypeName.FLOAT);
+            case TIMESTAMP -> Set.of(LegacySQLTypeName.TIMESTAMP);
+            default ->
+                throw new SystemException(
+                    "SQL data type not supported for BigQuery: " + sourceTableSchema.getDataType());
+          };
       Field sourceQueryField =
           sourceQueryResultSchema.getFields().get(sourceTableSchema.getColumnName());
       boolean dataTypesMatch = sourceTableBQDataTypes.contains(sourceQueryField.getType());

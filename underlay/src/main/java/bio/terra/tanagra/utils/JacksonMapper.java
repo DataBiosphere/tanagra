@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 
-  private static final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().findAndRegisterModules();
 
   private JacksonMapper() {}
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
   private static ObjectMapper getMapper() {
-    return objectMapper
+    return OBJECT_MAPPER
         .enable(JsonParser.Feature.ALLOW_COMMENTS)
         .registerModule(new JavaTimeModule());
   }
