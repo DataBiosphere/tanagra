@@ -79,7 +79,7 @@
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "condition_concept_id" ],
   "temporalQuery": {
-    "visitDateAttribute": "start_date",
+    "visitDateAttribute": "condition_start_datetime",
     "visitIdAttribute": "visit_occurrence_id"
   },
   "sourceQueryTableName": "${omopDataset}.condition_occurrence"

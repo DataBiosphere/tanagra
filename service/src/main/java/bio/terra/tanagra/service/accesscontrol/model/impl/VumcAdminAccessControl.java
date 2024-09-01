@@ -12,20 +12,20 @@ import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.accesscontrol.model.StudyAccessControl;
 import bio.terra.tanagra.service.authentication.AppDefaultUtils;
 import bio.terra.tanagra.service.authentication.UserId;
+import jakarta.ws.rs.client.Client;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.vumc.vda.tanagra.admin.api.AuthorizationApi;
-import org.vumc.vda.tanagra.admin.api.TestApi;
+import org.vumc.vda.tanagra.admin.api.TanagraCoreTestApi;
 import org.vumc.vda.tanagra.admin.api.UnauthenticatedApi;
 import org.vumc.vda.tanagra.admin.client.ApiClient;
 import org.vumc.vda.tanagra.admin.client.ApiException;
@@ -236,7 +236,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   }
 
   public CoreServiceTest apiRoundTripTest() throws ApiException {
-    TestApi testApi = new TestApi(getApiClientAuthenticated());
+    TanagraCoreTestApi testApi = new TanagraCoreTestApi(getApiClientAuthenticated());
     return testApi.coreServiceTest();
   }
 
