@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 
-  private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private static final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
 
   private JacksonMapper() {}
 
@@ -94,8 +94,8 @@ public final class JacksonMapper {
     ObjectMapper objectMapper = getMapper(mapperFeatures);
 
     // Enable any Jackson features specified.
-    mapperFeatures.stream().forEach(mf -> objectMapper.enable(mf));
-    deserializationFeatures.stream()
+    mapperFeatures.forEach(objectMapper::enable);
+    deserializationFeatures
         .forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
 
     try (inputStream) {

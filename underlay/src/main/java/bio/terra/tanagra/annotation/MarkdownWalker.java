@@ -53,9 +53,8 @@ public class MarkdownWalker extends AnnotationWalker {
             .append(fieldAnnotation.optional() ? "**optional** " : "**required** ");
 
     // Add the markdown for field type.
-    if (field.getGenericType() instanceof ParameterizedType) {
+    if (field.getGenericType() instanceof ParameterizedType pType) {
       // This is a type-parameterized class (e.g. List, Map).
-      ParameterizedType pType = (ParameterizedType) field.getGenericType();
       markdown
           .append(getSimpleName(pType.getRawType().getTypeName()))
           .append(" [ ")

@@ -3,7 +3,6 @@
   "displayName": "Condition",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
-  "supportsTemporalQueries": true,
   "display": {
     "category": "Domains",
     "tags": null

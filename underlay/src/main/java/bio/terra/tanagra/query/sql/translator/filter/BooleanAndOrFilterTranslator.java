@@ -25,12 +25,12 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
-    List<String> subFilterSqls =
+    String[] subFilterSqls =
         subFilterTranslators.stream()
             .map(subFilterTranslator -> subFilterTranslator.buildSql(sqlParams, tableAlias))
-            .collect(Collectors.toList());
+            .toList().toArray(new String[0]);
     return apiTranslator.booleanAndOrFilterSql(
-        booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
+        booleanAndOrFilter.getOperator(), subFilterSqls);
   }
 
   @Override

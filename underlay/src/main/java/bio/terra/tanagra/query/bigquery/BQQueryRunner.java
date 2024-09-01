@@ -373,7 +373,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the list of entities we need for the select fields and filters.
     Set<Entity> entities = new HashSet<>();
     selectFields.forEach(selectField -> entities.add(selectField.getEntity()));
-    filters.keySet().forEach(filterEntity -> entities.add(filterEntity));
+    entities.addAll(filters.keySet());
     if (entities.size() > 1) {
       throw new NotImplementedException("Queries with more than one entity are not yet supported");
     }
@@ -562,8 +562,8 @@ public class BQQueryRunner implements QueryRunner {
                           .getDisplayFieldTable();
                   if (displayTableJoins.get(valueFieldName, displayFieldTable) == null) {
                     // Add new table joins and aliases
-                    StringBuilder joinSql = new StringBuilder();
-                    joinSql
+                    StringBuilder joinSql =
+                    new StringBuilder()
                         .append(" LEFT JOIN ")
                         .append(
                             fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render())
