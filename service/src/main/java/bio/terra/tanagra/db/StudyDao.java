@@ -364,7 +364,7 @@ public class StudyDao {
     sql =
         "INSERT INTO study_property (study_id, property_key, property_value) VALUES (:study_id, :key, :value)";
     LOGGER.debug("CREATE study property: {}", sql);
-    List<MapSqlParameterSource> propertyParamSets =
+    MapSqlParameterSource[] propertyParamSets =
         properties.entrySet().stream()
             .map(
                 p ->
@@ -372,12 +372,9 @@ public class StudyDao {
                         .addValue("study_id", studyId)
                         .addValue("key", p.getKey())
                         .addValue("value", p.getValue()))
-            .collect(Collectors.toList());
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, propertyParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
+            .toList()
+            .toArray(new MapSqlParameterSource[0]);
+    rowsAffected = Arrays.stream(jdbcTemplate.batchUpdate(sql, propertyParamSets)).sum();
     LOGGER.debug("CREATE study property rowsAffected = {}", rowsAffected);
   }
 }

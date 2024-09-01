@@ -3,9 +3,7 @@ tanagra:
     files: [ "cmssynpuf_broad", "aouSR2019q4r4_broad", "sd20230331_verily" ]
 
   feature:
-    artifact-storage-enabled: true
     activity-log-enabled: true
-    backend-filters-enabled: true
 
   db:
     initialize-on-start: true

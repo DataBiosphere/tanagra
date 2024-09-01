@@ -317,7 +317,7 @@ public class ConceptSetDao {
         "INSERT INTO criteria (concept_set_id, id, display_name, plugin_name, plugin_version, predefined_id, selector_or_modifier_name, selection_data, ui_config, list_index) "
             + "VALUES (:concept_set_id, :id, :display_name, :plugin_name, :plugin_version, :predefined_id, :selector_or_modifier_name, :selection_data, :ui_config, :list_index)";
     LOGGER.debug("CREATE criteria: {}", sql);
-    List<MapSqlParameterSource> criteriaParamSets =
+    MapSqlParameterSource[] criteriaParamSets =
         criteria.stream()
             .map(
                 c ->
@@ -332,12 +332,9 @@ public class ConceptSetDao {
                         .addValue("selection_data", c.getSelectionData())
                         .addValue("ui_config", c.getUiConfig())
                         .addValue("list_index", 0))
-            .collect(Collectors.toList());
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, criteriaParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
+            .toList()
+            .toArray(new MapSqlParameterSource[0]);
+    rowsAffected = Arrays.stream(jdbcTemplate.batchUpdate(sql, criteriaParamSets)).sum();
     LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
 
     // Write the criteria tags.
