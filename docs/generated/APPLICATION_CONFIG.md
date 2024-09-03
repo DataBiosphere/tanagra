@@ -253,7 +253,7 @@ Name of the export model. This must be unique across all models for a given depl
 
 *Environment variable:* `TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
-*Example value:* `VWB_FILE_IMPORT_TO_DEV`
+*Example value:* `VWB_FILE_EXPORT_TO_DEV`
 
 ### tanagra.export.models.numPrimaryEntityCap
 **optional** String
@@ -280,7 +280,7 @@ URL to redirect the user to once the Tanagra export model has run. This is usefu
 
 *Environment variable:* `TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
-*Example value:* `https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra`
+*Example value:* `https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}`
 
 ### tanagra.export.models.type
 **optional** Type

@@ -31,10 +31,10 @@ tanagra:
       -
         type: IPYNB_FILE_DOWNLOAD
       -
-        name: VWB_FILE_IMPORT_DEVEL
-        display-name: Import to VWB (devel)
-        type: VWB_FILE_IMPORT
-        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
+        name: VWB_FILE_EXPORT_DEVEL
+        display-name: Export to VWB (devel)
+        type: VWB_FILE_EXPORT
+        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
       -
         name: INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP
         display-name: Individual file download with cap=5

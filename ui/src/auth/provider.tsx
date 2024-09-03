@@ -10,7 +10,7 @@ import React, { createContext, useContext, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useNavigate } from "util/searchState";
 
-const imageTitle = "Verily WorkBench Data Explorer";
+const imageTitle = "Workbench Data Explorer";
 
 export const signInText = "Sign in";
 export const signOutText = "Sign out";

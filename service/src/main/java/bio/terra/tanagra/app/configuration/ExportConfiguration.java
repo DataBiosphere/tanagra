@@ -128,7 +128,7 @@ public class ExportConfiguration {
         environmentVariable =
             "TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)",
         optional = true,
-        exampleValue = "VWB_FILE_IMPORT_TO_DEV")
+        exampleValue = "VWB_FILE_EXPORT_TO_DEV")
     private String name;
 
     @AnnotatedField(
@@ -169,7 +169,7 @@ public class ExportConfiguration {
             "TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)",
         optional = true,
         exampleValue =
-            "https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra")
+            "https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}")
     private String redirectAwayUrl;
 
     @AnnotatedField(
