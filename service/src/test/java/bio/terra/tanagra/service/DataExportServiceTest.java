@@ -428,7 +428,7 @@ public class DataExportServiceTest {
     assertEquals("returnUrl", params.get(1).getName());
     assertEquals("https://tanagra-test.api.verily.com", params.get(1).getValue());
     assertEquals("returnApp", params.get(2).getName());
-    assertEquals("Tanagra", params.get(2).getValue());
+    assertEquals("Data Explorer", params.get(2).getValue());
 
     // Validate the VWB input file.
     String signedUrl = params.get(0).getValue();
