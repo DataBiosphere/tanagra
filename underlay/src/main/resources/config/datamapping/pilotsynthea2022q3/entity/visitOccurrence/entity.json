@@ -1,0 +1,19 @@
+{
+  "name": "visitOccurrence",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "visit_occurrence_id" },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "visit", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name" },
+    { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "visit_start_datetime" },
+    { "name": "end_date", "dataType": "TIMESTAMP", "valueFieldName": "visit_end_datetime" },
+    { "name": "source_value", "dataType": "STRING", "valueFieldName": "visit_source_value" },
+    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "visit_source_concept_id" },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true }
+  ],
+  "idAttribute": "id",
+  "temporalQuery": {
+    "visitDateAttribute": "start_date",
+    "visitIdAttribute": "visit_occurrence_id"
+  }
+}
