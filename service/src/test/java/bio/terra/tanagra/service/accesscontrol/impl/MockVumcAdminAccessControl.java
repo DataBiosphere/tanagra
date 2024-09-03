@@ -8,14 +8,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.vumc.vda.tanagra.admin.model.Resource;
+import org.vumc.vda.tanagra.admin.model.CbResource;
 import org.vumc.vda.tanagra.admin.model.ResourceAction;
 import org.vumc.vda.tanagra.admin.model.ResourceList;
 import org.vumc.vda.tanagra.admin.model.ResourceType;
 
 public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
   private final List<String> admins = new ArrayList<>(); // user emails
-  private final Map<String, Set<Resource>> permissions =
+  private final Map<String, Set<CbResource>> permissions =
       new HashMap<>(); // user email -> set of permissions
 
   @Override
@@ -40,11 +40,11 @@ public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
 
   public void addPermission(
       UserId user, ResourceAction action, ResourceType type, String resourceId) {
-    Set<Resource> permissionsForUser =
+    Set<CbResource> permissionsForUser =
         permissions.containsKey(user.getEmail())
             ? permissions.get(user.getEmail())
             : new HashSet<>();
-    permissionsForUser.add(new Resource().action(action).type(type).id(resourceId));
+    permissionsForUser.add(new CbResource().action(action).type(type).id(resourceId));
     permissions.put(user.getEmail(), permissionsForUser);
   }
 }

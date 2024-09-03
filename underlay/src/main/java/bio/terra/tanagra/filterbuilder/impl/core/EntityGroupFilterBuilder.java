@@ -51,7 +51,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
     DTEntityGroup.EntityGroup entityGroupSelectionData =
         deserializeData(selectionData.get(0).getPluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
-    if (entityGroupSelectionData == null) {
+    if (entityGroupSelectionData == null || entityGroupSelectionData.getSelectedList().isEmpty()) {
       // Empty selection data = null filter for a cohort.
       return null;
     }
@@ -100,7 +100,7 @@ public class EntityGroupFilterBuilder extends FilterBuilder {
         deserializeData(selectionData.get(0).getPluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
-    if (entityGroupSelectionData == null) {
+    if (entityGroupSelectionData == null || entityGroupSelectionData.getSelectedList().isEmpty()) {
       // Empty selection data = output all occurrence entities with null filters.
       // Use the list of all possible entity groups in the config.
       CFEntityGroup.EntityGroup entityGroupConfig = deserializeConfig();

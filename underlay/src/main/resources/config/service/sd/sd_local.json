@@ -2,18 +2,18 @@
   "underlay": "sd",
   "bigQuery": {
     "sourceData": {
-      "projectId": "sd-vumc-tanagra-test",
+      "projectId": "vumc-sd-test",
       "datasetId": "sd_20230831",
       "sqlSubstitutions": {
-        "omopDataset": "sd-vumc-tanagra-test.sd_20230831",
-        "staticTablesDataset": "sd-vumc-tanagra-test.sd_20230831"
+        "omopDataset": "vumc-sd-test.sd_20230831",
+        "staticTablesDataset": "vumc-sd-test.sd_20230831"
       }
     },
     "indexData": {
-      "projectId": "sd-vumc-tanagra-test",
-      "datasetId": "indexed_sd_20230831_1"
+      "projectId": "vumc-sd-test",
+      "datasetId": "indexed_sd_20230831"
     },
-    "queryProjectId": "sd-vumc-tanagra-test",
+    "queryProjectId": "vumc-sd-test",
     "dataLocation": "us-central1"
   },
   "uiConfigFile": "ui.json"
