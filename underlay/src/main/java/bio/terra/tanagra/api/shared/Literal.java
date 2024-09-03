@@ -128,15 +128,14 @@ public final class Literal {
   }
 
   public int compareTo(Literal value) {
-    if (isNull && value.isNull()) {
-      return 0;
-    } else if (isNull) {
-      return -1;
+    if (isNull) {
+      return value.isNull() ? 0 : -1;
     } else if (value.isNull()) {
       return 1;
     } else if (!dataType.equals(value.getDataType())) {
       return -1;
     }
+
     return switch (dataType) {
       case STRING -> {
         if (stringVal == null) {

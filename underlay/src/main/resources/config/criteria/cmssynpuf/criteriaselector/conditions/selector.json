@@ -3,6 +3,7 @@
   "displayName": "Condition",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
+  "supportsTemporalQueries": true,
   "display": {
     "category": "Domains",
     "tags": null
@@ -11,7 +12,6 @@
   "plugin": "entityGroup",
   "pluginConfig": null,
   "pluginConfigFile": "conditions.json",
-  "supportsTemporalQueries": true,
   "modifiers": [
     {
       "name": "ageAtOccurrence",

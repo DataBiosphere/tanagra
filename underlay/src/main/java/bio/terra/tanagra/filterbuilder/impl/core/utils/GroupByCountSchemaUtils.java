@@ -68,7 +68,7 @@ public final class GroupByCountSchemaUtils {
           groupByModifierConfigAndData,
       List<Entity> occurrenceEntities) {
     CFUnhintedValue.UnhintedValue groupByModifierConfig =
-        groupByModifierConfigAndData.orElseThrow().getLeft();
+        groupByModifierConfigAndData.get().getLeft();
 
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity = new HashMap<>();
     if (groupByModifierConfig.getAttributesMap() != null) {
@@ -93,9 +93,10 @@ public final class GroupByCountSchemaUtils {
       case COMPARISON_OPERATOR_EQUAL -> BinaryOperator.EQUALS;
       case COMPARISON_OPERATOR_LESS_THAN_EQUAL -> BinaryOperator.LESS_THAN_OR_EQUAL;
       case COMPARISON_OPERATOR_GREATER_THAN_EQUAL -> BinaryOperator.GREATER_THAN_OR_EQUAL;
-      default ->
-          throw new SystemException(
-              "Unsupported unhinted-value comparison operator: " + comparisonOperator);
+      case COMPARISON_OPERATOR_BETWEEN -> throw new SystemException(
+          "Unsupported unhinted-value comparison operator: COMPARISON_OPERATOR_BETWEEN");
+      default -> throw new SystemException(
+          "Unsupported unhinted-value comparison operator: " + comparisonOperator);
     };
   }
 }
