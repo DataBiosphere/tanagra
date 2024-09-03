@@ -4,7 +4,7 @@
     "conditionOccurrence": {
       "values": [
         "start_date",
-        "source_criteria_id"
+        "condition_source_concept_id"
       ]
     },
     "measurementOccurrence": {
