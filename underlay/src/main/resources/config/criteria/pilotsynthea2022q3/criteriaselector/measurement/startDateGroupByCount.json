@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "measurementOccurrence": {
+      "values": [
+        "start_date",
+        "measurement"
+      ]
+    }
+  }
+}

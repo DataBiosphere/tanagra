@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "deviceOccurrence": {
+      "values": [
+        "start_date",
+        "device"
+      ]
+    }
+  }
+}

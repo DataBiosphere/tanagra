@@ -1,0 +1,17 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "ingredientOccurrence": {
+      "values": [
+        "start_date",
+        "source_criteria_id"
+      ]
+    },
+    "procedureOccurrence": {
+      "values": [
+        "start_date",
+        "source_criteria_id"
+      ]
+    }
+  }
+}
