@@ -47,6 +47,10 @@ public class CreateEntityMain extends BigQueryJob {
                     Field.newBuilder(
                             columnSchema.getColumnName(),
                             BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
+                        .setMode(
+                            columnSchema.isDataTypeRepeated()
+                                ? Field.Mode.REPEATED
+                                : Field.Mode.NULLABLE)
                         .build())
             .collect(Collectors.toList());
 

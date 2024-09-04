@@ -38,7 +38,10 @@ public final class ITEntityMain extends IndexTable {
         szAttribute -> {
           columnSchemasBuilder.add(
               new ColumnSchema(
-                  szAttribute.name, ConfigReader.deserializeDataType(szAttribute.dataType)));
+                  szAttribute.name,
+                  ConfigReader.deserializeDataType(szAttribute.dataType),
+                  szAttribute.isDataTypeRepeated,
+                  false));
           if (szAttribute.displayFieldName != null) {
             columnSchemasBuilder.add(
                 new ColumnSchema(
