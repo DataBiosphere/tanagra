@@ -23,7 +23,6 @@ import org.apache.commons.text.StringSubstitutor;
 public class IpynbFileDownload implements DataExport {
   private static final String IPYNB_TEMPLATE_FILE_GCS_URL_KEY = "IPYNB_TEMPLATE_FILE_GCS_URL";
   private static final String IPYNB_TEMPLATE_RESOURCE_FILE = "export/notebook_template.ipynb";
-  public static final String IPYNB_FILE_KEY = "Notebook File:tanagra_export.ipynb";
 
   @Override
   public Type getType() {
@@ -32,12 +31,12 @@ public class IpynbFileDownload implements DataExport {
 
   @Override
   public String getDefaultDisplayName() {
-    return "Download ipynb file with embedded SQL";
+    return "Download Jupyter Notebook";
   }
 
   @Override
   public String getDescription() {
-    return "Signed URL to an ipynb notebook file that includes SQL to get the list of primary entity instances.";
+    return "Get an IPYNB file for download";
   }
 
   @Override

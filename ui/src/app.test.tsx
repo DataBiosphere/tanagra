@@ -2,7 +2,7 @@ import { Router } from "@remix-run/router";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App, AppWithRouter } from "app";
-import { AuthProviderProps, signInText } from "auth/provider";
+import { AuthProviderProps, logInText } from "auth/provider";
 import { AuthContextType as FakeAuthContextType } from "auth/provider";
 import { getEnvironment } from "environment";
 import React from "react";
@@ -43,9 +43,9 @@ test("with-auth: signed out redirects to login screen", () => {
   renderApp( makeFakeAuth({
     expired: true
   }));
-  expect(screen.getByText(signInText)).toBeInTheDocument();
+  expect(screen.getByText(logInText)).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: signInText })
+    screen.getByRole("button", { name: logInText })
   ).toBeInTheDocument();
 });
 
@@ -73,8 +73,8 @@ test("with-auth: signed out with bad url redirects to login screen", () => {
   }));
   appRouter.navigate({ pathname: "/badurl" });
   render(<RouterProvider router={appRouter} />);
-  expect(screen.getByText(signInText)).toBeInTheDocument();
+  expect(screen.getByText(logInText)).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: signInText, hidden: true })
+    screen.getByRole("button", { name: logInText, hidden: true })
   ).toBeInTheDocument();
 });

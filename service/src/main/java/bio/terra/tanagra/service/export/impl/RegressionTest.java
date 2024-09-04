@@ -20,7 +20,6 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.ProtobufUtils;
-import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,12 +33,12 @@ public class RegressionTest implements DataExport {
 
   @Override
   public String getDefaultDisplayName() {
-    return "Regression test file";
+    return "Download regression test";
   }
 
   @Override
   public String getDescription() {
-    return "Signed URL to a regression test file that includes the total number of rows returned for each output entity.";
+    return "Get a JSON file for regression testing";
   }
 
   @Override
