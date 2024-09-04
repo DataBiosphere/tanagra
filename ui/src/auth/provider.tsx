@@ -10,10 +10,10 @@ import React, { createContext, useContext, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useNavigate } from "util/searchState";
 
-const imageTitle = "Workbench Data Explorer";
+const imageTitle = "Data Explorer";
 
-export const signInText = "Sign in";
-export const signOutText = "Sign out";
+export const logInText = "Log in";
+export const logOutText = "Log out";
 
 export type Profile = {
   readonly sub: string;
@@ -116,7 +116,7 @@ export const LoginPage = () => {
         />
         {imageTitle}
         <Button variant="contained" onClick={() => signIn()} disabled={!loaded}>
-          {signInText}
+          {logInText}
         </Button>
       </GridLayout>
     </GridLayout>
@@ -150,7 +150,7 @@ export const LogoutPage = () => {
           onClick={() => signOut()}
           disabled={!loaded}
         >
-          {signOutText}
+          {logOutText}
         </Button>
       </GridLayout>
     </GridLayout>

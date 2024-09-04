@@ -29,12 +29,12 @@ public class VwbFileExport implements DataExport {
 
   @Override
   public String getDefaultDisplayName() {
-    return "Export to VWB";
+    return "Save to Verily Workbench";
   }
 
   @Override
   public String getDescription() {
-    return "Redirect URL to VWB that includes a signed URL to a file that contains a list of signed URLs. Each URL in the file points to a single file with either query results or annotation data.";
+    return "Save to a workspace. You’ll be redirected to complete the export.";
   }
 
   @Override

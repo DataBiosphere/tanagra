@@ -129,7 +129,7 @@ export function Export() {
   return (
     <GridLayout rows>
       <ActionBar
-        title="Exporting dataset"
+        title="Data export"
         subtitle={
           <GridLayout cols spacing={1} rowAlign="baseline">
             <StudyName />
@@ -419,7 +419,7 @@ function Preview(props: PreviewProps) {
         hideDivider
         tabsPrefix={
           <GridBox sx={{ width: 200 }}>
-            <Typography variant="body1em">Export preview</Typography>
+            <Typography variant="body1em">Preview</Typography>
           </GridBox>
         }
         tabsSuffix={
@@ -854,7 +854,7 @@ function ExportDialog(
     >
       <DialogTitle id="export-dialog-title">
         {!model || stage === ExportDialogStage.MODEL_SELECT
-          ? "Exporting dataset"
+          ? "Export dataset"
           : model.displayName}
       </DialogTitle>
       <DialogContent>
@@ -931,7 +931,7 @@ function ExportDialog(
               exportState.trigger();
             }}
           >
-            Export dataset
+            Export
           </Button>
         ) : null}
         {stage === ExportDialogStage.REDIRECT_ERRORS ? (
