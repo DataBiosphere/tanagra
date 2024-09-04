@@ -916,6 +916,7 @@ function ExportDialog(
       </DialogContent>
       <DialogActions>
         <Button
+          size="large"
           onClick={() => {
             props.hide();
             setStage(ExportDialogStage.MODEL_SELECT);
@@ -925,6 +926,7 @@ function ExportDialog(
         </Button>
         {stage === ExportDialogStage.MODEL_SELECT ? (
           <Button
+            size="large"
             variant="contained"
             onClick={() => {
               setStage(ExportDialogStage.EXPORTING);
