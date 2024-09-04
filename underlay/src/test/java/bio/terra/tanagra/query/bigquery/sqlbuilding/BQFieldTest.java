@@ -88,6 +88,7 @@ public class BQFieldTest extends BQRunnerTest {
             new Attribute(
                 "ethnicityNoDisplayJoin",
                 ethnicityAttribute.getDataType(),
+                ethnicityAttribute.isDataTypeRepeated(),
                 ethnicityAttribute.isValueDisplay(),
                 ethnicityAttribute.isId(),
                 ethnicityAttribute.getRuntimeSqlFunctionWrapper(),
@@ -110,6 +111,7 @@ public class BQFieldTest extends BQRunnerTest {
             new Attribute(
                 "genderSuppressed",
                 genderAttribute.getDataType(),
+                genderAttribute.isDataTypeRepeated(),
                 genderAttribute.isValueDisplay(),
                 genderAttribute.isId(),
                 genderAttribute.getRuntimeSqlFunctionWrapper(),

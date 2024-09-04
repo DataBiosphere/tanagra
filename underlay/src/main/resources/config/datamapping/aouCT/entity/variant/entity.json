@@ -1,0 +1,17 @@
+{
+  "name": "variant",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_num" },
+    { "name": "variant_id", "dataType": "STRING", "valueFieldName": "vid" },
+    { "name": "gene", "dataType": "STRING", "valueFieldName": "gene_symbol", "isComputeDisplayHint": true },
+    { "name": "consequence", "dataType": "STRING", "isDataTypeRepeated":  true, "isComputeDisplayHint": true },
+    { "name": "protein_change", "dataType": "STRING", "valueFieldName": "aa_change" },
+    { "name": "clinvar_significance", "dataType": "STRING", "isDataTypeRepeated":  true, "valueFieldName": "clinvar_classification", "isComputeDisplayHint": true },
+    { "name": "allele_count", "dataType": "INT64", "valueFieldName": "gvs_all_ac", "isComputeDisplayHint": true },
+    { "name": "allele_number", "dataType": "INT64", "valueFieldName": "gvs_all_an", "isComputeDisplayHint": true },
+    { "name": "allele_frequency", "dataType": "DOUBLE", "valueFieldName": "gvs_all_af", "isComputeDisplayHint": true }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "gender", "race", "age", "ethnicity" ]
+}

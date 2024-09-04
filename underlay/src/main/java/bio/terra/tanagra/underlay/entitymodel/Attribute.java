@@ -6,6 +6,7 @@ import java.util.Objects;
 public final class Attribute {
   private final String name;
   private final DataType dataType;
+  private final boolean isDataTypeRepeated;
   private final boolean isValueDisplay;
   private final boolean isId;
   private final String runtimeSqlFunctionWrapper;
@@ -20,6 +21,7 @@ public final class Attribute {
   public Attribute(
       String name,
       DataType dataType,
+      boolean isDataTypeRepeated,
       boolean isValueDisplay,
       boolean isId,
       String runtimeSqlFunctionWrapper,
@@ -31,6 +33,7 @@ public final class Attribute {
       SourceQuery sourceQuery) {
     this.name = name;
     this.dataType = dataType;
+    this.isDataTypeRepeated = isDataTypeRepeated;
     this.isValueDisplay = isValueDisplay;
     this.isId = isId;
     this.runtimeSqlFunctionWrapper = runtimeSqlFunctionWrapper;
@@ -48,6 +51,10 @@ public final class Attribute {
 
   public DataType getDataType() {
     return dataType;
+  }
+
+  public boolean isDataTypeRepeated() {
+    return isDataTypeRepeated;
   }
 
   public boolean isSimple() {
@@ -111,6 +118,7 @@ public final class Attribute {
         && isVisitIdForTemporalQuery == attribute.isVisitIdForTemporalQuery
         && name.equals(attribute.name)
         && dataType == attribute.dataType
+        && isDataTypeRepeated == attribute.isDataTypeRepeated
         && Objects.equals(runtimeSqlFunctionWrapper, attribute.runtimeSqlFunctionWrapper)
         && runtimeDataType == attribute.runtimeDataType
         && Objects.equals(sourceQuery, attribute.sourceQuery);
@@ -121,6 +129,7 @@ public final class Attribute {
     return Objects.hash(
         name,
         dataType,
+        isDataTypeRepeated,
         isValueDisplay,
         isId,
         runtimeSqlFunctionWrapper,

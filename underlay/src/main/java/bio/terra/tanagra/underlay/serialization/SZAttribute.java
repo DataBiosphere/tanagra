@@ -24,6 +24,13 @@ public class SZAttribute {
   public SZDataType dataType;
 
   @AnnotatedField(
+      name = "SZAttribute.isDataTypeRepeated",
+      markdown = "True if the data type is repeated (e.g. an array of ints).",
+      optional = true,
+      defaultValue = "false")
+  public boolean isDataTypeRepeated;
+
+  @AnnotatedField(
       name = "SZAttribute.valueFieldName",
       markdown =
           "Field or column name in the [all instances SQL file](${SZEntity.allInstancesSqlFile}) that "

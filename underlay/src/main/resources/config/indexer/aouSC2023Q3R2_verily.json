@@ -1,0 +1,28 @@
+{
+  "underlay": "aouSC2023Q3R2",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "aou_test_data_SC2023Q3R2",
+      "sqlSubstitutions": {
+        "omopDataset": "verily-tanagra-dev.aou_test_data_SC2023Q3R2",
+        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep"
+      }
+    },
+    "indexData": {
+      "projectId": "verily-tanagra-dev",
+      "datasetId": "aou_test_data_SC2023Q3R2_index_090424",
+      "tablePrefix": "T"
+    },
+    "queryProjectId": "verily-tanagra-dev",
+    "dataLocation": "us"
+  },
+  "dataflow": {
+    "serviceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
+    "dataflowLocation": "us-central1",
+    "gcsTempDirectory": "gs://dataflow-staging-us-central1-694046000181/temp/",
+    "workerMachineType": "n1-standard-4",
+    "usePublicIps": false,
+    "vpcSubnetworkName": null
+  }
+}

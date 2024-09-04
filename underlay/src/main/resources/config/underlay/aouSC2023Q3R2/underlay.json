@@ -56,7 +56,9 @@
     "aouRT/surveyPersonalAndFamilyHealth",
     "aouRT/surveyHealthCareAccess",
     "aouRT/surveySocialDeterminantsOfHealth",
-    "aouRT/surveyOccurrence"
+    "aouRT/surveyOccurrence",
+
+    "aouCT/variant"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",

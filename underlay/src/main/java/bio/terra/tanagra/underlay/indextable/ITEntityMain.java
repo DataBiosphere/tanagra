@@ -107,7 +107,8 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
-    return new ColumnSchema(attribute.getName(), attribute.getDataType());
+    return new ColumnSchema(
+        attribute.getName(), attribute.getDataType(), attribute.isDataTypeRepeated(), false);
   }
 
   public SqlField getAttributeDisplayField(String attribute) {

@@ -104,6 +104,18 @@ public class ValidateDataTypes extends BigQueryJob {
                 .collect(Collectors.joining(",", "[", "]")),
             sourceQueryField.getType());
       }
+
+      // Check that the schema repeated flags match those of the index table columns.
+      boolean sourceQueryFieldIsRepeated = sourceQueryField.getMode().equals(Field.Mode.REPEATED);
+      boolean isRepeatedFlagsMatch = attribute.isDataTypeRepeated() == sourceQueryFieldIsRepeated;
+      if (!isRepeatedFlagsMatch) {
+        foundError = true;
+        LOGGER.info(
+            "Data type repeated mismatch found for attribute {}: entity declared {}, SQL schema returns {}",
+            attribute.getName(),
+            attribute.isDataTypeRepeated(),
+            sourceQueryField.getMode());
+      }
     }
     if (foundError) {
       throw new InvalidConfigException("Data type mismatch found for entity: " + entity.getName());
