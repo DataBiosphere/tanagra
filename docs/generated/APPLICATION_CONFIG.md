@@ -253,7 +253,7 @@ Name of the export model. This must be unique across all models for a given depl
 
 *Environment variable:* `TANAGRA_EXPORT_MODELS_0_NAME (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
-*Example value:* `VWB_FILE_IMPORT_TO_DEV`
+*Example value:* `VWB_FILE_EXPORT_TO_DEV`
 
 ### tanagra.export.models.numPrimaryEntityCap
 **optional** String
@@ -276,11 +276,11 @@ Map of parameters to pass to the export model. This is useful when you want to p
 ### tanagra.export.models.redirectAwayUrl
 **optional** String
 
-URL to redirect the user to once the Tanagra export model has run. This is useful when you want to import a file to another site. e.g. Write the exported data to CSV files in GCS and then redirect to a workbench URL, passing the URL to the CSV files so the workbench can import them somewhere.
+URL to redirect the user to once the Tanagra export model has run. This is useful when you want to export a file to another site. e.g. Write the exported data to CSV files in GCS and then redirect to a workbench URL, passing the URL to the CSV files so the workbench can import them somewhere.
 
 *Environment variable:* `TANAGRA_EXPORT_MODELS_0_REDIRECT_AWAY_URL (Note 0 is the list index, so if you have 2 models, you'd have 0 and 1 env vars.)`
 
-*Example value:* `https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra`
+*Example value:* `https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}`
 
 ### tanagra.export.models.type
 **optional** Type

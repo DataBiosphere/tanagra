@@ -18,23 +18,23 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
-public class VwbFileImport implements DataExport {
+public class VwbFileExport implements DataExport {
   private static final String FILE_FORMAT_SPECIFIER = "TsvHttpData-1.0";
   private String redirectAwayUrl;
 
   @Override
   public Type getType() {
-    return Type.VWB_FILE_IMPORT;
+    return Type.VWB_FILE_EXPORT;
   }
 
   @Override
   public String getDefaultDisplayName() {
-    return "Import to VWB";
+    return "Save to Verily Workbench";
   }
 
   @Override
   public String getDescription() {
-    return "Redirect URL to VWB that includes a signed URL to a file that contains a list of signed URLs. Each URL in the file points to a single file with either query results or annotation data.";
+    return "Save to a workspace. You’ll be redirected to complete the export.";
   }
 
   @Override
@@ -103,6 +103,7 @@ public class VwbFileImport implements DataExport {
         ImmutableMap.<String, String>builder()
             .put("tsvFileUrl", urlEncode(exportQueryResult.getFilePath()))
             .put("redirectBackUrl", urlEncode(request.getRedirectBackUrl()))
+            .put("sourceApp", urlEncode("Data Explorer"))
             .build();
     String expandedRedirectAwayUrl = StringSubstitutor.replace(redirectAwayUrl, urlParams);
     return ExportResult.forRedirectUrl(expandedRedirectAwayUrl, allExportFileResults);

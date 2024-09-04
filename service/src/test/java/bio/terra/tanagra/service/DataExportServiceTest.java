@@ -248,17 +248,17 @@ public class DataExportServiceTest {
     assertEquals(impl.getDefaultDisplayName(), displayName);
     assertNotNull(impl);
 
-    // Check the VWB_FILE_IMPORT export option.
+    // Check the VWB_FILE_EXPORT export option.
     Optional<DataExportModel> vwbFileImport =
         models.stream()
-            .filter(m -> DataExport.Type.VWB_FILE_IMPORT.equals(m.getImpl().getType()))
+            .filter(m -> DataExport.Type.VWB_FILE_EXPORT.equals(m.getImpl().getType()))
             .findFirst();
     assertTrue(vwbFileImport.isPresent());
     modelName = vwbFileImport.get().getName();
     displayName = vwbFileImport.get().getDisplayName();
     impl = vwbFileImport.get().getImpl();
-    assertEquals("VWB_FILE_IMPORT_DEVEL", modelName); // Overridden model name.
-    assertEquals("Import to VWB (devel)", displayName); // Overridden display name.
+    assertEquals("VWB_FILE_EXPORT_DEVEL", modelName); // Overridden model name.
+    assertEquals("Export to VWB (devel)", displayName); // Overridden display name.
     assertFalse(vwbFileImport.get().getConfig().hasNumPrimaryEntityCap());
     assertNotNull(impl);
 
@@ -371,7 +371,7 @@ public class DataExportServiceTest {
     String redirectBackUrl = "https://tanagra-test.api.verily.com";
     ExportRequest exportRequest =
         new ExportRequest(
-            "VWB_FILE_IMPORT_DEVEL",
+            "VWB_FILE_EXPORT_DEVEL",
             Map.of(),
             redirectBackUrl,
             true,
@@ -428,7 +428,7 @@ public class DataExportServiceTest {
     assertEquals("returnUrl", params.get(1).getName());
     assertEquals("https://tanagra-test.api.verily.com", params.get(1).getValue());
     assertEquals("returnApp", params.get(2).getName());
-    assertEquals("Tanagra", params.get(2).getValue());
+    assertEquals("Data Explorer", params.get(2).getValue());
 
     // Validate the VWB input file.
     String signedUrl = params.get(0).getValue();

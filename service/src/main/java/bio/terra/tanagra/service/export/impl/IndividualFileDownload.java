@@ -21,12 +21,12 @@ public class IndividualFileDownload implements DataExport {
 
   @Override
   public String getDefaultDisplayName() {
-    return "Download individual files";
+    return "Download CSV";
   }
 
   @Override
   public String getDescription() {
-    return "List of file URLs. Each URL points to a single file with either query results or annotation data.";
+    return "Get links to one or more CSV files";
   }
 
   @Override
