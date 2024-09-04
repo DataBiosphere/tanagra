@@ -47,8 +47,8 @@ describe("Basic tests", () => {
 
     cy.iframe().find("button:Contains(Export)").click();
 
-    cy.iframe().find("span:Contains(Download individual files)").click();
-    cy.iframe().find("button:Contains(Export dataset)").last().click();
+    cy.iframe().find("span:Contains(Download CSV)").click();
+    cy.iframe().find("button:Contains(Export)").last().click();
 
     cy.iframe().find(`a:Contains(${cohort1})`, { timeout: 20000 });
     cy.iframe().find(`a:Contains(${cohort2})`);
