@@ -36,7 +36,7 @@ public class IpynbFileDownload implements DataExport {
 
   @Override
   public String getDescription() {
-    return "Get an IPYNB file for download. SQL comes preinstalled.";
+    return "Get an IPYNB file for download";
   }
 
   @Override
