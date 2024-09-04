@@ -25,10 +25,10 @@ tanagra:
   export:
     models:
       -
-        name: VWB_FILE_IMPORT_DEVEL
-        displayName: Import to VWB (devel)
-        type: VWB_FILE_IMPORT
-        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
+        name: VWB_FILE_EXPORT_DEVEL
+        displayName: Export to VWB (devel)
+        type: VWB_FILE_EXPORT
+        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
         params: []
 ```
 4. **[Optional] Add a new test method to the `DataExportServiceTest` class.**
@@ -103,8 +103,8 @@ tanagra:
         type: INDIVIDUAL_FILE_DOWNLOAD
 ```
 
-### Verily Workbench file import
-Import individual files for each query result and cohort annotation data to a Verily Workbench workspace. The
+### Verily Workbench file export
+Export individual files for each query result and cohort annotation data to a Verily Workbench workspace. The
 implementation writes these files to a GCS bucket and generates a signed URL for each. Then it generates another file
 that contains a list of all the signed URLs. It writes this file to GCS and generates a signed URL for it, too. All
 signed URLs timeout after 30 minutes. Finally, it generates a redirect URL to Verily Workbench that includes this last
@@ -120,10 +120,10 @@ tanagra:
       gcs-bucket-names: broad-tanagra-dev-bq-export
     models:
       -
-        name: VWB_FILE_IMPORT_DEVEL
-        displayName: Import to VWB (devel)
-        type: VWB_FILE_IMPORT
-        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
+        name: VWB_FILE_EXPORT_DEVEL
+        displayName: Export to VWB (devel)
+        type: VWB_FILE_EXPORT
+        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
 ```
 
 ### Ipynb file download

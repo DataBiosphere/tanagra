@@ -33,12 +33,12 @@ public class RegressionTest implements DataExport {
 
   @Override
   public String getDefaultDisplayName() {
-    return "Regression test file";
+    return "Download regression test";
   }
 
   @Override
   public String getDescription() {
-    return "Signed URL to a regression test file that includes the total number of rows returned for each output entity.";
+    return "Get a JSON file for regression testing";
   }
 
   @Override

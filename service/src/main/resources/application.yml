@@ -38,12 +38,12 @@ tanagra:
       -
         type: IPYNB_FILE_DOWNLOAD
       -
-        type: VWB_FILE_IMPORT
-        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=Tanagra
+        type: VWB_FILE_EXPORT
+        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
       -
+        type: INDIVIDUAL_FILE_DOWNLOAD
         name: INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP
         display-name: Individual file download with cap=10k
-        type: INDIVIDUAL_FILE_DOWNLOAD
         num-primary-entity-cap: 10000
       -
         type: REGRESSION_TEST
