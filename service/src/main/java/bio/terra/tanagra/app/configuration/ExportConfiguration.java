@@ -162,7 +162,7 @@ public class ExportConfiguration {
         name = "tanagra.export.models.redirectAwayUrl",
         markdown =
             "URL to redirect the user to once the Tanagra export model has run. "
-                + "This is useful when you want to import a file to another site. e.g. Write the exported data "
+                + "This is useful when you want to export a file to another site. e.g. Write the exported data "
                 + "to CSV files in GCS and then redirect to a workbench URL, passing the URL to the CSV files so "
                 + "the workbench can import them somewhere.",
         environmentVariable =
