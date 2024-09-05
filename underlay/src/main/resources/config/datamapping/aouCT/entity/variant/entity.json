@@ -13,5 +13,8 @@
     { "name": "allele_frequency", "dataType": "DOUBLE", "valueFieldName": "gvs_all_af", "isComputeDisplayHint": true }
   ],
   "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "gene", "clinvar_significance" ]
+  },
   "optimizeGroupByAttributes": [ "gender", "race", "age", "ethnicity" ]
 }
