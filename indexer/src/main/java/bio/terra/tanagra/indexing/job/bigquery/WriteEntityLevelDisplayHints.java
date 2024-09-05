@@ -113,8 +113,9 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                     attribute.getName(),
                     minMax.getKey(),
                     minMax.getValue());
-              } else if (isEnumHint(attribute)) {
-                List<Pair<ValueDisplay, Long>> enumCounts = computeEnumHint(attribute, isDryRun);
+              } else if (isEnumHintForValueDisplay(attribute)) {
+                List<Pair<ValueDisplay, Long>> enumCounts =
+                    computeEnumHintForValueDisplay(attribute, isDryRun);
                 enumCounts.forEach(
                     enumCount -> {
                       List<Literal> rowOfLiterals = new ArrayList<>();
@@ -126,10 +127,30 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                       rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
                       insertRows.add(rowOfLiterals);
                       LOGGER.info(
-                          "Enum hint: {}, {}, {}, {}",
+                          "Enum value-display hint: {}, {}, {}, {}",
                           attribute.getName(),
                           enumCount.getKey().getValue(),
                           enumCount.getKey().getDisplay(),
+                          enumCount.getValue());
+                    });
+              } else if (isEnumHintForRepeatedStringValue(attribute)) {
+                List<Pair<Literal, Long>> enumCounts =
+                    computeEnumHintForRepeatedStringValue(attribute, isDryRun);
+                enumCounts.forEach(
+                    enumCount -> {
+                      List<Literal> rowOfLiterals = new ArrayList<>();
+                      rowOfLiterals.add(Literal.forString(attribute.getName()));
+                      rowOfLiterals.add(Literal.forDouble(null));
+                      rowOfLiterals.add(Literal.forDouble(null));
+                      rowOfLiterals.add(Literal.forInt64(null));
+                      rowOfLiterals.add(enumCount.getKey());
+                      rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
+                      insertRows.add(rowOfLiterals);
+                      LOGGER.info(
+                          "Enum repeated-string hint: {}, {}, {}, {}",
+                          attribute.getName(),
+                          null,
+                          enumCount.getKey(),
                           enumCount.getValue());
                     });
               } else {
@@ -205,8 +226,15 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     }
   }
 
-  private static boolean isEnumHint(Attribute attribute) {
+  private static boolean isEnumHintForValueDisplay(Attribute attribute) {
     return attribute.isValueDisplay() && DataType.INT64.equals(attribute.getRuntimeDataType());
+  }
+
+  private static boolean isEnumHintForRepeatedStringValue(Attribute attribute) {
+    // TODO: Support not-repeated string simple attributes & repeated integer attributes.
+    return attribute.isSimple()
+        && attribute.isDataTypeRepeated()
+        && (DataType.STRING.equals(attribute.getDataType()));
   }
 
   private static boolean isRangeHint(Attribute attribute) {
@@ -214,7 +242,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       return false;
     }
     return switch (attribute.getRuntimeDataType()) {
-      case DOUBLE, INT64 -> true;
+      case DOUBLE, INT64 -> !attribute.isDataTypeRepeated();
       default -> false;
     };
   }
@@ -275,7 +303,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     }
   }
 
-  private List<Pair<ValueDisplay, Long>> computeEnumHint(Attribute attribute, boolean isDryRun) {
+  private List<Pair<ValueDisplay, Long>> computeEnumHintForValueDisplay(
+      Attribute attribute, boolean isDryRun) {
     // Build the query.
     // SELECT attrVal AS enumVal, attrDisp AS enumDisp, COUNT(*) AS enumCount FROM indextable GROUP
     // BY enumVal, enumDisp
@@ -345,6 +374,69 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             valDisplay.put(enumCount.getKey().getValue(), enumCount.getKey().getDisplay());
           }
         });
+    return enumCounts;
+  }
+
+  private List<Pair<Literal, Long>> computeEnumHintForRepeatedStringValue(
+      Attribute attribute, boolean isDryRun) {
+    // TODO: Consolidate the logic here with the ValueDisplay enum hint method.
+    // Build the query.
+    // SELECT flattenedAttrVal AS enumVal, COUNT(*) AS enumCount FROM indextable
+    // CROSS JOIN UNNEST(indextable.attrVal) AS flattenedAttrVal
+    // GROUP BY enumVal
+    SqlField attrValField = indexAttributesTable.getAttributeValueField(attribute.getName());
+    final String enumValAlias = "enumVal";
+    final String enumCountAlias = "enumCount";
+    final String flattenedAttrValAlias = "flattenedAttrVal";
+    SqlField flattenedAttrValField = SqlField.of(flattenedAttrValAlias);
+
+    String selectEnumCountSql =
+        "SELECT "
+            + SqlQueryField.of(flattenedAttrValField, enumValAlias).renderForSelect()
+            + ", COUNT(*) AS "
+            + enumCountAlias
+            + " FROM "
+            + indexAttributesTable.getTablePointer().render()
+            + " CROSS JOIN UNNEST("
+            + SqlQueryField.of(attrValField).renderForSelect()
+            + ") AS "
+            + flattenedAttrValAlias
+            + " GROUP BY "
+            + SqlQueryField.of(attrValField, enumValAlias).renderForGroupBy(null, true);
+    LOGGER.info("SQL enum count: {}", selectEnumCountSql);
+
+    // Execute the query.
+    List<Pair<Literal, Long>> enumCounts = new ArrayList<>();
+    if (isDryRun) {
+      if (getOutputTable().isEmpty()) {
+        LOGGER.info("Skipping query dry run because output table does not exist yet.");
+      } else {
+        googleBigQuery.dryRunQuery(selectEnumCountSql);
+      }
+      enumCounts.add(Pair.of(Literal.forString(""), 0L));
+    } else {
+      TableResult tableResult = googleBigQuery.runQueryLongTimeout(selectEnumCountSql);
+
+      // Parse the result rows.
+      for (FieldValueList rowResult : tableResult.getValues()) {
+        FieldValue enumValFieldValue = rowResult.get(enumValAlias);
+        Literal enumVal =
+            Literal.forString(
+                enumValFieldValue.isNull() ? null : enumValFieldValue.getStringValue());
+        FieldValue enumCountFieldValue = rowResult.get(enumCountAlias);
+        long enumCount = enumCountFieldValue.getLongValue();
+        enumCounts.add(Pair.of(enumVal, enumCount));
+
+        if (enumCounts.size() > MAX_ENUM_VALS_FOR_DISPLAY_HINT) {
+          // if there are more than the max number of values, then skip the display hint
+          LOGGER.info(
+              "Skipping enum values display hint because there are >{} possible values: {}",
+              MAX_ENUM_VALS_FOR_DISPLAY_HINT,
+              attribute.getName());
+          return List.of();
+        }
+      }
+    }
     return enumCounts;
   }
 }
