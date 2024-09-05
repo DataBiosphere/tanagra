@@ -10,7 +10,7 @@
     "procedureOccurrence": {
       "values": [
         "procedure_datetime",
-        "standard_concept_name"
+        "source_concept_name"
       ]
     },
     "measurementOccurrence": {
@@ -21,8 +21,8 @@
     },
     "ingredientOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "drug_exposure_start_datetime",
+        "source_concept_name"
       ]
     },
     "deviceOccurrence": {

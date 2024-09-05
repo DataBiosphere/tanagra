@@ -3,7 +3,7 @@
   "attributes": {
     "ingredientOccurrence": {
       "values": [
-        "start_date",
+        "drug_exposure_start_datetime",
         "ingredient"
       ]
     }

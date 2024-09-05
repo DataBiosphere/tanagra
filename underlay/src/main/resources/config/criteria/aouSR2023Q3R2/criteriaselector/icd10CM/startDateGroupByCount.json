@@ -4,7 +4,7 @@
     "conditionOccurrence": {
       "values": [
         "condition_start_datetime",
-        "standard_concept_name"
+        "source_concept_name"
       ]
     },
     "measurementOccurrence": {
@@ -22,7 +22,7 @@
     "procedureOccurrence": {
       "values": [
         "procedure_datetime",
-        "standard_concept_name"
+        "source_concept_name"
       ]
     }
   }

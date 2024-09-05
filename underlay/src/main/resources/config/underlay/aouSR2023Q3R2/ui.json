@@ -133,7 +133,7 @@
         "plugin": {
           "entity": "ingredientOccurrence",
           "columns": [
-            { "key": "start_date", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "drug_exposure_start_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
             { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
             { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
             { "key": "standard_concept_name", "width": "30%", "title": "Drug Name", "sortable": true, "filterable": true },

@@ -79,5 +79,6 @@
   "temporalQuery": {
     "visitDateAttribute": "procedure_datetime",
     "visitIdAttribute": "visit_occurrence_id"
-  }
+  },
+  "sourceQueryTableName": "${omopDataset}.procedure_occurrence"
 }
