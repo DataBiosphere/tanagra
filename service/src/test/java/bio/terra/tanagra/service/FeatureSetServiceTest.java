@@ -248,16 +248,14 @@ public class FeatureSetServiceTest {
 
   @Test
   void cloneFeatureSet() {
-    // Create first feature set without criteria
+    // Create first feature set without criteria or attributes
     FeatureSet featureSet1 =
         featureSetService.createFeatureSet(
             study1.getId(),
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("feature set 1")
-                .description("first feature set")
-                .excludeOutputAttributesPerEntity(
-                    Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
+                .description("first feature set"),
             USER_EMAIL_1);
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
@@ -266,7 +264,7 @@ public class FeatureSetServiceTest {
     String newDescription = "cloned feature set description";
     FeatureSet clonedFeatureSet1 =
         featureSetService.cloneFeatureSet(
-            study1.getId(), featureSet1.getId(), USER_EMAIL_1, null, newDescription);
+            study1.getId(), featureSet1.getId(), USER_EMAIL_2, null, newDescription);
     assertEquals(
         2,
         featureSetService
@@ -283,19 +281,10 @@ public class FeatureSetServiceTest {
     assertEquals(USER_EMAIL_1, clonedFeatureSet1.getLastModifiedBy());
     assertEquals(clonedFeatureSet1.getCreated(), clonedFeatureSet1.getLastModified());
     assertTrue(CollectionUtils.isEmpty(clonedFeatureSet1.getCriteria()));
-    assertEquals(
-        featureSet1.getExcludeOutputAttributesPerEntity().size(),
-        clonedFeatureSet1.getExcludeOutputAttributesPerEntity().size());
-    featureSet1
-        .getExcludeOutputAttributesPerEntity()
-        .forEach(
-            (key, value) ->
-                assertEquals(
-                    value,
-                    clonedFeatureSet1.getExcludeOutputAttributesPerEntity().get(key).stream()
-                        .toList()));
 
-    // Create second feature set without attributes
+    // Create second feature set with criteria and attributes
+    List<Criteria> criteria2 = List.of(GENDER_EQ_WOMAN.getValue());
+    Map<String, List<String>> attributes2 = Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES);
     FeatureSet featureSet2 =
         featureSetService.createFeatureSet(
             study1.getId(),
@@ -303,7 +292,8 @@ public class FeatureSetServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("feature set 2")
                 .description("second feature set")
-                .criteria(List.of(GENDER_EQ_WOMAN.getValue())),
+                .criteria(criteria2)
+                .excludeOutputAttributesPerEntity(attributes2),
             USER_EMAIL_2);
     assertNotNull(featureSet2);
     LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
@@ -323,8 +313,19 @@ public class FeatureSetServiceTest {
                 10)
             .size());
     assertEquals(newDisplayName, clonedFeatureSet2.getDisplayName());
+
     assertEquals(featureSet2.getDescription(), clonedFeatureSet2.getDescription());
-    assertEquals(featureSet2.getCriteria(), clonedFeatureSet2.getCriteria());
+    List<Criteria> clonedCriteria2 = clonedFeatureSet2.getCriteria();
+    assertEquals(criteria2.size(), clonedCriteria2.size());
+    for (int i = 0; i < criteria2.size(); ++i) {
+      assertTrue(criteria2.get(i).equivalent(clonedCriteria2.get(i)));
+    }
+
+    Map<String, List<String>> clonedAttributes2 =
+        clonedFeatureSet2.getExcludeOutputAttributesPerEntity();
+    assertEquals(attributes2.size(), clonedAttributes2.size());
+    attributes2.forEach(
+        (key, value) -> assertEquals(value, clonedAttributes2.get(key).stream().toList()));
   }
 
   @Test

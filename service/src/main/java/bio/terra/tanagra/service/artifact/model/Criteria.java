@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -136,7 +137,7 @@ public final class Criteria {
 
     public Criteria build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = generateId();
       }
       return new Criteria(
           id,
@@ -148,6 +149,10 @@ public final class Criteria {
           selectionData,
           uiConfig,
           tags);
+    }
+
+    private static String generateId() {
+      return RandomStringUtils.randomAlphanumeric(10);
     }
 
     public String getId() {
@@ -163,23 +168,9 @@ public final class Criteria {
   }
 
   @Override
+  @SuppressFBWarnings("BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS")
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Criteria criteria = (Criteria) o;
-    return id.equals(criteria.id)
-        && Objects.equals(displayName, criteria.displayName)
-        && pluginName.equals(criteria.pluginName)
-        && pluginVersion == criteria.pluginVersion
-        && Objects.equals(predefinedId, criteria.predefinedId)
-        && Objects.equals(selectorOrModifierName, criteria.selectorOrModifierName)
-        && selectionData.equals(criteria.selectionData)
-        && uiConfig.equals(criteria.uiConfig)
-        && tags.equals(criteria.tags);
+    return equivalent(o) && id.equals(((Criteria) o).id);
   }
 
   @Override
@@ -196,10 +187,28 @@ public final class Criteria {
         tags);
   }
 
+  public boolean equivalent(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Criteria criteria = (Criteria) o;
+    return Objects.equals(displayName, criteria.displayName)
+        && pluginName.equals(criteria.pluginName)
+        && pluginVersion == criteria.pluginVersion
+        && Objects.equals(predefinedId, criteria.predefinedId)
+        && Objects.equals(selectorOrModifierName, criteria.selectorOrModifierName)
+        && selectionData.equals(criteria.selectionData)
+        && uiConfig.equals(criteria.uiConfig)
+        && tags.equals(criteria.tags);
+  }
+
   public Criteria deepCopy() {
     Builder criteriaBuilder =
         Criteria.builder()
-            .id(id)
+            .id(Builder.generateId())
             .displayName(displayName)
             .pluginName(pluginName)
             .pluginVersion(pluginVersion)
