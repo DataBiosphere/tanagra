@@ -79,7 +79,7 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
 
   public enum WorkspaceRole {
     OWNER(ResourceType.STUDY.getActions()),
-    WRITER(Set.of(Action.READ, Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_CONCEPT_SET)),
+    WRITER(Set.of(Action.READ, Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET)),
     READER(Set.of(Action.READ));
 
     private final Set<Action> studyPermissions;

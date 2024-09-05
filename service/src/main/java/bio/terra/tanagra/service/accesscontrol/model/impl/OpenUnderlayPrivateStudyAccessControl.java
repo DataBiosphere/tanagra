@@ -20,7 +20,7 @@ public class OpenUnderlayPrivateStudyAccessControl implements StudyAccessControl
           Action.UPDATE,
           Action.DELETE,
           Action.CREATE_COHORT,
-          Action.CREATE_CONCEPT_SET);
+          Action.CREATE_FEATURE_SET);
   private AccessControlHelper accessControlHelper;
 
   @Override

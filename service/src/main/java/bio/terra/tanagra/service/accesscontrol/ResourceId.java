@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.accesscontrol;
 
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.ANNOTATION_KEY;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.FEATURE_SET;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.REVIEW;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
@@ -18,7 +18,7 @@ public final class ResourceId {
   private final String underlay;
   private final String study;
   private final String cohort;
-  private final String conceptSet;
+  private final String featureSet;
   private final String review;
   private final String annotationKey;
   private final boolean isNull;
@@ -28,7 +28,7 @@ public final class ResourceId {
     this.underlay = builder.underlay;
     this.study = builder.study;
     this.cohort = builder.cohort;
-    this.conceptSet = builder.conceptSet;
+    this.featureSet = builder.featureSet;
     this.review = builder.review;
     this.annotationKey = builder.annotationKey;
     this.isNull = builder.isNull;
@@ -50,8 +50,8 @@ public final class ResourceId {
     return builder().type(COHORT).study(study).cohort(cohort).build();
   }
 
-  public static ResourceId forConceptSet(String study, String conceptSet) {
-    return builder().type(CONCEPT_SET).study(study).conceptSet(conceptSet).build();
+  public static ResourceId forFeatureSet(String study, String featureSet) {
+    return builder().type(FEATURE_SET).study(study).featureSet(featureSet).build();
   }
 
   public static ResourceId forReview(String study, String cohort, String review) {
@@ -78,7 +78,7 @@ public final class ResourceId {
   public ResourceId getParent() {
     switch (type) {
       case COHORT:
-      case CONCEPT_SET:
+      case FEATURE_SET:
         return forStudy(study);
       case REVIEW:
       case ANNOTATION_KEY:
@@ -103,8 +103,8 @@ public final class ResourceId {
         return study;
       case COHORT:
         return buildCompositeId(List.of(study, cohort));
-      case CONCEPT_SET:
-        return buildCompositeId(List.of(study, conceptSet));
+      case FEATURE_SET:
+        return buildCompositeId(List.of(study, featureSet));
       case REVIEW:
         return buildCompositeId(List.of(study, cohort, review));
       case ANNOTATION_KEY:
@@ -139,11 +139,11 @@ public final class ResourceId {
     return cohort;
   }
 
-  public String getConceptSet() {
-    if (type != CONCEPT_SET) {
-      throw new SystemException("Concept set id is not set for resource type: " + type);
+  public String getFeatureSet() {
+    if (type != FEATURE_SET) {
+      throw new SystemException("Feature set id is not set for resource type: " + type);
     }
-    return conceptSet;
+    return featureSet;
   }
 
   public String getReview() {
@@ -174,14 +174,14 @@ public final class ResourceId {
         && Objects.equals(underlay, that.underlay)
         && Objects.equals(study, that.study)
         && Objects.equals(cohort, that.cohort)
-        && Objects.equals(conceptSet, that.conceptSet)
+        && Objects.equals(featureSet, that.featureSet)
         && Objects.equals(review, that.review)
         && Objects.equals(annotationKey, that.annotationKey);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, underlay, study, cohort, conceptSet, review, annotationKey, isNull);
+    return Objects.hash(type, underlay, study, cohort, featureSet, review, annotationKey, isNull);
   }
 
   public static class Builder {
@@ -189,7 +189,7 @@ public final class ResourceId {
     private String underlay;
     private String study;
     private String cohort;
-    private String conceptSet;
+    private String featureSet;
     private String review;
     private String annotationKey;
     private boolean isNull;
@@ -214,8 +214,8 @@ public final class ResourceId {
       return this;
     }
 
-    public Builder conceptSet(String conceptSet) {
-      this.conceptSet = conceptSet;
+    public Builder featureSet(String featureSet) {
+      this.featureSet = featureSet;
       return this;
     }
 

@@ -1,7 +1,7 @@
 import { TreeGridColumn } from "components/treegrid";
 import * as underlayConfig from "tanagra-underlay/underlayConfig";
 
-export type PrepackagedConceptSet = {
+export type PrepackagedFeatureSet = {
   id: string;
   name: string;
   category?: string;
