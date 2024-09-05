@@ -359,7 +359,7 @@ public class FeatureSetServiceTest {
     FeatureSet getClonedFeatureSet2 =
         featureSetService.getFeatureSet(study1.getId(), clonedFeatureSet2.getId());
     assertEquals(
-        clonedFeatureSet2.getCriteria().get(0).getDisplayName(),
+        criteria2.get(0).getDisplayName(),
         getClonedFeatureSet2.getCriteria().get(0).getDisplayName());
   }
 

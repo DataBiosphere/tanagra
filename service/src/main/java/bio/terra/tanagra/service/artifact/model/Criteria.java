@@ -136,7 +136,7 @@ public final class Criteria {
 
     public Criteria build() {
       if (id == null) {
-        id = generateId();
+        id = RandomStringUtils.randomAlphanumeric(10);
       }
       return new Criteria(
           id,
@@ -148,10 +148,6 @@ public final class Criteria {
           selectionData,
           uiConfig,
           tags);
-    }
-
-    private static String generateId() {
-      return RandomStringUtils.randomAlphanumeric(10);
     }
 
     public String getId() {
