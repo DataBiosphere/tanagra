@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
 public class TypescriptWalker extends AnnotationWalker {
@@ -39,9 +38,8 @@ public class TypescriptWalker extends AnnotationWalker {
       fieldNameAndType.append('?');
     }
 
-    if (field.getGenericType() instanceof ParameterizedType) {
+    if (field.getGenericType() instanceof ParameterizedType pType) {
       // This is a type-parameterized class (e.g. List, Map).
-      ParameterizedType pType = (ParameterizedType) field.getGenericType();
       String pTypeName = pType.getRawType().getTypeName();
 
       fieldNameAndType.append(": ");
@@ -84,7 +82,7 @@ public class TypescriptWalker extends AnnotationWalker {
   private String getTypeNameOrSubstitutionLink(String typeName) {
     if (annotationPath.getClassesToWalk().stream()
         .map(Class::getTypeName)
-        .collect(Collectors.toList())
+        .toList()
         .contains(typeName)) {
       return "${" + typeName + "}";
     } else {

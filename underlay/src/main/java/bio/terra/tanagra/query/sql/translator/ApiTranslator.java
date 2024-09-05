@@ -59,14 +59,11 @@ public interface ApiTranslator {
   }
 
   default String orderByDirectionSql(OrderByDirection orderByDirection) {
-    switch (orderByDirection) {
-      case ASCENDING:
-        return "ASC";
-      case DESCENDING:
-        return "DESC";
-      default:
-        throw new SystemException("Unknown order by direction: " + orderByDirection);
-    }
+    return switch (orderByDirection) {
+      case ASCENDING -> "ASC";
+      case DESCENDING -> "DESC";
+      default -> throw new SystemException("Unknown order by direction: " + orderByDirection);
+    };
   }
 
   default String unaryFilterSql(
@@ -171,50 +168,37 @@ public interface ApiTranslator {
   }
 
   default String binaryOperatorSql(BinaryOperator operator) {
-    switch (operator) {
-      case EQUALS:
-        return "=";
-      case NOT_EQUALS:
-        return "!=";
-      case GREATER_THAN:
-        return ">";
-      case LESS_THAN:
-        return "<";
-      case GREATER_THAN_OR_EQUAL:
-        return ">=";
-      case LESS_THAN_OR_EQUAL:
-        return "<=";
-      default:
-        throw new SystemException("Unknown binary operator: " + operator);
-    }
+    return switch (operator) {
+      case EQUALS -> "=";
+      case NOT_EQUALS -> "!=";
+      case GREATER_THAN -> ">";
+      case LESS_THAN -> "<";
+      case GREATER_THAN_OR_EQUAL -> ">=";
+      case LESS_THAN_OR_EQUAL -> "<=";
+      default -> throw new SystemException("Unknown binary operator: " + operator);
+    };
   }
 
   default String unaryOperatorTemplateSql(UnaryOperator operator) {
-    switch (operator) {
-      case IS_NULL:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NULL";
-      case IS_NOT_NULL:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NOT NULL";
-      case IS_EMPTY_STRING:
-        return FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " = ''";
-      default:
-        throw new SystemException("Unknown unary operator: " + operator);
-    }
+    return switch (operator) {
+      case IS_NULL -> FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NULL";
+      case IS_NOT_NULL -> FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " IS NOT NULL";
+      case IS_EMPTY_STRING -> FUNCTION_TEMPLATE_FIELD_VAR_BRACES + " = ''";
+      default -> throw new SystemException("Unknown unary operator: " + operator);
+    };
   }
 
   default String textSearchOperatorTemplateSql(TextSearchFilter.TextSearchOperator operator) {
-    switch (operator) {
-      case EXACT_MATCH:
-        return "REGEXP_CONTAINS(UPPER("
-            + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
-            + "), UPPER("
-            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
-            + "))";
-      case FUZZY_MATCH:
-        throw new InvalidQueryException("Fuzzy text match not supported");
-      default:
-        throw new SystemException("Unknown text search operator: " + operator);
-    }
+    return switch (operator) {
+      case EXACT_MATCH ->
+          "REGEXP_CONTAINS(UPPER("
+              + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+              + "), UPPER("
+              + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+              + "))";
+      case FUZZY_MATCH -> throw new InvalidQueryException("Fuzzy text match not supported");
+      default -> throw new SystemException("Unknown text search operator: " + operator);
+    };
   }
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -255,14 +239,11 @@ public interface ApiTranslator {
   }
 
   default String logicalOperatorSql(BooleanAndOrFilter.LogicalOperator operator) {
-    switch (operator) {
-      case AND:
-        return "AND";
-      case OR:
-        return "OR";
-      default:
-        throw new SystemException("Unknown logical operator: " + operator);
-    }
+    return switch (operator) {
+      case AND -> "AND";
+      case OR -> "OR";
+      default -> throw new SystemException("Unknown logical operator: " + operator);
+    };
   }
 
   default String havingSql(

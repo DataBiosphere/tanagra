@@ -435,12 +435,12 @@ public final class Underlay {
         entities.stream()
             .filter(entity -> entity.getName().equals(szGroupItems.groupEntity))
             .findFirst()
-            .get();
+            .orElseThrow();
     Entity itemsEntity =
         entities.stream()
             .filter(entity -> entity.getName().equals(szGroupItems.itemsEntity))
             .findFirst()
-            .get();
+            .orElseThrow();
 
     // Build the relationship.
     Relationship groupItemsRelationship =
@@ -461,12 +461,12 @@ public final class Underlay {
         entities.stream()
             .filter(entity -> entity.getName().equals(szCriteriaOccurrence.criteriaEntity))
             .findFirst()
-            .get();
+            .orElseThrow();
     Entity primaryEntity =
         entities.stream()
             .filter(entity -> entity.getName().equals(primaryEntityName))
             .findFirst()
-            .get();
+            .orElseThrow();
 
     List<Entity> occurrenceEntities = new ArrayList<>();
     Map<String, Relationship> occurrenceCriteriaRelationships = new HashMap<>();
@@ -479,7 +479,7 @@ public final class Underlay {
               entities.stream()
                   .filter(entity -> entity.getName().equals(szOccurrenceEntity.occurrenceEntity))
                   .findFirst()
-                  .get();
+                  .orElseThrow();
           occurrenceEntities.add(occurrenceEntity);
 
           // Build the occurrence-criteria relationship.

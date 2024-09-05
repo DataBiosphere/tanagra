@@ -92,22 +92,15 @@ public final class BigQueryBeamUtils {
   }
 
   public static LegacySQLTypeName fromDataType(DataType sqlDataType) {
-    switch (sqlDataType) {
-      case STRING:
-        return LegacySQLTypeName.STRING;
-      case INT64:
-        return LegacySQLTypeName.INTEGER;
-      case BOOLEAN:
-        return LegacySQLTypeName.BOOLEAN;
-      case DATE:
-        return LegacySQLTypeName.DATE;
-      case DOUBLE:
-        return LegacySQLTypeName.FLOAT;
-      case TIMESTAMP:
-        return LegacySQLTypeName.TIMESTAMP;
-      default:
-        throw new SystemException("Data type not supported for BigQuery: " + sqlDataType);
-    }
+    return switch (sqlDataType) {
+      case STRING -> LegacySQLTypeName.STRING;
+      case INT64 -> LegacySQLTypeName.INTEGER;
+      case BOOLEAN -> LegacySQLTypeName.BOOLEAN;
+      case DATE -> LegacySQLTypeName.DATE;
+      case DOUBLE -> LegacySQLTypeName.FLOAT;
+      case TIMESTAMP -> LegacySQLTypeName.TIMESTAMP;
+      default -> throw new SystemException("Data type not supported for BigQuery: " + sqlDataType);
+    };
   }
 
   private static Stream<ColumnSchema> sortedStream(List<ColumnSchema> columns) {

@@ -213,13 +213,10 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     if (attribute.isValueDisplay()) {
       return false;
     }
-    switch (attribute.getRuntimeDataType()) {
-      case DOUBLE:
-      case INT64:
-        return true;
-      default:
-        return false;
-    }
+    return switch (attribute.getRuntimeDataType()) {
+      case DOUBLE, INT64 -> true;
+      default -> false;
+    };
   }
 
   private Pair<Literal, Literal> computeRangeHint(Attribute attribute, boolean isDryRun) {

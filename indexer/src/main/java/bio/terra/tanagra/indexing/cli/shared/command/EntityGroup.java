@@ -40,9 +40,7 @@ public abstract class EntityGroup extends BaseCommand {
     List<bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup> entityGroups =
         entityGroupNames.allEntityGroups
             ? underlay.getEntityGroups()
-            : entityGroupNames.names.stream()
-                .map(underlay::getEntityGroup)
-                .collect(Collectors.toList());
+            : entityGroupNames.names.stream().map(underlay::getEntityGroup).toList();
     List<SequencedJobSet> jobSets =
         entityGroups.stream()
             .map(
