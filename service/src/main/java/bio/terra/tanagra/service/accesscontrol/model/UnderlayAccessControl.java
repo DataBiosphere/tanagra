@@ -42,12 +42,12 @@ public interface UnderlayAccessControl extends FineGrainedAccessControl {
   @Override
   default ResourceCollection listDataFeatureSets(
       UserId user, ResourceId study, int offset, int limit) {
-    return ResourceCollection.allResourcesAllPermissions(ResourceType.CONCEPT_SET, study);
+    return ResourceCollection.allResourcesAllPermissions(ResourceType.FEATURE_SET, study);
   }
 
   @Override
   default Permissions getDataFeatureSet(UserId user, ResourceId dataFeatureSet) {
-    return Permissions.allActions(ResourceType.CONCEPT_SET);
+    return Permissions.allActions(ResourceType.FEATURE_SET);
   }
 
   @Override

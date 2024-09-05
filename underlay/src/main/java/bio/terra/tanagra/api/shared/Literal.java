@@ -81,20 +81,14 @@ public final class Literal {
       Boolean booleanVal,
       Date dateVal,
       Timestamp timestampVal) {
-    switch (dataType) {
-      case STRING:
-        return forString(stringVal);
-      case INT64:
-        return forInt64(int64Val);
-      case BOOLEAN:
-        return forBoolean(booleanVal);
-      case DATE:
-        return forDate(dateVal);
-      case TIMESTAMP:
-        return forTimestamp(timestampVal);
-      default:
-        throw new SystemException("Unsupported data type: " + dataType);
-    }
+    return switch (dataType) {
+      case STRING -> forString(stringVal);
+      case INT64 -> forInt64(int64Val);
+      case BOOLEAN -> forBoolean(booleanVal);
+      case DATE -> forDate(dateVal);
+      case TIMESTAMP -> forTimestamp(timestampVal);
+      default -> throw new SystemException("Unsupported data type: " + dataType);
+    };
   }
 
   public String getStringVal() {
@@ -134,36 +128,30 @@ public final class Literal {
   }
 
   public int compareTo(Literal value) {
-    if (isNull && value.isNull()) {
-      return 0;
-    } else if (isNull && !value.isNull()) {
-      return -1;
-    } else if (!isNull && value.isNull()) {
+    if (isNull) {
+      return value.isNull() ? 0 : -1;
+    } else if (value.isNull()) {
       return 1;
     } else if (!dataType.equals(value.getDataType())) {
       return -1;
     }
-    switch (dataType) {
-      case STRING:
+
+    return switch (dataType) {
+      case STRING -> {
         if (stringVal == null) {
-          return value.getStringVal() == null ? 0 : -1;
+          yield value.getStringVal() == null ? 0 : -1;
         } else if (value.getStringVal() == null) {
-          return 1;
+          yield 1;
         }
-        return stringVal.compareTo(value.getStringVal());
-      case INT64:
-        return Long.compare(int64Val, value.getInt64Val());
-      case BOOLEAN:
-        return Boolean.compare(booleanVal, value.getBooleanVal());
-      case DATE:
-        return dateVal.compareTo(value.getDateVal());
-      case DOUBLE:
-        return Double.compare(doubleVal, value.getDoubleVal());
-      case TIMESTAMP:
-        return timestampVal.compareTo(value.getTimestampVal());
-      default:
-        throw new SystemException("Unknown Literal data type");
-    }
+        yield stringVal.compareTo(value.getStringVal());
+      }
+      case INT64 -> Long.compare(int64Val, value.getInt64Val());
+      case BOOLEAN -> Boolean.compare(booleanVal, value.getBooleanVal());
+      case DATE -> dateVal.compareTo(value.getDateVal());
+      case DOUBLE -> Double.compare(doubleVal, value.getDoubleVal());
+      case TIMESTAMP -> timestampVal.compareTo(value.getTimestampVal());
+      default -> throw new SystemException("Unknown Literal data type");
+    };
   }
 
   @SuppressFBWarnings("NP_TOSTRING_COULD_RETURN_NULL")
@@ -172,22 +160,15 @@ public final class Literal {
     if (isNull) {
       return "null";
     }
-    switch (dataType) {
-      case STRING:
-        return stringVal;
-      case INT64:
-        return int64Val.toString();
-      case BOOLEAN:
-        return booleanVal.toString();
-      case DATE:
-        return dateVal.toString();
-      case DOUBLE:
-        return doubleVal.toString();
-      case TIMESTAMP:
-        return timestampVal.toString();
-      default:
-        throw new SystemException("Unknown data type");
-    }
+    return switch (dataType) {
+      case STRING -> stringVal;
+      case INT64 -> int64Val.toString();
+      case BOOLEAN -> booleanVal.toString();
+      case DATE -> dateVal.toString();
+      case DOUBLE -> doubleVal.toString();
+      case TIMESTAMP -> timestampVal.toString();
+      default -> throw new SystemException("Unknown data type");
+    };
   }
 
   @Override

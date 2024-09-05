@@ -1,7 +1,7 @@
 import {
   useAnnotationsApi,
   useCohortsApi,
-  useConceptSetsApi,
+  useFeatureSetsApi,
   useReviewsApi,
   useStudiesApi,
   useUsersApi,
@@ -31,7 +31,7 @@ export function StudySourceContextRoot() {
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
   const studiesApi = useStudiesApi() as tanagra.StudiesApi;
   const cohortsApi = useCohortsApi() as tanagra.CohortsApi;
-  const conceptSetsApi = useConceptSetsApi() as tanagra.ConceptSetsApi;
+  const featureSetsApi = useFeatureSetsApi() as tanagra.FeatureSetsApi;
   const reviewsApi = useReviewsApi() as tanagra.ReviewsApi;
   const annotationsApi = useAnnotationsApi() as tanagra.AnnotationsApi;
   const usersApi = useUsersApi() as tanagra.UsersApi;
@@ -41,7 +41,7 @@ export function StudySourceContextRoot() {
       source: new BackendStudySource(
         studiesApi,
         cohortsApi,
-        conceptSetsApi,
+        featureSetsApi,
         reviewsApi,
         annotationsApi,
         usersApi

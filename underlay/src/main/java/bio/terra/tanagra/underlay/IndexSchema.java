@@ -50,14 +50,14 @@ public final class IndexSchema {
     return entityMainTables.stream()
         .filter(entityMain -> entityMain.getEntity().equals(entity))
         .findFirst()
-        .get();
+        .orElseThrow();
   }
 
   public ITEntityLevelDisplayHints getEntityLevelDisplayHints(String entity) {
     return entityLevelDisplayHintTables.stream()
         .filter(entityLevelDisplayHints -> entityLevelDisplayHints.getEntity().equals(entity))
         .findFirst()
-        .get();
+        .orElseThrow();
   }
 
   public ITHierarchyChildParent getHierarchyChildParent(String entity, String hierarchy) {
@@ -67,7 +67,7 @@ public final class IndexSchema {
                 childParent.getEntity().equals(entity)
                     && childParent.getHierarchy().equals(hierarchy))
         .findFirst()
-        .get();
+        .orElseThrow();
   }
 
   public ITHierarchyAncestorDescendant getHierarchyAncestorDescendant(
@@ -78,7 +78,7 @@ public final class IndexSchema {
                 ancestorDescendant.getEntity().equals(entity)
                     && ancestorDescendant.getHierarchy().equals(hierarchy))
         .findFirst()
-        .get();
+        .orElseThrow();
   }
 
   public ITRelationshipIdPairs getRelationshipIdPairs(
@@ -90,7 +90,7 @@ public final class IndexSchema {
                     && relationshipIdPairs.getEntityA().equals(entityA)
                     && relationshipIdPairs.getEntityB().equals(entityB))
         .findFirst()
-        .get();
+        .orElseThrow();
   }
 
   public ITInstanceLevelDisplayHints getInstanceLevelDisplayHints(
@@ -102,7 +102,7 @@ public final class IndexSchema {
                     && instanceLevelDisplayHints.getHintedEntity().equals(hintedEntity)
                     && instanceLevelDisplayHints.getRelatedEntity().equals(relatedEntity))
         .findFirst()
-        .get();
+        .orElseThrow();
   }
 
   public static IndexSchema fromConfig(

@@ -11,8 +11,8 @@ import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -198,23 +198,23 @@ public class FilterBuilderService {
     }
   }
 
-  public List<EntityOutputPreview> buildOutputPreviewsForConceptSets(
-      List<ConceptSet> conceptSets, boolean includeAllAttributes) {
-    // No concept sets = no entity outputs.
-    if (conceptSets.isEmpty()) {
+  public List<EntityOutputPreview> buildOutputPreviewsForFeatureSets(
+      List<FeatureSet> featureSets, boolean includeAllAttributes) {
+    // No feature sets = no entity outputs.
+    if (featureSets.isEmpty()) {
       return List.of();
     }
 
     // All data feature sets must be for the same underlay.
-    String underlayName = conceptSets.get(0).getUnderlay();
-    conceptSets.forEach(
-        conceptSet -> {
-          if (!conceptSet.getUnderlay().equals(underlayName)) {
+    String underlayName = featureSets.get(0).getUnderlay();
+    featureSets.forEach(
+        featureSet -> {
+          if (!featureSet.getUnderlay().equals(underlayName)) {
             throw new InvalidQueryException(
                 "All data feature sets must be for the same underlay: "
                     + underlayName
                     + ", "
-                    + conceptSet.getUnderlay());
+                    + featureSet.getUnderlay());
           }
         });
     Underlay underlay = underlayService.getUnderlay(underlayName);
@@ -224,15 +224,15 @@ public class FilterBuilderService {
     Map<Entity, Pair<List<EntityFilter>, Set<Attribute>>> outputEntitiesAndFiltersAndAttributes =
         new HashMap<>();
     // Keep track of the specific criteria that each output entity is attributed to.
-    Map<Entity, List<Pair<ConceptSet, Criteria>>> outputEntitiesAndAttributedCriteria =
+    Map<Entity, List<Pair<FeatureSet, Criteria>>> outputEntitiesAndAttributedCriteria =
         new HashMap<>();
-    conceptSets.forEach(
-        conceptSet -> {
-          if (conceptSet.getCriteria().isEmpty()) {
-            LOGGER.debug("Concept set has no criteria: {}", conceptSet.getId());
+    featureSets.forEach(
+        featureSet -> {
+          if (featureSet.getCriteria().isEmpty()) {
+            LOGGER.debug("Feature set has no criteria: {}", featureSet.getId());
             return;
           }
-          conceptSet
+          featureSet
               .getCriteria()
               .forEach(
                   criteria -> {
@@ -241,7 +241,7 @@ public class FilterBuilderService {
                     if (criteria.getPredefinedId() != null
                         && !criteria.getPredefinedId().isEmpty()) {
                       LOGGER.debug(
-                          "Concept set contains prepackaged criteria: {}",
+                          "Feature set contains prepackaged criteria: {}",
                           criteria.getPredefinedId());
                       // This is a prepackaged data feature.
                       // The criteria selector and plugin data are specified in the prepackaged
@@ -265,7 +265,7 @@ public class FilterBuilderService {
                               : List.of(new SelectionData(null, criteria.getSelectionData()));
                     }
 
-                    // Generate the entity outputs for each concept set criteria.
+                    // Generate the entity outputs for each feature set criteria.
                     FilterBuilder filterBuilder =
                         underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
                     List<EntityOutput> entityOutputs =
@@ -276,7 +276,7 @@ public class FilterBuilderService {
                           LOGGER.debug(
                               "Entity output for export: {}", entityOutput.getEntity().getName());
                           // Break apart the entity outputs into entity-filter[] pairs, so
-                          // we can combine filters for the same entity across concept sets
+                          // we can combine filters for the same entity across feature sets
                           // and criteria.
                           List<EntityFilter> entityFilters =
                               outputEntitiesAndFiltersAndAttributes.containsKey(
@@ -291,7 +291,7 @@ public class FilterBuilderService {
 
                           // Add to the list of attributes to include for this entity.
                           List<String> excludeAttrNames =
-                              conceptSet.getExcludeOutputAttributes(entityOutput.getEntity());
+                              featureSet.getExcludeOutputAttributes(entityOutput.getEntity());
 
                           Set<Attribute> includeAttributes =
                               outputEntitiesAndFiltersAndAttributes.containsKey(
@@ -311,13 +311,13 @@ public class FilterBuilderService {
                               entityOutput.getEntity(), Pair.of(entityFilters, includeAttributes));
 
                           // Add to the list of criteria to attribute to this entity.
-                          List<Pair<ConceptSet, Criteria>> attributedCriteria =
+                          List<Pair<FeatureSet, Criteria>> attributedCriteria =
                               outputEntitiesAndAttributedCriteria.containsKey(
                                       entityOutput.getEntity())
                                   ? outputEntitiesAndAttributedCriteria.get(
                                       entityOutput.getEntity())
                                   : new ArrayList<>();
-                          attributedCriteria.add(Pair.of(conceptSet, criteria));
+                          attributedCriteria.add(Pair.of(featureSet, criteria));
                           outputEntitiesAndAttributedCriteria.put(
                               entityOutput.getEntity(), attributedCriteria);
                         });
@@ -370,13 +370,13 @@ public class FilterBuilderService {
   }
 
   public List<EntityOutputPreview> buildOutputPreviewsForExport(
-      List<Cohort> cohorts, List<ConceptSet> conceptSets, boolean includeAllAttributes) {
-    // No cohorts and no concept sets = no entity outputs.
-    if (cohorts.isEmpty() && conceptSets.isEmpty()) {
+      List<Cohort> cohorts, List<FeatureSet> featureSets, boolean includeAllAttributes) {
+    // No cohorts and no feature sets = no entity outputs.
+    if (cohorts.isEmpty() && featureSets.isEmpty()) {
       return List.of();
     }
     String underlayName =
-        cohorts.isEmpty() ? conceptSets.get(0).getUnderlay() : cohorts.get(0).getUnderlay();
+        cohorts.isEmpty() ? featureSets.get(0).getUnderlay() : cohorts.get(0).getUnderlay();
 
     // All cohorts must be for the same underlay.
     cohorts.forEach(
@@ -399,9 +399,9 @@ public class FilterBuilderService {
 
     // Build a combined filter per output entity from all the data feature sets.
     List<EntityOutputPreview> dataFeatureOutputPreviews =
-        buildOutputPreviewsForConceptSets(conceptSets, includeAllAttributes);
+        buildOutputPreviewsForFeatureSets(featureSets, includeAllAttributes);
 
-    // If there's no cohort filter, just return the entity output from the concept sets.
+    // If there's no cohort filter, just return the entity output from the feature sets.
     if (combinedCohortFilter == null) {
       return dataFeatureOutputPreviews;
     }
@@ -482,8 +482,8 @@ public class FilterBuilderService {
   }
 
   public List<EntityOutput> buildOutputsForExport(
-      List<Cohort> cohorts, List<ConceptSet> conceptSets) {
-    return buildOutputPreviewsForExport(cohorts, conceptSets, false).stream()
+      List<Cohort> cohorts, List<FeatureSet> featureSets) {
+    return buildOutputPreviewsForExport(cohorts, featureSets, false).stream()
         .map(EntityOutputPreview::getEntityOutput)
         .collect(Collectors.toList());
   }

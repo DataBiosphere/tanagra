@@ -18,24 +18,19 @@ public class BQRowResult implements SqlRowResult {
   @Override
   public Literal get(String columnName, DataType expectedDataType) {
     FieldValue fieldValue = fieldValues.get(columnName);
-    switch (expectedDataType) {
-      case STRING:
-        return Literal.forString(fieldValue.isNull() ? null : fieldValue.getStringValue());
-      case INT64:
-        return Literal.forInt64(fieldValue.isNull() ? null : fieldValue.getLongValue());
-      case BOOLEAN:
-        return Literal.forBoolean(fieldValue.isNull() ? null : fieldValue.getBooleanValue());
-      case DOUBLE:
-        return Literal.forDouble(fieldValue.isNull() ? null : fieldValue.getDoubleValue());
-      case DATE:
-        return Literal.forDate(fieldValue.isNull() ? null : fieldValue.getStringValue());
-      case TIMESTAMP:
-        return Literal.forTimestamp(
-            fieldValue.isNull() ? null : Timestamp.from(fieldValue.getTimestampInstant()));
-      default:
-        throw new InvalidQueryException(
-            "Unsupported data type for BigQuery row result: " + expectedDataType);
-    }
+    return switch (expectedDataType) {
+      case STRING -> Literal.forString(fieldValue.isNull() ? null : fieldValue.getStringValue());
+      case INT64 -> Literal.forInt64(fieldValue.isNull() ? null : fieldValue.getLongValue());
+      case BOOLEAN -> Literal.forBoolean(fieldValue.isNull() ? null : fieldValue.getBooleanValue());
+      case DOUBLE -> Literal.forDouble(fieldValue.isNull() ? null : fieldValue.getDoubleValue());
+      case DATE -> Literal.forDate(fieldValue.isNull() ? null : fieldValue.getStringValue());
+      case TIMESTAMP ->
+          Literal.forTimestamp(
+              fieldValue.isNull() ? null : Timestamp.from(fieldValue.getTimestampInstant()));
+      default ->
+          throw new InvalidQueryException(
+              "Unsupported data type for BigQuery row result: " + expectedDataType);
+    };
   }
 
   @Override

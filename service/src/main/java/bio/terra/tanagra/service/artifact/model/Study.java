@@ -16,7 +16,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 /**
  * Internal representation of a Study.
  *
- * <p>A study is a collection of cohorts, concept sets, datasets, and cohort reviews.
+ * <p>A study is a collection of cohorts, feature sets, datasets, and cohort reviews.
  */
 @JsonDeserialize(builder = Study.Builder.class)
 public class Study {
