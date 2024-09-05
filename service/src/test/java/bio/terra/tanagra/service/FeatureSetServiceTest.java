@@ -326,7 +326,9 @@ public class FeatureSetServiceTest {
         clonedFeatureSet2.getExcludeOutputAttributesPerEntity();
     assertEquals(attributes2.size(), clonedAttributes2.size());
     attributes2.forEach(
-        (key, value) -> assertEquals(value, clonedAttributes2.get(key).stream().toList()));
+        (key, value) ->
+            assertEquals(
+                value.stream().sorted().toList(), clonedAttributes2.get(key).stream().toList()));
   }
 
   @Test
