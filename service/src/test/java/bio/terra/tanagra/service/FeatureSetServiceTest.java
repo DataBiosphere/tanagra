@@ -319,7 +319,7 @@ public class FeatureSetServiceTest {
     List<Criteria> clonedCriteria2 = clonedFeatureSet2.getCriteria();
     assertEquals(criteria2.size(), clonedCriteria2.size());
     for (int i = 0; i < criteria2.size(); ++i) {
-      assertTrue(criteria2.get(i).equivalent(clonedCriteria2.get(i)));
+      assertEquals(criteria2.get(i), clonedCriteria2.get(i));
     }
 
     Map<String, List<String>> clonedAttributes2 =
@@ -329,6 +329,38 @@ public class FeatureSetServiceTest {
         (key, value) ->
             assertEquals(
                 value.stream().sorted().toList(), clonedAttributes2.get(key).stream().toList()));
+
+    // Update original criteria
+    String updatedCriteriaDisplay = "new criteria display name";
+    Criteria updatedCriteria =
+        Criteria.builder()
+            .id(criteria2.get(0).getId())
+            .displayName(updatedCriteriaDisplay)
+            .pluginName(criteria2.get(0).getPluginName())
+            .pluginVersion(criteria2.get(0).getPluginVersion())
+            .predefinedId(criteria2.get(0).getPredefinedId())
+            .selectorOrModifierName(criteria2.get(0).getSelectorOrModifierName())
+            .selectionData(criteria2.get(0).getSelectionData())
+            .uiConfig(criteria2.get(0).getUiConfig())
+            .tags(criteria2.get(0).getTags())
+            .build();
+    FeatureSet updatedFeatureSet =
+        featureSetService.updateFeatureSet(
+            study1.getId(),
+            featureSet2.getId(),
+            USER_EMAIL_1,
+            null,
+            null,
+            List.of(updatedCriteria),
+            null);
+    assertEquals(updatedCriteriaDisplay, updatedFeatureSet.getCriteria().get(0).getDisplayName());
+
+    // Verily that clone is not changed
+    FeatureSet getClonedFeatureSet2 =
+        featureSetService.getFeatureSet(study1.getId(), clonedFeatureSet2.getId());
+    assertEquals(
+        clonedFeatureSet2.getCriteria().get(0).getDisplayName(),
+        getClonedFeatureSet2.getCriteria().get(0).getDisplayName());
   }
 
   @Test

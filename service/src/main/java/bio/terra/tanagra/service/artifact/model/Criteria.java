@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service.artifact.model;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -168,12 +167,7 @@ public final class Criteria {
   }
 
   @Override
-  @SuppressFBWarnings("BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS")
   public boolean equals(Object o) {
-    return equivalent(o) && id.equals(((Criteria) o).id);
-  }
-
-  public boolean equivalent(Object o) {
     if (this == o) {
       return true;
     }
@@ -181,7 +175,8 @@ public final class Criteria {
       return false;
     }
     Criteria criteria = (Criteria) o;
-    return Objects.equals(displayName, criteria.displayName)
+    return id.equals(criteria.id)
+        && Objects.equals(displayName, criteria.displayName)
         && pluginName.equals(criteria.pluginName)
         && pluginVersion == criteria.pluginVersion
         && Objects.equals(predefinedId, criteria.predefinedId)
@@ -203,22 +198,5 @@ public final class Criteria {
         selectionData,
         uiConfig,
         tags);
-  }
-
-  public Criteria deepCopy() {
-    Builder criteriaBuilder =
-        Criteria.builder()
-            .id(Builder.generateId())
-            .displayName(displayName)
-            .pluginName(pluginName)
-            .pluginVersion(pluginVersion)
-            .predefinedId(predefinedId)
-            .selectorOrModifierName(selectorOrModifierName)
-            .uiConfig(uiConfig)
-            .selectionData(selectionData);
-    if (tags != null) {
-      tags.forEach(criteriaBuilder::addTag);
-    }
-    return criteriaBuilder.build();
   }
 }
