@@ -85,11 +85,7 @@ public class StudyServiceTest {
     List<Study> studies =
         studyService.listStudies(
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
-    assertFalse(
-        studies.stream()
-            .map(Study::getId)
-            .toList()
-            .contains(createdStudy.getId()));
+    assertFalse(studies.stream().map(Study::getId).toList().contains(createdStudy.getId()));
     Study study = studyService.getStudy(createdStudy.getId());
     assertTrue(study.isDeleted());
 

@@ -156,11 +156,7 @@ public class ReviewServiceTest {
                 ResourceType.REVIEW, ResourceId.forCohort(study1.getId(), cohort1.getId())),
             0,
             10);
-    assertFalse(
-        reviews.stream()
-            .map(Review::getId)
-            .toList()
-            .contains(createdReview.getId()));
+    assertFalse(reviews.stream().map(Review::getId).toList().contains(createdReview.getId()));
     Review review = reviewService.getReview(study1.getId(), cohort1.getId(), createdReview.getId());
     assertTrue(review.isDeleted());
   }

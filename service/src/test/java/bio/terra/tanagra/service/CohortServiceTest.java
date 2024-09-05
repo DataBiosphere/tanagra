@@ -133,11 +133,7 @@ public class CohortServiceTest {
                 ResourceType.COHORT, ResourceId.forStudy(study1.getId())),
             0,
             10);
-    assertFalse(
-        cohorts.stream()
-            .map(Cohort::getId)
-            .toList()
-            .contains(createdCohort.getId()));
+    assertFalse(cohorts.stream().map(Cohort::getId).toList().contains(createdCohort.getId()));
     Cohort cohort = cohortService.getCohort(study1.getId(), createdCohort.getId());
     assertTrue(cohort.isDeleted());
   }
