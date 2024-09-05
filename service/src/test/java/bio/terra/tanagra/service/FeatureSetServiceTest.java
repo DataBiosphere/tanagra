@@ -281,6 +281,7 @@ public class FeatureSetServiceTest {
     assertEquals(USER_EMAIL_1, clonedFeatureSet1.getLastModifiedBy());
     assertEquals(clonedFeatureSet1.getCreated(), clonedFeatureSet1.getLastModified());
     assertTrue(CollectionUtils.isEmpty(clonedFeatureSet1.getCriteria()));
+    assertTrue(CollectionUtils.isEmpty(clonedFeatureSet1.getExcludeOutputAttributesPerEntity()));
 
     // Create second feature set with criteria and attributes
     List<Criteria> criteria2 = List.of(GENDER_EQ_WOMAN.getValue());
@@ -313,8 +314,8 @@ public class FeatureSetServiceTest {
                 10)
             .size());
     assertEquals(newDisplayName, clonedFeatureSet2.getDisplayName());
-
     assertEquals(featureSet2.getDescription(), clonedFeatureSet2.getDescription());
+
     List<Criteria> clonedCriteria2 = clonedFeatureSet2.getCriteria();
     assertEquals(criteria2.size(), clonedCriteria2.size());
     for (int i = 0; i < criteria2.size(); ++i) {
