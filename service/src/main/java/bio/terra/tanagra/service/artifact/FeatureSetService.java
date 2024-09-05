@@ -103,4 +103,27 @@ public class FeatureSetService {
         featureSetId, userEmail, displayName, description, criteria, outputAttributesPerEntity);
     return featureSetDao.getFeatureSet(featureSetId);
   }
+
+  public FeatureSet cloneFeatureSet(
+      String studyId,
+      String featureSetId,
+      String userEmail,
+      @Nullable String displayName,
+      @Nullable String description) {
+    FeatureSet original = getFeatureSet(studyId, featureSetId);
+    FeatureSet.Builder featureSetBuilder =
+        FeatureSet.builder()
+            .underlay(original.getUnderlay())
+            .displayName(displayName != null ? displayName : original.getDisplayName())
+            .description(description != null ? description : original.getDescription())
+            .createdBy(userEmail)
+            .lastModifiedBy(userEmail)
+            // Make a deep copy of Criteria since it has an id
+            .criteria(original.getCriteria().stream().map(Criteria::deepCopy).toList())
+            // Add a reference to attributes since it is written to DB and a get is performed
+            .excludeOutputAttributesPerEntity(original.getExcludeOutputAttributesPerEntity());
+
+    featureSetDao.createFeatureSet(studyId, featureSetBuilder.build());
+    return featureSetDao.getFeatureSet(featureSetBuilder.getId());
+  }
 }

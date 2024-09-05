@@ -867,6 +867,36 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/studies/{studyId}/featureSets/{featureSetId}/clone":
+    parameters:
+    - $ref: "#/components/parameters/StudyId"
+    - $ref: "#/components/parameters/FeatureSetId"
+    post:
+      summary: Clone an existing feature set
+      operationId: cloneFeatureSet
+      tags: [FeatureSets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeatureSetCloneInfo"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureSet"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   # --------------- Underlays: Export ---------------
 
   "/v2/underlays/{underlayName}/exportModels":
@@ -1202,6 +1232,20 @@ components:
         type: string
 
   responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorReport"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorReport"
+
     NotFound:
       description: Not found (or unauthorized)
       content:
@@ -2290,6 +2334,14 @@ components:
           description: Outputs per entity
           items:
             $ref: "#/components/schemas/EntityOutput"
+
+    FeatureSetCloneInfo:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/FeatureSetDisplayName"
+        description:
+          $ref: "#/components/schemas/FeatureSetDescription"
 
     FeatureSetDisplayName:
       type: string

@@ -48,6 +48,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ReviewSampleSizeTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewSampleSizeTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
+  private static final String USER_EMAIL_1 = "abc@123.com";
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
@@ -59,10 +60,8 @@ public class ReviewSampleSizeTest {
 
   @BeforeEach
   void createStudyAndCohort() {
-    String userEmail = "abc@123.com";
-
     // Create study1.
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), userEmail);
+    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
@@ -74,7 +73,7 @@ public class ReviewSampleSizeTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("first cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort1 {} at {}", cohort1.getId(), cohort1.getCreated());
@@ -83,7 +82,7 @@ public class ReviewSampleSizeTest {
   @AfterEach
   void deleteStudy() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
@@ -113,7 +112,7 @@ public class ReviewSampleSizeTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(ReviewService.MAX_REVIEW_SIZE),
-            "abc@123.com",
+            USER_EMAIL_1,
             getCohortFilter());
     assertNotNull(review1);
     LOGGER.info("Created review {} at {}", review1.getId(), review1.getCreated());
@@ -167,7 +166,7 @@ public class ReviewSampleSizeTest {
                 study1.getId(),
                 cohort1.getId(),
                 Review.builder().size(ReviewService.MAX_REVIEW_SIZE + 1),
-                "abc@123.com",
+                USER_EMAIL_1,
                 getCohortFilter()));
   }
 

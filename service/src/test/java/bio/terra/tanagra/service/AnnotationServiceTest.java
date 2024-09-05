@@ -50,6 +50,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class AnnotationServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
+  private static final String USER_EMAIL_1 = "abc@123.com";
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
@@ -66,9 +67,7 @@ public class AnnotationServiceTest {
 
   @BeforeEach
   void createCohortsAndReviews() {
-    String userEmail = "abc@123.com";
-
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), userEmail);
+    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
@@ -80,7 +79,7 @@ public class AnnotationServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("first cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(
                 CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
                 CRITERIA_GROUP_SECTION_PROCEDURE));
@@ -95,7 +94,7 @@ public class AnnotationServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("second cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
@@ -106,7 +105,7 @@ public class AnnotationServiceTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(11),
-            userEmail,
+            USER_EMAIL_1,
             List.of(10L, 11L, 12L),
             1_500_000L);
     assertNotNull(review1);
@@ -118,7 +117,7 @@ public class AnnotationServiceTest {
             study1.getId(),
             cohort2.getId(),
             Review.builder().size(14),
-            userEmail,
+            USER_EMAIL_1,
             List.of(20L, 21L, 22L, 24L),
             4_500_000L);
     assertNotNull(review2);
@@ -128,7 +127,7 @@ public class AnnotationServiceTest {
             study1.getId(),
             cohort2.getId(),
             Review.builder().size(3),
-            userEmail,
+            USER_EMAIL_1,
             List.of(24L, 25L, 26L),
             4_500_000L);
     assertNotNull(review3);
@@ -138,7 +137,7 @@ public class AnnotationServiceTest {
             study1.getId(),
             cohort2.getId(),
             Review.builder().size(4),
-            userEmail,
+            USER_EMAIL_1,
             List.of(22L, 23L, 24L),
             4_500_000L);
     assertNotNull(review4);
@@ -146,9 +145,9 @@ public class AnnotationServiceTest {
   }
 
   @AfterEach
-  void deleteCohortsAndReviews() {
+  void deleteStudy() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);

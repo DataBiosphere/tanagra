@@ -186,14 +186,14 @@ public class BaseAccessControlTest {
 
   protected void deleteStudies() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_1.getEmail());
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
     }
 
     try {
-      studyService.deleteStudy(study2.getId(), "abc@123.com");
+      studyService.deleteStudy(study2.getId(), USER_2.getEmail());
       LOGGER.info("Deleted study2 {}", study2.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study2", ex);

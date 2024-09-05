@@ -55,6 +55,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ReviewInstanceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewInstanceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
+  private static final String USER_EMAIL_1 = "abc@123.com";
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
@@ -73,10 +74,8 @@ public class ReviewInstanceTest {
 
   @BeforeEach
   void createReviewsAndAnnotations() {
-    String userEmail = "abc@123.com";
-
     // Create study1.
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), userEmail);
+    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
@@ -88,7 +87,7 @@ public class ReviewInstanceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("first cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(
                 CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
                 CRITERIA_GROUP_SECTION_PROCEDURE));
@@ -105,7 +104,7 @@ public class ReviewInstanceTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(11),
-            userEmail,
+            USER_EMAIL_1,
             List.of(2_014_950L, 1_858_841L, 2_180_409L),
             1_500_000L);
     assertNotNull(review1);
@@ -116,7 +115,7 @@ public class ReviewInstanceTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(14),
-            userEmail,
+            USER_EMAIL_1,
             List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L),
             1_500_000L);
     assertNotNull(review2);
@@ -127,7 +126,7 @@ public class ReviewInstanceTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(3),
-            userEmail,
+            USER_EMAIL_1,
             List.of(1_858_841L, 2_180_409L, 1_838_382L),
             1_500_000L);
     assertNotNull(review3);
@@ -138,7 +137,7 @@ public class ReviewInstanceTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(4),
-            userEmail,
+            USER_EMAIL_1,
             List.of(1_858_841L, 1_838_382L, 799_353L, 2_104_705L),
             1_500_000L);
     assertNotNull(review4);
@@ -299,9 +298,9 @@ public class ReviewInstanceTest {
   }
 
   @AfterEach
-  void deleteReviewsAndAnnotations() {
+  void deleteStudy() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);

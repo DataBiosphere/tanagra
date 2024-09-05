@@ -195,4 +195,21 @@ public final class Criteria {
         uiConfig,
         tags);
   }
+
+  public Criteria deepCopy() {
+    Builder criteriaBuilder =
+        Criteria.builder()
+            .id(id)
+            .displayName(displayName)
+            .pluginName(pluginName)
+            .pluginVersion(pluginVersion)
+            .predefinedId(predefinedId)
+            .selectorOrModifierName(selectorOrModifierName)
+            .uiConfig(uiConfig)
+            .selectionData(selectionData);
+    if (tags != null) {
+      tags.forEach(criteriaBuilder::addTag);
+    }
+    return criteriaBuilder.build();
+  }
 }
