@@ -292,9 +292,7 @@ public class FeatureSetDao {
         });
 
     // Preserve the order returned by the original query.
-    return featureSets.stream()
-        .map(c -> featureSetsMap.get(c.getId()).build())
-        .collect(Collectors.toList());
+    return featureSets.stream().map(c -> featureSetsMap.get(c.getId()).build()).toList();
   }
 
   private void updateCriteriaHelper(String featureSetId, List<Criteria> criteria) {
@@ -353,7 +351,7 @@ public class FeatureSetDao {
                                 .addValue("criteria_id", c.getId())
                                 .addValue("key", tag.getKey())
                                 .addValue("value", tag.getValue()))
-                    .collect(Collectors.toList())));
+                    .toList()));
     rowsAffected =
         Arrays.stream(
                 jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))

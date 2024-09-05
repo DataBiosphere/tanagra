@@ -106,7 +106,7 @@ public class DataExportServiceTest {
             study1.getId(),
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
-                .displayName("First Concept Set")
+                .displayName("First Feature Set")
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight())),
             userEmail);
     assertNotNull(featureSet1);
@@ -117,7 +117,7 @@ public class DataExportServiceTest {
             study1.getId(),
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
-                .displayName("Second Concept Set")
+                .displayName("Second Feature Set")
                 .criteria(List.of(ICD9CM_EQ_DIABETES.getRight())),
             userEmail);
     assertNotNull(featureSet2);
