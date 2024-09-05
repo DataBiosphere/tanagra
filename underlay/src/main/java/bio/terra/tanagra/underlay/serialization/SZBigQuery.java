@@ -2,8 +2,6 @@ package bio.terra.tanagra.underlay.serialization;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
-import com.google.common.collect.*;
-import jakarta.annotation.*;
 import java.util.*;
 
 @AnnotatedClass(

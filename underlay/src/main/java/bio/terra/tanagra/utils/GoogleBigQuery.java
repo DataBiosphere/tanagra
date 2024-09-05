@@ -142,7 +142,7 @@ public final class GoogleBigQuery {
       Optional<Table> table =
           RetryUtils.pollWithRetries(
               () -> getTable(projectId, datasetId, tableId),
-              checkTableExistsResult -> checkTableExistsResult.isPresent(),
+              Optional::isPresent,
               ex -> false,
               maxCalls,
               sleepDuration);
@@ -305,7 +305,7 @@ public final class GoogleBigQuery {
             .setUseQueryCache(true)
             .setDryRun(isDryRun);
     if (queryParams != null) {
-      queryParams.forEach((name, val) -> queryJobConfig.addNamedParameter(name, val));
+      queryParams.forEach(queryJobConfig::addNamedParameter);
     }
     if (destinationTable != null) {
       queryJobConfig.setDestinationTable(destinationTable);
@@ -341,10 +341,9 @@ public final class GoogleBigQuery {
     if (ex instanceof SocketTimeoutException) {
       return true;
     }
-    if (!(ex instanceof BigQueryException)) {
+    if (!(ex instanceof BigQueryException bqEx)) {
       return false;
     }
-    BigQueryException bqEx = (BigQueryException) ex;
     int statusCode = bqEx.getCode();
     LOGGER.error(
         "Caught a BQ error (status code = {}, reason = {}).",

@@ -40,7 +40,7 @@ public abstract class Entity extends BaseCommand {
     List<bio.terra.tanagra.underlay.entitymodel.Entity> entities =
         entityNames.allEntities
             ? underlay.getEntities()
-            : entityNames.names.stream().map(underlay::getEntity).collect(Collectors.toList());
+            : entityNames.names.stream().map(underlay::getEntity).toList();
     List<SequencedJobSet> jobSets =
         entities.stream()
             .map(

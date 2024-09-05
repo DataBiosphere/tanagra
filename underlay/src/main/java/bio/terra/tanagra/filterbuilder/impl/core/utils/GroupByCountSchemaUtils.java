@@ -89,17 +89,16 @@ public final class GroupByCountSchemaUtils {
 
   public static BinaryOperator toBinaryOperator(
       DTUnhintedValue.UnhintedValue.ComparisonOperator comparisonOperator) {
-    switch (comparisonOperator) {
-      case COMPARISON_OPERATOR_EQUAL:
-        return BinaryOperator.EQUALS;
-      case COMPARISON_OPERATOR_LESS_THAN_EQUAL:
-        return BinaryOperator.LESS_THAN_OR_EQUAL;
-      case COMPARISON_OPERATOR_GREATER_THAN_EQUAL:
-        return BinaryOperator.GREATER_THAN_OR_EQUAL;
-      case COMPARISON_OPERATOR_BETWEEN:
-      default:
-        throw new SystemException(
-            "Unsupported unhinted-value comparison operator: " + comparisonOperator);
-    }
+    return switch (comparisonOperator) {
+      case COMPARISON_OPERATOR_EQUAL -> BinaryOperator.EQUALS;
+      case COMPARISON_OPERATOR_LESS_THAN_EQUAL -> BinaryOperator.LESS_THAN_OR_EQUAL;
+      case COMPARISON_OPERATOR_GREATER_THAN_EQUAL -> BinaryOperator.GREATER_THAN_OR_EQUAL;
+      case COMPARISON_OPERATOR_BETWEEN ->
+          throw new SystemException(
+              "Unsupported unhinted-value comparison operator: COMPARISON_OPERATOR_BETWEEN");
+      default ->
+          throw new SystemException(
+              "Unsupported unhinted-value comparison operator: " + comparisonOperator);
+    };
   }
 }
