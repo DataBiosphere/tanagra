@@ -173,20 +173,6 @@ public final class Criteria {
     return equivalent(o) && id.equals(((Criteria) o).id);
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(
-        id,
-        displayName,
-        pluginName,
-        pluginVersion,
-        predefinedId,
-        selectorOrModifierName,
-        selectionData,
-        uiConfig,
-        tags);
-  }
-
   public boolean equivalent(Object o) {
     if (this == o) {
       return true;
@@ -203,6 +189,20 @@ public final class Criteria {
         && selectionData.equals(criteria.selectionData)
         && uiConfig.equals(criteria.uiConfig)
         && tags.equals(criteria.tags);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        id,
+        displayName,
+        pluginName,
+        pluginVersion,
+        predefinedId,
+        selectorOrModifierName,
+        selectionData,
+        uiConfig,
+        tags);
   }
 
   public Criteria deepCopy() {
