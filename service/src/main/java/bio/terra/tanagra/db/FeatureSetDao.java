@@ -5,8 +5,8 @@ import bio.terra.common.db.WriteTransaction;
 import bio.terra.common.exception.MissingRequiredFieldException;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,15 +25,15 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConceptSetDao {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ConceptSetDao.class);
+public class FeatureSetDao {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FeatureSetDao.class);
 
-  // SQL query and row mapper for reading a concept set.
-  private static final String CONCEPT_SET_SELECT_SQL =
+  // SQL query and row mapper for reading a feature set.
+  private static final String FEATURE_SET_SELECT_SQL =
       "SELECT id, underlay, display_name, description, created, created_by, last_modified, last_modified_by, is_deleted FROM concept_set";
-  private static final RowMapper<ConceptSet.Builder> CONCEPT_SET_ROW_MAPPER =
+  private static final RowMapper<FeatureSet.Builder> FEATURE_SET_ROW_MAPPER =
       (rs, rowNum) ->
-          ConceptSet.builder()
+          FeatureSet.builder()
               .id(rs.getString("id"))
               .underlay(rs.getString("underlay"))
               .displayName(rs.getString("display_name"))
@@ -81,104 +81,104 @@ public class ConceptSetDao {
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   @Autowired
-  public ConceptSetDao(NamedParameterJdbcTemplate jdbcTemplate) {
+  public FeatureSetDao(NamedParameterJdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }
 
   @ReadTransaction
-  public List<ConceptSet> getAllConceptSets(String studyId, int offset, int limit) {
+  public List<FeatureSet> getAllFeatureSets(String studyId, int offset, int limit) {
     String sql =
-        CONCEPT_SET_SELECT_SQL
+        FEATURE_SET_SELECT_SQL
             + " WHERE study_id = :study_id AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET ALL concept sets: {}", sql);
+    LOGGER.debug("GET ALL feature sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<ConceptSet> conceptSets = getConceptSetsHelper(sql, params);
-    LOGGER.debug("GET ALL concept sets numFound = {}", conceptSets.size());
-    return conceptSets;
+    List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
+    LOGGER.debug("GET ALL feature sets numFound = {}", featureSets.size());
+    return featureSets;
   }
 
   @ReadTransaction
-  public List<ConceptSet> getConceptSetsMatchingList(Set<String> ids, int offset, int limit) {
+  public List<FeatureSet> getFeatureSetsMatchingList(Set<String> ids, int offset, int limit) {
     String sql =
-        CONCEPT_SET_SELECT_SQL
+        FEATURE_SET_SELECT_SQL
             + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET MATCHING concept sets: {}", sql);
+    LOGGER.debug("GET MATCHING feature sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("ids", ids)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<ConceptSet> conceptSets = getConceptSetsHelper(sql, params);
-    LOGGER.debug("GET MATCHING concept sets numFound = {}", conceptSets.size());
-    return conceptSets;
+    List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
+    LOGGER.debug("GET MATCHING feature sets numFound = {}", featureSets.size());
+    return featureSets;
   }
 
   @ReadTransaction
-  public ConceptSet getConceptSet(String id) {
-    // Fetch concept set.
-    String sql = CONCEPT_SET_SELECT_SQL + " WHERE id = :id";
-    LOGGER.debug("GET concept set: {}", sql);
+  public FeatureSet getFeatureSet(String id) {
+    // Fetch feature set.
+    String sql = FEATURE_SET_SELECT_SQL + " WHERE id = :id";
+    LOGGER.debug("GET feature set: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
-    List<ConceptSet> conceptSets = getConceptSetsHelper(sql, params);
-    LOGGER.debug("GET concept set numFound = {}", conceptSets.size());
+    List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
+    LOGGER.debug("GET feature set numFound = {}", featureSets.size());
 
-    // Make sure there's only one concept set returned for this id.
-    if (conceptSets.isEmpty()) {
-      throw new NotFoundException("Concept set not found " + id);
-    } else if (conceptSets.size() > 1) {
-      throw new SystemException("Multiple concept sets found " + id);
+    // Make sure there's only one feature set returned for this id.
+    if (featureSets.isEmpty()) {
+      throw new NotFoundException("Feature set not found " + id);
+    } else if (featureSets.size() > 1) {
+      throw new SystemException("Multiple feature sets found " + id);
     }
-    return conceptSets.get(0);
+    return featureSets.get(0);
   }
 
   @WriteTransaction
-  public void deleteConceptSet(String id) {
+  public void deleteFeatureSet(String id) {
     String sql = "UPDATE concept_set SET is_deleted = true WHERE id = :id";
-    LOGGER.debug("DELETE concept set: {}", sql);
+    LOGGER.debug("DELETE feature set: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     int rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.debug("DELETE concept set rowsAffected = {}", rowsAffected);
+    LOGGER.debug("DELETE feature set rowsAffected = {}", rowsAffected);
   }
 
   @WriteTransaction
-  public void createConceptSet(String studyId, ConceptSet conceptSet) {
-    // Write the concept set. The created and last_modified fields are set by the DB automatically
+  public void createFeatureSet(String studyId, FeatureSet featureSet) {
+    // Write the feature set. The created and last_modified fields are set by the DB automatically
     // on insert.
     String sql =
         "INSERT INTO concept_set (study_id, id, underlay, created_by, last_modified_by, display_name, description, is_deleted) "
             + "VALUES (:study_id, :id, :underlay, :created_by, :last_modified_by, :display_name, :description, false)";
-    LOGGER.debug("CREATE concept set: {}", sql);
+    LOGGER.debug("CREATE feature set: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
-            .addValue("id", conceptSet.getId())
-            .addValue("underlay", conceptSet.getUnderlay())
-            .addValue("created_by", conceptSet.getCreatedBy())
-            .addValue("last_modified_by", conceptSet.getLastModifiedBy())
-            .addValue("display_name", conceptSet.getDisplayName())
-            .addValue("description", conceptSet.getDescription());
+            .addValue("id", featureSet.getId())
+            .addValue("underlay", featureSet.getUnderlay())
+            .addValue("created_by", featureSet.getCreatedBy())
+            .addValue("last_modified_by", featureSet.getLastModifiedBy())
+            .addValue("display_name", featureSet.getDisplayName())
+            .addValue("description", featureSet.getDescription());
     int rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.debug("CREATE concept set rowsAffected = {}", rowsAffected);
+    LOGGER.debug("CREATE feature set rowsAffected = {}", rowsAffected);
 
     // Write the criteria.
-    if (conceptSet.getCriteria() != null && !conceptSet.getCriteria().isEmpty()) {
-      updateCriteriaHelper(conceptSet.getId(), conceptSet.getCriteria());
+    if (featureSet.getCriteria() != null && !featureSet.getCriteria().isEmpty()) {
+      updateCriteriaHelper(featureSet.getId(), featureSet.getCriteria());
     }
 
     // Write the output attributes.
-    if (conceptSet.getExcludeOutputAttributesPerEntity() != null
-        && !conceptSet.getExcludeOutputAttributesPerEntity().isEmpty()) {
+    if (featureSet.getExcludeOutputAttributesPerEntity() != null
+        && !featureSet.getExcludeOutputAttributesPerEntity().isEmpty()) {
       updateOutputAttributesHelper(
-          conceptSet.getId(), conceptSet.getExcludeOutputAttributesPerEntity());
+          featureSet.getId(), featureSet.getExcludeOutputAttributesPerEntity());
     }
   }
 
   @WriteTransaction
-  public void updateConceptSet(
+  public void updateFeatureSet(
       String id,
       String lastModifiedBy,
       String displayName,
@@ -192,13 +192,13 @@ public class ConceptSetDao {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
 
-    // Check to make sure the concept set isn't deleted.
-    ConceptSet conceptSet = getConceptSet(id);
-    if (conceptSet.isDeleted()) {
-      throw new NotFoundException("Concept set " + id + " has been deleted.");
+    // Check to make sure the feature set isn't deleted.
+    FeatureSet featureSet = getFeatureSet(id);
+    if (featureSet.isDeleted()) {
+      throw new NotFoundException("Feature set " + id + " has been deleted.");
     }
 
-    // Update the concept set: display name, description, last modified, last modified by.
+    // Update the feature set: display name, description, last modified, last modified by.
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("last_modified", JdbcUtils.sqlTimestampUTC())
@@ -213,9 +213,9 @@ public class ConceptSetDao {
         String.format(
             "UPDATE concept_set SET %s WHERE id = :id", JdbcUtils.setColumnsClause(params));
     params.addValue("id", id);
-    LOGGER.debug("UPDATE concept set: {}", sql);
+    LOGGER.debug("UPDATE feature set: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.debug("UPDATE concept set rowsAffected = {}", rowsAffected);
+    LOGGER.debug("UPDATE feature set rowsAffected = {}", rowsAffected);
 
     // Write the criteria.
     if (criteria != null) {
@@ -228,31 +228,31 @@ public class ConceptSetDao {
     }
   }
 
-  private List<ConceptSet> getConceptSetsHelper(
-      String conceptSetsSql, MapSqlParameterSource conceptSetsParams) {
-    // Fetch concept sets.
-    List<ConceptSet.Builder> conceptSets =
-        jdbcTemplate.query(conceptSetsSql, conceptSetsParams, CONCEPT_SET_ROW_MAPPER);
-    if (conceptSets.isEmpty()) {
+  private List<FeatureSet> getFeatureSetsHelper(
+      String featureSetsSql, MapSqlParameterSource featureSetsParams) {
+    // Fetch feature sets.
+    List<FeatureSet.Builder> featureSets =
+        jdbcTemplate.query(featureSetsSql, featureSetsParams, FEATURE_SET_ROW_MAPPER);
+    if (featureSets.isEmpty()) {
       return Collections.emptyList();
     }
 
-    // Fetch criteria. (concept set id -> criteria)
+    // Fetch criteria. (feature set id -> criteria)
     String sql = CRITERIA_SELECT_SQL + " WHERE concept_set_id IN (:concept_set_ids)";
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue(
                 "concept_set_ids",
-                conceptSets.stream().map(ConceptSet.Builder::getId).collect(Collectors.toSet()));
+                featureSets.stream().map(FeatureSet.Builder::getId).collect(Collectors.toSet()));
     List<Pair<String, Criteria.Builder>> criterias =
         jdbcTemplate.query(sql, params, CRITERIA_ROW_MAPPER);
 
-    // Fetch criteria tags. ([criteria id, concept set id] -> tag key-value pair)
+    // Fetch criteria tags. ([criteria id, feature set id] -> tag key-value pair)
     sql = CRITERIA_TAG_SELECT_SQL + " WHERE concept_set_id IN (:concept_set_ids)";
     List<Pair<List<String>, Pair<String, String>>> tags =
         jdbcTemplate.query(sql, params, CRITERIA_TAG_ROW_MAPPER);
 
-    // Fetch output attributes. (concept set id -> output entity-attribute pair)
+    // Fetch output attributes. (feature set id -> output entity-attribute pair)
     sql = OUTPUT_ATTRIBUTE_SELECT_SQL + " WHERE concept_set_id IN (:concept_set_ids)";
     List<Pair<String, Pair<String, String>>> outputAttributes =
         jdbcTemplate.query(sql, params, OUTPUT_ATTRIBUTE_ROW_MAPPER);
@@ -265,42 +265,42 @@ public class ConceptSetDao {
                     pair -> List.of(pair.getValue().getId(), pair.getKey()), Pair::getValue));
     tags.forEach(
         pair -> {
-          List<String> criteraAndConceptSetId = pair.getKey();
+          List<String> criteraAndFeatureSetId = pair.getKey();
           String tagKey = pair.getValue().getKey();
           String tagValue = pair.getValue().getValue();
-          criteriasMap.get(criteraAndConceptSetId).addTag(tagKey, tagValue);
+          criteriasMap.get(criteraAndFeatureSetId).addTag(tagKey, tagValue);
         });
 
-    // Put criteria into their respective concept sets.
-    Map<String, ConceptSet.Builder> conceptSetsMap =
-        conceptSets.stream()
-            .collect(Collectors.toMap(ConceptSet.Builder::getId, Function.identity()));
+    // Put criteria into their respective feature sets.
+    Map<String, FeatureSet.Builder> featureSetsMap =
+        featureSets.stream()
+            .collect(Collectors.toMap(FeatureSet.Builder::getId, Function.identity()));
     criterias.forEach(
         pair -> {
-          String conceptSetId = pair.getKey();
+          String featureSetId = pair.getKey();
           Criteria criteria = pair.getValue().build();
-          conceptSetsMap.get(conceptSetId).addCriteria(criteria);
+          featureSetsMap.get(featureSetId).addCriteria(criteria);
         });
 
-    // Put the output attributes into their respective concept sets.
+    // Put the output attributes into their respective feature sets.
     outputAttributes.forEach(
         pair -> {
-          String conceptSetId = pair.getKey();
+          String featureSetId = pair.getKey();
           String entity = pair.getValue().getKey();
           String attribute = pair.getValue().getValue();
-          conceptSetsMap.get(conceptSetId).addExcludeOutputAttribute(entity, attribute);
+          featureSetsMap.get(featureSetId).addExcludeOutputAttribute(entity, attribute);
         });
 
     // Preserve the order returned by the original query.
-    return conceptSets.stream()
-        .map(c -> conceptSetsMap.get(c.getId()).build())
+    return featureSets.stream()
+        .map(c -> featureSetsMap.get(c.getId()).build())
         .collect(Collectors.toList());
   }
 
-  private void updateCriteriaHelper(String conceptSetId, List<Criteria> criteria) {
+  private void updateCriteriaHelper(String featureSetId, List<Criteria> criteria) {
     // Delete any existing criteria.
     MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("concept_set_id", conceptSetId);
+        new MapSqlParameterSource().addValue("concept_set_id", featureSetId);
     String sql = "DELETE FROM criteria WHERE concept_set_id = :concept_set_id";
     LOGGER.debug("DELETE criteria: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -322,7 +322,7 @@ public class ConceptSetDao {
             .map(
                 c ->
                     new MapSqlParameterSource()
-                        .addValue("concept_set_id", conceptSetId)
+                        .addValue("concept_set_id", featureSetId)
                         .addValue("id", c.getId())
                         .addValue("display_name", c.getDisplayName())
                         .addValue("plugin_name", c.getPluginName())
@@ -349,7 +349,7 @@ public class ConceptSetDao {
                     .map(
                         tag ->
                             new MapSqlParameterSource()
-                                .addValue("concept_set_id", conceptSetId)
+                                .addValue("concept_set_id", featureSetId)
                                 .addValue("criteria_id", c.getId())
                                 .addValue("key", tag.getKey())
                                 .addValue("value", tag.getValue()))
@@ -362,10 +362,10 @@ public class ConceptSetDao {
   }
 
   private void updateOutputAttributesHelper(
-      String conceptSetId, Map<String, List<String>> outputAttributes) {
+      String featureSetId, Map<String, List<String>> outputAttributes) {
     // Delete any existing output attributes.
     MapSqlParameterSource params =
-        new MapSqlParameterSource().addValue("concept_set_id", conceptSetId);
+        new MapSqlParameterSource().addValue("concept_set_id", featureSetId);
     String sql = "DELETE FROM output_attribute WHERE concept_set_id = :concept_set_id";
     LOGGER.debug("DELETE output attributes: {}", sql);
     int rowsAffected = jdbcTemplate.update(sql, params);
@@ -383,7 +383,7 @@ public class ConceptSetDao {
                 attribute ->
                     outputAttributeParamSets.add(
                         new MapSqlParameterSource()
-                            .addValue("concept_set_id", conceptSetId)
+                            .addValue("concept_set_id", featureSetId)
                             .addValue("entity", entity)
                             .addValue("exclude_attribute", attribute))));
     rowsAffected =

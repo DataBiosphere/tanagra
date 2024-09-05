@@ -238,6 +238,6 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   }
 
   throw new Error(
-    "Either concept set, or cohort, group, and criteria must be defined."
+    "Either feature set, or cohort, group, and criteria must be defined."
   );
 }

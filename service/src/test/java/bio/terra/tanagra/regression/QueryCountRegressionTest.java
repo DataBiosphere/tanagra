@@ -10,12 +10,12 @@ import bio.terra.tanagra.proto.regressiontest.RTDataFeatureSet;
 import bio.terra.tanagra.proto.regressiontest.RTExportCounts;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.DataExportService;
@@ -52,7 +52,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
   @Autowired private FeatureConfiguration featureConfiguration;
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
-  @Autowired private ConceptSetService conceptSetService;
+  @Autowired private FeatureSetService featureSetService;
   @Autowired private CohortService cohortService;
   @Autowired private DataExportService dataExportService;
 
@@ -112,15 +112,15 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
               LOGGER.info("Created cohort {} at {}", cohort.getId(), cohort.getCreated());
               cohorts.add(cohort);
             });
-    List<ConceptSet> conceptSets = new ArrayList<>();
+    List<FeatureSet> featureSets = new ArrayList<>();
     rtExportCounts
         .getDataFeatureSetsList()
         .forEach(
             rtDataFeatureSet -> {
-              ConceptSet conceptSet =
-                  conceptSetService.createConceptSet(
+              FeatureSet featureSet =
+                  featureSetService.createFeatureSet(
                       study1.getId(),
-                      ConceptSet.builder()
+                      FeatureSet.builder()
                           .underlay(rtExportCounts.getUnderlay())
                           .displayName(
                               rtDataFeatureSet
@@ -136,10 +136,10 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                               fromRegressionTestObj(
                                   underlay, rtDataFeatureSet.getEntityOutputsList())),
                       "abc@123.com");
-              assertNotNull(conceptSet);
+              assertNotNull(featureSet);
               LOGGER.info(
-                  "Created data feature set {} at {}", conceptSet.getId(), conceptSet.getCreated());
-              conceptSets.add(conceptSet);
+                  "Created data feature set {} at {}", featureSet.getId(), featureSet.getCreated());
+              featureSets.add(featureSet);
             });
 
     // Call the regression test export model to compute the counts for all output entities.
@@ -153,7 +153,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
             underlay,
             study1,
             cohorts,
-            conceptSets);
+            featureSets);
     DataExportHelper dataExportHelper = dataExportService.buildHelper(exportRequest);
     Map<String, Long> totalNumRowsPerEntity = dataExportHelper.getTotalNumRowsOfEntityData();
 

@@ -26,7 +26,7 @@ public interface StudyAccessControl extends FineGrainedAccessControl {
   @Override
   default ResourceCollection listDataFeatureSets(
       UserId user, ResourceId study, int offset, int limit) {
-    return listStudyDescendantResources(user, study, ResourceType.CONCEPT_SET);
+    return listStudyDescendantResources(user, study, ResourceType.FEATURE_SET);
   }
 
   @Override

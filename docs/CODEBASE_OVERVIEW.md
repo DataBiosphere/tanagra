@@ -175,7 +175,7 @@ interface they share live in this package. More information in [this readme](./A
 ### API artifacts
 **`service` Gradle sub-project `artifact` package**
 
-Artifacts that are exposed through the API include studies, cohorts, reviews, concept sets, and activity logs. These
+Artifacts that are exposed through the API include studies, cohorts, reviews, feature sets, and activity logs. These
 artifacts are part of the application persistent state and stored in the application database.
 
 When adding a new artifact or logic to an existing one, prefer defining a POJO-like model class and putting logic into

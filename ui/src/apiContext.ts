@@ -3,8 +3,8 @@ import { getEnvironment, isTestEnvironment } from "environment";
 import {
   FakeAnnotationsAPI,
   FakeCohortsAPI,
-  FakeConceptSetsAPI,
   FakeExportAPI,
+  FakeFeatureSetsAPI,
   FakeReviewsAPI,
   FakeStudiesAPI,
   FakeUnderlaysApi,
@@ -53,8 +53,8 @@ export function useCohortsApi() {
   return useApiForEnvironment(tanagra.CohortsApi, FakeCohortsAPI);
 }
 
-export function useConceptSetsApi() {
-  return useApiForEnvironment(tanagra.ConceptSetsApi, FakeConceptSetsAPI);
+export function useFeatureSetsApi() {
+  return useApiForEnvironment(tanagra.FeatureSetsApi, FakeFeatureSetsAPI);
 }
 
 export function useReviewsApi() {

@@ -2,7 +2,7 @@ package bio.terra.tanagra.app.controller;
 
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.CONCEPT_SET;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.FEATURE_SET;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
 import bio.terra.tanagra.api.field.AttributeField;
@@ -28,10 +28,10 @@ import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExportModel;
 import bio.terra.tanagra.service.export.DataExportService;
@@ -59,7 +59,7 @@ public class ExportApiController implements ExportApi {
   private final DataExportService dataExportService;
   private final StudyService studyService;
   private final CohortService cohortService;
-  private final ConceptSetService conceptSetService;
+  private final FeatureSetService featureSetService;
   private final UnderlayService underlayService;
   private final FilterBuilderService filterBuilderService;
 
@@ -69,14 +69,14 @@ public class ExportApiController implements ExportApi {
       DataExportService dataExportService,
       StudyService studyService,
       CohortService cohortService,
-      ConceptSetService conceptSetService,
+      FeatureSetService featureSetService,
       UnderlayService underlayService,
       FilterBuilderService filterBuilderService) {
     this.accessControlService = accessControlService;
     this.dataExportService = dataExportService;
     this.studyService = studyService;
     this.cohortService = cohortService;
-    this.conceptSetService = conceptSetService;
+    this.featureSetService = featureSetService;
     this.underlayService = underlayService;
     this.filterBuilderService = filterBuilderService;
   }
@@ -107,11 +107,11 @@ public class ExportApiController implements ExportApi {
           Permissions.forActions(COHORT, READ),
           ResourceId.forCohort(body.getStudy(), cohortId));
     }
-    for (String conceptSetId : body.getConceptSets()) {
+    for (String featureSetId : body.getFeatureSets()) {
       accessControlService.throwIfUnauthorized(
           SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(CONCEPT_SET, READ),
-          ResourceId.forConceptSet(body.getStudy(), conceptSetId));
+          Permissions.forActions(FEATURE_SET, READ),
+          ResourceId.forFeatureSet(body.getStudy(), featureSetId));
     }
 
     // Build the entity outputs.
@@ -119,13 +119,13 @@ public class ExportApiController implements ExportApi {
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
             .collect(Collectors.toList());
-    List<ConceptSet> conceptSets =
-        body.getConceptSets().stream()
-            .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
+    List<FeatureSet> featureSets =
+        body.getFeatureSets().stream()
+            .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
             .collect(Collectors.toList());
     List<EntityOutputPreview> entityOutputPreviews =
         filterBuilderService.buildOutputPreviewsForExport(
-            cohorts, conceptSets, body.isIncludeAllAttributes());
+            cohorts, featureSets, body.isIncludeAllAttributes());
     EntityOutputPreview entityOutputPreview =
         entityOutputPreviews.stream()
             .filter(eop -> entityName.equals(eop.getEntityOutput().getEntity().getName()))
@@ -133,7 +133,7 @@ public class ExportApiController implements ExportApi {
             .orElseThrow(
                 () ->
                     new InvalidQueryException(
-                        "Preview entity is not included in the entity output previews for the selected concept sets."));
+                        "Preview entity is not included in the entity output previews for the selected feature sets."));
 
     // Always include the id attribute in the query, even if it's not selected in any of the data
     // feature sets.
@@ -173,11 +173,11 @@ public class ExportApiController implements ExportApi {
         SpringAuthentication.getCurrentUser(),
         Permissions.forActions(UNDERLAY, READ),
         ResourceId.forUnderlay(underlayName));
-    for (String conceptSetId : body.getConceptSets()) {
+    for (String featureSetId : body.getFeatureSets()) {
       accessControlService.throwIfUnauthorized(
           SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(CONCEPT_SET, READ),
-          ResourceId.forConceptSet(body.getStudy(), conceptSetId));
+          Permissions.forActions(FEATURE_SET, READ),
+          ResourceId.forFeatureSet(body.getStudy(), featureSetId));
     }
 
     // Build the entity output previews.
@@ -185,13 +185,13 @@ public class ExportApiController implements ExportApi {
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
             .collect(Collectors.toList());
-    List<ConceptSet> conceptSets =
-        body.getConceptSets().stream()
-            .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
+    List<FeatureSet> featureSets =
+        body.getFeatureSets().stream()
+            .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
             .collect(Collectors.toList());
     List<EntityOutputPreview> entityOutputPreviews =
         filterBuilderService.buildOutputPreviewsForExport(
-            cohorts, conceptSets, body.isIncludeAllAttributes());
+            cohorts, featureSets, body.isIncludeAllAttributes());
 
     // Build the index and source sql for each entity output.
     Underlay underlay = underlayService.getUnderlay(underlayName);
@@ -240,10 +240,10 @@ public class ExportApiController implements ExportApi {
                   .criteria(
                       entityOutputPreview.getAttributedCriteria().stream()
                           .map(
-                              conceptSetAndCriteria ->
+                              featureSetAndCriteria ->
                                   new ApiEntityOutputPreviewCriteria()
-                                      .conceptSetId(conceptSetAndCriteria.getLeft().getId())
-                                      .criteriaId(conceptSetAndCriteria.getRight().getId()))
+                                      .featureSetId(featureSetAndCriteria.getLeft().getId())
+                                      .criteriaId(featureSetAndCriteria.getRight().getId()))
                           .collect(Collectors.toList()))
                   .indexSql(SqlFormatter.format(indexSqlForEntityOutputs.get(entityOutputPreview)))
                   .sourceSql(
@@ -266,15 +266,15 @@ public class ExportApiController implements ExportApi {
           Permissions.forActions(COHORT, READ),
           ResourceId.forCohort(body.getStudy(), cohortId));
     }
-    List<String> conceptSetIds = new ArrayList<>();
-    if (body.getConceptSets() != null) {
-      conceptSetIds.addAll(body.getConceptSets());
+    List<String> featureSetIds = new ArrayList<>();
+    if (body.getFeatureSets() != null) {
+      featureSetIds.addAll(body.getFeatureSets());
     }
-    for (String conceptSetId : conceptSetIds) {
+    for (String featureSetId : featureSetIds) {
       accessControlService.throwIfUnauthorized(
           SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(CONCEPT_SET, READ),
-          ResourceId.forConceptSet(body.getStudy(), conceptSetId));
+          Permissions.forActions(FEATURE_SET, READ),
+          ResourceId.forFeatureSet(body.getStudy(), featureSetId));
     }
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
@@ -283,9 +283,9 @@ public class ExportApiController implements ExportApi {
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
             .collect(Collectors.toList());
-    List<ConceptSet> conceptSets =
-        conceptSetIds.stream()
-            .map(conceptSetId -> conceptSetService.getConceptSet(body.getStudy(), conceptSetId))
+    List<FeatureSet> featureSets =
+        featureSetIds.stream()
+            .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
             .collect(Collectors.toList());
 
     ExportRequest exportRequest =
@@ -298,7 +298,7 @@ public class ExportApiController implements ExportApi {
             underlay,
             study,
             cohorts,
-            conceptSets);
+            featureSets);
     ExportResult exportResult = dataExportService.run(exportRequest);
     return ResponseEntity.ok(toApiObject(exportResult));
   }

@@ -23,7 +23,7 @@ export class FakeUnderlaysApi {
           type: "classification",
           id: "tanagra-condition",
           title: "Condition",
-          conceptSet: true,
+          featureSet: true,
           columns,
           occurrence: "condition_occurrence",
           classification: "condition",
@@ -32,7 +32,7 @@ export class FakeUnderlaysApi {
           type: "classification",
           id: "tanagra-observation",
           title: "Observation",
-          conceptSet: true,
+          featureSet: true,
           columns,
           occurrence: "observation_occurrence",
           classification: "observation",
@@ -231,11 +231,11 @@ export class FakeCohortsAPI {
   }
 }
 
-export class FakeConceptSetsAPI {
-  async listConceptSets(): Promise<Array<tanagra.ConceptSet>> {
+export class FakeFeatureSetsAPI {
+  async listFeatureSets(): Promise<Array<tanagra.FeatureSet>> {
     return [
       {
-        id: "test_concept_set",
+        id: "test_feature_set",
         created: new Date(),
         createdBy: "test_user",
         displayName: "Test data feature",

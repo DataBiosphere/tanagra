@@ -3,7 +3,7 @@
 Tanagra defines a custom object model on top of the underlying relational data. Tanagra's objects are called entities.
 
 An underlay is a collection of entities and the relationships between them that map to an underlying relational dataset.
-In the Tanagra UI, you work with one underlay at a time (e.g. building cohorts, concept sets, datasets).
+In the Tanagra UI, you work with one underlay at a time (e.g. building cohorts, feature sets, datasets).
 
 ## Entity
 An entity is an object that is displayed in the UI somehow and makes sense to an end user. i.e. If you define an 
