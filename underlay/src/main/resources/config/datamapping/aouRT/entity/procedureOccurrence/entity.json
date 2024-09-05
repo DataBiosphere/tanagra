@@ -5,33 +5,79 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "procedure_occurrence_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "procedure_concept_id", "dataType": "INT64" },
-    { "name": "standard_concept_name", "dataType": "STRING"},
-    { "name": "standard_concept_code", "dataType": "STRING"},
-    { "name": "standard_vocabulary", "dataType": "STRING"},
+    { "name": "standard_concept_name", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "standard_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_concept_code", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "standard_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_vocabulary", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "standard_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "procedure_datetime", "dataType": "TIMESTAMP" },
     { "name": "procedure_type_concept_id", "dataType": "INT64" },
-    { "name": "procedure_type_concept_name", "dataType": "STRING" },
+    { "name": "procedure_type_concept_name", "dataType": "INT64", "valueFieldName": "procedure_type_concept_id", "displayFieldName": "procedure_type_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "modifier_concept_id", "dataType": "INT64" },
-    { "name": "modifier_concept_name", "dataType": "STRING" },
+    { "name": "modifier_concept_name", "dataType": "INT64", "valueFieldName": "modifier_concept_id", "displayFieldName": "modifier_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "quantity", "dataType": "INT64" },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
-    { "name": "visit_occurrence_concept_name", "dataType": "STRING" },
+    { "name": "visit_occurrence_concept_name", "dataType": "STRING", "isSuppressedForExport": true },
     { "name": "procedure_source_value", "dataType": "STRING" },
     { "name": "procedure_source_concept_id", "dataType": "INT64" },
-    { "name": "source_concept_name", "dataType": "STRING" },
-    { "name": "source_concept_code", "dataType": "STRING" },
-    { "name": "source_vocabulary", "dataType": "STRING" },
+    { "name": "source_concept_name", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id", "displayFieldName": "source_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_concept_code", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id", "displayFieldName": "source_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_vocabulary", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id", "displayFieldName": "source_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "modifier_source_value", "dataType": "STRING" },
-    { "name": "date", "dataType": "DATE", "valueFieldName": "procedure_date", "isSuppressedForExport": true },
-    { "name": "source_value", "dataType": "STRING", "valueFieldName": "procedure_source_value", "isSuppressedForExport": true },
-    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id", "isSuppressedForExport": true },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
+    { "name": "procedure", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "procedure_concept_name", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "procedure_concept_id" ],
   "temporalQuery": {
-    "visitDateAttribute": "date",
+    "visitDateAttribute": "procedure_datetime",
     "visitIdAttribute": "visit_occurrence_id"
   }
 }

@@ -9,8 +9,8 @@
     },
     "procedureOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "procedure_datetime",
+        "standard_concept_name"
       ]
     }
   }

@@ -3,23 +3,29 @@
   "attributes": {
     "observationOccurrence": {
       "values": [
-        "start_date",
+        "date",
         "source_criteria_id"
       ]
     },
     "procedureOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "procedure_datetime",
+        "standard_concept_name"
       ]
     },
     "measurementOccurrence": {
+      "values": [
+        "date",
+        "source_criteria_id"
+      ]
+    },
+    "ingredientOccurrence": {
       "values": [
         "start_date",
         "source_criteria_id"
       ]
     },
-    "ingredientOccurrence": {
+    "deviceOccurrence": {
       "values": [
         "start_date",
         "source_criteria_id"

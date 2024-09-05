@@ -33,7 +33,7 @@
     { "name": "questionnaire_response_id", "dataType": "INT64" },
     { "name": "observation", "dataType": "INT64", "valueFieldName": "observation_concept_id", "displayFieldName": "standard_concept_name", "isSuppressedForExport": true },
     { "name": "value", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name", "isSuppressedForExport": true },
-    { "name": "date", "dataType": "DATE", "valueFieldName": "observation_date", "isSuppressedForExport": true },
+    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "observation_datetime", "isSuppressedForExport": true },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "observation_source_concept_id", "isSuppressedForExport": true },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }

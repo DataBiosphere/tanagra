@@ -5,7 +5,7 @@ SELECT
   pc.concept_name AS standard_concept_name,
   pc.concept_code AS standard_concept_code,
   pc.vocabulary_id AS standard_vocabulary,
-  po.procedure_date,
+  pc.concept_name AS procedure_concept_name,
   po.procedure_datetime,
   po.procedure_type_concept_id,
   pt.concept_name as procedure_type_concept_name,

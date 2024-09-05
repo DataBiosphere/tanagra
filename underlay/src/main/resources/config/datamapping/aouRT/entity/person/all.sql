@@ -14,12 +14,12 @@ SELECT p.person_id,
            WHEN rc.concept_name = 'No matching concept' THEN 'Unknown'
            WHEN rc.concept_name = 'PMI: Skip' THEN 'Skip'
            ELSE rc.concept_name
-           END AS race_concept_name
+           END AS race_concept_name,
        p.ethnicity_concept_id,
         CASE
             WHEN ec.concept_name = 'No matching concept' THEN 'Unknown'
             ELSE ec.concept_name
-            END AS ethnicity_concept_name
+            END AS ethnicity_concept_name,
        p.sex_at_birth_concept_id,
        sc.concept_name AS sex_at_birth_concept_name,
        p.self_reported_category_concept_id,

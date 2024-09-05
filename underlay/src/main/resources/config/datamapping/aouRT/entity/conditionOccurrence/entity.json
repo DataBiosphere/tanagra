@@ -72,7 +72,8 @@
       }
     },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 18, "displayHintRangeMax": 125, "isSuppressedForExport": true },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
+    { "name": "condition", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "condition_concept_name", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "condition_concept_id" ],

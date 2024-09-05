@@ -5,7 +5,7 @@
       "joins": [],
       "attributes": [
         {
-          "attribute": "standard_concept_name",
+          "attribute": "condition",
           "sortType": "VALUE",
           "sortDescending": true,
           "limit": 10

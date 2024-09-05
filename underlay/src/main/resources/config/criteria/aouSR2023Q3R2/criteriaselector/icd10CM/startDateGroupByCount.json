@@ -3,26 +3,26 @@
   "attributes": {
     "conditionOccurrence": {
       "values": [
-        "start_date",
-        "condition_source_concept_id"
+        "condition_start_datetime",
+        "standard_concept_name"
       ]
     },
     "measurementOccurrence": {
       "values": [
-        "start_date",
+        "date",
         "source_criteria_id"
       ]
     },
     "observationOccurrence": {
       "values": [
-        "start_date",
+        "date",
         "source_criteria_id"
       ]
     },
     "procedureOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "procedure_datetime",
+        "standard_concept_name"
       ]
     }
   }

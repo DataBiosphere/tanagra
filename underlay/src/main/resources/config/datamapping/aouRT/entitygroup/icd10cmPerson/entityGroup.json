@@ -32,7 +32,7 @@
     {
       "occurrenceEntity": "procedureOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+        "foreignKeyAttributeOccurrenceEntity": "procedure_source_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"

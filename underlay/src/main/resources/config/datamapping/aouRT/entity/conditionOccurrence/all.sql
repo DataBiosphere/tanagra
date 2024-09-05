@@ -5,6 +5,7 @@ SELECT
   cc.concept_name AS standard_concept_name,
   cc.concept_code AS standard_concept_code,
   cc.vocabulary_id AS standard_vocabulary,
+  cc.concept_name AS condition_concept_name,
   co.condition_start_datetime,
   co.condition_end_datetime,
   co.condition_type_concept_id,

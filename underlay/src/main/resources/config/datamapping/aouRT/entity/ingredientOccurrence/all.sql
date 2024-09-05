@@ -5,6 +5,7 @@ SELECT
   ic.concept_name AS standard_concept_name,
   ic.concept_code AS standard_concept_code,
   ic.vocabulary_id AS standard_vocabulary,
+  ic.concept_name AS drug_concept_name,
   de.drug_exposure_start_date,
   de.drug_exposure_start_datetime,
   de.drug_exposure_end_date,
