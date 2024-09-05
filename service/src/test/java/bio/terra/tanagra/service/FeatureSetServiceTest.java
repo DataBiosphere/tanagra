@@ -277,7 +277,7 @@ public class FeatureSetServiceTest {
     assertEquals(featureSet1.getUnderlay(), clonedFeatureSet1.getUnderlay());
     assertEquals(featureSet1.getDisplayName(), clonedFeatureSet1.getDisplayName());
     assertEquals(newDescription, clonedFeatureSet1.getDescription());
-    assertEquals(USER_EMAIL_1, clonedFeatureSet1.getCreatedBy());
+    assertEquals(USER_EMAIL_2, clonedFeatureSet1.getCreatedBy());
     assertEquals(USER_EMAIL_2, clonedFeatureSet1.getLastModifiedBy());
     assertEquals(clonedFeatureSet1.getCreated(), clonedFeatureSet1.getLastModified());
     assertTrue(CollectionUtils.isEmpty(clonedFeatureSet1.getCriteria()));
