@@ -114,8 +114,10 @@ public class FeatureSetService {
     FeatureSet.Builder featureSetBuilder =
         FeatureSet.builder()
             .underlay(original.getUnderlay())
-            .displayName(displayName != null ? displayName : original.getDisplayName())
-            .description(description != null ? description : original.getDescription())
+            .displayName(
+                displayName != null ? displayName : "Copy of: " + original.getDisplayName())
+            .description(
+                description != null ? description : "Copy of: " + original.getDescription())
             .createdBy(userEmail)
             .lastModifiedBy(userEmail)
             // Shallow copy criteria and attributes: they are written to DB and fetched for return

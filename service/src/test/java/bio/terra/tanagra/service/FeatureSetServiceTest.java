@@ -275,7 +275,7 @@ public class FeatureSetServiceTest {
                 10)
             .size());
     assertEquals(featureSet1.getUnderlay(), clonedFeatureSet1.getUnderlay());
-    assertEquals(featureSet1.getDisplayName(), clonedFeatureSet1.getDisplayName());
+    assertEquals("Copy of: " + featureSet1.getDisplayName(), clonedFeatureSet1.getDisplayName());
     assertEquals(newDescription, clonedFeatureSet1.getDescription());
     assertEquals(USER_EMAIL_2, clonedFeatureSet1.getCreatedBy());
     assertEquals(USER_EMAIL_2, clonedFeatureSet1.getLastModifiedBy());
@@ -314,7 +314,7 @@ public class FeatureSetServiceTest {
                 10)
             .size());
     assertEquals(newDisplayName, clonedFeatureSet2.getDisplayName());
-    assertEquals(featureSet2.getDescription(), clonedFeatureSet2.getDescription());
+    assertEquals("Copy of: " + featureSet2.getDescription(), clonedFeatureSet2.getDescription());
 
     List<Criteria> clonedCriteria2 = clonedFeatureSet2.getCriteria();
     assertEquals(criteria2.size(), clonedCriteria2.size());

@@ -2373,9 +2373,6 @@ components:
           items:
             $ref: "#/components/schemas/CriteriaGroup"
         firstBlockReducingOperator:
-          description: |
-            Reducing operator for the first block of criteria groups.
-            Only applies for a temporal section.
           $ref: "#/components/schemas/ReducingOperator"
         secondBlockCriteriaGroups:
           type: array
@@ -2385,9 +2382,6 @@ components:
           items:
             $ref: "#/components/schemas/CriteriaGroup"
         secondBlockReducingOperator:
-          description: |
-            Reducing operator for the second block of criteria groups.
-            Only applies for a temporal section.
           $ref: "#/components/schemas/ReducingOperator"
         operator:
           type: string
@@ -2407,6 +2401,9 @@ components:
         - excluded
 
     ReducingOperator:
+      description: |
+        Reducing operator for criteria groups blocks.
+        Only applies for a temporal section.
       type: string
       enum: ["ANY", "FIRST_MENTION_OF", "LAST_MENTION_OF"]
 
