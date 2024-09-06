@@ -103,4 +103,29 @@ public class FeatureSetService {
         featureSetId, userEmail, displayName, description, criteria, outputAttributesPerEntity);
     return featureSetDao.getFeatureSet(featureSetId);
   }
+
+  public FeatureSet cloneFeatureSet(
+      String studyId,
+      String featureSetId,
+      String userEmail,
+      @Nullable String displayName,
+      @Nullable String description) {
+    FeatureSet original = getFeatureSet(studyId, featureSetId);
+    FeatureSet.Builder featureSetBuilder =
+        FeatureSet.builder()
+            .underlay(original.getUnderlay())
+            .displayName(
+                displayName != null ? displayName : "Copy of: " + original.getDisplayName())
+            .description(
+                description != null ? description : "Copy of: " + original.getDescription())
+            .createdBy(userEmail)
+            .lastModifiedBy(userEmail)
+            // Shallow copy criteria and attributes: they are written to DB and fetched for return
+            // Any ids are used in conjunction with concept_set_id as primary key
+            .criteria(original.getCriteria())
+            .excludeOutputAttributesPerEntity(original.getExcludeOutputAttributesPerEntity());
+
+    featureSetDao.createFeatureSet(studyId, featureSetBuilder.build());
+    return featureSetDao.getFeatureSet(featureSetBuilder.getId());
+  }
 }
