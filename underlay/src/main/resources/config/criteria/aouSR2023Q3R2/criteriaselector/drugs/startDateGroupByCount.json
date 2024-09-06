@@ -4,7 +4,7 @@
     "ingredientOccurrence": {
       "values": [
         "drug_exposure_start_datetime",
-        "ingredient"
+        "standard_concept_name"
       ]
     }
   }

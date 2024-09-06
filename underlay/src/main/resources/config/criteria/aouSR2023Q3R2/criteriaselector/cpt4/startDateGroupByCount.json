@@ -3,8 +3,8 @@
   "attributes": {
     "observationOccurrence": {
       "values": [
-        "date",
-        "source_criteria_id"
+        "observation_datetime",
+        "source_concept_name"
       ]
     },
     "procedureOccurrence": {
@@ -15,8 +15,8 @@
     },
     "measurementOccurrence": {
       "values": [
-        "date",
-        "source_criteria_id"
+        "measurement_datetime",
+        "source_concept_name"
       ]
     },
     "ingredientOccurrence": {
@@ -27,8 +27,8 @@
     },
     "deviceOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "device_exposure_start_datetime",
+        "source_concept_name"
       ]
     }
   }

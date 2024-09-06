@@ -9,14 +9,14 @@
     },
     "measurementOccurrence": {
       "values": [
-        "date",
-        "source_criteria_id"
+        "measurement_datetime",
+        "source_concept_name"
       ]
     },
     "observationOccurrence": {
       "values": [
-        "date",
-        "source_criteria_id"
+        "observation_datetime",
+        "source_concept_name"
       ]
     },
     "procedureOccurrence": {
