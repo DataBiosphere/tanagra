@@ -106,14 +106,21 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
 
   @Override
   public ValueDisplay parseValueDisplayFromResult(SqlRowResult sqlRowResult) {
-    Literal valueField =
-        sqlRowResult.get(getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
-
-    if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
-      return new ValueDisplay(valueField);
+    if (attributeField.getAttribute().isDataTypeRepeated()) {
+      List<Literal> repeatedValueField =
+          sqlRowResult.getRepeated(
+              getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
+      return new ValueDisplay(repeatedValueField);
     } else {
-      Literal displayField = sqlRowResult.get(getDisplayFieldAlias(), DataType.STRING);
-      return new ValueDisplay(valueField, displayField.getStringVal());
+      Literal valueField =
+          sqlRowResult.get(
+              getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
+      if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
+        return new ValueDisplay(valueField);
+      } else {
+        Literal displayField = sqlRowResult.get(getDisplayFieldAlias(), DataType.STRING);
+        return new ValueDisplay(valueField, displayField.getStringVal());
+      }
     }
   }
 
