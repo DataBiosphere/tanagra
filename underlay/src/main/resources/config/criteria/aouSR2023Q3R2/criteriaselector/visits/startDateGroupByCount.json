@@ -3,8 +3,8 @@
   "attributes": {
     "visitOccurrence": {
       "values": [
-        "start_date",
-        "visit"
+        "visit_start_datetime",
+        "standard_concept_name"
       ]
     }
   }

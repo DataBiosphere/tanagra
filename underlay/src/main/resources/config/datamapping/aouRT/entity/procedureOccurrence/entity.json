@@ -70,7 +70,7 @@
       }
     },
     { "name": "modifier_source_value", "dataType": "STRING" },
-    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 18, "displayHintRangeMax": 125, "isSuppressedForExport": true },
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
     { "name": "procedure", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "procedure_concept_name", "isSuppressedForExport": true }
   ],

@@ -85,7 +85,7 @@
     { "name": "value_source_value", "dataType": "STRING" },
     { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name", "isSuppressedForExport": true },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isSuppressedForExport": true },
-    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 18, "displayHintRangeMax": 125, "isSuppressedForExport": true },
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
     { "name": "measurement", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "standard_concept_name", "isSuppressedForExport": true }
   ],
