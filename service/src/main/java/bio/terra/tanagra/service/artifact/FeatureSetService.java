@@ -108,6 +108,7 @@ public class FeatureSetService {
       String studyId,
       String featureSetId,
       String userEmail,
+      String destinationStudyId,
       @Nullable String displayName,
       @Nullable String description) {
     FeatureSet original = getFeatureSet(studyId, featureSetId);
@@ -125,7 +126,7 @@ public class FeatureSetService {
             .criteria(original.getCriteria())
             .excludeOutputAttributesPerEntity(original.getExcludeOutputAttributesPerEntity());
 
-    featureSetDao.createFeatureSet(studyId, featureSetBuilder.build());
+    featureSetDao.createFeatureSet(destinationStudyId, featureSetBuilder.build());
     return featureSetDao.getFeatureSet(featureSetBuilder.getId());
   }
 }

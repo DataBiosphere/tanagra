@@ -136,16 +136,28 @@ public class FeatureSetsApiController implements FeatureSetsApi {
   public ResponseEntity<ApiFeatureSet> cloneFeatureSet(
       String studyId, String featureSetId, ApiFeatureSetCloneInfo body) {
     UserId user = SpringAuthentication.getCurrentUser();
-    accessControlService.throwIfUnauthorized(
-        user, Permissions.forActions(STUDY, CREATE_FEATURE_SET), ResourceId.forStudy(studyId));
+
+    // should have read access to original feature set
     accessControlService.throwIfUnauthorized(
         user,
         Permissions.forActions(FEATURE_SET, READ),
         ResourceId.forFeatureSet(studyId, featureSetId));
 
+    // should have write access to destination study
+    String destinationStudyId = (body.getStudyId() != null) ? body.getStudyId() : studyId;
+    accessControlService.throwIfUnauthorized(
+        user,
+        Permissions.forActions(STUDY, CREATE_FEATURE_SET),
+        ResourceId.forStudy(destinationStudyId));
+
     FeatureSet clonedFeatureSet =
         featureSetService.cloneFeatureSet(
-            studyId, featureSetId, user.getEmail(), body.getDisplayName(), body.getDescription());
+            studyId,
+            featureSetId,
+            user.getEmail(),
+            destinationStudyId,
+            body.getDisplayName(),
+            body.getDescription());
     return ResponseEntity.ok(FeatureSetsApiController.toApiObject(clonedFeatureSet));
   }
 

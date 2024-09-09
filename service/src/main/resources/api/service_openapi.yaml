@@ -2338,6 +2338,8 @@ components:
     FeatureSetCloneInfo:
       type: object
       properties:
+        studyId:
+          $ref: "#/components/schemas/StudyId"
         displayName:
           $ref: "#/components/schemas/FeatureSetDisplayName"
         description:

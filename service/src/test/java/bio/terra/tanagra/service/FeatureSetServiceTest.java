@@ -221,7 +221,7 @@ public class FeatureSetServiceTest {
     assertNotNull(featureSet3);
     LOGGER.info("Created feature set {} at {}", featureSet3.getId(), featureSet3.getCreated());
 
-    // List all cohorts in study2. Those from study1 are not displayed
+    // List all feature sets in study2. Those from study1 are not displayed
     List<FeatureSet> allFeatureSets =
         featureSetService.listFeatureSets(
             ResourceCollection.allResourcesAllPermissions(
@@ -260,11 +260,16 @@ public class FeatureSetServiceTest {
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
-    // Clone the feature set without new displayName and verify
+    // Clone the feature set into the same study without new displayName and verify
     String newDescription = "cloned feature set description";
     FeatureSet clonedFeatureSet1 =
         featureSetService.cloneFeatureSet(
-            study1.getId(), featureSet1.getId(), USER_EMAIL_2, null, newDescription);
+            study1.getId(),
+            featureSet1.getId(),
+            USER_EMAIL_2,
+            study1.getId(),
+            null,
+            newDescription);
     assertEquals(
         2,
         featureSetService
@@ -299,20 +304,24 @@ public class FeatureSetServiceTest {
     assertNotNull(featureSet2);
     LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 
-    // Clone the feature set without new description and verify
+    // Clone the feature set into different study without new description and verify
     String newDisplayName = "cloned feature set displayName";
     FeatureSet clonedFeatureSet2 =
         featureSetService.cloneFeatureSet(
-            study1.getId(), featureSet2.getId(), USER_EMAIL_2, newDisplayName, null);
-    assertEquals(
-        4,
-        featureSetService
-            .listFeatureSets(
-                ResourceCollection.allResourcesAllPermissions(
-                    ResourceType.FEATURE_SET, ResourceId.forStudy(study1.getId())),
-                0,
-                10)
-            .size());
+            study1.getId(),
+            featureSet2.getId(),
+            USER_EMAIL_2,
+            study2.getId(),
+            newDisplayName,
+            null);
+    List<FeatureSet> study2FeatureSets =
+        featureSetService.listFeatureSets(
+            ResourceCollection.allResourcesAllPermissions(
+                ResourceType.FEATURE_SET, ResourceId.forStudy(study2.getId())),
+            0,
+            10);
+    assertEquals(1, study2FeatureSets.size());
+    assertEquals(clonedFeatureSet2.getId(), study2FeatureSets.get(0).getId());
     assertEquals(newDisplayName, clonedFeatureSet2.getDisplayName());
     assertEquals("Copy of: " + featureSet2.getDescription(), clonedFeatureSet2.getDescription());
 
