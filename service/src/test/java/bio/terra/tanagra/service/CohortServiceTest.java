@@ -44,6 +44,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class CohortServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(CohortServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
+  private static final String USER_EMAIL_1 = "abc@123.com";
+  private static final String USER_EMAIL_2 = "def@123.com";
 
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
@@ -53,11 +55,11 @@ public class CohortServiceTest {
 
   @BeforeEach
   void createTwoStudies() {
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), "abc@123.com");
+    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
-    study2 = studyService.createStudy(Study.builder().displayName("study 2"), "def@123.com");
+    study2 = studyService.createStudy(Study.builder().displayName("study 2"), USER_EMAIL_2);
     assertNotNull(study2);
     LOGGER.info("Created study2 {} at {}", study2.getId(), study2.getCreated());
   }
@@ -65,14 +67,14 @@ public class CohortServiceTest {
   @AfterEach
   void deleteTwoStudies() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
     }
 
     try {
-      studyService.deleteStudy(study2.getId(), "abc@123.com");
+      studyService.deleteStudy(study2.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study2 {}", study2.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study2", ex);
@@ -84,7 +86,7 @@ public class CohortServiceTest {
     // Create.
     String displayName = "cohort 1";
     String description = "first cohort";
-    String createdByEmail = "abc@123.com";
+    String createdByEmail = USER_EMAIL_1;
     Cohort createdCohort =
         cohortService.createCohort(
             study1.getId(),
@@ -124,26 +126,20 @@ public class CohortServiceTest {
     assertTrue(updatedCohort.getLastModified().isAfter(updatedCohort.getCreated()));
 
     // Delete.
-    cohortService.deleteCohort(study1.getId(), createdCohort.getId(), "abc@123.com");
+    cohortService.deleteCohort(study1.getId(), createdCohort.getId(), USER_EMAIL_1);
     List<Cohort> cohorts =
         cohortService.listCohorts(
             ResourceCollection.allResourcesAllPermissions(
                 ResourceType.COHORT, ResourceId.forStudy(study1.getId())),
             0,
             10);
-    assertFalse(
-        cohorts.stream()
-            .map(Cohort::getId)
-            .collect(Collectors.toList())
-            .contains(createdCohort.getId()));
+    assertFalse(cohorts.stream().map(Cohort::getId).toList().contains(createdCohort.getId()));
     Cohort cohort = cohortService.getCohort(study1.getId(), createdCohort.getId());
     assertTrue(cohort.isDeleted());
   }
 
   @Test
   void listAllOrSelected() {
-    String userEmail = "abc@123.com";
-
     // Create one cohort in study1.
     Cohort cohort1 =
         cohortService.createCohort(
@@ -152,7 +148,7 @@ public class CohortServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 1")
                 .description("first cohort"),
-            userEmail);
+            USER_EMAIL_1);
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -164,7 +160,7 @@ public class CohortServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("second cohort"),
-            userEmail);
+            USER_EMAIL_1);
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
     Cohort cohort3 =
@@ -174,7 +170,7 @@ public class CohortServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 3")
                 .description("third cohort"),
-            userEmail);
+            USER_EMAIL_1);
     assertNotNull(cohort3);
     LOGGER.info("Created cohort {} at {}", cohort3.getId(), cohort3.getCreated());
 
@@ -234,7 +230,7 @@ public class CohortServiceTest {
         NotFoundException.class,
         () ->
             cohortService.createCohort(
-                study1.getId(), Cohort.builder().underlay("invalid_underlay"), "abc@123.com"));
+                study1.getId(), Cohort.builder().underlay("invalid_underlay"), USER_EMAIL_1));
 
     // Display name length exceeds maximum.
     assertThrows(
@@ -245,13 +241,11 @@ public class CohortServiceTest {
                 Cohort.builder()
                     .underlay(UNDERLAY_NAME)
                     .displayName("123456789012345678901234567890123456789012345678901"),
-                "abc@123.com"));
+                USER_EMAIL_1));
   }
 
   @Test
   void withCriteria() throws InterruptedException {
-    String userEmail = "abc@123.com";
-
     // Create cohort1 without criteria.
     Cohort cohort1 =
         cohortService.createCohort(
@@ -260,7 +254,7 @@ public class CohortServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 1")
                 .description("first cohort"),
-            userEmail);
+            USER_EMAIL_1);
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -270,7 +264,7 @@ public class CohortServiceTest {
         cohortService.updateCohort(
             study1.getId(),
             cohort1.getId(),
-            userEmail,
+            USER_EMAIL_1,
             null,
             null,
             List.of(
@@ -294,7 +288,7 @@ public class CohortServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
                 .description("second cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
@@ -308,7 +302,7 @@ public class CohortServiceTest {
         cohortService.updateCohort(
             study1.getId(),
             cohort2.getId(),
-            userEmail,
+            USER_EMAIL_1,
             null,
             null,
             List.of(CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION));
@@ -329,7 +323,7 @@ public class CohortServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 3")
                 .description("third cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_TEMPORAL_WITHIN_NUM_DAYS));
     assertNotNull(cohort3);
     LOGGER.info("Created cohort {} at {}", cohort3.getId(), cohort3.getCreated());
@@ -344,7 +338,7 @@ public class CohortServiceTest {
         cohortService.updateCohort(
             study1.getId(),
             cohort3.getId(),
-            userEmail,
+            USER_EMAIL_1,
             null,
             null,
             List.of(CRITERIA_GROUP_SECTION_TEMPORAL_DURING_SAME_ENCOUNTER));

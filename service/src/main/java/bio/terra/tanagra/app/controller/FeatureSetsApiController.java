@@ -13,6 +13,7 @@ import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.FeatureSetsApi;
 import bio.terra.tanagra.generated.model.ApiEntityOutput;
 import bio.terra.tanagra.generated.model.ApiFeatureSet;
+import bio.terra.tanagra.generated.model.ApiFeatureSetCloneInfo;
 import bio.terra.tanagra.generated.model.ApiFeatureSetCreateInfo;
 import bio.terra.tanagra.generated.model.ApiFeatureSetList;
 import bio.terra.tanagra.generated.model.ApiFeatureSetUpdateInfo;
@@ -23,6 +24,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.artifact.model.FeatureSet;
+import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -128,6 +130,23 @@ public class FeatureSetsApiController implements FeatureSetsApi {
             criteria,
             outputAttributesPerEntity);
     return ResponseEntity.ok(toApiObject(updatedFeatureSet));
+  }
+
+  @Override
+  public ResponseEntity<ApiFeatureSet> cloneFeatureSet(
+      String studyId, String featureSetId, ApiFeatureSetCloneInfo body) {
+    UserId user = SpringAuthentication.getCurrentUser();
+    accessControlService.throwIfUnauthorized(
+        user, Permissions.forActions(STUDY, CREATE_FEATURE_SET), ResourceId.forStudy(studyId));
+    accessControlService.throwIfUnauthorized(
+        user,
+        Permissions.forActions(FEATURE_SET, READ),
+        ResourceId.forFeatureSet(studyId, featureSetId));
+
+    FeatureSet clonedFeatureSet =
+        featureSetService.cloneFeatureSet(
+            studyId, featureSetId, user.getEmail(), body.getDisplayName(), body.getDescription());
+    return ResponseEntity.ok(FeatureSetsApiController.toApiObject(clonedFeatureSet));
   }
 
   private static ApiFeatureSet toApiObject(FeatureSet featureSet) {

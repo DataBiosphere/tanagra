@@ -77,8 +77,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class DataExportServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
-  @Autowired private UnderlayService underlayService;
+  private static final String USER_EMAIL_1 = "abc@123.com";
 
+  @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private FeatureSetService featureSetService;
@@ -95,9 +96,7 @@ public class DataExportServiceTest {
   @BeforeEach
   void createAnnotationValues() {
     // Build a study, feature set, cohort, review, and annotation data.
-    String userEmail = "abc@123.com";
-
-    study1 = studyService.createStudy(Study.builder(), userEmail);
+    study1 = studyService.createStudy(Study.builder(), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
@@ -108,7 +107,7 @@ public class DataExportServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("First Feature Set")
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight())),
-            userEmail);
+            USER_EMAIL_1);
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
@@ -119,7 +118,7 @@ public class DataExportServiceTest {
                 .underlay(UNDERLAY_NAME)
                 .displayName("Second Feature Set")
                 .criteria(List.of(ICD9CM_EQ_DIABETES.getRight())),
-            userEmail);
+            USER_EMAIL_1);
     assertNotNull(featureSet2);
     LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 
@@ -127,7 +126,7 @@ public class DataExportServiceTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME).displayName("First Cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
@@ -136,7 +135,7 @@ public class DataExportServiceTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME).displayName("Second Cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_GENDER, CRITERIA_GROUP_SECTION_AGE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
@@ -159,7 +158,7 @@ public class DataExportServiceTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(10),
-            userEmail,
+            USER_EMAIL_1,
             new AttributeFilter(
                 underlay,
                 primaryEntity,
@@ -200,9 +199,9 @@ public class DataExportServiceTest {
   }
 
   @AfterEach
-  void deleteReview() {
+  void deleteStudy() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
@@ -288,7 +287,7 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
@@ -313,7 +312,7 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
@@ -375,7 +374,7 @@ public class DataExportServiceTest {
             Map.of(),
             redirectBackUrl,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
@@ -474,7 +473,7 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             false,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
@@ -517,7 +516,7 @@ public class DataExportServiceTest {
             Map.of("IPYNB_TEMPLATE_FILE_GCS_URL", "gs://invalid-bucket/invalid-file.ipynb"),
             null,
             false,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
@@ -538,7 +537,7 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort2),

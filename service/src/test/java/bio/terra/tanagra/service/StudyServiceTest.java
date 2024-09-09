@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.common.exception.*;
-import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -39,6 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class StudyServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
+  private static final String USER_EMAIL_1 = "abc@123.com";
 
   @Autowired private ActivityLogService activityLogService;
   @Autowired private StudyService studyService;
@@ -54,7 +54,7 @@ public class StudyServiceTest {
     // Create without id.
     String displayName = "study 1";
     String description = "first study";
-    String createdByEmail = "abc@123.com";
+    String createdByEmail = USER_EMAIL_1;
     Study createdStudy =
         studyService.createStudy(
             Study.builder().displayName(displayName).description(description), createdByEmail);
@@ -81,15 +81,11 @@ public class StudyServiceTest {
     assertEquals("efg@123.com", updatedStudy.getLastModifiedBy());
 
     // Delete.
-    studyService.deleteStudy(createdStudy.getId(), "abc@123.com");
+    studyService.deleteStudy(createdStudy.getId(), USER_EMAIL_1);
     List<Study> studies =
         studyService.listStudies(
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
-    assertFalse(
-        studies.stream()
-            .map(Study::getId)
-            .collect(Collectors.toList())
-            .contains(createdStudy.getId()));
+    assertFalse(studies.stream().map(Study::getId).toList().contains(createdStudy.getId()));
     Study study = studyService.getStudy(createdStudy.getId());
     assertTrue(study.isDeleted());
 
@@ -113,7 +109,7 @@ public class StudyServiceTest {
                 .displayName("study 1")
                 .description("oneoneone")
                 .properties(Map.of("irb", "123")),
-            "abc@123.com");
+            USER_EMAIL_1);
     assertNotNull(study1);
     assertEquals(1, study1.getProperties().size());
     assertEquals("123", study1.getProperties().get("irb"));
@@ -142,7 +138,7 @@ public class StudyServiceTest {
     LOGGER.info("Created study {} at {}", study3.getId(), study3.getCreated());
 
     // Delete one study.
-    studyService.deleteStudy(study3.getId(), "abc@123.com");
+    studyService.deleteStudy(study3.getId(), USER_EMAIL_1);
 
     // List all.
     List<Study> allStudies =
@@ -269,12 +265,12 @@ public class StudyServiceTest {
         () ->
             studyService.createStudy(
                 Study.builder().displayName("123456789012345678901234567890123456789012345678901"),
-                "abc@123.com"));
+                USER_EMAIL_1));
   }
 
   @Test
   void withProperties() throws InterruptedException {
-    String userEmail1 = "abc@123.com";
+    String userEmail1 = USER_EMAIL_1;
     String userEmail2 = "efg@123.com";
 
     // Create without properties.

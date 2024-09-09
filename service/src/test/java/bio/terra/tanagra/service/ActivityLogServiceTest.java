@@ -53,9 +53,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ActivityLogServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ActivityLogServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
-
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
+
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private FeatureSetService featureSetService;

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.app.configuration.FeatureConfiguration;
 import bio.terra.tanagra.proto.regressiontest.RTCriteria;
 import bio.terra.tanagra.proto.regressiontest.RTDataFeatureSet;
 import bio.terra.tanagra.proto.regressiontest.RTExportCounts;
@@ -49,7 +48,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag("regression-test")
 public class QueryCountRegressionTest extends BaseSpringUnitTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryCountRegressionTest.class);
-  @Autowired private FeatureConfiguration featureConfiguration;
+  private static final String USER_EMAIL_1 = "abc@123.com";
+
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private FeatureSetService featureSetService;
@@ -60,7 +60,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
 
   @BeforeEach
   void createStudy() {
-    study1 = studyService.createStudy(Study.builder().displayName("study 1"), "abc@123.com");
+    study1 = studyService.createStudy(Study.builder().displayName("study 1"), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
   }
@@ -68,7 +68,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
   @AfterEach
   void deleteStudy() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
@@ -104,7 +104,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                                   .getDisplayName()
                                   .substring(0, Math.min(rtCohort.getDisplayName().length(), 50)))
                           .description(rtCohort.getDisplayName()),
-                      "abc@123.com",
+                      USER_EMAIL_1,
                       rtCohort.getCriteriaGroupSectionsList().stream()
                           .map(QueryCountRegressionTest::fromRegressionTestObj)
                           .collect(Collectors.toList()));
@@ -135,7 +135,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                           .excludeOutputAttributesPerEntity(
                               fromRegressionTestObj(
                                   underlay, rtDataFeatureSet.getEntityOutputsList())),
-                      "abc@123.com");
+                      USER_EMAIL_1);
               assertNotNull(featureSet);
               LOGGER.info(
                   "Created data feature set {} at {}", featureSet.getId(), featureSet.getCreated());
@@ -149,7 +149,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
             Map.of(),
             null,
             false,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlay,
             study1,
             cohorts,
@@ -206,7 +206,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
               regressionTestDir.toAbsolutePath());
           File[] testFiles = regressionTestDir.toFile().listFiles();
           if (testFiles != null && testFiles.length > 0) {
-            List.of(testFiles).stream()
+            Stream.of(testFiles)
                 .filter(
                     testFile ->
                         regressionTestFileNameFilters.isEmpty()
