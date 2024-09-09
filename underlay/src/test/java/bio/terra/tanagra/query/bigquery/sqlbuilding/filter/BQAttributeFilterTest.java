@@ -4,10 +4,7 @@ import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
-import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.NaryOperator;
-import bio.terra.tanagra.api.shared.UnaryOperator;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -74,5 +71,59 @@ public class BQAttributeFilterTest extends BQRunnerTest {
                 underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
     assertSqlMatchesWithTableNameOnly(
         "attributeFilterNaryBetween", listQueryResult.getSql(), table);
+  }
+
+  @Test
+  void repeatedAttributeFilter() throws IOException {
+    Entity entity = underlay.getEntity("condition");
+
+    // We don't have an example of an attribute with a repeated data type, yet.
+    // So create an artificial attribute just for this test.
+    Attribute attribute =
+        new Attribute(
+            "vocabulary",
+            DataType.STRING,
+            true,
+            false,
+            false,
+            "['foo', 'bar', 'baz', ${fieldSql}]",
+            DataType.STRING,
+            entity.getAttribute("vocabulary").isComputeDisplayHint(),
+            entity.getAttribute("vocabulary").isSuppressedForExport(),
+            entity.getAttribute("vocabulary").isVisitDateForTemporalQuery(),
+            entity.getAttribute("vocabulary").isVisitIdForTemporalQuery(),
+            entity.getAttribute("vocabulary").getSourceQuery());
+
+    // Filter with binary operator NOT_EQUALS.
+    AttributeFilter attributeFilter =
+        new AttributeFilter(
+            underlay, entity, attribute, BinaryOperator.NOT_EQUALS, Literal.forString("SNOMED"));
+    AttributeField simpleAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "repeatedAttributeFilterBinary", listQueryResult.getSql(), table);
+
+    // Filter with n-ary operator IN.
+    attributeFilter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            attribute,
+            NaryOperator.IN,
+            List.of(
+                Literal.forString("bar"),
+                Literal.forString("ICD9CM"),
+                Literal.forString("SNOMED")));
+    listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
+    assertSqlMatchesWithTableNameOnly(
+        "repeatedAttributeFilterNaryIn", listQueryResult.getSql(), table);
   }
 }

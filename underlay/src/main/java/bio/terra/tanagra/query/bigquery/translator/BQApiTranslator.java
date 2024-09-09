@@ -17,6 +17,7 @@ import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TemporalPrimaryFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQCountDistinctFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyIsMemberFieldTranslator;
@@ -33,9 +34,12 @@ import bio.terra.tanagra.query.bigquery.translator.filter.BQPrimaryWithCriteriaF
 import bio.terra.tanagra.query.bigquery.translator.filter.BQRelationshipFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQTemporalPrimaryFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQTextSearchFilterTranslator;
+import bio.terra.tanagra.query.sql.*;
 import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
+import jakarta.annotation.*;
+import java.util.*;
 
 public final class BQApiTranslator implements ApiTranslator {
   @Override
@@ -116,6 +120,25 @@ public final class BQApiTranslator implements ApiTranslator {
   @Override
   public ApiFilterTranslator translator(TemporalPrimaryFilter temporalPrimaryFilter) {
     return new BQTemporalPrimaryFilterTranslator(this, temporalPrimaryFilter);
+  }
+
+  @Override
+  public String naryFilterOnRepeatedFieldSql(
+      SqlField field,
+      NaryOperator naryOperator,
+      List<Literal> values,
+      @Nullable String tableAlias,
+      SqlParams sqlParams) {
+    String functionTemplate =
+        "EXISTS (SELECT * FROM UNNEST("
+            + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
+            + ") AS flattened WHERE flattened "
+            + (NaryOperator.IN.equals(naryOperator) ? "IN" : "NOT IN")
+            + " ("
+            + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
+            + "))";
+    return functionWithCommaSeparatedArgsFilterSql(
+        field, functionTemplate, values, tableAlias, sqlParams);
   }
 
   @SuppressWarnings("PMD.TooFewBranchesForASwitchStatement")

@@ -149,6 +149,13 @@ public interface ApiTranslator {
     }
   }
 
+  String naryFilterOnRepeatedFieldSql(
+      SqlField field,
+      NaryOperator naryOperator,
+      List<Literal> values,
+      @Nullable String tableAlias,
+      SqlParams sqlParams);
+
   default String functionWithCommaSeparatedArgsFilterSql(
       SqlField field,
       String functionTemplate,
