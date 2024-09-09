@@ -143,7 +143,7 @@ public class FeatureSetsApiController implements FeatureSetsApi {
         Permissions.forActions(FEATURE_SET, READ),
         ResourceId.forFeatureSet(studyId, featureSetId));
 
-    // should have write access to destination study
+    // should have write access to create feature set in destination study
     String destinationStudyId = (body.getStudyId() != null) ? body.getStudyId() : studyId;
     accessControlService.throwIfUnauthorized(
         user,
