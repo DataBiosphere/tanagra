@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
 public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 
-  private static ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().findAndRegisterModules();
 
   private JacksonMapper() {}
 
   /** Getter for the singleton instance of the default Jackson {@link ObjectMapper} instance. */
   private static ObjectMapper getMapper() {
-    return objectMapper
+    return OBJECT_MAPPER
         .enable(JsonParser.Feature.ALLOW_COMMENTS)
         .registerModule(new JavaTimeModule());
   }
@@ -94,9 +94,8 @@ public final class JacksonMapper {
     ObjectMapper objectMapper = getMapper(mapperFeatures);
 
     // Enable any Jackson features specified.
-    mapperFeatures.stream().forEach(mf -> objectMapper.enable(mf));
-    deserializationFeatures.stream()
-        .forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
+    mapperFeatures.forEach(objectMapper::enable);
+    deserializationFeatures.forEach(df -> objectMapper.configure(df.getKey(), df.getValue()));
 
     try (inputStream) {
       return objectMapper.readValue(inputStream, javaObjectClass);

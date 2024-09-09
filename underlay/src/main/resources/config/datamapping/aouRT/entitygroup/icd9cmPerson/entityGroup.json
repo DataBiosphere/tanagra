@@ -5,7 +5,7 @@
     {
       "occurrenceEntity": "conditionOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+        "foreignKeyAttributeOccurrenceEntity": "condition_source_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
@@ -14,7 +14,7 @@
     {
       "occurrenceEntity": "measurementOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+        "foreignKeyAttributeOccurrenceEntity": "measurement_source_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
@@ -23,7 +23,7 @@
     {
       "occurrenceEntity": "observationOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+        "foreignKeyAttributeOccurrenceEntity": "observation_source_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
@@ -32,7 +32,7 @@
     {
       "occurrenceEntity": "procedureOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+        "foreignKeyAttributeOccurrenceEntity": "procedure_source_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"

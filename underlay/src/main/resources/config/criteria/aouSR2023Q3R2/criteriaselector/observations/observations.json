@@ -70,7 +70,7 @@
   ],
   "valueConfigs": [
     {
-      "attribute": "value",
+      "attribute": "value_as_concept_name",
       "title": "Categorical value"
     }
   ],

@@ -71,10 +71,9 @@
         "displayFieldTableJoinFieldName": "concept_id"
       }
     },
-    { "name": "source_value", "dataType": "STRING", "valueFieldName": "condition_source_value", "isSuppressedForExport": true },
-    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "condition_source_concept_id", "isSuppressedForExport": true },
-    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 18, "displayHintRangeMax": 125, "isSuppressedForExport": true },
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
+    { "name": "condition", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "condition_concept_name", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "condition_concept_id" ],

@@ -13,7 +13,7 @@ public enum ResourceType {
           Action.UPDATE,
           Action.DELETE,
           Action.CREATE_COHORT,
-          Action.CREATE_CONCEPT_SET)),
+          Action.CREATE_FEATURE_SET)),
   COHORT(
       Set.of(
           Action.READ,
@@ -22,7 +22,7 @@ public enum ResourceType {
           Action.CREATE_REVIEW,
           Action.CREATE_ANNOTATION_KEY),
       STUDY),
-  CONCEPT_SET(Set.of(Action.READ, Action.UPDATE, Action.DELETE), STUDY),
+  FEATURE_SET(Set.of(Action.READ, Action.UPDATE, Action.DELETE), STUDY),
   REVIEW(Set.of(Action.READ, Action.UPDATE, Action.DELETE), COHORT),
   ANNOTATION_KEY(Set.of(Action.READ, Action.UPDATE, Action.DELETE), COHORT),
   ACTIVITY_LOG(Set.of(Action.READ));

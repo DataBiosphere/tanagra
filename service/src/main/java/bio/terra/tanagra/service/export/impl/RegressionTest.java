@@ -9,8 +9,8 @@ import bio.terra.tanagra.proto.regressiontest.RTDataFeatureSet;
 import bio.terra.tanagra.proto.regressiontest.RTExportCounts;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
 import bio.terra.tanagra.service.artifact.model.Criteria;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.ExportFileResult;
@@ -20,7 +20,6 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.ProtobufUtils;
-import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,12 +33,12 @@ public class RegressionTest implements DataExport {
 
   @Override
   public String getDefaultDisplayName() {
-    return "Regression test file";
+    return "Download regression test";
   }
 
   @Override
   public String getDescription() {
-    return "Signed URL to a regression test file that includes the total number of rows returned for each output entity.";
+    return "Get a JSON file for regression testing";
   }
 
   @Override
@@ -49,11 +48,11 @@ public class RegressionTest implements DataExport {
         RTExportCounts.ExportCounts.newBuilder().setUnderlay(request.getUnderlay().getName());
     request.getCohorts().forEach(cohort -> exportCounts.addCohorts(toRegressionTestObj(cohort)));
     request
-        .getConceptSets()
+        .getFeatureSets()
         .forEach(
-            conceptSet ->
+            featureSet ->
                 exportCounts.addDataFeatureSets(
-                    toRegressionTestObj(conceptSet, request.getUnderlay())));
+                    toRegressionTestObj(featureSet, request.getUnderlay())));
 
     // Get the counts for each output entity.
     Map<String, Long> totalNumRowsPerEntity = helper.getTotalNumRowsOfEntityData();
@@ -67,11 +66,11 @@ public class RegressionTest implements DataExport {
                 ? "_plus" + (request.getCohorts().size() - 1) + "more"
                 : "");
     String dataFeatureSetRef =
-        request.getConceptSets().isEmpty()
+        request.getFeatureSets().isEmpty()
             ? ""
-            : simplifyStringForName(request.getConceptSets().get(0).getDisplayName())
-                + (request.getConceptSets().size() > 1
-                    ? "_plus" + (request.getConceptSets().size() - 1) + "more"
+            : simplifyStringForName(request.getFeatureSets().get(0).getDisplayName())
+                + (request.getFeatureSets().size() > 1
+                    ? "_plus" + (request.getFeatureSets().size() - 1) + "more"
                     : "");
     String fileName = "cohort" + cohortRef + "_datafeatureset" + dataFeatureSetRef + ".json";
     String fileContents = ProtobufUtils.serializeToPrettyJson(exportCounts.build());
@@ -92,15 +91,15 @@ public class RegressionTest implements DataExport {
   }
 
   private static RTDataFeatureSet.DataFeatureSet toRegressionTestObj(
-      ConceptSet conceptSet, Underlay underlay) {
+      FeatureSet featureSet, Underlay underlay) {
     return RTDataFeatureSet.DataFeatureSet.newBuilder()
-        .setDisplayName(conceptSet.getDisplayName())
+        .setDisplayName(featureSet.getDisplayName())
         .addAllCriteria(
-            conceptSet.getCriteria().stream()
+            featureSet.getCriteria().stream()
                 .map(RegressionTest::toRegressionTestObj)
                 .collect(Collectors.toList()))
         .addAllEntityOutputs(
-            conceptSet.getExcludeOutputAttributesPerEntity().entrySet().stream()
+            featureSet.getExcludeOutputAttributesPerEntity().entrySet().stream()
                 .map(
                     entry ->
                         toRegressionTestObj(underlay.getEntity(entry.getKey()), entry.getValue()))

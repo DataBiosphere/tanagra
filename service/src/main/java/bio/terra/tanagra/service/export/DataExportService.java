@@ -94,7 +94,7 @@ public class DataExportService {
             });
 
     // Build the helper object that implementation classes can use. This object contains utility
-    // methods on the specific cohorts and concept sets specified in the request.
+    // methods on the specific cohorts and feature sets specified in the request.
     DataExportHelper helper = buildHelper(request);
 
     // Calculate the number of primary entity instances that are included in this export request.
@@ -148,9 +148,9 @@ public class DataExportService {
   @VisibleForTesting
   public DataExportHelper buildHelper(ExportRequest request) {
     // Build the helper object that implementation classes can use. This object contains utility
-    // methods on the specific cohorts and concept sets specified in the request.
+    // methods on the specific cohorts and feature sets specified in the request.
     List<EntityOutput> entityOutputs =
-        filterBuilderService.buildOutputsForExport(request.getCohorts(), request.getConceptSets());
+        filterBuilderService.buildOutputsForExport(request.getCohorts(), request.getFeatureSets());
     EntityFilter primaryEntityFilter =
         filterBuilderService.buildFilterForCohortRevisions(
             request.getUnderlay().getName(),

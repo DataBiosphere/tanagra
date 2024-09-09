@@ -5,12 +5,12 @@
     {
       "occurrenceEntity": "observationOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "observation"
+        "foreignKeyAttributeOccurrenceEntity": "observation_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
       },
-      "attributesWithInstanceLevelHints": [ "value" ]
+      "attributesWithInstanceLevelHints": [ "value_as_concept_name" ]
     }
   ],
   "primaryCriteriaRelationship": {

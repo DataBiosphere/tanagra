@@ -125,7 +125,7 @@ public class AccessControlService {
       case COHORT:
         resourcePermissions = accessControlImpl.getCohort(user, resource);
         break;
-      case CONCEPT_SET:
+      case FEATURE_SET:
         resourcePermissions = accessControlImpl.getDataFeatureSet(user, resource);
         break;
       case REVIEW:
@@ -178,7 +178,7 @@ public class AccessControlService {
       case COHORT:
         allResources = accessControlImpl.listCohorts(user, parentResource, offset, limit);
         break;
-      case CONCEPT_SET:
+      case FEATURE_SET:
         allResources = accessControlImpl.listDataFeatureSets(user, parentResource, offset, limit);
         break;
       case REVIEW:

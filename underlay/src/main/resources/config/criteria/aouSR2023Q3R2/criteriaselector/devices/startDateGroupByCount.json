@@ -3,8 +3,8 @@
   "attributes": {
     "deviceOccurrence": {
       "values": [
-        "start_date",
-        "device"
+        "device_exposure_start_datetime",
+        "standard_concept_name"
       ]
     }
   }

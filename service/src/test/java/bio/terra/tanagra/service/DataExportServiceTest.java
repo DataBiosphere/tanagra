@@ -23,12 +23,12 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.artifact.AnnotationService;
 import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.Cohort;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
@@ -77,11 +77,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class DataExportServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(DataExportServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
-  @Autowired private UnderlayService underlayService;
+  private static final String USER_EMAIL_1 = "abc@123.com";
 
+  @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
-  @Autowired private ConceptSetService conceptSetService;
+  @Autowired private FeatureSetService featureSetService;
   @Autowired private AnnotationService annotationService;
   @Autowired private ReviewService reviewService;
   @Autowired private DataExportService dataExportService;
@@ -89,45 +90,43 @@ public class DataExportServiceTest {
   private Study study1;
   private Cohort cohort1;
   private Cohort cohort2;
-  private ConceptSet conceptSet1;
-  private ConceptSet conceptSet2;
+  private FeatureSet featureSet1;
+  private FeatureSet featureSet2;
 
   @BeforeEach
   void createAnnotationValues() {
-    // Build a study, concept set, cohort, review, and annotation data.
-    String userEmail = "abc@123.com";
-
-    study1 = studyService.createStudy(Study.builder(), userEmail);
+    // Build a study, feature set, cohort, review, and annotation data.
+    study1 = studyService.createStudy(Study.builder(), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
-    conceptSet1 =
-        conceptSetService.createConceptSet(
+    featureSet1 =
+        featureSetService.createFeatureSet(
             study1.getId(),
-            ConceptSet.builder()
+            FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
-                .displayName("First Concept Set")
+                .displayName("First Feature Set")
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight())),
-            userEmail);
-    assertNotNull(conceptSet1);
-    LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
+            USER_EMAIL_1);
+    assertNotNull(featureSet1);
+    LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
-    conceptSet2 =
-        conceptSetService.createConceptSet(
+    featureSet2 =
+        featureSetService.createFeatureSet(
             study1.getId(),
-            ConceptSet.builder()
+            FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
-                .displayName("Second Concept Set")
+                .displayName("Second Feature Set")
                 .criteria(List.of(ICD9CM_EQ_DIABETES.getRight())),
-            userEmail);
-    assertNotNull(conceptSet2);
-    LOGGER.info("Created concept set {} at {}", conceptSet2.getId(), conceptSet2.getCreated());
+            USER_EMAIL_1);
+    assertNotNull(featureSet2);
+    LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 
     cohort1 =
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME).displayName("First Cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
@@ -136,7 +135,7 @@ public class DataExportServiceTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME).displayName("Second Cohort"),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_GENDER, CRITERIA_GROUP_SECTION_AGE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
@@ -159,7 +158,7 @@ public class DataExportServiceTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(10),
-            userEmail,
+            USER_EMAIL_1,
             new AttributeFilter(
                 underlay,
                 primaryEntity,
@@ -200,9 +199,9 @@ public class DataExportServiceTest {
   }
 
   @AfterEach
-  void deleteReview() {
+  void deleteStudy() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);
@@ -248,17 +247,17 @@ public class DataExportServiceTest {
     assertEquals(impl.getDefaultDisplayName(), displayName);
     assertNotNull(impl);
 
-    // Check the VWB_FILE_IMPORT export option.
+    // Check the VWB_FILE_EXPORT export option.
     Optional<DataExportModel> vwbFileImport =
         models.stream()
-            .filter(m -> DataExport.Type.VWB_FILE_IMPORT.equals(m.getImpl().getType()))
+            .filter(m -> DataExport.Type.VWB_FILE_EXPORT.equals(m.getImpl().getType()))
             .findFirst();
     assertTrue(vwbFileImport.isPresent());
     modelName = vwbFileImport.get().getName();
     displayName = vwbFileImport.get().getDisplayName();
     impl = vwbFileImport.get().getImpl();
-    assertEquals("VWB_FILE_IMPORT_DEVEL", modelName); // Overridden model name.
-    assertEquals("Import to VWB (devel)", displayName); // Overridden display name.
+    assertEquals("VWB_FILE_EXPORT_DEVEL", modelName); // Overridden model name.
+    assertEquals("Export to VWB (devel)", displayName); // Overridden display name.
     assertFalse(vwbFileImport.get().getConfig().hasNumPrimaryEntityCap());
     assertNotNull(impl);
 
@@ -288,11 +287,11 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertFalse(exportResult.isSuccessful());
@@ -313,11 +312,11 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
@@ -371,15 +370,15 @@ public class DataExportServiceTest {
     String redirectBackUrl = "https://tanagra-test.api.verily.com";
     ExportRequest exportRequest =
         new ExportRequest(
-            "VWB_FILE_IMPORT_DEVEL",
+            "VWB_FILE_EXPORT_DEVEL",
             Map.of(),
             redirectBackUrl,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
@@ -428,7 +427,7 @@ public class DataExportServiceTest {
     assertEquals("returnUrl", params.get(1).getName());
     assertEquals("https://tanagra-test.api.verily.com", params.get(1).getValue());
     assertEquals("returnApp", params.get(2).getName());
-    assertEquals("Tanagra", params.get(2).getValue());
+    assertEquals("Data Explorer", params.get(2).getValue());
 
     // Validate the VWB input file.
     String signedUrl = params.get(0).getValue();
@@ -474,11 +473,11 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             false,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());
@@ -517,11 +516,11 @@ public class DataExportServiceTest {
             Map.of("IPYNB_TEMPLATE_FILE_GCS_URL", "gs://invalid-bucket/invalid-file.ipynb"),
             null,
             false,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertFalse(exportResult.isSuccessful());
@@ -538,11 +537,11 @@ public class DataExportServiceTest {
             Map.of(),
             null,
             true,
-            "abc@123.com",
+            USER_EMAIL_1,
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort2),
-            List.of(conceptSet2));
+            List.of(featureSet2));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
     assertTrue(exportResult.isSuccessful());

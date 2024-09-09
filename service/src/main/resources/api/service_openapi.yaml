@@ -774,94 +774,124 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
-  # --------------- Studies: ConceptSets ---------------
+  # --------------- Studies: FeatureSet ---------------
 
-  "/v2/studies/{studyId}/conceptSets":
+  "/v2/studies/{studyId}/featureSets":
     parameters:
       - $ref: "#/components/parameters/StudyId"
     get:
       parameters:
         - $ref: "#/components/parameters/Offset"
         - $ref: "#/components/parameters/Limit"
-      summary: List all concept sets in a study
-      operationId: listConceptSets
-      tags: [ConceptSets]
+      summary: List all feature sets in a study
+      operationId: listFeatureSets
+      tags: [FeatureSets]
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ConceptSetList"
+                $ref: "#/components/schemas/FeatureSetList"
         500:
           $ref: "#/components/responses/ServerError"
     post:
-      summary: Create a new concept set
-      operationId: createConceptSet
-      tags: [ConceptSets]
+      summary: Create a new feature set
+      operationId: createFeatureSet
+      tags: [FeatureSets]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ConceptSetCreateInfo"
+              $ref: "#/components/schemas/FeatureSetCreateInfo"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ConceptSet"
+                $ref: "#/components/schemas/FeatureSet"
         500:
           $ref: "#/components/responses/ServerError"
 
-  "/v2/studies/{studyId}/conceptSets/{conceptSetId}":
+  "/v2/studies/{studyId}/featureSets/{featureSetId}":
     parameters:
       - $ref: "#/components/parameters/StudyId"
-      - $ref: "#/components/parameters/ConceptSetId"
+      - $ref: "#/components/parameters/FeatureSetId"
     get:
-      summary: Get an existing concept set
-      operationId: getConceptSet
-      tags: [ConceptSets]
+      summary: Get an existing feature set
+      operationId: getFeatureSet
+      tags: [FeatureSets]
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ConceptSet"
+                $ref: "#/components/schemas/FeatureSet"
         404:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/ServerError"
     patch:
-      summary: Update an existing concept set
-      operationId: updateConceptSet
-      tags: [ConceptSets]
+      summary: Update an existing feature set
+      operationId: updateFeatureSet
+      tags: [FeatureSets]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ConceptSetUpdateInfo"
+              $ref: "#/components/schemas/FeatureSetUpdateInfo"
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ConceptSet"
+                $ref: "#/components/schemas/FeatureSet"
         404:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/ServerError"
     delete:
-      summary: Delete a concept set
-      operationId: deleteConceptSet
-      tags: [ConceptSets]
+      summary: Delete a feature set
+      operationId: deleteFeatureSet
+      tags: [FeatureSets]
       responses:
         204:
           description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  "/v2/studies/{studyId}/featureSets/{featureSetId}/clone":
+    parameters:
+    - $ref: "#/components/parameters/StudyId"
+    - $ref: "#/components/parameters/FeatureSetId"
+    post:
+      summary: Clone an existing feature set
+      operationId: cloneFeatureSet
+      tags: [FeatureSets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeatureSetCloneInfo"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureSet"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        401:
+          $ref: "#/components/responses/Unauthorized"
         404:
           $ref: "#/components/responses/NotFound"
         500:
@@ -1066,10 +1096,10 @@ components:
       schema:
         type: string
 
-    ConceptSetId:
-      name: conceptSetId
+    FeatureSetId:
+      name: featureSetId
       in: path
-      description: ID of the concept set
+      description: ID of the feature set
       required: true
       schema:
         type: string
@@ -1202,6 +1232,20 @@ components:
         type: string
 
   responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorReport"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorReport"
+
     NotFound:
       description: Not found (or unauthorized)
       content:
@@ -2198,17 +2242,17 @@ components:
       type: string
       description: Description of the cohort
 
-    ConceptSet:
+    FeatureSet:
       type: object
       properties:
         id:
-          $ref: "#/components/schemas/ConceptSetId"
+          $ref: "#/components/schemas/FeatureSetId"
         underlayName:
           $ref: "#/components/schemas/UnderlayName"
         displayName:
-          $ref: "#/components/schemas/ConceptSetDisplayName"
+          $ref: "#/components/schemas/FeatureSetDisplayName"
         description:
-          $ref: "#/components/schemas/ConceptSetDescription"
+          $ref: "#/components/schemas/FeatureSetDescription"
         criteria:
           type: array
           description: Criteria that define the entity filter
@@ -2220,14 +2264,14 @@ components:
           items:
             $ref: "#/components/schemas/EntityOutput"
         created:
-          description: Timestamp of when the concept set was created
+          description: Timestamp of when the feature set was created
           type: string
           format: date-time
         createdBy:
-          description: Email of user who created the concept set
+          description: Email of user who created the feature set
           type: string
         lastModified:
-          description: Timestamp of when the concept set was last modified
+          description: Timestamp of when the feature set was last modified
           type: string
           format: date-time
       required:
@@ -2254,32 +2298,32 @@ components:
       required:
         - entity
 
-    ConceptSetList:
+    FeatureSetList:
       type: array
       items:
-        $ref: "#/components/schemas/ConceptSet"
+        $ref: "#/components/schemas/FeatureSet"
 
-    ConceptSetId:
+    FeatureSetId:
       type: string
-      description: ID of the concept set, immutable
+      description: ID of the feature set, immutable
 
-    ConceptSetCreateInfo:
+    FeatureSetCreateInfo:
       type: object
       properties:
         underlayName:
           $ref: "#/components/schemas/UnderlayName"
         displayName:
-          $ref: "#/components/schemas/ConceptSetDisplayName"
+          $ref: "#/components/schemas/FeatureSetDisplayName"
         description:
-          $ref: "#/components/schemas/ConceptSetDescription"
+          $ref: "#/components/schemas/FeatureSetDescription"
 
-    ConceptSetUpdateInfo:
+    FeatureSetUpdateInfo:
       type: object
       properties:
         displayName:
-          $ref: "#/components/schemas/ConceptSetDisplayName"
+          $ref: "#/components/schemas/FeatureSetDisplayName"
         description:
-          $ref: "#/components/schemas/ConceptSetDescription"
+          $ref: "#/components/schemas/FeatureSetDescription"
         criteria:
           type: array
           description: Criteria that define the entity filter
@@ -2291,13 +2335,21 @@ components:
           items:
             $ref: "#/components/schemas/EntityOutput"
 
-    ConceptSetDisplayName:
-      type: string
-      description: Human readable name of the concept set
+    FeatureSetCloneInfo:
+      type: object
+      properties:
+        displayName:
+          $ref: "#/components/schemas/FeatureSetDisplayName"
+        description:
+          $ref: "#/components/schemas/FeatureSetDescription"
 
-    ConceptSetDescription:
+    FeatureSetDisplayName:
       type: string
-      description: Description of the concept set
+      description: Human readable name of the feature set
+
+    FeatureSetDescription:
+      type: string
+      description: Description of the feature set
 
     UnderlayName:
       type: string
@@ -2321,9 +2373,6 @@ components:
           items:
             $ref: "#/components/schemas/CriteriaGroup"
         firstBlockReducingOperator:
-          description: |
-            Reducing operator for the first block of criteria groups.
-            Only applies for a temporal section.
           $ref: "#/components/schemas/ReducingOperator"
         secondBlockCriteriaGroups:
           type: array
@@ -2333,9 +2382,6 @@ components:
           items:
             $ref: "#/components/schemas/CriteriaGroup"
         secondBlockReducingOperator:
-          description: |
-            Reducing operator for the second block of criteria groups.
-            Only applies for a temporal section.
           $ref: "#/components/schemas/ReducingOperator"
         operator:
           type: string
@@ -2355,6 +2401,9 @@ components:
         - excluded
 
     ReducingOperator:
+      description: |
+        Reducing operator for criteria groups blocks.
+        Only applies for a temporal section.
       type: string
       enum: ["ANY", "FIRST_MENTION_OF", "LAST_MENTION_OF"]
 
@@ -2380,7 +2429,7 @@ components:
 
     Criteria:
       type: object
-      description: Single criteria for a cohort or concept set definition
+      description: Single criteria for a cohort or feature set definition
       properties:
         id:
           type: string
@@ -2631,8 +2680,8 @@ components:
           type: array
           items:
             type: string
-        conceptSets:
-          description: List of concept set ids
+        featureSets:
+          description: List of feature set ids
           type: array
           items:
             type: string
@@ -2647,7 +2696,7 @@ components:
       required:
         - study
         - cohorts
-        - conceptSets
+        - featureSets
 
     EntityOutputPreview:
       type: object
@@ -2665,12 +2714,12 @@ components:
           items:
             type: object
             properties:
-              conceptSetId:
+              featureSetId:
                 type: string
               criteriaId:
                 type: string
             required:
-              - conceptSetId
+              - featureSetId
               - criteriaId
         indexSql:
           type: string
@@ -2720,8 +2769,8 @@ components:
           type: array
           items:
             type: string
-        conceptSets:
-          description: List of concept set ids
+        featureSets:
+          description: List of feature set ids
           type: array
           items:
             type: string

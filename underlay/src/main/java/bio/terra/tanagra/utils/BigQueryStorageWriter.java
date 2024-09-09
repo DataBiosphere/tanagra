@@ -233,8 +233,7 @@ public final class BigQueryStorageWriter {
           }
         }
 
-        if (throwable instanceof Exceptions.AppendSerializationError) {
-          Exceptions.AppendSerializationError ase = (Exceptions.AppendSerializationError) throwable;
+        if (throwable instanceof Exceptions.AppendSerializationError ase) {
           Map<Integer, String> rowIndexToErrorMessage = ase.getRowIndexToErrorMessage();
           if (!rowIndexToErrorMessage.isEmpty()) {
             // Omit the faulty rows

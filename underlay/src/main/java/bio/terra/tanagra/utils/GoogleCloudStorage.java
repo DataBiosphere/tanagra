@@ -117,7 +117,7 @@ public final class GoogleCloudStorage {
   }
 
   public static String readFileContentsFromUrl(String signedUrl) throws IOException {
-    StringBuffer fileContents = new StringBuffer();
+    StringBuilder fileContents = new StringBuilder();
     try (BufferedReader in =
         new BufferedReader(
             new InputStreamReader(
@@ -137,7 +137,7 @@ public final class GoogleCloudStorage {
         InputStreamReader inputStreamReader =
             new InputStreamReader(gzipInputStream, StandardCharsets.UTF_8);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
-      StringBuffer fileContents = new StringBuffer();
+      StringBuilder fileContents = new StringBuilder();
       String inputLine;
       int numLinesRead = 0;
       while ((inputLine = bufferedReader.readLine()) != null && numLinesRead < maxLinesToRead) {

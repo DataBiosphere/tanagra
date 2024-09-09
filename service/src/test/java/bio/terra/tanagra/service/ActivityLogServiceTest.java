@@ -13,13 +13,13 @@ import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.VersionConfiguration;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.CohortService;
-import bio.terra.tanagra.service.artifact.ConceptSetService;
+import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.ActivityLogResource;
 import bio.terra.tanagra.service.artifact.model.Cohort;
-import bio.terra.tanagra.service.artifact.model.ConceptSet;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.artifact.model.Review;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.service.export.DataExportService;
@@ -53,12 +53,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ActivityLogServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ActivityLogServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
-
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
+
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
-  @Autowired private ConceptSetService conceptSetService;
+  @Autowired private FeatureSetService featureSetService;
   @Autowired private CohortService cohortService;
   @Autowired private ReviewService reviewService;
   @Autowired private DataExportService dataExportService;
@@ -113,16 +113,16 @@ public class ActivityLogServiceTest {
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
-    // CREATE_CONCEPT_SET
-    ConceptSet conceptSet1 =
-        conceptSetService.createConceptSet(
+    // CREATE_FEATURE_SET
+    FeatureSet featureSet1 =
+        featureSetService.createFeatureSet(
             study1.getId(),
-            ConceptSet.builder()
+            FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue())),
             USER_EMAIL_1);
-    assertNotNull(conceptSet1);
-    LOGGER.info("Created concept set {} at {}", conceptSet1.getId(), conceptSet1.getCreated());
+    assertNotNull(featureSet1);
+    LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
     // CREATE_COHORT
     Cohort cohort1 =
@@ -221,7 +221,7 @@ public class ActivityLogServiceTest {
             underlayService.getUnderlay(UNDERLAY_NAME),
             study1,
             List.of(cohort1),
-            List.of(conceptSet1));
+            List.of(featureSet1));
     ExportResult exportResult = dataExportService.run(exportRequest);
     assertNotNull(exportResult);
 

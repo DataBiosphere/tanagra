@@ -115,7 +115,7 @@ export type ExportModel = {
 };
 
 export type ExportSourceCriteria = {
-  conceptSetId: string;
+  featureSetId: string;
   criteriaId: string;
 };
 
@@ -250,12 +250,6 @@ export type Criteria = {
   predefinedDisplayName?: string;
 };
 
-export type ConceptSet = {
-  id: string;
-  underlayName: string;
-  criteria: Criteria;
-};
-
 export type ComputedProperties = {
   supportsTemporalQueries: boolean;
 };
@@ -326,7 +320,7 @@ export interface UnderlaySource {
     modelId: string,
     returnURL: string,
     cohorts: string[],
-    conceptSets: string[]
+    featureSets: string[]
   ): Promise<ExportResult>;
 }
 
@@ -807,7 +801,7 @@ export class BackendUnderlaySource implements UnderlaySource {
           exportPreviewRequest: {
             study: studyId,
             cohorts,
-            conceptSets: featureSets,
+            featureSets: featureSets,
             includeAllAttributes,
           },
         })
@@ -841,7 +835,7 @@ export class BackendUnderlaySource implements UnderlaySource {
           exportPreviewRequest: {
             study: studyId,
             cohorts,
-            conceptSets: featureSets,
+            featureSets: featureSets,
             includeAllAttributes,
             limit: includeAllAttributes ? 100 : undefined,
           },
@@ -862,7 +856,7 @@ export class BackendUnderlaySource implements UnderlaySource {
     modelId: string,
     returnURL: string,
     cohorts: string[],
-    conceptSets: string[]
+    featureSets: string[]
   ): Promise<ExportResult> {
     return await parseAPIError(
       this.exportApi
@@ -874,7 +868,7 @@ export class BackendUnderlaySource implements UnderlaySource {
             redirectBackUrl: returnURL,
             includeAnnotations: true,
             cohorts,
-            conceptSets,
+            featureSets,
           },
         })
         .then((res) => {
@@ -1024,7 +1018,7 @@ export class BackendStudySource implements StudySource {
   constructor(
     private studiesApi: tanagra.StudiesApi,
     private cohortsApi: tanagra.CohortsApi,
-    private conceptSetsApi: tanagra.ConceptSetsApi,
+    private featureSetsApi: tanagra.FeatureSetsApi,
     private reviewsApi: tanagra.ReviewsApi,
     private annotationsApi: tanagra.AnnotationsApi,
     private usersApi: tanagra.UsersApi
@@ -1310,8 +1304,8 @@ export class BackendStudySource implements StudySource {
     featureSetId: string
   ): Promise<FeatureSetMetadata> {
     return parseAPIError(
-      this.conceptSetsApi
-        .getConceptSet({ studyId, conceptSetId: featureSetId })
+      this.featureSetsApi
+        .getFeatureSet({ studyId, featureSetId })
         .then((cs) => fromAPIFeatureSetMetadata(cs))
     );
   }
@@ -1322,8 +1316,8 @@ export class BackendStudySource implements StudySource {
     featureSetId: string
   ): Promise<FeatureSet> {
     return parseAPIError(
-      this.conceptSetsApi
-        .getConceptSet({ studyId, conceptSetId: featureSetId })
+      this.featureSetsApi
+        .getFeatureSet({ studyId, featureSetId })
         .then((cs) => fromAPIFeatureSet(cs, underlaySource))
     );
   }
@@ -1332,8 +1326,8 @@ export class BackendStudySource implements StudySource {
     studyId: string
   ): Promise<FeatureSetMetadata[]> {
     return parseAPIError(
-      this.conceptSetsApi
-        .listConceptSets({ studyId })
+      this.featureSetsApi
+        .listFeatureSets({ studyId })
         .then((res) => res.map((cs) => fromAPIFeatureSetMetadata(cs)))
     );
   }
@@ -1343,8 +1337,8 @@ export class BackendStudySource implements StudySource {
     underlaySource: UnderlaySource
   ): Promise<FeatureSet[]> {
     return parseAPIError(
-      this.conceptSetsApi
-        .listConceptSets({ studyId })
+      this.featureSetsApi
+        .listFeatureSets({ studyId })
         .then((res) => res.map((cs) => fromAPIFeatureSet(cs, underlaySource)))
     );
   }
@@ -1355,10 +1349,10 @@ export class BackendStudySource implements StudySource {
     displayName?: string
   ): Promise<FeatureSetMetadata> {
     return parseAPIError(
-      this.conceptSetsApi
-        .createConceptSet({
+      this.featureSetsApi
+        .createFeatureSet({
           studyId,
-          conceptSetCreateInfo: {
+          featureSetCreateInfo: {
             underlayName,
             displayName:
               displayName ??
@@ -1371,10 +1365,10 @@ export class BackendStudySource implements StudySource {
 
   public async updateFeatureSet(studyId: string, featureSet: FeatureSet) {
     await parseAPIError(
-      this.conceptSetsApi.updateConceptSet({
+      this.featureSetsApi.updateFeatureSet({
         studyId,
-        conceptSetId: featureSet.id,
-        conceptSetUpdateInfo: {
+        featureSetId: featureSet.id,
+        featureSetUpdateInfo: {
           displayName: featureSet.name,
           criteria: [
             ...featureSet.criteria.map((c) => toAPICriteria(c)),
@@ -1400,9 +1394,9 @@ export class BackendStudySource implements StudySource {
 
   public async deleteFeatureSet(studyId: string, featureSetId: string) {
     await parseAPIError(
-      this.conceptSetsApi.deleteConceptSet({
+      this.featureSetsApi.deleteFeatureSet({
         studyId,
-        conceptSetId: featureSetId,
+        featureSetId: featureSetId,
       })
     );
   }
@@ -1951,17 +1945,17 @@ function criteriaSelectorName(criteria: tanagra.Criteria): string {
 }
 
 function fromAPIFeatureSetMetadata(
-  conceptSet: tanagra.ConceptSet
+  featureSet: tanagra.FeatureSet
 ): FeatureSetMetadata {
-  const [m] = fromAPIFeatureSetInternal(conceptSet);
+  const [m] = fromAPIFeatureSetInternal(featureSet);
   return m;
 }
 
 function fromAPIFeatureSet(
-  conceptSet: tanagra.ConceptSet,
+  featureSet: tanagra.FeatureSet,
   underlaySource: UnderlaySource
 ): FeatureSet {
-  const [m, opt] = fromAPIFeatureSetInternal(conceptSet, underlaySource);
+  const [m, opt] = fromAPIFeatureSetInternal(featureSet, underlaySource);
   if (!opt) {
     throw new Error("Optional feature set fields undefined.");
   }
@@ -1969,26 +1963,26 @@ function fromAPIFeatureSet(
 }
 
 function fromAPIFeatureSetInternal(
-  conceptSet: tanagra.ConceptSet,
+  featureSet: tanagra.FeatureSet,
   underlaySource?: UnderlaySource
 ): [FeatureSetMetadata, FeatureSetOptional | undefined] {
   return [
     {
-      id: conceptSet.id,
-      underlayName: conceptSet.underlayName,
-      name: conceptSet.displayName,
-      lastModified: conceptSet.lastModified,
+      id: featureSet.id,
+      underlayName: featureSet.underlayName,
+      name: featureSet.displayName,
+      lastModified: featureSet.lastModified,
     },
 
     underlaySource
       ? {
-          criteria: conceptSet.criteria
+          criteria: featureSet.criteria
             .filter((c) => !c.predefinedId)
             .map((c) => fromAPICriteria(c, underlaySource)),
-          predefinedCriteria: conceptSet.criteria
+          predefinedCriteria: featureSet.criteria
             .map((c) => c.predefinedId)
             .filter(isValid),
-          output: conceptSet.entityOutputs.map((eo) => ({
+          output: featureSet.entityOutputs.map((eo) => ({
             occurrence: eo.entity,
             excludedAttributes: eo.excludeAttributes ?? [],
           })),

@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
@@ -139,12 +138,12 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
                             sqlQueryField ->
                                 PRIMARY_ENTITY_ID_ALIAS.equals(sqlQueryField.getAlias()))
                         .findFirst()
-                        .get();
+                        .orElseThrow();
                 SqlQueryField visitDateField =
                     sqlQueryFields.stream()
                         .filter(sqlQueryField -> VISIT_DATE_ALIAS.equals(sqlQueryField.getAlias()))
                         .findFirst()
-                        .get();
+                        .orElseThrow();
                 selectFields.add(
                     "RANK() OVER (PARTITION BY "
                         + SqlQueryField.of(primaryEntityIdField.getField()).renderForSelect()
@@ -159,7 +158,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
 
               String subSelectSql =
                   "SELECT "
-                      + selectFields.stream().collect(Collectors.joining(","))
+                      + String.join(",", selectFields)
                       + " FROM"
                       + indexTable.getTablePointer().render();
               if (entityOutput.hasDataFeatureFilter()) {
@@ -178,7 +177,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
             });
 
     // UNION together the SELECT statements for each entity output.
-    String unionSql = subSelectSqls.stream().collect(Collectors.joining(" UNION ALL "));
+    String unionSql = String.join(" UNION ALL ", subSelectSqls);
 
     if (reducingOperator == null) {
       // ... UNION ALL ...
@@ -203,11 +202,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
               + ORDER_RANK_ALIAS;
       selectFieldsFromUnionSql.add(orderRankField);
       innerSelectFromUnionSql =
-          "SELECT "
-              + selectFieldsFromUnionSql.stream().collect(Collectors.joining(", "))
-              + " FROM ("
-              + unionSql
-              + ")";
+          "SELECT " + String.join(", ", selectFieldsFromUnionSql) + " FROM (" + unionSql + ")";
     }
 
     // Wrap to filter on orderRank.
@@ -240,7 +235,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
     //   [AND secondCondition.date >= firstCondition + operatorValue]
     String joinSql =
         "SELECT "
-            + allSelectFields.stream().collect(Collectors.joining(", "))
+            + String.join(", ", allSelectFields)
             + " FROM ("
             + firstConditionQuery
             + ") AS "
@@ -254,80 +249,77 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
     SqlQueryField primaryEntityId = SqlQueryField.of(SqlField.of(PRIMARY_ENTITY_ID_ALIAS));
     SqlQueryField visitDate = SqlQueryField.of(SqlField.of(VISIT_DATE_ALIAS));
     SqlQueryField visitOccurrenceId = SqlQueryField.of(SqlField.of(VISIT_OCCURRENCE_ID_ALIAS));
-    switch (joinOperator) {
-      case DURING_SAME_ENCOUNTER:
-        return joinSql
-            + primaryEntityId.renderForSelect(firstConditionAlias)
-            + " = "
-            + primaryEntityId.renderForSelect(secondConditionAlias)
-            + " AND "
-            + visitDate.renderForSelect(firstConditionAlias)
-            + " = "
-            + visitDate.renderForSelect(secondConditionAlias)
-            + " AND "
-            + visitOccurrenceId.renderForSelect(firstConditionAlias)
-            + " = "
-            + visitOccurrenceId.renderForSelect(secondConditionAlias);
-      case NUM_DAYS_BEFORE:
-        // e.g. firstCondition >=2 days before secondCondition.
-        // --> secondCondition - firstCondition >= 2.
-        return joinSql
-            + primaryEntityId.renderForSelect(firstConditionAlias)
-            + " = "
-            + primaryEntityId.renderForSelect(secondConditionAlias)
-            + " AND TIMESTAMP_DIFF("
-            + visitDate.renderForSelect(secondConditionAlias)
-            + ", "
-            + visitDate.renderForSelect(firstConditionAlias)
-            + ", DAY) >= "
-            + joinOperatorValue;
-      case NUM_DAYS_AFTER:
-        // e.g. firstCondition >=3 days after secondCondition.
-        // --> firstCondition - secondCondition >= 3
-        return joinSql
-            + primaryEntityId.renderForSelect(firstConditionAlias)
-            + " = "
-            + primaryEntityId.renderForSelect(secondConditionAlias)
-            + " AND TIMESTAMP_DIFF("
-            + visitDate.renderForSelect(firstConditionAlias)
-            + ", "
-            + visitDate.renderForSelect(secondConditionAlias)
-            + ", DAY) >= "
-            + joinOperatorValue;
-      case WITHIN_NUM_DAYS:
-        // e.g. firstCondition within 4 days of secondCondition.
-        // --> abs(firstCondition - secondCondition) <= 4
-        return joinSql
-            + primaryEntityId.renderForSelect(firstConditionAlias)
-            + " = "
-            + primaryEntityId.renderForSelect(secondConditionAlias)
-            + " AND ABS(TIMESTAMP_DIFF("
-            + visitDate.renderForSelect(firstConditionAlias)
-            + ", "
-            + visitDate.renderForSelect(secondConditionAlias)
-            + ", DAY)) <= "
-            + joinOperatorValue;
-      default:
-        throw new SystemException("Unsupported JoinOperator: " + joinOperator);
-    }
+    return switch (joinOperator) {
+      case DURING_SAME_ENCOUNTER ->
+          joinSql
+              + primaryEntityId.renderForSelect(firstConditionAlias)
+              + " = "
+              + primaryEntityId.renderForSelect(secondConditionAlias)
+              + " AND "
+              + visitDate.renderForSelect(firstConditionAlias)
+              + " = "
+              + visitDate.renderForSelect(secondConditionAlias)
+              + " AND "
+              + visitOccurrenceId.renderForSelect(firstConditionAlias)
+              + " = "
+              + visitOccurrenceId.renderForSelect(secondConditionAlias);
+      case NUM_DAYS_BEFORE ->
+          // e.g. firstCondition >=2 days before secondCondition.
+          // --> secondCondition - firstCondition >= 2.
+          joinSql
+              + primaryEntityId.renderForSelect(firstConditionAlias)
+              + " = "
+              + primaryEntityId.renderForSelect(secondConditionAlias)
+              + " AND TIMESTAMP_DIFF("
+              + visitDate.renderForSelect(secondConditionAlias)
+              + ", "
+              + visitDate.renderForSelect(firstConditionAlias)
+              + ", DAY) >= "
+              + joinOperatorValue;
+      case NUM_DAYS_AFTER ->
+          // e.g. firstCondition >=3 days after secondCondition.
+          // --> firstCondition - secondCondition >= 3
+          joinSql
+              + primaryEntityId.renderForSelect(firstConditionAlias)
+              + " = "
+              + primaryEntityId.renderForSelect(secondConditionAlias)
+              + " AND TIMESTAMP_DIFF("
+              + visitDate.renderForSelect(firstConditionAlias)
+              + ", "
+              + visitDate.renderForSelect(secondConditionAlias)
+              + ", DAY) >= "
+              + joinOperatorValue;
+      case WITHIN_NUM_DAYS ->
+          // e.g. firstCondition within 4 days of secondCondition.
+          // --> abs(firstCondition - secondCondition) <= 4
+          joinSql
+              + primaryEntityId.renderForSelect(firstConditionAlias)
+              + " = "
+              + primaryEntityId.renderForSelect(secondConditionAlias)
+              + " AND ABS(TIMESTAMP_DIFF("
+              + visitDate.renderForSelect(firstConditionAlias)
+              + ", "
+              + visitDate.renderForSelect(secondConditionAlias)
+              + ", DAY)) <= "
+              + joinOperatorValue;
+      default -> throw new SystemException("Unsupported JoinOperator: " + joinOperator);
+    };
   }
 
   private static List<SqlQueryField> getJoinFields(
       Underlay underlay, Entity entity, JoinOperator joinOperator) {
-    switch (joinOperator) {
-      case DURING_SAME_ENCOUNTER:
-        return List.of(
-            getJoinFieldPrimaryEntityId(underlay, entity),
-            getJoinFieldVisitDate(underlay, entity),
-            getJoinFieldVisitOccurrenceId(underlay, entity));
-      case NUM_DAYS_BEFORE:
-      case NUM_DAYS_AFTER:
-      case WITHIN_NUM_DAYS:
-        return List.of(
-            getJoinFieldPrimaryEntityId(underlay, entity), getJoinFieldVisitDate(underlay, entity));
-      default:
-        throw new SystemException("Unsupported JoinOperator: " + joinOperator);
-    }
+    return switch (joinOperator) {
+      case DURING_SAME_ENCOUNTER ->
+          List.of(
+              getJoinFieldPrimaryEntityId(underlay, entity),
+              getJoinFieldVisitDate(underlay, entity),
+              getJoinFieldVisitOccurrenceId(underlay, entity));
+      case NUM_DAYS_BEFORE, NUM_DAYS_AFTER, WITHIN_NUM_DAYS ->
+          List.of(
+              getJoinFieldPrimaryEntityId(underlay, entity),
+              getJoinFieldVisitDate(underlay, entity));
+      default -> throw new SystemException("Unsupported JoinOperator: " + joinOperator);
+    };
   }
 
   private static SqlQueryField getJoinFieldPrimaryEntityId(Underlay underlay, Entity entity) {
@@ -352,18 +344,14 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
 
   private static SqlQueryField getJoinFieldVisitDate(Underlay underlay, Entity entity) {
     Attribute visitDateAttribute = entity.getVisitDateAttributeForTemporalQuery();
-    String sqlFunctionWrapper;
-    switch (visitDateAttribute.getDataType()) {
-      case TIMESTAMP:
-        sqlFunctionWrapper = null;
-        break;
-      case DATE:
-        sqlFunctionWrapper = "TIMESTAMP(${fieldSql})";
-        break;
-      default:
-        throw new SystemException(
-            "Only DATE and TIMESTAMP data types are supported for the visit date attribute for temporal queries");
-    }
+    String sqlFunctionWrapper =
+        switch (visitDateAttribute.getDataType()) {
+          case TIMESTAMP -> null;
+          case DATE -> "TIMESTAMP(${fieldSql})";
+          default ->
+              throw new SystemException(
+                  "Only DATE and TIMESTAMP data types are supported for the visit date attribute for temporal queries");
+        };
     return getJoinField(underlay, entity, visitDateAttribute, VISIT_DATE_ALIAS, sqlFunctionWrapper);
   }
 

@@ -179,7 +179,7 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
   void study() {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
     Action[] studyActionsExceptCreate = {
-      Action.READ, Action.UPDATE, Action.DELETE, Action.CREATE_COHORT, Action.CREATE_CONCEPT_SET,
+      Action.READ, Action.UPDATE, Action.DELETE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET,
     };
     ResourceId study1Id = ResourceId.forStudy(study1.getId());
     ResourceId study2Id = ResourceId.forStudy(study2.getId());
@@ -198,7 +198,7 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
         Action.UPDATE,
         Action.DELETE,
         Action.CREATE_COHORT,
-        Action.CREATE_CONCEPT_SET);
+        Action.CREATE_FEATURE_SET);
 
     // isAuthorized for STUDY.CREATE
     assertTrue(
@@ -264,35 +264,35 @@ public class VumcAdminAccessControlTest extends BaseAccessControlTest {
   }
 
   @Test
-  void conceptSet() {
+  void featureSet() {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
-    ResourceId conceptSet1Id = ResourceId.forConceptSet(study1.getId(), conceptSet1.getId());
-    ResourceId conceptSet2Id = ResourceId.forConceptSet(study2.getId(), conceptSet2.getId());
-    assertHasPermissions(USER_1, conceptSet1Id, Action.READ, Action.UPDATE, Action.DELETE);
-    assertDoesNotHavePermissions(USER_1, conceptSet2Id);
-    assertHasPermissions(USER_2, conceptSet1Id);
-    assertHasPermissions(USER_2, conceptSet2Id);
-    assertDoesNotHavePermissions(USER_3, conceptSet1Id);
-    assertDoesNotHavePermissions(USER_3, conceptSet2Id);
-    assertDoesNotHavePermissions(USER_4, conceptSet1Id);
-    assertHasPermissions(USER_4, conceptSet2Id, Action.READ);
-    assertDoesNotHavePermissions(USER_4, conceptSet2Id, Action.UPDATE, Action.DELETE);
+    ResourceId featureSet1Id = ResourceId.forFeatureSet(study1.getId(), featureSet1.getId());
+    ResourceId featureSet2Id = ResourceId.forFeatureSet(study2.getId(), featureSet2.getId());
+    assertHasPermissions(USER_1, featureSet1Id, Action.READ, Action.UPDATE, Action.DELETE);
+    assertDoesNotHavePermissions(USER_1, featureSet2Id);
+    assertHasPermissions(USER_2, featureSet1Id);
+    assertHasPermissions(USER_2, featureSet2Id);
+    assertDoesNotHavePermissions(USER_3, featureSet1Id);
+    assertDoesNotHavePermissions(USER_3, featureSet2Id);
+    assertDoesNotHavePermissions(USER_4, featureSet1Id);
+    assertHasPermissions(USER_4, featureSet2Id, Action.READ);
+    assertDoesNotHavePermissions(USER_4, featureSet2Id, Action.UPDATE, Action.DELETE);
 
     // service.list
-    ResourceId study1Id = conceptSet1Id.getParent();
-    ResourceId study2Id = conceptSet2Id.getParent();
+    ResourceId study1Id = featureSet1Id.getParent();
+    ResourceId study2Id = featureSet2Id.getParent();
     assertServiceListWithReadPermission(
-        USER_1, ResourceType.CONCEPT_SET, study1Id, true, conceptSet1Id);
-    assertServiceListWithReadPermission(USER_1, ResourceType.CONCEPT_SET, study2Id, false);
+        USER_1, ResourceType.FEATURE_SET, study1Id, true, featureSet1Id);
+    assertServiceListWithReadPermission(USER_1, ResourceType.FEATURE_SET, study2Id, false);
     assertServiceListWithReadPermission(
-        USER_2, ResourceType.CONCEPT_SET, study1Id, true, conceptSet1Id);
+        USER_2, ResourceType.FEATURE_SET, study1Id, true, featureSet1Id);
     assertServiceListWithReadPermission(
-        USER_2, ResourceType.CONCEPT_SET, study2Id, true, conceptSet2Id);
-    assertServiceListWithReadPermission(USER_3, ResourceType.CONCEPT_SET, study1Id, false);
-    assertServiceListWithReadPermission(USER_3, ResourceType.CONCEPT_SET, study2Id, false);
-    assertServiceListWithReadPermission(USER_4, ResourceType.CONCEPT_SET, study1Id, false);
+        USER_2, ResourceType.FEATURE_SET, study2Id, true, featureSet2Id);
+    assertServiceListWithReadPermission(USER_3, ResourceType.FEATURE_SET, study1Id, false);
+    assertServiceListWithReadPermission(USER_3, ResourceType.FEATURE_SET, study2Id, false);
+    assertServiceListWithReadPermission(USER_4, ResourceType.FEATURE_SET, study1Id, false);
     assertServiceListWithReadPermission(
-        USER_4, ResourceType.CONCEPT_SET, study2Id, true, conceptSet2Id);
+        USER_4, ResourceType.FEATURE_SET, study2Id, true, featureSet2Id);
   }
 
   @Test

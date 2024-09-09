@@ -97,7 +97,7 @@ public class AnnotationDao {
           "INSERT INTO annotation_key_enum_value (cohort_id, annotation_key_id, enum) "
               + "VALUES (:cohort_id, :annotation_key_id, :enum)";
       LOGGER.debug("CREATE annotation key enum value: {}", sql);
-      List<MapSqlParameterSource> enumParamSets =
+      MapSqlParameterSource[] enumParamSets =
           annotationKey.getEnumVals().stream()
               .map(
                   ev ->
@@ -105,12 +105,9 @@ public class AnnotationDao {
                           .addValue("cohort_id", cohortId)
                           .addValue("annotation_key_id", annotationKey.getId())
                           .addValue("enum", ev))
-              .collect(Collectors.toList());
-      rowsAffected =
-          Arrays.stream(
-                  jdbcTemplate.batchUpdate(
-                      sql, enumParamSets.toArray(new MapSqlParameterSource[0])))
-              .sum();
+              .toList()
+              .toArray(new MapSqlParameterSource[0]);
+      rowsAffected = Arrays.stream(jdbcTemplate.batchUpdate(sql, enumParamSets)).sum();
       LOGGER.debug("CREATE annotation key enum value rowsAffected = {}", rowsAffected);
     }
   }
@@ -275,7 +272,7 @@ public class AnnotationDao {
         "INSERT INTO annotation_value (cohort_id, annotation_key_id, review_id, primary_entity_instance_id, bool_val, int64_val, string_val, date_val) "
             + "VALUES (:cohort_id, :annotation_key_id, :review_id, :primary_entity_instance_id, :bool_val, :int64_val, :string_val, :date_val)";
     LOGGER.debug("CREATE annotation values: {}", sql);
-    List<MapSqlParameterSource> valueParamSets =
+    MapSqlParameterSource[] valueParamSets =
         annotationValues.stream()
             .map(
                 av ->
@@ -288,11 +285,9 @@ public class AnnotationDao {
                         .addValue("int64_val", av.getInt64Val())
                         .addValue("string_val", av.getStringVal())
                         .addValue("date_val", av.getDateVal()))
-            .collect(Collectors.toList());
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(sql, valueParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
+            .toList()
+            .toArray(new MapSqlParameterSource[0]);
+    rowsAffected = Arrays.stream(jdbcTemplate.batchUpdate(sql, valueParamSets)).sum();
     LOGGER.debug("CREATE annotation values rowsAffected = {}", rowsAffected);
   }
 

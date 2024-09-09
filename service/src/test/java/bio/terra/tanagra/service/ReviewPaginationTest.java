@@ -43,8 +43,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class ReviewPaginationTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewPaginationTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
-  @Autowired private UnderlayService underlayService;
+  private static final String USER_EMAIL_1 = "abc@123.com";
 
+  @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private ReviewService reviewService;
@@ -55,9 +56,7 @@ public class ReviewPaginationTest {
 
   @BeforeEach
   void createReview() {
-    String userEmail = "abc@123.com";
-
-    study1 = studyService.createStudy(Study.builder(), userEmail);
+    study1 = studyService.createStudy(Study.builder(), USER_EMAIL_1);
     assertNotNull(study1);
     LOGGER.info("Created study1 {} at {}", study1.getId(), study1.getCreated());
 
@@ -65,7 +64,7 @@ public class ReviewPaginationTest {
         cohortService.createCohort(
             study1.getId(),
             Cohort.builder().underlay(UNDERLAY_NAME),
-            userEmail,
+            USER_EMAIL_1,
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
@@ -77,7 +76,7 @@ public class ReviewPaginationTest {
             study1.getId(),
             cohort1.getId(),
             Review.builder().size(10),
-            userEmail,
+            USER_EMAIL_1,
             new AttributeFilter(
                 underlay,
                 primaryEntity,
@@ -89,9 +88,9 @@ public class ReviewPaginationTest {
   }
 
   @AfterEach
-  void deleteReview() {
+  void deleteStudy() {
     try {
-      studyService.deleteStudy(study1.getId(), "abc@123.com");
+      studyService.deleteStudy(study1.getId(), USER_EMAIL_1);
       LOGGER.info("Deleted study1 {}", study1.getId());
     } catch (Exception ex) {
       LOGGER.error("Error deleting study1", ex);

@@ -5,16 +5,46 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "person_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "gender_concept_id", "dataType": "INT64" },
-    { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_concept_id", "displayFieldName": "gender_concept_name", "isComputeDisplayHint": true },
+    { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_concept_id", "displayFieldName": "gender_concept_name", "isComputeDisplayHint": true,
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "date_of_birth", "dataType": "TIMESTAMP", "valueFieldName": "birth_datetime", "isComputeDisplayHint": true },
     { "name": "race_concept_id", "dataType": "INT64" },
-    { "name": "race", "dataType": "INT64", "valueFieldName": "race_concept_id", "displayFieldName": "race_concept_name", "isComputeDisplayHint": true },
+    { "name": "race", "dataType": "INT64", "valueFieldName": "race_concept_id", "displayFieldName": "race_concept_name", "isComputeDisplayHint": true,
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "ethnicity_concept_id", "dataType": "INT64" },
-    { "name": "ethnicity", "dataType": "INT64", "valueFieldName": "ethnicity_concept_id", "displayFieldName": "ethnicity_concept_name", "isComputeDisplayHint": true },
+    { "name": "ethnicity", "dataType": "INT64", "valueFieldName": "ethnicity_concept_id", "displayFieldName": "ethnicity_concept_name", "isComputeDisplayHint": true,
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "sex_at_birth_concept_id", "dataType": "INT64" },
-    { "name": "sex_at_birth", "dataType": "INT64", "valueFieldName": "sex_at_birth_concept_id", "displayFieldName": "sex_at_birth_concept_name", "isComputeDisplayHint": true },
+    { "name": "sex_at_birth", "dataType": "INT64", "valueFieldName": "sex_at_birth_concept_id", "displayFieldName": "sex_at_birth_concept_name", "isComputeDisplayHint": true,
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "self_reported_category_concept_id", "dataType": "INT64" },
-    { "name": "self_reported_category", "dataType": "STRING" },
+    { "name": "self_reported_category", "dataType": "INT64", "valueFieldName": "self_reported_category_concept_id", "displayFieldName": "self_reported_category", "isComputeDisplayHint": true,
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "year_of_birth", "dataType": "INT64", "isComputeDisplayHint": true, "isSuppressedForExport": true },
     { "name": "age", "dataType": "TIMESTAMP", "valueFieldName": "birth_datetime_not_deceased",
       "runtimeSqlFunctionWrapper": "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
@@ -32,5 +62,6 @@
     { "name": "is_deceased", "dataType": "BOOLEAN", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
-  "optimizeGroupByAttributes": [ "gender", "race", "age", "ethnicity" ]
+  "optimizeGroupByAttributes": [ "gender", "race", "age", "ethnicity" ],
+  "sourceQueryTableName": "${omopDataset}.person"
 }

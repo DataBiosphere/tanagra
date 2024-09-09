@@ -3,14 +3,14 @@
   "attributes": {
     "ingredientOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "drug_exposure_start_datetime",
+        "source_concept_name"
       ]
     },
     "procedureOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "procedure_datetime",
+        "source_concept_name"
       ]
     }
   }
