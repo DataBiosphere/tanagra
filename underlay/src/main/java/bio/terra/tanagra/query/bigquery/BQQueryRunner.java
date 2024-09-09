@@ -389,15 +389,21 @@ public class BQQueryRunner implements QueryRunner {
     ITEntityMain entityMain = underlay.getIndexSchema().getEntityMain(singleEntity.getName());
 
     List<String> selectFieldSqls = new ArrayList<>();
+    List<String> joinTableSqls = new ArrayList<>();
     selectFields.forEach(
         valueDisplayField -> {
           List<SqlQueryField> sqlQueryFields;
           if (groupByFields.contains(valueDisplayField)
               && valueDisplayField instanceof AttributeField) {
+            BQAttributeFieldTranslator attributeFieldTranslator =
+                (BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField);
             sqlQueryFields =
-                ((BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField))
-                    .buildSqlFieldsForCountSelectAndGroupBy(
-                        entityLevelHints.get(valueDisplayField.getEntity()));
+                attributeFieldTranslator.buildSqlFieldsForCountSelectAndGroupBy(
+                    entityLevelHints.get(valueDisplayField.getEntity()));
+            String joinTableSql = attributeFieldTranslator.buildSqlJoinTableForCountQuery();
+            if (joinTableSql != null) {
+              joinTableSqls.add(joinTableSql);
+            }
           } else {
             sqlQueryFields =
                 bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect();
@@ -407,11 +413,16 @@ public class BQQueryRunner implements QueryRunner {
               sqlQueryField -> selectFieldSqls.add(sqlQueryField.renderForSelect()));
         });
 
-    // SELECT [select fields] FROM [entity main]
+    // SELECT [select fields] FROM [entity main] JOIN [join tables]
     sql.append("SELECT ")
         .append(String.join(", ", selectFieldSqls))
         .append(" FROM ")
         .append(entityMain.getTablePointer().render());
+
+    // JOIN [join tables]
+    if (!joinTableSqls.isEmpty()) {
+      sql.append(" ").append(String.join(" ", joinTableSqls));
+    }
 
     // WHERE [filter]
     EntityFilter singleEntityFilter = filters.get(singleEntity);

@@ -12,6 +12,7 @@ import bio.terra.tanagra.query.sql.SqlRowResult;
 import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import jakarta.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
 
   @Override
   public List<SqlQueryField> buildSqlFieldsForListSelect() {
-    return buildSqlFields(true, true);
+    return buildSqlFields(true, true, false);
   }
 
   public List<SqlQueryField> buildSqlFieldsForCountSelectAndGroupBy(
@@ -42,21 +43,39 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
     return buildSqlFields(
         true,
         entityLevelHints == null
-            || entityLevelHints.getHintInstance(attributeField.getAttribute()).isEmpty());
+            || entityLevelHints.getHintInstance(attributeField.getAttribute()).isEmpty(),
+        true);
+  }
+
+  public @Nullable String buildSqlJoinTableForCountQuery() {
+    Attribute attribute = attributeField.getAttribute();
+    if (!attribute.isDataTypeRepeated() || attributeField.isAgainstSourceDataset()) {
+      return null;
+    }
+
+    SqlField valueField = indexTable.getAttributeValueField(attribute.getName());
+    if (attribute.hasRuntimeSqlFunctionWrapper()) {
+      valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
+    }
+    SqlQueryField valueSqlQueryField = SqlQueryField.of(valueField);
+    return "CROSS JOIN UNNEST("
+        + valueSqlQueryField.renderForSelect()
+        + ") AS "
+        + getValueFieldAlias(true);
   }
 
   @Override
   public List<SqlQueryField> buildSqlFieldsForOrderBy() {
-    return buildSqlFields(false, true);
+    return buildSqlFields(false, true, false);
   }
 
   @Override
   public List<SqlQueryField> buildSqlFieldsForGroupBy() {
-    return buildSqlFields(true, false);
+    return buildSqlFields(true, false, true);
   }
 
   private List<SqlQueryField> buildSqlFields(
-      boolean includeValueField, boolean includeDisplayField) {
+      boolean includeValueField, boolean includeDisplayField, boolean flattenRepeatedValues) {
     Attribute attribute = attributeField.getAttribute();
 
     SqlQueryField valueSqlQueryField;
@@ -65,12 +84,15 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
       SqlField valueField = SqlField.of(attribute.getSourceQuery().getValueFieldName());
       valueSqlQueryField = SqlQueryField.of(valueField);
       hasDisplayField = attribute.getSourceQuery().hasDisplayField();
+    } else if (attribute.isDataTypeRepeated() && flattenRepeatedValues) {
+      valueSqlQueryField = SqlQueryField.of(SqlField.of(getValueFieldAlias(true)));
+      hasDisplayField = false;
     } else {
       SqlField valueField = indexTable.getAttributeValueField(attribute.getName());
       if (attribute.hasRuntimeSqlFunctionWrapper()) {
         valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
       }
-      valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias());
+      valueSqlQueryField = SqlQueryField.of(valueField, getValueFieldAlias(false));
       hasDisplayField = !attribute.isSimple();
     }
     if (!hasDisplayField || attributeField.isExcludeDisplay()) {
@@ -92,10 +114,10 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
     return sqlQueryFields;
   }
 
-  private String getValueFieldAlias() {
-    return indexTable
-        .getAttributeValueField(attributeField.getAttribute().getName())
-        .getColumnName();
+  private String getValueFieldAlias(boolean flattenRepeatedValues) {
+    String alias =
+        indexTable.getAttributeValueField(attributeField.getAttribute().getName()).getColumnName();
+    return flattenRepeatedValues ? ("FLATTENED_" + alias) : alias;
   }
 
   private String getDisplayFieldAlias() {
@@ -109,12 +131,12 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
     if (attributeField.getAttribute().isDataTypeRepeated()) {
       List<Literal> repeatedValueField =
           sqlRowResult.getRepeated(
-              getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
+              getValueFieldAlias(false), attributeField.getAttribute().getRuntimeDataType());
       return new ValueDisplay(repeatedValueField);
     } else {
       Literal valueField =
           sqlRowResult.get(
-              getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
+              getValueFieldAlias(false), attributeField.getAttribute().getRuntimeDataType());
       if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
         return new ValueDisplay(valueField);
       } else {
@@ -127,7 +149,8 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
   public ValueDisplay parseValueDisplayFromCountResult(
       SqlRowResult sqlRowResult, HintQueryResult entityLevelHints) {
     Literal valueField =
-        sqlRowResult.get(getValueFieldAlias(), attributeField.getAttribute().getRuntimeDataType());
+        sqlRowResult.get(
+            getValueFieldAlias(true), attributeField.getAttribute().getRuntimeDataType());
 
     if (attributeField.getAttribute().isSimple() || attributeField.isExcludeDisplay()) {
       if (attributeField.isExcludeDisplay()) {

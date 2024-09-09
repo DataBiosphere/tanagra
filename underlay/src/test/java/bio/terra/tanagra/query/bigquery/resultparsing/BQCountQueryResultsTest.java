@@ -22,8 +22,7 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +111,78 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
                   age.getValue().isNull() || DataType.INT64.equals(age.getValue().getDataType()));
               assertNotNull(age.getValue().getInt64Val());
               assertNull(age.getDisplay());
+            });
+  }
+
+  @Test
+  void repeatedAttributeField() {
+    Entity entity = underlay.getEntity("condition");
+
+    // We don't have an example of an attribute with a repeated data type, yet.
+    // So create an artificial attribute just for this test.
+    AttributeField repeatedStringAttribute =
+        new AttributeField(
+            underlay,
+            entity,
+            new Attribute(
+                "vocabulary",
+                DataType.STRING,
+                true,
+                false,
+                false,
+                "['foo', 'bar', 'baz', ${fieldSql}]",
+                DataType.STRING,
+                entity.getAttribute("vocabulary").isComputeDisplayHint(),
+                entity.getAttribute("vocabulary").isSuppressedForExport(),
+                entity.getAttribute("vocabulary").isVisitDateForTemporalQuery(),
+                entity.getAttribute("vocabulary").isVisitIdForTemporalQuery(),
+                entity.getAttribute("vocabulary").getSourceQuery()),
+            false);
+
+    List<ValueDisplayField> groupBys = List.of(repeatedStringAttribute);
+    HintQueryResult entityLevelHints =
+        new HintQueryResult(
+            "",
+            List.of(
+                new HintInstance(
+                    entity.getAttribute("vocabulary"),
+                    Map.of(
+                        new ValueDisplay(Literal.forString("foo")),
+                        25L,
+                        new ValueDisplay(Literal.forString("bar")),
+                        140L,
+                        new ValueDisplay(Literal.forString("baz")),
+                        85L))));
+    CountQueryResult countQueryResult =
+        bqQueryRunner.run(
+            new CountQueryRequest(
+                underlay,
+                entity,
+                null,
+                groupBys,
+                null,
+                OrderByDirection.DESCENDING,
+                null,
+                null,
+                null,
+                entityLevelHints,
+                false));
+
+    // Make sure we got some results back.
+    assertFalse(countQueryResult.getCountInstances().isEmpty());
+
+    // Check each of the group by fields.
+    countQueryResult
+        .getCountInstances()
+        .forEach(
+            countInstance -> {
+              ValueDisplay vocabulary = countInstance.getEntityFieldValue(repeatedStringAttribute);
+              assertNotNull(vocabulary);
+              assertTrue(
+                  vocabulary.getValue().isNull()
+                      || DataType.STRING.equals(vocabulary.getValue().getDataType()));
+              assertNotNull(vocabulary.getValue().getStringVal());
+              assertNull(vocabulary.getDisplay());
             });
   }
 
