@@ -117,7 +117,9 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
   private String getValueFieldAlias(boolean flattenRepeatedValues) {
     String alias =
         indexTable.getAttributeValueField(attributeField.getAttribute().getName()).getColumnName();
-    return flattenRepeatedValues ? ("FLATTENED_" + alias) : alias;
+    return attributeField.getAttribute().isDataTypeRepeated() && flattenRepeatedValues
+        ? ("FLATTENED_" + alias)
+        : alias;
   }
 
   private String getDisplayFieldAlias() {
