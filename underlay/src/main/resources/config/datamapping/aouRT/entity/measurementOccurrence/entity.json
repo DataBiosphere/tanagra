@@ -45,7 +45,13 @@
     },
     { "name": "value_as_number", "dataType": "DOUBLE" },
     { "name": "value_as_concept_id", "dataType": "INT64" },
-    { "name": "value_as_concept_name", "dataType": "STRING" },
+    { "name": "value_as_concept_name", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "unit_concept_id", "dataType": "INT64" },
     { "name": "unit_concept_name", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name",
       "sourceQuery": {
