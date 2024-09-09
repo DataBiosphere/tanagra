@@ -4,6 +4,7 @@ export type SZAttribute = {
   displayHintRangeMax?: number;
   displayHintRangeMin?: number;
   isComputeDisplayHint?: boolean;
+  isDataTypeRepeated?: boolean;
   isSuppressedForExport?: boolean;
   name: string;
   runtimeDataType?: SZDataType;
