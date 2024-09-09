@@ -5,41 +5,88 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "drug_exposure_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "drug_concept_id", "dataType": "INT64" },
-    { "name": "standard_concept_name", "dataType": "STRING" },
-    { "name": "standard_concept_code", "dataType": "STRING" },
-    { "name": "standard_vocabulary", "dataType": "STRING" },
+    { "name": "standard_concept_name", "dataType": "INT64", "valueFieldName": "drug_concept_id", "displayFieldName": "standard_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_concept_code", "dataType": "INT64", "valueFieldName": "drug_concept_id", "displayFieldName": "standard_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_vocabulary", "dataType": "INT64", "valueFieldName": "drug_concept_id", "displayFieldName": "standard_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "drug_exposure_start_datetime", "dataType": "TIMESTAMP" },
     { "name": "drug_exposure_end_datetime", "dataType": "TIMESTAMP" },
     { "name": "verbatim_end_date", "dataType": "DATE" },
     { "name": "drug_type_concept_id", "dataType": "INT64" },
-    { "name": "drug_type_concept_name", "dataType": "STRING" },
+    { "name": "drug_type_concept_name", "dataType": "INT64", "valueFieldName": "drug_type_concept_id", "displayFieldName": "drug_type_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "stop_reason", "dataType": "STRING" },
     { "name": "refills", "dataType": "INT64" },
     { "name": "quantity", "dataType": "DOUBLE" },
     { "name": "days_supply", "dataType": "INT64" },
     { "name": "sig", "dataType": "STRING" },
     { "name": "route_concept_id", "dataType": "INT64" },
-    { "name": "route_concept_name", "dataType": "STRING" },
+    { "name": "route_concept_name", "dataType": "INT64", "valueFieldName": "route_concept_id", "displayFieldName": "route_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "lot_number", "dataType": "STRING" },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
-    { "name": "visit_occurrence_concept_name", "dataType": "STRING" },
+    { "name": "visit_occurrence_concept_name", "dataType": "STRING", "isSuppressedForExport": true },
     { "name": "drug_source_value", "dataType": "STRING" },
     { "name": "drug_source_concept_id", "dataType": "INT64" },
-    { "name": "source_concept_name", "dataType": "STRING" },
-    { "name": "source_concept_code", "dataType": "STRING" },
-    { "name": "source_vocabulary", "dataType": "STRING" },
+    { "name": "source_concept_name", "dataType": "INT64", "valueFieldName": "drug_source_concept_id", "displayFieldName": "source_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_concept_code", "dataType": "INT64", "valueFieldName": "drug_source_concept_id", "displayFieldName": "source_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_vocabulary", "dataType": "INT64", "valueFieldName": "drug_source_concept_id", "displayFieldName": "source_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "route_source_value", "dataType": "STRING" },
     { "name": "dose_unit_source_value", "dataType": "STRING" },
-    { "name": "start_date", "dataType": "DATE", "valueFieldName": "drug_exposure_start_date", "isSuppressedForExport": true },
-    { "name": "end_date", "dataType": "DATE", "valueFieldName": "drug_exposure_end_date", "isSuppressedForExport": true },
-    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "drug_source_concept_id", "isSuppressedForExport": true },
-    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 18, "displayHintRangeMax": 125, "isSuppressedForExport": true },
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
+    { "name": "ingredient", "dataType": "INT64", "valueFieldName": "drug_concept_id", "displayFieldName": "drug_concept_name", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "drug_concept_id" ],
   "temporalQuery": {
-    "visitDateAttribute": "start_date",
+    "visitDateAttribute": "drug_exposure_start_datetime",
     "visitIdAttribute": "visit_occurrence_id"
-  }
+  },
+  "sourceQueryTableName": "${omopDataset}.drug_exposure"
 }

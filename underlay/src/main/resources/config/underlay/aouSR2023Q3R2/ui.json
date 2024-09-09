@@ -101,7 +101,7 @@
         "plugin": {
           "entity": "procedureOccurrence",
           "columns": [
-            { "key": "date", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "procedure_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
             { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
             { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
             { "key": "standard_concept_name", "width": "30%", "title": "Procedure Name", "sortable": true, "filterable": true },
@@ -117,7 +117,7 @@
         "plugin": {
           "entity": "observationOccurrence",
           "columns": [
-            { "key": "date", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "observation_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
             { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
             { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
             { "key": "standard_concept_name", "width": "30%", "title": "Observation Name", "sortable": true, "filterable": true },
@@ -133,7 +133,7 @@
         "plugin": {
           "entity": "ingredientOccurrence",
           "columns": [
-            { "key": "start_date", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "drug_exposure_start_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
             { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
             { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
             { "key": "standard_concept_name", "width": "30%", "title": "Drug Name", "sortable": true, "filterable": true },
@@ -149,11 +149,11 @@
         "plugin": {
           "entity": "measurementOccurrence",
           "columns": [
-            { "key": "date", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "measurement_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
             { "key": "standard_concept_name", "width": "25%", "title": "Lab/measurement Name", "sortable": true, "filterable": true },
             { "key": "value_enum", "width": "15%", "title": "Categorical value", "sortable": true, "filterable": true },
             { "key": "value_numeric", "width": "15%", "title": "Numeric value", "sortable": true, "filterable": true },
-            { "key": "unit", "width": "10%", "title": "Unit", "sortable": true, "filterable": true },
+            { "key": "unit_concept_name", "width": "10%", "title": "Unit", "sortable": true, "filterable": true },
             { "key": "age_at_occurrence", "width": "10%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
             { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
           ]

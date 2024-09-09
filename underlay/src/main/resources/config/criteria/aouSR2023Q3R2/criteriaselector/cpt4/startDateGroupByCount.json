@@ -3,26 +3,32 @@
   "attributes": {
     "observationOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "observation_datetime",
+        "source_concept_name"
       ]
     },
     "procedureOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "procedure_datetime",
+        "source_concept_name"
       ]
     },
     "measurementOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "measurement_datetime",
+        "source_concept_name"
       ]
     },
     "ingredientOccurrence": {
       "values": [
-        "start_date",
-        "source_criteria_id"
+        "drug_exposure_start_datetime",
+        "source_concept_name"
+      ]
+    },
+    "deviceOccurrence": {
+      "values": [
+        "device_exposure_start_datetime",
+        "source_concept_name"
       ]
     }
   }

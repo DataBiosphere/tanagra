@@ -3,8 +3,8 @@
   "attributes": {
     "observationOccurrence": {
       "values": [
-        "date",
-        "observation"
+        "observation_datetime",
+        "standard_concept_name"
       ]
     }
   }

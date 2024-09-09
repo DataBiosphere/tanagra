@@ -3,8 +3,8 @@
   "attributes": {
     "conditionOccurrence": {
       "values": [
-        "start_date",
-        "condition"
+        "condition_start_datetime",
+        "standard_concept_name"
       ]
     }
   }
