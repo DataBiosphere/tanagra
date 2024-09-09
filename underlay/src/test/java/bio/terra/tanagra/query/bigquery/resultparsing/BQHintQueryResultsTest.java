@@ -21,8 +21,12 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
   }
 
   @Test
-  void entityLevelHint() {
-    Entity hintedEntity = underlay.getPrimaryEntity();
+  void entityLevelHints() {
+    checkEntityLevelHints(underlay.getPrimaryEntity());
+    checkEntityLevelHints(underlay.getEntity("brand"));
+  }
+
+  private void checkEntityLevelHints(Entity hintedEntity) {
     HintQueryResult hintQueryResult =
         bqQueryRunner.run(new HintQueryRequest(underlay, hintedEntity, null, null, null, false));
 
@@ -43,8 +47,10 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                 assertTrue(hintInstance.getMin() <= hintInstance.getMax());
               } else { // isEnumHint
                 assertTrue(
-                    attribute.isValueDisplay()
-                        || attribute.getRuntimeDataType().equals(DataType.STRING));
+                    (attribute.isValueDisplay()
+                            && DataType.INT64.equals(attribute.getRuntimeDataType()))
+                        || (attribute.isSimple()
+                            && DataType.STRING.equals(attribute.getRuntimeDataType())));
                 assertFalse(hintInstance.getEnumValueCounts().isEmpty());
                 hintInstance
                     .getEnumValueCounts()

@@ -271,8 +271,7 @@ public class BQQueryRunner implements QueryRunner {
                       .getHintedEntity()
                       .getAttribute(
                           sqlRowResult.get(attributeColName, DataType.STRING).getStringVal());
-              if (attribute.isValueDisplay()
-                  || attribute.getRuntimeDataType().equals(DataType.STRING)) {
+              if (attribute.isValueDisplay()) {
                 // This is one (value,count) pair of an enum values hint.
                 Literal enumVal = sqlRowResult.get(enumValColName, DataType.INT64);
                 String enumDisplay =
@@ -281,6 +280,13 @@ public class BQQueryRunner implements QueryRunner {
                 Map<ValueDisplay, Long> enumValuesForAttr =
                     enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
                 enumValuesForAttr.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
+                enumValues.put(attribute, enumValuesForAttr);
+              } else if (attribute.getRuntimeDataType().equals(DataType.STRING)) {
+                Literal enumVal = sqlRowResult.get(enumValColName, DataType.STRING);
+                Long enumCount = sqlRowResult.get(enumCountColName, DataType.INT64).getInt64Val();
+                Map<ValueDisplay, Long> enumValuesForAttr =
+                    enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
+                enumValuesForAttr.put(new ValueDisplay(enumVal), enumCount);
                 enumValues.put(attribute, enumValuesForAttr);
               } else {
                 // This is a range hint.
