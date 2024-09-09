@@ -42,10 +42,18 @@ public final class ToApiUtils {
 
   public static ApiValueDisplay toApiObject(ValueDisplay valueDisplay) {
     ApiValueDisplay apiObject = new ApiValueDisplay();
-    if (valueDisplay != null) {
-      apiObject.value(toApiObject(valueDisplay.getValue())).display(valueDisplay.getDisplay());
+    if (valueDisplay == null) {
+      return apiObject;
+    } else if (valueDisplay.isRepeatedValue()) {
+      return apiObject
+          .isRepeatedValue(true)
+          .repeatedValue(
+              valueDisplay.getRepeatedValue().stream().map(ToApiUtils::toApiObject).toList());
+    } else {
+      return apiObject
+          .value(toApiObject(valueDisplay.getValue()))
+          .display(valueDisplay.getDisplay());
     }
-    return apiObject;
   }
 
   public static ApiLiteral toApiObject(Literal literal) {

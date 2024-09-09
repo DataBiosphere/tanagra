@@ -282,7 +282,7 @@ public class BQQueryRunner implements QueryRunner {
                 enumValuesForAttr.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
                 enumValues.put(attribute, enumValuesForAttr);
               } else if (attribute.getRuntimeDataType().equals(DataType.STRING)) {
-                Literal enumVal = sqlRowResult.get(enumValColName, DataType.STRING);
+                Literal enumVal = sqlRowResult.get(enumDisplayColName, DataType.STRING);
                 Long enumCount = sqlRowResult.get(enumCountColName, DataType.INT64).getInt64Val();
                 Map<ValueDisplay, Long> enumValuesForAttr =
                     enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
