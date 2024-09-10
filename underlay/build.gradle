@@ -24,8 +24,8 @@ dependencies {
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
+    implementation "org.slf4j:slf4j-simple:${gradle.vSlf4jApi}"
     testFixturesImplementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
-    implementation 'org.slf4j:slf4j-simple:2.0.16'
 
     // GCP libraries versions are controlled by the BOM specified in buildSrc.
     implementation 'com.google.cloud:google-cloud-bigquery'
