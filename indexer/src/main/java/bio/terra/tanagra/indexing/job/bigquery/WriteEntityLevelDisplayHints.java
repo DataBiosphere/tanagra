@@ -237,7 +237,9 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
   private static boolean isEnumHintForValueDisplay(Attribute attribute) {
     return (attribute.isValueDisplay() && DataType.INT64.equals(attribute.getRuntimeDataType()))
-        || (attribute.isSimple() && DataType.STRING.equals(attribute.getRuntimeDataType()));
+        || (attribute.isSimple()
+            && !attribute.isDataTypeRepeated()
+            && DataType.STRING.equals(attribute.getRuntimeDataType()));
   }
 
   private static boolean isEnumHintForRepeatedStringValue(Attribute attribute) {
