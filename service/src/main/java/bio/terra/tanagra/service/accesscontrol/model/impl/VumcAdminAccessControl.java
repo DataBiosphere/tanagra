@@ -83,7 +83,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   @Override
   public Permissions createStudy(UserId user) {
     return apiIsAuthorizedUser(user.getEmail())
-        ? Permissions.forActions(ResourceType.STUDY, Set.of(Action.CREATE))
+        ? Permissions.forActions(ResourceType.STUDY, Action.CREATE)
         : Permissions.empty(ResourceType.STUDY);
   }
 
@@ -172,36 +172,28 @@ public class VumcAdminAccessControl implements StudyAccessControl {
 
   /** Admin service underlay permission -> Core service underlay permission. */
   private static Set<Action> fromUnderlayApiAction(ResourceAction apiAction) {
-    switch (apiAction) {
-      case ALL:
-      case READ:
-        return ResourceType.UNDERLAY.getActions();
-      case UPDATE:
-      case CREATE:
-      case DELETE:
-      default:
+    return switch (apiAction) {
+      case ALL, READ -> ResourceType.UNDERLAY.getActions();
+      default -> { // also case UPDATE, CREATE, DELETE
         LOGGER.warn("Unknown mapping for underlay API resource action {}", apiAction);
-        return Set.of();
-    }
+        yield Set.of();
+      }
+    };
   }
 
   /** Admin service study permission -> Core service study permission. */
   private static Set<Action> fromStudyApiAction(ResourceAction apiAction) {
-    switch (apiAction) {
-      case ALL:
-        return ResourceType.STUDY.getActions();
-      case READ:
-        return Set.of(Action.READ);
-      case UPDATE:
-        return Set.of(Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET);
-      case CREATE:
-        return Set.of(Action.CREATE);
-      case DELETE:
-        return Set.of(Action.DELETE);
-      default:
+    return switch (apiAction) {
+      case ALL -> ResourceType.STUDY.getActions();
+      case READ -> Set.of(Action.READ);
+      case UPDATE -> Set.of(Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET);
+      case CREATE -> Set.of(Action.CREATE);
+      case DELETE -> Set.of(Action.DELETE);
+      default -> {
         LOGGER.warn("Unknown mapping for study API resource action {}", apiAction);
-        return Set.of();
-    }
+        yield Set.of();
+      }
+    };
   }
 
   protected ResourceList apiListAuthorizedResources(

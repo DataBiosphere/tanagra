@@ -108,16 +108,32 @@ public class FeatureSetService {
       String studyId,
       String featureSetId,
       String userEmail,
+      String destinationStudyId,
       @Nullable String displayName,
       @Nullable String description) {
     FeatureSet original = getFeatureSet(studyId, featureSetId);
+
+    String newDisplayName = displayName;
+    if (newDisplayName == null) {
+      newDisplayName = original.getDisplayName();
+      if (studyId.equals(destinationStudyId)) {
+        newDisplayName = "Copy of: " + newDisplayName;
+      }
+    }
+
+    String newDescription = description;
+    if (newDescription == null) {
+      newDescription = original.getDescription();
+      if (studyId.equals(destinationStudyId)) {
+        newDescription = "Copy of: " + newDescription;
+      }
+    }
+
     FeatureSet.Builder featureSetBuilder =
         FeatureSet.builder()
             .underlay(original.getUnderlay())
-            .displayName(
-                displayName != null ? displayName : "Copy of: " + original.getDisplayName())
-            .description(
-                description != null ? description : "Copy of: " + original.getDescription())
+            .displayName(newDisplayName)
+            .description(newDescription)
             .createdBy(userEmail)
             .lastModifiedBy(userEmail)
             // Shallow copy criteria and attributes: they are written to DB and fetched for return
@@ -125,7 +141,7 @@ public class FeatureSetService {
             .criteria(original.getCriteria())
             .excludeOutputAttributesPerEntity(original.getExcludeOutputAttributesPerEntity());
 
-    featureSetDao.createFeatureSet(studyId, featureSetBuilder.build());
+    featureSetDao.createFeatureSet(destinationStudyId, featureSetBuilder.build());
     return featureSetDao.getFeatureSet(featureSetBuilder.getId());
   }
 }
