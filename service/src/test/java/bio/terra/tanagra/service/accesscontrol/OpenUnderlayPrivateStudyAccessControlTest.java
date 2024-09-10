@@ -78,19 +78,16 @@ public class OpenUnderlayPrivateStudyAccessControlTest extends BaseAccessControl
   @Test
   void study() {
     // isAuthorized, getPermissions, listAllPermissions, listAuthorizedResources
-    Action[] studyActionsExceptCreate = {
-      Action.READ, Action.UPDATE, Action.DELETE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET,
-    };
     ResourceId study1Id = ResourceId.forStudy(study1.getId());
     ResourceId study2Id = ResourceId.forStudy(study2.getId());
-    assertHasPermissions(USER_1, study1Id, studyActionsExceptCreate);
-    assertDoesNotHavePermissions(USER_1, study2Id, studyActionsExceptCreate);
-    assertDoesNotHavePermissions(USER_2, study1Id, studyActionsExceptCreate);
-    assertHasPermissions(USER_2, study2Id, studyActionsExceptCreate);
-    assertDoesNotHavePermissions(USER_3, study1Id, studyActionsExceptCreate);
-    assertDoesNotHavePermissions(USER_3, study2Id, studyActionsExceptCreate);
-    assertDoesNotHavePermissions(USER_4, study1Id, studyActionsExceptCreate);
-    assertDoesNotHavePermissions(USER_4, study2Id, studyActionsExceptCreate);
+    assertHasPermissions(USER_1, study1Id, STUDY_ACTIONS_WITHOUT_CREATE);
+    assertDoesNotHavePermissions(USER_1, study2Id, STUDY_ACTIONS_WITHOUT_CREATE);
+    assertDoesNotHavePermissions(USER_2, study1Id, STUDY_ACTIONS_WITHOUT_CREATE);
+    assertHasPermissions(USER_2, study2Id, STUDY_ACTIONS_WITHOUT_CREATE);
+    assertDoesNotHavePermissions(USER_3, study1Id, STUDY_ACTIONS_WITHOUT_CREATE);
+    assertDoesNotHavePermissions(USER_3, study2Id, STUDY_ACTIONS_WITHOUT_CREATE);
+    assertDoesNotHavePermissions(USER_4, study1Id, STUDY_ACTIONS_WITHOUT_CREATE);
+    assertDoesNotHavePermissions(USER_4, study2Id, STUDY_ACTIONS_WITHOUT_CREATE);
 
     // isAuthorized for STUDY.CREATE
     assertTrue(
