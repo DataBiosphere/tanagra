@@ -6,7 +6,6 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.authentication.UserId;
-import java.util.Set;
 
 public interface UnderlayAccessControl extends FineGrainedAccessControl {
   @Override
@@ -21,7 +20,7 @@ public interface UnderlayAccessControl extends FineGrainedAccessControl {
 
   @Override
   default Permissions createStudy(UserId user) {
-    return Permissions.forActions(ResourceType.STUDY, Set.of(Action.CREATE));
+    return Permissions.forActions(ResourceType.STUDY, Action.CREATE);
   }
 
   @Override

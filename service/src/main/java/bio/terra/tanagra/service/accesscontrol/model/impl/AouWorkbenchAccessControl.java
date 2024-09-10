@@ -58,7 +58,7 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
   @Override
   public Permissions createStudy(UserId user) {
     // Workbench creates a study as part of workspace creation. Always allow.
-    return Permissions.forActions(ResourceType.STUDY, Set.of(Action.CREATE));
+    return Permissions.forActions(ResourceType.STUDY, Action.CREATE);
   }
 
   @Override
