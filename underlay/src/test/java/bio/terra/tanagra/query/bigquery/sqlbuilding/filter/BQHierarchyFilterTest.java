@@ -1,10 +1,7 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding.filter;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
+import bio.terra.tanagra.api.filter.*;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
@@ -112,6 +109,21 @@ public class BQHierarchyFilterTest extends BQRunnerTest {
                 underlay, entity, List.of(simpleAttribute), hierarchyHasParentFilter, null, null));
     assertSqlMatchesWithTableNameOnly(
         "hierarchyHasParentFilterIn", listQueryResult.getSql(), entityMainTable, childParentTable);
+  }
+
+  @Test
+  void hierarchyIsLeafFilter() throws IOException {
+    Entity entity = underlay.getEntity("condition");
+    HierarchyIsLeafFilter hierarchyIsLeafFilter =
+        new HierarchyIsLeafFilter(underlay, entity, entity.getHierarchy(Hierarchy.DEFAULT_NAME));
+    AttributeField simpleAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("name"), false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), hierarchyIsLeafFilter, null, null));
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly("hierarchyIsLeafFilter", listQueryResult.getSql(), table);
   }
 
   @Test
