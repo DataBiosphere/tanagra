@@ -7,15 +7,7 @@ import bio.terra.tanagra.api.field.HierarchyIsRootField;
 import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
-import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
-import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
-import bio.terra.tanagra.api.filter.RelationshipFilter;
-import bio.terra.tanagra.api.filter.TemporalPrimaryFilter;
-import bio.terra.tanagra.api.filter.TextSearchFilter;
+import bio.terra.tanagra.api.filter.*;
 import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQCountDistinctFieldTranslator;
@@ -27,6 +19,7 @@ import bio.terra.tanagra.query.bigquery.translator.field.BQRelatedEntityIdCountF
 import bio.terra.tanagra.query.bigquery.translator.filter.BQAttributeFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyHasAncestorFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyHasParentFilterTranslator;
+import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsLeafFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsMemberFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQHierarchyIsRootFilterTranslator;
 import bio.terra.tanagra.query.bigquery.translator.filter.BQPrimaryWithCriteriaFilterTranslator;
@@ -86,6 +79,11 @@ public final class BQApiTranslator implements ApiTranslator {
   @Override
   public ApiFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter) {
     return new BQHierarchyHasParentFilterTranslator(this, hierarchyHasParentFilter);
+  }
+
+  @Override
+  public ApiFilterTranslator translator(HierarchyIsLeafFilter hierarchyIsLeafFilter) {
+    return new BQHierarchyIsLeafFilterTranslator(this, hierarchyIsLeafFilter);
   }
 
   @Override
