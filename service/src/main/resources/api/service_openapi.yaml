@@ -2344,6 +2344,9 @@ components:
     FeatureSetCloneInfo:
       type: object
       properties:
+        destinationStudyId:
+          # Optional: by default it is cloned into the same study
+          $ref: "#/components/schemas/StudyId"
         displayName:
           $ref: "#/components/schemas/FeatureSetDisplayName"
         description:
