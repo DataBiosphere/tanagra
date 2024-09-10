@@ -88,7 +88,7 @@ public class VerilyGroupsAccessControlTest extends BaseAccessControlTest {
         USER_2, ResourceType.UNDERLAY, null, false, cmsSynpufId, aouSyntheticId);
     assertServiceListWithReadPermission(USER_3, ResourceType.UNDERLAY, null, false);
     assertServiceListWithReadPermission(
-        USER_4, ResourceType.UNDERLAY, null, true, cmsSynpufId, aouSyntheticId, sddId);
+        USER_4, ResourceType.UNDERLAY, null, false, cmsSynpufId, aouSyntheticId, sddId);
   }
 
   @Test
