@@ -41,7 +41,7 @@
       "title": "Allele Frequency"
     },
     {
-      "key": "t_rollup_count",
+      "key": "t_item_count",
       "widthDouble": 150,
       "title": "Participant count"
     }
