@@ -1,0 +1,54 @@
+{
+  "columns": [
+    {
+      "key": "variant_id",
+      "widthString": "20%",
+      "title": "Variant id"
+    },
+    {
+      "key": "gene",
+      "widthDouble": 100,
+      "title": "Gene"
+    },
+    {
+      "key": "rs_number",
+      "widthDouble": 100,
+      "title": "RS Number"
+    },
+    {
+      "key": "genomic_location",
+      "widthDouble": 100,
+      "title": "Genomic Location"
+    },
+    {
+      "key": "protein_change",
+      "widthDouble": 100,
+      "title": "Protein Change"
+    },
+    {
+      "key": "allele_count",
+      "widthDouble": 100,
+      "title": "Allele Count"
+    },
+    {
+      "key": "allele_number",
+      "widthDouble": 100,
+      "title": "Allele Number"
+    },
+    {
+      "key": "allele_frequency",
+      "widthDouble": 100,
+      "title": "Allele Frequency"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Participant count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "variantPerson"
+    }
+  ]
+}

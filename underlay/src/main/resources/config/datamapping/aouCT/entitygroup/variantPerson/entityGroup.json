@@ -1,0 +1,8 @@
+{
+  "name": "variantPerson",
+  "groupEntity": "variant",
+  "itemsEntity": "person",
+  "idPairsSqlFile":  "idPairs.sql",
+  "groupEntityIdFieldName": "variant_row_num",
+  "itemsEntityIdFieldName": "flattened_person_id"
+}
