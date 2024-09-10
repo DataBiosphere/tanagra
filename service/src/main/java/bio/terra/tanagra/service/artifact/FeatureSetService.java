@@ -112,13 +112,25 @@ public class FeatureSetService {
       @Nullable String displayName,
       @Nullable String description) {
     FeatureSet original = getFeatureSet(studyId, featureSetId);
+
+    if (displayName == null) {
+      displayName = original.getDisplayName();
+      if (studyId.equals(destinationStudyId)) {
+        displayName = "Copy of: " + displayName;
+      }
+    }
+    if (description == null) {
+      description = original.getDescription();
+      if (studyId.equals(destinationStudyId)) {
+        description = "Copy of: " + description;
+      }
+    }
+
     FeatureSet.Builder featureSetBuilder =
         FeatureSet.builder()
             .underlay(original.getUnderlay())
-            .displayName(
-                displayName != null ? displayName : "Copy of: " + original.getDisplayName())
-            .description(
-                description != null ? description : "Copy of: " + original.getDescription())
+            .displayName(displayName)
+            .description(description)
             .createdBy(userEmail)
             .lastModifiedBy(userEmail)
             // Shallow copy criteria and attributes: they are written to DB and fetched for return

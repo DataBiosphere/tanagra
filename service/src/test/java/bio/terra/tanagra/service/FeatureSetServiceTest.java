@@ -323,7 +323,7 @@ public class FeatureSetServiceTest {
     assertEquals(1, study2FeatureSets.size());
     assertEquals(clonedFeatureSet2.getId(), study2FeatureSets.get(0).getId());
     assertEquals(newDisplayName, clonedFeatureSet2.getDisplayName());
-    assertEquals("Copy of: " + featureSet2.getDescription(), clonedFeatureSet2.getDescription());
+    assertEquals(featureSet2.getDescription(), clonedFeatureSet2.getDescription());
 
     List<Criteria> clonedCriteria2 = clonedFeatureSet2.getCriteria();
     assertEquals(criteria2.size(), clonedCriteria2.size());
