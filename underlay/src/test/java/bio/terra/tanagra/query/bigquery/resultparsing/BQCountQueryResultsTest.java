@@ -13,8 +13,7 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.query.count.CountQueryRequest;
-import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.count.*;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.DataType;
@@ -24,8 +23,7 @@ import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.jupiter.api.Test;
 
 public class BQCountQueryResultsTest extends BQRunnerTest {
@@ -168,22 +166,55 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
                 entityLevelHints,
                 false));
 
-    // Make sure we got some results back.
-    assertFalse(countQueryResult.getCountInstances().isEmpty());
-
     // Check each of the group by fields.
-    countQueryResult
-        .getCountInstances()
+    countQueryResult.getCountInstances().stream()
+        .map(countInstance -> countInstance.getEntityFieldValue(repeatedStringAttribute))
         .forEach(
-            countInstance -> {
-              ValueDisplay vocabulary = countInstance.getEntityFieldValue(repeatedStringAttribute);
+            vocabulary -> {
               assertNotNull(vocabulary);
               assertTrue(
                   vocabulary.getValue().isNull()
                       || DataType.STRING.equals(vocabulary.getValue().getDataType()));
+              assertFalse(vocabulary.isRepeatedValue());
               assertNotNull(vocabulary.getValue().getStringVal());
               assertNull(vocabulary.getDisplay());
             });
+
+    // Condition entity should have an enum string-value hint with 4 + 3 values for vocabulary. The
+    // three fake ones should all have matching counts.
+    assertEquals(7, countQueryResult.getCountInstances().size());
+    Optional<CountInstance> fooCount =
+        countQueryResult.getCountInstances().stream()
+            .filter(
+                countInstance ->
+                    countInstance
+                        .getEntityFieldValue(repeatedStringAttribute)
+                        .getValue()
+                        .equals(Literal.forString("foo")))
+            .findAny();
+    assertTrue(fooCount.isPresent());
+    Optional<CountInstance> barCount =
+        countQueryResult.getCountInstances().stream()
+            .filter(
+                countInstance ->
+                    countInstance
+                        .getEntityFieldValue(repeatedStringAttribute)
+                        .getValue()
+                        .equals(Literal.forString("bar")))
+            .findAny();
+    assertTrue(barCount.isPresent());
+    Optional<CountInstance> bazCount =
+        countQueryResult.getCountInstances().stream()
+            .filter(
+                countInstance ->
+                    countInstance
+                        .getEntityFieldValue(repeatedStringAttribute)
+                        .getValue()
+                        .equals(Literal.forString("baz")))
+            .findAny();
+    assertTrue(bazCount.isPresent());
+    assertTrue(fooCount.get().getCount() == barCount.get().getCount());
+    assertTrue(barCount.get().getCount() == bazCount.get().getCount());
   }
 
   @Test

@@ -3,8 +3,7 @@ package bio.terra.tanagra.query.bigquery.resultparsing;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.hint.HintQueryRequest;
-import bio.terra.tanagra.api.query.hint.HintQueryResult;
+import bio.terra.tanagra.api.query.hint.*;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
@@ -22,11 +21,41 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
 
   @Test
   void entityLevelHints() {
-    checkEntityLevelHints(underlay.getPrimaryEntity());
-    checkEntityLevelHints(underlay.getEntity("brand"));
+    // Person entity should have range hints for year_of_birth and age (runtime calculated), and an
+    // enum value-display hint with 3 values for gender.
+    List<HintInstance> hintInstances = checkEntityLevelHints(underlay.getPrimaryEntity());
+    assertTrue(
+        hintInstances.stream()
+            .anyMatch(
+                hintInstance ->
+                    hintInstance.getAttribute().getName().equals("year_of_birth")
+                        && hintInstance.isRangeHint()));
+    assertTrue(
+        hintInstances.stream()
+            .anyMatch(
+                hintInstance ->
+                    hintInstance.getAttribute().getName().equals("age")
+                        && hintInstance.isRangeHint()));
+    assertTrue(
+        hintInstances.stream()
+            .anyMatch(
+                hintInstance ->
+                    hintInstance.getAttribute().getName().equals("gender")
+                        && hintInstance.isEnumHint()
+                        && hintInstance.getEnumValueCounts().size() == 3));
+
+    // Brand entity should have an enum string-value hint with 2 values for vocabulary.
+    hintInstances = checkEntityLevelHints(underlay.getEntity("brand"));
+    assertTrue(
+        hintInstances.stream()
+            .anyMatch(
+                hintInstance ->
+                    hintInstance.getAttribute().getName().equals("vocabulary")
+                        && hintInstance.isEnumHint()
+                        && hintInstance.getEnumValueCounts().size() == 2));
   }
 
-  private void checkEntityLevelHints(Entity hintedEntity) {
+  private List<HintInstance> checkEntityLevelHints(Entity hintedEntity) {
     HintQueryResult hintQueryResult =
         bqQueryRunner.run(new HintQueryRequest(underlay, hintedEntity, null, null, null, false));
 
@@ -64,6 +93,7 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
                                         .equals(enumValue.getValue().getDataType())));
               }
             });
+    return hintQueryResult.getHintInstances();
   }
 
   @Test

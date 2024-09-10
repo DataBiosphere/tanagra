@@ -106,7 +106,7 @@ public class BQAttributeFilterTest extends BQRunnerTest {
                 underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
     BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
-        "repeatedAttributeFilterBinary", listQueryResult.getSql(), table);
+        "repeatedAttributeFilterBinaryNotEquals", listQueryResult.getSql(), table);
 
     // Filter with n-ary operator IN.
     attributeFilter =
