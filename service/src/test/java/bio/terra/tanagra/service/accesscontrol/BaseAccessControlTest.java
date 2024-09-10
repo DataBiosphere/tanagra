@@ -44,7 +44,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SuppressWarnings({"PMD.TooManyFields", "PMD.TestClassWithoutTestCases"})
 public class BaseAccessControlTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseAccessControlTest.class);
-  protected static final Action[] STUDY_ACTIONS_WITHOUT_CREATE =
+  static final Action[] STUDY_ACTIONS_WITHOUT_CREATE =
       new Action[] {
         Action.READ, Action.UPDATE, Action.DELETE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET,
       };
