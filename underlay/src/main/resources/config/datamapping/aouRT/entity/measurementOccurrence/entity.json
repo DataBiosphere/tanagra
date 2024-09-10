@@ -5,44 +5,101 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "measurement_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "measurement_concept_id", "dataType": "INT64" },
-    { "name": "standard_concept_name", "dataType": "STRING" },
-    { "name": "standard_concept_code", "dataType": "STRING" },
-    { "name": "standard_vocabulary", "dataType": "STRING" },
+    { "name": "standard_concept_name", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "standard_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_concept_code", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "standard_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_vocabulary", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "standard_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "measurement_datetime", "dataType": "TIMESTAMP" },
     { "name": "measurement_type_concept_id", "dataType": "INT64" },
-    { "name": "measurement_type_concept_name", "dataType": "STRING" },
+    { "name": "measurement_type_concept_name", "dataType": "INT64", "valueFieldName": "measurement_type_concept_id", "displayFieldName": "measurement_type_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "operator_concept_id", "dataType": "INT64" },
-    { "name": "operator_concept_name", "dataType": "STRING" },
+    { "name": "operator_concept_name", "dataType": "INT64", "valueFieldName": "operator_concept_id", "displayFieldName": "operator_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "value_as_number", "dataType": "DOUBLE" },
     { "name": "value_as_concept_id", "dataType": "INT64" },
-    { "name": "value_as_concept_name", "dataType": "STRING" },
+    { "name": "value_as_concept_name", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "unit_concept_id", "dataType": "INT64" },
-    { "name": "unit_concept_name", "dataType": "STRING" },
+    { "name": "unit_concept_name", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "range_low", "dataType": "DOUBLE" },
     { "name": "range_high", "dataType": "DOUBLE" },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
-    { "name": "visit_occurrence_concept_name", "dataType": "STRING" },
+    { "name": "visit_occurrence_concept_name", "dataType": "STRING", "isSuppressedForExport": true },
     { "name": "measurement_source_value", "dataType": "STRING" },
     { "name": "measurement_source_concept_id", "dataType": "INT64" },
-    { "name": "source_concept_name", "dataType": "STRING" },
-    { "name": "source_concept_code", "dataType": "STRING" },
-    { "name": "source_vocabulary", "dataType": "STRING" },
+    { "name": "source_concept_name", "dataType": "INT64", "valueFieldName": "measurement_source_concept_id", "displayFieldName": "source_concept_name",
+      "sourceQuery": {
+        "displayFieldName": "concept_name",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_concept_code", "dataType": "INT64", "valueFieldName": "measurement_source_concept_id", "displayFieldName": "source_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "source_vocabulary", "dataType": "INT64", "valueFieldName": "measurement_source_concept_id", "displayFieldName": "source_vocabulary",
+      "sourceQuery": {
+        "displayFieldName": "vocabulary_id",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
     { "name": "unit_source_value", "dataType": "STRING" },
     { "name": "value_source_value", "dataType": "STRING" },
-    { "name": "measurement", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "standard_concept_name", "isSuppressedForExport": true },
-    { "name": "source_value", "dataType": "STRING", "valueFieldName": "measurement_source_value", "isSuppressedForExport": true },
-    { "name": "unit", "dataType": "INT64", "valueFieldName": "unit_concept_id", "displayFieldName": "unit_concept_name", "isSuppressedForExport": true },
     { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_concept_id", "displayFieldName": "value_as_concept_name", "isSuppressedForExport": true },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isSuppressedForExport": true },
-    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_datetime", "isSuppressedForExport": true },
-    { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "measurement_source_concept_id", "isSuppressedForExport": true },
-    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 100, "isSuppressedForExport": true },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }
+    { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 18, "displayHintRangeMax": 125, "isSuppressedForExport": true },
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_occurrence_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
+    { "name": "measurement", "dataType": "INT64", "valueFieldName": "measurement_concept_id", "displayFieldName": "standard_concept_name", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "measurement_concept_id" ],
   "temporalQuery": {
-    "visitDateAttribute": "date",
+    "visitDateAttribute": "measurement_datetime",
     "visitIdAttribute": "visit_occurrence_id"
-  }
+  },
+  "sourceQueryTableName": "${omopDataset}.measurement"
 }

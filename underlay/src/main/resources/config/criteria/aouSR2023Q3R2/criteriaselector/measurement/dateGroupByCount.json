@@ -3,8 +3,8 @@
   "attributes": {
     "measurementOccurrence": {
       "values": [
-        "date",
-        "measurement"
+        "measurement_datetime",
+        "standard_concept_name"
       ]
     }
   }

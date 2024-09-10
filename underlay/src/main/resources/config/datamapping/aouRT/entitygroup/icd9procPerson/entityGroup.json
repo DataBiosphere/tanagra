@@ -5,7 +5,7 @@
     {
       "occurrenceEntity": "ingredientOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+        "foreignKeyAttributeOccurrenceEntity": "drug_source_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
@@ -14,7 +14,7 @@
     {
       "occurrenceEntity": "procedureOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "source_criteria_id"
+        "foreignKeyAttributeOccurrenceEntity": "procedure_source_concept_id"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"

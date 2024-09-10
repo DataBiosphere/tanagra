@@ -3,8 +3,8 @@
   "attributes": {
     "procedureOccurrence": {
       "values": [
-        "date",
-        "procedure"
+        "procedure_datetime",
+        "standard_concept_name"
       ]
     }
   }
