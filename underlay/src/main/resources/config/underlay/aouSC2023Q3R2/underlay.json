@@ -112,9 +112,9 @@
     "aouRT/surveyHealthCareAccessPerson",
     "aouRT/surveySocialDeterminantsOfHealthPerson"
   ],
-  "criteriaSelectors": [
-    "aouSR2023Q3R2/conditions",
-    "aouSR2023Q3R2/procedures",
+  "criteriaSelectors": [                                                                                                                                         
+    "aouSR2023Q3R2/conditions",                                                                                                                                  
+    "aouSR2023Q3R2/procedures",                                                                                                                                  
     "aouSR2023Q3R2/observations",
     "aouSR2023Q3R2/drugs",
     "aouSR2023Q3R2/measurement",
@@ -134,7 +134,7 @@
     "aouSR2023Q3R2/sexAtBirth",
     "aouSR2023Q3R2/fitbit",
     "aouSR2023Q3R2/fitbitActivitySummary",
-    "aouSR2023Q3R2/fitbitStepsIntraday",
+    "aouSR2023Q3R2/fitbitStepsIntraday", 
     "aouSR2023Q3R2/fitbitHeartRateLevel",
     "aouSR2023Q3R2/fitbitHeartRateSummary",
     "aouSR2023Q3R2/fitbitSleepDailySummary",
@@ -144,6 +144,7 @@
     "aouSC2023Q3R2/longReadWGS",
     "aouSC2023Q3R2/globalDiversityArray",
     "aouSC2023Q3R2/structuralVariants",
+    "aouSC2023Q3R2/variant",
     "aouSR2023Q3R2/bloodPressure",
     "aouSR2023Q3R2/heartRate",
     "aouSR2023Q3R2/height",
@@ -157,8 +158,7 @@
     "aouSR2023Q3R2/surveyOverallHealth",
     "aouSR2023Q3R2/surveyPersonalAndFamilyHealth",
     "aouSR2023Q3R2/surveyHealthCareAccess",
-    "aouSR2023Q3R2/surveySocialDeterminantsOfHealth",
-    "aouSC2023Q3R2/variant"
+    "aouSR2023Q3R2/surveySocialDeterminantsOfHealth"
   ],
   "prepackagedDataFeatures": [
     "aouSR2023Q3R2/_demographics",
