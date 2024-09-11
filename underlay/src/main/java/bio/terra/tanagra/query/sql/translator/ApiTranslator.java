@@ -8,21 +8,7 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.filter.BooleanNotFilter;
-import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
-import bio.terra.tanagra.api.filter.ItemInGroupFilter;
-import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
-import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
-import bio.terra.tanagra.api.filter.RelationshipFilter;
-import bio.terra.tanagra.api.filter.TemporalPrimaryFilter;
-import bio.terra.tanagra.api.filter.TextSearchFilter;
+import bio.terra.tanagra.api.filter.*;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
@@ -317,6 +303,8 @@ public interface ApiTranslator {
 
   ApiFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter);
 
+  ApiFilterTranslator translator(HierarchyIsLeafFilter hierarchyIsLeafFilter);
+
   ApiFilterTranslator translator(HierarchyIsMemberFilter hierarchyIsMemberFilter);
 
   ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter);
@@ -352,6 +340,8 @@ public interface ApiTranslator {
       return translator((HierarchyHasAncestorFilter) entityFilter);
     } else if (entityFilter instanceof HierarchyHasParentFilter) {
       return translator((HierarchyHasParentFilter) entityFilter);
+    } else if (entityFilter instanceof HierarchyIsLeafFilter) {
+      return translator((HierarchyIsLeafFilter) entityFilter);
     } else if (entityFilter instanceof HierarchyIsMemberFilter) {
       return translator((HierarchyIsMemberFilter) entityFilter);
     } else if (entityFilter instanceof HierarchyIsRootFilter) {

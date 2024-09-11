@@ -1776,7 +1776,7 @@ components:
           type: string
         operator:
           type: string
-          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER"]
+          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER", "IS_LEAF"]
         values:
           type: array
           items:
@@ -2344,6 +2344,9 @@ components:
     FeatureSetCloneInfo:
       type: object
       properties:
+        destinationStudyId:
+          # Optional: by default it is cloned into the same study
+          $ref: "#/components/schemas/StudyId"
         displayName:
           $ref: "#/components/schemas/FeatureSetDisplayName"
         description:
