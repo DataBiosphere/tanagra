@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +81,7 @@ public class DataExportHelper {
                                   entityOutput.getEntity(),
                                   attribute,
                                   false))
-                      .collect(Collectors.toList());
+                      .toList();
 
               ListQueryRequest listQueryRequest =
                   isAgainstSourceDataset
@@ -163,7 +162,7 @@ public class DataExportHelper {
                                       entityOutput.getEntity(),
                                       attribute,
                                       false))
-                          .collect(Collectors.toList());
+                          .toList();
                   return ListQueryRequest.againstIndexData(
                       exportRequest.getUnderlay(),
                       entityOutput.getEntity(),
@@ -270,7 +269,7 @@ public class DataExportHelper {
                                       entityOutput.getEntity(),
                                       attribute,
                                       false))
-                          .collect(Collectors.toList());
+                          .toList();
                   ListQueryRequest listQueryRequest =
                       ListQueryRequest.againstIndexData(
                           exportRequest.getUnderlay(),

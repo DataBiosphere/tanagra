@@ -53,7 +53,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -603,7 +602,7 @@ public class DataExportServiceTest {
         primaryEntity.getAttributes().stream()
             .sorted(Comparator.comparing(Attribute::getName))
             .map(attribute -> new AttributeField(underlay, primaryEntity, attribute, false))
-            .collect(Collectors.toList());
+            .toList();
     return ListQueryRequest.againstIndexData(
         underlay, primaryEntity, selectFields, null, null, 5, null, null);
   }

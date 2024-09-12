@@ -8,7 +8,6 @@ import jakarta.annotation.Nullable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public final class EntityOutput {
   private final Entity entity;
@@ -25,7 +24,7 @@ public final class EntityOutput {
         ImmutableList.copyOf(
             attributes.stream()
                 .sorted(Comparator.comparingInt(entity.getAttributes()::indexOf))
-                .collect(Collectors.toList()));
+                .toList());
   }
 
   public static EntityOutput filtered(Entity entity, EntityFilter entityFilter) {

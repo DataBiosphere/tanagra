@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -146,9 +145,7 @@ public class StudyServiceTest {
             ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null), 0, 10);
     assertEquals(2, allStudies.size());
     List<Study> allStudiesSortedByDisplayNameAsc =
-        allStudies.stream()
-            .sorted(Comparator.comparing(Study::getDisplayName))
-            .collect(Collectors.toList());
+        allStudies.stream().sorted(Comparator.comparing(Study::getDisplayName)).toList();
     assertEquals(allStudies, allStudiesSortedByDisplayNameAsc);
 
     // List selected.

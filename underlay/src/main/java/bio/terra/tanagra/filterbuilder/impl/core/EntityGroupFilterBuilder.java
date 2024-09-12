@@ -11,7 +11,6 @@ import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
   public EntityGroupFilterBuilder(CriteriaSelector criteriaSelector) {
@@ -37,7 +36,7 @@ public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
   protected List<String> entityGroupIds() {
     return deserializeConfig().getClassificationEntityGroupsList().stream()
         .map(EntityGroupConfig::getId)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override

@@ -56,7 +56,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -186,9 +185,7 @@ public class ReviewsApiController implements ReviewsApi {
     return ResponseEntity.ok(
         new ApiReviewInstanceListResult()
             .instances(
-                reviewQueryResult.getReviewInstances().stream()
-                    .map(this::toApiObject)
-                    .collect(Collectors.toList()))
+                reviewQueryResult.getReviewInstances().stream().map(this::toApiObject).toList())
             .sql(SqlFormatter.format(reviewQueryResult.getSql()))
             .pageMarker(
                 reviewQueryResult.getPageMarker() == null
@@ -221,10 +218,7 @@ public class ReviewsApiController implements ReviewsApi {
     Entity entity = underlay.getPrimaryEntity();
     List<Attribute> attributes = new ArrayList<>();
     if (apiObj.getIncludeAttributes() != null) {
-      attributes =
-          apiObj.getIncludeAttributes().stream()
-              .map(entity::getAttribute)
-              .collect(Collectors.toList());
+      attributes = apiObj.getIncludeAttributes().stream().map(entity::getAttribute).toList();
     }
 
     EntityFilter entityFilter =
@@ -328,6 +322,6 @@ public class ReviewsApiController implements ReviewsApi {
                 .criteriaGroupSections(
                     review.getRevision().getSections().stream()
                         .map(ToApiUtils::toApiObject)
-                        .collect(Collectors.toList())));
+                        .toList()));
   }
 }

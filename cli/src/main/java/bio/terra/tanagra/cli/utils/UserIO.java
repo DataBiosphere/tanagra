@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
@@ -124,7 +123,7 @@ public final class UserIO {
   /** Utility method to sort and map a list's contents. */
   public static <F, T> List<T> sortAndMap(
       List<F> fromList, Comparator<F> sorter, Function<F, T> mapper) {
-    return fromList.stream().sorted(sorter).map(mapper).collect(Collectors.toList());
+    return fromList.stream().sorted(sorter).map(mapper).toList();
   }
 
   /**

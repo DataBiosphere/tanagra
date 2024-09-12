@@ -10,7 +10,6 @@ import com.google.cloud.bigquery.Field;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CreateEntityMain extends BigQueryJob {
   private final Entity entity;
@@ -48,7 +47,7 @@ public class CreateEntityMain extends BigQueryJob {
                             columnSchema.getColumnName(),
                             BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
                         .build())
-            .collect(Collectors.toList());
+            .toList();
 
     // Build a clustering specification.
     List<String> clusterFields;
@@ -59,7 +58,7 @@ public class CreateEntityMain extends BigQueryJob {
               .map(
                   attribute ->
                       indexTable.getAttributeValueField(attribute.getName()).getColumnName())
-              .collect(Collectors.toList());
+              .toList();
     } else if (entity.hasTextSearch()) {
       // If not, and the text search field is defined, use that.
       clusterFields = List.of(indexTable.getTextSearchField().getColumnName());

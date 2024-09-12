@@ -51,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class FromApiUtils {
@@ -96,9 +95,7 @@ public final class FromApiUtils {
               entity,
               entity.getAttribute(apiAttributeFilter.getAttribute()),
               naryOperator.get(),
-              apiAttributeFilter.getValues().stream()
-                  .map(FromApiUtils::fromApiObject)
-                  .collect(Collectors.toList()));
+              apiAttributeFilter.getValues().stream().map(FromApiUtils::fromApiObject).toList());
         }
 
         throw new InvalidQueryException(
@@ -130,17 +127,13 @@ public final class FromApiUtils {
                 underlay,
                 entity,
                 hierarchy,
-                apiHierarchyFilter.getValues().stream()
-                    .map(FromApiUtils::fromApiObject)
-                    .collect(Collectors.toList()));
+                apiHierarchyFilter.getValues().stream().map(FromApiUtils::fromApiObject).toList());
           case DESCENDANT_OF_INCLUSIVE:
             return new HierarchyHasAncestorFilter(
                 underlay,
                 entity,
                 hierarchy,
-                apiHierarchyFilter.getValues().stream()
-                    .map(FromApiUtils::fromApiObject)
-                    .collect(Collectors.toList()));
+                apiHierarchyFilter.getValues().stream().map(FromApiUtils::fromApiObject).toList());
           default:
             throw new SystemException(
                 "Unknown API hierarchy filter operator: " + apiHierarchyFilter.getOperator());
@@ -189,7 +182,7 @@ public final class FromApiUtils {
         List<EntityFilter> subFilters =
             apiBooleanLogicFilter.getSubfilters().stream()
                 .map(apiSubFilter -> fromApiObject(apiSubFilter, entity, underlay))
-                .collect(Collectors.toList());
+                .toList();
         switch (apiBooleanLogicFilter.getOperator()) {
           case NOT:
             if (subFilters.size() != 1) {
@@ -312,12 +305,12 @@ public final class FromApiUtils {
                     List<EntityFilter> subFiltersForOcc =
                         value.getSubfilters().stream()
                             .map(apiFilterForOcc -> fromApiObject(apiFilterForOcc, underlay))
-                            .collect(Collectors.toList());
+                            .toList();
                     subFiltersPerOccurrenceEntity.put(occurrenceEntity, subFiltersForOcc);
                     List<Attribute> groupByAttributesForOcc =
                         value.getGroupByCountAttributes().stream()
                             .map(occurrenceEntity::getAttribute)
-                            .collect(Collectors.toList());
+                            .toList();
                     groupByAttributesPerOccurrenceEntity.put(
                         occurrenceEntity, groupByAttributesForOcc);
                   });

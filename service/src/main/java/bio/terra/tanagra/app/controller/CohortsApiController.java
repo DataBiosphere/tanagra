@@ -30,7 +30,6 @@ import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -117,9 +116,7 @@ public class CohortsApiController implements CohortsApi {
         Permissions.forActions(COHORT, UPDATE),
         ResourceId.forCohort(studyId, cohortId));
     List<CohortRevision.CriteriaGroupSection> sections =
-        body.getCriteriaGroupSections().stream()
-            .map(CohortsApiController::fromApiObject)
-            .collect(Collectors.toList());
+        body.getCriteriaGroupSections().stream().map(CohortsApiController::fromApiObject).toList();
     Cohort updatedCohort =
         cohortService.updateCohort(
             studyId,
@@ -230,13 +227,11 @@ public class CohortsApiController implements CohortsApi {
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
         .criteriaGroups(
-            apiObj.getCriteriaGroups().stream()
-                .map(CohortsApiController::fromApiObject)
-                .collect(Collectors.toList()))
+            apiObj.getCriteriaGroups().stream().map(CohortsApiController::fromApiObject).toList())
         .secondConditionCriteriaGroups(
             apiObj.getSecondBlockCriteriaGroups().stream()
                 .map(CohortsApiController::fromApiObject)
-                .collect(Collectors.toList()))
+                .toList())
         .operator(operator)
         .firstConditionReducingOperator(fromApiObject(apiObj.getFirstBlockReducingOperator()))
         .secondConditionReducingOperator(fromApiObject(apiObj.getSecondBlockReducingOperator()))
@@ -250,10 +245,7 @@ public class CohortsApiController implements CohortsApi {
     return CohortRevision.CriteriaGroup.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
-        .criteria(
-            apiObj.getCriteria().stream()
-                .map(FromApiUtils::fromApiObject)
-                .collect(Collectors.toList()))
+        .criteria(apiObj.getCriteria().stream().map(FromApiUtils::fromApiObject).toList())
         .build();
   }
 

@@ -14,7 +14,6 @@ import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.Distinct;
@@ -107,7 +106,7 @@ public class WriteAncestorDescendant extends BigQueryJob {
                         .setName(columnSchema.getColumnName())
                         .setType(BigQueryBeamUtils.fromDataType(columnSchema.getDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
-            .collect(Collectors.toList());
+            .toList();
     TableSchema outputTableSchema = new TableSchema().setFields(outputFieldSchemas);
     Clustering clustering =
         new Clustering().setFields(List.of(indexTable.getAncestorField().getColumnName()));

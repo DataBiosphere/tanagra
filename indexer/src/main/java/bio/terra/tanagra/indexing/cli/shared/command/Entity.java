@@ -16,7 +16,6 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import java.util.List;
-import java.util.stream.Collectors;
 import picocli.CommandLine;
 
 public abstract class Entity extends BaseCommand {
@@ -52,7 +51,7 @@ public abstract class Entity extends BaseCommand {
                   }
                   return jobSet;
                 })
-            .collect(Collectors.toList());
+            .toList();
     JobRunner jobRunner =
         jobExecutorAndDryRun.jobExecutor.getRunner(
             jobSets, jobExecutorAndDryRun.dryRun, getRunType());

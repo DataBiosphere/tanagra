@@ -113,7 +113,7 @@ public class ActivityLogService {
                       .cohortRevisionId(cohortRevisionId)
                       .build();
                 })
-            .collect(Collectors.toList());
+            .toList();
     createActivityLog(
         ActivityLog.builder().exportModel(exportModel).recordsCount(allCohortsCount),
         userEmail,

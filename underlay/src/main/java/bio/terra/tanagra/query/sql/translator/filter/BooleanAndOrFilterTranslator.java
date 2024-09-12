@@ -7,7 +7,6 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
   private final BooleanAndOrFilter booleanAndOrFilter;
@@ -18,9 +17,7 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
     super(apiTranslator);
     this.booleanAndOrFilter = booleanAndOrFilter;
     this.subFilterTranslators =
-        booleanAndOrFilter.getSubFilters().stream()
-            .map(apiTranslator::translator)
-            .collect(Collectors.toList());
+        booleanAndOrFilter.getSubFilters().stream().map(apiTranslator::translator).toList();
   }
 
   @Override

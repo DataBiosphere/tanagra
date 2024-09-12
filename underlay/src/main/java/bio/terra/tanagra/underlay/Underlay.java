@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
@@ -213,7 +212,7 @@ public final class Underlay {
                   szEntities.add(szEntity);
                   return fromConfigEntity(szEntity, szUnderlay.primaryEntity);
                 })
-            .collect(Collectors.toList());
+            .toList();
 
     // Check for the primary entity.
     if (entities.stream()
@@ -384,21 +383,21 @@ public final class Underlay {
                           && szAttribute.name.equals(szEntity.temporalQuery.visitIdAttribute),
                       sourceQuery);
                 })
-            .collect(Collectors.toList());
+            .toList();
 
     List<Attribute> optimizeGroupByAttributes = new ArrayList<>();
     if (szEntity.optimizeGroupByAttributes != null) {
       optimizeGroupByAttributes =
           attributes.stream()
               .filter(attribute -> szEntity.optimizeGroupByAttributes.contains(attribute.getName()))
-              .collect(Collectors.toList());
+              .toList();
     }
     List<Attribute> optimizeTextSearchAttributes = new ArrayList<>();
     if (szEntity.textSearch != null && szEntity.textSearch.attributes != null) {
       optimizeTextSearchAttributes =
           attributes.stream()
               .filter(attribute -> szEntity.textSearch.attributes.contains(attribute.getName()))
-              .collect(Collectors.toList());
+              .toList();
     }
 
     // Build the hierarchies.
@@ -414,7 +413,7 @@ public final class Underlay {
                           szHierarchy.keepOrphanNodes,
                           szHierarchy.rootNodeIds,
                           szHierarchy.cleanHierarchyNodesWithZeroCounts))
-              .collect(Collectors.toList());
+              .toList();
     }
     return new Entity(
         szEntity.name,

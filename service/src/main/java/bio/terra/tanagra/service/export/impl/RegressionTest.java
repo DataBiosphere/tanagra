@@ -22,7 +22,6 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.ProtobufUtils;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("PMD.TestClassWithoutTestCases")
 public class RegressionTest implements DataExport {
@@ -95,15 +94,13 @@ public class RegressionTest implements DataExport {
     return RTDataFeatureSet.DataFeatureSet.newBuilder()
         .setDisplayName(featureSet.getDisplayName())
         .addAllCriteria(
-            featureSet.getCriteria().stream()
-                .map(RegressionTest::toRegressionTestObj)
-                .collect(Collectors.toList()))
+            featureSet.getCriteria().stream().map(RegressionTest::toRegressionTestObj).toList())
         .addAllEntityOutputs(
             featureSet.getExcludeOutputAttributesPerEntity().entrySet().stream()
                 .map(
                     entry ->
                         toRegressionTestObj(underlay.getEntity(entry.getKey()), entry.getValue()))
-                .collect(Collectors.toList()))
+                .toList())
         .build();
   }
 
@@ -113,7 +110,7 @@ public class RegressionTest implements DataExport {
         entity.getAttributes().stream()
             .map(Attribute::getName)
             .filter(name -> !excludedAttributes.contains(name))
-            .collect(Collectors.toList());
+            .toList();
     return RTDataFeatureSet.EntityOutput.newBuilder()
         .setEntity(entity.getName())
         .addAllIncludedAttributes(includedAttributes)
@@ -126,7 +123,7 @@ public class RegressionTest implements DataExport {
         .addAllCriteriaGroupSections(
             cohort.getMostRecentRevision().getSections().stream()
                 .map(RegressionTest::toRegressionTestObj)
-                .collect(Collectors.toList()))
+                .toList())
         .build();
   }
 
@@ -136,7 +133,7 @@ public class RegressionTest implements DataExport {
         .addAllCriteriaGroups(
             criteriaGroupSection.getCriteriaGroups().stream()
                 .map(RegressionTest::toRegressionTestObj)
-                .collect(Collectors.toList()))
+                .toList())
         .setOperator(
             RTCriteria.BooleanLogicOperator.valueOf(criteriaGroupSection.getOperator().name()))
         .setIsExcluded(criteriaGroupSection.isExcluded())
@@ -147,9 +144,7 @@ public class RegressionTest implements DataExport {
       CohortRevision.CriteriaGroup criteriaGroup) {
     return RTCriteria.CriteriaGroup.newBuilder()
         .addAllCriteria(
-            criteriaGroup.getCriteria().stream()
-                .map(RegressionTest::toRegressionTestObj)
-                .collect(Collectors.toList()))
+            criteriaGroup.getCriteria().stream().map(RegressionTest::toRegressionTestObj).toList())
         .build();
   }
 

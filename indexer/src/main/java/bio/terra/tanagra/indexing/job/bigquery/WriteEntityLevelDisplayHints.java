@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +79,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                             columnSchema.getColumnName(),
                             BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
                         .build())
-            .collect(Collectors.toList());
+            .toList();
 
     // Create an empty table with this schema.
     TableId destinationTable =

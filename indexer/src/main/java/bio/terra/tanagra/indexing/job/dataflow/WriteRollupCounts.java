@@ -24,7 +24,6 @@ import com.google.cloud.bigquery.Table;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -315,7 +314,7 @@ public class WriteRollupCounts extends BigQueryJob {
                         .setName(columnSchema.getColumnName())
                         .setType(BigQueryBeamUtils.fromDataType(columnSchema.getDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
-            .collect(Collectors.toList());
+            .toList();
     TableSchema outputTableSchema = new TableSchema().setFields(tempTableFieldSchemas);
 
     PCollection<TableRow> nodeCountBQRows =

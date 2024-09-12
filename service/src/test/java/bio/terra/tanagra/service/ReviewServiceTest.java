@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -209,9 +208,7 @@ public class ReviewServiceTest {
     assertEquals(2, allReviews.size());
     LOGGER.info("reviews found: {}, {}", allReviews.get(0).getId(), allReviews.get(1).getId());
     List<Review> allReviewsSortedByCreatedDesc =
-        allReviews.stream()
-            .sorted(Comparator.comparing(Review::getCreated).reversed())
-            .collect(Collectors.toList());
+        allReviews.stream().sorted(Comparator.comparing(Review::getCreated).reversed()).toList();
     assertEquals(allReviews, allReviewsSortedByCreatedDesc);
 
     // List selected review for cohort2.

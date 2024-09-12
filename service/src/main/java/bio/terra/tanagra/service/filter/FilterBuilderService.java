@@ -58,7 +58,7 @@ public class FilterBuilderService {
                 criteria ->
                     new SelectionData(
                         criteria.getSelectorOrModifierName(), criteria.getSelectionData()))
-            .collect(Collectors.toList());
+            .toList();
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
     FilterBuilder filterBuilder =
@@ -337,7 +337,7 @@ public class FilterBuilderService {
               includeAllAttributes
                   ? outputEntity.getAttributes().stream()
                       .filter(attribute -> !attribute.isSuppressedForExport())
-                      .collect(Collectors.toList())
+                      .toList()
                   : new ArrayList<>(value.getRight());
           EntityOutput entityOutput;
           if (filters.isEmpty()) {
@@ -394,8 +394,7 @@ public class FilterBuilderService {
     // together.
     EntityFilter combinedCohortFilter =
         buildFilterForCohortRevisions(
-            underlayName,
-            cohorts.stream().map(Cohort::getMostRecentRevision).collect(Collectors.toList()));
+            underlayName, cohorts.stream().map(Cohort::getMostRecentRevision).toList());
 
     // Build a combined filter per output entity from all the data feature sets.
     List<EntityOutputPreview> dataFeatureOutputPreviews =
@@ -423,7 +422,7 @@ public class FilterBuilderService {
                       outputEntityWithCohortFilter,
                       entityOutput.getAttributes()));
             })
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public EntityFilter filterOutputByPrimaryEntity(
@@ -485,7 +484,7 @@ public class FilterBuilderService {
       List<Cohort> cohorts, List<FeatureSet> featureSets) {
     return buildOutputPreviewsForExport(cohorts, featureSets, false).stream()
         .map(EntityOutputPreview::getEntityOutput)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public EntityFilter buildFilterForPrimaryEntityId(

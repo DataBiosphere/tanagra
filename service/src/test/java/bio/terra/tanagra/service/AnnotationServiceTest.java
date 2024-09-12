@@ -29,7 +29,6 @@ import java.sql.Date;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -250,7 +249,7 @@ public class AnnotationServiceTest {
     List<AnnotationKey> allAnnotationKeyssSortedByDisplayNameAsc =
         allAnnotationKeys.stream()
             .sorted(Comparator.comparing(AnnotationKey::getDisplayName))
-            .collect(Collectors.toList());
+            .toList();
     assertEquals(allAnnotationKeys, allAnnotationKeyssSortedByDisplayNameAsc);
 
     // List selected annotation key for cohort2.

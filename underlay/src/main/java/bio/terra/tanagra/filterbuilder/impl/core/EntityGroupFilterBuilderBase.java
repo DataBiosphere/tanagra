@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
@@ -129,7 +128,7 @@ public abstract class EntityGroupFilterBuilderBase extends FilterBuilder {
                     "Unsupported entity group type: " + entityGroup.getType());
             }
           });
-      return outputEntities.stream().map(EntityOutput::unfiltered).collect(Collectors.toList());
+      return outputEntities.stream().map(EntityOutput::unfiltered).toList();
     } else {
       // Check that there are no group by modifiers.
       Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
@@ -247,13 +246,12 @@ public abstract class EntityGroupFilterBuilderBase extends FilterBuilder {
     if (!selectedIdsPerEntityGroup.isEmpty()) {
       selectedEntityGroups = new ArrayList<>(selectedIdsPerEntityGroup.keySet());
     } else {
-      selectedEntityGroups =
-          entityGroupIds().stream().map(underlay::getEntityGroup).collect(Collectors.toList());
+      selectedEntityGroups = entityGroupIds().stream().map(underlay::getEntityGroup).toList();
     }
 
     return selectedEntityGroups.stream()
         .sorted(Comparator.comparing(EntityGroup::getName))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private EntityFilter buildPrimaryWithCriteriaFilter(

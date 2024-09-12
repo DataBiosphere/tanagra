@@ -39,7 +39,6 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -1063,7 +1062,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                             occurrenceEntity,
                             null,
                             expectedCriteriaSubFilterSingleId)))
-            .collect(Collectors.toList());
+            .toList();
     assertEquals(expectedDataFeatureOutputs, dataFeatureOutputs);
 
     // Multiple ids, same entity group.
@@ -1104,7 +1103,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                             occurrenceEntity,
                             null,
                             expectedCriteriaSubFilterMultipleIdsSameGroup)))
-            .collect(Collectors.toList());
+            .toList();
     assertEquals(expectedDataFeatureOutputs, dataFeatureOutputs);
 
     // Multiple ids, different entity groups.
@@ -1225,7 +1224,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                                     occurrenceEntity.getAttribute("age_at_occurrence"),
                                     NaryOperator.BETWEEN,
                                     List.of(Literal.forDouble(45.0), Literal.forDouble(65.0)))))))
-            .collect(Collectors.toList());
+            .toList();
     assertEquals(expectedDataFeatureOutputs, dataFeatureOutputs);
   }
 

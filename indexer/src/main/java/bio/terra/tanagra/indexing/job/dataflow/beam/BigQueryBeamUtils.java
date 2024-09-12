@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -87,7 +86,7 @@ public final class BigQueryBeamUtils {
                       .setType(columnDataType.name())
                       .setMode(c.isRequired() ? "REQUIRED" : "NULLABLE");
                 })
-            .collect(Collectors.toList());
+            .toList();
     return new TableSchema().setFields(fieldSchemas);
   }
 

@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class EntityGroupFilterUtils {
@@ -269,6 +268,6 @@ public final class EntityGroupFilterUtils {
                     entity, new BooleanAndOrFilter(logicalOperator, entityFilters));
               }
             })
-        .collect(Collectors.toList());
+        .toList();
   }
 }
