@@ -9,13 +9,13 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Review;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,45 +141,26 @@ public class ReviewDao {
   @WriteTransaction
   public void createReview(
       String cohortId, Review review, List<Long> primaryEntityIds, long recordsCount) {
-    // Write the review. The created and last_modified fields are set by the DB automatically on
-    // insert.
-    String sql =
-        "INSERT INTO review (cohort_id, id, size, display_name, description, created_by, last_modified_by, is_deleted) "
-            + "VALUES (:cohort_id, :id, :size, :display_name, :description, :created_by, :last_modified_by, false)";
-    LOGGER.debug("CREATE review: {}", sql);
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("cohort_id", cohortId)
-            .addValue("id", review.getId())
-            .addValue("size", review.getSize())
-            .addValue("display_name", review.getDisplayName())
-            .addValue("description", review.getDescription())
-            .addValue("created_by", review.getCreatedBy())
-            .addValue("last_modified_by", review.getLastModifiedBy());
-    int rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.debug("CREATE review rowsAffected = {}", rowsAffected);
+    MapSqlParameterSource reviewParamSets =
+        buildReviewParam(
+            cohortId,
+            review.getId(),
+            review.getSize(),
+            review.getDisplayName(),
+            review.getDescription(),
+            review.getCreatedBy());
+    insertReviewRows(List.of(reviewParamSets));
 
     // Make the current cohort revision un-editable, and create the next version.
     cohortDao.createNextRevision(cohortId, review.getId(), review.getCreatedBy(), recordsCount);
 
     // Write the primary entity instance ids contained in the review.
-    sql =
-        "INSERT INTO primary_entity_instance (review_id, id, stable_index) VALUES (:review_id, :id, :stable_index)";
-    LOGGER.debug("CREATE primary_entity_instance: {}", sql);
     List<MapSqlParameterSource> paramSets = new ArrayList<>();
     int stableIndex = 0;
     for (Long primaryEntityId : primaryEntityIds) {
-      paramSets.add(
-          new MapSqlParameterSource()
-              .addValue("review_id", review.getId())
-              .addValue("id", primaryEntityId)
-              .addValue("stable_index", stableIndex));
-      stableIndex++;
+      paramSets.add(buildPrimaryEntityParam(review.getId(), primaryEntityId, stableIndex++));
     }
-    rowsAffected =
-        IntStream.of(jdbcTemplate.batchUpdate(sql, paramSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE primary_entity_instance rowsAffected = {}", rowsAffected);
+    insertPrimaryEntityRows(paramSets);
   }
 
   @WriteTransaction
@@ -260,5 +241,56 @@ public class ReviewDao {
     return reviews.stream()
         .map(r -> reviewsMap.get(r.getId()).build())
         .collect(Collectors.toList());
+  }
+
+  void insertReviewRows(List<MapSqlParameterSource> reviewParamSets) {
+    // Create the review. The created and last_modified fields are set by the DB automatically on
+    // insert.
+    String sql =
+        "INSERT INTO review (cohort_id, id, size, display_name, description, created_by, last_modified_by, is_deleted) "
+            + "VALUES (:cohort_id, :id, :size, :display_name, :description, :created_by, :last_modified_by, false)";
+    LOGGER.debug("CREATE review: {}", sql);
+    int rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(
+                    sql, reviewParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE review rowsAffected = {}", rowsAffected);
+  }
+
+  void insertPrimaryEntityRows(List<MapSqlParameterSource> primaryEntityParamSets) {
+    String sql =
+        "INSERT INTO primary_entity_instance (review_id, id, stable_index) VALUES (:review_id, :id, :stable_index)";
+    LOGGER.debug("CREATE primary_entity_instance: {}", sql);
+    int rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(
+                    sql, primaryEntityParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE primary_entity_instance rowsAffected = {}", rowsAffected);
+  }
+
+  MapSqlParameterSource buildReviewParam(
+      String cohortId,
+      String id,
+      int size,
+      String displayName,
+      String description,
+      String userEmail) {
+    return new MapSqlParameterSource()
+        .addValue("cohort_id", cohortId)
+        .addValue("id", id)
+        .addValue("size", size)
+        .addValue("display_name", displayName)
+        .addValue("description", description)
+        .addValue("created_by", userEmail)
+        .addValue("last_modified_by", userEmail);
+  }
+
+  MapSqlParameterSource buildPrimaryEntityParam(String reviewId, Long id, int stableIndex) {
+    return new MapSqlParameterSource()
+        .addValue("review_id", reviewId)
+        .addValue("id", id)
+        .addValue("stable_index", stableIndex);
   }
 }

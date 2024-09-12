@@ -21,6 +21,7 @@
   <suppress checks="JavadocStyle"/>
   <suppress checks="JavadocType"/>
   <suppress checks="JavaNCSS"/>
+  <suppress checks="ParameterNumber"/>
   <!-- Spotless is canonical for line length. -->
   <suppress checks="LineLength"/>
   <suppress checks="MethodLength"/>
