@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package tanagra.configschema;
+
+option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configschemapb";
+option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
+option java_outer_classname = "CFSurvey";
+
+import "column.proto";
+import "criteriaselector/value_config.proto";
+import "sort_order.proto";
+
+message Survey {
+  // Columns displayed in the list view.
+  repeated Column columns = 1;
+
+  message EntityGroupConfig {
+    // The id of the entity group.
+    string id = 1;
+
+    // The sort order applied to this entity group when displayed in the
+    // hierarchy view.
+    SortOrder sort_order = 2;
+  }
+
+  // Entity groups where the related entity is what is selected (e.g.
+  // surveyBasics when filtering surveyOccurrence).
+  repeated EntityGroupConfig entity_groups = 2;
+
+  // Optional configuration of a categorical or numeric value associated with
+  // the selection (e.g. a numeric answer). Applied to the entire selection
+  // so generally not compatible with multi_select. Currently only one is
+  // supported.
+  repeated ValueConfig value_configs = 3;
+
+  // The sort order to use in the list view, or in hierarchies where no sort
+  // order has been specified.
+  SortOrder default_sort = 4;
+
+  // The attribute used to name selections if not the first column. This can be
+  // used to include extra context with the selected values that's not visible
+  // in the table view.
+  optional string nameAttribute = 5;
+}

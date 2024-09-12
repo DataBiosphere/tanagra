@@ -11,6 +11,7 @@ import Loading from "components/loading";
 import { Search } from "components/search";
 import { useSimpleDialog } from "components/simpleDialog";
 import {
+  fromProtoColumns,
   TreeGrid,
   TreeGridColumn,
   TreeGridData,
@@ -1020,18 +1021,6 @@ function fromProtoSortOrder(sortOrder: sortOrderProto.SortOrder): SortOrder {
         ? SortDirection.Desc
         : SortDirection.Asc,
   };
-}
-
-function fromProtoColumns(
-  columns: configProto.EntityGroup_Column[]
-): TreeGridColumn[] {
-  return columns.map((c) => ({
-    key: c.key,
-    width: c.widthString ?? c.widthDouble ?? 100,
-    title: c.title,
-    sortable: c.sortable,
-    filterable: c.filterable,
-  }));
 }
 
 function nameAttribute(config: configProto.EntityGroup) {

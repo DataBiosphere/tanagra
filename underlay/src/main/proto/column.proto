@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package tanagra;
+
+option go_package = "github.com/DataBiosphere/tanagra/tanagrapb";
+
+// Defines a column in the UI.
+message Column {
+  // A unique key for the column. By default, used to look up attributes in
+  // the displayed data.
+  string key = 1;
+
+  oneof width {
+    // Passed directly to the style of the column. "100%" can be used to take
+    // up space remaining after laying out fixed columns.
+    string width_string = 2;
+    // Units used by the UI library to standardize dimensions.
+    double width_double = 3;
+  }
+
+  // The visible title of the column.
+  string title = 4;
+
+  // Whether the column supports sorting.
+  bool sortable = 5;
+
+  // Whether the column supports filtering.
+  bool filterable = 6;
+}
