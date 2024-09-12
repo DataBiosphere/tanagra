@@ -50,9 +50,12 @@ public final class ToApiUtils {
           .repeatedValue(
               valueDisplay.getRepeatedValue().stream().map(ToApiUtils::toApiObject).toList());
     } else {
+      ApiLiteral apiValue = toApiObject(valueDisplay.getValue());
       return apiObject
-          .value(toApiObject(valueDisplay.getValue()))
-          .display(valueDisplay.getDisplay());
+          .value(apiValue)
+          .display(valueDisplay.getDisplay())
+          .isRepeatedValue(false)
+          .repeatedValue(List.of(apiValue));
     }
   }
 

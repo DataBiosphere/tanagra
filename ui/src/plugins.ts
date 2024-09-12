@@ -7,6 +7,7 @@ import "criteria/classification";
 import "criteria/textSearch";
 import "criteria/unhintedValue";
 import "criteria/outputUnfiltered";
+import "criteria/survey";
 
 // Cohort review plugins
 import "cohortReview/plugins/occurrenceTable";

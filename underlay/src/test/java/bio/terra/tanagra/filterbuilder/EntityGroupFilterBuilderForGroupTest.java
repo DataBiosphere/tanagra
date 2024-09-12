@@ -116,7 +116,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             underlay,
             underlay.getEntity("genotyping"),
             underlay.getEntity("genotyping").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(30L), Literal.forInt64(3L)));
+            List.of(Literal.forInt64(3L), Literal.forInt64(30L)));
     expectedCohortFilter =
         new ItemInGroupFilter(
             underlay,
@@ -638,7 +638,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             underlay,
             underlay.getEntity("genotyping"),
             underlay.getEntity("genotyping").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(30L), Literal.forInt64(3L)));
+            List.of(Literal.forInt64(3L), Literal.forInt64(30L)));
     expectedDataFeatureOutput =
         EntityOutput.filtered(underlay.getEntity("genotyping"), expectedDataFeatureFilter);
     assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));

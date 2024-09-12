@@ -25,7 +25,9 @@ public enum SZCorePlugin {
   @AnnotatedField(
       name = "SZCorePlugin.OUTPUT_UNFILTERED",
       markdown = "Use `plugin: \"outputUnfiltered\"`.")
-  OUTPUT_UNFILTERED("outputUnfiltered");
+  OUTPUT_UNFILTERED("outputUnfiltered"),
+  @AnnotatedField(name = "SZCorePlugin.SURVEY", markdown = "Use `plugin: \"survey\"`.")
+  SURVEY("survey");
   private final String idInConfig;
 
   SZCorePlugin(String idInConfig) {
