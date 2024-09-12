@@ -70,6 +70,7 @@ public class CohortService {
             .sections(sections)
             .setIsMostRecent(true)
             .setIsEditable(true)
+            .createdBy(cohortBuilder.getCreatedBy())
             .build();
     cohortBuilder.addRevision(firstRevision);
 

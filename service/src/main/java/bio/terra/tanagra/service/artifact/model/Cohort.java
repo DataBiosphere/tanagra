@@ -177,6 +177,10 @@ public final class Cohort {
       return underlay;
     }
 
+    public String getCreatedBy() {
+      return createdBy;
+    }
+
     public void addRevision(CohortRevision cohortRevision) {
       if (revisions == null) {
         revisions = new ArrayList<>();
