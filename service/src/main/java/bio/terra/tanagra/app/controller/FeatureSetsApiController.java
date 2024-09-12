@@ -109,7 +109,9 @@ public class FeatureSetsApiController implements FeatureSetsApi {
     List<Criteria> criteria =
         body.getCriteria() == null
             ? null
-            : body.getCriteria().stream().map(FromApiUtils::fromApiObject).toList();
+            : body.getCriteria().stream()
+                .map(FromApiUtils::fromApiObject)
+                .collect(Collectors.toList());
 
     Map<String, List<String>> outputAttributesPerEntity =
         body.getEntityOutputs() == null
@@ -172,7 +174,9 @@ public class FeatureSetsApiController implements FeatureSetsApi {
         .criteria(
             featureSet.getCriteria() == null
                 ? null
-                : featureSet.getCriteria().stream().map(ToApiUtils::toApiObject).toList())
+                : featureSet.getCriteria().stream()
+                    .map(ToApiUtils::toApiObject)
+                    .collect(Collectors.toList()))
         .entityOutputs(
             featureSet.getExcludeOutputAttributesPerEntity() == null
                 ? null
@@ -182,6 +186,6 @@ public class FeatureSetsApiController implements FeatureSetsApi {
                             new ApiEntityOutput()
                                 .entity(entry.getKey())
                                 .excludeAttributes(entry.getValue()))
-                    .toList());
+                    .collect(Collectors.toList()));
   }
 }

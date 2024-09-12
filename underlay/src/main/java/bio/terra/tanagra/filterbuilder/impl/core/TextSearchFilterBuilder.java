@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class TextSearchFilterBuilder extends FilterBuilder {
@@ -61,7 +62,7 @@ public class TextSearchFilterBuilder extends FilterBuilder {
     List<Literal> criteriaIds =
         textSearchSelectionData.getCategoriesList().stream()
             .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
-            .toList();
+            .collect(Collectors.toList());
     String textQuery = textSearchSelectionData.getQuery();
 
     // Build the sub-filter on the criteria entity.
@@ -169,7 +170,7 @@ public class TextSearchFilterBuilder extends FilterBuilder {
       List<Literal> criteriaIds =
           textSearchSelectionData.getCategoriesList().stream()
               .map(category -> Literal.forInt64(category.getValue().getInt64Value()))
-              .toList();
+              .collect(Collectors.toList());
       String textQuery = textSearchSelectionData.getQuery();
 
       // Build the criteria filters on each of the occurrence entities.

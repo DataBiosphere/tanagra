@@ -3,6 +3,7 @@ package bio.terra.tanagra.indexing.cli.shared.options;
 import bio.terra.tanagra.cli.exception.UserActionableException;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.util.List;
+import java.util.stream.Collectors;
 import picocli.CommandLine;
 
 /**
@@ -24,7 +25,9 @@ public class JobFilter {
 
   public List<String> getClassNamesWithPackage() {
     final String packageName = IndexingJob.class.getPackageName();
-    return classNames.stream().map(className -> packageName + '.' + className).toList();
+    return classNames.stream()
+        .map(className -> packageName + '.' + className)
+        .collect(Collectors.toList());
   }
 
   public void validate() {

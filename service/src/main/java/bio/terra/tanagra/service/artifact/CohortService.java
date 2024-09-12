@@ -199,6 +199,6 @@ public class CohortService {
         .map(
             listInstance ->
                 listInstance.getEntityFieldValue(idAttributeField).getValue().getInt64Val())
-        .toList();
+        .collect(Collectors.toList());
   }
 }

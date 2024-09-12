@@ -200,7 +200,8 @@ public final class FeatureSet {
           excludeOutputAttributesPerEntity.entrySet().stream()
               .collect(
                   Collectors.toMap(
-                      Entry::getKey, entry -> entry.getValue().stream().sorted().toList()));
+                      Entry::getKey,
+                      entry -> entry.getValue().stream().sorted().collect(Collectors.toList())));
       return new FeatureSet(this);
     }
 

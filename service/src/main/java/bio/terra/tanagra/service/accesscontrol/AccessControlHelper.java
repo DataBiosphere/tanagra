@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.accesscontrol;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.artifact.model.Study;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AccessControlHelper {
   private final StudyService studyService;
@@ -25,6 +26,6 @@ public class AccessControlHelper {
             Study.builder().createdBy(userEmail))
         .stream()
         .map(Study::getId)
-        .toList();
+        .collect(Collectors.toList());
   }
 }

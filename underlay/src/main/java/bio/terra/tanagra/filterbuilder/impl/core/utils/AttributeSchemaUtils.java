@@ -21,6 +21,7 @@ import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class AttributeSchemaUtils {
@@ -57,7 +58,7 @@ public final class AttributeSchemaUtils {
               NaryOperator.IN,
               data.getSelectedList().stream()
                   .map(selected -> toLiteral(selected.getValue(), attribute.getDataType()))
-                  .toList());
+                  .collect(Collectors.toList()));
     } else {
       // Numeric range filter.
       List<EntityFilter> rangeFilters = new ArrayList<>();
@@ -97,7 +98,7 @@ public final class AttributeSchemaUtils {
                   deserializeData(modifierSelectionData.getPluginData());
               return Pair.of(modifierConfig, modifierData);
             })
-        .toList();
+        .collect(Collectors.toList());
   }
 
   public static CFAttribute.Attribute deserializeConfig(String serialized) {

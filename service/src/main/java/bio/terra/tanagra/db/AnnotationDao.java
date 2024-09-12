@@ -214,7 +214,9 @@ public class AnnotationDao {
         });
 
     // Preserve the order returned by the original query.
-    return annotationKeys.stream().map(a -> annotationKeysMap.get(a.getId()).build()).toList();
+    return annotationKeys.stream()
+        .map(a -> annotationKeysMap.get(a.getId()).build())
+        .collect(Collectors.toList());
   }
 
   @WriteTransaction

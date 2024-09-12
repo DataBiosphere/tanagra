@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,7 +154,9 @@ public class DataExportService {
     EntityFilter primaryEntityFilter =
         filterBuilderService.buildFilterForCohortRevisions(
             request.getUnderlay().getName(),
-            request.getCohorts().stream().map(Cohort::getMostRecentRevision).toList());
+            request.getCohorts().stream()
+                .map(Cohort::getMostRecentRevision)
+                .collect(Collectors.toList()));
 
     return new DataExportHelper(
         featureConfiguration.getMaxChildThreads(),

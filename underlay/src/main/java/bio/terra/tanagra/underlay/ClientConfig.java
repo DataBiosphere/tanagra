@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class ClientConfig {
   private final SZUnderlay underlay;
@@ -84,6 +85,6 @@ public final class ClientConfig {
                 throw new SystemException("Serialization error", jpEx);
               }
             })
-        .toList();
+        .collect(Collectors.toList());
   }
 }

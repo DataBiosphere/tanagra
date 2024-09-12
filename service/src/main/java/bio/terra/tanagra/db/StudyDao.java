@@ -347,7 +347,9 @@ public class StudyDao {
         });
 
     // Preserve the order returned by the original query.
-    return studies.stream().map(s -> studiesMap.get(s.getId()).build()).toList();
+    return studies.stream()
+        .map(s -> studiesMap.get(s.getId()).build())
+        .collect(Collectors.toList());
   }
 
   private void updatePropertiesHelper(String studyId, Map<String, String> properties) {

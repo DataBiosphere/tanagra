@@ -726,7 +726,7 @@ public class ReviewInstanceTest {
     List<ReviewInstance> reviewInstancesOrderedByStableIndexAsc =
         reviewInstancesDefault.stream()
             .sorted(Comparator.comparing(ReviewInstance::getStableIndex))
-            .toList();
+            .collect(Collectors.toList());
     assertEquals(reviewInstancesOrderedByStableIndexAsc, reviewInstancesDefault);
 
     // Save the map of instance id -> stable index, so we can check that the index is in fact stable
@@ -762,7 +762,7 @@ public class ReviewInstanceTest {
             .map(
                 ri ->
                     ri.getAttributeValues().get(primaryEntityIdAttribute).getValue().getInt64Val())
-            .toList());
+            .collect(Collectors.toList()));
     assertEquals(
         reviewInstanceStableIndexMap,
         reviewInstancesByAttr.stream()
@@ -794,7 +794,7 @@ public class ReviewInstanceTest {
             .map(
                 ri ->
                     ri.getAttributeValues().get(primaryEntityIdAttribute).getValue().getInt64Val())
-            .toList());
+            .collect(Collectors.toList()));
     assertEquals(
         reviewInstanceStableIndexMap,
         reviewInstancesByAnn.stream()
@@ -828,7 +828,7 @@ public class ReviewInstanceTest {
             .map(
                 ri ->
                     ri.getAttributeValues().get(primaryEntityIdAttribute).getValue().getInt64Val())
-            .toList());
+            .collect(Collectors.toList()));
     assertEquals(
         reviewInstanceStableIndexMap,
         reviewInstancesByBoth.stream()
@@ -873,7 +873,7 @@ public class ReviewInstanceTest {
                         .get(primaryEntity.getIdAttribute())
                         .getValue()
                         .getInt64Val())
-            .toList());
+            .collect(Collectors.toList()));
 
     // Filter by an annotation key.
     List<ReviewInstance> reviewInstancesByAnn =
@@ -897,7 +897,7 @@ public class ReviewInstanceTest {
                         .get(primaryEntity.getIdAttribute())
                         .getValue()
                         .getInt64Val())
-            .toList());
+            .collect(Collectors.toList()));
 
     // Filter by both.
     List<ReviewInstance> reviewInstancesByBoth =
@@ -928,7 +928,7 @@ public class ReviewInstanceTest {
                         .get(primaryEntity.getIdAttribute())
                         .getValue()
                         .getInt64Val())
-            .toList());
+            .collect(Collectors.toList()));
   }
 
   private void checkEntityInstances(

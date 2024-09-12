@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MockVerilyGroupsAccessControl extends VerilyGroupsAccessControl {
   private final Map<String, VerilyGroup> groups = new HashMap<>(); // group id -> group object
@@ -16,7 +17,9 @@ public class MockVerilyGroupsAccessControl extends VerilyGroupsAccessControl {
    */
   @Override
   protected List<VerilyGroup> apiListGroups() {
-    return groups.values().stream().sorted(Comparator.comparing(VerilyGroup::getId)).toList();
+    return groups.values().stream()
+        .sorted(Comparator.comparing(VerilyGroup::getId))
+        .collect(Collectors.toList());
   }
 
   /**

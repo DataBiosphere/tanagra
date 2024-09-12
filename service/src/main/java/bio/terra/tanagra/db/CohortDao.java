@@ -366,7 +366,9 @@ public class CohortDao {
         });
 
     // Preserve the order returned by the original query.
-    return cohorts.stream().map(c -> cohortsMap.get(c.getId()).build()).toList();
+    return cohorts.stream()
+        .map(c -> cohortsMap.get(c.getId()).build())
+        .collect(Collectors.toList());
   }
 
   @WriteTransaction

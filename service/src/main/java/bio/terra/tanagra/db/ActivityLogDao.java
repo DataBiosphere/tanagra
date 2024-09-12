@@ -264,7 +264,9 @@ public class ActivityLogDao {
         });
 
     // Preserve the order returned by the original query.
-    return activityLogs.stream().map(al -> activityLogsMap.get(al.getId()).build()).toList();
+    return activityLogs.stream()
+        .map(al -> activityLogsMap.get(al.getId()).build())
+        .collect(Collectors.toList());
   }
 
   @WriteTransaction

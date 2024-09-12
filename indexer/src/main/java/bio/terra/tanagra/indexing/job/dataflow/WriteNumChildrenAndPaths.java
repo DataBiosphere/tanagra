@@ -334,7 +334,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
                         .setName(columnSchema.getColumnName())
                         .setType(BigQueryBeamUtils.fromDataType(columnSchema.getDataType()).name())
                         .setMode(columnSchema.isRequired() ? "REQUIRED" : "NULLABLE"))
-            .toList();
+            .collect(Collectors.toList());
     TableSchema outputTableSchema = new TableSchema().setFields(tempTableFieldSchemas);
 
     // Run a ParDo for each row of the join result.

@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -117,11 +118,11 @@ public class ExportApiController implements ExportApi {
     List<Cohort> cohorts =
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
-            .toList();
+            .collect(Collectors.toList());
     List<FeatureSet> featureSets =
         body.getFeatureSets().stream()
             .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
-            .toList();
+            .collect(Collectors.toList());
     List<EntityOutputPreview> entityOutputPreviews =
         filterBuilderService.buildOutputPreviewsForExport(
             cohorts, featureSets, body.isIncludeAllAttributes());
@@ -183,11 +184,11 @@ public class ExportApiController implements ExportApi {
     List<Cohort> cohorts =
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
-            .toList();
+            .collect(Collectors.toList());
     List<FeatureSet> featureSets =
         body.getFeatureSets().stream()
             .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
-            .toList();
+            .collect(Collectors.toList());
     List<EntityOutputPreview> entityOutputPreviews =
         filterBuilderService.buildOutputPreviewsForExport(
             cohorts, featureSets, body.isIncludeAllAttributes());
@@ -235,7 +236,7 @@ public class ExportApiController implements ExportApi {
                   .includedAttributes(
                       entityOutputPreview.getEntityOutput().getAttributes().stream()
                           .map(Attribute::getName)
-                          .toList())
+                          .collect(Collectors.toList()))
                   .criteria(
                       entityOutputPreview.getAttributedCriteria().stream()
                           .map(
@@ -243,7 +244,7 @@ public class ExportApiController implements ExportApi {
                                   new ApiEntityOutputPreviewCriteria()
                                       .featureSetId(featureSetAndCriteria.getLeft().getId())
                                       .criteriaId(featureSetAndCriteria.getRight().getId()))
-                          .toList())
+                          .collect(Collectors.toList()))
                   .indexSql(SqlFormatter.format(indexSqlForEntityOutputs.get(entityOutputPreview)))
                   .sourceSql(
                       SqlFormatter.format(sourceSqlForEntityOutputs.get(entityOutputPreview)));
@@ -281,11 +282,11 @@ public class ExportApiController implements ExportApi {
     List<Cohort> cohorts =
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
-            .toList();
+            .collect(Collectors.toList());
     List<FeatureSet> featureSets =
         featureSetIds.stream()
             .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
-            .toList();
+            .collect(Collectors.toList());
 
     ExportRequest exportRequest =
         new ExportRequest(
@@ -320,7 +321,9 @@ public class ExportApiController implements ExportApi {
                 : ApiExportResult.StatusEnum.FAILED)
         .outputs(exportResult.getOutputs())
         .links(
-            exportResult.getFileResults().stream().map(ExportApiController::toApiObject).toList())
+            exportResult.getFileResults().stream()
+                .map(ExportApiController::toApiObject)
+                .collect(Collectors.toList()))
         .redirectAwayUrl(exportResult.getRedirectAwayUrl())
         .error(exportResult.getError() == null ? null : exportResult.getError().getMessage());
   }

@@ -4,6 +4,7 @@ import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Container for a set of jobs and the sequence they must be run in. The stages must be run
@@ -36,7 +37,7 @@ public class SequencedJobSet {
       List<IndexingJob> filteredStage =
           stage.stream()
               .filter(indexingJob -> jobClassNames.contains(indexingJob.getClass().getName()))
-              .toList();
+              .collect(Collectors.toList());
       if (!filteredStage.isEmpty()) {
         filteredStages.add(filteredStage);
       }

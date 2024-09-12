@@ -60,6 +60,7 @@ public class ReviewService {
 
   private final CohortService cohortService;
   private final UnderlayService underlayService;
+
   private final AnnotationService annotationService;
   private final ReviewDao reviewDao;
   private final ActivityLogService activityLogService;
@@ -330,7 +331,7 @@ public class ReviewService {
           List<AnnotationValue> associatedAnnotationValues =
               annotationValues.stream()
                   .filter(av -> av.getInstanceId().equals(idAttributeValueStr))
-                  .toList();
+                  .collect(Collectors.toList());
 
           if (!reviewQueryRequest.hasAnnotationFilter()
               || reviewQueryRequest.getAnnotationFilter().isMatch(associatedAnnotationValues)) {
@@ -392,7 +393,7 @@ public class ReviewService {
             .map(
                 attrName ->
                     new AttributeField(underlay, entity, entity.getAttribute(attrName), true))
-            .toList();
+            .collect(Collectors.toList());
 
     EntityFilter entityFilter =
         new AttributeFilter(

@@ -257,6 +257,8 @@ public class ReviewDao {
         });
 
     // Preserve the order returned by the original query.
-    return reviews.stream().map(r -> reviewsMap.get(r.getId()).build()).toList();
+    return reviews.stream()
+        .map(r -> reviewsMap.get(r.getId()).build())
+        .collect(Collectors.toList());
   }
 }

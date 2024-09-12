@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class GroupByCountSchemaUtils {
@@ -81,7 +82,7 @@ public final class GroupByCountSchemaUtils {
                       .getValuesList()
                       .stream()
                       .map(occurrenceEntity::getAttribute)
-                      .toList()));
+                      .collect(Collectors.toList())));
     }
     return groupByAttributesPerOccurrenceEntity;
   }

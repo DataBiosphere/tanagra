@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -226,7 +227,7 @@ public class FilterBuilderServiceTest {
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttributes().stream()
                 .filter(attribute -> !attribute.isId())
-                .toList());
+                .collect(Collectors.toList()));
     Optional<EntityOutputPreview> entityOutputAndAttributedCriteria1 =
         entityOutputs.stream()
             .filter(
@@ -303,7 +304,7 @@ public class FilterBuilderServiceTest {
             cmssynpuf.getPrimaryEntity(),
             cmssynpuf.getPrimaryEntity().getAttributes().stream()
                 .filter(attribute -> !attribute.isSuppressedForExport())
-                .toList());
+                .collect(Collectors.toList()));
     assertEquals(expectedOutput, entityOutputsForDataFeatureSetPage.get(0).getEntityOutput());
 
     // One suppressed attribute, includeAllAttributes=false for export page.
@@ -368,7 +369,7 @@ public class FilterBuilderServiceTest {
             procCondGendCohortFilter(),
             underlay.getPrimaryEntity().getAttributes().stream()
                 .filter(attribute -> !attribute.isId())
-                .toList());
+                .collect(Collectors.toList()));
     expectedOutput2 =
         EntityOutput.filtered(
             underlay.getEntity("conditionOccurrence"),

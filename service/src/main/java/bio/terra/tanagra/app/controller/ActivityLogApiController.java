@@ -20,6 +20,7 @@ import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.model.ActivityLog;
 import bio.terra.tanagra.service.artifact.model.ActivityLogResource;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -79,7 +80,8 @@ public class ActivityLogApiController implements ActivityLogApi {
                 .github(VersionConfiguration.getGithubUrl(activityLog.getVersionGitHash()))
                 .build(activityLog.getVersionBuild()))
         .activityType(ApiActivityType.valueOf(activityLog.getType().name()))
-        .resources(activityLog.getResources().stream().map(this::toApiObject).toList())
+        .resources(
+            activityLog.getResources().stream().map(this::toApiObject).collect(Collectors.toList()))
         .additionalInfo(
             new ApiActivityLogEntryAdditionalInfo()
                 .exportModel(activityLog.getExportModel())

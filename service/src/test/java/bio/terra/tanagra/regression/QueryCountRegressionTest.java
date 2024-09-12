@@ -107,7 +107,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                           .createdBy(USER_EMAIL_1),
                       rtCohort.getCriteriaGroupSectionsList().stream()
                           .map(QueryCountRegressionTest::fromRegressionTestObj)
-                          .toList());
+                          .collect(Collectors.toList()));
               assertNotNull(cohort);
               LOGGER.info("Created cohort {} at {}", cohort.getId(), cohort.getCreated());
               cohorts.add(cohort);
@@ -131,7 +131,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                           .criteria(
                               rtDataFeatureSet.getCriteriaList().stream()
                                   .map(QueryCountRegressionTest::fromRegressionTestObj)
-                                  .toList())
+                                  .collect(Collectors.toList()))
                           .excludeOutputAttributesPerEntity(
                               fromRegressionTestObj(
                                   underlay, rtDataFeatureSet.getEntityOutputsList())),
@@ -248,7 +248,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
               entity.getAttributes().stream()
                   .map(Attribute::getName)
                   .filter(name -> !rtEntityOutput.getIncludedAttributesList().contains(name))
-                  .toList();
+                  .collect(Collectors.toList());
           excludedAttributesPerEntity.put(entity.getName(), excludedAttributes);
         });
     return excludedAttributesPerEntity;
@@ -260,7 +260,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
         .criteriaGroups(
             rtObj.getCriteriaGroupsList().stream()
                 .map(QueryCountRegressionTest::fromRegressionTestObj)
-                .toList())
+                .collect(Collectors.toList()))
         .operator(BooleanAndOrFilter.LogicalOperator.valueOf(rtObj.getOperator().name()))
         .setIsExcluded(rtObj.getIsExcluded())
         .build();
@@ -272,7 +272,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
         .criteria(
             rtObj.getCriteriaList().stream()
                 .map(QueryCountRegressionTest::fromRegressionTestObj)
-                .toList())
+                .collect(Collectors.toList()))
         .build();
   }
 

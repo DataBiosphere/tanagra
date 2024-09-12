@@ -51,6 +51,7 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -156,7 +157,7 @@ public class UnderlaysApiController implements UnderlaysApi {
                         || body.getIncludeAttributes().isEmpty()
                         || body.getIncludeAttributes().contains(attribute.getName()))
             .map(attribute -> new AttributeField(underlay, outputEntity, attribute, false))
-            .toList();
+            .collect(Collectors.toList());
 
     // Build the filter on the output entity.
     Literal primaryEntityId = FromApiUtils.fromApiObject(body.getPrimaryEntityId());
@@ -255,7 +256,9 @@ public class UnderlaysApiController implements UnderlaysApi {
         new ApiDisplayHintList()
             .sql(SqlFormatter.format(hintQueryResult.getSql()))
             .displayHints(
-                hintQueryResult.getHintInstances().stream().map(this::toApiObject).toList()));
+                hintQueryResult.getHintInstances().stream()
+                    .map(this::toApiObject)
+                    .collect(Collectors.toList())));
   }
 
   private ApiUnderlaySerializedConfiguration toApiObject(ClientConfig clientConfig) {
@@ -273,7 +276,10 @@ public class UnderlaysApiController implements UnderlaysApi {
     return new ApiEntity()
         .name(entity.getName())
         .idAttribute(entity.getIdAttribute().getName())
-        .attributes(entity.getAttributes().stream().map(ToApiUtils::toApiObject).toList());
+        .attributes(
+            entity.getAttributes().stream()
+                .map(ToApiUtils::toApiObject)
+                .collect(Collectors.toList()));
   }
 
   private ApiDisplayHint toApiObject(HintInstance hintInstance) {
@@ -293,7 +299,7 @@ public class UnderlaysApiController implements UnderlaysApi {
                                         .enumVal(ToApiUtils.toApiObject(attributeValueDisplay))
                                         .count(Math.toIntExact(count));
                                   })
-                              .toList()));
+                              .collect(Collectors.toList())));
     } else if (hintInstance.isRangeHint()) {
       apiHint =
           new ApiDisplayHintDisplayHint()

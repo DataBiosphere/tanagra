@@ -7,6 +7,7 @@ import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public final class ITHierarchyAncestorDescendant extends IndexTable {
   public static final String TABLE_NAME = "HAD";
@@ -36,7 +37,8 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
     // Columns are static and don't depend on the entity or hierarchy.
-    return ImmutableList.copyOf(Arrays.stream(Column.values()).map(Column::getSchema).toList());
+    return ImmutableList.copyOf(
+        Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
   }
 
   public SqlField getAncestorField() {
