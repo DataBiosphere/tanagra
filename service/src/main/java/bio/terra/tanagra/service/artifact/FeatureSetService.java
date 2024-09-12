@@ -45,8 +45,7 @@ public class FeatureSetService {
     //              });
     //    }
 
-    featureSetDao.createFeatureSet(
-        studyId, featureSetBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
+    featureSetDao.createFeatureSet(studyId, featureSetBuilder.createdBy(userEmail).build());
     return featureSetDao.getFeatureSet(featureSetBuilder.getId());
   }
 
@@ -135,7 +134,6 @@ public class FeatureSetService {
             .displayName(newDisplayName)
             .description(newDescription)
             .createdBy(userEmail)
-            .lastModifiedBy(userEmail)
             // Shallow copy criteria and attributes: they are written to DB and fetched for return
             // Any ids are used in conjunction with concept_set_id as primary key
             .criteria(original.getCriteria())

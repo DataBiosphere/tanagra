@@ -192,17 +192,20 @@ public class Study {
     }
 
     public Study build() {
-      // Always have a map, even if it is empty
-      if (properties == null) {
-        properties = new HashMap<>();
-      }
       // true if the id is empty or null
       if (StringUtils.isEmpty(id)) {
         id = ServiceUtils.newArtifactId();
       }
+      // Always have a map, even if it is empty
+      if (properties == null) {
+        properties = new HashMap<>();
+      }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(
             "Study name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
+      }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
       }
       return new Study(this);
     }

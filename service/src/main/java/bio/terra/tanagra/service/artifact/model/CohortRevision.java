@@ -169,6 +169,9 @@ public final class CohortRevision {
       if (id == null) {
         id = ServiceUtils.newArtifactId();
       }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
+      }
       return new CohortRevision(this);
     }
 

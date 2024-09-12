@@ -67,8 +67,8 @@ public class CohortsApiController implements CohortsApi {
             Cohort.builder()
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .underlay(body.getUnderlayName()),
-            SpringAuthentication.getCurrentUser().getEmail());
+                .underlay(body.getUnderlayName())
+                .createdBy(SpringAuthentication.getCurrentUser().getEmail()));
     return ResponseEntity.ok(ToApiUtils.toApiObject(createdCohort));
   }
 

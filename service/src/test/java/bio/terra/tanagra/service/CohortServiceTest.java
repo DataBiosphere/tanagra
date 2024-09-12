@@ -93,8 +93,8 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName(displayName)
-                .description(description),
-            createdByEmail);
+                .description(description)
+                .createdBy(createdByEmail));
     assertNotNull(createdCohort);
     LOGGER.info("Created cohort {} at {}", createdCohort.getId(), createdCohort.getCreated());
     assertEquals(UNDERLAY_NAME, createdCohort.getUnderlay());
@@ -147,8 +147,8 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 1")
-                .description("first cohort"),
-            USER_EMAIL_1);
+                .description("first cohort")
+                .createdBy(USER_EMAIL_1));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -159,8 +159,8 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
-                .description("second cohort"),
-            USER_EMAIL_1);
+                .description("second cohort")
+                .createdBy(USER_EMAIL_1));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
     Cohort cohort3 =
@@ -169,8 +169,8 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 3")
-                .description("third cohort"),
-            USER_EMAIL_1);
+                .description("third cohort")
+                .createdBy(USER_EMAIL_1));
     assertNotNull(cohort3);
     LOGGER.info("Created cohort {} at {}", cohort3.getId(), cohort3.getCreated());
 
@@ -230,7 +230,8 @@ public class CohortServiceTest {
         NotFoundException.class,
         () ->
             cohortService.createCohort(
-                study1.getId(), Cohort.builder().underlay("invalid_underlay"), USER_EMAIL_1));
+                study1.getId(),
+                Cohort.builder().underlay("invalid_underlay").createdBy(USER_EMAIL_1)));
 
     // Display name length exceeds maximum.
     assertThrows(
@@ -240,8 +241,8 @@ public class CohortServiceTest {
                 study1.getId(),
                 Cohort.builder()
                     .underlay(UNDERLAY_NAME)
-                    .displayName("123456789012345678901234567890123456789012345678901"),
-                USER_EMAIL_1));
+                    .displayName("123456789012345678901234567890123456789012345678901")
+                    .createdBy(USER_EMAIL_1)));
   }
 
   @Test
@@ -253,8 +254,8 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 1")
-                .description("first cohort"),
-            USER_EMAIL_1);
+                .description("first cohort")
+                .createdBy(USER_EMAIL_1));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
 
@@ -287,8 +288,8 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
-                .description("second cohort"),
-            USER_EMAIL_1,
+                .description("second cohort")
+                .createdBy(USER_EMAIL_1),
             List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
@@ -322,8 +323,8 @@ public class CohortServiceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 3")
-                .description("third cohort"),
-            USER_EMAIL_1,
+                .description("third cohort")
+                .createdBy(USER_EMAIL_1),
             List.of(CRITERIA_GROUP_SECTION_TEMPORAL_WITHIN_NUM_DAYS));
     assertNotNull(cohort3);
     LOGGER.info("Created cohort {} at {}", cohort3.getId(), cohort3.getCreated());

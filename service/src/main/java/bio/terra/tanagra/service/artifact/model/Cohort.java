@@ -161,6 +161,9 @@ public final class Cohort {
         throw new BadRequestException(
             "Cohort name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
       }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
+      }
       revisions = new ArrayList<>(revisions);
       revisions.sort(Comparator.comparing(CohortRevision::getVersion));
       return new Cohort(this);

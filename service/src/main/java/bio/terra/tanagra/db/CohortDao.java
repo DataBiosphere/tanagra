@@ -327,10 +327,7 @@ public class CohortDao {
             .setIsMostRecent(true)
             .version(cohort.getMostRecentRevision().getVersion() + 1)
             .createdBy(userEmail)
-            .lastModifiedBy(userEmail)
             .id(null) // Builder will generate a new id.
-            .created(null)
-            .lastModified(null)
             .recordsCount(null) // Only store the records count for frozen revisions.
             .build();
     createRevision(cohortId, nextRevision);
