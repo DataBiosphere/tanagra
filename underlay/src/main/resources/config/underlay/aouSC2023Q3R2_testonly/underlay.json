@@ -1,5 +1,5 @@
 {
-  "name": "aouSC2023Q3R2",
+  "name": "aouSC2023Q3R2_testonly",
   "primaryEntity": "person",
   "entities": [
     "aouCT/person",
@@ -56,7 +56,9 @@
     "aouRT/surveyPersonalAndFamilyHealth",
     "aouRT/surveyHealthCareAccess",
     "aouRT/surveySocialDeterminantsOfHealth",
-    "aouRT/surveyOccurrence"
+    "aouRT/surveyOccurrence",
+
+    "aouCT/variant"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -75,7 +77,9 @@
     "aouRT/weightPerson",
     "aouRT/bmiPerson",
     "aouRT/waistCircumferencePerson",
-    "aouRT/hipCircumferencePerson"
+    "aouRT/hipCircumferencePerson",
+
+    "aouCT/variantPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
@@ -140,6 +144,7 @@
     "aouSC2023Q3R2/longReadWGS",
     "aouSC2023Q3R2/globalDiversityArray",
     "aouSC2023Q3R2/structuralVariants",
+    "aouSC2023Q3R2/variant",
     "aouSR2023Q3R2/bloodPressure",
     "aouSR2023Q3R2/heartRate",
     "aouSR2023Q3R2/height",
