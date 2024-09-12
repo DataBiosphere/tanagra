@@ -58,7 +58,7 @@
     "aouRT/surveySocialDeterminantsOfHealth",
     "aouRT/surveyOccurrence",
 
-    "aouCT/variant"
+    "aouCT_testonly/variant"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -79,7 +79,7 @@
     "aouRT/waistCircumferencePerson",
     "aouRT/hipCircumferencePerson",
 
-    "aouCT/variantPerson"
+    "aouCT_testonly/variantPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
@@ -144,7 +144,7 @@
     "aouSC2023Q3R2/longReadWGS",
     "aouSC2023Q3R2/globalDiversityArray",
     "aouSC2023Q3R2/structuralVariants",
-    "aouSC2023Q3R2/variant",
+    "aouSC2023Q3R2_testonly/variant",
     "aouSR2023Q3R2/bloodPressure",
     "aouSR2023Q3R2/heartRate",
     "aouSR2023Q3R2/height",
