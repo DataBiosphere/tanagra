@@ -10,7 +10,6 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Criteria;
-import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -798,22 +797,17 @@ public class CohortDao {
       boolean isMostRecent,
       boolean isEditable,
       String userEmail,
-      long recordsCount,
-      @Nullable String reviewId) {
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("cohort_id", cohortId)
-            .addValue("id", id)
-            .addValue("version", version)
-            .addValue("is_most_recent", isMostRecent)
-            .addValue("is_editable", isEditable)
-            .addValue("created_by", userEmail)
-            .addValue("last_modified_by", userEmail)
-            .addValue("records_count", recordsCount);
-
-    if (reviewId != null) {
-      params.addValue("review_id", reviewId);
-    }
-    return params;
+      Long recordsCount,
+      String reviewId) {
+    return new MapSqlParameterSource()
+        .addValue("cohort_id", cohortId)
+        .addValue("id", id)
+        .addValue("version", version)
+        .addValue("is_most_recent", isMostRecent)
+        .addValue("is_editable", isEditable)
+        .addValue("created_by", userEmail)
+        .addValue("last_modified_by", userEmail)
+        .addValue("records_count", recordsCount)
+        .addValue("review_id", reviewId);
   }
 }
