@@ -3,9 +3,9 @@ package bio.terra.tanagra.service.artifact.model;
 import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
 
 import bio.terra.common.exception.*;
+import bio.terra.tanagra.service.ServiceUtils;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Review {
   private final String id;
@@ -140,7 +140,7 @@ public final class Review {
 
     public Review build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = ServiceUtils.newArtifactId();
       }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(

@@ -455,7 +455,7 @@ public class ReviewService {
                 /* limit= */ Integer.MAX_VALUE)
             .stream()
             .sorted(Comparator.comparing(AnnotationKey::getDisplayName))
-            .collect(Collectors.toList());
+            .toList();
     annotationKeys.forEach(
         annotation ->
             columnHeaders.append(

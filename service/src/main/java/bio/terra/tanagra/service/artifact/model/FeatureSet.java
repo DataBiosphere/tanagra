@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.artifact.model;
 import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
 
 import bio.terra.common.exception.*;
+import bio.terra.tanagra.service.ServiceUtils;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class FeatureSet {
   private final String id;
@@ -183,7 +183,7 @@ public final class FeatureSet {
 
     public FeatureSet build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = ServiceUtils.newArtifactId();
       }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(

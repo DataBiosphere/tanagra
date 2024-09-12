@@ -1,9 +1,9 @@
 package bio.terra.tanagra.service.artifact.model;
 
+import bio.terra.tanagra.service.ServiceUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Criteria {
   private final String id;
@@ -136,7 +136,7 @@ public final class Criteria {
 
     public Criteria build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = ServiceUtils.newArtifactId();
       }
       return new Criteria(
           id,

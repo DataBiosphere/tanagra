@@ -53,7 +53,7 @@ jobs:
         mkdir -p rendered/
         echo "$GHA_SA_KEY" > rendered/gha_sa_key.json
         export GOOGLE_APPLICATION_CREDENTIALS=$PWD/rendered/gha_sa_key.json
-        ./tanagra/gradlew -p tanagra service:regressionTests -PregressionTestUnderlays="${UNDERLAYS:-$DEFAULT_UNDERLAYS}" --info --scan
+        ./tanagra/gradlew -p tanagra service:regressionTests -PregressionTestUnderlays="${UNDERLAYS:-$DEFAULT_UNDERLAYS}" --scan
       env:
         DBMS: postgresql
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

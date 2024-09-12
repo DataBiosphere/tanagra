@@ -256,50 +256,37 @@ public class BaseAccessControlTest {
             user, Permissions.forActions(type, Action.READ), parent, 0, Integer.MAX_VALUE);
     assertEquals(isAllResources, resources.isAllResources());
 
-    Set<ResourceId> actual;
-    switch (type) {
-      case UNDERLAY:
-        actual =
-            underlayService.listUnderlays(resources).stream()
-                .map(u -> ResourceId.forUnderlay(u.getName()))
-                .collect(Collectors.toSet());
-        break;
-      case STUDY:
-        actual =
-            studyService.listStudies(resources, 0, Integer.MAX_VALUE).stream()
-                .map(s -> ResourceId.forStudy(s.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case COHORT:
-        actual =
-            cohortService.listCohorts(resources, 0, Integer.MAX_VALUE).stream()
-                .map(c -> ResourceId.forCohort(parent.getStudy(), c.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case FEATURE_SET:
-        actual =
-            featureSetService.listFeatureSets(resources, 0, Integer.MAX_VALUE).stream()
-                .map(c -> ResourceId.forFeatureSet(parent.getStudy(), c.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case REVIEW:
-        actual =
-            reviewService.listReviews(resources, 0, Integer.MAX_VALUE).stream()
-                .map(r -> ResourceId.forReview(parent.getStudy(), parent.getCohort(), r.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case ANNOTATION_KEY:
-        actual =
-            annotationService.listAnnotationKeys(resources, 0, Integer.MAX_VALUE).stream()
-                .map(
-                    a ->
-                        ResourceId.forAnnotationKey(
-                            parent.getStudy(), parent.getCohort(), a.getId()))
-                .collect(Collectors.toSet());
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown resource type: " + type);
-    }
+    Set<ResourceId> actual =
+        switch (type) {
+          case UNDERLAY ->
+              underlayService.listUnderlays(resources).stream()
+                  .map(u -> ResourceId.forUnderlay(u.getName()))
+                  .collect(Collectors.toSet());
+          case STUDY ->
+              studyService.listStudies(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(s -> ResourceId.forStudy(s.getId()))
+                  .collect(Collectors.toSet());
+          case COHORT ->
+              cohortService.listCohorts(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(c -> ResourceId.forCohort(parent.getStudy(), c.getId()))
+                  .collect(Collectors.toSet());
+          case FEATURE_SET ->
+              featureSetService.listFeatureSets(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(c -> ResourceId.forFeatureSet(parent.getStudy(), c.getId()))
+                  .collect(Collectors.toSet());
+          case REVIEW ->
+              reviewService.listReviews(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(r -> ResourceId.forReview(parent.getStudy(), parent.getCohort(), r.getId()))
+                  .collect(Collectors.toSet());
+          case ANNOTATION_KEY ->
+              annotationService.listAnnotationKeys(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(
+                      a ->
+                          ResourceId.forAnnotationKey(
+                              parent.getStudy(), parent.getCohort(), a.getId()))
+                  .collect(Collectors.toSet());
+          default -> throw new IllegalArgumentException("Unknown resource type: " + type);
+        };
     List<ResourceId> expected = Arrays.asList(expectedResources);
     assertEquals(expected.size(), actual.size());
     actual.forEach(r -> assertTrue(expected.contains(r)));

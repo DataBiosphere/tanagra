@@ -56,29 +56,28 @@ public final class ToApiUtils {
 
     ApiLiteral apiLiteral =
         new ApiLiteral().dataType(ApiDataType.fromValue(literal.getDataType().name()));
-    switch (literal.getDataType()) {
-      case INT64:
-        return apiLiteral.valueUnion(new ApiLiteralValueUnion().int64Val(literal.getInt64Val()));
-      case STRING:
-        return apiLiteral.valueUnion(new ApiLiteralValueUnion().stringVal(literal.getStringVal()));
-      case BOOLEAN:
-        return apiLiteral.valueUnion(new ApiLiteralValueUnion().boolVal(literal.getBooleanVal()));
-      case DATE:
-        return apiLiteral.valueUnion(
-            new ApiLiteralValueUnion()
-                .dateVal(literal.getDateVal() == null ? null : literal.getDateVal().toString()));
-      case TIMESTAMP:
-        return apiLiteral.valueUnion(
-            new ApiLiteralValueUnion()
-                .timestampVal(
-                    literal.getTimestampVal() == null
-                        ? null
-                        : literal.getTimestampVal().toString()));
-      case DOUBLE:
-        return apiLiteral.valueUnion(new ApiLiteralValueUnion().doubleVal(literal.getDoubleVal()));
-      default:
-        throw new SystemException("Unknown data type: " + literal.getDataType());
-    }
+    return switch (literal.getDataType()) {
+      case INT64 ->
+          apiLiteral.valueUnion(new ApiLiteralValueUnion().int64Val(literal.getInt64Val()));
+      case STRING ->
+          apiLiteral.valueUnion(new ApiLiteralValueUnion().stringVal(literal.getStringVal()));
+      case BOOLEAN ->
+          apiLiteral.valueUnion(new ApiLiteralValueUnion().boolVal(literal.getBooleanVal()));
+      case DATE ->
+          apiLiteral.valueUnion(
+              new ApiLiteralValueUnion()
+                  .dateVal(literal.getDateVal() == null ? null : literal.getDateVal().toString()));
+      case TIMESTAMP ->
+          apiLiteral.valueUnion(
+              new ApiLiteralValueUnion()
+                  .timestampVal(
+                      literal.getTimestampVal() == null
+                          ? null
+                          : literal.getTimestampVal().toString()));
+      case DOUBLE ->
+          apiLiteral.valueUnion(new ApiLiteralValueUnion().doubleVal(literal.getDoubleVal()));
+      default -> throw new SystemException("Unknown data type: " + literal.getDataType());
+    };
   }
 
   public static ApiCohort toApiObject(Cohort cohort) {
@@ -204,8 +203,7 @@ public final class ToApiUtils {
                         hierarchyFieldSets,
                         ((HierarchyIsMemberField) field).getHierarchy().getName())
                     .setIsMember(value.getValue().getBooleanVal());
-              } else if (field instanceof RelatedEntityIdCountField) {
-                RelatedEntityIdCountField countField = (RelatedEntityIdCountField) field;
+              } else if (field instanceof RelatedEntityIdCountField countField) {
                 relationshipFieldSets.add(
                     new ApiInstanceRelationshipFields()
                         .relatedEntity(countField.getCountedEntity().getName())

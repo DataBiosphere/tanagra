@@ -76,16 +76,11 @@ public final class ResourceId {
   }
 
   public ResourceId getParent() {
-    switch (type) {
-      case COHORT:
-      case FEATURE_SET:
-        return forStudy(study);
-      case REVIEW:
-      case ANNOTATION_KEY:
-        return forCohort(study, cohort);
-      default:
-        return null;
-    }
+    return switch (type) {
+      case COHORT, FEATURE_SET -> forStudy(study);
+      case REVIEW, ANNOTATION_KEY -> forCohort(study, cohort);
+      default -> null;
+    };
   }
 
   public ResourceId getStudyResourceId() {
@@ -96,22 +91,15 @@ public final class ResourceId {
     if (isNull) {
       return "NULL_" + type;
     }
-    switch (type) {
-      case UNDERLAY:
-        return underlay;
-      case STUDY:
-        return study;
-      case COHORT:
-        return buildCompositeId(List.of(study, cohort));
-      case FEATURE_SET:
-        return buildCompositeId(List.of(study, featureSet));
-      case REVIEW:
-        return buildCompositeId(List.of(study, cohort, review));
-      case ANNOTATION_KEY:
-        return buildCompositeId(List.of(study, cohort, annotationKey));
-      default:
-        throw new IllegalArgumentException("Unknown resource type: " + type);
-    }
+    return switch (type) {
+      case UNDERLAY -> underlay;
+      case STUDY -> study;
+      case COHORT -> buildCompositeId(List.of(study, cohort));
+      case FEATURE_SET -> buildCompositeId(List.of(study, featureSet));
+      case REVIEW -> buildCompositeId(List.of(study, cohort, review));
+      case ANNOTATION_KEY -> buildCompositeId(List.of(study, cohort, annotationKey));
+      default -> throw new IllegalArgumentException("Unknown resource type: " + type);
+    };
   }
 
   private static String buildCompositeId(List<String> ids) {

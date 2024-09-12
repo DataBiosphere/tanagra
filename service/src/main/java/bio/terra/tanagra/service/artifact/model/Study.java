@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.common.exception.*;
+import bio.terra.tanagra.service.ServiceUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import jakarta.annotation.Nullable;
@@ -8,7 +9,6 @@ import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -198,7 +198,7 @@ public class Study {
       }
       // true if the id is empty or null
       if (StringUtils.isEmpty(id)) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = ServiceUtils.newArtifactId();
       }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(
