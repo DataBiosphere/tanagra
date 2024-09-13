@@ -174,34 +174,27 @@ public class AnnotationDao {
       return Collections.emptyList();
     }
 
-    // Fetch enum vals. (annotation key id -> enum)
-    String sql =
-        ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL + " WHERE annotation_key_id IN (:annotation_key_ids)";
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue(
-                "annotation_key_ids",
-                annotationKeys.stream()
-                    .map(AnnotationKey.Builder::getId)
-                    .collect(Collectors.toSet()));
-    List<Pair<String, String>> enumVals =
-        jdbcTemplate.query(sql, params, ANNOTATION_KEY_ENUM_VALUE_ROW_MAPPER);
-
     // Put enum vals into their respective annotation keys.
     Map<String, AnnotationKey.Builder> annotationKeysMap =
         annotationKeys.stream()
             .collect(Collectors.toMap(AnnotationKey.Builder::getId, Function.identity()));
-    enumVals.forEach(
-        pair -> {
-          String annotationKeyId = pair.getKey();
-          String enumVal = pair.getValue();
-          annotationKeysMap.get(annotationKeyId).addEnumVal(enumVal);
-        });
+
+    // Fetch enum vals. (annotation key id -> enum)
+    List<Pair<String, String>> enumVals = getEnumValuesMatchingList(annotationKeysMap.keySet());
+    enumVals.forEach(pair -> annotationKeysMap.get(pair.getKey()).addEnumVal(pair.getValue()));
 
     // Preserve the order returned by the original query.
     return annotationKeys.stream()
         .map(a -> annotationKeysMap.get(a.getId()).build())
         .collect(Collectors.toList());
+  }
+
+  public List<Pair<String, String>> getEnumValuesMatchingList(Set<String> keyIds) {
+    String sql =
+        ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL + " WHERE annotation_key_id IN (:annotation_key_ids)";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("annotation_key_ids", keyIds);
+    return jdbcTemplate.query(sql, params, ANNOTATION_KEY_ENUM_VALUE_ROW_MAPPER);
   }
 
   @WriteTransaction
