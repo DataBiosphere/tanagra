@@ -1432,6 +1432,12 @@ components:
           type: string
           description: Optional display string
           nullable: true
+        repeatedValue:
+          type: array
+          items:
+            $ref: "#/components/schemas/Literal"
+        isRepeatedValue:
+          type: boolean
 
     Literal:
       type: object

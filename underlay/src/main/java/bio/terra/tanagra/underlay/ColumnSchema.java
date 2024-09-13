@@ -7,15 +7,22 @@ import java.util.Objects;
 public class ColumnSchema implements Serializable {
   private final String columnName;
   private final DataType dataType;
+  private final boolean isDataTypeRepeated;
   private final boolean isRequired;
 
   public ColumnSchema(String columnName, DataType dataType) {
-    this(columnName, dataType, false);
+    this(columnName, dataType, false, false);
   }
 
   public ColumnSchema(String columnName, DataType dataType, boolean isRequired) {
+    this(columnName, dataType, false, isRequired);
+  }
+
+  public ColumnSchema(
+      String columnName, DataType dataType, boolean isDataTypeRepeated, boolean isRequired) {
     this.columnName = columnName;
     this.dataType = dataType;
+    this.isDataTypeRepeated = isDataTypeRepeated;
     this.isRequired = isRequired;
   }
 
@@ -25,6 +32,10 @@ public class ColumnSchema implements Serializable {
 
   public DataType getDataType() {
     return dataType;
+  }
+
+  public boolean isDataTypeRepeated() {
+    return isDataTypeRepeated;
   }
 
   public boolean isRequired() {
@@ -42,11 +53,12 @@ public class ColumnSchema implements Serializable {
     ColumnSchema that = (ColumnSchema) o;
     return isRequired == that.isRequired
         && columnName.equals(that.columnName)
-        && dataType == that.dataType;
+        && dataType == that.dataType
+        && isDataTypeRepeated == that.isDataTypeRepeated;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(columnName, dataType, isRequired);
+    return Objects.hash(columnName, dataType, isDataTypeRepeated, isRequired);
   }
 }

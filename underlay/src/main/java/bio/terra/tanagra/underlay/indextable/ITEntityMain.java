@@ -38,7 +38,10 @@ public final class ITEntityMain extends IndexTable {
         szAttribute -> {
           columnSchemasBuilder.add(
               new ColumnSchema(
-                  szAttribute.name, ConfigReader.deserializeDataType(szAttribute.dataType)));
+                  szAttribute.name,
+                  ConfigReader.deserializeDataType(szAttribute.dataType),
+                  szAttribute.isDataTypeRepeated,
+                  false));
           if (szAttribute.displayFieldName != null) {
             columnSchemasBuilder.add(
                 new ColumnSchema(
@@ -107,7 +110,8 @@ public final class ITEntityMain extends IndexTable {
   }
 
   public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
-    return new ColumnSchema(attribute.getName(), attribute.getDataType());
+    return new ColumnSchema(
+        attribute.getName(), attribute.getDataType(), attribute.isDataTypeRepeated(), false);
   }
 
   public SqlField getAttributeDisplayField(String attribute) {

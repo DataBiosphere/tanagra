@@ -73,6 +73,13 @@ When set to true, an indexing job will try to compute a display hint for this at
 
 *Default value:* `false`
 
+### SZAttribute.isDataTypeRepeated
+**optional** boolean
+
+True if the data type is repeated (e.g. an array of ints).
+
+*Default value:* `false`
+
 ### SZAttribute.isSuppressedForExport
 **optional** boolean
 

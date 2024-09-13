@@ -98,6 +98,22 @@ public class AttributeFilter extends EntityFilter {
     return binaryOperator != null;
   }
 
+  public boolean hasNaryOperator() {
+    return naryOperator != null;
+  }
+
+  public String getOperatorName() {
+    if (hasUnaryOperator()) {
+      return unaryOperator.name();
+    } else if (hasBinaryOperator()) {
+      return binaryOperator.name();
+    } else if (hasNaryOperator()) {
+      return naryOperator.name();
+    } else {
+      return null;
+    }
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
