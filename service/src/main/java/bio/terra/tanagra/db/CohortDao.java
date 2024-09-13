@@ -310,7 +310,8 @@ public class CohortDao {
     int rowsAffected = jdbcTemplate.update(sql, params);
     LOGGER.debug("UPDATE cohort_revision rowsAffected = {}", rowsAffected);
 
-    // Create a new revision.
+    // Create a new revision. The created and last_modified fields are set by the DB automatically
+    // on insert
     CohortRevision nextRevision =
         cohort.getMostRecentRevision().toBuilder()
             .setIsEditable(true)
@@ -318,6 +319,8 @@ public class CohortDao {
             .version(cohort.getMostRecentRevision().getVersion() + 1)
             .createdBy(userEmail)
             .id(null) // Builder will generate a new id.
+            .created(null) // Set by DB on insert
+            .lastModified(null) // Set by DB on insert
             .recordsCount(null) // Only store the records count for frozen revisions.
             .build();
     createRevision(cohortId, nextRevision);
