@@ -4,7 +4,7 @@
     FROM
         ${ENT_conditionOccurrence}      
     WHERE
-        NOT condition IN (SELECT
+        NOT (condition IN (SELECT
             descendant          
         FROM
             ${HAD_condition_default}          
@@ -12,4 +12,4 @@
             ancestor = @val0          
         UNION
         ALL SELECT
-            @val1)
+            @val1))

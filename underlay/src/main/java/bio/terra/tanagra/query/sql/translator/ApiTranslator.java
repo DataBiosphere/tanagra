@@ -228,7 +228,7 @@ public interface ApiTranslator {
   }
 
   default String booleanNotFilterSql(String subFilterSql) {
-    return "NOT " + subFilterSql;
+    return "NOT (" + subFilterSql + ")";
   }
 
   default String logicalOperatorSql(BooleanAndOrFilter.LogicalOperator operator) {

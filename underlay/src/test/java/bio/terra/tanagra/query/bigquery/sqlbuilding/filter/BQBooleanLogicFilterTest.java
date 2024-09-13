@@ -64,6 +64,39 @@ public class BQBooleanLogicFilterTest extends BQRunnerTest {
   }
 
   @Test
+  void booleanNotFilterWithNestedBooleanAndFilter() throws IOException {
+    Entity entity = underlay.getPrimaryEntity();
+    AttributeFilter attributeFilter1 =
+        new AttributeFilter(
+            underlay,
+            entity,
+            entity.getAttribute("year_of_birth"),
+            BinaryOperator.NOT_EQUALS,
+            Literal.forInt64(1_956L));
+    AttributeFilter attributeFilter2 =
+        new AttributeFilter(
+            underlay,
+            entity,
+            entity.getAttribute("gender"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(8_532L));
+    BooleanNotFilter booleanNotFilter =
+        new BooleanNotFilter(
+            new BooleanAndOrFilter(
+                BooleanAndOrFilter.LogicalOperator.AND,
+                List.of(attributeFilter1, attributeFilter2)));
+    AttributeField simpleAttribute =
+        new AttributeField(underlay, entity, entity.getAttribute("year_of_birth"), false);
+    ListQueryResult listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), booleanNotFilter, null, null));
+    BQTable table = underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "booleanNotFilterWithNestedBooleanAndFilter", listQueryResult.getSql(), table);
+  }
+
+  @Test
   void booleanAndOrFilterWithSwapFields() throws IOException {
     // e.g. SELECT occurrence BOOLEAN LOGIC FILTER ON condition (foreign key is on the occurrence
     // table).

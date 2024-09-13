@@ -259,7 +259,7 @@ public class ApiTranslatorTest {
         apiTranslator.binaryFilterSql(
             field, BinaryOperator.LESS_THAN_OR_EQUAL, val, tableAlias, sqlParams);
     String sql = apiTranslator.booleanNotFilterSql(subFilterSql);
-    assertEquals("NOT tableAlias.columnName <= @val0", sql);
+    assertEquals("NOT (tableAlias.columnName <= @val0)", sql);
     assertEquals(ImmutableMap.of("val0", val), sqlParams.getParams());
   }
 
