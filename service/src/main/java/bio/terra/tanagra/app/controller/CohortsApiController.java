@@ -195,36 +195,36 @@ public class CohortsApiController implements CohortsApi {
 
   private static CohortRevision.CriteriaGroupSection fromApiObject(ApiCriteriaGroupSection apiObj) {
     BooleanAndOrFilter.LogicalOperator operator;
-    JoinOperator joinOperator =
-        switch (apiObj.getOperator()) {
-          case OR -> {
-            operator = BooleanAndOrFilter.LogicalOperator.OR;
-            yield null;
-          }
-          case AND -> {
-            operator = BooleanAndOrFilter.LogicalOperator.AND;
-            yield null;
-          }
-          case DURING_SAME_ENCOUNTER -> {
-            operator = BooleanAndOrFilter.LogicalOperator.OR;
-            yield JoinOperator.DURING_SAME_ENCOUNTER;
-          }
-          case WITHIN_NUM_DAYS -> {
-            operator = BooleanAndOrFilter.LogicalOperator.OR;
-            yield JoinOperator.WITHIN_NUM_DAYS;
-          }
-          case NUM_DAYS_BEFORE -> {
-            operator = BooleanAndOrFilter.LogicalOperator.OR;
-            yield JoinOperator.NUM_DAYS_BEFORE;
-          }
-          case NUM_DAYS_AFTER -> {
-            operator = BooleanAndOrFilter.LogicalOperator.OR;
-            yield JoinOperator.NUM_DAYS_AFTER;
-          }
-          default ->
-              throw new IllegalArgumentException(
-                  "Unknown criteria group section operator: " + apiObj.getOperator());
-        };
+    JoinOperator joinOperator;
+    switch (apiObj.getOperator()) {
+      case OR:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = null;
+        break;
+      case AND:
+        operator = BooleanAndOrFilter.LogicalOperator.AND;
+        joinOperator = null;
+        break;
+      case DURING_SAME_ENCOUNTER:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.DURING_SAME_ENCOUNTER;
+        break;
+      case WITHIN_NUM_DAYS:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.WITHIN_NUM_DAYS;
+        break;
+      case NUM_DAYS_BEFORE:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.NUM_DAYS_BEFORE;
+        break;
+      case NUM_DAYS_AFTER:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.NUM_DAYS_AFTER;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "Unknown criteria group section operator: " + apiObj.getOperator());
+    }
 
     return CohortRevision.CriteriaGroupSection.builder()
         .id(apiObj.getId())

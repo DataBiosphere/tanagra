@@ -3,7 +3,6 @@ package bio.terra.tanagra.service.artifact.model;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.*;
-import bio.terra.tanagra.service.ServiceUtils;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.*;
+import org.apache.commons.lang3.RandomStringUtils;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
 public final class CohortRevision {
@@ -167,7 +167,7 @@ public final class CohortRevision {
 
     public CohortRevision build() {
       if (id == null) {
-        id = ServiceUtils.newArtifactId();
+        id = RandomStringUtils.randomAlphanumeric(10);
       }
       if (lastModifiedBy == null) {
         lastModifiedBy = createdBy;
@@ -377,7 +377,7 @@ public final class CohortRevision {
 
       public CriteriaGroupSection build() {
         if (id == null) {
-          id = ServiceUtils.newArtifactId();
+          id = RandomStringUtils.randomAlphanumeric(10);
         }
         return new CriteriaGroupSection(
             id,
@@ -491,7 +491,7 @@ public final class CohortRevision {
 
       public CriteriaGroup build() {
         if (id == null) {
-          id = ServiceUtils.newArtifactId();
+          id = RandomStringUtils.randomAlphanumeric(10);
         }
         return new CriteriaGroup(id, displayName, criteria);
       }
