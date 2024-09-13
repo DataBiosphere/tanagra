@@ -31,11 +31,7 @@ import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
-import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
-import bio.terra.tanagra.underlay.sourcetable.STHierarchyChildParent;
-import bio.terra.tanagra.underlay.sourcetable.STHierarchyRootFilter;
-import bio.terra.tanagra.underlay.sourcetable.STRelationshipIdPairs;
-import bio.terra.tanagra.underlay.sourcetable.STTextSearchTerms;
+import bio.terra.tanagra.underlay.sourcetable.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -192,6 +188,14 @@ public final class JobSequencer {
                     groupItems.getGroupEntity().getName(),
                     groupItems.getItemsEntity().getName())
             : null;
+    STRelationshipRollupCounts groupItemsRelationshipRollupCountsTable =
+        underlay
+            .getSourceSchema()
+            .getRelationshipRollupCounts(
+                groupItems.getName(),
+                groupItems.getGroupEntity().getName(),
+                groupItems.getItemsEntity().getName())
+            .orElse(null);
     jobSet.addJob(
         new WriteRollupCounts(
             indexerConfig,
@@ -203,7 +207,8 @@ public final class JobSequencer {
             itemsEntityIndexTable,
             groupItemsIdPairsTable,
             null,
-            null));
+            null,
+            groupItemsRelationshipRollupCountsTable));
 
     // If the criteria entity has hierarchies, then also compute the criteria rollup counts for each
     // hierarchy.
@@ -228,7 +233,8 @@ public final class JobSequencer {
                           underlay
                               .getIndexSchema()
                               .getHierarchyAncestorDescendant(
-                                  groupItems.getGroupEntity().getName(), hierarchy.getName()))));
+                                  groupItems.getGroupEntity().getName(), hierarchy.getName()),
+                          null)));
     }
 
     if (groupItems.getGroupEntity().hasHierarchies()) {
@@ -378,6 +384,7 @@ public final class JobSequencer {
             primaryEntityIndexTable,
             primaryCriteriaIdPairsTable,
             null,
+            null,
             null));
 
     // If the criteria entity has hierarchies, then also compute the criteria rollup counts for each
@@ -404,7 +411,8 @@ public final class JobSequencer {
                               .getIndexSchema()
                               .getHierarchyAncestorDescendant(
                                   criteriaOccurrence.getCriteriaEntity().getName(),
-                                  hierarchy.getName()))));
+                                  hierarchy.getName()),
+                          null)));
     }
 
     // Compute instance-level display hints for the occurrence entity attributes that are flagged as

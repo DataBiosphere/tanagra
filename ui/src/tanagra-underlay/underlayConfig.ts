@@ -114,6 +114,7 @@ export type SZGroupItems = {
   itemsEntity: string;
   itemsEntityIdFieldName?: string;
   name: string;
+  rollupCountsSql?: szrollupcountssql;
   useSourceIdPairsSql?: boolean;
 };
 

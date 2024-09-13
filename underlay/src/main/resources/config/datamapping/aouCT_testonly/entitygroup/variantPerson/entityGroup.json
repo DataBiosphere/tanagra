@@ -5,5 +5,10 @@
   "idPairsSqlFile":  "idPairs.sql",
   "useSourceIdPairsSql": true,
   "groupEntityIdFieldName": "variant_row_num",
-  "itemsEntityIdFieldName": "flattened_person_id"
+  "itemsEntityIdFieldName": "flattened_person_id",
+  "rollupCountsSql": {
+    "sqlFile": "rollupCounts.sql",
+    "entityIdFieldName": "variant_row_num",
+    "rollupCountFieldName": "num_persons"
+  }
 }
