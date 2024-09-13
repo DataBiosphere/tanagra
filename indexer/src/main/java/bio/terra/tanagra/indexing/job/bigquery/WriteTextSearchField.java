@@ -69,13 +69,22 @@ public class WriteTextSearchField extends BigQueryJob {
               SqlField attributeTextField;
               if (attribute.isValueDisplay()) {
                 attributeTextField = indexTable.getAttributeDisplayField(attribute.getName());
-              } else if (!attribute.getDataType().equals(DataType.STRING)) {
-                attributeTextField =
-                    indexTable
-                        .getAttributeValueField(attribute.getName())
-                        .cloneWithFunctionWrapper("CAST(${fieldSql} AS STRING)");
               } else {
+                String functionWrapper = null;
+                if (!attribute.getDataType().equals(DataType.STRING)) {
+                  functionWrapper = "CAST(${fieldSql} AS STRING)";
+                }
+                if (attribute.isDataTypeRepeated()) {
+                  functionWrapper =
+                      "ARRAY_TO_STRING("
+                          + (functionWrapper == null ? "${fieldSql}" : functionWrapper)
+                          + ", \" \")";
+                }
+
                 attributeTextField = indexTable.getAttributeValueField(attribute.getName());
+                if (functionWrapper != null) {
+                  attributeTextField = attributeTextField.cloneWithFunctionWrapper(functionWrapper);
+                }
               }
 
               String idTextSql =
