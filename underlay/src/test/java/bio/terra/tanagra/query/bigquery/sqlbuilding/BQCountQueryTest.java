@@ -6,10 +6,7 @@ import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.api.shared.BinaryOperator;
-import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.OrderByDirection;
-import bio.terra.tanagra.api.shared.ValueDisplay;
+import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -154,6 +151,61 @@ public class BQCountQueryTest extends BQRunnerTest {
         underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "groupByValueDisplayField", countQueryResult.getSql(), entityMainTable);
+  }
+
+  @Test
+  void groupByRepeatedAttribute() throws IOException {
+    Entity entity = underlay.getEntity("condition");
+
+    // We don't have an example of an attribute with a repeated data type, yet.
+    // So create an artificial attribute just for this test.
+    Attribute groupByAttribute =
+        new Attribute(
+            "vocabulary",
+            DataType.STRING,
+            true,
+            false,
+            false,
+            "['foo', 'bar', 'baz', ${fieldSql}]",
+            DataType.STRING,
+            entity.getAttribute("vocabulary").isComputeDisplayHint(),
+            entity.getAttribute("vocabulary").isSuppressedForExport(),
+            entity.getAttribute("vocabulary").isVisitDateForTemporalQuery(),
+            entity.getAttribute("vocabulary").isVisitIdForTemporalQuery(),
+            entity.getAttribute("vocabulary").getSourceQuery());
+    AttributeField groupByAttributeField =
+        new AttributeField(underlay, entity, groupByAttribute, false);
+    HintQueryResult hintQueryResult =
+        new HintQueryResult(
+            "",
+            List.of(
+                new HintInstance(
+                    groupByAttribute,
+                    Map.of(
+                        new ValueDisplay(Literal.forString("foo")),
+                        25L,
+                        new ValueDisplay(Literal.forString("bar")),
+                        140L,
+                        new ValueDisplay(Literal.forString("baz")),
+                        85L))));
+    CountQueryResult countQueryResult =
+        bqQueryRunner.run(
+            new CountQueryRequest(
+                underlay,
+                entity,
+                null,
+                List.of(groupByAttributeField),
+                null,
+                OrderByDirection.DESCENDING,
+                null,
+                null,
+                null,
+                hintQueryResult,
+                true));
+    BQTable entityMainTable =
+        underlay.getIndexSchema().getEntityMain(entity.getName()).getTablePointer();
+    assertSqlMatchesWithTableNameOnly(
+        "groupByRepeatedAttribute", countQueryResult.getSql(), entityMainTable);
   }
 
   @Test

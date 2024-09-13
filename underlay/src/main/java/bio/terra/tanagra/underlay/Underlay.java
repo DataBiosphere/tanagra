@@ -372,6 +372,7 @@ public final class Underlay {
                   return new Attribute(
                       szAttribute.name,
                       ConfigReader.deserializeDataType(szAttribute.dataType),
+                      szAttribute.isDataTypeRepeated,
                       szAttribute.displayFieldName != null,
                       szAttribute.name.equals(szEntity.idAttribute),
                       szAttribute.runtimeSqlFunctionWrapper,

@@ -20,8 +20,7 @@ import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -41,12 +40,34 @@ public class BQListQueryResultsTest extends BQRunnerTest {
     AttributeField idAttribute =
         new AttributeField(underlay, entity, entity.getIdAttribute(), false);
 
+    // We don't have an example of an attribute with a repeated data type, yet.
+    // So create an artificial attribute just for this test.
+    AttributeField repeatedStringAttribute =
+        new AttributeField(
+            underlay,
+            entity,
+            new Attribute(
+                "person_source_value",
+                DataType.STRING,
+                true,
+                false,
+                false,
+                "['foo', 'bar', 'baz', ${fieldSql}]",
+                DataType.STRING,
+                entity.getIdAttribute().isComputeDisplayHint(),
+                entity.getIdAttribute().isSuppressedForExport(),
+                entity.getIdAttribute().isVisitDateForTemporalQuery(),
+                entity.getIdAttribute().isVisitIdForTemporalQuery(),
+                entity.getIdAttribute().getSourceQuery()),
+            false);
+
     List<ValueDisplayField> selectAttributes =
         List.of(
             simpleAttribute,
             valueDisplayAttribute,
             valueDisplayAttributeWithoutDisplay,
-            runtimeCalculatedAttribute);
+            runtimeCalculatedAttribute,
+            repeatedStringAttribute);
     List<OrderBy> orderBys = List.of(new OrderBy(idAttribute, OrderByDirection.DESCENDING));
     int limit = 5;
     ListQueryResult listQueryResult =
@@ -92,6 +113,13 @@ public class BQListQueryResultsTest extends BQRunnerTest {
                   age.getValue().isNull() || DataType.INT64.equals(age.getValue().getDataType()));
               assertNotNull(age.getValue().getInt64Val());
               assertNull(age.getDisplay());
+
+              ValueDisplay repeatedString =
+                  listInstance.getEntityFieldValue(repeatedStringAttribute);
+              assertNotNull(repeatedString);
+              assertTrue(repeatedString.isRepeatedValue());
+              assertNotNull(repeatedString.getRepeatedValue());
+              assertEquals(4, repeatedString.getRepeatedValue().size());
             });
   }
 
