@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-variant",
+  "displayName": "SNP/Indel Variant",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Genomics",
+    "tags": null
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "variant.json",
+  "modifiers": null
+}
