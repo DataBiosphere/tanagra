@@ -5,6 +5,7 @@ import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBy
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup.EntityGroup.EntityGroupConfig;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import java.util.HashMap;
@@ -35,10 +36,7 @@ public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
   @Override
   protected List<String> entityGroupIds() {
     return deserializeConfig().getClassificationEntityGroupsList().stream()
-        .map(
-            classificationEntityGroup -> {
-              return classificationEntityGroup.getId();
-            })
+        .map(EntityGroupConfig::getId)
         .collect(Collectors.toList());
   }
 

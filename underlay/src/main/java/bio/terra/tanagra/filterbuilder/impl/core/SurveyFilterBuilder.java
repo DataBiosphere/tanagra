@@ -5,6 +5,7 @@ import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBy
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFSurvey;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFSurvey.Survey.EntityGroupConfig;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTSurvey;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import java.util.HashMap;
@@ -34,10 +35,7 @@ public class SurveyFilterBuilder extends EntityGroupFilterBuilderBase {
   @Override
   protected List<String> entityGroupIds() {
     return deserializeConfig().getEntityGroupsList().stream()
-        .map(
-            entityGroup -> {
-              return entityGroup.getId();
-            })
+        .map(EntityGroupConfig::getId)
         .collect(Collectors.toList());
   }
 

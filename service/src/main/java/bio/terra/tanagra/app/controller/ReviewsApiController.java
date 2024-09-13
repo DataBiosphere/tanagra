@@ -147,11 +147,10 @@ public class ReviewsApiController implements ReviewsApi {
             offset,
             limit);
     ApiReviewList apiReviews = new ApiReviewList();
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
     reviewService
         .listReviews(authorizedReviewIds, offset, limit)
-        .forEach(
-            review ->
-                apiReviews.add(toApiObject(review, cohortService.getCohort(studyId, cohortId))));
+        .forEach(review -> apiReviews.add(toApiObject(review, cohort)));
     return ResponseEntity.ok(apiReviews);
   }
 

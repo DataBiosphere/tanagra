@@ -51,15 +51,14 @@ public class CohortService {
   }
 
   /** Create a cohort and its first revision without any criteria. */
-  public Cohort createCohort(String studyId, Cohort.Builder cohortBuilder, String userEmail) {
-    return createCohort(studyId, cohortBuilder, userEmail, Collections.emptyList());
+  public Cohort createCohort(String studyId, Cohort.Builder cohortBuilder) {
+    return createCohort(studyId, cohortBuilder, Collections.emptyList());
   }
 
   /** Create a cohort and its first revision. */
   public Cohort createCohort(
       String studyId,
       Cohort.Builder cohortBuilder,
-      String userEmail,
       List<CohortRevision.CriteriaGroupSection> sections) {
     // Make sure underlay name and study id are valid.
     underlayService.getUnderlay(cohortBuilder.getUnderlay());
@@ -71,15 +70,14 @@ public class CohortService {
             .sections(sections)
             .setIsMostRecent(true)
             .setIsEditable(true)
-            .createdBy(userEmail)
-            .lastModifiedBy(userEmail)
+            .createdBy(cohortBuilder.getCreatedBy())
             .build();
     cohortBuilder.addRevision(firstRevision);
 
-    cohortDao.createCohort(
-        studyId, cohortBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
+    cohortDao.createCohort(studyId, cohortBuilder.build());
     Cohort cohort = cohortDao.getCohort(cohortBuilder.getId());
-    activityLogService.logCohort(ActivityLog.Type.CREATE_COHORT, userEmail, studyId, cohort);
+    activityLogService.logCohort(
+        ActivityLog.Type.CREATE_COHORT, cohort.getCreatedBy(), studyId, cohort);
     return cohort;
   }
 

@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.artifact.model;
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.*;
+import bio.terra.tanagra.service.ServiceUtils;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.*;
-import org.apache.commons.lang3.RandomStringUtils;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
 public final class CohortRevision {
@@ -167,7 +167,10 @@ public final class CohortRevision {
 
     public CohortRevision build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = ServiceUtils.newArtifactId();
+      }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
       }
       return new CohortRevision(this);
     }
@@ -240,7 +243,7 @@ public final class CohortRevision {
         List<CriteriaGroup> secondConditionCriteriaGroups,
         BooleanAndOrFilter.LogicalOperator operator,
         ReducingOperator firstConditionReducingOperator,
-        ReducingOperator secondConditionRedcuingOperator,
+        ReducingOperator secondConditionReducingOperator,
         JoinOperator joinOperator,
         Integer joinOperatorValue,
         boolean isExcluded) {
@@ -250,7 +253,7 @@ public final class CohortRevision {
       this.secondConditionCriteriaGroups = secondConditionCriteriaGroups;
       this.operator = operator;
       this.firstConditionReducingOperator = firstConditionReducingOperator;
-      this.secondConditionRedcuingOperator = secondConditionRedcuingOperator;
+      this.secondConditionRedcuingOperator = secondConditionReducingOperator;
       this.joinOperator = joinOperator;
       this.joinOperatorValue = joinOperatorValue;
       this.isExcluded = isExcluded;
@@ -374,7 +377,7 @@ public final class CohortRevision {
 
       public CriteriaGroupSection build() {
         if (id == null) {
-          id = RandomStringUtils.randomAlphanumeric(10);
+          id = ServiceUtils.newArtifactId();
         }
         return new CriteriaGroupSection(
             id,
@@ -488,7 +491,7 @@ public final class CohortRevision {
 
       public CriteriaGroup build() {
         if (id == null) {
-          id = RandomStringUtils.randomAlphanumeric(10);
+          id = ServiceUtils.newArtifactId();
         }
         return new CriteriaGroup(id, displayName, criteria);
       }

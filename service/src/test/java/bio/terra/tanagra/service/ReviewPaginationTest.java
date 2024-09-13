@@ -63,8 +63,7 @@ public class ReviewPaginationTest {
     cohort1 =
         cohortService.createCohort(
             study1.getId(),
-            Cohort.builder().underlay(UNDERLAY_NAME),
-            USER_EMAIL_1,
+            Cohort.builder().underlay(UNDERLAY_NAME).createdBy(USER_EMAIL_1),
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());

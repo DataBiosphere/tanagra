@@ -67,8 +67,8 @@ public class CohortsApiController implements CohortsApi {
             Cohort.builder()
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .underlay(body.getUnderlayName()),
-            SpringAuthentication.getCurrentUser().getEmail());
+                .underlay(body.getUnderlayName())
+                .createdBy(SpringAuthentication.getCurrentUser().getEmail()));
     return ResponseEntity.ok(ToApiUtils.toApiObject(createdCohort));
   }
 
@@ -195,36 +195,36 @@ public class CohortsApiController implements CohortsApi {
 
   private static CohortRevision.CriteriaGroupSection fromApiObject(ApiCriteriaGroupSection apiObj) {
     BooleanAndOrFilter.LogicalOperator operator;
-    JoinOperator joinOperator;
-    switch (apiObj.getOperator()) {
-      case OR:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = null;
-        break;
-      case AND:
-        operator = BooleanAndOrFilter.LogicalOperator.AND;
-        joinOperator = null;
-        break;
-      case DURING_SAME_ENCOUNTER:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.DURING_SAME_ENCOUNTER;
-        break;
-      case WITHIN_NUM_DAYS:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.WITHIN_NUM_DAYS;
-        break;
-      case NUM_DAYS_BEFORE:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.NUM_DAYS_BEFORE;
-        break;
-      case NUM_DAYS_AFTER:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.NUM_DAYS_AFTER;
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "Unknown criteria group section operator: " + apiObj.getOperator());
-    }
+    JoinOperator joinOperator =
+        switch (apiObj.getOperator()) {
+          case OR -> {
+            operator = BooleanAndOrFilter.LogicalOperator.OR;
+            yield null;
+          }
+          case AND -> {
+            operator = BooleanAndOrFilter.LogicalOperator.AND;
+            yield null;
+          }
+          case DURING_SAME_ENCOUNTER -> {
+            operator = BooleanAndOrFilter.LogicalOperator.OR;
+            yield JoinOperator.DURING_SAME_ENCOUNTER;
+          }
+          case WITHIN_NUM_DAYS -> {
+            operator = BooleanAndOrFilter.LogicalOperator.OR;
+            yield JoinOperator.WITHIN_NUM_DAYS;
+          }
+          case NUM_DAYS_BEFORE -> {
+            operator = BooleanAndOrFilter.LogicalOperator.OR;
+            yield JoinOperator.NUM_DAYS_BEFORE;
+          }
+          case NUM_DAYS_AFTER -> {
+            operator = BooleanAndOrFilter.LogicalOperator.OR;
+            yield JoinOperator.NUM_DAYS_AFTER;
+          }
+          default ->
+              throw new IllegalArgumentException(
+                  "Unknown criteria group section operator: " + apiObj.getOperator());
+        };
 
     return CohortRevision.CriteriaGroupSection.builder()
         .id(apiObj.getId())
@@ -258,15 +258,11 @@ public class CohortsApiController implements CohortsApi {
   }
 
   private static ReducingOperator fromApiObject(ApiReducingOperator apiObj) {
-    switch (apiObj) {
-      case ANY:
-        return null;
-      case FIRST_MENTION_OF:
-        return ReducingOperator.FIRST_MENTION_OF;
-      case LAST_MENTION_OF:
-        return ReducingOperator.LAST_MENTION_OF;
-      default:
-        throw new IllegalArgumentException("Unknown reducing operator: " + apiObj);
-    }
+    return switch (apiObj) {
+      case ANY -> null;
+      case FIRST_MENTION_OF -> ReducingOperator.FIRST_MENTION_OF;
+      case LAST_MENTION_OF -> ReducingOperator.LAST_MENTION_OF;
+      default -> throw new IllegalArgumentException("Unknown reducing operator: " + apiObj);
+    };
   }
 }

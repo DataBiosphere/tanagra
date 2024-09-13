@@ -103,8 +103,8 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                               rtCohort
                                   .getDisplayName()
                                   .substring(0, Math.min(rtCohort.getDisplayName().length(), 50)))
-                          .description(rtCohort.getDisplayName()),
-                      USER_EMAIL_1,
+                          .description(rtCohort.getDisplayName())
+                          .createdBy(USER_EMAIL_1),
                       rtCohort.getCriteriaGroupSectionsList().stream()
                           .map(QueryCountRegressionTest::fromRegressionTestObj)
                           .collect(Collectors.toList()));
