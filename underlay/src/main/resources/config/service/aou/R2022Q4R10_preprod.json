@@ -1,0 +1,21 @@
+{
+  "underlay": "aouR2022Q4R10",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "fc-aou-cdr-preprod",
+      "datasetId": "R2022Q4R10",
+      "sqlSubstitutions": {
+        "omopDataset": "fc-aou-cdr-preprod.R2022Q4R10",
+        "staticTablesDataset": "fc-aou-cdr-preprod.R2022Q4R10"
+      }
+    },
+    "indexData": {
+      "projectId": "fc-aou-cdr-preprod",
+      "datasetId": "R2022Q4R10",
+      "tablePrefix": "prep"
+    },
+    "queryProjectId": "fc-aou-cdr-preprod",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}
