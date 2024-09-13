@@ -10,10 +10,10 @@
       }
     },
     "indexData": {
-      "projectId": "verily-tanagra-dev",
+      "projectId": "aaa-willyn-test",
       "datasetId": "amp_pd_index_081624"
     },
-    "queryProjectId": "verily-tanagra-dev",
+    "queryProjectId": "aaa-willyn-test",
     "dataLocation": "us"
   },
   "dataflow": {
