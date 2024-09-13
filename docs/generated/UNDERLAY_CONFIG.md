@@ -669,6 +669,15 @@ Name of the entity group.
 
 This is the unique identifier for the entity group. In a single underlay, the entity group names of any group type cannot overlap. Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.
 
+### SZGroupItems.useSourceIdPairsSql
+**optional** boolean
+
+True to skip copying the id-pairs SQL into a new index table, and use the source SQL directly.
+
+Ignored if the [id pairs SQL](#szgroupitemsidpairssqlfile) is undefined.
+
+*Default value:* `false`
+
 
 
 ## SZHierarchy

@@ -201,7 +201,8 @@ public final class Underlay {
     configReader.setUnderlay(szUnderlay.name);
     configReader.setSqlSubstitutions(szBigQuery.sourceData.sqlSubstitutions);
     SourceSchema sourceSchema = SourceSchema.fromConfig(szBigQuery, szUnderlay, configReader);
-    IndexSchema indexSchema = IndexSchema.fromConfig(szBigQuery, szUnderlay, configReader);
+    IndexSchema indexSchema =
+        IndexSchema.fromConfig(szBigQuery, szUnderlay, configReader, sourceSchema);
 
     // Build the entities.
     Set<SZEntity> szEntities = new HashSet<>();

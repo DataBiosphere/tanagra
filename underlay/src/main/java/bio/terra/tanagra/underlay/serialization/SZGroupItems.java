@@ -48,6 +48,15 @@ public class SZGroupItems {
   public String idPairsSqlFile;
 
   @AnnotatedField(
+      name = "SZGroupItems.useSourceIdPairsSql",
+      markdown =
+          "True to skip copying the id-pairs SQL into a new index table, and use the source SQL directly.\n\n"
+              + "Ignored if the [id pairs SQL](${SZGroupItems.idPairsSqlFile}) is undefined.",
+      optional = true,
+      defaultValue = "false")
+  public boolean useSourceIdPairsSql;
+
+  @AnnotatedField(
       name = "SZGroupItems.groupEntityIdFieldName",
       markdown =
           "Name of the field or column name that maps to the group entity id.\n\n"

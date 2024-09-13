@@ -2,12 +2,12 @@ package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.query.sql.SqlField;
-import bio.terra.tanagra.underlay.ColumnSchema;
-import bio.terra.tanagra.underlay.NameHelper;
+import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
+import bio.terra.tanagra.underlay.sourcetable.*;
 import com.google.common.collect.ImmutableList;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.stream.*;
 
 public final class ITRelationshipIdPairs extends IndexTable {
   private static final String TABLE_NAME = "RIDS";
@@ -15,6 +15,7 @@ public final class ITRelationshipIdPairs extends IndexTable {
   private final String entityGroup;
   private final String entityA;
   private final String entityB;
+  private final STRelationshipIdPairs sourceTable;
 
   public ITRelationshipIdPairs(
       NameHelper namer,
@@ -26,6 +27,20 @@ public final class ITRelationshipIdPairs extends IndexTable {
     this.entityGroup = entityGroup;
     this.entityA = entityA;
     this.entityB = entityB;
+    this.sourceTable = null;
+  }
+
+  public ITRelationshipIdPairs(
+      SourceSchema sourceSchema, String entityGroup, String entityA, String entityB) {
+    super(
+        sourceSchema
+            .getRelationshipIdPairs(entityGroup, entityA, entityB)
+            .getTablePointer()
+            .getSql());
+    this.entityGroup = entityGroup;
+    this.entityA = entityA;
+    this.entityB = entityB;
+    this.sourceTable = sourceSchema.getRelationshipIdPairs(entityGroup, entityA, entityB);
   }
 
   public String getEntityGroup() {
@@ -47,17 +62,22 @@ public final class ITRelationshipIdPairs extends IndexTable {
 
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
-    // Columns are static and don't depend on the entity.
-    return ImmutableList.copyOf(
-        Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    return sourceTable == null
+        ? ImmutableList.copyOf(
+            Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()))
+        : sourceTable.getColumnSchemas();
   }
 
   public SqlField getEntityAIdField() {
-    return SqlField.of(Column.ENTITY_A_ID.getSchema().getColumnName());
+    return sourceTable == null
+        ? SqlField.of(Column.ENTITY_A_ID.getSchema().getColumnName())
+        : sourceTable.getEntityAIdField();
   }
 
   public SqlField getEntityBIdField() {
-    return SqlField.of(Column.ENTITY_B_ID.getSchema().getColumnName());
+    return sourceTable == null
+        ? SqlField.of(Column.ENTITY_B_ID.getSchema().getColumnName())
+        : sourceTable.getEntityBIdField();
   }
 
   public SqlField getEntityIdField(String entity) {
