@@ -235,10 +235,7 @@ public abstract class EntityGroupFilterBuilderBase extends FilterBuilder {
 
     // Sort selected IDs so they're consistent for tests rather than returning them in the original
     // selection order.
-    selectedIdsPerEntityGroup.forEach(
-        (entityGroup, selectedIds) -> {
-          Collections.sort(selectedIds);
-        });
+    selectedIdsPerEntityGroup.forEach((entityGroup, selectedIds) -> Collections.sort(selectedIds));
     return selectedIdsPerEntityGroup;
   }
 
@@ -251,12 +248,7 @@ public abstract class EntityGroupFilterBuilderBase extends FilterBuilder {
       selectedEntityGroups = new ArrayList<>(selectedIdsPerEntityGroup.keySet());
     } else {
       selectedEntityGroups =
-          entityGroupIds().stream()
-              .map(
-                  entityGroupId -> {
-                    return underlay.getEntityGroup(entityGroupId);
-                  })
-              .collect(Collectors.toList());
+          entityGroupIds().stream().map(underlay::getEntityGroup).collect(Collectors.toList());
     }
 
     return selectedEntityGroups.stream()

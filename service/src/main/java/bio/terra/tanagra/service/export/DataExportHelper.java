@@ -174,7 +174,7 @@ public class DataExportHelper {
                       null,
                       1);
                 })
-            .collect(Collectors.toList());
+            .toList();
 
     Map<String, Long> totalNumRows = new HashMap<>();
     if (maxChildThreads == null || maxChildThreads > 1) {
@@ -297,7 +297,7 @@ public class DataExportHelper {
                       substitutedFilename,
                       true);
                 })
-            .collect(Collectors.toList());
+            .toList();
 
     List<ExportFileResult> exportFileResults = new ArrayList<>();
     if (maxChildThreads == null || maxChildThreads > 1) {

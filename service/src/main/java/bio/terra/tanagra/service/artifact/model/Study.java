@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.common.exception.*;
+import bio.terra.tanagra.service.ServiceUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import jakarta.annotation.Nullable;
@@ -8,7 +9,6 @@ import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -192,17 +192,20 @@ public class Study {
     }
 
     public Study build() {
+      // true if the id is empty or null
+      if (StringUtils.isEmpty(id)) {
+        id = ServiceUtils.newArtifactId();
+      }
       // Always have a map, even if it is empty
       if (properties == null) {
         properties = new HashMap<>();
       }
-      // true if the id is empty or null
-      if (StringUtils.isEmpty(id)) {
-        id = RandomStringUtils.randomAlphanumeric(10);
-      }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(
             "Study name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
+      }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
       }
       return new Study(this);
     }

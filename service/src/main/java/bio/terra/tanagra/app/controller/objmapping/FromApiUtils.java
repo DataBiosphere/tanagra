@@ -481,18 +481,13 @@ public final class FromApiUtils {
   }
 
   public static Literal fromApiObject(ApiLiteral apiLiteral) {
-    switch (apiLiteral.getDataType()) {
-      case INT64:
-        return Literal.forInt64(apiLiteral.getValueUnion().getInt64Val());
-      case STRING:
-        return Literal.forString(apiLiteral.getValueUnion().getStringVal());
-      case BOOLEAN:
-        return Literal.forBoolean(apiLiteral.getValueUnion().isBoolVal());
-      case DATE:
-        return Literal.forDate(apiLiteral.getValueUnion().getDateVal());
-      default:
-        throw new SystemException("Unknown API data type: " + apiLiteral.getDataType());
-    }
+    return switch (apiLiteral.getDataType()) {
+      case INT64 -> Literal.forInt64(apiLiteral.getValueUnion().getInt64Val());
+      case STRING -> Literal.forString(apiLiteral.getValueUnion().getStringVal());
+      case BOOLEAN -> Literal.forBoolean(apiLiteral.getValueUnion().isBoolVal());
+      case DATE -> Literal.forDate(apiLiteral.getValueUnion().getDateVal());
+      default -> throw new SystemException("Unknown API data type: " + apiLiteral.getDataType());
+    };
   }
 
   public static BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {

@@ -86,8 +86,8 @@ public class ReviewInstanceTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
-                .description("first cohort"),
-            USER_EMAIL_1,
+                .description("first cohort")
+                .createdBy(USER_EMAIL_1),
             List.of(
                 CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
                 CRITERIA_GROUP_SECTION_PROCEDURE));

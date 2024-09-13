@@ -114,49 +114,30 @@ public class AccessControlService {
               + ", "
               + resource.getType());
     }
-    Permissions resourcePermissions;
-    switch (resource.getType()) {
-      case UNDERLAY:
-        resourcePermissions = accessControlImpl.getUnderlay(user, resource);
-        break;
-      case STUDY:
-        resourcePermissions = accessControlImpl.getStudy(user, resource);
-        break;
-      case COHORT:
-        resourcePermissions = accessControlImpl.getCohort(user, resource);
-        break;
-      case FEATURE_SET:
-        resourcePermissions = accessControlImpl.getDataFeatureSet(user, resource);
-        break;
-      case REVIEW:
-        resourcePermissions = accessControlImpl.getReview(user, resource);
-        break;
-      case ANNOTATION_KEY:
-        resourcePermissions = accessControlImpl.getAnnotation(user, resource);
-        break;
-      case ACTIVITY_LOG:
-        resourcePermissions = accessControlImpl.getActivityLog(user);
-        break;
-      default:
-        throw new SystemException("Unsupported resource type: " + resource.getType());
-    }
+    Permissions resourcePermissions =
+        switch (resource.getType()) {
+          case UNDERLAY -> accessControlImpl.getUnderlay(user, resource);
+          case STUDY -> accessControlImpl.getStudy(user, resource);
+          case COHORT -> accessControlImpl.getCohort(user, resource);
+          case FEATURE_SET -> accessControlImpl.getDataFeatureSet(user, resource);
+          case REVIEW -> accessControlImpl.getReview(user, resource);
+          case ANNOTATION_KEY -> accessControlImpl.getAnnotation(user, resource);
+          case ACTIVITY_LOG -> accessControlImpl.getActivityLog(user);
+          default -> throw new SystemException("Unsupported resource type: " + resource.getType());
+        };
     return resourcePermissions.contains(permissions);
   }
 
   public ResourceCollection listAuthorizedResources(
       UserId user, Permissions permissions, int offset, int limit) {
-    ResourceCollection allResources;
-    switch (permissions.getType()) {
-      case UNDERLAY:
-        allResources = accessControlImpl.listUnderlays(user, offset, limit);
-        break;
-      case STUDY:
-        allResources = accessControlImpl.listStudies(user, offset, limit);
-        break;
-      default:
-        throw new SystemException(
-            "Listing " + permissions.getType() + " resources requires a parent resource id");
-    }
+    ResourceCollection allResources =
+        switch (permissions.getType()) {
+          case UNDERLAY -> accessControlImpl.listUnderlays(user, offset, limit);
+          case STUDY -> accessControlImpl.listStudies(user, offset, limit);
+          default ->
+              throw new SystemException(
+                  "Listing " + permissions.getType() + " resources requires a parent resource id");
+        };
     return allResources.filter(permissions);
   }
 
@@ -173,26 +154,20 @@ public class AccessControlService {
               + " is unexpected for child resource type "
               + permissions.getType());
     }
-    ResourceCollection allResources;
-    switch (permissions.getType()) {
-      case COHORT:
-        allResources = accessControlImpl.listCohorts(user, parentResource, offset, limit);
-        break;
-      case FEATURE_SET:
-        allResources = accessControlImpl.listDataFeatureSets(user, parentResource, offset, limit);
-        break;
-      case REVIEW:
-        allResources = accessControlImpl.listReviews(user, parentResource, offset, limit);
-        break;
-      case ANNOTATION_KEY:
-        allResources = accessControlImpl.listAnnotations(user, parentResource, offset, limit);
-        break;
-      default:
-        throw new SystemException(
-            "Listing "
-                + permissions.getType()
-                + " resources does not require a parent resource id");
-    }
+    ResourceCollection allResources =
+        switch (permissions.getType()) {
+          case COHORT -> accessControlImpl.listCohorts(user, parentResource, offset, limit);
+          case FEATURE_SET ->
+              accessControlImpl.listDataFeatureSets(user, parentResource, offset, limit);
+          case REVIEW -> accessControlImpl.listReviews(user, parentResource, offset, limit);
+          case ANNOTATION_KEY ->
+              accessControlImpl.listAnnotations(user, parentResource, offset, limit);
+          default ->
+              throw new SystemException(
+                  "Listing "
+                      + permissions.getType()
+                      + " resources does not require a parent resource id");
+        };
     return allResources.filter(permissions);
   }
 }

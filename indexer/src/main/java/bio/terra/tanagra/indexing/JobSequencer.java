@@ -497,14 +497,11 @@ public final class JobSequencer {
 
     public JobRunner getRunner(
         List<SequencedJobSet> jobSets, boolean isDryRun, IndexingJob.RunType runType) {
-      switch (this) {
-        case SERIAL:
-          return new SerialRunner(jobSets, isDryRun, runType);
-        case PARALLEL:
-          return new ParallelRunner(jobSets, isDryRun, runType);
-        default:
-          throw new IllegalArgumentException("Unknown JobExecution enum type: " + this);
-      }
+      return switch (this) {
+        case SERIAL -> new SerialRunner(jobSets, isDryRun, runType);
+        case PARALLEL -> new ParallelRunner(jobSets, isDryRun, runType);
+        default -> throw new IllegalArgumentException("Unknown JobExecution enum type: " + this);
+      };
     }
   }
 }

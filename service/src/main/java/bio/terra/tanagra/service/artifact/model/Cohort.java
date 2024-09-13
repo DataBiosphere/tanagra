@@ -4,6 +4,7 @@ import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LE
 
 import bio.terra.common.exception.*;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.service.ServiceUtils;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Cohort {
   private final String id;
@@ -155,11 +155,14 @@ public final class Cohort {
 
     public Cohort build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = ServiceUtils.newArtifactId();
       }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(
             "Cohort name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
+      }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
       }
       revisions = new ArrayList<>(revisions);
       revisions.sort(Comparator.comparing(CohortRevision::getVersion));
@@ -172,6 +175,10 @@ public final class Cohort {
 
     public String getUnderlay() {
       return underlay;
+    }
+
+    public String getCreatedBy() {
+      return createdBy;
     }
 
     public void addRevision(CohortRevision cohortRevision) {

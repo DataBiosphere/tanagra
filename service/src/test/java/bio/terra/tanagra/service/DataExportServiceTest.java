@@ -125,8 +125,10 @@ public class DataExportServiceTest {
     cohort1 =
         cohortService.createCohort(
             study1.getId(),
-            Cohort.builder().underlay(UNDERLAY_NAME).displayName("First Cohort"),
-            USER_EMAIL_1,
+            Cohort.builder()
+                .underlay(UNDERLAY_NAME)
+                .displayName("First Cohort")
+                .createdBy(USER_EMAIL_1),
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort {} at {}", cohort1.getId(), cohort1.getCreated());
@@ -134,8 +136,10 @@ public class DataExportServiceTest {
     cohort2 =
         cohortService.createCohort(
             study1.getId(),
-            Cohort.builder().underlay(UNDERLAY_NAME).displayName("Second Cohort"),
-            USER_EMAIL_1,
+            Cohort.builder()
+                .underlay(UNDERLAY_NAME)
+                .displayName("Second Cohort")
+                .createdBy(USER_EMAIL_1),
             List.of(CRITERIA_GROUP_SECTION_GENDER, CRITERIA_GROUP_SECTION_AGE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
