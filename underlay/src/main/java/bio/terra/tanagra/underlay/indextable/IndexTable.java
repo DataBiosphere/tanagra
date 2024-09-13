@@ -35,4 +35,8 @@ public abstract class IndexTable {
   }
 
   public abstract ImmutableList<ColumnSchema> getColumnSchemas();
+
+  public boolean isGeneratedIndexTable() {
+    return true;
+  }
 }

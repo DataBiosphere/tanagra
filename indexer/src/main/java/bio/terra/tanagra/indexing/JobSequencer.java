@@ -153,8 +153,8 @@ public final class JobSequencer {
 
     // If the relationship lives in an intermediate table, write the table to the index dataset.
     // e.g. To allow joins between brand-ingredient.
-    if (groupItems.getGroupItemsRelationship().isIntermediateTable()) {
-      Relationship relationship = groupItems.getGroupItemsRelationship();
+    Relationship relationship = groupItems.getGroupItemsRelationship();
+    if (relationship.isIntermediateTable()) {
       STRelationshipIdPairs sourceIdPairsTable =
           underlay
               .getSourceSchema()
@@ -169,10 +169,12 @@ public final class JobSequencer {
                   groupItems.getName(),
                   relationship.getEntityA().getName(),
                   relationship.getEntityB().getName());
-      jobSet.addJob(
-          new WriteRelationshipIntermediateTable(
-              indexerConfig, sourceIdPairsTable, indexIdPairsTable));
-      jobSet.startNewStage();
+      if (indexIdPairsTable.isGeneratedIndexTable()) {
+        jobSet.addJob(
+            new WriteRelationshipIntermediateTable(
+                indexerConfig, sourceIdPairsTable, indexIdPairsTable));
+        jobSet.startNewStage();
+      }
     }
 
     // Compute the criteria rollup counts for the group-items relationship.

@@ -84,6 +84,12 @@ public final class ITRelationshipIdPairs extends IndexTable {
     return entity.equals(entityA) ? getEntityAIdField() : getEntityBIdField();
   }
 
+  @Override
+  public boolean isGeneratedIndexTable() {
+    // TODO: Support using the source table instead of a generated index table for all IT* classes.
+    return sourceTable == null;
+  }
+
   public enum Column {
     ENTITY_A_ID(new ColumnSchema("entity_A_id", DataType.INT64)),
     ENTITY_B_ID(new ColumnSchema("entity_B_id", DataType.INT64));
