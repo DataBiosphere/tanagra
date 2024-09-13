@@ -5,7 +5,7 @@ plugins {
 
     id 'com.google.cloud.tools.jib' version '3.1.2'
     id 'org.hidetake.swagger.generator' version '2.19.2'
-    id 'org.springframework.boot' version '3.3.1'
+    id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.5'
     id 'org.barfuin.gradle.taskinfo' version '2.2.0'
     id 'net.linguica.maven-settings' version '0.5'
@@ -94,8 +94,10 @@ dependencies {
     implementation 'org.springframework.security:spring-security-core'
 
     // explicity declare libs and version to address synk warnings
-    implementation 'org.springframework:spring-web:6.1.12'
-    testFixturesImplementation 'org.springframework:spring-web:6.1.12'
+    implementation "org.springframework:spring-web:${gradle.vSpringWeb}"
+    implementation "org.springframework:spring-webmvc:${gradle.vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-web:${gradle.vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-webmvc:${gradle.vSpringWeb}"
 
     // [Application DB] MySQL/MariaDB
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
@@ -124,11 +126,11 @@ dependencies {
 
     // [Access control]: VUMC admin service
     // Changed form javax->jakarta, so using jersey3
-    implementation "org.glassfish.jersey.core:jersey-common:${gradle.vJersey3}"
-    implementation "org.glassfish.jersey.core:jersey-client:${gradle.vJersey3}"
-    implementation "org.glassfish.jersey.inject:jersey-hk2:${gradle.vJersey3}"
-    implementation "org.glassfish.jersey.media:jersey-media-multipart:${gradle.vJersey3}"
-    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${gradle.vJersey3}"
+    implementation "org.glassfish.jersey.core:jersey-common:${gradle.vJersey}"
+    implementation "org.glassfish.jersey.core:jersey-client:${gradle.vJersey}"
+    implementation "org.glassfish.jersey.inject:jersey-hk2:${gradle.vJersey}"
+    implementation "org.glassfish.jersey.media:jersey-media-multipart:${gradle.vJersey}"
+    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${gradle.vJersey}"
 
     implementation 'org.vumc.vda.tanagra:admin-client:0.0.113-SNAPSHOT'
 
