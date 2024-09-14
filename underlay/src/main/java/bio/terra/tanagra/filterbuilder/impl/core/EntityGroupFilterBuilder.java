@@ -18,6 +18,7 @@ public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
     super(criteriaSelector);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public CFEntityGroup.EntityGroup deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -25,6 +26,7 @@ public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
         .build();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DTEntityGroup.EntityGroup deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

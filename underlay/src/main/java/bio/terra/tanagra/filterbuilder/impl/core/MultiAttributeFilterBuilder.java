@@ -112,6 +112,7 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
         BooleanAndOrFilter.LogicalOperator.AND);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public CFMultiAttribute.MultiAttribute deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -119,6 +120,7 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
         .build();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DTMultiAttribute.MultiAttribute deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

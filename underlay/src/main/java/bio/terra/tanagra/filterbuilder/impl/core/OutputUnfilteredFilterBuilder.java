@@ -50,6 +50,7 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
     return entityOutputs;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public CFOutputUnfiltered.OutputUnfiltered deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -57,6 +58,7 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
         .build();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DTOutputUnfiltered.OutputUnfiltered deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

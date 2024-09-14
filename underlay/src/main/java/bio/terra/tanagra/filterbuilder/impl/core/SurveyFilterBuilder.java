@@ -18,6 +18,7 @@ public class SurveyFilterBuilder extends EntityGroupFilterBuilderBase {
     super(criteriaSelector);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public CFSurvey.Survey deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -25,6 +26,7 @@ public class SurveyFilterBuilder extends EntityGroupFilterBuilderBase {
         .build();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DTSurvey.Survey deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

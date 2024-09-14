@@ -219,6 +219,7 @@ public class TextSearchFilterBuilder extends FilterBuilder {
         filtersPerEntity, BooleanAndOrFilter.LogicalOperator.AND);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public CFTextSearch.TextSearch deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -226,6 +227,7 @@ public class TextSearchFilterBuilder extends FilterBuilder {
         .build();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DTTextSearch.TextSearch deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

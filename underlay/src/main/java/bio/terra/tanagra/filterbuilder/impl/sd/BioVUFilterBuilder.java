@@ -125,6 +125,7 @@ public class BioVUFilterBuilder extends FilterBuilder {
     throw new InvalidQueryException("Data features unsupported for BioVU plugin");
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public CFBioVU.BioVU deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -132,6 +133,7 @@ public class BioVUFilterBuilder extends FilterBuilder {
         .build();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DTBioVU.BioVU deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

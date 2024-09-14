@@ -37,11 +37,13 @@ public class PrimaryEntityFilterBuilder extends FilterBuilder {
     return List.of(EntityOutput.unfiltered(underlay.getPrimaryEntity()));
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public CFAttribute.Attribute deserializeConfig() {
     return AttributeSchemaUtils.deserializeConfig(criteriaSelector.getPluginConfig());
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public DTAttribute.Attribute deserializeData(String serialized) {
     return AttributeSchemaUtils.deserializeData(serialized);
