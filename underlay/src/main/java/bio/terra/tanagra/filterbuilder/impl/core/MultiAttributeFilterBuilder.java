@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class MultiAttributeFilterBuilder extends FilterBuilder {
+public class MultiAttributeFilterBuilder extends FilterBuilder<CFMultiAttribute.MultiAttribute, DTMultiAttribute.MultiAttribute> {
   public MultiAttributeFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
@@ -112,7 +112,6 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
         BooleanAndOrFilter.LogicalOperator.AND);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CFMultiAttribute.MultiAttribute deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -120,7 +119,6 @@ public class MultiAttributeFilterBuilder extends FilterBuilder {
         .build();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public DTMultiAttribute.MultiAttribute deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

@@ -19,7 +19,7 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BioVUFilterBuilder extends FilterBuilder {
+public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.BioVU> {
   private static final String SAMPLE_HAS_PLASMA_ATTRIBUTE = "biovu_sample_has_plasma";
   private static final String HAS_SAMPLE_ATTRIBUTE = "has_biovu_sample";
   private static final String SAMPLE_DNA_YIELD_ATTRIBUTE = "biovu_sample_dna_yield";
@@ -125,7 +125,6 @@ public class BioVUFilterBuilder extends FilterBuilder {
     throw new InvalidQueryException("Data features unsupported for BioVU plugin");
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CFBioVU.BioVU deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -133,7 +132,6 @@ public class BioVUFilterBuilder extends FilterBuilder {
         .build();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public DTBioVU.BioVU deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

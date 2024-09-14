@@ -14,7 +14,7 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OutputUnfilteredFilterBuilder extends FilterBuilder {
+public class OutputUnfilteredFilterBuilder extends FilterBuilder<CFOutputUnfiltered.OutputUnfiltered, DTOutputUnfiltered.OutputUnfiltered> {
   public OutputUnfilteredFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
@@ -50,7 +50,6 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
     return entityOutputs;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CFOutputUnfiltered.OutputUnfiltered deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -58,7 +57,6 @@ public class OutputUnfilteredFilterBuilder extends FilterBuilder {
         .build();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public DTOutputUnfiltered.OutputUnfiltered deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

@@ -13,12 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
+public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase<CFEntityGroup.EntityGroup, DTEntityGroup.EntityGroup> {
   public EntityGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CFEntityGroup.EntityGroup deserializeConfig() {
     return deserializeFromJsonOrProtoBytes(
@@ -26,7 +25,6 @@ public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
         .build();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public DTEntityGroup.EntityGroup deserializeData(String serialized) {
     return (serialized == null || serialized.isEmpty())

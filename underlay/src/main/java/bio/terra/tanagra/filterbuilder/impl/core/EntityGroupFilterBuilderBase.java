@@ -40,7 +40,7 @@ import org.apache.commons.lang3.tuple.Pair;
 @SuppressFBWarnings(
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
     justification = "The config and data objects are deserialized by Jackson.")
-public abstract class EntityGroupFilterBuilderBase extends FilterBuilder {
+public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder<CF, DT> {
   public EntityGroupFilterBuilderBase(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }

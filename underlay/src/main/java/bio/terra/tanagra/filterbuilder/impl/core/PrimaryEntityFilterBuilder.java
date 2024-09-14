@@ -12,7 +12,7 @@ import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.List;
 
-public class PrimaryEntityFilterBuilder extends FilterBuilder {
+public class PrimaryEntityFilterBuilder extends FilterBuilder<CFAttribute.Attribute, DTAttribute.Attribute> {
   public PrimaryEntityFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
@@ -37,13 +37,11 @@ public class PrimaryEntityFilterBuilder extends FilterBuilder {
     return List.of(EntityOutput.unfiltered(underlay.getPrimaryEntity()));
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public CFAttribute.Attribute deserializeConfig() {
     return AttributeSchemaUtils.deserializeConfig(criteriaSelector.getPluginConfig());
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public DTAttribute.Attribute deserializeData(String serialized) {
     return AttributeSchemaUtils.deserializeData(serialized);

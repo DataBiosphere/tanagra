@@ -6,7 +6,7 @@ import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.List;
 
-public abstract class FilterBuilder {
+public abstract class FilterBuilder<CF, DT> {
   protected final CriteriaSelector criteriaSelector;
 
   public FilterBuilder(CriteriaSelector criteriaSelector) {
@@ -18,7 +18,7 @@ public abstract class FilterBuilder {
   public abstract List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData);
 
-  public abstract <T> T deserializeConfig();
+  public abstract CF deserializeConfig();
 
-  public abstract <T> T deserializeData(String serialized);
+  public abstract DT deserializeData(String serialized);
 }
