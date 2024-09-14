@@ -14,7 +14,9 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OutputUnfilteredFilterBuilder extends FilterBuilder<CFOutputUnfiltered.OutputUnfiltered, DTOutputUnfiltered.OutputUnfiltered> {
+public class OutputUnfilteredFilterBuilder
+    extends FilterBuilder<
+        CFOutputUnfiltered.OutputUnfiltered, DTOutputUnfiltered.OutputUnfiltered> {
   public OutputUnfilteredFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }

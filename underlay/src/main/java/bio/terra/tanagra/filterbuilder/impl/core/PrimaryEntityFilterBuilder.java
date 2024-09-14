@@ -12,7 +12,8 @@ import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.List;
 
-public class PrimaryEntityFilterBuilder extends FilterBuilder<CFAttribute.Attribute, DTAttribute.Attribute> {
+public class PrimaryEntityFilterBuilder
+    extends FilterBuilder<CFAttribute.Attribute, DTAttribute.Attribute> {
   public PrimaryEntityFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
