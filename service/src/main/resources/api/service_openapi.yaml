@@ -2402,12 +2402,16 @@ components:
         excluded:
           type: boolean
           description: True to exclude the section, false to include it
+        disabled:
+          type: boolean
+          description: True to disable the section
       required:
         - id
         - displayName
         - criteriaGroups
         - operator
         - excluded
+        - disabled
 
     ReducingOperator:
       description: |
@@ -2431,10 +2435,14 @@ components:
           description: Set of criteria in the group
           items:
             $ref: "#/components/schemas/Criteria"
+        disabled:
+          type: boolean
+          description: True to disable the group
       required:
         - id
         - displayName
         - criteria
+        - disabled
 
     Criteria:
       type: object

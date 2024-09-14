@@ -69,7 +69,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria group section.
   private static final String CRITERIA_GROUP_SECTION_SELECT_SQL =
-      "SELECT cohort_revision_id, id, display_name, operator, is_excluded, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value FROM criteria_group_section";
+      "SELECT cohort_revision_id, id, display_name, operator, is_excluded, is_disabled, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value FROM criteria_group_section";
   private static final RowMapper<Pair<String, CohortRevision.CriteriaGroupSection.Builder>>
       CRITERIA_GROUP_SECTION_ROW_MAPPER =
           (rs, rowNum) ->
@@ -81,6 +81,7 @@ public class CohortDao {
                       .operator(
                           BooleanAndOrFilter.LogicalOperator.valueOf(rs.getString("operator")))
                       .setIsExcluded(rs.getBoolean("is_excluded"))
+                      .setIsDisabled(rs.getBoolean("is_disabled"))
                       .firstConditionReducingOperator(
                           rs.getString("first_condition_reducing_operator") == null
                               ? null
@@ -99,7 +100,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria group.
   private static final String CRITERIA_GROUP_SELECT_SQL =
-      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name, condition_index FROM criteria_group";
+      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, is_disabled FROM criteria_group";
   private static final RowMapper<
           Pair<Pair<List<String>, Integer>, CohortRevision.CriteriaGroup.Builder>>
       CRITERIA_GROUP_ROW_MAPPER =
@@ -112,7 +113,8 @@ public class CohortDao {
                       rs.getObject("condition_index", Integer.class)),
                   CohortRevision.CriteriaGroup.builder()
                       .id(rs.getString("id"))
-                      .displayName(rs.getString("display_name")));
+                      .displayName(rs.getString("display_name"))
+                      .isDisabled(rs.getBoolean("is_disabled")));
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
