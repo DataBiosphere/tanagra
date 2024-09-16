@@ -114,6 +114,7 @@ export type SZGroupItems = {
   itemsEntity: string;
   itemsEntityIdFieldName?: string;
   name: string;
+  rollupCountsSql?: SZRollupCountsSql;
   useSourceIdPairsSql?: boolean;
 };
 
@@ -174,6 +175,12 @@ export type SZPrimaryRelationship = {
   idPairsSqlFile?: string;
   occurrenceEntityIdFieldName?: string;
   primaryEntityIdFieldName?: string;
+};
+
+export type SZRollupCountsSql = {
+  entityIdFieldName: string;
+  rollupCountFieldName: string;
+  sqlFile: string;
 };
 
 export type SZService = {
