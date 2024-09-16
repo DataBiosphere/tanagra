@@ -53,11 +53,6 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
     // We want to build one filter per entity group, not one filter per selected id.
     Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
         selectedIdsPerEntityGroup(underlay, criteriaSelectionData);
-    if (selectedIdsPerEntityGroup.isEmpty() && modifiersSelectionData.isEmpty()) {
-      // Empty selection data = null filter for a cohort.
-      return null;
-    }
-
     List<EntityGroup> selectedEntityGroups =
         selectedEntityGroups(underlay, selectedIdsPerEntityGroup);
 
@@ -139,9 +134,9 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
         throw new InvalidQueryException("Group by modifiers are not supported for data features");
       }
 
-      // We want to build filters per entity group, not per selected id.
       ValueDataOuterClass.ValueData valueData = valueData(criteriaSelectionData);
 
+      // We want to build filters per entity group, not per selected id.
       Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
       selectedEntityGroups.forEach(
           entityGroup -> {

@@ -3,7 +3,6 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -266,21 +265,33 @@ public class EntityGroupFilterBuilderForItemsTest {
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
+    EntityFilter expectedCohortFilter =
+        new GroupHasItemsFilter(
+            underlay,
+            (GroupItems) underlay.getEntityGroup("bloodPressurePerson"),
+            null,
+            null,
+            null,
+            null);
+
     // Null selection data.
     SelectionData selectionData = new SelectionData("bloodPressure", null);
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
 
     // Empty string selection data.
     selectionData = new SelectionData("bloodPressure", "");
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
 
     // Empty list selection.
     DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
     selectionData = new SelectionData("bloodPressure", serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
   }
 
   @Test

@@ -5,13 +5,12 @@ import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBy
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
-import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup.EntityGroup.EntityGroupConfig;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EntityGroupFilterBuilder
     extends EntityGroupFilterBuilderBase<CFEntityGroup.EntityGroup, DTEntityGroup.EntityGroup> {
@@ -36,9 +35,12 @@ public class EntityGroupFilterBuilder
 
   @Override
   protected List<String> entityGroupIds() {
-    return deserializeConfig().getClassificationEntityGroupsList().stream()
-        .map(EntityGroupConfig::getId)
-        .collect(Collectors.toList());
+    CFEntityGroup.EntityGroup config = deserializeConfig();
+    return Stream.concat(
+            config.getClassificationEntityGroupsList().stream(),
+            config.getGroupingEntityGroupsList().stream())
+        .map(CFEntityGroup.EntityGroup.EntityGroupConfig::getId)
+        .toList();
   }
 
   @Override
@@ -59,6 +61,8 @@ public class EntityGroupFilterBuilder
   @Override
   protected ValueDataOuterClass.ValueData valueData(String serializedSelectionData) {
     DTEntityGroup.EntityGroup selectionData = deserializeData(serializedSelectionData);
-    return selectionData.hasValueData() ? selectionData.getValueData() : null;
+    return selectionData != null && selectionData.hasValueData()
+        ? selectionData.getValueData()
+        : null;
   }
 }
