@@ -2405,13 +2405,13 @@ components:
         disabled:
           type: boolean
           description: True to disable the section
+          default: false
       required:
         - id
         - displayName
         - criteriaGroups
         - operator
         - excluded
-        - disabled
 
     ReducingOperator:
       description: |
@@ -2438,11 +2438,11 @@ components:
         disabled:
           type: boolean
           description: True to disable the group
+          default: false
       required:
         - id
         - displayName
         - criteria
-        - disabled
 
     Criteria:
       type: object
