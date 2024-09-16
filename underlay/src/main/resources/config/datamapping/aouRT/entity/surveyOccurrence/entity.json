@@ -12,6 +12,7 @@
     { "name": "answer", "dataType": "INT64", "valueFieldName": "answer_concept_id", "displayFieldName": "answer_concept_name" },
     { "name": "survey_version_concept_id", "dataType": "INT64" },
     { "name": "survey_version_name", "dataType": "STRING" },
+    { "name": "survey_version", "dataType": "INT64", "valueFieldName": "survey_version_concept_id", "displayFieldName": "survey_version_name" },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number", "isSuppressedForExport": true },
     { "name": "survey_item_id", "dataType": "INT64", "isSuppressedForExport": true }
   ],
