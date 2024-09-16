@@ -106,7 +106,10 @@ public final class IndexSchema {
   }
 
   public static IndexSchema fromConfig(
-      SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
+      SZBigQuery szBigQuery,
+      SZUnderlay szUnderlay,
+      ConfigReader configReader,
+      SourceSchema sourceSchema) {
     NameHelper nameHelper = new NameHelper(szBigQuery.indexData.tablePrefix);
 
     List<ITEntityMain> entityMainTables = new ArrayList<>();
@@ -116,7 +119,7 @@ public final class IndexSchema {
     List<ITRelationshipIdPairs> relationshipIdPairTables = new ArrayList<>();
     List<ITInstanceLevelDisplayHints> instanceLevelDisplayHintTables = new ArrayList<>();
 
-    // Build source tables for each entity.
+    // Build index tables for each entity.
     szUnderlay.entities.forEach(
         entityPath ->
             fromConfigEntity(
@@ -130,12 +133,13 @@ public final class IndexSchema {
                 hierarchyChildParentTables,
                 hierarchyAncestorDescendantTables));
 
-    // Build source tables for each entity group.
+    // Build index tables for each entity group.
     szUnderlay.groupItemsEntityGroups.forEach(
         groupItemsPath ->
             fromConfigGroupItems(
                 groupItemsPath,
                 configReader,
+                sourceSchema,
                 nameHelper,
                 szBigQuery.indexData,
                 relationshipIdPairTables));
@@ -219,19 +223,29 @@ public final class IndexSchema {
   private static void fromConfigGroupItems(
       String groupItemsPath,
       ConfigReader configReader,
+      SourceSchema sourceSchema,
       NameHelper nameHelper,
       SZBigQuery.IndexData szBigQueryIndexData,
       List<ITRelationshipIdPairs> relationshipIdPairTables) {
     SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
     if (szGroupItems.idPairsSqlFile != null) {
       // RelationshipIdPairs table.
-      relationshipIdPairTables.add(
-          new ITRelationshipIdPairs(
-              nameHelper,
-              szBigQueryIndexData,
-              szGroupItems.name,
-              szGroupItems.groupEntity,
-              szGroupItems.itemsEntity));
+      if (szGroupItems.useSourceIdPairsSql) {
+        relationshipIdPairTables.add(
+            new ITRelationshipIdPairs(
+                sourceSchema,
+                szGroupItems.name,
+                szGroupItems.groupEntity,
+                szGroupItems.itemsEntity));
+      } else {
+        relationshipIdPairTables.add(
+            new ITRelationshipIdPairs(
+                nameHelper,
+                szBigQueryIndexData,
+                szGroupItems.name,
+                szGroupItems.groupEntity,
+                szGroupItems.itemsEntity));
+      }
     }
   }
 

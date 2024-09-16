@@ -6,15 +6,10 @@ import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.underlay.sourcetable.STEntityAttributes;
-import bio.terra.tanagra.underlay.sourcetable.STHierarchyChildParent;
-import bio.terra.tanagra.underlay.sourcetable.STHierarchyRootFilter;
-import bio.terra.tanagra.underlay.sourcetable.STRelationshipIdPairs;
-import bio.terra.tanagra.underlay.sourcetable.STTextSearchTerms;
+import bio.terra.tanagra.underlay.sourcetable.*;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @SuppressFBWarnings(
     value = "NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD",
@@ -26,18 +21,21 @@ public final class SourceSchema {
   private final ImmutableList<STHierarchyChildParent> hierarchyChildParentTables;
   private final ImmutableList<STHierarchyRootFilter> hierarchyRootFilterTables;
   private final ImmutableList<STRelationshipIdPairs> relationshipIdPairTables;
+  private final ImmutableList<STRelationshipRollupCounts> relationshipRollupCountTables;
 
   private SourceSchema(
       List<STEntityAttributes> entityAttributesTables,
       List<STTextSearchTerms> textSearchTermsTables,
       List<STHierarchyChildParent> hierarchyChildParentTables,
       List<STHierarchyRootFilter> hierarchyRootFilterTables,
-      List<STRelationshipIdPairs> relationshipIdPairTables) {
+      List<STRelationshipIdPairs> relationshipIdPairTables,
+      List<STRelationshipRollupCounts> relationshipRollupCountTables) {
     this.entityAttributesTables = ImmutableList.copyOf(entityAttributesTables);
     this.textSearchTermsTables = ImmutableList.copyOf(textSearchTermsTables);
     this.hierarchyChildParentTables = ImmutableList.copyOf(hierarchyChildParentTables);
     this.hierarchyRootFilterTables = ImmutableList.copyOf(hierarchyRootFilterTables);
     this.relationshipIdPairTables = ImmutableList.copyOf(relationshipIdPairTables);
+    this.relationshipRollupCountTables = ImmutableList.copyOf(relationshipRollupCountTables);
   }
 
   public STEntityAttributes getEntityAttributes(String entity) {
@@ -99,6 +97,17 @@ public final class SourceSchema {
         .orElseThrow();
   }
 
+  public Optional<STRelationshipRollupCounts> getRelationshipRollupCounts(
+      String entityGroup, String entity, String countedEntity) {
+    return relationshipRollupCountTables.stream()
+        .filter(
+            relationshipRollupCounts ->
+                relationshipRollupCounts.getEntityGroup().equals(entityGroup)
+                    && relationshipRollupCounts.getEntity().equals(entity)
+                    && relationshipRollupCounts.getCountedEntity().equals(countedEntity))
+        .findFirst();
+  }
+
   public static SourceSchema fromConfig(
       SZBigQuery szBigQuery, SZUnderlay szUnderlay, ConfigReader configReader) {
     List<STEntityAttributes> entityAttributesTables = new ArrayList<>();
@@ -106,6 +115,7 @@ public final class SourceSchema {
     List<STHierarchyChildParent> hierarchyChildParentTables = new ArrayList<>();
     List<STHierarchyRootFilter> hierarchyRootFilterTables = new ArrayList<>();
     List<STRelationshipIdPairs> relationshipIdPairTables = new ArrayList<>();
+    List<STRelationshipRollupCounts> relationshipRollupCountTables = new ArrayList<>();
 
     // Build source tables for each entity.
     szUnderlay.entities.forEach(
@@ -121,7 +131,11 @@ public final class SourceSchema {
     // Build source tables for each entity group.
     szUnderlay.groupItemsEntityGroups.forEach(
         groupItemsPath ->
-            fromConfigGroupItems(groupItemsPath, configReader, relationshipIdPairTables));
+            fromConfigGroupItems(
+                groupItemsPath,
+                configReader,
+                relationshipIdPairTables,
+                relationshipRollupCountTables));
     szUnderlay.criteriaOccurrenceEntityGroups.forEach(
         criteriaOccurrencePath ->
             fromConfigCriteriaOccurrence(
@@ -134,7 +148,8 @@ public final class SourceSchema {
         textSearchTermsTables,
         hierarchyChildParentTables,
         hierarchyRootFilterTables,
-        relationshipIdPairTables);
+        relationshipIdPairTables,
+        relationshipRollupCountTables);
   }
 
   private static void fromConfigEntity(
@@ -184,7 +199,8 @@ public final class SourceSchema {
   private static void fromConfigGroupItems(
       String groupItemsPath,
       ConfigReader configReader,
-      List<STRelationshipIdPairs> relationshipIdPairTables) {
+      List<STRelationshipIdPairs> relationshipIdPairTables,
+      List<STRelationshipRollupCounts> relationshipRollupCountTables) {
     SZGroupItems szGroupItems = configReader.readGroupItems(groupItemsPath);
     if (szGroupItems.idPairsSqlFile != null) {
       // RelationshipIdPairs table.
@@ -199,6 +215,20 @@ public final class SourceSchema {
               szGroupItems.itemsEntity,
               szGroupItems.groupEntityIdFieldName,
               szGroupItems.itemsEntityIdFieldName));
+    }
+    if (szGroupItems.rollupCountsSql != null) {
+      // RelationshipRollupCounts table.
+      String rollupCountsSql =
+          configReader.readEntityGroupSql(groupItemsPath, szGroupItems.rollupCountsSql.sqlFile);
+      BQTable rollupCountsTable = new BQTable(rollupCountsSql);
+      relationshipRollupCountTables.add(
+          new STRelationshipRollupCounts(
+              rollupCountsTable,
+              szGroupItems.name,
+              szGroupItems.groupEntity,
+              szGroupItems.itemsEntity,
+              szGroupItems.rollupCountsSql.entityIdFieldName,
+              szGroupItems.rollupCountsSql.rollupCountFieldName));
     }
   }
 
