@@ -1,9 +1,11 @@
 package bio.terra.tanagra.service;
 
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_CONDITION_AND_DISABLED_DEMOGRAPHICS;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_PROCEDURE;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_TEMPORAL_DURING_SAME_ENCOUNTER;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.CRITERIA_GROUP_SECTION_TEMPORAL_WITHIN_NUM_DAYS;
+import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.CriteriaGroupSection.DISABLED_CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -279,6 +281,27 @@ public class CohortServiceTest {
     assertEquals(
         List.of(
             CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION, CRITERIA_GROUP_SECTION_PROCEDURE),
+        updatedCohort1.getMostRecentRevision().getSections());
+
+    // Update cohort1 with disabled criteria group section and disabled criteria group.
+    updatedCohort1 =
+        cohortService.updateCohort(
+            study1.getId(),
+            cohort1.getId(),
+            USER_EMAIL_1,
+            null,
+            null,
+            List.of(
+                DISABLED_CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
+                CRITERIA_GROUP_SECTION_CONDITION_AND_DISABLED_DEMOGRAPHICS));
+    assertNotNull(updatedCohort1);
+    LOGGER.info(
+        "Updated cohort {} at {}", updatedCohort1.getId(), updatedCohort1.getLastModified());
+    assertEquals(2, updatedCohort1.getMostRecentRevision().getSections().size());
+    assertEquals(
+        List.of(
+            DISABLED_CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
+            CRITERIA_GROUP_SECTION_CONDITION_AND_DISABLED_DEMOGRAPHICS),
         updatedCohort1.getMostRecentRevision().getSections());
 
     // Create cohort2 with criteria.

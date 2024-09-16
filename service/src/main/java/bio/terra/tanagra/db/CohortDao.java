@@ -629,6 +629,7 @@ public class CohortDao {
                   cgs.getJoinOperator() == null ? null : cgs.getJoinOperator().name())
               .addValue("join_operator_value", cgs.getJoinOperatorValue())
               .addValue("is_excluded", cgs.isExcluded())
+              .addValue("is_disabled", cgs.isDisabled())
               .addValue("list_index", cgsListIndex));
 
       buildParamsForUpdateCriteriaHelper(
@@ -650,8 +651,8 @@ public class CohortDao {
     }
 
     sql =
-        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
-            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
+        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, is_disabled, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
+            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :is_disabled, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
     LOGGER.debug("CREATE criteria_group_section: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -661,8 +662,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index)";
+        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index, is_disabled) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index, :is_disabled)";
     LOGGER.debug("CREATE criteria_group: {}", sql);
     rowsAffected =
         Arrays.stream(
@@ -709,7 +710,8 @@ public class CohortDao {
               .addValue("id", cg.getId())
               .addValue("display_name", cg.getDisplayName())
               .addValue("list_index", cgListIndex)
-              .addValue("condition_index", criteriaGroupConditionIndex));
+              .addValue("condition_index", criteriaGroupConditionIndex)
+              .addValue("is_disabled", cg.isDisabled()));
 
       for (int cListIndex = 0; cListIndex < cg.getCriteria().size(); cListIndex++) {
         Criteria c = cg.getCriteria().get(cListIndex);
