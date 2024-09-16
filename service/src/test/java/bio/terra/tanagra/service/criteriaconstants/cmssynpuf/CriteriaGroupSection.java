@@ -34,6 +34,29 @@ public final class CriteriaGroupSection {
               .operator(BooleanAndOrFilter.LogicalOperator.OR)
               .build();
 
+  public static final CohortRevision.CriteriaGroupSection
+      DISABLED_CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION =
+          CohortRevision.CriteriaGroupSection.builder()
+              .displayName("disabled section demographics and condition")
+              .criteriaGroups(
+                  List.of(
+                      CriteriaGroup.CRITERIA_GROUP_DEMOGRAPHICS,
+                      CriteriaGroup.CRITERIA_GROUP_CONDITION))
+              .operator(BooleanAndOrFilter.LogicalOperator.OR)
+              .setIsDisabled(true)
+              .build();
+
+  public static final CohortRevision.CriteriaGroupSection
+      CRITERIA_GROUP_SECTION_CONDITION_AND_DISABLED_DEMOGRAPHICS =
+          CohortRevision.CriteriaGroupSection.builder()
+              .displayName("section condition and disabled demographics")
+              .criteriaGroups(
+                  List.of(
+                      CriteriaGroup.CRITERIA_GROUP_CONDITION,
+                      CriteriaGroup.DISABLED_CRITERIA_GROUP_DEMOGRAPHICS))
+              .operator(BooleanAndOrFilter.LogicalOperator.OR)
+              .build();
+
   public static final CohortRevision.CriteriaGroupSection CRITERIA_GROUP_SECTION_PROCEDURE =
       CohortRevision.CriteriaGroupSection.builder()
           .displayName("section procedure")

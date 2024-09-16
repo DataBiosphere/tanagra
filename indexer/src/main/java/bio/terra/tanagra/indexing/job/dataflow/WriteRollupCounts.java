@@ -17,6 +17,8 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.sourcetable.*;
+import com.google.api.*;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -78,6 +80,7 @@ public class WriteRollupCounts extends BigQueryJob {
   private final @Nullable ITRelationshipIdPairs relationshipIdPairsIndexTable;
   private final @Nullable Hierarchy hierarchy;
   private final @Nullable ITHierarchyAncestorDescendant ancestorDescendantTable;
+  private final @Nullable STRelationshipRollupCounts relationshipRollupCountsSourceTable;
 
   @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
   public WriteRollupCounts(
@@ -90,7 +93,8 @@ public class WriteRollupCounts extends BigQueryJob {
       ITEntityMain countedEntityIndexTable,
       @Nullable ITRelationshipIdPairs relationshipIdPairsIndexTable,
       @Nullable Hierarchy hierarchy,
-      @Nullable ITHierarchyAncestorDescendant ancestorDescendantTable) {
+      @Nullable ITHierarchyAncestorDescendant ancestorDescendantTable,
+      @Nullable STRelationshipRollupCounts relationshipRollupCountsSourceTable) {
     super(indexerConfig);
     this.entityGroup = entityGroup;
     this.entity = entity;
@@ -101,6 +105,7 @@ public class WriteRollupCounts extends BigQueryJob {
     this.relationshipIdPairsIndexTable = relationshipIdPairsIndexTable;
     this.hierarchy = hierarchy;
     this.ancestorDescendantTable = ancestorDescendantTable;
+    this.relationshipRollupCountsSourceTable = relationshipRollupCountsSourceTable;
   }
 
   @Override
@@ -136,16 +141,20 @@ public class WriteRollupCounts extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    // Only run the Dataflow job if the temp table hasn't been written yet.
-    Optional<Table> tempTable =
-        googleBigQuery.getTable(
-            indexerConfig.bigQuery.indexData.projectId,
-            indexerConfig.bigQuery.indexData.datasetId,
-            getTempTableName());
-    if (tempTable.isEmpty()) {
-      writeFieldsToTempTable(isDryRun);
+    if (relationshipRollupCountsSourceTable == null) {
+      // Only run the Dataflow job if the temp table hasn't been written yet.
+      Optional<Table> tempTable =
+          googleBigQuery.getTable(
+              indexerConfig.bigQuery.indexData.projectId,
+              indexerConfig.bigQuery.indexData.datasetId,
+              getTempTableName());
+      if (tempTable.isEmpty()) {
+        writeFieldsToTempTable(isDryRun);
+      } else {
+        LOGGER.info("Temp table has already been written. Skipping Dataflow job.");
+      }
     } else {
-      LOGGER.info("Temp table has already been written. Skipping Dataflow job.");
+      LOGGER.info("Rollup counts source SQL is defined. Skipping Dataflow job.");
     }
 
     // Dataflow jobs can only write new rows to BigQuery, so in this second step, copy over the
@@ -353,21 +362,30 @@ public class WriteRollupCounts extends BigQueryJob {
         indexTable.getEntityGroupCountField(
             entityGroup.getName(), hierarchy == null ? null : hierarchy.getName());
 
-    BQTable tempBQTable =
-        new BQTable(
-            indexerConfig.bigQuery.indexData.projectId,
-            indexerConfig.bigQuery.indexData.datasetId,
-            getTempTableName());
-    SqlField tempTableIdField = SqlField.of(entityTableIdField.getColumnName());
-    SqlField tempTableCountField = SqlField.of(entityTableCountField.getColumnName());
-    String tempTableSql =
+    BQTable rollupCountsBQTable;
+    SqlField rollupCountsTableIdField;
+    SqlField rollupCountsTableCountField;
+    if (relationshipRollupCountsSourceTable == null) {
+      rollupCountsBQTable =
+          new BQTable(
+              indexerConfig.bigQuery.indexData.projectId,
+              indexerConfig.bigQuery.indexData.datasetId,
+              getTempTableName());
+      rollupCountsTableIdField = SqlField.of(entityTableIdField.getColumnName());
+      rollupCountsTableCountField = SqlField.of(entityTableCountField.getColumnName());
+    } else {
+      rollupCountsBQTable = relationshipRollupCountsSourceTable.getTablePointer();
+      rollupCountsTableIdField = relationshipRollupCountsSourceTable.getEntityIdField();
+      rollupCountsTableCountField = relationshipRollupCountsSourceTable.getCountField();
+    }
+    String rollupCountsTableSql =
         "SELECT "
-            + SqlQueryField.of(tempTableIdField).renderForSelect()
+            + SqlQueryField.of(rollupCountsTableIdField).renderForSelect()
             + ", "
-            + SqlQueryField.of(tempTableCountField).renderForSelect()
+            + SqlQueryField.of(rollupCountsTableCountField).renderForSelect()
             + " FROM "
-            + tempBQTable.render();
-    LOGGER.info("temp table query: {}", tempTableSql);
+            + rollupCountsBQTable.render();
+    LOGGER.info("rollup counts table query: {}", rollupCountsTableSql);
 
     // Build an update-from-select query for the index entity main table and the
     // id-count query.
@@ -381,19 +399,19 @@ public class WriteRollupCounts extends BigQueryJob {
             + " SET "
             + SqlQueryField.of(entityTableCountField).renderForSelect(updateTableAlias)
             + " = "
-            + SqlQueryField.of(tempTableCountField).renderForSelect(tempTableAlias)
+            + SqlQueryField.of(rollupCountsTableCountField).renderForSelect(tempTableAlias)
             + " FROM (SELECT "
-            + SqlQueryField.of(tempTableCountField).renderForSelect()
+            + SqlQueryField.of(rollupCountsTableCountField).renderForSelect()
             + ", "
-            + SqlQueryField.of(tempTableIdField).renderForSelect()
+            + SqlQueryField.of(rollupCountsTableIdField).renderForSelect()
             + " FROM "
-            + tempBQTable.render()
+            + rollupCountsBQTable.render()
             + ") AS "
             + tempTableAlias
             + " WHERE "
             + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
             + " = "
-            + SqlQueryField.of(tempTableIdField).renderForSelect(tempTableAlias);
+            + SqlQueryField.of(rollupCountsTableIdField).renderForSelect(tempTableAlias);
     LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to write the count field in the index entity main table.

@@ -48,7 +48,7 @@ public class FilterBuilderService {
   @SuppressWarnings("unchecked")
   public EntityFilter buildCohortFilterForCriteriaGroup(
       String underlayName, CohortRevision.CriteriaGroup criteriaGroup) {
-    if (criteriaGroup.getCriteria().isEmpty()) {
+    if (criteriaGroup.isDisabled() || criteriaGroup.getCriteria().isEmpty()) {
       return null;
     }
 
@@ -97,6 +97,9 @@ public class FilterBuilderService {
 
   public EntityFilter buildFilterForCriteriaGroupSection(
       String underlayName, CohortRevision.CriteriaGroupSection criteriaGroupSection) {
+    if (criteriaGroupSection.isDisabled()) {
+      return null;
+    }
     EntityFilter includeFilter;
     if (criteriaGroupSection.getJoinOperator() != null) {
       // Temporal section.

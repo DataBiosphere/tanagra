@@ -243,6 +243,7 @@ public class CohortsApiController implements CohortsApi {
         .joinOperator(joinOperator)
         .joinOperatorValue(apiObj.getOperatorValue())
         .setIsExcluded(apiObj.isExcluded())
+        .setIsDisabled(apiObj.isDisabled())
         .build();
   }
 
@@ -254,6 +255,7 @@ public class CohortsApiController implements CohortsApi {
             apiObj.getCriteria().stream()
                 .map(FromApiUtils::fromApiObject)
                 .collect(Collectors.toList()))
+        .isDisabled(apiObj.isDisabled())
         .build();
   }
 
