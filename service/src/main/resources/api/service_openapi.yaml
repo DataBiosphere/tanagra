@@ -2402,6 +2402,10 @@ components:
         excluded:
           type: boolean
           description: True to exclude the section, false to include it
+        disabled:
+          type: boolean
+          description: True to disable the section
+          default: false
       required:
         - id
         - displayName
@@ -2431,6 +2435,10 @@ components:
           description: Set of criteria in the group
           items:
             $ref: "#/components/schemas/Criteria"
+        disabled:
+          type: boolean
+          description: True to disable the group
+          default: false
       required:
         - id
         - displayName

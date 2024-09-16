@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.criteriaconstants.sd;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_CONDITION_EXCLUDED;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_PROCEDURE;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.DISABLED_CGS_CONDITION;
 
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import java.util.List;
@@ -39,6 +40,14 @@ public final class CohortRevision {
           .sections(List.of(CGS_PROCEDURE))
           .setIsMostRecent(true)
           .build();
+  public static final bio.terra.tanagra.service.artifact.model.CohortRevision
+      CR_GENDER_AND_DISABLED_CONDITION =
+          bio.terra.tanagra.service.artifact.model.CohortRevision.builder()
+              .id("cr5")
+              .sections(List.of(CGS_GENDER, DISABLED_CGS_CONDITION))
+              .setIsMostRecent(true)
+              .build();
+
   public static final Cohort C_EMPTY =
       Cohort.builder().underlay(UNDERLAY_NAME).id("c1").revisions(List.of(CR_EMPTY)).build();
   public static final Cohort C_CONDITION_EXCLUDED =
