@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class MultiAttributeFilterBuilder extends FilterBuilder {
+public class MultiAttributeFilterBuilder
+    extends FilterBuilder<CFMultiAttribute.MultiAttribute, DTMultiAttribute.MultiAttribute> {
   public MultiAttributeFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }

@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SurveyFilterBuilder extends EntityGroupFilterBuilderBase {
+public class SurveyFilterBuilder
+    extends EntityGroupFilterBuilderBase<CFSurvey.Survey, DTSurvey.Survey> {
   public SurveyFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
