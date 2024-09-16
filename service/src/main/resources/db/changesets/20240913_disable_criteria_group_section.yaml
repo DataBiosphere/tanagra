@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: disable_criteria_group_section
+      author: marikomedlock
+      dbms: postgresql,mariadb,mysql
+      changes:
+        - addColumn:
+            tableName: criteria_group_section
+            columns:
+              - column:
+                  name: is_disabled
+                  type: ${boolean.type}
+                  constraints:
+                    nullable: true
+
+        - addColumn:
+            tableName: criteria_group
+            columns:
+              - column:
+                  name: is_disabled
+                  type: ${boolean.type}
+                  constraints:
+                    nullable: true

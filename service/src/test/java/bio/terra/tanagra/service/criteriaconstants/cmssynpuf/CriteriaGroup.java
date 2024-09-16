@@ -26,6 +26,12 @@ public final class CriteriaGroup {
           .displayName("group 1")
           .criteria(List.of(GENDER_EQ_WOMAN.getValue(), ETHNICITY_EQ_HISPANIC_OR_LATINO.getValue()))
           .build();
+  public static final CohortRevision.CriteriaGroup DISABLED_CRITERIA_GROUP_DEMOGRAPHICS =
+      CohortRevision.CriteriaGroup.builder()
+          .displayName("disabled group demographics")
+          .criteria(List.of(GENDER_EQ_WOMAN.getValue(), ETHNICITY_EQ_HISPANIC_OR_LATINO.getValue()))
+          .isDisabled(true)
+          .build();
   public static final CohortRevision.CriteriaGroup CRITERIA_GROUP_CONDITION =
       CohortRevision.CriteriaGroup.builder()
           .displayName("group condition")
