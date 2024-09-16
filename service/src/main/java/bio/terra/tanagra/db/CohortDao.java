@@ -655,48 +655,6 @@ public class CohortDao {
           criteriaParamSets,
           tagParamSets);
     }
-
-    sql =
-        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, is_disabled, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
-            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :is_disabled, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
-    LOGGER.debug("CREATE criteria_group_section: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, sectionParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
-
-    sql =
-        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index, is_disabled) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index, :is_disabled)";
-    LOGGER.debug("CREATE criteria_group: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(sql, groupParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria_group rowsAffected = {}", rowsAffected);
-
-    sql =
-        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, plugin_version, selector_or_modifier_name, selection_data, ui_config, list_index) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :plugin_version, :selector_or_modifier_name, :selection_data, :ui_config, :list_index)";
-    LOGGER.debug("CREATE criteria: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, criteriaParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
-
-    sql =
-        "INSERT INTO criteria_tag (cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, criteria_key, criteria_value) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :criteria_id, :key, :value)";
-    LOGGER.debug("CREATE criteria_tag: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria_tag rowsAffected = {}", rowsAffected);
   }
 
   private void buildParamsForGroupCriteriaTag(
@@ -793,8 +751,8 @@ public class CohortDao {
       List<MapSqlParameterSource> criteriaParamSets,
       List<MapSqlParameterSource> tagParamSets) {
     String sql =
-        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
-            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
+        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, is_disabled, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
+            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :is_disabled, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
     LOGGER.debug("CREATE criteria_group_section: {}", sql);
     int rowsAffected =
         Arrays.stream(
@@ -804,8 +762,8 @@ public class CohortDao {
     LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
 
     sql =
-        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index) "
-            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index)";
+        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index, is_disabled) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index, :is_disabled)";
     LOGGER.debug("CREATE criteria_group: {}", sql);
     rowsAffected =
         Arrays.stream(
