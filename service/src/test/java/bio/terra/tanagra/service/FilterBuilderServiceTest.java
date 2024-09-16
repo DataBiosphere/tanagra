@@ -3,6 +3,7 @@ package bio.terra.tanagra.service;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.CR_CONDITION_EXCLUDED;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.CR_CONDITION_EXCLUDED_AND_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.CR_EMPTY;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.CR_GENDER_AND_DISABLED_CONDITION;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.C_CONDITION_EXCLUDED;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.C_CONDITION_EXCLUDED_AND_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.C_EMPTY;
@@ -12,6 +13,8 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.Criteria.PROCEDURE_
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_CONDITION_WITH_MODIFIER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_EMPTY;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_GENDER;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.DISABLED_CG_GENDER;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_CONDITION_AND_DISABLED_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_CONDITION_EXCLUDED;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_EMPTY;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_GENDER_AND_CONDITION;
@@ -21,6 +24,7 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSectio
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_SINGLE_GROUP_PER_CONDITION;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_UNSUPPORTED_CRITERIA_SELECTOR;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.CGS_TEMPORAL_UNSUPPORTED_MODIFIER;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroupSection.DISABLED_CGS_CONDITION;
 import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_CONDITION_AND_PROCEDURE;
 import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_DEMOGRAPHICS;
 import static bio.terra.tanagra.service.criteriaconstants.sd.FeatureSet.CS_DEMOGRAPHICS_EXCLUDE_ID_AGE;
@@ -91,6 +95,11 @@ public class FilterBuilderServiceTest {
         filterBuilderService.buildCohortFilterForCriteriaGroup(
             UNDERLAY_NAME, CG_CONDITION_WITH_MODIFIER);
     assertEquals(conditionWithModifierCohortFilter(), cohortFilter);
+
+    // Disabled group = null filter.
+    cohortFilter =
+        filterBuilderService.buildCohortFilterForCriteriaGroup(UNDERLAY_NAME, DISABLED_CG_GENDER);
+    assertNull(cohortFilter);
   }
 
   @Test
@@ -148,6 +157,19 @@ public class FilterBuilderServiceTest {
         filterBuilderService.buildFilterForCriteriaGroupSection(
             UNDERLAY_NAME, CGS_NON_TEMPORAL_GROUPS_IN_SECOND_CONDITION);
     assertEquals(genderAndConditionWithModifierCohortFilter(), cohortFilter);
+
+    // Disabled section = null filter.
+    cohortFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSection(
+            UNDERLAY_NAME, DISABLED_CGS_CONDITION);
+    assertNull(cohortFilter);
+
+    // Enabled section with one disabled group and one enabled group = filter for only enabled
+    // group.
+    cohortFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSection(
+            UNDERLAY_NAME, CGS_CONDITION_AND_DISABLED_GENDER);
+    assertEquals(conditionWithModifierCohortFilter(), cohortFilter);
   }
 
   @Test
@@ -177,6 +199,12 @@ public class FilterBuilderServiceTest {
         filterBuilderService.buildFilterForCohortRevisions(
             UNDERLAY_NAME, List.of(CR_EMPTY, CR_CONDITION_EXCLUDED_AND_GENDER));
     assertEquals(conditionExcludedAndGenderCohortFilter(), cohortFilter);
+
+    // One disabled section and one enabled section = filter for only enabled section.
+    cohortFilter =
+        filterBuilderService.buildFilterForCohortRevision(
+            UNDERLAY_NAME, CR_GENDER_AND_DISABLED_CONDITION);
+    assertEquals(genderEqWomanCohortFilter(), cohortFilter);
   }
 
   @Test

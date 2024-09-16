@@ -27,4 +27,5 @@
     <include file="changesets/20240304_selector_column.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20240326_remove_criteria_group_columns.yaml" relativeToChangelogFile="true"/>
     <include file="changesets/20240709_temporal_criteria_group_sections.yaml" relativeToChangelogFile="true"/>
+    <include file="changesets/20240913_disable_criteria_group_section.yaml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

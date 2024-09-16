@@ -69,7 +69,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria group section.
   private static final String CRITERIA_GROUP_SECTION_SELECT_SQL =
-      "SELECT cohort_revision_id, id, display_name, operator, is_excluded, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value FROM criteria_group_section";
+      "SELECT cohort_revision_id, id, display_name, operator, is_excluded, is_disabled, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value FROM criteria_group_section";
   private static final RowMapper<Pair<String, CohortRevision.CriteriaGroupSection.Builder>>
       CRITERIA_GROUP_SECTION_ROW_MAPPER =
           (rs, rowNum) ->
@@ -81,6 +81,7 @@ public class CohortDao {
                       .operator(
                           BooleanAndOrFilter.LogicalOperator.valueOf(rs.getString("operator")))
                       .setIsExcluded(rs.getBoolean("is_excluded"))
+                      .setIsDisabled(rs.getBoolean("is_disabled"))
                       .firstConditionReducingOperator(
                           rs.getString("first_condition_reducing_operator") == null
                               ? null
@@ -99,7 +100,7 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a criteria group.
   private static final String CRITERIA_GROUP_SELECT_SQL =
-      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name, condition_index FROM criteria_group";
+      "SELECT cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, is_disabled FROM criteria_group";
   private static final RowMapper<
           Pair<Pair<List<String>, Integer>, CohortRevision.CriteriaGroup.Builder>>
       CRITERIA_GROUP_ROW_MAPPER =
@@ -112,7 +113,8 @@ public class CohortDao {
                       rs.getObject("condition_index", Integer.class)),
                   CohortRevision.CriteriaGroup.builder()
                       .id(rs.getString("id"))
-                      .displayName(rs.getString("display_name")));
+                      .displayName(rs.getString("display_name"))
+                      .isDisabled(rs.getBoolean("is_disabled")));
 
   // SQL query and row mapper for reading a criteria.
   private static final String CRITERIA_SELECT_SQL =
@@ -633,6 +635,7 @@ public class CohortDao {
                   cgs.getJoinOperator() == null ? null : cgs.getJoinOperator().name())
               .addValue("join_operator_value", cgs.getJoinOperatorValue())
               .addValue("is_excluded", cgs.isExcluded())
+              .addValue("is_disabled", cgs.isDisabled())
               .addValue("list_index", cgsListIndex));
 
       buildParamsForGroupCriteriaTag(
@@ -652,6 +655,48 @@ public class CohortDao {
           criteriaParamSets,
           tagParamSets);
     }
+
+    sql =
+        "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, is_disabled, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
+            + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :is_disabled, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
+    LOGGER.debug("CREATE criteria_group_section: {}", sql);
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(
+                    sql, sectionParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
+
+    sql =
+        "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index, is_disabled) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index, :is_disabled)";
+    LOGGER.debug("CREATE criteria_group: {}", sql);
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(sql, groupParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE criteria_group rowsAffected = {}", rowsAffected);
+
+    sql =
+        "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, plugin_version, selector_or_modifier_name, selection_data, ui_config, list_index) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :plugin_version, :selector_or_modifier_name, :selection_data, :ui_config, :list_index)";
+    LOGGER.debug("CREATE criteria: {}", sql);
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(
+                    sql, criteriaParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
+
+    sql =
+        "INSERT INTO criteria_tag (cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, criteria_key, criteria_value) "
+            + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :criteria_id, :key, :value)";
+    LOGGER.debug("CREATE criteria_tag: {}", sql);
+    rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE criteria_tag rowsAffected = {}", rowsAffected);
   }
 
   private void buildParamsForGroupCriteriaTag(
@@ -671,7 +716,8 @@ public class CohortDao {
               .addValue("id", cg.getId())
               .addValue("display_name", cg.getDisplayName())
               .addValue("list_index", cgListIndex)
-              .addValue("condition_index", criteriaGroupConditionIndex));
+              .addValue("condition_index", criteriaGroupConditionIndex)
+              .addValue("is_disabled", cg.isDisabled()));
 
       for (int cListIndex = 0; cListIndex < cg.getCriteria().size(); cListIndex++) {
         Criteria c = cg.getCriteria().get(cListIndex);

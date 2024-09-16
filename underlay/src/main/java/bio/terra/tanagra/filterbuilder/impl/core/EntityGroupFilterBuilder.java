@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class EntityGroupFilterBuilder extends EntityGroupFilterBuilderBase {
+public class EntityGroupFilterBuilder
+    extends EntityGroupFilterBuilderBase<CFEntityGroup.EntityGroup, DTEntityGroup.EntityGroup> {
   public EntityGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }

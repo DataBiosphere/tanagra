@@ -132,7 +132,8 @@ public final class ToApiUtils {
             toApiObject(criteriaGroupSection.getFirstConditionReducingOperator()))
         .secondBlockReducingOperator(
             toApiObject(criteriaGroupSection.getSecondConditionRedcuingOperator()))
-        .excluded(criteriaGroupSection.isExcluded());
+        .excluded(criteriaGroupSection.isExcluded())
+        .disabled(criteriaGroupSection.isDisabled());
   }
 
   private static ApiReducingOperator toApiObject(ReducingOperator reducingOperator) {
@@ -148,7 +149,8 @@ public final class ToApiUtils {
         .criteria(
             criteriaGroup.getCriteria().stream()
                 .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()))
+        .disabled(criteriaGroup.isDisabled());
   }
 
   public static ApiCriteria toApiObject(Criteria criteria) {

@@ -31,7 +31,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class TextSearchFilterBuilder extends FilterBuilder {
+public class TextSearchFilterBuilder
+    extends FilterBuilder<CFTextSearch.TextSearch, DTTextSearch.TextSearch> {
   public TextSearchFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
