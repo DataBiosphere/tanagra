@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -64,7 +65,9 @@ public class UnderlayService {
 
   public List<Underlay> listUnderlays(ResourceCollection authorizedIds) {
     if (authorizedIds.isAllResources()) {
-      return underlayCache.values().stream().map(CachedUnderlay::getUnderlay).toList();
+      return underlayCache.values().stream()
+          .map(CachedUnderlay::getUnderlay)
+          .collect(Collectors.toUnmodifiableList());
     } else {
       // If the incoming list is empty, the caller does not have permission to see any
       // underlays, so we return an empty list.
@@ -76,7 +79,7 @@ public class UnderlayService {
       return underlayCache.values().stream()
           .map(CachedUnderlay::getUnderlay)
           .filter(underlay -> authorizedNames.contains(underlay.getName()))
-          .toList();
+          .collect(Collectors.toUnmodifiableList());
     }
   }
 

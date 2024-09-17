@@ -6,10 +6,10 @@ import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.service.ServiceUtils;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.RandomStringUtils;
 
 public final class AnnotationKey {
   private final String id;
@@ -142,7 +142,7 @@ public final class AnnotationKey {
 
     public AnnotationKey build() {
       if (id == null) {
-        id = ServiceUtils.newArtifactId();
+        id = RandomStringUtils.randomAlphanumeric(10);
       }
       if (displayName == null) {
         throw new BadRequestException("Annotation key requires a display name");

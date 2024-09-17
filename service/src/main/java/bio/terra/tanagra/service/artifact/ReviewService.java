@@ -60,7 +60,6 @@ public class ReviewService {
 
   private final CohortService cohortService;
   private final UnderlayService underlayService;
-
   private final AnnotationService annotationService;
   private final ReviewDao reviewDao;
   private final ActivityLogService activityLogService;

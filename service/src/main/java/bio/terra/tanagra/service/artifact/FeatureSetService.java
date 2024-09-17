@@ -119,7 +119,6 @@ public class FeatureSetService {
         newDisplayName = "Copy of: " + newDisplayName;
       }
     }
-
     String newDescription = description;
     if (newDescription == null) {
       newDescription = original.getDescription();
