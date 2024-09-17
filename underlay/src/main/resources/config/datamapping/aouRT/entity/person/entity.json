@@ -38,7 +38,7 @@
       }
     },
     { "name": "self_reported_category_concept_id", "dataType": "INT64" },
-    { "name": "self_reported_category", "dataType": "INT64", "valueFieldName": "self_reported_category_concept_id", "displayFieldName": "self_reported_category", "isComputeDisplayHint": true,
+    { "name": "self_reported_category", "dataType": "INT64", "valueFieldName": "self_reported_category_concept_id", "isComputeDisplayHint": true,
       "sourceQuery": {
         "displayFieldName": "concept_name",
         "displayFieldTable": "${omopDataset}.concept",
