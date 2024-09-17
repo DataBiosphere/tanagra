@@ -14,6 +14,6 @@
   "idAttribute": "id",
   "temporalQuery": {
     "visitDateAttribute": "start_date",
-    "visitIdAttribute": "visit_occurrence_id"
+    "visitIdAttribute": "id"
   }
 }
