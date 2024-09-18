@@ -1,15 +1,13 @@
 SELECT
-  o.person_id,
+  po.person_id,
   ps.id AS survey_item_id
 
-FROM `${omopDataset}.observation` AS o
+FROM `${omopDataset}.prep_pfhh_observation` AS po
 JOIN `${omopDataset}.prep_survey` AS ps
-    ON ps.concept_id = o.observation_source_concept_id
+    ON ps.concept_id = po.observation_source_concept_id
     AND (
-      (CAST(ps.value AS INT64) = o.value_source_concept_id)
+      (CAST(ps.value AS INT64) = po.value_source_concept_id)
       OR
-      (ps.value IS NULL AND o.value_source_concept_id IS NULL)
+      (ps.value IS NULL AND po.value_source_concept_id IS NULL)
     )
     AND ps.subtype = 'ANSWER'
-
-WHERE ps.survey = 'PersonalAndFamilyHealth'
