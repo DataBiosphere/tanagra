@@ -1,4 +1,4 @@
-SELECT
+SELECT distinct
   o.observation_id,
   o.person_id,
   o.observation_datetime as survey_datetime,
