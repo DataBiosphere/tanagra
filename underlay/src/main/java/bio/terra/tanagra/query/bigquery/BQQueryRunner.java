@@ -624,11 +624,7 @@ public class BQQueryRunner implements QueryRunner {
         .append(" AS ")
         .append(sourceTableAlias)
         .append(String.join("", displayTableJoins.values().stream().toList()))
-        .append(" WHERE ")
-        .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
-        .append(" IN (")
-        .append(indexDataSqlRequest.getSql())
-        .append(')');
+        .append(indexDataSqlRequest.getWhereClause());
     return new SqlQueryRequest(
         sql.toString(),
         sqlParams,
