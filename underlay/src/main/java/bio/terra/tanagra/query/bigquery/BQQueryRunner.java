@@ -616,7 +616,7 @@ public class BQQueryRunner implements QueryRunner {
 
     // SELECT [select fields] FROM [source table]
     // JOIN [display table] ON [display join field]
-    // WHERE [source id field] IN [inner query against index data]
+    // WHERE [index id field] IN [inner query against index data] -> this where clause won't exist in all cases
     sql.append("SELECT ")
         .append(String.join(", ", selectFields))
         .append(" FROM ")
