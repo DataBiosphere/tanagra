@@ -1,0 +1,46 @@
+{
+  "columns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept Id"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 120,
+      "title": "Item Count"
+    }
+  ],
+  "hierarchyColumns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept Id"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 120,
+      "title": "Item Count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "visitPerson"
+    }
+  ],
+  "multiSelect": true,
+  "defaultSort": {
+    "attribute": "name",
+    "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+  }
+}

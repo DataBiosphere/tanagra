@@ -1,0 +1,76 @@
+{
+  "columns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept ID"
+    },
+    {
+      "key": "standard_concept",
+      "widthDouble": 180,
+      "title": "Source/standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up count"
+    }
+  ],
+  "hierarchyColumns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept ID"
+    },
+    {
+      "key": "standard_concept",
+      "widthDouble": 180,
+      "title": "Source/standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "icd10pcsPerson",
+      "sortOrder": {
+        "attribute": "concept_code",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    }
+  ],
+  "multiSelect": true
+}

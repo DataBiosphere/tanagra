@@ -1,0 +1,76 @@
+{
+  "columns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept Id"
+    },
+    {
+      "key": "is_standard",
+      "widthDouble": 180,
+      "title": "Source/Standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up count"
+    }
+  ],
+  "hierarchyColumns": [
+    {
+      "key": "name",
+      "widthString": "100%",
+      "title": "Name"
+    },
+    {
+      "key": "id",
+      "widthDouble": 120,
+      "title": "Concept Id"
+    },
+    {
+      "key": "is_standard",
+      "widthDouble": 180,
+      "title": "Source/Standard"
+    },
+    {
+      "key": "vocabulary_t_value",
+      "widthDouble": 120,
+      "title": "Vocab"
+    },
+    {
+      "key": "concept_code",
+      "widthDouble": 120,
+      "title": "Code"
+    },
+    {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up count"
+    }
+  ],
+  "classificationEntityGroups": [
+    {
+      "id": "cpt4Person",
+      "sortOrder": {
+        "attribute": "label",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    }
+  ],
+  "multiSelect": true
+}
