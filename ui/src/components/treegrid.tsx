@@ -15,6 +15,7 @@ import Typography from "@mui/material/Typography";
 import produce from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
+import * as columnProto from "proto/column";
 import {
   ChangeEvent,
   MutableRefObject,
@@ -49,8 +50,8 @@ export type TreeGridItem = {
   data: TreeGridRowData;
 };
 
-export type TreeGridData = {
-  [key: TreeGridId]: TreeGridItem;
+export type TreeGridData<ItemType extends TreeGridItem = TreeGridItem> = {
+  [key: TreeGridId]: ItemType;
 };
 
 export type TreeGridColumn = {
@@ -84,9 +85,9 @@ export type TreeGridFilters = {
   [col: string]: string;
 };
 
-export type TreeGridProps = {
+export type TreeGridProps<ItemType extends TreeGridItem = TreeGridItem> = {
   columns: TreeGridColumn[];
-  data: TreeGridData;
+  data: TreeGridData<ItemType>;
   defaultExpanded?: TreeGridId[];
   highlightId?: TreeGridId;
   rowCustomization?: (
@@ -109,7 +110,9 @@ export type TreeGridProps = {
   onFilter?: (filters: TreeGridFilters) => void;
 };
 
-export function TreeGrid(props: TreeGridProps) {
+export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
+  props: TreeGridProps<ItemType>
+) {
   const theme = useTheme();
 
   const [state, updateState] = useImmer<TreeGridState>(
@@ -389,6 +392,18 @@ export function useArrayAsTreeGridData<
 
     return data;
   }, [array]);
+}
+
+export function fromProtoColumns(
+  columns: columnProto.Column[]
+): TreeGridColumn[] {
+  return columns.map((c) => ({
+    key: c.key,
+    width: c.widthString ?? c.widthDouble ?? 100,
+    title: c.title,
+    sortable: c.sortable,
+    filterable: c.filterable,
+  }));
 }
 
 function renderChildren(

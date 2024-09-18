@@ -17,6 +17,12 @@ public final class CriteriaGroup {
       CohortRevision.CriteriaGroup.builder().id("cg1").build();
   public static final CohortRevision.CriteriaGroup CG_GENDER =
       CohortRevision.CriteriaGroup.builder().id("cg2").criteria(List.of(GENDER_EQ_WOMAN)).build();
+  public static final CohortRevision.CriteriaGroup DISABLED_CG_GENDER =
+      CohortRevision.CriteriaGroup.builder()
+          .id("cg2d")
+          .criteria(List.of(GENDER_EQ_WOMAN))
+          .isDisabled(true)
+          .build();
   public static final CohortRevision.CriteriaGroup CG_CONDITION =
       CohortRevision.CriteriaGroup.builder()
           .id("cg3")

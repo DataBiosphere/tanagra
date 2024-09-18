@@ -13,8 +13,7 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.query.count.CountQueryRequest;
-import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.count.*;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.DataType;
@@ -22,11 +21,9 @@ import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
-import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
+import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.jupiter.api.Test;
 
 public class BQCountQueryResultsTest extends BQRunnerTest {
@@ -113,6 +110,111 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
               assertNotNull(age.getValue().getInt64Val());
               assertNull(age.getDisplay());
             });
+  }
+
+  @Test
+  void repeatedAttributeField() {
+    Entity entity = underlay.getEntity("condition");
+
+    // We don't have an example of an attribute with a repeated data type, yet.
+    // So create an artificial attribute just for this test.
+    AttributeField repeatedStringAttribute =
+        new AttributeField(
+            underlay,
+            entity,
+            new Attribute(
+                "vocabulary",
+                DataType.STRING,
+                true,
+                false,
+                false,
+                "['foo', 'bar', 'baz', ${fieldSql}]",
+                DataType.STRING,
+                entity.getAttribute("vocabulary").isComputeDisplayHint(),
+                entity.getAttribute("vocabulary").isSuppressedForExport(),
+                entity.getAttribute("vocabulary").isVisitDateForTemporalQuery(),
+                entity.getAttribute("vocabulary").isVisitIdForTemporalQuery(),
+                entity.getAttribute("vocabulary").getSourceQuery()),
+            false);
+
+    List<ValueDisplayField> groupBys = List.of(repeatedStringAttribute);
+    HintQueryResult entityLevelHints =
+        new HintQueryResult(
+            "",
+            List.of(
+                new HintInstance(
+                    entity.getAttribute("vocabulary"),
+                    Map.of(
+                        new ValueDisplay(Literal.forString("foo")),
+                        25L,
+                        new ValueDisplay(Literal.forString("bar")),
+                        140L,
+                        new ValueDisplay(Literal.forString("baz")),
+                        85L))));
+    CountQueryResult countQueryResult =
+        bqQueryRunner.run(
+            new CountQueryRequest(
+                underlay,
+                entity,
+                null,
+                groupBys,
+                null,
+                OrderByDirection.DESCENDING,
+                null,
+                null,
+                null,
+                entityLevelHints,
+                false));
+
+    // Check each of the group by fields.
+    countQueryResult.getCountInstances().stream()
+        .map(countInstance -> countInstance.getEntityFieldValue(repeatedStringAttribute))
+        .forEach(
+            vocabulary -> {
+              assertNotNull(vocabulary);
+              assertTrue(
+                  vocabulary.getValue().isNull()
+                      || DataType.STRING.equals(vocabulary.getValue().getDataType()));
+              assertFalse(vocabulary.isRepeatedValue());
+              assertNotNull(vocabulary.getValue().getStringVal());
+              assertNull(vocabulary.getDisplay());
+            });
+
+    // Condition entity should have an enum string-value hint with 4 + 3 values for vocabulary. The
+    // three fake ones should all have matching counts.
+    assertEquals(7, countQueryResult.getCountInstances().size());
+    Optional<CountInstance> fooCount =
+        countQueryResult.getCountInstances().stream()
+            .filter(
+                countInstance ->
+                    countInstance
+                        .getEntityFieldValue(repeatedStringAttribute)
+                        .getValue()
+                        .equals(Literal.forString("foo")))
+            .findAny();
+    assertTrue(fooCount.isPresent());
+    Optional<CountInstance> barCount =
+        countQueryResult.getCountInstances().stream()
+            .filter(
+                countInstance ->
+                    countInstance
+                        .getEntityFieldValue(repeatedStringAttribute)
+                        .getValue()
+                        .equals(Literal.forString("bar")))
+            .findAny();
+    assertTrue(barCount.isPresent());
+    Optional<CountInstance> bazCount =
+        countQueryResult.getCountInstances().stream()
+            .filter(
+                countInstance ->
+                    countInstance
+                        .getEntityFieldValue(repeatedStringAttribute)
+                        .getValue()
+                        .equals(Literal.forString("baz")))
+            .findAny();
+    assertTrue(bazCount.isPresent());
+    assertTrue(fooCount.get().getCount() == barCount.get().getCount());
+    assertTrue(barCount.get().getCount() == bazCount.get().getCount());
   }
 
   @Test

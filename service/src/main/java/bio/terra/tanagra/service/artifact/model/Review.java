@@ -146,6 +146,9 @@ public final class Review {
         throw new BadRequestException(
             "Review name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
       }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
+      }
       return new Review(this);
     }
 

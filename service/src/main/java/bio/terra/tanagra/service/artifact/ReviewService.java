@@ -60,7 +60,6 @@ public class ReviewService {
 
   private final CohortService cohortService;
   private final UnderlayService underlayService;
-
   private final AnnotationService annotationService;
   private final ReviewDao reviewDao;
   private final ActivityLogService activityLogService;
@@ -112,10 +111,7 @@ public class ReviewService {
       throw new IllegalArgumentException("Cannot create a review with an empty query result");
     }
     reviewDao.createReview(
-        cohortId,
-        reviewBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build(),
-        primaryEntityIds,
-        cohortRecordsCount);
+        cohortId, reviewBuilder.createdBy(userEmail).build(), primaryEntityIds, cohortRecordsCount);
     Review review = reviewDao.getReview(reviewBuilder.getId());
     activityLogService.logReview(
         ActivityLog.Type.CREATE_REVIEW, userEmail, studyId, cohortId, review);
@@ -455,7 +451,7 @@ public class ReviewService {
                 /* limit= */ Integer.MAX_VALUE)
             .stream()
             .sorted(Comparator.comparing(AnnotationKey::getDisplayName))
-            .collect(Collectors.toList());
+            .toList();
     annotationKeys.forEach(
         annotation ->
             columnHeaders.append(

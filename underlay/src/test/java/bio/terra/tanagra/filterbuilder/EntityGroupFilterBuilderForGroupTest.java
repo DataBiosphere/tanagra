@@ -3,7 +3,6 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -116,7 +115,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             underlay,
             underlay.getEntity("genotyping"),
             underlay.getEntity("genotyping").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(30L), Literal.forInt64(3L)));
+            List.of(Literal.forInt64(3L), Literal.forInt64(30L)));
     expectedCohortFilter =
         new ItemInGroupFilter(
             underlay,
@@ -412,7 +411,13 @@ public class EntityGroupFilterBuilderForGroupTest {
 
   @Test
   void emptyCriteriaCohortFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup config =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("genotypingPerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "genotyping",
@@ -424,22 +429,33 @@ public class EntityGroupFilterBuilderForGroupTest {
             serializeToJson(config),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+    EntityFilter expectedCohortFilter =
+        new ItemInGroupFilter(
+            underlay,
+            (GroupItems) underlay.getEntityGroup("genotypingPerson"),
+            null,
+            null,
+            null,
+            null);
 
     // Null selection data.
     SelectionData selectionData = new SelectionData("genotyping", null);
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
 
     // Empty string selection data.
     selectionData = new SelectionData("genotyping", "");
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
 
     // Empty list selection.
     DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
     selectionData = new SelectionData("genotyping", serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
   }
 
   @Test
@@ -638,7 +654,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             underlay,
             underlay.getEntity("genotyping"),
             underlay.getEntity("genotyping").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(30L), Literal.forInt64(3L)));
+            List.of(Literal.forInt64(3L), Literal.forInt64(30L)));
     expectedDataFeatureOutput =
         EntityOutput.filtered(underlay.getEntity("genotyping"), expectedDataFeatureFilter);
     assertEquals(expectedDataFeatureOutput, dataFeatureOutputs.get(0));

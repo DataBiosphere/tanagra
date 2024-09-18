@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FilterBuilderService {
   private static final Logger LOGGER = LoggerFactory.getLogger(FilterBuilderService.class);
+
   private final UnderlayService underlayService;
 
   @Autowired
@@ -45,9 +46,10 @@ public class FilterBuilderService {
     this.underlayService = underlayService;
   }
 
+  @SuppressWarnings("unchecked")
   public EntityFilter buildCohortFilterForCriteriaGroup(
       String underlayName, CohortRevision.CriteriaGroup criteriaGroup) {
-    if (criteriaGroup.getCriteria().isEmpty()) {
+    if (criteriaGroup.isDisabled() || criteriaGroup.getCriteria().isEmpty()) {
       return null;
     }
 
@@ -66,6 +68,7 @@ public class FilterBuilderService {
     return filterBuilder.buildForCohort(underlay, selectionData);
   }
 
+  @SuppressWarnings("unchecked")
   private List<EntityOutput> buildDataFeatureOutputForTemporalCriteriaGroup(
       String underlayName, CohortRevision.CriteriaGroup criteriaGroup) {
     if (criteriaGroup.getCriteria().isEmpty()) {
@@ -95,6 +98,9 @@ public class FilterBuilderService {
 
   public EntityFilter buildFilterForCriteriaGroupSection(
       String underlayName, CohortRevision.CriteriaGroupSection criteriaGroupSection) {
+    if (criteriaGroupSection.isDisabled()) {
+      return null;
+    }
     EntityFilter includeFilter;
     if (criteriaGroupSection.getJoinOperator() != null) {
       // Temporal section.
@@ -198,6 +204,7 @@ public class FilterBuilderService {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public List<EntityOutputPreview> buildOutputPreviewsForFeatureSets(
       List<FeatureSet> featureSets, boolean includeAllAttributes) {
     // No feature sets = no entity outputs.

@@ -44,6 +44,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SuppressWarnings({"PMD.TooManyFields", "PMD.TestClassWithoutTestCases"})
 public class BaseAccessControlTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseAccessControlTest.class);
+  static final Action[] STUDY_ACTIONS_WITHOUT_CREATE =
+      new Action[] {
+        Action.READ, Action.UPDATE, Action.DELETE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET,
+      };
   @Autowired protected UnderlayService underlayService;
   @Autowired protected StudyService studyService;
   @Autowired protected CohortService cohortService;
@@ -89,8 +93,8 @@ public class BaseAccessControlTest {
             Cohort.builder()
                 .underlay(CMS_SYNPUF)
                 .displayName("cohort 2")
-                .description("first cohort"),
-            USER_3.getEmail(),
+                .description("first cohort")
+                .createdBy(USER_3.getEmail()),
             List.of(
                 CRITERIA_GROUP_SECTION_DEMOGRAPHICS_AND_CONDITION,
                 CRITERIA_GROUP_SECTION_PROCEDURE));
@@ -103,8 +107,8 @@ public class BaseAccessControlTest {
             Cohort.builder()
                 .underlay(CMS_SYNPUF)
                 .displayName("cohort 2")
-                .description("second cohort"),
-            USER_4.getEmail(),
+                .description("second cohort")
+                .createdBy(USER_4.getEmail()),
             List.of(CRITERIA_GROUP_SECTION_PROCEDURE));
     assertNotNull(cohort2);
     LOGGER.info("Created cohort {} at {}", cohort2.getId(), cohort2.getCreated());
@@ -252,50 +256,37 @@ public class BaseAccessControlTest {
             user, Permissions.forActions(type, Action.READ), parent, 0, Integer.MAX_VALUE);
     assertEquals(isAllResources, resources.isAllResources());
 
-    Set<ResourceId> actual;
-    switch (type) {
-      case UNDERLAY:
-        actual =
-            underlayService.listUnderlays(resources).stream()
-                .map(u -> ResourceId.forUnderlay(u.getName()))
-                .collect(Collectors.toSet());
-        break;
-      case STUDY:
-        actual =
-            studyService.listStudies(resources, 0, Integer.MAX_VALUE).stream()
-                .map(s -> ResourceId.forStudy(s.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case COHORT:
-        actual =
-            cohortService.listCohorts(resources, 0, Integer.MAX_VALUE).stream()
-                .map(c -> ResourceId.forCohort(parent.getStudy(), c.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case FEATURE_SET:
-        actual =
-            featureSetService.listFeatureSets(resources, 0, Integer.MAX_VALUE).stream()
-                .map(c -> ResourceId.forFeatureSet(parent.getStudy(), c.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case REVIEW:
-        actual =
-            reviewService.listReviews(resources, 0, Integer.MAX_VALUE).stream()
-                .map(r -> ResourceId.forReview(parent.getStudy(), parent.getCohort(), r.getId()))
-                .collect(Collectors.toSet());
-        break;
-      case ANNOTATION_KEY:
-        actual =
-            annotationService.listAnnotationKeys(resources, 0, Integer.MAX_VALUE).stream()
-                .map(
-                    a ->
-                        ResourceId.forAnnotationKey(
-                            parent.getStudy(), parent.getCohort(), a.getId()))
-                .collect(Collectors.toSet());
-        break;
-      default:
-        throw new IllegalArgumentException("Unknown resource type: " + type);
-    }
+    Set<ResourceId> actual =
+        switch (type) {
+          case UNDERLAY ->
+              underlayService.listUnderlays(resources).stream()
+                  .map(u -> ResourceId.forUnderlay(u.getName()))
+                  .collect(Collectors.toSet());
+          case STUDY ->
+              studyService.listStudies(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(s -> ResourceId.forStudy(s.getId()))
+                  .collect(Collectors.toSet());
+          case COHORT ->
+              cohortService.listCohorts(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(c -> ResourceId.forCohort(parent.getStudy(), c.getId()))
+                  .collect(Collectors.toSet());
+          case FEATURE_SET ->
+              featureSetService.listFeatureSets(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(c -> ResourceId.forFeatureSet(parent.getStudy(), c.getId()))
+                  .collect(Collectors.toSet());
+          case REVIEW ->
+              reviewService.listReviews(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(r -> ResourceId.forReview(parent.getStudy(), parent.getCohort(), r.getId()))
+                  .collect(Collectors.toSet());
+          case ANNOTATION_KEY ->
+              annotationService.listAnnotationKeys(resources, 0, Integer.MAX_VALUE).stream()
+                  .map(
+                      a ->
+                          ResourceId.forAnnotationKey(
+                              parent.getStudy(), parent.getCohort(), a.getId()))
+                  .collect(Collectors.toSet());
+          default -> throw new IllegalArgumentException("Unknown resource type: " + type);
+        };
     List<ResourceId> expected = Arrays.asList(expectedResources);
     assertEquals(expected.size(), actual.size());
     actual.forEach(r -> assertTrue(expected.contains(r)));

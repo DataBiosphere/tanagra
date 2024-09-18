@@ -6,6 +6,7 @@ import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_CO
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_PROCEDURE;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.CG_PROCEDURE_WITH_MODIFIER;
+import static bio.terra.tanagra.service.criteriaconstants.sd.CriteriaGroup.DISABLED_CG_GENDER;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.shared.*;
@@ -27,6 +28,20 @@ public final class CriteriaGroupSection {
       CohortRevision.CriteriaGroupSection.builder()
           .id("cgs3")
           .criteriaGroups(List.of(CG_GENDER, CG_CONDITION_WITH_MODIFIER))
+          .operator(BooleanAndOrFilter.LogicalOperator.AND)
+          .build();
+
+  public static final CohortRevision.CriteriaGroupSection DISABLED_CGS_CONDITION =
+      CohortRevision.CriteriaGroupSection.builder()
+          .id("cgs2d")
+          .criteriaGroups(List.of(CG_CONDITION_WITH_MODIFIER))
+          .setIsExcluded(true)
+          .setIsDisabled(true)
+          .build();
+  public static final CohortRevision.CriteriaGroupSection CGS_CONDITION_AND_DISABLED_GENDER =
+      CohortRevision.CriteriaGroupSection.builder()
+          .id("cgs3d")
+          .criteriaGroups(List.of(CG_CONDITION_WITH_MODIFIER, DISABLED_CG_GENDER))
           .operator(BooleanAndOrFilter.LogicalOperator.AND)
           .build();
   public static final CohortRevision.CriteriaGroupSection CGS_GENDER =

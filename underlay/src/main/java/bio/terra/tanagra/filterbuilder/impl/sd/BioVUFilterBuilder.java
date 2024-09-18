@@ -19,7 +19,7 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BioVUFilterBuilder extends FilterBuilder {
+public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.BioVU> {
   private static final String SAMPLE_HAS_PLASMA_ATTRIBUTE = "biovu_sample_has_plasma";
   private static final String HAS_SAMPLE_ATTRIBUTE = "has_biovu_sample";
   private static final String SAMPLE_DNA_YIELD_ATTRIBUTE = "biovu_sample_dna_yield";

@@ -4,6 +4,7 @@ export type SZAttribute = {
   displayHintRangeMax?: number;
   displayHintRangeMin?: number;
   isComputeDisplayHint?: boolean;
+  isDataTypeRepeated?: boolean;
   isSuppressedForExport?: boolean;
   name: string;
   runtimeDataType?: SZDataType;
@@ -26,6 +27,7 @@ export enum SZCorePlugin {
   ENTITY_GROUP = "ENTITY_GROUP",
   MULTI_ATTRIBUTE = "MULTI_ATTRIBUTE",
   OUTPUT_UNFILTERED = "OUTPUT_UNFILTERED",
+  SURVEY = "SURVEY",
   TEXT_SEARCH = "TEXT_SEARCH",
   UNHINTED_VALUE = "UNHINTED_VALUE",
 };
@@ -112,6 +114,8 @@ export type SZGroupItems = {
   itemsEntity: string;
   itemsEntityIdFieldName?: string;
   name: string;
+  rollupCountsSql?: SZRollupCountsSql;
+  useSourceIdPairsSql?: boolean;
 };
 
 export type SZHierarchy = {
@@ -171,6 +175,12 @@ export type SZPrimaryRelationship = {
   idPairsSqlFile?: string;
   occurrenceEntityIdFieldName?: string;
   primaryEntityIdFieldName?: string;
+};
+
+export type SZRollupCountsSql = {
+  entityIdFieldName: string;
+  rollupCountFieldName: string;
+  sqlFile: string;
 };
 
 export type SZService = {

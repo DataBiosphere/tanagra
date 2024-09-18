@@ -72,8 +72,8 @@ public class ReviewSampleSizeTest {
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("cohort 2")
-                .description("first cohort"),
-            USER_EMAIL_1,
+                .description("first cohort")
+                .createdBy(USER_EMAIL_1),
             List.of(CRITERIA_GROUP_SECTION_GENDER));
     assertNotNull(cohort1);
     LOGGER.info("Created cohort1 {} at {}", cohort1.getId(), cohort1.getCreated());

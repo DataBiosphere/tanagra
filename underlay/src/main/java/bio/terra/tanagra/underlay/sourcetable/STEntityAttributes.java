@@ -32,7 +32,9 @@ public class STEntityAttributes extends SourceTable {
                   szAttribute.valueFieldName == null
                       ? szAttribute.name
                       : szAttribute.valueFieldName,
-                  ConfigReader.deserializeDataType(szAttribute.dataType)));
+                  ConfigReader.deserializeDataType(szAttribute.dataType),
+                  szAttribute.isDataTypeRepeated,
+                  false));
           if (szAttribute.displayFieldName != null) {
             attributeDisplayColumnSchemasBuilder.put(
                 szAttribute.name, new ColumnSchema(szAttribute.displayFieldName, DataType.STRING));

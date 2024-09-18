@@ -1432,6 +1432,12 @@ components:
           type: string
           description: Optional display string
           nullable: true
+        repeatedValue:
+          type: array
+          items:
+            $ref: "#/components/schemas/Literal"
+        isRepeatedValue:
+          type: boolean
 
     Literal:
       type: object
@@ -1770,7 +1776,7 @@ components:
           type: string
         operator:
           type: string
-          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER"]
+          enum: ["CHILD_OF", "DESCENDANT_OF_INCLUSIVE", "IS_ROOT", "IS_MEMBER", "IS_LEAF"]
         values:
           type: array
           items:
@@ -2338,6 +2344,9 @@ components:
     FeatureSetCloneInfo:
       type: object
       properties:
+        destinationStudyId:
+          # Optional: by default it is cloned into the same study
+          $ref: "#/components/schemas/StudyId"
         displayName:
           $ref: "#/components/schemas/FeatureSetDisplayName"
         description:
@@ -2393,6 +2402,10 @@ components:
         excluded:
           type: boolean
           description: True to exclude the section, false to include it
+        disabled:
+          type: boolean
+          description: True to disable the section
+          default: false
       required:
         - id
         - displayName
@@ -2422,6 +2435,10 @@ components:
           description: Set of criteria in the group
           items:
             $ref: "#/components/schemas/Criteria"
+        disabled:
+          type: boolean
+          description: True to disable the group
+          default: false
       required:
         - id
         - displayName

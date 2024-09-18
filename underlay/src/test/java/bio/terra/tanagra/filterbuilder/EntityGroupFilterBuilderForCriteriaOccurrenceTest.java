@@ -3,7 +3,6 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
@@ -56,7 +55,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaOnlyCohortFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup entityGroup = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -65,7 +64,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
@@ -123,7 +122,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             underlay,
             underlay.getEntity("condition"),
             underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+            List.of(Literal.forInt64(201_254L), Literal.forInt64(201_826L)));
     expectedCohortFilter =
         new PrimaryWithCriteriaFilter(
             underlay,
@@ -629,7 +628,13 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void emptyCriteriaCohortFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup entityGroup =
+        CFEntityGroup.EntityGroup.newBuilder()
+            .addClassificationEntityGroups(
+                CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
+                    .setId("conditionPerson")
+                    .build())
+            .build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -638,25 +643,37 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+    EntityFilter expectedCohortFilter =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"),
+            null,
+            Map.of(),
+            null,
+            null,
+            null);
 
     // Null selection data.
     SelectionData selectionData = new SelectionData("condition", null);
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
 
     // Empty string selection data.
     selectionData = new SelectionData("condition", "");
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
 
     // Empty list selection.
     DTEntityGroup.EntityGroup data = DTEntityGroup.EntityGroup.newBuilder().build();
     selectionData = new SelectionData("condition", serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
-    assertNull(cohortFilter);
+    assertNotNull(cohortFilter);
+    assertEquals(expectedCohortFilter, cohortFilter);
   }
 
   @Test
@@ -669,7 +686,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             SZCorePlugin.ATTRIBUTE.getIdInConfig(),
             serializeToJson(ageAtOccurrenceConfig));
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup entityGroup = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -678,7 +695,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of(ageAtOccurrenceModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
@@ -743,7 +760,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             false,
             SZCorePlugin.UNHINTED_VALUE.getIdInConfig(),
             serializeToJson(groupByConfig));
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup entityGroup = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -752,7 +769,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of(groupByModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
@@ -803,7 +820,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaOnlySingleOccurrenceDataFeatureFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup entityGroup = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "condition",
@@ -812,7 +829,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
@@ -871,7 +888,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             underlay,
             underlay.getEntity("condition"),
             underlay.getEntity("condition").getHierarchy(Hierarchy.DEFAULT_NAME),
-            List.of(Literal.forInt64(201_826L), Literal.forInt64(201_254L)));
+            List.of(Literal.forInt64(201_254L), Literal.forInt64(201_826L)));
     expectedDataFeatureFilter =
         new OccurrenceForPrimaryFilter(
             underlay,
@@ -1015,7 +1032,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaOnlyMultipleOccurrencesDataFeatureFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup entityGroup = CFEntityGroup.EntityGroup.newBuilder().build();
     CriteriaSelector criteriaSelector =
         new CriteriaSelector(
             "icd9cm",
@@ -1024,7 +1041,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
@@ -1153,7 +1170,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void criteriaWithAttrModifiersMultipleOccurrencesDataFeatureFilter() {
-    CFEntityGroup.EntityGroup config = CFEntityGroup.EntityGroup.newBuilder().build();
+    CFEntityGroup.EntityGroup entityGroup = CFEntityGroup.EntityGroup.newBuilder().build();
     CFAttribute.Attribute ageAtOccurrenceConfig =
         CFAttribute.Attribute.newBuilder().setAttribute("age_at_occurrence").build();
     CriteriaSelector.Modifier ageAtOccurrenceModifier =
@@ -1170,7 +1187,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of(ageAtOccurrenceModifier));
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
 
@@ -1231,7 +1248,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
 
   @Test
   void emptyCriteriaDataFeatureFilter() {
-    CFEntityGroup.EntityGroup config =
+    CFEntityGroup.EntityGroup entityGroup =
         CFEntityGroup.EntityGroup.newBuilder()
             .addClassificationEntityGroups(
                 CFEntityGroup.EntityGroup.EntityGroupConfig.newBuilder()
@@ -1246,7 +1263,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             true,
             "core.EntityGroupFilterBuilder",
             SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            serializeToJson(entityGroup),
             List.of());
     EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
     EntityOutput expectedEntityOutput1 =

@@ -191,6 +191,9 @@ public final class FeatureSet {
                 + MAX_DISPLAY_NAME_LENGTH
                 + " characters");
       }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
+      }
       criteria = new ArrayList<>(criteria);
       criteria.sort(Comparator.comparing(Criteria::getId));
       excludeOutputAttributesPerEntity =

@@ -28,7 +28,7 @@ public class StudyService {
 
   /** Create a new study. */
   public Study createStudy(Study.Builder studyBuilder, String userEmail) {
-    studyDao.createStudy(studyBuilder.createdBy(userEmail).lastModifiedBy(userEmail).build());
+    studyDao.createStudy(studyBuilder.createdBy(userEmail).build());
     Study study = studyDao.getStudy(studyBuilder.getId());
     activityLogService.logStudy(ActivityLog.Type.CREATE_STUDY, userEmail, study);
     return study;

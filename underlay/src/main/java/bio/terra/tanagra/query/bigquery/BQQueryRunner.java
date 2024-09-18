@@ -271,8 +271,7 @@ public class BQQueryRunner implements QueryRunner {
                       .getHintedEntity()
                       .getAttribute(
                           sqlRowResult.get(attributeColName, DataType.STRING).getStringVal());
-              if (attribute.isValueDisplay()
-                  || attribute.getRuntimeDataType().equals(DataType.STRING)) {
+              if (attribute.isValueDisplay()) {
                 // This is one (value,count) pair of an enum values hint.
                 Literal enumVal = sqlRowResult.get(enumValColName, DataType.INT64);
                 String enumDisplay =
@@ -281,6 +280,13 @@ public class BQQueryRunner implements QueryRunner {
                 Map<ValueDisplay, Long> enumValuesForAttr =
                     enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
                 enumValuesForAttr.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
+                enumValues.put(attribute, enumValuesForAttr);
+              } else if (attribute.getRuntimeDataType().equals(DataType.STRING)) {
+                Literal enumVal = sqlRowResult.get(enumDisplayColName, DataType.STRING);
+                Long enumCount = sqlRowResult.get(enumCountColName, DataType.INT64).getInt64Val();
+                Map<ValueDisplay, Long> enumValuesForAttr =
+                    enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
+                enumValuesForAttr.put(new ValueDisplay(enumVal), enumCount);
                 enumValues.put(attribute, enumValuesForAttr);
               } else {
                 // This is a range hint.
@@ -383,15 +389,21 @@ public class BQQueryRunner implements QueryRunner {
     ITEntityMain entityMain = underlay.getIndexSchema().getEntityMain(singleEntity.getName());
 
     List<String> selectFieldSqls = new ArrayList<>();
+    List<String> joinTableSqls = new ArrayList<>();
     selectFields.forEach(
         valueDisplayField -> {
           List<SqlQueryField> sqlQueryFields;
           if (groupByFields.contains(valueDisplayField)
               && valueDisplayField instanceof AttributeField) {
+            BQAttributeFieldTranslator attributeFieldTranslator =
+                (BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField);
             sqlQueryFields =
-                ((BQAttributeFieldTranslator) bqTranslator.translator(valueDisplayField))
-                    .buildSqlFieldsForCountSelectAndGroupBy(
-                        entityLevelHints.get(valueDisplayField.getEntity()));
+                attributeFieldTranslator.buildSqlFieldsForCountSelectAndGroupBy(
+                    entityLevelHints.get(valueDisplayField.getEntity()));
+            String joinTableSql = attributeFieldTranslator.buildSqlJoinTableForCountQuery();
+            if (joinTableSql != null) {
+              joinTableSqls.add(joinTableSql);
+            }
           } else {
             sqlQueryFields =
                 bqTranslator.translator(valueDisplayField).buildSqlFieldsForListSelect();
@@ -401,11 +413,16 @@ public class BQQueryRunner implements QueryRunner {
               sqlQueryField -> selectFieldSqls.add(sqlQueryField.renderForSelect()));
         });
 
-    // SELECT [select fields] FROM [entity main]
+    // SELECT [select fields] FROM [entity main] JOIN [join tables]
     sql.append("SELECT ")
         .append(String.join(", ", selectFieldSqls))
         .append(" FROM ")
         .append(entityMain.getTablePointer().render());
+
+    // JOIN [join tables]
+    if (!joinTableSqls.isEmpty()) {
+      sql.append(" ").append(String.join(" ", joinTableSqls));
+    }
 
     // WHERE [filter]
     EntityFilter singleEntityFilter = filters.get(singleEntity);

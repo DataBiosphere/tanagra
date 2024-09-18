@@ -26,22 +26,17 @@ public class AnnotationFilter {
                 return false;
               }
               int comparison = av.getLiteral().compareTo(value);
-              switch (operator) {
-                case EQUALS:
-                  return comparison == 0;
-                case NOT_EQUALS:
-                  return comparison != 0;
-                case LESS_THAN:
-                  return comparison == -1;
-                case GREATER_THAN:
-                  return comparison == 1;
-                case LESS_THAN_OR_EQUAL:
-                  return comparison <= 0;
-                case GREATER_THAN_OR_EQUAL:
-                  return comparison >= 0;
-                default:
-                  throw new SystemException("Unsupported annotation filter operator: " + operator);
-              }
+              return switch (operator) {
+                case EQUALS -> comparison == 0;
+                case NOT_EQUALS -> comparison != 0;
+                case LESS_THAN -> comparison == -1;
+                case GREATER_THAN -> comparison == 1;
+                case LESS_THAN_OR_EQUAL -> comparison <= 0;
+                case GREATER_THAN_OR_EQUAL -> comparison >= 0;
+                default ->
+                    throw new SystemException(
+                        "Unsupported annotation filter operator: " + operator);
+              };
             });
   }
 }

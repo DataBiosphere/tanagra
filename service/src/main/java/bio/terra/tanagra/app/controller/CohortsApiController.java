@@ -67,8 +67,8 @@ public class CohortsApiController implements CohortsApi {
             Cohort.builder()
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .underlay(body.getUnderlayName()),
-            SpringAuthentication.getCurrentUser().getEmail());
+                .underlay(body.getUnderlayName())
+                .createdBy(SpringAuthentication.getCurrentUser().getEmail()));
     return ResponseEntity.ok(ToApiUtils.toApiObject(createdCohort));
   }
 
@@ -243,6 +243,7 @@ public class CohortsApiController implements CohortsApi {
         .joinOperator(joinOperator)
         .joinOperatorValue(apiObj.getOperatorValue())
         .setIsExcluded(apiObj.isExcluded())
+        .setIsDisabled(apiObj.isDisabled())
         .build();
   }
 
@@ -254,19 +255,16 @@ public class CohortsApiController implements CohortsApi {
             apiObj.getCriteria().stream()
                 .map(FromApiUtils::fromApiObject)
                 .collect(Collectors.toList()))
+        .isDisabled(apiObj.isDisabled())
         .build();
   }
 
   private static ReducingOperator fromApiObject(ApiReducingOperator apiObj) {
-    switch (apiObj) {
-      case ANY:
-        return null;
-      case FIRST_MENTION_OF:
-        return ReducingOperator.FIRST_MENTION_OF;
-      case LAST_MENTION_OF:
-        return ReducingOperator.LAST_MENTION_OF;
-      default:
-        throw new IllegalArgumentException("Unknown reducing operator: " + apiObj);
-    }
+    return switch (apiObj) {
+      case ANY -> null;
+      case FIRST_MENTION_OF -> ReducingOperator.FIRST_MENTION_OF;
+      case LAST_MENTION_OF -> ReducingOperator.LAST_MENTION_OF;
+      default -> throw new IllegalArgumentException("Unknown reducing operator: " + apiObj);
+    };
   }
 }

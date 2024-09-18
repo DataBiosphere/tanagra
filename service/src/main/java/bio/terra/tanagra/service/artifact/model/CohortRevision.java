@@ -169,6 +169,9 @@ public final class CohortRevision {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
       }
+      if (lastModifiedBy == null) {
+        lastModifiedBy = createdBy;
+      }
       return new CohortRevision(this);
     }
 
@@ -231,6 +234,7 @@ public final class CohortRevision {
     private final JoinOperator joinOperator;
     private final Integer joinOperatorValue;
     private final boolean isExcluded;
+    private final boolean isDisabled;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     private CriteriaGroupSection(
@@ -240,20 +244,22 @@ public final class CohortRevision {
         List<CriteriaGroup> secondConditionCriteriaGroups,
         BooleanAndOrFilter.LogicalOperator operator,
         ReducingOperator firstConditionReducingOperator,
-        ReducingOperator secondConditionRedcuingOperator,
+        ReducingOperator secondConditionReducingOperator,
         JoinOperator joinOperator,
         Integer joinOperatorValue,
-        boolean isExcluded) {
+        boolean isExcluded,
+        boolean isDisabled) {
       this.id = id;
       this.displayName = displayName;
       this.criteriaGroups = criteriaGroups;
       this.secondConditionCriteriaGroups = secondConditionCriteriaGroups;
       this.operator = operator;
       this.firstConditionReducingOperator = firstConditionReducingOperator;
-      this.secondConditionRedcuingOperator = secondConditionRedcuingOperator;
+      this.secondConditionRedcuingOperator = secondConditionReducingOperator;
       this.joinOperator = joinOperator;
       this.joinOperatorValue = joinOperatorValue;
       this.isExcluded = isExcluded;
+      this.isDisabled = isDisabled;
     }
 
     public static Builder builder() {
@@ -307,6 +313,10 @@ public final class CohortRevision {
       return isExcluded;
     }
 
+    public boolean isDisabled() {
+      return isDisabled;
+    }
+
     public static class Builder {
       private String id;
       private String displayName;
@@ -318,6 +328,7 @@ public final class CohortRevision {
       private JoinOperator joinOperator;
       private Integer joinOperatorValue;
       private boolean isExcluded;
+      private boolean isDisabled;
 
       public Builder id(String id) {
         this.id = id;
@@ -372,6 +383,11 @@ public final class CohortRevision {
         return this;
       }
 
+      public Builder setIsDisabled(boolean isDisabled) {
+        this.isDisabled = isDisabled;
+        return this;
+      }
+
       public CriteriaGroupSection build() {
         if (id == null) {
           id = RandomStringUtils.randomAlphanumeric(10);
@@ -386,7 +402,8 @@ public final class CohortRevision {
             secondConditionReducingOperator,
             joinOperator,
             joinOperatorValue,
-            isExcluded);
+            isExcluded,
+            isDisabled);
       }
 
       public String getId() {
@@ -412,6 +429,7 @@ public final class CohortRevision {
       }
       CriteriaGroupSection that = (CriteriaGroupSection) o;
       return isExcluded == that.isExcluded
+          && isDisabled == that.isDisabled
           && id.equals(that.id)
           && Objects.equals(displayName, that.displayName)
           && criteriaGroups.equals(that.criteriaGroups)
@@ -435,7 +453,8 @@ public final class CohortRevision {
           secondConditionRedcuingOperator,
           joinOperator,
           joinOperatorValue,
-          isExcluded);
+          isExcluded,
+          isDisabled);
     }
   }
 
@@ -443,11 +462,14 @@ public final class CohortRevision {
     private final String id;
     private final String displayName;
     private final List<Criteria> criteria;
+    private final boolean isDisabled;
 
-    private CriteriaGroup(String id, String displayName, List<Criteria> criteria) {
+    private CriteriaGroup(
+        String id, String displayName, List<Criteria> criteria, boolean isDisabled) {
       this.id = id;
       this.displayName = displayName;
       this.criteria = criteria;
+      this.isDisabled = isDisabled;
     }
 
     public static Builder builder() {
@@ -466,10 +488,15 @@ public final class CohortRevision {
       return Collections.unmodifiableList(criteria);
     }
 
+    public boolean isDisabled() {
+      return isDisabled;
+    }
+
     public static class Builder {
       private String id;
       private String displayName;
       private List<Criteria> criteria = new ArrayList<>();
+      private boolean isDisabled;
 
       public Builder id(String id) {
         this.id = id;
@@ -486,11 +513,16 @@ public final class CohortRevision {
         return this;
       }
 
+      public Builder isDisabled(boolean isDisabled) {
+        this.isDisabled = isDisabled;
+        return this;
+      }
+
       public CriteriaGroup build() {
         if (id == null) {
           id = RandomStringUtils.randomAlphanumeric(10);
         }
-        return new CriteriaGroup(id, displayName, criteria);
+        return new CriteriaGroup(id, displayName, criteria, isDisabled);
       }
 
       public String getId() {
@@ -513,12 +545,13 @@ public final class CohortRevision {
       CriteriaGroup that = (CriteriaGroup) o;
       return id.equals(that.id)
           && displayName.equals(that.displayName)
-          && criteria.equals(that.criteria);
+          && criteria.equals(that.criteria)
+          && isDisabled == that.isDisabled;
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(id, displayName, criteria);
+      return Objects.hash(id, displayName, criteria, isDisabled);
     }
   }
 }

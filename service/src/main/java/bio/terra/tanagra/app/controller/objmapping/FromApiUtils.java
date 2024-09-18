@@ -7,20 +7,7 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
-import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.filter.BooleanNotFilter;
-import bio.terra.tanagra.api.filter.EntityFilter;
-import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
-import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
-import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
-import bio.terra.tanagra.api.filter.ItemInGroupFilter;
-import bio.terra.tanagra.api.filter.OccurrenceForPrimaryFilter;
-import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
-import bio.terra.tanagra.api.filter.RelationshipFilter;
-import bio.terra.tanagra.api.filter.TextSearchFilter;
+import bio.terra.tanagra.api.filter.*;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.OrderBy;
@@ -136,6 +123,8 @@ public final class FromApiUtils {
             return new HierarchyIsRootFilter(underlay, entity, hierarchy);
           case IS_MEMBER:
             return new HierarchyIsMemberFilter(underlay, entity, hierarchy);
+          case IS_LEAF:
+            return new HierarchyIsLeafFilter(underlay, entity, hierarchy);
           case CHILD_OF:
             return new HierarchyHasParentFilter(
                 underlay,
@@ -492,18 +481,13 @@ public final class FromApiUtils {
   }
 
   public static Literal fromApiObject(ApiLiteral apiLiteral) {
-    switch (apiLiteral.getDataType()) {
-      case INT64:
-        return Literal.forInt64(apiLiteral.getValueUnion().getInt64Val());
-      case STRING:
-        return Literal.forString(apiLiteral.getValueUnion().getStringVal());
-      case BOOLEAN:
-        return Literal.forBoolean(apiLiteral.getValueUnion().isBoolVal());
-      case DATE:
-        return Literal.forDate(apiLiteral.getValueUnion().getDateVal());
-      default:
-        throw new SystemException("Unknown API data type: " + apiLiteral.getDataType());
-    }
+    return switch (apiLiteral.getDataType()) {
+      case INT64 -> Literal.forInt64(apiLiteral.getValueUnion().getInt64Val());
+      case STRING -> Literal.forString(apiLiteral.getValueUnion().getStringVal());
+      case BOOLEAN -> Literal.forBoolean(apiLiteral.getValueUnion().isBoolVal());
+      case DATE -> Literal.forDate(apiLiteral.getValueUnion().getDateVal());
+      default -> throw new SystemException("Unknown API data type: " + apiLiteral.getDataType());
+    };
   }
 
   public static BinaryOperator fromApiObject(ApiBinaryOperator apiOperator) {

@@ -71,16 +71,12 @@ public final class ActivityLogResource {
   }
 
   public String getLogStr() {
-    switch (type) {
-      case STUDY:
-        return "study-" + studyId;
-      case COHORT:
-        return "cohort-" + cohortId;
-      case REVIEW:
-        return "review-" + reviewId;
-      default:
-        return "unknown type " + type;
-    }
+    return switch (type) {
+      case STUDY -> "study-" + studyId;
+      case COHORT -> "cohort-" + cohortId;
+      case REVIEW -> "review-" + reviewId;
+      default -> "unknown type " + type;
+    };
   }
 
   public static Builder builder() {

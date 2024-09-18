@@ -27,6 +27,8 @@ export type SearchEntityGroupOptions = {
   parent?: DataKey;
   limit?: number;
   hierarchy?: boolean;
+  fetchAll?: boolean;
+  isLeaf?: boolean;
 };
 
 export type SearchEntityGroupResult = {
@@ -638,9 +640,7 @@ export class BackendUnderlaySource implements UnderlaySource {
             entityGroup,
             entity,
             sortOrder,
-            options?.query,
-            options?.parent,
-            options?.limit
+            options
           )
         )
         .then((res) => ({
@@ -895,14 +895,12 @@ export class BackendUnderlaySource implements UnderlaySource {
     entityGroup: EntityGroupData,
     entity: tanagraUnderlay.SZEntity,
     sortOrder: SortOrder,
-    query?: string,
-    parent?: DataValue,
-    limit?: number
+    options?: SearchEntityGroupOptions
   ): tanagra.ListInstancesRequest {
     const hierarchy = entity.hierarchies?.[0]?.name;
     const operands: tanagra.Filter[] = [];
 
-    if (entityGroup.relatedEntityId && parent) {
+    if (entityGroup.relatedEntityId && options?.parent) {
       const groupingEntity = this.lookupEntity(entityGroup.entityId);
       operands.push({
         filterType: tanagra.FilterFilterTypeEnum.Relationship,
@@ -915,7 +913,7 @@ export class BackendUnderlaySource implements UnderlaySource {
                 attributeFilter: {
                   attribute: groupingEntity.idAttribute,
                   operator: tanagra.AttributeFilterOperatorEnum.Equals,
-                  values: [literalFromDataValue(parent)],
+                  values: [literalFromDataValue(options?.parent)],
                 },
               },
             },
@@ -923,30 +921,30 @@ export class BackendUnderlaySource implements UnderlaySource {
         },
       });
     } else {
-      if (hierarchy && parent) {
+      if (hierarchy && options?.parent) {
         operands.push({
           filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
           filterUnion: {
             hierarchyFilter: {
               hierarchy,
               operator: tanagra.HierarchyFilterOperatorEnum.ChildOf,
-              values: [literalFromDataValue(parent)],
+              values: [literalFromDataValue(options?.parent)],
             },
           },
         });
-      } else if (isValid(query)) {
-        if (query !== "") {
+      } else if (isValid(options?.query)) {
+        if (options?.query !== "") {
           operands.push({
             filterType: tanagra.FilterFilterTypeEnum.Text,
             filterUnion: {
               textFilter: {
                 matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
-                text: query,
+                text: options?.query,
               },
             },
           });
         }
-      } else if (hierarchy) {
+      } else if (hierarchy && !options?.fetchAll) {
         operands.push({
           filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
           filterUnion: {
@@ -970,9 +968,33 @@ export class BackendUnderlaySource implements UnderlaySource {
             },
           },
         });
+
+        if (options && isValid(options.isLeaf)) {
+          let isLeafFilter: tanagra.Filter | null = {
+            filterType: tanagra.FilterFilterTypeEnum.Hierarchy,
+            filterUnion: {
+              hierarchyFilter: {
+                hierarchy,
+                operator: tanagra.HierarchyFilterOperatorEnum.IsLeaf,
+              },
+            },
+          };
+
+          if (!options.isLeaf) {
+            isLeafFilter = makeBooleanLogicFilter(
+              tanagra.BooleanLogicFilterOperatorEnum.Not,
+              [isLeafFilter]
+            );
+          }
+
+          if (isLeafFilter) {
+            operands.push(isLeafFilter);
+          }
+        }
       }
     }
 
+    const limit = options?.fetchAll ? 100000 : options?.limit;
     const req = {
       entityName: entity.name,
       underlayName: this.underlay.name,
@@ -1705,7 +1727,10 @@ function makeBooleanLogicFilter(
   if (!subfilters || subfilters.length === 0) {
     return null;
   }
-  if (subfilters.length === 1) {
+  if (
+    subfilters.length === 1 &&
+    operator !== tanagra.BooleanLogicFilterOperatorEnum.Not
+  ) {
     return subfilters[0];
   }
   return {

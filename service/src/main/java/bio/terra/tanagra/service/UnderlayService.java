@@ -75,9 +75,7 @@ public class UnderlayService {
         return Collections.emptyList();
       }
       List<String> authorizedNames =
-          authorizedIds.getResources().stream()
-              .map(ResourceId::getUnderlay)
-              .collect(Collectors.toList());
+          authorizedIds.getResources().stream().map(ResourceId::getUnderlay).toList();
       return underlayCache.values().stream()
           .map(CachedUnderlay::getUnderlay)
           .filter(underlay -> authorizedNames.contains(underlay.getName()))

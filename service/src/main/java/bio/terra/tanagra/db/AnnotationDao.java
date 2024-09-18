@@ -10,6 +10,7 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.AnnotationKey;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import jakarta.annotation.Nullable;
+import java.sql.Date;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -78,37 +79,21 @@ public class AnnotationDao {
 
   @WriteTransaction
   public void createAnnotationKey(String cohortId, AnnotationKey annotationKey) {
-    String sql =
-        "INSERT INTO annotation_key (cohort_id, id, display_name, description, data_type) "
-            + "VALUES (:cohort_id, :id, :display_name, :description, :data_type)";
-    LOGGER.debug("CREATE annotation key: {}", sql);
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("cohort_id", cohortId)
-            .addValue("id", annotationKey.getId())
-            .addValue("display_name", annotationKey.getDisplayName())
-            .addValue("description", annotationKey.getDescription())
-            .addValue("data_type", annotationKey.getDataType().name());
-    int rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.debug("CREATE annotation key rowsAffected = {}", rowsAffected);
+    MapSqlParameterSource keyParamSets =
+        buildKeyParam(
+            cohortId,
+            annotationKey.getId(),
+            annotationKey.getDisplayName(),
+            annotationKey.getDescription(),
+            annotationKey.getDataType().name());
+    insertKeyRows(List.of(keyParamSets));
 
     if (!annotationKey.getEnumVals().isEmpty()) {
-      sql =
-          "INSERT INTO annotation_key_enum_value (cohort_id, annotation_key_id, enum) "
-              + "VALUES (:cohort_id, :annotation_key_id, :enum)";
-      LOGGER.debug("CREATE annotation key enum value: {}", sql);
-      MapSqlParameterSource[] enumParamSets =
+      List<MapSqlParameterSource> enumValueParamSets =
           annotationKey.getEnumVals().stream()
-              .map(
-                  ev ->
-                      new MapSqlParameterSource()
-                          .addValue("cohort_id", cohortId)
-                          .addValue("annotation_key_id", annotationKey.getId())
-                          .addValue("enum", ev))
-              .toList()
-              .toArray(new MapSqlParameterSource[0]);
-      rowsAffected = Arrays.stream(jdbcTemplate.batchUpdate(sql, enumParamSets)).sum();
-      LOGGER.debug("CREATE annotation key enum value rowsAffected = {}", rowsAffected);
+              .map(val -> buildEnumValueParam(cohortId, annotationKey.getId(), val))
+              .toList();
+      insertEnumValueRows(enumValueParamSets);
     }
   }
 
@@ -189,34 +174,27 @@ public class AnnotationDao {
       return Collections.emptyList();
     }
 
-    // Fetch enum vals. (annotation key id -> enum)
-    String sql =
-        ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL + " WHERE annotation_key_id IN (:annotation_key_ids)";
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue(
-                "annotation_key_ids",
-                annotationKeys.stream()
-                    .map(AnnotationKey.Builder::getId)
-                    .collect(Collectors.toSet()));
-    List<Pair<String, String>> enumVals =
-        jdbcTemplate.query(sql, params, ANNOTATION_KEY_ENUM_VALUE_ROW_MAPPER);
-
     // Put enum vals into their respective annotation keys.
     Map<String, AnnotationKey.Builder> annotationKeysMap =
         annotationKeys.stream()
             .collect(Collectors.toMap(AnnotationKey.Builder::getId, Function.identity()));
-    enumVals.forEach(
-        pair -> {
-          String annotationKeyId = pair.getKey();
-          String enumVal = pair.getValue();
-          annotationKeysMap.get(annotationKeyId).addEnumVal(enumVal);
-        });
+
+    // Fetch enum vals. (annotation key id -> enum)
+    List<Pair<String, String>> enumVals = getEnumValuesMatchingList(annotationKeysMap.keySet());
+    enumVals.forEach(pair -> annotationKeysMap.get(pair.getKey()).addEnumVal(pair.getValue()));
 
     // Preserve the order returned by the original query.
     return annotationKeys.stream()
         .map(a -> annotationKeysMap.get(a.getId()).build())
         .collect(Collectors.toList());
+  }
+
+  public List<Pair<String, String>> getEnumValuesMatchingList(Set<String> keyIds) {
+    String sql =
+        ANNOTATION_KEY_ENUM_VALUE_SELECT_SQL + " WHERE annotation_key_id IN (:annotation_key_ids)";
+    MapSqlParameterSource params =
+        new MapSqlParameterSource().addValue("annotation_key_ids", keyIds);
+    return jdbcTemplate.query(sql, params, ANNOTATION_KEY_ENUM_VALUE_ROW_MAPPER);
   }
 
   @WriteTransaction
@@ -268,27 +246,21 @@ public class AnnotationDao {
     LOGGER.debug("DELETE annotation values rowsAffected = {}", rowsAffected);
 
     // Write the annotation values.
-    sql =
-        "INSERT INTO annotation_value (cohort_id, annotation_key_id, review_id, primary_entity_instance_id, bool_val, int64_val, string_val, date_val) "
-            + "VALUES (:cohort_id, :annotation_key_id, :review_id, :primary_entity_instance_id, :bool_val, :int64_val, :string_val, :date_val)";
-    LOGGER.debug("CREATE annotation values: {}", sql);
-    MapSqlParameterSource[] valueParamSets =
+    List<MapSqlParameterSource> valueParamSets =
         annotationValues.stream()
             .map(
                 av ->
-                    new MapSqlParameterSource()
-                        .addValue("cohort_id", cohortId)
-                        .addValue("annotation_key_id", annotationKeyId)
-                        .addValue("review_id", reviewId)
-                        .addValue("primary_entity_instance_id", instanceId)
-                        .addValue("bool_val", av.getBooleanVal())
-                        .addValue("int64_val", av.getInt64Val())
-                        .addValue("string_val", av.getStringVal())
-                        .addValue("date_val", av.getDateVal()))
-            .toList()
-            .toArray(new MapSqlParameterSource[0]);
-    rowsAffected = Arrays.stream(jdbcTemplate.batchUpdate(sql, valueParamSets)).sum();
-    LOGGER.debug("CREATE annotation values rowsAffected = {}", rowsAffected);
+                    buildValueParam(
+                        cohortId,
+                        annotationKeyId,
+                        reviewId,
+                        instanceId,
+                        av.getBooleanVal(),
+                        av.getInt64Val(),
+                        av.getStringVal(),
+                        av.getDateVal()))
+            .toList();
+    insertValueRows(valueParamSets);
   }
 
   @ReadTransaction
@@ -297,5 +269,80 @@ public class AnnotationDao {
     LOGGER.debug("GET annotation values: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("cohort_id", cohortId);
     return jdbcTemplate.query(sql, params, ANNOTATION_VALUE_ROW_MAPPER);
+  }
+
+  void insertKeyRows(List<MapSqlParameterSource> keyParamSets) {
+    String sql =
+        "INSERT INTO annotation_key (cohort_id, id, display_name, description, data_type) "
+            + "VALUES (:cohort_id, :id, :display_name, :description, :data_type)";
+    LOGGER.debug("CREATE annotation key: {}", sql);
+    int rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(sql, keyParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE annotation key rowsAffected = {}", rowsAffected);
+  }
+
+  void insertEnumValueRows(List<MapSqlParameterSource> enumValueParamSets) {
+    String sql =
+        "INSERT INTO annotation_key_enum_value (cohort_id, annotation_key_id, enum) "
+            + "VALUES (:cohort_id, :annotation_key_id, :enum)";
+    LOGGER.debug("CREATE annotation key enum value: {}", sql);
+    int rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(
+                    sql, enumValueParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE annotation key enum value rowsAffected = {}", rowsAffected);
+  }
+
+  void insertValueRows(List<MapSqlParameterSource> valueParamSets) {
+    // Write the annotation values.
+    String sql =
+        "INSERT INTO annotation_value (cohort_id, annotation_key_id, review_id, primary_entity_instance_id, bool_val, int64_val, string_val, date_val) "
+            + "VALUES (:cohort_id, :annotation_key_id, :review_id, :primary_entity_instance_id, :bool_val, :int64_val, :string_val, :date_val)";
+    LOGGER.debug("CREATE annotation values: {}", sql);
+    int rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(sql, valueParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE annotation values rowsAffected = {}", rowsAffected);
+  }
+
+  MapSqlParameterSource buildKeyParam(
+      String cohortId, String id, String displayName, String description, String dataTypeName) {
+    return new MapSqlParameterSource()
+        .addValue("cohort_id", cohortId)
+        .addValue("id", id)
+        .addValue("display_name", displayName)
+        .addValue("description", description)
+        .addValue("data_type", dataTypeName);
+  }
+
+  MapSqlParameterSource buildEnumValueParam(String cohortId, String keyId, String enumValue) {
+    return new MapSqlParameterSource()
+        .addValue("cohort_id", cohortId)
+        .addValue("annotation_key_id", keyId)
+        .addValue("enum", enumValue);
+  }
+
+  MapSqlParameterSource buildValueParam(
+      String cohortId,
+      String keyId,
+      String reviewId,
+      String instanceId,
+      Boolean booelanVal,
+      Long int64Val,
+      String stringVal,
+      Date dateVal) {
+    return new MapSqlParameterSource()
+        .addValue("cohort_id", cohortId)
+        .addValue("annotation_key_id", keyId)
+        .addValue("review_id", reviewId)
+        .addValue("primary_entity_instance_id", instanceId)
+        .addValue("bool_val", booelanVal)
+        .addValue("int64_val", int64Val)
+        .addValue("string_val", stringVal)
+        .addValue("date_val", dateVal);
   }
 }

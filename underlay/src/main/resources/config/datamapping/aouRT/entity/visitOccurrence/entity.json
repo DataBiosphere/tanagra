@@ -5,7 +5,7 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "visit_occurrence_id" },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "visit_concept_id", "dataType": "INT64" },
-    { "name": "standard_concept_name", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "standard_concept_name",
+    { "name": "standard_concept_name", "dataType": "INT64", "valueFieldName": "visit_concept_id",
       "sourceQuery": {
         "displayFieldName": "concept_name",
         "displayFieldTable": "${omopDataset}.concept",
@@ -16,7 +16,7 @@
     { "name": "visit_end_datetime", "dataType": "TIMESTAMP" },
     { "name": "visit_source_value", "dataType": "STRING" },
     { "name": "visit_source_concept_id", "dataType": "INT64" },
-    { "name": "source_concept_name", "dataType": "INT64", "valueFieldName": "visit_source_concept_id", "displayFieldName": "source_concept_name",
+    { "name": "source_concept_name", "dataType": "INT64", "valueFieldName": "visit_source_concept_id",
       "sourceQuery": {
         "displayFieldName": "concept_name",
         "displayFieldTable": "${omopDataset}.concept",

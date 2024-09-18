@@ -23,6 +23,7 @@ This documentation is generated from annotations in the configuration classes.
 * [SZPrepackagedCriteria](#szprepackagedcriteria)
 * [SZPrimaryCriteriaRelationship](#szprimarycriteriarelationship)
 * [SZPrimaryRelationship](#szprimaryrelationship)
+* [SZRollupCountsSql](#szrollupcountssql)
 * [SZService](#szservice)
 * [SZSourceData](#szsourcedata)
 * [SZSourceQuery](#szsourcequery)
@@ -70,6 +71,13 @@ The #szattributedisplayhintrangemax may be set as well, but they are not require
 **optional** boolean
 
 When set to true, an indexing job will try to compute a display hint for this attribute (e.g. set of enum values and counts, range of numeric values). Not all data types are supported by the indexing job, yet.
+
+*Default value:* `false`
+
+### SZAttribute.isDataTypeRepeated
+**optional** boolean
+
+True if the data type is repeated (e.g. an array of ints).
 
 *Default value:* `false`
 
@@ -192,6 +200,11 @@ Use `plugin: "multiAttribute"`.
 **required** [SZCorePlugin](#szcoreplugin)
 
 Use `plugin: "outputUnfiltered"`.
+
+### SZCorePlugin.SURVEY
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "survey"`.
 
 ### SZCorePlugin.TEXT_SEARCH
 **required** [SZCorePlugin](#szcoreplugin)
@@ -630,7 +643,7 @@ Required if the [id pairs SQL](#szgroupitemsidpairssqlfile) is defined.
 
 Name of the group entity - items entity id pairs SQL file.
 
-If this property is set, then the [id pairs SQL](#szgroupitemsidpairssqlfile) must be unset. File must be in the same directory as the entity group file. Name includes file extension.
+File must be in the same directory as the entity group file. Name includes file extension.
 
 There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the group and items entity ids are required. If this property is set, then the [foreign key atttribute](#szgroupitemsforeignkeyattributeitemsentity) must be unset.
 
@@ -656,6 +669,20 @@ Required if the [id pairs SQL](#szgroupitemsidpairssqlfile) is defined.
 Name of the entity group.
 
 This is the unique identifier for the entity group. In a single underlay, the entity group names of any group type cannot overlap. Name may not include spaces or special characters, only letters and numbers. The first character must be a letter.
+
+### SZGroupItems.rollupCountsSql
+**optional** [SZRollupCountsSql](#szrollupcountssql)
+
+Pointer to SQL that returns entity id - rollup count (= number of related entity instances) pairs.
+
+### SZGroupItems.useSourceIdPairsSql
+**optional** boolean
+
+True to skip copying the id-pairs SQL into a new index table, and use the source SQL directly.
+
+Ignored if the [id pairs SQL](#szgroupitemsidpairssqlfile) is undefined.
+
+*Default value:* `false`
 
 
 
@@ -943,6 +970,36 @@ Name of the field or column name that maps to the occurrence entity id. Required
 Name of the field or column name that maps to the primary entity id. Required if the [id pairs SQL](#szprimaryrelationshipidpairssqlfile) is defined.
 
 *Example value:* `primary_id`
+
+
+
+## SZRollupCountsSql
+Pointer to SQL that returns entity id - rollup count (= number of related entity instances) pairs (e.g. variant - number of people). Useful when there's an easy way to calculate these in SQL and we want to avoid ingesting the full entity - related entity relationship id pairs table into Dataflow.
+
+### SZRollupCountsSql.entityIdFieldName
+**required** String
+
+Name of the field or column name that maps to the entity id.
+
+*Example value:* `entity_id`
+
+### SZRollupCountsSql.rollupCountFieldName
+**required** String
+
+Name of the field or column name that maps to the rollup count per entity id.
+
+*Example value:* `rollup_count`
+
+### SZRollupCountsSql.rollupCountsSqlFile
+**required** String
+
+Name of the entity id - rollup counts (= number of items entity instances) pairs SQL file.
+
+File must be in the same directory as the entity/group file. Name includes file extension.
+
+There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the entity id and rollup count fields are required.
+
+*Example value:* `rollupCounts.sql`
 
 
 

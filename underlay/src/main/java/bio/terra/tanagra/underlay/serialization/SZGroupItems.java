@@ -38,7 +38,6 @@ public class SZGroupItems {
       name = "SZGroupItems.idPairsSqlFile",
       markdown =
           "Name of the group entity - items entity id pairs SQL file.\n\n"
-              + "If this property is set, then the [id pairs SQL](${SZGroupItems.idPairsSqlFile}) must be unset. "
               + "File must be in the same directory as the entity group file. Name includes file extension.\n\n"
               + "There can be other columns selected in the SQL file (e.g. `SELECT * FROM relationships`), but the "
               + "group and items entity ids are required. If this property is set, then the "
@@ -46,6 +45,15 @@ public class SZGroupItems {
       optional = true,
       exampleValue = "idPairs.sql")
   public String idPairsSqlFile;
+
+  @AnnotatedField(
+      name = "SZGroupItems.useSourceIdPairsSql",
+      markdown =
+          "True to skip copying the id-pairs SQL into a new index table, and use the source SQL directly.\n\n"
+              + "Ignored if the [id pairs SQL](${SZGroupItems.idPairsSqlFile}) is undefined.",
+      optional = true,
+      defaultValue = "false")
+  public boolean useSourceIdPairsSql;
 
   @AnnotatedField(
       name = "SZGroupItems.groupEntityIdFieldName",
@@ -64,4 +72,11 @@ public class SZGroupItems {
       optional = true,
       exampleValue = "items_id")
   public String itemsEntityIdFieldName;
+
+  @AnnotatedField(
+      name = "SZGroupItems.rollupCountsSql",
+      markdown =
+          "Pointer to SQL that returns entity id - rollup count (= number of related entity instances) pairs.",
+      optional = true)
+  public SZRollupCountsSql rollupCountsSql;
 }
