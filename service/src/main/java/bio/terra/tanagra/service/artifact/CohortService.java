@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.db.ArtifactsDao;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -33,6 +34,7 @@ public class CohortService {
   private final CohortDao cohortDao;
   private final UnderlayService underlayService;
   private final StudyService studyService;
+  private final ArtifactsDao artifactsDao;
   private final FilterBuilderService filterBuilderService;
   private final ActivityLogService activityLogService;
 
@@ -41,11 +43,13 @@ public class CohortService {
       CohortDao cohortDao,
       UnderlayService underlayService,
       StudyService studyService,
+      ArtifactsDao artifactsDao,
       FilterBuilderService filterBuilderService,
       ActivityLogService activityLogService) {
     this.cohortDao = cohortDao;
     this.underlayService = underlayService;
     this.studyService = studyService;
+    this.artifactsDao = artifactsDao;
     this.filterBuilderService = filterBuilderService;
     this.activityLogService = activityLogService;
   }
@@ -123,6 +127,49 @@ public class CohortService {
       @Nullable List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
     cohortDao.updateCohort(cohortId, userEmail, displayName, description, criteriaGroupSections);
     return cohortDao.getCohort(cohortId);
+  }
+
+  /** Clone an existing cohort's revisions, including reviews and annotations */
+  public Cohort cloneCohort(
+      String studyId,
+      String cohortId,
+      String userEmail,
+      String destinationStudyId,
+      @Nullable String displayName,
+      @Nullable String description) {
+    Cohort original = getCohort(studyId, cohortId);
+
+    String newDisplayName = displayName;
+    if (newDisplayName == null && original.getDisplayName() != null) {
+      newDisplayName = original.getDisplayName();
+      if (studyId.equals(destinationStudyId)) {
+        newDisplayName = "Copy of: " + newDisplayName;
+      }
+    }
+    String newDescription = description;
+    if (newDescription == null && original.getDescription() != null) {
+      newDescription = original.getDescription();
+      if (studyId.equals(destinationStudyId)) {
+        newDescription = "Copy of: " + newDescription;
+      }
+    }
+
+    String clonedCohortId =
+        artifactsDao.cloneCohort(
+            cohortId, userEmail, destinationStudyId, newDisplayName, newDescription);
+    activityLogService.logCohort(ActivityLog.Type.CLONE_COHORT, userEmail, studyId, original);
+
+    LOGGER.info(
+        "Cloned cohort {} in study {} to cohort {} in study {}",
+        cohortId,
+        studyId,
+        clonedCohortId,
+        destinationStudyId);
+
+    Cohort clonedCohort = cohortDao.getCohort(clonedCohortId);
+    activityLogService.logCohort(
+        ActivityLog.Type.CREATE_COHORT, userEmail, destinationStudyId, clonedCohort);
+    return clonedCohort;
   }
 
   /**

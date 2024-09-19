@@ -14,6 +14,7 @@ public final class ActivityLog {
     CREATE_COHORT,
     DELETE_COHORT,
     EXPORT_COHORT,
+    CLONE_COHORT,
     CREATE_REVIEW,
     DELETE_REVIEW
   }

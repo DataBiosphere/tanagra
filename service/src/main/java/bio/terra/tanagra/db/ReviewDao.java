@@ -9,7 +9,6 @@ import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Review;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -155,12 +154,14 @@ public class ReviewDao {
     cohortDao.createNextRevision(cohortId, review.getId(), review.getCreatedBy(), recordsCount);
 
     // Write the primary entity instance ids contained in the review.
+    String sql =
+        "INSERT INTO primary_entity_instance (review_id, id, stable_index) VALUES (:review_id, :id, :stable_index)";
     List<MapSqlParameterSource> paramSets = new ArrayList<>();
     int stableIndex = 0;
     for (Long primaryEntityId : primaryEntityIds) {
       paramSets.add(buildPrimaryEntityParam(review.getId(), primaryEntityId, stableIndex++));
     }
-    insertPrimaryEntityRows(paramSets);
+    JdbcUtils.insertRows(jdbcTemplate, "primary_entity_instance", sql, paramSets);
   }
 
   @WriteTransaction
@@ -249,28 +250,10 @@ public class ReviewDao {
     String sql =
         "INSERT INTO review (cohort_id, id, size, display_name, description, created_by, last_modified_by, is_deleted) "
             + "VALUES (:cohort_id, :id, :size, :display_name, :description, :created_by, :last_modified_by, false)";
-    LOGGER.debug("CREATE review: {}", sql);
-    int rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, reviewParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE review rowsAffected = {}", rowsAffected);
+    JdbcUtils.insertRows(jdbcTemplate, "review", sql, reviewParamSets);
   }
 
-  void insertPrimaryEntityRows(List<MapSqlParameterSource> primaryEntityParamSets) {
-    String sql =
-        "INSERT INTO primary_entity_instance (review_id, id, stable_index) VALUES (:review_id, :id, :stable_index)";
-    LOGGER.debug("CREATE primary_entity_instance: {}", sql);
-    int rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, primaryEntityParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE primary_entity_instance rowsAffected = {}", rowsAffected);
-  }
-
-  MapSqlParameterSource buildReviewParam(
+  static MapSqlParameterSource buildReviewParam(
       String cohortId,
       String id,
       int size,

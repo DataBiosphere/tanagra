@@ -11,11 +11,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FeatureSetService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FeatureSetService.class);
+
   private final FeatureSetDao featureSetDao;
   private final UnderlayService underlayService;
   private final StudyService studyService;
@@ -113,14 +117,14 @@ public class FeatureSetService {
     FeatureSet original = getFeatureSet(studyId, featureSetId);
 
     String newDisplayName = displayName;
-    if (newDisplayName == null) {
+    if (newDisplayName == null && original.getDisplayName() != null) {
       newDisplayName = original.getDisplayName();
       if (studyId.equals(destinationStudyId)) {
         newDisplayName = "Copy of: " + newDisplayName;
       }
     }
     String newDescription = description;
-    if (newDescription == null) {
+    if (newDescription == null && original.getDescription() != null) {
       newDescription = original.getDescription();
       if (studyId.equals(destinationStudyId)) {
         newDescription = "Copy of: " + newDescription;
@@ -137,6 +141,13 @@ public class FeatureSetService {
             // Any ids are used in conjunction with concept_set_id as primary key
             .criteria(original.getCriteria())
             .excludeOutputAttributesPerEntity(original.getExcludeOutputAttributesPerEntity());
+
+    LOGGER.info(
+        "Cloned feature set {} in study {} to feature set {} in study {}",
+        featureSetDao,
+        studyId,
+        featureSetBuilder.getId(),
+        destinationStudyId);
 
     featureSetDao.createFeatureSet(destinationStudyId, featureSetBuilder.build());
     return featureSetDao.getFeatureSet(featureSetBuilder.getId());

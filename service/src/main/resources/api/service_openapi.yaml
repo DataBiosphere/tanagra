@@ -472,6 +472,36 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/clone":
+    parameters:
+    - $ref: "#/components/parameters/StudyId"
+    - $ref: "#/components/parameters/CohortId"
+    post:
+      summary: Clone an existing cohort
+      operationId: cloneCohort
+      tags: [Cohorts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CohortCloneInfo"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cohort"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        403:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/studies/{studyId}/cohorts/{cohortId}/counts":
     parameters:
       - $ref: "#/components/parameters/StudyId"
@@ -2239,6 +2269,17 @@ components:
           description: Criteria group sections that define the entity filter
           items:
             $ref: "#/components/schemas/CriteriaGroupSection"
+
+    CohortCloneInfo:
+      type: object
+      properties:
+        destinationStudyId:
+          # Optional: by default it is cloned into the same study
+          $ref: "#/components/schemas/StudyId"
+        displayName:
+          $ref: "#/components/schemas/CohortDisplayName"
+        description:
+          $ref: "#/components/schemas/CohortDescription"
 
     CohortDisplayName:
       type: string

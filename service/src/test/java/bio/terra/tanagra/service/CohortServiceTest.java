@@ -203,6 +203,11 @@ public class CohortServiceTest {
   }
 
   @Test
+  void cloneCohort() {}
+
+  // TODO-dex
+
+  @Test
   void invalid() {
     // List all.
     List<Cohort> allCohorts =

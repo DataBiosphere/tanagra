@@ -7,11 +7,17 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 /** Utility functions for interacting with Tanagra's database */
 public final class JdbcUtils {
+  private static final Logger LOGGER = LoggerFactory.getLogger(JdbcUtils.class);
+
   private JdbcUtils() {}
 
   /**
@@ -51,5 +57,21 @@ public final class JdbcUtils {
   public static Timestamp sqlTimestampUTC() {
     return Timestamp.valueOf(
         OffsetDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).toLocalDateTime());
+  }
+
+  /** returns the number of rows inserted */
+  static int insertRows(
+      NamedParameterJdbcTemplate jdbcTemplate,
+      String table,
+      String sql,
+      List<MapSqlParameterSource> revisionParamSets) {
+    LOGGER.debug("CREATE {}: {}", table, sql);
+    int rowsAffected =
+        Arrays.stream(
+                jdbcTemplate.batchUpdate(
+                    sql, revisionParamSets.toArray(new MapSqlParameterSource[0])))
+            .sum();
+    LOGGER.debug("CREATE {} rowsAffected = {}", table, rowsAffected);
+    return rowsAffected;
   }
 }
