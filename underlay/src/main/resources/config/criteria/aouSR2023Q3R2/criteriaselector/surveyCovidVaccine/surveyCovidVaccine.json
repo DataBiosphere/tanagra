@@ -52,6 +52,10 @@
     {
       "attribute": "value_numeric",
       "title": "Numeric value"
+    },
+    {
+      "attribute": "survey_version",
+      "title": "Survey Version"
     }
   ]
 }
