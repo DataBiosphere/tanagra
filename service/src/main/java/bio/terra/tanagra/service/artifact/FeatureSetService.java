@@ -123,19 +123,12 @@ public class FeatureSetService {
         newDisplayName = "Copy of: " + newDisplayName;
       }
     }
-    String newDescription = description;
-    if (newDescription == null && original.getDescription() != null) {
-      newDescription = original.getDescription();
-      if (studyId.equals(destinationStudyId)) {
-        newDescription = "Copy of: " + newDescription;
-      }
-    }
 
     FeatureSet.Builder featureSetBuilder =
         FeatureSet.builder()
             .underlay(original.getUnderlay())
             .displayName(newDisplayName)
-            .description(newDescription)
+            .description(description != null ? description : original.getDescription())
             .createdBy(userEmail)
             // Shallow copy criteria and attributes: they are written to DB and fetched for return
             // Any ids are used in conjunction with concept_set_id as primary key

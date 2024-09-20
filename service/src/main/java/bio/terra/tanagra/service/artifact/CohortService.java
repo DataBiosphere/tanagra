@@ -146,17 +146,14 @@ public class CohortService {
         newDisplayName = "Copy of: " + newDisplayName;
       }
     }
-    String newDescription = description;
-    if (newDescription == null && original.getDescription() != null) {
-      newDescription = original.getDescription();
-      if (studyId.equals(destinationStudyId)) {
-        newDescription = "Copy of: " + newDescription;
-      }
-    }
 
     String clonedCohortId =
         artifactsDao.cloneCohort(
-            cohortId, userEmail, destinationStudyId, newDisplayName, newDescription);
+            cohortId,
+            userEmail,
+            destinationStudyId,
+            newDisplayName,
+            description != null ? description : original.getDescription());
     activityLogService.logCohort(ActivityLog.Type.CLONE_COHORT, userEmail, studyId, original);
 
     LOGGER.info(

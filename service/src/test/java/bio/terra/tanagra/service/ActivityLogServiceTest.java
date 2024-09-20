@@ -242,12 +242,39 @@ public class ActivityLogServiceTest {
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
+    // CLONE_COHORT
+    Cohort cohort2 =
+        cohortService.cloneCohort(
+            study1.getId(), cohort1.getId(), USER_EMAIL_2, study1.getId(), null, null);
+    assertNotNull(cohort2);
+    LOGGER.info(
+        "Cloned original cohort {} to cloned cohort {} at {}",
+        cohort1.getId(),
+        cohort2.getId(),
+        cohort2.getCreated());
+
+    activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
+    assertEquals(5, activityLogs.size());
+    assertTrue(
+        activityLogs
+            .get(0)
+            .isEquivalentTo(
+                buildActivityLog(
+                        USER_EMAIL_2,
+                        ActivityLog.Type.CLONE_COHORT,
+                        cohortActivityLogResource
+                            .cohortRevisionId(cohort1.getMostRecentRevision().getId())
+                            .build())
+                    .build()));
+
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
+
     // DELETE_REVIEW
     reviewService.deleteReview(study1.getId(), cohort1.getId(), review1.getId(), USER_EMAIL_1);
     LOGGER.info("Deleted review {}", review1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(5, activityLogs.size());
+    assertEquals(6, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
@@ -267,7 +294,7 @@ public class ActivityLogServiceTest {
     LOGGER.info("Deleted cohort {}", cohort1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(6, activityLogs.size());
+    assertEquals(7, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
@@ -287,7 +314,7 @@ public class ActivityLogServiceTest {
     LOGGER.info("Deleted study1 {}", study1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(7, activityLogs.size());
+    assertEquals(8, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
