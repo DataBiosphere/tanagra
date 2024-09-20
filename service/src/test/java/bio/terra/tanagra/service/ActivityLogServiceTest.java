@@ -254,10 +254,27 @@ public class ActivityLogServiceTest {
         cohort2.getCreated());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(5, activityLogs.size());
+    assertEquals(6, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
+            .isEquivalentTo(
+                buildActivityLog(
+                        USER_EMAIL_2,
+                        ActivityLog.Type.CREATE_COHORT,
+                        ActivityLogResource.builder()
+                            .type(ActivityLogResource.Type.COHORT)
+                            .studyId(study1.getId())
+                            .studyDisplayName(study1.getDisplayName())
+                            .studyProperties(Map.of("irb", "123"))
+                            .cohortId(cohort2.getId())
+                            .cohortDisplayName(cohort2.getDisplayName())
+                            .cohortRevisionId(cohort2.getMostRecentRevision().getId())
+                            .build())
+                    .build()));
+    assertTrue(
+        activityLogs
+            .get(1)
             .isEquivalentTo(
                 buildActivityLog(
                         USER_EMAIL_2,
@@ -274,7 +291,7 @@ public class ActivityLogServiceTest {
     LOGGER.info("Deleted review {}", review1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(6, activityLogs.size());
+    assertEquals(7, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
@@ -294,7 +311,7 @@ public class ActivityLogServiceTest {
     LOGGER.info("Deleted cohort {}", cohort1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(7, activityLogs.size());
+    assertEquals(8, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
@@ -314,7 +331,7 @@ public class ActivityLogServiceTest {
     LOGGER.info("Deleted study1 {}", study1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(8, activityLogs.size());
+    assertEquals(9, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
