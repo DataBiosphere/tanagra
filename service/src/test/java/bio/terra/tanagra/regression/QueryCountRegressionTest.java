@@ -134,8 +134,8 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
                                   .collect(Collectors.toList()))
                           .excludeOutputAttributesPerEntity(
                               fromRegressionTestObj(
-                                  underlay, rtDataFeatureSet.getEntityOutputsList())),
-                      USER_EMAIL_1);
+                                  underlay, rtDataFeatureSet.getEntityOutputsList()))
+                          .createdBy(USER_EMAIL_1));
               assertNotNull(featureSet);
               LOGGER.info(
                   "Created data feature set {} at {}", featureSet.getId(), featureSet.getCreated());

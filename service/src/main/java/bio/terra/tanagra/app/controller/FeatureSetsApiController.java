@@ -58,8 +58,8 @@ public class FeatureSetsApiController implements FeatureSetsApi {
             FeatureSet.builder()
                 .displayName(body.getDisplayName())
                 .description(body.getDescription())
-                .underlay(body.getUnderlayName()),
-            SpringAuthentication.getCurrentUser().getEmail());
+                .underlay(body.getUnderlayName())
+                .createdBy(SpringAuthentication.getCurrentUser().getEmail()));
     return ResponseEntity.ok(FeatureSetsApiController.toApiObject(createdFeatureSet));
   }
 

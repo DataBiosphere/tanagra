@@ -123,8 +123,8 @@ public class BaseAccessControlTest {
                 .description("first feature set")
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), List.of("gender"))),
-            USER_1.getEmail());
+                    Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), List.of("gender")))
+                .createdBy(USER_1.getEmail()));
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
@@ -137,8 +137,8 @@ public class BaseAccessControlTest {
                 .description("second feature set")
                 .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
-            USER_2.getEmail());
+                    Map.of("procedureOccurrence", List.of("procedure", "person_id")))
+                .createdBy(USER_2.getEmail()));
     assertNotNull(featureSet2);
     LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 

@@ -32,8 +32,7 @@ public class FeatureSetService {
     this.studyService = studyService;
   }
 
-  public FeatureSet createFeatureSet(
-      String studyId, FeatureSet.Builder featureSetBuilder, String userEmail) {
+  public FeatureSet createFeatureSet(String studyId, FeatureSet.Builder featureSetBuilder) {
     // Make sure study and underlay are valid.
     studyService.getStudy(studyId);
     underlayService.getUnderlay(featureSetBuilder.getUnderlay());
@@ -49,7 +48,7 @@ public class FeatureSetService {
     //              });
     //    }
 
-    featureSetDao.createFeatureSet(studyId, featureSetBuilder.createdBy(userEmail).build());
+    featureSetDao.createFeatureSet(studyId, featureSetBuilder.build());
     return featureSetDao.getFeatureSet(featureSetBuilder.getId());
   }
 

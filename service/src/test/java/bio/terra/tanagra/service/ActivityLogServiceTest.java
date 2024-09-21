@@ -119,8 +119,8 @@ public class ActivityLogServiceTest {
             study1.getId(),
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
-                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue())),
-            USER_EMAIL_1);
+                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue()))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
@@ -243,6 +243,9 @@ public class ActivityLogServiceTest {
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // CLONE_COHORT
+    cohort1 =
+        cohortService.getCohort(
+            study1.getId(), cohort1.getId()); // Get the current cohort revision, post-export.
     Cohort cohort2 =
         cohortService.cloneCohort(
             study1.getId(), cohort1.getId(), USER_EMAIL_2, study1.getId(), null, null);
