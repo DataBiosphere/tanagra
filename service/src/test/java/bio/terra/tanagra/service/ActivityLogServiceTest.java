@@ -119,8 +119,8 @@ public class ActivityLogServiceTest {
             study1.getId(),
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
-                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue())),
-            USER_EMAIL_1);
+                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getValue()))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
@@ -242,12 +242,59 @@ public class ActivityLogServiceTest {
 
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
+    // CLONE_COHORT
+    cohort1 =
+        cohortService.getCohort(
+            study1.getId(), cohort1.getId()); // Get the current cohort revision, post-export.
+    Cohort cohort2 =
+        cohortService.cloneCohort(
+            study1.getId(), cohort1.getId(), USER_EMAIL_2, study1.getId(), null, null);
+    assertNotNull(cohort2);
+    LOGGER.info(
+        "Cloned original cohort {} to cloned cohort {} at {}",
+        cohort1.getId(),
+        cohort2.getId(),
+        cohort2.getCreated());
+
+    activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
+    assertEquals(6, activityLogs.size());
+    ActivityLog createLog =
+        buildActivityLog(
+                USER_EMAIL_2,
+                ActivityLog.Type.CREATE_COHORT,
+                ActivityLogResource.builder()
+                    .type(ActivityLogResource.Type.COHORT)
+                    .studyId(study1.getId())
+                    .studyDisplayName(study1.getDisplayName())
+                    .studyProperties(Map.of("irb", "123"))
+                    .cohortId(cohort2.getId())
+                    .cohortDisplayName(cohort2.getDisplayName())
+                    .cohortRevisionId(cohort2.getMostRecentRevision().getId())
+                    .build())
+            .build();
+    ActivityLog cloneLog =
+        buildActivityLog(
+                USER_EMAIL_2,
+                ActivityLog.Type.CLONE_COHORT,
+                cohortActivityLogResource
+                    .cohortRevisionId(cohort1.getMostRecentRevision().getId())
+                    .build())
+            .build();
+
+    // CLONE_COHORT & CREATE_COHORT logs are too close, check either order
+    assertTrue(
+        (activityLogs.get(0).isEquivalentTo(createLog)
+                && activityLogs.get(1).isEquivalentTo(cloneLog))
+            || (activityLogs.get(0).isEquivalentTo(cloneLog)
+                && activityLogs.get(1).isEquivalentTo(createLog)));
+    TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
+
     // DELETE_REVIEW
     reviewService.deleteReview(study1.getId(), cohort1.getId(), review1.getId(), USER_EMAIL_1);
     LOGGER.info("Deleted review {}", review1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(5, activityLogs.size());
+    assertEquals(7, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
@@ -267,7 +314,7 @@ public class ActivityLogServiceTest {
     LOGGER.info("Deleted cohort {}", cohort1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(6, activityLogs.size());
+    assertEquals(8, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)
@@ -287,7 +334,7 @@ public class ActivityLogServiceTest {
     LOGGER.info("Deleted study1 {}", study1.getId());
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
-    assertEquals(7, activityLogs.size());
+    assertEquals(9, activityLogs.size());
     assertTrue(
         activityLogs
             .get(0)

@@ -11,7 +11,6 @@ import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -215,13 +214,15 @@ public class CohortDao {
 
   @WriteTransaction
   public void createCohort(String studyId, Cohort cohort) {
-    insertCohortRow(
-        studyId,
-        cohort.getId(),
-        cohort.getUnderlay(),
-        cohort.getCreatedBy(),
-        cohort.getDisplayName(),
-        cohort.getDescription());
+    MapSqlParameterSource cohortParamSets =
+        buildCohortParam(
+            studyId,
+            cohort.getId(),
+            cohort.getUnderlay(),
+            cohort.getCreatedBy(),
+            cohort.getDisplayName(),
+            cohort.getDescription());
+    insertCohortRows(List.of(cohortParamSets));
 
     // Write the first cohort revision.
     createRevision(cohort.getId(), cohort.getMostRecentRevision());
@@ -336,15 +337,8 @@ public class CohortDao {
     }
 
     // Fetch the most recent cohort revisions. (cohort id -> cohort revision)
-    String sql =
-        COHORT_REVISION_SELECT_SQL + " WHERE cohort_id IN (:cohort_ids) AND is_most_recent";
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue(
-                "cohort_ids",
-                cohorts.stream().map(Cohort.Builder::getId).collect(Collectors.toSet()));
     List<Pair<String, CohortRevision.Builder>> cohortRevisions =
-        jdbcTemplate.query(sql, params, COHORT_REVISION_ROW_MAPPER);
+        getRevisions(cohorts.stream().map(Cohort.Builder::getId).collect(Collectors.toSet()), true);
 
     // Populate the criteria.
     getCriteriaHelper(cohortRevisions);
@@ -382,10 +376,22 @@ public class CohortDao {
             cohortRevision.getCreatedBy(),
             cohortRevision.getRecordsCount(),
             /* reviewId= */ null);
-    insertRevisionRows(sql, List.of(revisionParamSets));
+    JdbcUtils.insertRows(jdbcTemplate, "cohort_revision", sql, List.of(revisionParamSets));
 
     // Write the criteria group sections.
     updateCriteriaHelper(cohortRevision.getId(), cohortRevision.getSections());
+  }
+
+  @ReadTransaction
+  public List<Pair<String, CohortRevision.Builder>> getRevisions(
+      Set<String> cohortIds, boolean mostRecentOnly) {
+    // Fetch the most recent cohort revisions. (cohort id -> cohort revision)
+    String sql = COHORT_REVISION_SELECT_SQL + " WHERE cohort_id IN (:cohort_ids)";
+    if (mostRecentOnly) {
+      sql += " AND is_most_recent";
+    }
+    MapSqlParameterSource params = new MapSqlParameterSource().addValue("cohort_ids", cohortIds);
+    return jdbcTemplate.query(sql, params, COHORT_REVISION_ROW_MAPPER);
   }
 
   @ReadTransaction
@@ -605,7 +611,7 @@ public class CohortDao {
     insertCriteriaRows(sectionParamSets, groupParamSets, criteriaParamSets, tagParamSets);
   }
 
-  void buildParamsForUpdateCriteriaHelper(
+  private void buildParamsForUpdateCriteriaHelper(
       String cohortRevisionId,
       List<CohortRevision.CriteriaGroupSection> criteriaGroupSections,
       List<MapSqlParameterSource> sectionParamSets,
@@ -707,45 +713,16 @@ public class CohortDao {
     }
   }
 
-  void insertCohortRow(
-      String studyId,
-      String id,
-      String underlay,
-      String userEmail,
-      String displayName,
-      String description) {
+  private void insertCohortRows(List<MapSqlParameterSource> cohortParamSets) {
     // Write the cohort. The created and last_modified fields are set by the DB automatically on
     // insert.
     String sql =
         "INSERT INTO cohort (study_id, id, underlay, created_by, last_modified_by, display_name, description, is_deleted) "
             + "VALUES (:study_id, :id, :underlay, :created_by, :last_modified_by, :display_name, :description, false)";
-    LOGGER.debug("CREATE cohort: {}", sql);
-    MapSqlParameterSource params =
-        new MapSqlParameterSource()
-            .addValue("study_id", studyId)
-            .addValue("id", id)
-            .addValue("underlay", underlay)
-            .addValue("created_by", userEmail)
-            .addValue("last_modified_by", userEmail)
-            .addValue("display_name", displayName)
-            .addValue("description", description);
-    int rowsAffected = jdbcTemplate.update(sql, params);
-    LOGGER.debug("CREATE cohort rowsAffected = {}", rowsAffected);
+    JdbcUtils.insertRows(jdbcTemplate, "cohort", sql, cohortParamSets);
   }
 
-  void insertRevisionRows(String sql, List<MapSqlParameterSource> revisionParamSets) {
-    // Create the review. The created and last_modified fields are set by the DB automatically on
-    // insert.
-    LOGGER.debug("CREATE cohort_revision: {}", sql);
-    int rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, revisionParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE cohort_revision rowsAffected = {}", rowsAffected);
-  }
-
-  void insertCriteriaRows(
+  private void insertCriteriaRows(
       List<MapSqlParameterSource> sectionParamSets,
       List<MapSqlParameterSource> groupParamSets,
       List<MapSqlParameterSource> criteriaParamSets,
@@ -753,47 +730,42 @@ public class CohortDao {
     String sql =
         "INSERT INTO criteria_group_section (cohort_revision_id, id, display_name, operator, is_excluded, is_disabled, first_condition_reducing_operator, second_condition_reducing_operator, join_operator, join_operator_value, list_index) "
             + "VALUES (:cohort_revision_id, :id, :display_name, :operator, :is_excluded, :is_disabled, :first_condition_reducing_operator, :second_condition_reducing_operator, :join_operator, :join_operator_value, :list_index)";
-    LOGGER.debug("CREATE criteria_group_section: {}", sql);
-    int rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, sectionParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria_group_section rowsAffected = {}", rowsAffected);
+    JdbcUtils.insertRows(jdbcTemplate, "criteria_group_section", sql, sectionParamSets);
 
     sql =
         "INSERT INTO criteria_group (cohort_revision_id, criteria_group_section_id, id, display_name, condition_index, list_index, is_disabled) "
             + "VALUES (:cohort_revision_id, :criteria_group_section_id, :id, :display_name, :condition_index, :list_index, :is_disabled)";
-    LOGGER.debug("CREATE criteria_group: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(sql, groupParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria_group rowsAffected = {}", rowsAffected);
+    JdbcUtils.insertRows(jdbcTemplate, "criteria_group", sql, groupParamSets);
 
     sql =
         "INSERT INTO criteria (cohort_revision_id, criteria_group_section_id, criteria_group_id, id, display_name, plugin_name, plugin_version, selector_or_modifier_name, selection_data, ui_config, list_index) "
             + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :id, :display_name, :plugin_name, :plugin_version, :selector_or_modifier_name, :selection_data, :ui_config, :list_index)";
-    LOGGER.debug("CREATE criteria: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(
-                    sql, criteriaParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria rowsAffected = {}", rowsAffected);
+    JdbcUtils.insertRows(jdbcTemplate, "criteria", sql, criteriaParamSets);
 
     sql =
         "INSERT INTO criteria_tag (cohort_revision_id, criteria_group_section_id, criteria_group_id, criteria_id, criteria_key, criteria_value) "
             + "VALUES (:cohort_revision_id, :criteria_group_section_id, :criteria_group_id, :criteria_id, :key, :value)";
-    LOGGER.debug("CREATE criteria_tag: {}", sql);
-    rowsAffected =
-        Arrays.stream(
-                jdbcTemplate.batchUpdate(sql, tagParamSets.toArray(new MapSqlParameterSource[0])))
-            .sum();
-    LOGGER.debug("CREATE criteria_tag rowsAffected = {}", rowsAffected);
+    JdbcUtils.insertRows(jdbcTemplate, "criteria_tag", sql, tagParamSets);
   }
 
-  MapSqlParameterSource buildRevisionParam(
+  static MapSqlParameterSource buildCohortParam(
+      String studyId,
+      String id,
+      String underlay,
+      String userEmail,
+      String displayName,
+      String description) {
+    return new MapSqlParameterSource()
+        .addValue("study_id", studyId)
+        .addValue("id", id)
+        .addValue("underlay", underlay)
+        .addValue("created_by", userEmail)
+        .addValue("last_modified_by", userEmail)
+        .addValue("display_name", displayName)
+        .addValue("description", description);
+  }
+
+  static MapSqlParameterSource buildRevisionParam(
       String cohortId,
       String id,
       int version,

@@ -106,8 +106,8 @@ public class DataExportServiceTest {
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("First Feature Set")
-                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight())),
-            USER_EMAIL_1);
+                .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight()))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
@@ -117,8 +117,8 @@ public class DataExportServiceTest {
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("Second Feature Set")
-                .criteria(List.of(ICD9CM_EQ_DIABETES.getRight())),
-            USER_EMAIL_1);
+                .criteria(List.of(ICD9CM_EQ_DIABETES.getRight()))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet2);
     LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 

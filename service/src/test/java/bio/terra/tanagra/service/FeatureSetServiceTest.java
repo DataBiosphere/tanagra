@@ -5,6 +5,7 @@ import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.DEM
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.GENDER_EQ_WOMAN;
 import static bio.terra.tanagra.service.criteriaconstants.cmssynpuf.Criteria.PROCEDURE_EQ_AMPUTATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -95,8 +96,8 @@ public class FeatureSetServiceTest {
                 .description(description)
                 .criteria(List.of(GENDER_EQ_WOMAN.getValue()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
-            USER_EMAIL_1);
+                    Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(createdFeatureSet);
     LOGGER.info(
         "Created feature set {} at {}", createdFeatureSet.getId(), createdFeatureSet.getCreated());
@@ -188,8 +189,8 @@ public class FeatureSetServiceTest {
                 .description("first feature set")
                 .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), PERSON_ATTRIBUTES)),
-            USER_EMAIL_1);
+                    Map.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getKey(), PERSON_ATTRIBUTES))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
@@ -203,8 +204,8 @@ public class FeatureSetServiceTest {
                 .description("second feature set")
                 .criteria(List.of(PROCEDURE_EQ_AMPUTATION.getValue()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of("procedureOccurrence", List.of("procedure", "person_id"))),
-            USER_EMAIL_1);
+                    Map.of("procedureOccurrence", List.of("procedure", "person_id")))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet2);
     LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
     FeatureSet featureSet3 =
@@ -216,8 +217,8 @@ public class FeatureSetServiceTest {
                 .description("third feature set")
                 .criteria(List.of(GENDER_EQ_WOMAN.getValue()))
                 .excludeOutputAttributesPerEntity(
-                    Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES)),
-            USER_EMAIL_1);
+                    Map.of(GENDER_EQ_WOMAN.getKey(), PERSON_ATTRIBUTES))
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet3);
     LOGGER.info("Created feature set {} at {}", featureSet3.getId(), featureSet3.getCreated());
 
@@ -255,8 +256,8 @@ public class FeatureSetServiceTest {
             FeatureSet.builder()
                 .underlay(UNDERLAY_NAME)
                 .displayName("feature set 1")
-                .description("first feature set"),
-            USER_EMAIL_1);
+                .description("first feature set")
+                .createdBy(USER_EMAIL_1));
     assertNotNull(featureSet1);
     LOGGER.info("Created feature set {} at {}", featureSet1.getId(), featureSet1.getCreated());
 
@@ -279,8 +280,9 @@ public class FeatureSetServiceTest {
                 0,
                 10)
             .size());
+    assertNotEquals(featureSet1.getId(), clonedFeatureSet1.getId());
     assertEquals(featureSet1.getUnderlay(), clonedFeatureSet1.getUnderlay());
-    assertEquals("Copy of: " + featureSet1.getDisplayName(), clonedFeatureSet1.getDisplayName());
+    assertEquals("(Copy) " + featureSet1.getDisplayName(), clonedFeatureSet1.getDisplayName());
     assertEquals(newDescription, clonedFeatureSet1.getDescription());
     assertEquals(USER_EMAIL_2, clonedFeatureSet1.getCreatedBy());
     assertEquals(USER_EMAIL_2, clonedFeatureSet1.getLastModifiedBy());
@@ -299,8 +301,8 @@ public class FeatureSetServiceTest {
                 .displayName("feature set 2")
                 .description("second feature set")
                 .criteria(criteria2)
-                .excludeOutputAttributesPerEntity(attributes2),
-            USER_EMAIL_2);
+                .excludeOutputAttributesPerEntity(attributes2)
+                .createdBy(USER_EMAIL_2));
     assertNotNull(featureSet2);
     LOGGER.info("Created feature set {} at {}", featureSet2.getId(), featureSet2.getCreated());
 
@@ -403,7 +405,8 @@ public class FeatureSetServiceTest {
         NotFoundException.class,
         () ->
             featureSetService.createFeatureSet(
-                study1.getId(), FeatureSet.builder().underlay("invalid_underlay"), USER_EMAIL_1));
+                study1.getId(),
+                FeatureSet.builder().underlay("invalid_underlay").createdBy(USER_EMAIL_1)));
 
     // Display name length exceeds maximum.
     assertThrows(
@@ -413,8 +416,8 @@ public class FeatureSetServiceTest {
                 study1.getId(),
                 FeatureSet.builder()
                     .underlay(UNDERLAY_NAME)
-                    .displayName("123456789012345678901234567890123456789012345678901"),
-                USER_EMAIL_1));
+                    .displayName("123456789012345678901234567890123456789012345678901")
+                    .createdBy(USER_EMAIL_1)));
 
     // TODO: Put this validation test back once the UI config overhaul is complete.
     //    // Specify invalid attribute.

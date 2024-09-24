@@ -1,5 +1,8 @@
 package bio.terra.tanagra.service.artifact;
 
+import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
+
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.db.FeatureSetDao;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -11,11 +14,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FeatureSetService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FeatureSetService.class);
+
   private final FeatureSetDao featureSetDao;
   private final UnderlayService underlayService;
   private final StudyService studyService;
@@ -28,8 +36,7 @@ public class FeatureSetService {
     this.studyService = studyService;
   }
 
-  public FeatureSet createFeatureSet(
-      String studyId, FeatureSet.Builder featureSetBuilder, String userEmail) {
+  public FeatureSet createFeatureSet(String studyId, FeatureSet.Builder featureSetBuilder) {
     // Make sure study and underlay are valid.
     studyService.getStudy(studyId);
     underlayService.getUnderlay(featureSetBuilder.getUnderlay());
@@ -45,7 +52,7 @@ public class FeatureSetService {
     //              });
     //    }
 
-    featureSetDao.createFeatureSet(studyId, featureSetBuilder.createdBy(userEmail).build());
+    featureSetDao.createFeatureSet(studyId, featureSetBuilder.build());
     return featureSetDao.getFeatureSet(featureSetBuilder.getId());
   }
 
@@ -112,18 +119,18 @@ public class FeatureSetService {
       @Nullable String description) {
     FeatureSet original = getFeatureSet(studyId, featureSetId);
 
-    String newDisplayName = displayName;
-    if (newDisplayName == null) {
-      newDisplayName = original.getDisplayName();
-      if (studyId.equals(destinationStudyId)) {
-        newDisplayName = "Copy of: " + newDisplayName;
-      }
+    int displayNameLen = StringUtils.length(displayName);
+    if (displayNameLen > MAX_DISPLAY_NAME_LENGTH) {
+      throw new BadRequestException(
+          "Feature set name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
     }
-    String newDescription = description;
-    if (newDescription == null) {
-      newDescription = original.getDescription();
-      if (studyId.equals(destinationStudyId)) {
-        newDescription = "Copy of: " + newDescription;
+
+    String newDisplayName = displayName;
+    if (displayNameLen == 0 && original.getDisplayName() != null) {
+      newDisplayName = original.getDisplayName();
+      if (studyId.equals(destinationStudyId)
+          && newDisplayName.length() < MAX_DISPLAY_NAME_LENGTH + 6) {
+        newDisplayName = "(Copy) " + newDisplayName;
       }
     }
 
@@ -131,12 +138,19 @@ public class FeatureSetService {
         FeatureSet.builder()
             .underlay(original.getUnderlay())
             .displayName(newDisplayName)
-            .description(newDescription)
+            .description(description != null ? description : original.getDescription())
             .createdBy(userEmail)
             // Shallow copy criteria and attributes: they are written to DB and fetched for return
             // Any ids are used in conjunction with concept_set_id as primary key
             .criteria(original.getCriteria())
             .excludeOutputAttributesPerEntity(original.getExcludeOutputAttributesPerEntity());
+
+    LOGGER.info(
+        "Cloned feature set {} in study {} to feature set {} in study {}",
+        featureSetDao,
+        studyId,
+        featureSetBuilder.getId(),
+        destinationStudyId);
 
     featureSetDao.createFeatureSet(destinationStudyId, featureSetBuilder.build());
     return featureSetDao.getFeatureSet(featureSetBuilder.getId());

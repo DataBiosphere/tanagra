@@ -1,5 +1,8 @@
 package bio.terra.tanagra.service.artifact;
 
+import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
+
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
@@ -8,6 +11,7 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.db.ArtifactsDao;
 import bio.terra.tanagra.db.CohortDao;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -21,6 +25,7 @@ import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +38,7 @@ public class CohortService {
   private final CohortDao cohortDao;
   private final UnderlayService underlayService;
   private final StudyService studyService;
+  private final ArtifactsDao artifactsDao;
   private final FilterBuilderService filterBuilderService;
   private final ActivityLogService activityLogService;
 
@@ -41,11 +47,13 @@ public class CohortService {
       CohortDao cohortDao,
       UnderlayService underlayService,
       StudyService studyService,
+      ArtifactsDao artifactsDao,
       FilterBuilderService filterBuilderService,
       ActivityLogService activityLogService) {
     this.cohortDao = cohortDao;
     this.underlayService = underlayService;
     this.studyService = studyService;
+    this.artifactsDao = artifactsDao;
     this.filterBuilderService = filterBuilderService;
     this.activityLogService = activityLogService;
   }
@@ -123,6 +131,53 @@ public class CohortService {
       @Nullable List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
     cohortDao.updateCohort(cohortId, userEmail, displayName, description, criteriaGroupSections);
     return cohortDao.getCohort(cohortId);
+  }
+
+  /** Clone an existing cohort's revisions, including reviews and annotations */
+  public Cohort cloneCohort(
+      String studyId,
+      String cohortId,
+      String userEmail,
+      String destinationStudyId,
+      @Nullable String displayName,
+      @Nullable String description) {
+    Cohort original = getCohort(studyId, cohortId);
+
+    int displayNameLen = StringUtils.length(displayName);
+    if (displayNameLen > MAX_DISPLAY_NAME_LENGTH) {
+      throw new BadRequestException(
+          "Cohort name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
+    }
+
+    String newDisplayName = displayName;
+    if (displayNameLen == 0 && original.getDisplayName() != null) {
+      newDisplayName = original.getDisplayName();
+      if (studyId.equals(destinationStudyId)
+          && newDisplayName.length() < MAX_DISPLAY_NAME_LENGTH + 6) {
+        newDisplayName = "(Copy) " + newDisplayName;
+      }
+    }
+
+    String clonedCohortId =
+        artifactsDao.cloneCohort(
+            cohortId,
+            userEmail,
+            destinationStudyId,
+            newDisplayName,
+            description != null ? description : original.getDescription());
+    activityLogService.logCohort(ActivityLog.Type.CLONE_COHORT, userEmail, studyId, original);
+
+    LOGGER.info(
+        "Cloned cohort {} in study {} to cohort {} in study {}",
+        cohortId,
+        studyId,
+        clonedCohortId,
+        destinationStudyId);
+
+    Cohort clonedCohort = cohortDao.getCohort(clonedCohortId);
+    activityLogService.logCohort(
+        ActivityLog.Type.CREATE_COHORT, userEmail, destinationStudyId, clonedCohort);
+    return clonedCohort;
   }
 
   /**

@@ -66,7 +66,7 @@ public class ReviewServiceTest {
             study1.getId(),
             Cohort.builder()
                 .underlay(UNDERLAY_NAME)
-                .displayName("cohort 2")
+                .displayName("cohort 1")
                 .description("first cohort")
                 .createdBy(USER_EMAIL_1),
             List.of(

@@ -26,6 +26,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
+import bio.terra.tanagra.service.authentication.UserId;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -129,6 +130,34 @@ public class CohortsApiController implements CohortsApi {
             body.getDescription(),
             sections);
     return ResponseEntity.ok(ToApiUtils.toApiObject(updatedCohort));
+  }
+
+  @Override
+  public ResponseEntity<ApiCohort> cloneCohort(
+      String studyId, String cohortId, ApiCohortCloneInfo body) {
+    UserId user = SpringAuthentication.getCurrentUser();
+
+    // should have read access to original cohort
+    accessControlService.throwIfUnauthorized(
+        user, Permissions.forActions(COHORT, READ), ResourceId.forCohort(studyId, cohortId));
+
+    // should have write access to create cohort in destination study
+    String destinationStudyId =
+        (body.getDestinationStudyId() != null) ? body.getDestinationStudyId() : studyId;
+    accessControlService.throwIfUnauthorized(
+        user,
+        Permissions.forActions(STUDY, CREATE_COHORT),
+        ResourceId.forStudy(destinationStudyId));
+
+    Cohort clonedCohort =
+        cohortService.cloneCohort(
+            studyId,
+            cohortId,
+            user.getEmail(),
+            destinationStudyId,
+            body.getDisplayName(),
+            body.getDescription());
+    return ResponseEntity.ok(ToApiUtils.toApiObject(clonedCohort));
   }
 
   @Override
