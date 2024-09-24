@@ -23,10 +23,15 @@ message EntityGroup {
     // The entity group is stored to differentiate between them when multiple
     // are configured within a single criteria.
     string entityGroup = 3;
+
+    // Data for additional categorical or numeric values associated with the
+    // selection (e.g. a measurement value).
+    ValueData value_data = 6;
   }
   repeated Selection selected = 1;
 
   // Data for an additional categorical or numeric value associated with the
   // selection (e.g. a measurement value).
+  // Deprecated in favor of per-selection value_data.
   ValueData value_data = 2;
 }

@@ -403,15 +403,15 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                     .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
                     .setName("Glucose [Mass/volume] in Serum or Plasma")
                     .setEntityGroup("measurementLoincPerson")
+                    .setValueData(
+                        ValueData.newBuilder()
+                            .setAttribute("value_enum")
+                            .addSelected(
+                                ValueData.Selection.newBuilder()
+                                    .setValue(Value.newBuilder().setInt64Value(45_884_084L).build())
+                                    .setName("Positive")
+                                    .build()))
                     .build())
-            .setValueData(
-                ValueData.newBuilder()
-                    .setAttribute("value_enum")
-                    .addSelected(
-                        ValueData.Selection.newBuilder()
-                            .setValue(Value.newBuilder().setInt64Value(45_884_084L).build())
-                            .setName("Positive")
-                            .build()))
             .build();
     SelectionData entityGroupSelectionData =
         new SelectionData("measurement", serializeToJson(entityGroupData));
@@ -452,11 +452,11 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                     .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
                     .setName("Glucose [Mass/volume] in Serum or Plasma")
                     .setEntityGroup("measurementLoincPerson")
+                    .setValueData(
+                        ValueData.newBuilder()
+                            .setAttribute("value_numeric")
+                            .setRange(DataRange.newBuilder().setMin(0.0).setMax(250.0).build()))
                     .build())
-            .setValueData(
-                ValueData.newBuilder()
-                    .setAttribute("value_numeric")
-                    .setRange(DataRange.newBuilder().setMin(0.0).setMax(250.0).build()))
             .build();
     entityGroupSelectionData = new SelectionData("measurement", serializeToJson(entityGroupData));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(entityGroupSelectionData));
@@ -485,6 +485,112 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             null,
             null,
             null);
+    assertEquals(expectedCohortFilter, cohortFilter);
+  }
+
+  @Test
+  void criteriaWithMultipleInstanceLevelModifierCohortFilter() {
+    CFEntityGroup.EntityGroup measurementConfig = CFEntityGroup.EntityGroup.newBuilder().build();
+    CriteriaSelector criteriaSelector =
+        new CriteriaSelector(
+            "measurement",
+            true,
+            true,
+            true,
+            "core.EntityGroupFilterBuilder",
+            SZCorePlugin.ENTITY_GROUP.getIdInConfig(),
+            serializeToJson(measurementConfig),
+            List.of());
+    EntityGroupFilterBuilder filterBuilder = new EntityGroupFilterBuilder(criteriaSelector);
+
+    // Enum attribute.
+    DTEntityGroup.EntityGroup entityGroupData =
+        DTEntityGroup.EntityGroup.newBuilder()
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
+                    .setName("Glucose [Mass/volume] in Serum or Plasma")
+                    .setEntityGroup("measurementLoincPerson")
+                    .setValueData(
+                        ValueData.newBuilder()
+                            .setAttribute("value_enum")
+                            .addSelected(
+                                ValueData.Selection.newBuilder()
+                                    .setValue(Value.newBuilder().setInt64Value(45_884_084L).build())
+                                    .setName("Positive")
+                                    .build()))
+                    .build())
+            .addSelected(
+                DTEntityGroup.EntityGroup.Selection.newBuilder()
+                    .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
+                    .setName("Glucose [Mass/volume] in Serum or Plasma")
+                    .setEntityGroup("measurementLoincPerson")
+                    .setValueData(
+                        ValueData.newBuilder()
+                            .setAttribute("value_numeric")
+                            .setRange(DataRange.newBuilder().setMin(0.0).setMax(250.0).build()))
+                    .build())
+            .build();
+    SelectionData entityGroupSelectionData =
+        new SelectionData("measurement", serializeToJson(entityGroupData));
+    EntityFilter cohortFilter =
+        filterBuilder.buildForCohort(underlay, List.of(entityGroupSelectionData));
+    assertNotNull(cohortFilter);
+
+    EntityFilter expectedCriteriaSubFilter1 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("measurementLoinc"),
+            underlay.getEntity("measurementLoinc").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3_004_501L));
+    EntityFilter expectedInstanceLevelSubFilter1 =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("measurementOccurrence"),
+            underlay.getEntity("measurementOccurrence").getAttribute("value_enum"),
+            BinaryOperator.EQUALS,
+            Literal.forInt64(45_884_084L));
+    EntityFilter expectedCohortFilter1 =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("measurementLoincPerson"),
+            expectedCriteriaSubFilter1,
+            Map.of(
+                underlay.getEntity("measurementOccurrence"),
+                List.of(expectedInstanceLevelSubFilter1)),
+            null,
+            null,
+            null);
+
+    EntityFilter expectedCriteriaSubFilter2 =
+        new HierarchyHasAncestorFilter(
+            underlay,
+            underlay.getEntity("measurementLoinc"),
+            underlay.getEntity("measurementLoinc").getHierarchy(Hierarchy.DEFAULT_NAME),
+            Literal.forInt64(3_004_501L));
+    EntityFilter expectedInstanceLevelSubFilter2 =
+        new AttributeFilter(
+            underlay,
+            underlay.getEntity("measurementOccurrence"),
+            underlay.getEntity("measurementOccurrence").getAttribute("value_numeric"),
+            NaryOperator.BETWEEN,
+            List.of(Literal.forDouble(0.0), Literal.forDouble(250.0)));
+    EntityFilter expectedCohortFilter2 =
+        new PrimaryWithCriteriaFilter(
+            underlay,
+            (CriteriaOccurrence) underlay.getEntityGroup("measurementLoincPerson"),
+            expectedCriteriaSubFilter2,
+            Map.of(
+                underlay.getEntity("measurementOccurrence"),
+                List.of(expectedInstanceLevelSubFilter2)),
+            null,
+            null,
+            null);
+
+    EntityFilter expectedCohortFilter =
+        new BooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR,
+            List.of(expectedCohortFilter1, expectedCohortFilter2));
     assertEquals(expectedCohortFilter, cohortFilter);
   }
 
@@ -563,11 +669,11 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                     .setKey(Key.newBuilder().setInt64Key(3_004_501L).build())
                     .setName("Glucose [Mass/volume] in Serum or Plasma")
                     .setEntityGroup("measurementLoincPerson")
+                    .setValueData(
+                        ValueData.newBuilder()
+                            .setAttribute("value_numeric")
+                            .setRange(DataRange.newBuilder().setMin(0.0).setMax(250.0).build()))
                     .build())
-            .setValueData(
-                ValueData.newBuilder()
-                    .setAttribute("value_numeric")
-                    .setRange(DataRange.newBuilder().setMin(0.0).setMax(250.0).build()))
             .build();
     SelectionData entityGroupSelectionData =
         new SelectionData("measurement", serializeToJson(entityGroupData));

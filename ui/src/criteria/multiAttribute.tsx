@@ -177,7 +177,9 @@ function MultiAttributeInline(props: MultiAttributeInlineProps) {
       update={(valueData) =>
         updateCriteria(
           produce(decodedData, (data) => {
-            data.valueData = valueData;
+            if (valueData) {
+              data.valueData = valueData;
+            }
           })
         )
       }

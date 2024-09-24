@@ -3,14 +3,11 @@ package bio.terra.tanagra.filterbuilder.impl.core;
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFSurvey;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFSurvey.Survey.EntityGroupConfig;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTSurvey;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SurveyFilterBuilder
@@ -41,21 +38,21 @@ public class SurveyFilterBuilder
   }
 
   @Override
-  protected Map<Literal, String> selectedIdsAndEntityGroups(String serializedSelectionData) {
-    Map<Literal, String> idsAndEntityGroups = new HashMap<>();
+  protected List<SelectionItem> selectedIdsAndGroups(String serializedSelectionData) {
     DTSurvey.Survey selectionData = deserializeData(serializedSelectionData);
-    for (DTSurvey.Survey.Selection selectedId : selectionData.getSelectedList()) {
-      if (selectedId.hasKey()) {
-        idsAndEntityGroups.put(
-            Literal.forInt64(selectedId.getKey().getInt64Key()), selectedId.getEntityGroup());
-      }
+    if (selectionData == null) {
+      return List.of();
     }
-    return idsAndEntityGroups;
-  }
 
-  @Override
-  protected ValueDataOuterClass.ValueData valueData(String serializedSelectionData) {
-    DTSurvey.Survey selectionData = deserializeData(serializedSelectionData);
-    return selectionData.hasValueData() ? selectionData.getValueData() : null;
+    return selectionData.getSelectedList().stream()
+        .filter(id -> id.hasKey())
+        .map(
+            selectedId ->
+                new SelectionItem(
+                    Literal.forInt64(selectedId.getKey().getInt64Key()),
+                    new SelectionGroup(
+                        selectedId.getEntityGroup(),
+                        selectedId.hasValueData() ? selectedId.getValueData() : null)))
+        .toList();
   }
 }
