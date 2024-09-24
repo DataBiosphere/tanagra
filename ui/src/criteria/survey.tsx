@@ -20,8 +20,8 @@ import {
 } from "components/treegrid";
 import {
   ANY_VALUE_DATA,
-  decodeValueData,
-  encodeValueData,
+  decodeValueDataOptional,
+  encodeValueDataOptional,
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
@@ -61,6 +61,7 @@ type Selection = {
   entityGroup: string;
   questionKey?: DataKey;
   questionName: string;
+  valueData?: ValueData;
 };
 
 enum EntityNodeItemType {
@@ -83,7 +84,7 @@ type EntityTreeGridData = TreeGridData<EntityNodeItem>;
 // Exported for testing purposes.
 export interface Data {
   selected: Selection[];
-  valueData: ValueData;
+  valueData?: ValueData;
 }
 
 // "survey" plugins are designed to handle medium sized (~<100k rows) amount of
@@ -154,9 +155,7 @@ class _ implements CriteriaPlugin<string> {
   }
 
   renderInline(groupId: string) {
-    const decodedData = decodeData(this.data);
-
-    if (!this.config.valueConfigs.length || decodedData.selected.length) {
+    if (!this.config.valueConfigs.length) {
       return null;
     }
 
@@ -682,6 +681,10 @@ function SurveyInline(props: SurveyInlineProps) {
   );
 
   const decodedData = useMemo(() => decodeData(props.data), [props.data]);
+  const groupedSelection = useMemo(
+    () => groupSelection(decodedData.selected),
+    [decodedData]
+  );
 
   if (!props.config.valueConfigs.length || !decodedData.selected.length) {
     return null;
@@ -691,22 +694,56 @@ function SurveyInline(props: SurveyInlineProps) {
     decodedData.selected[0].entityGroup
   );
 
+  const contentForItem = (item: GroupedSelectionItem) => {
+    if (item.index < 0) {
+      return <Typography variant="body2">{item.name}</Typography>;
+    }
+
+    const sel = decodedData.selected[item.index];
+    return (
+      <GridBox sx={{ pb: 1, height: "auto" }}>
+        <ValueDataEdit
+          key={sel.key}
+          hintEntity={entityGroup.occurrenceEntityIds[0]}
+          relatedEntity={entityGroup.selectionEntity.name}
+          hintKey={sel.key}
+          singleValue
+          title={sel.name}
+          valueConfigs={props.config.valueConfigs}
+          valueData={sel.valueData ? [sel.valueData] : undefined}
+          update={(valueData) =>
+            updateCriteria(
+              produce(decodedData, (data) => {
+                data.selected[item.index].valueData = valueData?.[0];
+              })
+            )
+          }
+        />
+      </GridBox>
+    );
+  };
+
   return (
-    <ValueDataEdit
-      hintEntity={entityGroup.occurrenceEntityIds[0]}
-      relatedEntity={entityGroup.selectionEntity.name}
-      hintKey={decodedData.selected[0].key}
-      singleValue
-      valueConfigs={props.config.valueConfigs}
-      valueData={[decodedData.valueData]}
-      update={(valueData) =>
-        updateCriteria(
-          produce(decodedData, (data) => {
-            data.valueData = valueData[0];
-          })
-        )
-      }
-    />
+    <GridLayout rows height="auto">
+      {groupedSelection.map((s, i) => (
+        <GridLayout key={s.key} rows height="auto">
+          <GridBox
+            sx={{
+              height: "auto",
+              boxShadow:
+                i !== 0
+                  ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+                  : undefined,
+            }}
+          >
+            {contentForItem(s)}
+          </GridBox>
+          <GridLayout rows height="auto" sx={{ pl: 2 }}>
+            {s.children.map((child) => contentForItem(child))}
+          </GridLayout>
+        </GridLayout>
+      ))}
+    </GridLayout>
   );
 }
 
@@ -770,8 +807,10 @@ function decodeData(data: string): Data {
           ? dataKeyFromProto(s.questionKey)
           : undefined,
         questionName: s.questionName,
+        valueData:
+          decodeValueDataOptional(s.valueData) ??
+          decodeValueDataOptional(message.valueData),
       })) ?? [],
-    valueData: decodeValueData(message.valueData),
   };
 }
 
@@ -783,8 +822,9 @@ function encodeData(data: Data): string {
       entityGroup: s.entityGroup,
       questionKey: s.questionKey ? protoFromDataKey(s.questionKey) : undefined,
       questionName: s.questionName,
+      valueData: encodeValueDataOptional(s.valueData),
     })),
-    valueData: encodeValueData(data.valueData),
+    valueData: undefined,
   };
   return JSON.stringify(dataProto.Survey.toJSON(message));
 }

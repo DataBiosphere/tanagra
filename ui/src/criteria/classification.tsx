@@ -21,8 +21,8 @@ import {
 } from "components/treegrid";
 import {
   ANY_VALUE_DATA,
-  decodeValueData,
-  encodeValueData,
+  decodeValueDataOptional,
+  encodeValueDataOptional,
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
@@ -61,6 +61,7 @@ type Selection = {
   key: DataKey;
   name: string;
   entityGroup: string;
+  valueData?: ValueData;
 };
 
 // A custom TreeGridItem allows us to store the EntityNode along with
@@ -74,7 +75,7 @@ type EntityNodeItem = TreeGridItem & {
 // Exported for testing purposes.
 export interface Data {
   selected: Selection[];
-  valueData: ValueData;
+  valueData?: ValueData;
 }
 
 // "entityGroup" plugins selects occurrences based on the configuration of one
@@ -140,7 +141,7 @@ class _ implements CriteriaPlugin<string> {
   }
 
   renderInline(groupId: string) {
-    if (this.config.multiSelect || !this.config.valueConfigs.length) {
+    if (!this.config.valueConfigs.length) {
       return null;
     }
 
@@ -871,21 +872,27 @@ function ClassificationInline(props: ClassificationInlineProps) {
   );
 
   return (
-    <ValueDataEdit
-      hintEntity={entityGroup.occurrenceEntityIds[0]}
-      relatedEntity={entityGroup.selectionEntity.name}
-      hintKey={decodedData.selected[0].key}
-      singleValue
-      valueConfigs={props.config.valueConfigs}
-      valueData={[decodedData.valueData]}
-      update={(valueData) =>
-        updateCriteria(
-          produce(decodedData, (data) => {
-            data.valueData = valueData[0];
-          })
-        )
-      }
-    />
+    <GridLayout rows height="auto">
+      {decodedData.selected.map((s, i) => (
+        <ValueDataEdit
+          key={s.key}
+          hintEntity={entityGroup.occurrenceEntityIds[0]}
+          relatedEntity={entityGroup.selectionEntity.name}
+          hintKey={s.key}
+          singleValue
+          title={s.name}
+          valueConfigs={props.config.valueConfigs}
+          valueData={s.valueData ? [s.valueData] : undefined}
+          update={(valueData) =>
+            updateCriteria(
+              produce(decodedData, (data) => {
+                data.selected[i].valueData = valueData?.[0];
+              })
+            )
+          }
+        />
+      ))}
+    </GridLayout>
   );
 }
 
@@ -986,8 +993,10 @@ function decodeData(data: string): Data {
         key: dataKeyFromProto(s.key),
         name: s.name,
         entityGroup: s.entityGroup,
+        valueData:
+          decodeValueDataOptional(s.valueData) ??
+          decodeValueDataOptional(message.valueData),
       })) ?? [],
-    valueData: decodeValueData(message.valueData),
   };
 }
 
@@ -997,8 +1006,9 @@ function encodeData(data: Data): string {
       key: protoFromDataKey(s.key),
       name: s.name,
       entityGroup: s.entityGroup,
+      valueData: encodeValueDataOptional(s.valueData),
     })),
-    valueData: encodeValueData(data.valueData),
+    valueData: undefined,
   };
   return JSON.stringify(dataProto.EntityGroup.toJSON(message));
 }

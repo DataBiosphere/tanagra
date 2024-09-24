@@ -625,7 +625,7 @@ Data for an entity group criteria is a list of selected values.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | selected | [EntityGroup.Selection](#tanagra-dataschema-EntityGroup-Selection) | repeated |  |
-| value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for an additional categorical or numeric value associated with the selection (e.g. a measurement value). |
+| value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for an additional categorical or numeric value associated with the selection (e.g. a measurement value). Deprecated in favor of per-selection value_data. |
 
 
 
@@ -643,6 +643,7 @@ Data for an entity group criteria is a list of selected values.
 | key | [tanagra.Key](#tanagra-Key) |  | The key of the selected value, which references a related entity (e.g. condition for a condition_occurrence). |
 | name | [string](#string) |  | The visible name for the selection. This is stored to avoid extra lookups when rendering. |
 | entityGroup | [string](#string) |  | The entity group is stored to differentiate between them when multiple are configured within a single criteria. |
+| value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for additional categorical or numeric values associated with the selection (e.g. a measurement value). |
 
 
 
@@ -737,7 +738,7 @@ Data for an entity group criteria is a list of selected values.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | selected | [Survey.Selection](#tanagra-dataschema-Survey-Selection) | repeated |  |
-| value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for an additional categorical or numeric value associated with the selection (e.g. a numeric answer). |
+| value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for an additional categorical or numeric value associated with the selection (e.g. a numeric answer). Temporarily unused in favor of per-selection value_data but will potentially be used in future to support criteria wide values (e.g. survey version or date). |
 
 
 
@@ -757,6 +758,7 @@ Data for an entity group criteria is a list of selected values.
 | entityGroup | [string](#string) |  | The entity group is stored to differentiate between them when multiple are configured within a single criteria. |
 | question_key | [tanagra.Key](#tanagra-Key) |  | If the selected item is an answer, the key of the question it belongs to. |
 | question_name | [string](#string) |  | If the selected item is an answer, the visible name of the question it belongs to. |
+| value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for additional categorical or numeric values associated with the selection (e.g. a numeric answer). |
 
 
 

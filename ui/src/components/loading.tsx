@@ -23,6 +23,7 @@ type Props = {
   showProgressOnMutate?: boolean;
   disableReloadButton?: boolean;
   immediate?: boolean;
+  noProgress?: boolean;
 };
 
 export default function Loading(props: Props) {
@@ -68,7 +69,8 @@ export default function Loading(props: Props) {
         isLoading,
         props.status,
         props.size ?? "large",
-        props.disableReloadButton
+        props.disableReloadButton,
+        props.noProgress
       )}
     </Box>
   );
@@ -80,7 +82,8 @@ function showStatus(
   isLoading?: boolean,
   status?: Status,
   size?: string,
-  disableReloadButton?: boolean
+  disableReloadButton?: boolean,
+  noProgress?: boolean
 ): ReactNode {
   if (status?.error && !status?.isLoading) {
     const defaultMessage = "Something went wrong";
@@ -121,7 +124,7 @@ function showStatus(
       </GridLayout>
     );
   }
-  return visible ? (
+  return !noProgress && visible ? (
     <CircularProgress
       size={size === "small" ? theme.typography.body2.fontSize : undefined}
       sx={

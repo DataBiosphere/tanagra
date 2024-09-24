@@ -768,7 +768,7 @@ function ParticipantsGroup(props: {
   if (selected) {
     inline = plugin.renderInline(props.group.id);
     if (inline) {
-      inline = <GridBox sx={{ pt: 2 }}>{inline}</GridBox>;
+      inline = <GridBox sx={{ pt: 1 }}>{inline}</GridBox>;
     } else if (additionalText) {
       inline = (
         <Typography variant="body2">

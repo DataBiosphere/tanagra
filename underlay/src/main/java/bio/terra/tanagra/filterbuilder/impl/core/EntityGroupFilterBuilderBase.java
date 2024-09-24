@@ -27,11 +27,11 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,21 +45,86 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
     super(criteriaSelector);
   }
 
+  // A SelectionGroup is the parameters that must be the same to be applied to a list of ids.
+  protected class SelectionGroup implements Comparable<SelectionGroup> {
+    public String entityGroupId;
+    public ValueDataOuterClass.ValueData valueData;
+
+    public SelectionGroup(String entityGroupId, ValueDataOuterClass.ValueData valueData) {
+      this.entityGroupId = entityGroupId;
+      this.valueData = valueData;
+    }
+
+    public String getEntityGroupId() {
+      return entityGroupId;
+    }
+
+    @Override
+    public int compareTo(SelectionGroup sg) {
+      if (sg == null) {
+        return 1;
+      } else if (sg == this) {
+        return 0;
+      }
+
+      // A simple comparison for test stability.
+      int result = entityGroupId.compareTo(sg.entityGroupId);
+      if (result == 0) {
+        if (valueData != null && sg.valueData != null) {
+          result = valueData.getAttribute().compareTo(sg.valueData.getAttribute());
+        } else if (valueData == null) {
+          result = -1;
+        } else {
+          result = 1;
+        }
+      }
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      SelectionGroup sg = (SelectionGroup) o;
+      return entityGroupId.equals(sg.entityGroupId) && Objects.equals(valueData, sg.valueData);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(entityGroupId, valueData);
+    }
+  }
+
+  protected class SelectionItem {
+    public Literal id;
+    public SelectionGroup group;
+
+    public SelectionItem(Literal id, SelectionGroup group) {
+      this.id = id;
+      this.group = group;
+    }
+  }
+
   @Override
   public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
     String criteriaSelectionData = selectionData.get(0).getPluginData();
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
-    // We want to build one filter per entity group, not one filter per selected id.
-    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
-        selectedIdsPerEntityGroup(underlay, criteriaSelectionData);
-    List<EntityGroup> selectedEntityGroups =
-        selectedEntityGroups(underlay, selectedIdsPerEntityGroup);
+    // We want to build one filter per selection group, not one filter per selected id.
+    Map<SelectionGroup, List<Literal>> selectedIdsPerGroup =
+        selectedIdsPerGroup(underlay, criteriaSelectionData);
+    List<SelectionGroup> selectedGroups = selectedGroups(underlay, selectedIdsPerGroup);
 
     List<EntityFilter> entityFilters = new ArrayList<>();
-    selectedEntityGroups.forEach(
-        entityGroup -> {
-          List<Literal> selectedIds = selectedIdsPerEntityGroup.get(entityGroup);
+    selectedGroups.forEach(
+        selectionGroup -> {
+          EntityGroup entityGroup = underlay.getEntityGroup(selectionGroup.entityGroupId);
+          List<Literal> selectedIds = selectedIdsPerGroup.get(selectionGroup);
           if (selectedIds == null) {
             selectedIds = new ArrayList<>();
           }
@@ -71,8 +136,8 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
                       underlay,
                       (CriteriaOccurrence) entityGroup,
                       selectedIds,
-                      criteriaSelectionData,
-                      modifiersSelectionData));
+                      modifiersSelectionData,
+                      selectionGroup.valueData));
               break;
             case GROUP_ITEMS:
               entityFilters.add(
@@ -93,20 +158,20 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
     String criteriaSelectionData = selectionData.get(0).getPluginData();
-
-    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup =
-        selectedIdsPerEntityGroup(underlay, criteriaSelectionData);
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
-    List<EntityGroup> selectedEntityGroups =
-        selectedEntityGroups(underlay, selectedIdsPerEntityGroup);
+    // We want to build one filter per selection group, not one filter per selected id.
+    Map<SelectionGroup, List<Literal>> selectedIdsPerGroup =
+        selectedIdsPerGroup(underlay, criteriaSelectionData);
+    List<SelectionGroup> selectedGroups = selectedGroups(underlay, selectedIdsPerGroup);
 
-    if (selectedIdsPerEntityGroup.isEmpty() && modifiersSelectionData.isEmpty()) {
+    if (selectedIdsPerGroup.isEmpty() && modifiersSelectionData.isEmpty()) {
       // Empty selection data = output all occurrence entities with null filters.
       // Use the list of all possible entity groups in the config.
       Set<Entity> outputEntities = new HashSet<>();
-      selectedEntityGroups.forEach(
-          entityGroup -> {
+      selectedGroups.forEach(
+          selectionGroup -> {
+            EntityGroup entityGroup = underlay.getEntityGroup(selectionGroup.entityGroupId);
             switch (entityGroup.getType()) {
               case CRITERIA_OCCURRENCE:
                 CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
@@ -134,18 +199,17 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
         throw new InvalidQueryException("Group by modifiers are not supported for data features");
       }
 
-      ValueDataOuterClass.ValueData valueData = valueData(criteriaSelectionData);
-
-      // We want to build filters per entity group, not per selected id.
+      // We want to build filters per selection group, not per selected id.
       Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
-      selectedEntityGroups.forEach(
-          entityGroup -> {
-            Map<Entity, List<EntityFilter>> filtersForSingleEntityGroup;
-            List<Literal> selectedIds = selectedIdsPerEntityGroup.get(entityGroup);
+      selectedGroups.forEach(
+          selectionGroup -> {
+            EntityGroup entityGroup = underlay.getEntityGroup(selectionGroup.entityGroupId);
+            List<Literal> selectedIds = selectedIdsPerGroup.get(selectionGroup);
             if (selectedIds == null) {
               selectedIds = new ArrayList<>();
             }
 
+            Map<Entity, List<EntityFilter>> filtersForSingleEntityGroup;
             switch (entityGroup.getType()) {
               case CRITERIA_OCCURRENCE:
                 CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup;
@@ -156,7 +220,7 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
                     underlay,
                     criteriaOccurrence.getOccurrenceEntities(),
                     criteriaSelector,
-                    valueData,
+                    selectionGroup.valueData,
                     modifiersSelectionData,
                     filtersForSingleEntityGroup);
                 break;
@@ -181,7 +245,7 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
                     underlay,
                     List.of(notPrimaryEntity),
                     criteriaSelector,
-                    valueData,
+                    selectionGroup.valueData,
                     modifiersSelectionData,
                     filtersForSingleEntityGroup);
                 break;
@@ -212,51 +276,49 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
     }
   }
 
-  private Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup(
+  private Map<SelectionGroup, List<Literal>> selectedIdsPerGroup(
       Underlay underlay, String serializedSelectionData) {
-    Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup = new HashMap<>();
-    Map<Literal, String> selectedIdsAndEntityGroups =
-        selectedIdsAndEntityGroups(serializedSelectionData);
-    selectedIdsAndEntityGroups.forEach(
-        (key, entityGroupId) -> {
-          EntityGroup entityGroup = underlay.getEntityGroup(entityGroupId);
+    Map<SelectionGroup, List<Literal>> selectedIdsPerGroup = new HashMap<>();
+    List<SelectionItem> selectedIdsAndGroups = selectedIdsAndGroups(serializedSelectionData);
+    selectedIdsAndGroups.forEach(
+        item -> {
           List<Literal> selectedIds =
-              selectedIdsPerEntityGroup.containsKey(entityGroup)
-                  ? selectedIdsPerEntityGroup.get(entityGroup)
+              selectedIdsPerGroup.containsKey(item.group)
+                  ? selectedIdsPerGroup.get(item.group)
                   : new ArrayList<>();
-          selectedIds.add(key);
-          selectedIdsPerEntityGroup.put(entityGroup, selectedIds);
+          selectedIds.add(item.id);
+          selectedIdsPerGroup.put(item.group, selectedIds);
         });
 
     // Sort selected IDs so they're consistent for tests rather than returning them in the original
     // selection order.
-    selectedIdsPerEntityGroup.forEach((entityGroup, selectedIds) -> Collections.sort(selectedIds));
-    return selectedIdsPerEntityGroup;
+    selectedIdsPerGroup.forEach((selectionGroup, selectedIds) -> Collections.sort(selectedIds));
+    return selectedIdsPerGroup;
   }
 
   // Returns a list of the union of entity groups covered by the selected items or all configured
   // entity groups if no items are selected.
-  private List<EntityGroup> selectedEntityGroups(
-      Underlay underlay, Map<EntityGroup, List<Literal>> selectedIdsPerEntityGroup) {
-    List<EntityGroup> selectedEntityGroups;
-    if (!selectedIdsPerEntityGroup.isEmpty()) {
-      selectedEntityGroups = new ArrayList<>(selectedIdsPerEntityGroup.keySet());
+  private List<SelectionGroup> selectedGroups(
+      Underlay underlay, Map<SelectionGroup, List<Literal>> selectedIdsPerGroup) {
+    List<SelectionGroup> selectedGroups;
+    if (!selectedIdsPerGroup.isEmpty()) {
+      selectedGroups = new ArrayList<>(selectedIdsPerGroup.keySet());
     } else {
-      selectedEntityGroups =
-          entityGroupIds().stream().map(underlay::getEntityGroup).collect(Collectors.toList());
+      selectedGroups =
+          entityGroupIds().stream()
+              .map(entityGroupId -> new SelectionGroup(entityGroupId, null))
+              .collect(Collectors.toList());
     }
 
-    return selectedEntityGroups.stream()
-        .sorted(Comparator.comparing(EntityGroup::getName))
-        .collect(Collectors.toList());
+    return selectedGroups.stream().sorted().collect(Collectors.toList());
   }
 
   private EntityFilter buildPrimaryWithCriteriaFilter(
       Underlay underlay,
       CriteriaOccurrence criteriaOccurrence,
       List<Literal> selectedIds,
-      String serializedSelectionData,
-      List<SelectionData> modifiersSelectionData) {
+      List<SelectionData> modifiersSelectionData,
+      ValueDataOuterClass.ValueData valueData) {
     // Build the criteria sub-filter.
     EntityFilter criteriaSubFilter =
         EntityGroupFilterUtils.buildIdSubFilter(
@@ -271,7 +333,6 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
             criteriaOccurrence.getOccurrenceEntities());
 
     // Build the instance-level modifier filters.
-    ValueDataOuterClass.ValueData valueData = valueData(serializedSelectionData);
     if (valueData != null
         && !IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY.equalsIgnoreCase(valueData.getAttribute())) {
       if (criteriaOccurrence.getOccurrenceEntities().size() > 1) {
@@ -348,8 +409,5 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
   protected abstract List<String> entityGroupIds();
 
-  protected abstract Map<Literal, String> selectedIdsAndEntityGroups(
-      String serializedSelectionData);
-
-  protected abstract ValueDataOuterClass.ValueData valueData(String serializedSelectionData);
+  protected abstract List<SelectionItem> selectedIdsAndGroups(String serializedSelectionData);
 }

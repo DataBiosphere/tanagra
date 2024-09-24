@@ -30,10 +30,17 @@ message Survey {
     // If the selected item is an answer, the visible name of the question it
     // belongs to.
     string question_name = 5;
+
+    // Data for additional categorical or numeric values associated with the
+    // selection (e.g. a numeric answer).
+    ValueData value_data = 6;
   }
   repeated Selection selected = 1;
 
   // Data for an additional categorical or numeric value associated with the
   // selection (e.g. a numeric answer).
+  // Temporarily unused in favor of per-selection value_data but will
+  // potentially be used in future to support criteria wide values (e.g. survey
+  // version or date).
   ValueData value_data = 2;
 }

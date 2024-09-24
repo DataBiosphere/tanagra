@@ -7,9 +7,7 @@ import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 public class EntityGroupFilterBuilder
@@ -44,25 +42,31 @@ public class EntityGroupFilterBuilder
   }
 
   @Override
-  protected Map<Literal, String> selectedIdsAndEntityGroups(String serializedSelectionData) {
-    Map<Literal, String> idsAndEntityGroups = new HashMap<>();
+  protected List<SelectionItem> selectedIdsAndGroups(String serializedSelectionData) {
     DTEntityGroup.EntityGroup selectionData = deserializeData(serializedSelectionData);
-    if (selectionData != null) {
-      for (DTEntityGroup.EntityGroup.Selection selectedId : selectionData.getSelectedList()) {
-        if (selectedId.hasKey()) {
-          idsAndEntityGroups.put(
-              Literal.forInt64(selectedId.getKey().getInt64Key()), selectedId.getEntityGroup());
-        }
-      }
+    if (selectionData == null) {
+      return List.of();
     }
-    return idsAndEntityGroups;
-  }
 
-  @Override
-  protected ValueDataOuterClass.ValueData valueData(String serializedSelectionData) {
-    DTEntityGroup.EntityGroup selectionData = deserializeData(serializedSelectionData);
-    return selectionData != null && selectionData.hasValueData()
-        ? selectionData.getValueData()
-        : null;
+    return selectionData.getSelectedList().stream()
+        .filter(id -> id.hasKey())
+        .map(
+            selectedId -> {
+              ValueDataOuterClass.ValueData valueData =
+                  selectedId.hasValueData() ? selectedId.getValueData() : null;
+              if (valueData == null) {
+                // For backwards compatability, put selection level value data into the individual
+                // IDs.
+                // This will only be the case when there is a single selection and any updates to
+                // the
+                // data will migrate the value data permanently.
+                valueData = selectionData.hasValueData() ? selectionData.getValueData() : null;
+              }
+
+              return new SelectionItem(
+                  Literal.forInt64(selectedId.getKey().getInt64Key()),
+                  new SelectionGroup(selectedId.getEntityGroup(), valueData));
+            })
+        .toList();
   }
 }
