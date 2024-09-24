@@ -296,7 +296,7 @@ public class CohortServiceTest {
             .size());
     assertNotEquals(cohort.getId(), clonedCohort.getId());
     assertEquals(cohort.getUnderlay(), clonedCohort.getUnderlay());
-    assertEquals("Copy of: " + cohort.getDisplayName(), clonedCohort.getDisplayName());
+    assertEquals("(Copy) " + cohort.getDisplayName(), clonedCohort.getDisplayName());
     assertEquals(newDescription, clonedCohort.getDescription());
     assertEquals(USER_EMAIL_2, clonedCohort.getCreatedBy());
     assertEquals(USER_EMAIL_2, clonedCohort.getLastModifiedBy());

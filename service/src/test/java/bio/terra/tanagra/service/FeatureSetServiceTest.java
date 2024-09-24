@@ -282,7 +282,7 @@ public class FeatureSetServiceTest {
             .size());
     assertNotEquals(featureSet1.getId(), clonedFeatureSet1.getId());
     assertEquals(featureSet1.getUnderlay(), clonedFeatureSet1.getUnderlay());
-    assertEquals("Copy of: " + featureSet1.getDisplayName(), clonedFeatureSet1.getDisplayName());
+    assertEquals("(Copy) " + featureSet1.getDisplayName(), clonedFeatureSet1.getDisplayName());
     assertEquals(newDescription, clonedFeatureSet1.getDescription());
     assertEquals(USER_EMAIL_2, clonedFeatureSet1.getCreatedBy());
     assertEquals(USER_EMAIL_2, clonedFeatureSet1.getLastModifiedBy());

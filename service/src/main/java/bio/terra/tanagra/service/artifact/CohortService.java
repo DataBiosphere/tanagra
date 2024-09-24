@@ -1,5 +1,8 @@
 package bio.terra.tanagra.service.artifact;
 
+import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
+
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
@@ -22,6 +25,7 @@ import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,11 +143,18 @@ public class CohortService {
       @Nullable String description) {
     Cohort original = getCohort(studyId, cohortId);
 
+    int displayNameLen = StringUtils.length(displayName);
+    if (displayNameLen > MAX_DISPLAY_NAME_LENGTH) {
+      throw new BadRequestException(
+          "Cohort name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
+    }
+
     String newDisplayName = displayName;
-    if (newDisplayName == null && original.getDisplayName() != null) {
+    if (displayNameLen == 0 && original.getDisplayName() != null) {
       newDisplayName = original.getDisplayName();
-      if (studyId.equals(destinationStudyId)) {
-        newDisplayName = "Copy of: " + newDisplayName;
+      if (studyId.equals(destinationStudyId)
+          && newDisplayName.length() < MAX_DISPLAY_NAME_LENGTH + 6) {
+        newDisplayName = "(Copy) " + newDisplayName;
       }
     }
 
