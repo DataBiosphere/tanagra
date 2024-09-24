@@ -258,9 +258,35 @@ public class ActivityLogServiceTest {
 
     activityLogs = activityLogService.listActivityLogs(0, 10, null, false, null, null);
     assertEquals(6, activityLogs.size());
-    assertEquals(ActivityLog.Type.CREATE_COHORT, activityLogs.get(0).getType());
-    assertEquals(ActivityLog.Type.CLONE_COHORT, activityLogs.get(1).getType());
+    ActivityLog createLog =
+        buildActivityLog(
+                USER_EMAIL_2,
+                ActivityLog.Type.CREATE_COHORT,
+                ActivityLogResource.builder()
+                    .type(ActivityLogResource.Type.COHORT)
+                    .studyId(study1.getId())
+                    .studyDisplayName(study1.getDisplayName())
+                    .studyProperties(Map.of("irb", "123"))
+                    .cohortId(cohort2.getId())
+                    .cohortDisplayName(cohort2.getDisplayName())
+                    .cohortRevisionId(cohort2.getMostRecentRevision().getId())
+                    .build())
+            .build();
+    ActivityLog cloneLog =
+        buildActivityLog(
+                USER_EMAIL_2,
+                ActivityLog.Type.CLONE_COHORT,
+                cohortActivityLogResource
+                    .cohortRevisionId(cohort1.getMostRecentRevision().getId())
+                    .build())
+            .build();
 
+    // CLONE_COHORT & CREATE_COHORT logs are too close, check either order
+    assertTrue(
+        (activityLogs.get(0).isEquivalentTo(createLog)
+                && activityLogs.get(1).isEquivalentTo(cloneLog))
+            || (activityLogs.get(0).isEquivalentTo(cloneLog)
+                && activityLogs.get(1).isEquivalentTo(createLog)));
     TimeUnit.SECONDS.sleep(1); // Wait briefly, so the activity log timestamp differs.
 
     // DELETE_REVIEW
