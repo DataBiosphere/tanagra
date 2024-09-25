@@ -1,6 +1,5 @@
 package bio.terra.tanagra.service.artifact.model;
 
-import bio.terra.common.exception.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import jakarta.annotation.Nullable;
@@ -21,7 +20,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @JsonDeserialize(builder = Study.Builder.class)
 public class Study {
   private final String id;
-  private final @Nullable String displayName;
+  private final String displayName;
   private final @Nullable String description;
   private final Map<String, String> properties;
   private final OffsetDateTime created;
@@ -130,8 +129,8 @@ public class Study {
   @JsonPOJOBuilder(withPrefix = "")
   public static class Builder {
     private String id;
-    private @Nullable String displayName;
-    private @Nullable String description;
+    private String displayName;
+    private String description;
     private Map<String, String> properties;
     private OffsetDateTime created;
     private String createdBy;
@@ -144,12 +143,12 @@ public class Study {
       return this;
     }
 
-    public Builder displayName(@Nullable String displayName) {
+    public Builder displayName(String displayName) {
       this.displayName = displayName;
       return this;
     }
 
-    public Builder description(@Nullable String description) {
+    public Builder description(String description) {
       this.description = description;
       return this;
     }
@@ -214,7 +213,6 @@ public class Study {
       return displayName;
     }
 
-    @Nullable
     public String getDescription() {
       return description;
     }

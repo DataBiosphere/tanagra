@@ -6,7 +6,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Review {
   private final String id;
-  private final @Nullable String displayName;
+  private final String displayName;
   private final @Nullable String description;
   private final int size;
   private final CohortRevision revision;

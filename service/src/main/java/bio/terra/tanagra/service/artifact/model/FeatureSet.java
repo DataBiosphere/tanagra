@@ -3,7 +3,6 @@ package bio.terra.tanagra.service.artifact.model;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,7 +17,7 @@ public final class FeatureSet {
   private final String underlay;
   private final List<Criteria> criteria;
   private final Map<String, List<String>> excludeOutputAttributesPerEntity;
-  private final @Nullable String displayName;
+  private final String displayName;
   private final @Nullable String description;
   private final OffsetDateTime created;
   private final String createdBy;
@@ -86,7 +85,6 @@ public final class FeatureSet {
     return lastModifiedBy;
   }
 
-  @Nullable
   public String getDisplayName() {
     return displayName;
   }
@@ -98,15 +96,6 @@ public final class FeatureSet {
 
   public boolean isDeleted() {
     return isDeleted;
-  }
-
-  public String getDisplayNameOrDefault() {
-    if (displayName != null && !displayName.isEmpty()) {
-      return displayName;
-    } else {
-      DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy, hh:mm:ss a");
-      return "Untitled " + outputFormatter.format(created);
-    }
   }
 
   public static class Builder {

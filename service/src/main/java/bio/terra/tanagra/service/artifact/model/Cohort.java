@@ -17,7 +17,7 @@ public final class Cohort {
   private final String createdBy;
   private final OffsetDateTime lastModified;
   private final String lastModifiedBy;
-  private final @Nullable String displayName;
+  private final String displayName;
   private final @Nullable String description;
   private final List<CohortRevision> revisions;
   private final boolean isDeleted;
@@ -96,8 +96,8 @@ public final class Cohort {
     private String createdBy;
     private OffsetDateTime lastModified;
     private String lastModifiedBy;
-    private @Nullable String displayName;
-    private @Nullable String description;
+    private String displayName;
+    private String description;
     private List<CohortRevision> revisions;
     private boolean isDeleted;
 

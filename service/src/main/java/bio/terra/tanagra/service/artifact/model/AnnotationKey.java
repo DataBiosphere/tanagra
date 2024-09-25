@@ -12,12 +12,16 @@ import org.apache.commons.lang3.RandomStringUtils;
 public final class AnnotationKey {
   private final String id;
   private final String displayName;
-  private final String description;
+  private final @Nullable String description;
   private final DataType dataType;
   private final List<String> enumVals;
 
   private AnnotationKey(
-      String id, String displayName, String description, DataType dataType, List<String> enumVals) {
+      String id,
+      String displayName,
+      @Nullable String description,
+      DataType dataType,
+      List<String> enumVals) {
     this.id = id;
     this.displayName = displayName;
     this.description = description;
@@ -141,9 +145,6 @@ public final class AnnotationKey {
     public AnnotationKey build() {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
-      }
-      if (displayName == null) {
-        throw new BadRequestException("Annotation key requires a display name");
       }
       if (enumVals == null) {
         enumVals = new ArrayList<>();
