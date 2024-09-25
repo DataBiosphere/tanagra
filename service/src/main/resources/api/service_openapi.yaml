@@ -2157,6 +2157,7 @@ components:
 
     StudyDisplayName:
       type: string
+      maxLength: 50
       description: Human readable name of the study
 
     StudyDescription:
@@ -2283,6 +2284,7 @@ components:
 
     CohortDisplayName:
       type: string
+      maxLength: 50
       description: Human readable name of the cohort
 
     CohortDescription:
@@ -2395,6 +2397,7 @@ components:
 
     FeatureSetDisplayName:
       type: string
+      maxLength: 50
       description: Human readable name of the feature set
 
     FeatureSetDescription:
@@ -2592,6 +2595,7 @@ components:
 
     ReviewDisplayName:
       type: string
+      maxLength: 50
       description: Human readable name of the review
 
     ReviewDescription:
@@ -2661,8 +2665,8 @@ components:
 
     AnnotationDisplayName:
       type: string
-      description: Human readable name of the annotation
       maxLength: 35
+      description: Human readable name of the annotation
 
     AnnotationDescription:
       type: string

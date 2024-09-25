@@ -20,7 +20,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 @JsonDeserialize(builder = Study.Builder.class)
 public class Study {
-  public static final int MAX_DISPLAY_NAME_LENGTH = 50;
   private final String id;
   private final @Nullable String displayName;
   private final @Nullable String description;
@@ -54,6 +53,7 @@ public class Study {
   }
 
   /** Optional description of the study. */
+  @Nullable
   public String getDescription() {
     return description;
   }
@@ -131,7 +131,7 @@ public class Study {
   public static class Builder {
     private String id;
     private @Nullable String displayName;
-    private String description;
+    private @Nullable String description;
     private Map<String, String> properties;
     private OffsetDateTime created;
     private String createdBy;
@@ -200,10 +200,6 @@ public class Study {
       if (properties == null) {
         properties = new HashMap<>();
       }
-      if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
-        throw new BadRequestException(
-            "Study name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
-      }
       if (lastModifiedBy == null) {
         lastModifiedBy = createdBy;
       }
@@ -218,6 +214,7 @@ public class Study {
       return displayName;
     }
 
+    @Nullable
     public String getDescription() {
       return description;
     }

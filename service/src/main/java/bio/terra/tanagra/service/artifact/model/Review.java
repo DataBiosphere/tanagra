@@ -1,8 +1,5 @@
 package bio.terra.tanagra.service.artifact.model;
 
-import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
-
-import bio.terra.common.exception.*;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -44,6 +41,7 @@ public final class Review {
     return displayName;
   }
 
+  @Nullable
   public String getDescription() {
     return description;
   }
@@ -141,10 +139,6 @@ public final class Review {
     public Review build() {
       if (id == null) {
         id = RandomStringUtils.randomAlphanumeric(10);
-      }
-      if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
-        throw new BadRequestException(
-            "Review name cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
       }
       if (lastModifiedBy == null) {
         lastModifiedBy = createdBy;

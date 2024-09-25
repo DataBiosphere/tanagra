@@ -1,7 +1,5 @@
 package bio.terra.tanagra.service.artifact.model;
 
-import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
-
 import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
@@ -146,10 +144,6 @@ public final class AnnotationKey {
       }
       if (displayName == null) {
         throw new BadRequestException("Annotation key requires a display name");
-      }
-      if (displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
-        throw new BadRequestException(
-            "Annotation key cannot be greater than " + MAX_DISPLAY_NAME_LENGTH + " characters");
       }
       if (enumVals == null) {
         enumVals = new ArrayList<>();

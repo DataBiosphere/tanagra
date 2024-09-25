@@ -9,7 +9,7 @@ import java.util.List;
 public final class Entity {
   private final String name;
   private final String displayName;
-  private @Nullable final String description;
+  private final @Nullable String description;
   private final boolean isPrimary;
   private final ImmutableList<Attribute> attributes;
   private final ImmutableList<Hierarchy> hierarchies;
@@ -22,7 +22,7 @@ public final class Entity {
   public Entity(
       String name,
       String displayName,
-      String description,
+      @Nullable String description,
       boolean isPrimary,
       List<Attribute> attributes,
       List<Hierarchy> hierarchies,

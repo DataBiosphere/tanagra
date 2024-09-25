@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
@@ -92,9 +93,10 @@ public final class Underlay {
   }
 
   public String getDisplayName() {
-    return displayName == null || displayName.isEmpty() ? name : displayName;
+    return StringUtils.isEmpty(displayName) ? name : displayName;
   }
 
+  @Nullable
   public String getDescription() {
     return description;
   }
