@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyCope",
+  "displayName": "COVID-19 Participant Experience (COPE) Survey",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyCope.json",
+  "modifiers": []
+}

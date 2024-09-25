@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyCovidVaccine",
+  "displayName": "COVID-19 Vaccine Survey",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.EntityGroupFilterBuilder",
+  "plugin": "entityGroup",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyCovidVaccine.json",
+  "modifiers": []
+}

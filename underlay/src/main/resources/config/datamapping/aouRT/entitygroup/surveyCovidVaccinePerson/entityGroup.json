@@ -1,0 +1,21 @@
+{
+  "name": "surveyCovidVaccinePerson",
+  "criteriaEntity": "surveyCovidVaccine",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "surveyOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "survey_item_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      },
+      "attributesWithInstanceLevelHints": [ "value_numeric", "survey_version" ]
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "survey_item_id"
+  }
+}
