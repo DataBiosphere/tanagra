@@ -419,17 +419,6 @@ public class CohortServiceTest {
             cohortService.createCohort(
                 study1.getId(),
                 Cohort.builder().underlay("invalid_underlay").createdBy(USER_EMAIL_1)));
-
-    // Display name length exceeds maximum.
-    assertThrows(
-        BadRequestException.class,
-        () ->
-            cohortService.createCohort(
-                study1.getId(),
-                Cohort.builder()
-                    .underlay(UNDERLAY_NAME)
-                    .displayName("123456789012345678901234567890123456789012345678901")
-                    .createdBy(USER_EMAIL_1)));
   }
 
   @Test

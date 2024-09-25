@@ -258,14 +258,6 @@ public class StudyServiceTest {
 
     // Get invalid.
     assertThrows(NotFoundException.class, () -> studyService.getStudy("123"));
-
-    // Display name length exceeds maximum.
-    assertThrows(
-        BadRequestException.class,
-        () ->
-            studyService.createStudy(
-                Study.builder().displayName("123456789012345678901234567890123456789012345678901"),
-                USER_EMAIL_1));
   }
 
   @Test

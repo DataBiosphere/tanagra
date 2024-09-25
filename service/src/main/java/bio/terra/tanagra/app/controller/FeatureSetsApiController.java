@@ -166,7 +166,7 @@ public class FeatureSetsApiController implements FeatureSetsApi {
     return new ApiFeatureSet()
         .id(featureSet.getId())
         .underlayName(featureSet.getUnderlay())
-        .displayName(featureSet.getDisplayNameOrDefault())
+        .displayName(featureSet.getDisplayName())
         .description(featureSet.getDescription())
         .created(featureSet.getCreated())
         .createdBy(featureSet.getCreatedBy())
