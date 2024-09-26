@@ -250,6 +250,7 @@ paths:
         - $ref: "#/components/parameters/StudyFilterCreatedBy"
         - $ref: "#/components/parameters/StudyFilterIncludeDeleted"
         - $ref: "#/components/parameters/StudyFilterProperties"
+        - $ref: "#/components/parameters/StudyFilterAllStudies"
         - $ref: "#/components/parameters/Offset"
         - $ref: "#/components/parameters/Limit"
       summary: List all studies a user can read
@@ -1219,6 +1220,15 @@ components:
         type: array
         items:
           type: string
+
+    StudyFilterAllStudies:
+      name: allStudies
+      in: query
+      description: True to include studies for all users
+      required: false
+      schema:
+        type: boolean
+        default: false
 
     ActivityLogFilterUserEmail:
       name: userEmail
