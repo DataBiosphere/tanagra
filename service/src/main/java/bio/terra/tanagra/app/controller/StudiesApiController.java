@@ -88,8 +88,9 @@ public class StudiesApiController implements StudiesApi {
       Integer offset,
       Integer limit) {
     ResourceCollection authorizedStudyIds =
-        allStudies ? ResourceCollection.allResourcesAllPermissions(STUDY, null) :
-            accessControlService.listAuthorizedResources(
+        allStudies
+            ? ResourceCollection.allResourcesAllPermissions(STUDY, null)
+            : accessControlService.listAuthorizedResources(
                 SpringAuthentication.getCurrentUser(),
                 Permissions.forActions(STUDY, READ),
                 offset,
