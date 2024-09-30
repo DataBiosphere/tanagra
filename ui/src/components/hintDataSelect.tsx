@@ -101,7 +101,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
               )
             ) : (
               <Typography variant="overline" component="em">
-                None selected
+                Any value
               </Typography>
             )}
           </Box>

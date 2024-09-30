@@ -26,13 +26,18 @@ export type SearchEntityGroupOptions = {
   query?: string;
   parent?: DataKey;
   limit?: number;
+  pageSize?: number;
   hierarchy?: boolean;
   fetchAll?: boolean;
   isLeaf?: boolean;
+  pageMarker?: string;
+  filters?: tanagra.Filter[];
 };
 
 export type SearchEntityGroupResult = {
   nodes: EntityNode[];
+  pageMarker?: string;
+  total: number;
 };
 
 export type SearchGroupingOptions = {
@@ -645,6 +650,8 @@ export class BackendUnderlaySource implements UnderlaySource {
         )
         .then((res) => ({
           nodes: processEntitiesResponse(entity, res),
+          pageMarker: res.pageMarker,
+          total: res.numRowsAcrossAllPages ?? 0,
         }))
     );
   }
@@ -898,7 +905,9 @@ export class BackendUnderlaySource implements UnderlaySource {
     options?: SearchEntityGroupOptions
   ): tanagra.ListInstancesRequest {
     const hierarchy = entity.hierarchies?.[0]?.name;
-    const operands: tanagra.Filter[] = [];
+    const operands: tanagra.Filter[] = options?.filters
+      ? [...options.filters]
+      : [];
 
     if (entityGroup.relatedEntityId && options?.parent) {
       const groupingEntity = this.lookupEntity(entityGroup.entityId);
@@ -1029,7 +1038,8 @@ export class BackendUnderlaySource implements UnderlaySource {
           ) ?? undefined,
         orderBys: [makeOrderBy(this.underlay, entity, sortOrder)],
         limit,
-        pageSize: limit,
+        pageSize: options?.pageSize ?? limit,
+        pageMarker: options?.pageMarker,
       },
     };
     return req;
@@ -1537,7 +1547,7 @@ function isInternalAttribute(attribute: string): boolean {
   return attribute.startsWith("t_");
 }
 
-function literalFromDataValue(value: DataValue): tanagra.Literal {
+export function literalFromDataValue(value: DataValue): tanagra.Literal {
   let dataType = tanagra.DataType.Int64;
   if (typeof value === "string") {
     dataType = tanagra.DataType.String;
@@ -1713,8 +1723,21 @@ function processAttributes(
 ) {
   for (const k in attributes) {
     const v = attributes[k];
-    const value = dataValueFromLiteral(v.value);
-    obj[k] = v.display ?? value;
+    let value: DataValue = null;
+    let display = v.display;
+
+    if (v.isRepeatedValue) {
+      // TODO(tjennison): Consider how best to support repeated values beyond
+      // display. An array of DataValues is possible but may be overloading
+      // DataValue with too many distinct possibilities.
+      display = v?.repeatedValue?.length
+        ? v?.repeatedValue?.map((l) => dataValueFromLiteral(l))?.join(", ")
+        : "-";
+    } else {
+      value = dataValueFromLiteral(v.value);
+    }
+
+    obj[k] = display ?? value;
     obj[k + VALUE_SUFFIX] = value;
   }
 }

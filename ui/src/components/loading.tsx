@@ -24,6 +24,9 @@ type Props = {
   disableReloadButton?: boolean;
   immediate?: boolean;
   noProgress?: boolean;
+
+  // Override default isLoading from status.
+  isLoading?: boolean;
 };
 
 export default function Loading(props: Props) {
@@ -32,8 +35,9 @@ export default function Loading(props: Props) {
   const timerRef = useRef<number>();
 
   const isLoading =
-    props.status?.isLoading ||
-    (props.showProgressOnMutate && props.status?.isMutating);
+    props.isLoading ??
+    (props.status?.isLoading ||
+      (props.showProgressOnMutate && props.status?.isMutating));
 
   useEffect(() => {
     if (!isLoading) {

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package tanagra.configschema;
+
+option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/configschemapb";
+option java_package = "bio.terra.tanagra.proto.criteriaselector.configschema";
+option java_outer_classname = "CFFilterableGroup";
+
+import "column.proto";
+import "criteriaselector/value_config.proto";
+import "sort_order.proto";
+
+// Config for an GroupItems entity group criteria with filterable attributes and
+// the ability to select all items that match a set of attributes.
+message FilterableGroup {
+  // Columns displayed in the list view.
+  repeated Column columns = 1;
+
+  // The GroupItems entity group to be filtered.
+  string entityGroup = 2;
+
+  // Attributes that can be part of a select all.
+  repeated ValueConfig value_configs = 3;
+
+  // The sort order to use in the list view.
+  SortOrder sort_order = 4;
+
+  // Number of values to display on each page in the list view. Otherwise, a
+  // default value is applied.
+  optional int32 page_size = 5;
+}
