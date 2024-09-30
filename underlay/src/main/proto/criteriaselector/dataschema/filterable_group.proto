@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package tanagra.dataschema;
+
+option go_package = "github.com/DataBiosphere/tanagra/criteriaselector/dataschemapb";
+option java_package = "bio.terra.tanagra.proto.criteriaselector.dataschema";
+option java_outer_classname = "DTFilterableGroup";
+
+import "criteriaselector/key.proto";
+import "criteriaselector/value_data.proto";
+
+// Data for an GroupItems entity group criteria with filterable attributes.
+message FilterableGroup {
+  message SingleSelect {
+    // The key of the selected value, which references group entity (e.g.
+    // variant when filtering variantPerson).
+    Key key = 1;
+
+    // The visible name for the selection. This is stored to avoid extra lookups
+    // when rendering.
+    string name = 2;
+  }
+
+  message SelectAll {
+    // The string query of the selection.
+    string query = 1;
+
+    // Optional values that comprise the selection.
+    repeated ValueData values = 2;
+
+    // Single items excluded from this selection.
+    repeated SingleSelect exclusions = 3;
+  }
+
+  message Selection {
+    // A unique id to refer to selections since SelectAlls don't naturally have
+    // one.
+    string id = 1;
+
+    oneof selection {
+      SingleSelect single = 2;
+      SelectAll all = 3;
+    }
+  }
+
+  // The list of selections, each of which may be a single item or a set of
+  // parameters.
+  repeated Selection selected = 1;
+}

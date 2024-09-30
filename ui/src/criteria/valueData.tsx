@@ -56,6 +56,9 @@ export const ANY_VALUE_DATA = {
 
 export type ValueDataEditProps = {
   hintEntity: string;
+  // If hintData is supplied it will be used instead of fetching it.
+  hintData?: HintData[];
+
   relatedEntity?: string;
   hintKey?: DataKey;
 
@@ -94,13 +97,15 @@ export function ValueDataEdit(props: ValueDataEditProps) {
       key: props.hintKey,
     },
     async (key) => {
-      const hintData = props.valueConfigs
-        ? await underlaySource.getAllHintData(
-            key.hintEntity,
-            key.relatedEntity,
-            key.key
-          )
-        : undefined;
+      const hintData =
+        props.hintData ??
+        (props.valueConfigs
+          ? await underlaySource.getAllHintData(
+              key.hintEntity,
+              key.relatedEntity,
+              key.key
+            )
+          : undefined);
       return {
         hintData,
       };

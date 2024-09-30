@@ -16,6 +16,9 @@
     - [EntityGroup](#tanagra-configschema-EntityGroup)
     - [EntityGroup.EntityGroupConfig](#tanagra-configschema-EntityGroup-EntityGroupConfig)
   
+- [criteriaselector/configschema/filterable_group.proto](#criteriaselector_configschema_filterable_group-proto)
+    - [FilterableGroup](#tanagra-configschema-FilterableGroup)
+  
 - [criteriaselector/configschema/multi_attribute.proto](#criteriaselector_configschema_multi_attribute-proto)
     - [MultiAttribute](#tanagra-configschema-MultiAttribute)
   
@@ -49,6 +52,12 @@
 - [criteriaselector/dataschema/entity_group.proto](#criteriaselector_dataschema_entity_group-proto)
     - [EntityGroup](#tanagra-dataschema-EntityGroup)
     - [EntityGroup.Selection](#tanagra-dataschema-EntityGroup-Selection)
+  
+- [criteriaselector/dataschema/filterable_group.proto](#criteriaselector_dataschema_filterable_group-proto)
+    - [FilterableGroup](#tanagra-dataschema-FilterableGroup)
+    - [FilterableGroup.SelectAll](#tanagra-dataschema-FilterableGroup-SelectAll)
+    - [FilterableGroup.Selection](#tanagra-dataschema-FilterableGroup-Selection)
+    - [FilterableGroup.SingleSelect](#tanagra-dataschema-FilterableGroup-SingleSelect)
   
 - [criteriaselector/dataschema/multi_attribute.proto](#criteriaselector_dataschema_multi_attribute-proto)
     - [MultiAttribute](#tanagra-dataschema-MultiAttribute)
@@ -251,6 +260,42 @@ configs can be combined though they are displayed separately.
 | ----- | ---- | ----- | ----------- |
 | id | [string](#string) |  | The id of the entity group. |
 | sort_order | [tanagra.SortOrder](#tanagra-SortOrder) |  | The sort order applied to this entity group when displayed in the hierarchy view. |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+<a name="criteriaselector_configschema_filterable_group-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## criteriaselector/configschema/filterable_group.proto
+
+
+
+<a name="tanagra-configschema-FilterableGroup"></a>
+
+### FilterableGroup
+Config for an GroupItems entity group criteria with filterable attributes and
+the ability to select all items that match a set of attributes.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| columns | [tanagra.Column](#tanagra-Column) | repeated | Columns displayed in the list view. |
+| entityGroup | [string](#string) |  | The GroupItems entity group to be filtered. |
+| value_configs | [tanagra.ValueConfig](#tanagra-ValueConfig) | repeated | Attributes that can be part of a select all. |
+| sort_order | [tanagra.SortOrder](#tanagra-SortOrder) |  | The sort order to use in the list view. |
+| page_size | [int32](#int32) | optional | Number of values to display on each page in the list view. Otherwise, a default value is applied. |
 
 
 
@@ -644,6 +689,87 @@ Data for an entity group criteria is a list of selected values.
 | name | [string](#string) |  | The visible name for the selection. This is stored to avoid extra lookups when rendering. |
 | entityGroup | [string](#string) |  | The entity group is stored to differentiate between them when multiple are configured within a single criteria. |
 | value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for additional categorical or numeric values associated with the selection (e.g. a measurement value). |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+<a name="criteriaselector_dataschema_filterable_group-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## criteriaselector/dataschema/filterable_group.proto
+
+
+
+<a name="tanagra-dataschema-FilterableGroup"></a>
+
+### FilterableGroup
+Data for an GroupItems entity group criteria with filterable attributes.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| selected | [FilterableGroup.Selection](#tanagra-dataschema-FilterableGroup-Selection) | repeated | The list of selections, each of which may be a single item or a set of parameters. |
+
+
+
+
+
+
+<a name="tanagra-dataschema-FilterableGroup-SelectAll"></a>
+
+### FilterableGroup.SelectAll
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| query | [string](#string) |  | The string query of the selection. |
+| values | [tanagra.ValueData](#tanagra-ValueData) | repeated | Optional values that comprise the selection. |
+| exclusions | [FilterableGroup.SingleSelect](#tanagra-dataschema-FilterableGroup-SingleSelect) | repeated | Single items excluded from this selection. |
+
+
+
+
+
+
+<a name="tanagra-dataschema-FilterableGroup-Selection"></a>
+
+### FilterableGroup.Selection
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  | A unique id to refer to selections since SelectAlls don&#39;t naturally have one. |
+| single | [FilterableGroup.SingleSelect](#tanagra-dataschema-FilterableGroup-SingleSelect) |  |  |
+| all | [FilterableGroup.SelectAll](#tanagra-dataschema-FilterableGroup-SelectAll) |  |  |
+
+
+
+
+
+
+<a name="tanagra-dataschema-FilterableGroup-SingleSelect"></a>
+
+### FilterableGroup.SingleSelect
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [tanagra.Key](#tanagra-Key) |  | The key of the selected value, which references group entity (e.g. variant when filtering variantPerson). |
+| name | [string](#string) |  | The visible name for the selection. This is stored to avoid extra lookups when rendering. |
 
 
 
