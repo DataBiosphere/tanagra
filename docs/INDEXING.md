@@ -1,6 +1,17 @@
 # Indexing
-Tanagra can query the source data directly, but **for improved performance, Tanagra generates indexed tables and queries 
-them instead**. The indexer config specifies where Tanagra can write generated index tables.
+
+## Need for Indexing
+
+In most cases Tanagra can query the source data directly, but **for improved performance, Tanagra generates indexed 
+tables and queries them instead**. The indexer config specifies where Tanagra can write generated index tables.
+
+However here are a few scenarios where indexing is strictly required, such as calculating ancestors for 
+every item in hierarchies based off the parent-child input data. These steps use Dataflow because they 
+cannot be reasonably simplified to SQL. For most things it's for performance reasons, though some of those
+(e.g. calculating rollup counts) would be slow enough to be completely unusable without it.
+
+Another consideration is that performance directly correlates to cost in many cases, either because it 
+simplifies queries or allows the BQ tables to be optimized (e.g. clustering for common columns).
 
 **Generating index tables is part of the deployment process**; It is not managed by the service. There is a basic
 command line interface to run the indexing jobs. Currently, this CLI just uses Gradle's application plugin, so the
