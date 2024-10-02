@@ -2,7 +2,7 @@
   "name": "sleepDailySummary",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "sleep_date", "dataType": "DATE" },
     { "name": "is_main_sleep", "dataType": "STRING" },
@@ -17,7 +17,5 @@
     { "name": "minute_wake", "dataType": "INT64" }
   ],
   "idAttribute": "id",
-  "textSearch": {
-    "attributes": [ "id", "name", "concept_code" ]
-  }
+  "sourceQueryTableName": "${omopDataset}.sleep_daily_summary"
 }
