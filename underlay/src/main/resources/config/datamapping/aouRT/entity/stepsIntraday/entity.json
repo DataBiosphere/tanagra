@@ -2,13 +2,10 @@
   "name": "stepsIntraday",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "type": "SIMPLE", "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
-    { "type": "SIMPLE", "name": "date", "dataType": "DATE" },
-    { "type": "SIMPLE", "name": "sum_steps", "dataType": "INT64" },
-    { "type": "SIMPLE", "name": "person_id", "dataType": "INT64" }
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id", "isSuppressedForExport": true },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "date", "dataType": "DATE" },
+    { "name": "sum_steps", "dataType": "INT64" }
   ],
-  "idAttribute": "id",
-  "textSearch": {
-    "attributes": [ "id", "name", "concept_code" ]
-  }
+  "idAttribute": "id"
 }

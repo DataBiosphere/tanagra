@@ -15,4 +15,9 @@
         ${concept} AS dt0              
             ON dt0.concept_id = st.gender_concept_id      
     WHERE
-        person_source_value IS NOT NULL
+        st.person_id IN (SELECT
+            id          
+        FROM
+            ${ENT_person}          
+        WHERE
+            person_source_value IS NOT NULL)

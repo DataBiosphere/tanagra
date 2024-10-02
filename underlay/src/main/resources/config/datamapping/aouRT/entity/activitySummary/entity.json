@@ -2,7 +2,8 @@
   "name": "activitySummary",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id" },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id", "isSuppressedForExport": true },
+    { "name": "person_id", "dataType": "INT64" },
     { "name": "date", "dataType": "DATE" },
     { "name": "activity_calories", "dataType": "DOUBLE" },
     { "name": "calories_bmr", "dataType": "DOUBLE" },
@@ -14,8 +15,8 @@
     { "name": "marginal_calories", "dataType": "DOUBLE" },
     { "name": "sedentary_minutes", "dataType": "DOUBLE" },
     { "name": "steps", "dataType": "INT64" },
-    { "name": "very_active_minutes", "dataType": "DOUBLE" },
-    { "name": "person_id", "dataType": "INT64" }
+    { "name": "very_active_minutes", "dataType": "DOUBLE" }
   ],
-  "idAttribute": "id"
+  "idAttribute": "id",
+  "sourceQueryTableName": "${omopDataset}.activity_summary"
 }

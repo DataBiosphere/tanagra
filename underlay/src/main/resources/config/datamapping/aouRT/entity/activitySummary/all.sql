@@ -1,5 +1,6 @@
 SELECT
-    ROW_NUMBER() OVER() AS row_id,
+    row_id,
+    person_id,
     date,
     activity_calories,
     calories_bmr,
@@ -11,6 +12,5 @@ SELECT
     marginal_calories,
     sedentary_minutes,
     steps,
-    very_active_minutes,
-    person_id
+    very_active_minutes
 FROM `${omopDataset}.activity_summary`

@@ -616,7 +616,7 @@ public class BQQueryRunner implements QueryRunner {
 
     // SELECT [select fields] FROM [source table]
     // JOIN [display table] ON [display join field]
-    // WHERE [index id field] IN [inner query against index data] -> this where clause won't exist in all cases
+    // WHERE [source id field] IN [inner query against index data]
     sql.append("SELECT ")
         .append(String.join(", ", selectFields))
         .append(" FROM ")
@@ -624,7 +624,11 @@ public class BQQueryRunner implements QueryRunner {
         .append(" AS ")
         .append(sourceTableAlias)
         .append(String.join("", displayTableJoins.values().stream().toList()))
-        .append(indexDataSqlRequest.getWhereClause());
+        .append(" WHERE ")
+        .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
+        .append(" IN (")
+        .append(indexDataSqlRequest.getSql())
+        .append(')');
     return new SqlQueryRequest(
         sql.toString(),
         sqlParams,

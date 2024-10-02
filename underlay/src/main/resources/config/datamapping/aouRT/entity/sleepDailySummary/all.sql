@@ -1,5 +1,5 @@
 SELECT
-    ROW_NUMBER() OVER() AS row_id,
+    row_id,
     person_id,
     sleep_date,
     is_main_sleep,

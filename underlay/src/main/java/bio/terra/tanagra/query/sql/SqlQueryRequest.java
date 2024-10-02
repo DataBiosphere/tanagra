@@ -2,7 +2,6 @@ package bio.terra.tanagra.query.sql;
 
 import bio.terra.tanagra.api.query.PageMarker;
 import jakarta.annotation.Nullable;
-import java.util.Optional;
 
 public class SqlQueryRequest {
   private final String sql;
@@ -26,13 +25,6 @@ public class SqlQueryRequest {
 
   public String getSql() {
     return sql;
-  }
-
-  public String getWhereClause() {
-    return Optional.of(sql.indexOf(" WHERE"))
-        .filter(index -> index != -1)
-        .map(index -> sql.substring(index))
-        .orElse("");
   }
 
   public SqlParams getSqlParams() {
