@@ -3,8 +3,8 @@ plugins {
 
     // These plugins are needed to resolve versions of spring dependencies
     // transitively added by terra-common-lib
-    id 'org.springframework.boot' version '3.3.3'
-    id 'io.spring.dependency-management' version '1.1.5'
+    id 'io.spring.dependency-management' version "${vSpringDepMgt}"
+    id 'org.springframework.boot' version "${vSpringBoot}"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -39,9 +39,9 @@ dependencies {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
     }
 
-    implementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
+    implementation "org.slf4j:slf4j-api:${vSlf4jApi}"
 
-    implementation("bio.terra:terra-common-lib:${gradle.vTerraCommonLib}") {
+    implementation("bio.terra:terra-common-lib:${vTerraCommonLib}") {
         exclude group: 'com.azure'
         exclude group: 'io.swagger', module: 'swagger-annotations'
         exclude group: 'io.opentelemetry'
@@ -53,13 +53,13 @@ dependencies {
     implementation project(path: ':service')
 
     // explicity declare libs and version to address synk warnings
-    implementation "org.springframework:spring-web:${gradle.vSpringWeb}"
-    implementation "org.springframework:spring-webmvc:${gradle.vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-web:${gradle.vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-webmvc:${gradle.vSpringWeb}"
+    implementation "org.springframework:spring-web:${vSpringWeb}"
+    implementation "org.springframework:spring-webmvc:${vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-web:${vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-webmvc:${vSpringWeb}"
 
     // Static analysis
-    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
+    pmd "net.sourceforge.pmd:pmd-ant:${vPmd}"
 }
 
 // e.g. ./gradlew annotationProcessor:run -Pgenerator=APPLICATION_CONFIG_DOCS

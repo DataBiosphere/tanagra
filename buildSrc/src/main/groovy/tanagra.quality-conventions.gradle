@@ -17,8 +17,8 @@ quality {
     spotbugs = true
     pmdIncremental = true
 
-    spotbugsVersion = gradle.vSpotBugs
-    pmdVersion = gradle.vPmd
+    spotbugsVersion = "${vSpotBugs}"
+    pmdVersion = "${vPmd}"
 
     configDir = "${rootDir}/gradle/config/"
 

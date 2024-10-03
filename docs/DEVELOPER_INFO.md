@@ -136,7 +136,7 @@ You can run just the static analysis checks (i.e. no functional tests) with:
 We use [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html)
 for building with deterministic dependencies. When adding a new dependency, use
 ```
-./gradlew underlay:dependencies service:dependencies cli:dependencies indexer:dependencies annotationProcessor:dependencies --write-locks
+./gradlew dependencies --write-locks
 ```
 to regenerate the `gradle.lockfile` for each subproject with the added dependencies. Outdated lock files cause errors like:
 ```
