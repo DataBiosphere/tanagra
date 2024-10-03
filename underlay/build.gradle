@@ -1,6 +1,6 @@
 plugins {
     id 'tanagra.java-conventions'
-    id 'com.google.protobuf' version '0.9.4'
+    id 'com.google.protobuf' version "${vGoogleProtobuf}"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -19,13 +19,13 @@ repositories {
 }
 
 dependencies {
-    implementation "com.fasterxml.jackson.core:jackson-core:${gradle.vJackson}"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${gradle.vJackson}"
+    implementation "com.fasterxml.jackson.core:jackson-core:${vJackson}"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${vJackson}"
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
-    implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
-    implementation "org.slf4j:slf4j-simple:${gradle.vSlf4jApi}"
-    testFixturesImplementation "org.slf4j:slf4j-api:${gradle.vSlf4jApi}"
+    implementation "org.apache.commons:commons-text:${vApacheCommonsText}"
+    implementation "org.slf4j:slf4j-simple:${vSlf4jApi}"
+    testFixturesImplementation "org.slf4j:slf4j-api:${vSlf4jApi}"
 
     // GCP libraries versions are controlled by the BOM specified in buildSrc.
     implementation 'com.google.cloud:google-cloud-bigquery'
@@ -36,14 +36,14 @@ dependencies {
     implementation 'org.hibernate.orm:hibernate-core:6.5.2.Final'
 
     // JUnit
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${gradle.vJunit5}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${gradle.vJunit5}"
-    testFixturesImplementation "org.junit.jupiter:junit-jupiter-api:${gradle.vJunit5}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${vJunit5}"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${vJunit5}"
+    testFixturesImplementation "org.junit.jupiter:junit-jupiter-api:${vJunit5}"
 
     // Static analysis
-    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
-    compileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
-    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
+    pmd "net.sourceforge.pmd:pmd-ant:${vPmd}"
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${vSpotBugs}"
+    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${vSpotBugs}"
 }
 
 protobuf {

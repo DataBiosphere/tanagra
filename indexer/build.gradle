@@ -33,13 +33,13 @@ dependencies {
     implementation project(':underlay')
     testImplementation(testFixtures(project(':underlay')))
 
-    implementation "org.apache.commons:commons-text:${gradle.vApacheCommonsText}"
+    implementation "org.apache.commons:commons-text:${vApacheCommonsText}"
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     // Command parsing
     implementation project(':cli')
-    compileOnly "info.picocli:picocli:${gradle.vPicocliVersion}"
-    annotationProcessor "info.picocli:picocli-codegen:${gradle.vPicocliVersion}"
+    compileOnly "info.picocli:picocli:${vPicocliVersion}"
+    annotationProcessor "info.picocli:picocli-codegen:${vPicocliVersion}"
 
     // GCP libraries versions are controlled by the BOM specified in buildSrc.
     implementation 'com.google.cloud:google-cloud-bigquery'
@@ -62,9 +62,9 @@ dependencies {
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
     // Static analysis
-    pmd "net.sourceforge.pmd:pmd-ant:${gradle.vPmd}"
-    compileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
-    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${gradle.vSpotBugs}"
+    pmd "net.sourceforge.pmd:pmd-ant:${vPmd}"
+    compileOnly "com.github.spotbugs:spotbugs-annotations:${vSpotBugs}"
+    testCompileOnly "com.github.spotbugs:spotbugs-annotations:${vSpotBugs}"
 }
 
 tasks.withType(Test).configureEach {
