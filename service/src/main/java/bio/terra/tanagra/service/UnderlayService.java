@@ -19,7 +19,6 @@ import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.serialization.*;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +35,7 @@ public class UnderlayService {
 
   @Autowired
   public UnderlayService(
-      UnderlayConfiguration underlayConfiguration,
-      ExportConfiguration exportConfiguration) {
+      UnderlayConfiguration underlayConfiguration, ExportConfiguration exportConfiguration) {
     // Read in underlays from resource files.
     Map<String, CachedUnderlay> underlayCacheBuilder = new HashMap<>();
     for (String serviceConfig : underlayConfiguration.getFiles()) {
@@ -125,15 +123,16 @@ public class UnderlayService {
     }
 
     // Build the attribute fields for select and group by.
-    List<ValueDisplayField> attributeFields = new ArrayList<>();
-    Optional.ofNullable(groupByAttributeNames)
-        .ifPresent(
-            list ->
-                list.forEach(
+    List<ValueDisplayField> attributeFields =
+        (groupByAttributeNames != null)
+            ? groupByAttributeNames.stream()
+                .map(
                     attributeName ->
-                        attributeFields.add(
+                        (ValueDisplayField)
                             new AttributeField(
-                                underlay, entity, entity.getAttribute(attributeName), false))));
+                                underlay, entity, entity.getAttribute(attributeName), false))
+                .toList()
+            : List.of();
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(
