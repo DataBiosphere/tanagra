@@ -36,7 +36,8 @@ public class UnderlayService {
 
   @Autowired
   public UnderlayService(
-      UnderlayConfiguration underlayConfiguration, ExportConfiguration exportConfiguration) {
+      UnderlayConfiguration underlayConfiguration,
+      ExportConfiguration exportConfiguration) {
     // Read in underlays from resource files.
     Map<String, CachedUnderlay> underlayCacheBuilder = new HashMap<>();
     for (String serviceConfig : underlayConfiguration.getFiles()) {
@@ -104,7 +105,7 @@ public class UnderlayService {
       Underlay underlay,
       Entity entity,
       @Nullable String countDistinctAttributeName,
-      List<String> groupByAttributeNames,
+      @Nullable List<String> groupByAttributeNames,
       EntityFilter entityFilter,
       OrderByDirection orderByDirection,
       Integer limit,
@@ -125,10 +126,14 @@ public class UnderlayService {
 
     // Build the attribute fields for select and group by.
     List<ValueDisplayField> attributeFields = new ArrayList<>();
-    groupByAttributeNames.forEach(
-        attributeName ->
-            attributeFields.add(
-                new AttributeField(underlay, entity, entity.getAttribute(attributeName), false)));
+    Optional.ofNullable(groupByAttributeNames)
+        .ifPresent(
+            list ->
+                list.forEach(
+                    attributeName ->
+                        attributeFields.add(
+                            new AttributeField(
+                                underlay, entity, entity.getAttribute(attributeName), false))));
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(

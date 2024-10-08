@@ -211,7 +211,7 @@ public class CohortsApiController implements CohortsApi {
             underlay,
             outputEntity,
             body.getCountDistinctAttribute(),
-            body.getGroupByAttributes() == null ? List.of() : body.getGroupByAttributes(),
+            body.getGroupByAttributes(),
             outputEntityFilteredOnCohort,
             body.getOrderByDirection() == null
                 ? OrderByDirection.DESCENDING

@@ -1667,7 +1667,10 @@ components:
       required: [groupByAttributes, criteriaGroupSections]
       properties:
         criteriaGroupSections:
-          $ref: "#/components/schemas/CriteriaGroupSections"
+          type: array
+          description: Criteria group sections that define the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaGroupSection"
         entity:
           $ref: "#/components/schemas/EntityToCount"
         countDistinctAttribute:
@@ -2264,7 +2267,10 @@ components:
         description:
           $ref: "#/components/schemas/CohortDescription"
         criteriaGroupSections:
-          $ref: "#/components/schemas/CriteriaGroupSections"
+          type: array
+          description: Criteria group sections that define the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaGroupSection"
         created:
           description: Timestamp of when the cohort was created
           type: string
@@ -2318,7 +2324,10 @@ components:
         description:
           $ref: "#/components/schemas/CohortDescription"
         criteriaGroupSections:
-          $ref: "#/components/schemas/CriteriaGroupSections"
+          type: array
+          description: Criteria group sections that define the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaGroupSection"
 
     CohortCloneInfo:
       type: object
@@ -2454,12 +2463,6 @@ components:
     UnderlayName:
       type: string
       description: Name of the underlay, immutable
-
-    CriteriaGroupSections:
-      type: array
-      description: Criteria group sections that define the entity filter
-      items:
-        $ref: "#/components/schemas/CriteriaGroupSection"
 
     CriteriaGroupSection:
       type: object

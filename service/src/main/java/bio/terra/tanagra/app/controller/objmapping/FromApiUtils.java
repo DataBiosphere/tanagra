@@ -12,9 +12,11 @@ import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.JoinOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ReducingOperator;
 import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
@@ -23,6 +25,9 @@ import bio.terra.tanagra.generated.model.ApiAttributeFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryOperator;
 import bio.terra.tanagra.generated.model.ApiBooleanLogicFilter;
 import bio.terra.tanagra.generated.model.ApiCriteria;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection.OperatorEnum;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGroupHasItemsFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
@@ -33,8 +38,10 @@ import bio.terra.tanagra.generated.model.ApiPrimaryWithCriteriaFilter;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
+import bio.terra.tanagra.generated.model.ApiReducingOperator;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
+import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -508,6 +515,34 @@ public final class FromApiUtils {
     return Optional.empty();
   }
 
+  public static CohortRevision.CriteriaGroupSection fromApiObject(ApiCriteriaGroupSection apiObj) {
+    return CohortRevision.CriteriaGroupSection.builder()
+        .id(apiObj.getId())
+        .displayName(apiObj.getDisplayName())
+        .criteriaGroups(
+            apiObj.getCriteriaGroups().stream().map(FromApiUtils::fromApiObject).toList())
+        .firstConditionReducingOperator(fromApiObject(apiObj.getFirstBlockReducingOperator()))
+        .secondConditionCriteriaGroups(
+            apiObj.getSecondBlockCriteriaGroups().stream()
+                .map(FromApiUtils::fromApiObject)
+                .toList())
+        .secondConditionReducingOperator(fromApiObject(apiObj.getSecondBlockReducingOperator()))
+        .joinOperator(fromApiObject(apiObj.getOperator()))
+        .joinOperatorValue(apiObj.getOperatorValue())
+        .setIsExcluded(apiObj.isExcluded())
+        .setIsDisabled(apiObj.isDisabled())
+        .build();
+  }
+
+  public static CohortRevision.CriteriaGroup fromApiObject(ApiCriteriaGroup apiObj) {
+    return CohortRevision.CriteriaGroup.builder()
+        .id(apiObj.getId())
+        .displayName(apiObj.getDisplayName())
+        .criteria(apiObj.getCriteria().stream().map(FromApiUtils::fromApiObject).toList())
+        .isDisabled(apiObj.isDisabled())
+        .build();
+  }
+
   public static Criteria fromApiObject(ApiCriteria apiObj) {
     return Criteria.builder()
         .id(apiObj.getId())
@@ -520,5 +555,13 @@ public final class FromApiUtils {
         .selectionData(apiObj.getSelectionData())
         .tags(apiObj.getTags())
         .build();
+  }
+
+  public static ReducingOperator fromApiObject(ApiReducingOperator apiObj) {
+    return apiObj != null ? ReducingOperator.valueOf(apiObj.name()) : null;
+  }
+
+  public static JoinOperator fromApiObject(OperatorEnum apiObj) {
+    return apiObj != null ? JoinOperator.valueOf(apiObj.name()) : null;
   }
 }
