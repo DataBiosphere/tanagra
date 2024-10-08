@@ -242,7 +242,7 @@ paths:
 
   "/v2/underlays/{underlayName}/criteriaCounts":
     parameters:
-    - $ref: "#/components/parameters/UnderlayName"
+      - $ref: "#/components/parameters/UnderlayName"
     post:
       summary: Run a count query for a search criteria
       operationId: queryCriteriaCounts
@@ -1664,9 +1664,10 @@ components:
     CriteriaCountQuery:
       type: object
       description: Count output entity instances for a search criteria
+      required: [groupByAttributes, criteriaGroupSections]
       properties:
-        criteriaGroupSection:
-          $ref: "#/components/schemas/CriteriaGroupSection"
+        criteriaGroupSections:
+          $ref: "#/components/schemas/CriteriaGroupSections"
         entity:
           $ref: "#/components/schemas/EntityToCount"
         countDistinctAttribute:
@@ -1681,8 +1682,6 @@ components:
           $ref: "#/components/schemas/PageSize"
         pageMarker:
           $ref: "#/components/schemas/PageMarker"
-      required:
-      - groupByAttributes
 
     CohortCountQuery:
       type: object
@@ -2265,10 +2264,7 @@ components:
         description:
           $ref: "#/components/schemas/CohortDescription"
         criteriaGroupSections:
-          type: array
-          description: Criteria group sections that define the entity filter
-          items:
-            $ref: "#/components/schemas/CriteriaGroupSection"
+          $ref: "#/components/schemas/CriteriaGroupSections"
         created:
           description: Timestamp of when the cohort was created
           type: string
@@ -2322,10 +2318,7 @@ components:
         description:
           $ref: "#/components/schemas/CohortDescription"
         criteriaGroupSections:
-          type: array
-          description: Criteria group sections that define the entity filter
-          items:
-            $ref: "#/components/schemas/CriteriaGroupSection"
+          $ref: "#/components/schemas/CriteriaGroupSections"
 
     CohortCloneInfo:
       type: object
@@ -2461,6 +2454,12 @@ components:
     UnderlayName:
       type: string
       description: Name of the underlay, immutable
+
+    CriteriaGroupSections:
+      type: array
+      description: Criteria group sections that define the entity filter
+      items:
+        $ref: "#/components/schemas/CriteriaGroupSection"
 
     CriteriaGroupSection:
       type: object
