@@ -3,6 +3,7 @@ package bio.terra.tanagra.service.filter;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.*;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -162,45 +164,40 @@ public class FilterBuilderService {
     return criteriaGroupSection.isExcluded() ? new BooleanNotFilter(includeFilter) : includeFilter;
   }
 
-  public EntityFilter buildFilterForCohortRevision(
-      String underlayName, CohortRevision cohortRevision) {
-    List<EntityFilter> criteriaGroupSectionFilters = new ArrayList<>();
-    cohortRevision
-        .getSections()
-        .forEach(
-            criteriaGroupSection -> {
-              EntityFilter criteriaGroupSectionFilter =
-                  buildFilterForCriteriaGroupSection(underlayName, criteriaGroupSection);
-              if (criteriaGroupSectionFilter != null) {
-                criteriaGroupSectionFilters.add(criteriaGroupSectionFilter);
-              }
-            });
-    if (criteriaGroupSectionFilters.isEmpty()) {
+  public EntityFilter buildFilterForCriteriaGroupSections(
+      String underlayName, List<CohortRevision.CriteriaGroupSection> criteriaGroupSections) {
+    List<EntityFilter> sectionFilters =
+        criteriaGroupSections.stream()
+            .map(section -> buildFilterForCriteriaGroupSection(underlayName, section))
+            .filter(Objects::nonNull)
+            .toList();
+    if (sectionFilters.isEmpty()) {
       return null;
     }
 
-    return criteriaGroupSectionFilters.size() == 1
-        ? criteriaGroupSectionFilters.get(0)
-        : new BooleanAndOrFilter(
-            BooleanAndOrFilter.LogicalOperator.AND, criteriaGroupSectionFilters);
+    return sectionFilters.size() == 1
+        ? sectionFilters.get(0)
+        : new BooleanAndOrFilter(LogicalOperator.AND, sectionFilters);
+  }
+
+  public EntityFilter buildFilterForCohortRevision(
+      String underlayName, CohortRevision cohortRevision) {
+    return buildFilterForCriteriaGroupSections(underlayName, cohortRevision.getSections());
   }
 
   public EntityFilter buildFilterForCohortRevisions(
       String underlayName, List<CohortRevision> cohortRevisions) {
-    List<EntityFilter> cohortRevisionFilters = new ArrayList<>();
-    cohortRevisions.forEach(
-        cohortRevision -> {
-          EntityFilter entityFilter = buildFilterForCohortRevision(underlayName, cohortRevision);
-          if (entityFilter != null) {
-            cohortRevisionFilters.add(entityFilter);
-          }
-        });
+    List<EntityFilter> cohortRevisionFilters =
+        cohortRevisions.stream()
+            .map(revision -> buildFilterForCohortRevision(underlayName, revision))
+            .filter(Objects::nonNull)
+            .toList();
     if (cohortRevisionFilters.isEmpty()) {
       return null;
     } else if (cohortRevisionFilters.size() == 1) {
       return cohortRevisionFilters.get(0);
     } else {
-      return new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, cohortRevisionFilters);
+      return new BooleanAndOrFilter(LogicalOperator.OR, cohortRevisionFilters);
     }
   }
 
@@ -355,7 +352,7 @@ public class FilterBuilderService {
             entityOutput =
                 EntityOutput.filtered(
                     outputEntity,
-                    new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, filters),
+                    new BooleanAndOrFilter(LogicalOperator.OR, filters),
                     includeAttributes);
           }
 
@@ -480,8 +477,7 @@ public class FilterBuilderService {
         return outputEntityFilter == null
             ? wrappedPrimaryEntityFilter
             : new BooleanAndOrFilter(
-                BooleanAndOrFilter.LogicalOperator.AND,
-                List.of(outputEntityFilter, wrappedPrimaryEntityFilter));
+                LogicalOperator.AND, List.of(outputEntityFilter, wrappedPrimaryEntityFilter));
       default:
         throw new SystemException(
             "Unsupported entity group type: " + outputToPrimaryEntityGroup.getType());

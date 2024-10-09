@@ -12,9 +12,11 @@ import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.JoinOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ReducingOperator;
 import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
@@ -23,6 +25,8 @@ import bio.terra.tanagra.generated.model.ApiAttributeFilter;
 import bio.terra.tanagra.generated.model.ApiBinaryOperator;
 import bio.terra.tanagra.generated.model.ApiBooleanLogicFilter;
 import bio.terra.tanagra.generated.model.ApiCriteria;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
+import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGroupHasItemsFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
@@ -33,8 +37,10 @@ import bio.terra.tanagra.generated.model.ApiPrimaryWithCriteriaFilter;
 import bio.terra.tanagra.generated.model.ApiQuery;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeHierarchyFields;
 import bio.terra.tanagra.generated.model.ApiQueryIncludeRelationshipFields;
+import bio.terra.tanagra.generated.model.ApiReducingOperator;
 import bio.terra.tanagra.generated.model.ApiRelationshipFilter;
 import bio.terra.tanagra.generated.model.ApiTextFilter;
+import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
@@ -508,6 +514,69 @@ public final class FromApiUtils {
     return Optional.empty();
   }
 
+  public static CohortRevision.CriteriaGroupSection fromApiObject(ApiCriteriaGroupSection apiObj) {
+    BooleanAndOrFilter.LogicalOperator operator;
+    JoinOperator joinOperator;
+    switch (apiObj.getOperator()) {
+      case OR:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = null;
+        break;
+      case AND:
+        operator = BooleanAndOrFilter.LogicalOperator.AND;
+        joinOperator = null;
+        break;
+      case DURING_SAME_ENCOUNTER:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.DURING_SAME_ENCOUNTER;
+        break;
+      case WITHIN_NUM_DAYS:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.WITHIN_NUM_DAYS;
+        break;
+      case NUM_DAYS_BEFORE:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.NUM_DAYS_BEFORE;
+        break;
+      case NUM_DAYS_AFTER:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.NUM_DAYS_AFTER;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "Unknown criteria group section operator: " + apiObj.getOperator());
+    }
+
+    return CohortRevision.CriteriaGroupSection.builder()
+        .id(apiObj.getId())
+        .displayName(apiObj.getDisplayName())
+        .criteriaGroups(
+            apiObj.getCriteriaGroups().stream()
+                .map(FromApiUtils::fromApiObject)
+                .collect(Collectors.toList()))
+        .secondConditionCriteriaGroups(
+            apiObj.getSecondBlockCriteriaGroups().stream()
+                .map(FromApiUtils::fromApiObject)
+                .collect(Collectors.toList()))
+        .operator(operator)
+        .firstConditionReducingOperator(fromApiObject(apiObj.getFirstBlockReducingOperator()))
+        .secondConditionReducingOperator(fromApiObject(apiObj.getSecondBlockReducingOperator()))
+        .joinOperator(joinOperator)
+        .joinOperatorValue(apiObj.getOperatorValue())
+        .setIsExcluded(apiObj.isExcluded())
+        .setIsDisabled(apiObj.isDisabled())
+        .build();
+  }
+
+  public static CohortRevision.CriteriaGroup fromApiObject(ApiCriteriaGroup apiObj) {
+    return CohortRevision.CriteriaGroup.builder()
+        .id(apiObj.getId())
+        .displayName(apiObj.getDisplayName())
+        .criteria(apiObj.getCriteria().stream().map(FromApiUtils::fromApiObject).toList())
+        .isDisabled(apiObj.isDisabled())
+        .build();
+  }
+
   public static Criteria fromApiObject(ApiCriteria apiObj) {
     return Criteria.builder()
         .id(apiObj.getId())
@@ -520,5 +589,14 @@ public final class FromApiUtils {
         .selectionData(apiObj.getSelectionData())
         .tags(apiObj.getTags())
         .build();
+  }
+
+  public static ReducingOperator fromApiObject(ApiReducingOperator apiObj) {
+    return switch (apiObj) {
+      case ANY -> null;
+      case FIRST_MENTION_OF -> ReducingOperator.FIRST_MENTION_OF;
+      case LAST_MENTION_OF -> ReducingOperator.LAST_MENTION_OF;
+      default -> throw new IllegalArgumentException("Unknown reducing operator: " + apiObj);
+    };
   }
 }

@@ -22,6 +22,7 @@ import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.UnderlaysApi;
 import bio.terra.tanagra.generated.model.ApiCountQuery;
+import bio.terra.tanagra.generated.model.ApiCriteriaCountQuery;
 import bio.terra.tanagra.generated.model.ApiDisplayHint;
 import bio.terra.tanagra.generated.model.ApiDisplayHintDisplayHint;
 import bio.terra.tanagra.generated.model.ApiDisplayHintEnum;
@@ -43,6 +44,7 @@ import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.artifact.model.CohortRevision.CriteriaGroupSection;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.ClientConfig;
 import bio.terra.tanagra.underlay.Underlay;
@@ -259,6 +261,47 @@ public class UnderlaysApiController implements UnderlaysApi {
                 hintQueryResult.getHintInstances().stream()
                     .map(this::toApiObject)
                     .collect(Collectors.toList())));
+  }
+
+  @Override
+  public ResponseEntity<ApiInstanceCountList> queryCriteriaCounts(
+      String underlayName, ApiCriteriaCountQuery body) {
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(UNDERLAY, READ),
+        ResourceId.forUnderlay(underlayName));
+
+    // Build the entity filter.
+    List<CriteriaGroupSection> criteriaGroupSections =
+        body.getCriteriaGroupSections().stream().map(FromApiUtils::fromApiObject).toList();
+    EntityFilter criteriaFilter =
+        filterBuilderService.buildFilterForCriteriaGroupSections(
+            underlayName, criteriaGroupSections);
+
+    Underlay underlay = underlayService.getUnderlay(underlayName);
+    Entity outputEntity =
+        body.getEntity() == null
+            ? underlay.getPrimaryEntity()
+            : underlay.getEntity(body.getEntity());
+    EntityFilter outputEntityFilteredOnCriteria =
+        filterBuilderService.filterOutputByPrimaryEntity(
+            underlay, outputEntity, null, criteriaFilter);
+
+    // Run the count query and map the results back to API objects.
+    CountQueryResult countQueryResult =
+        underlayService.runCountQuery(
+            underlay,
+            outputEntity,
+            body.getCountDistinctAttribute(),
+            body.getGroupByAttributes(),
+            outputEntityFilteredOnCriteria,
+            body.getOrderByDirection() == null
+                ? OrderByDirection.DESCENDING
+                : OrderByDirection.valueOf(body.getOrderByDirection().name()),
+            body.getLimit(),
+            PageMarker.deserialize(body.getPageMarker()),
+            body.getPageSize());
+    return ResponseEntity.ok(ToApiUtils.toApiObject(countQueryResult));
   }
 
   private ApiUnderlaySerializedConfiguration toApiObject(ClientConfig clientConfig) {

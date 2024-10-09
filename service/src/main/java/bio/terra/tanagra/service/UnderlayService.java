@@ -19,7 +19,6 @@ import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.serialization.*;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +103,7 @@ public class UnderlayService {
       Underlay underlay,
       Entity entity,
       @Nullable String countDistinctAttributeName,
-      List<String> groupByAttributeNames,
+      @Nullable List<String> groupByAttributeNames,
       EntityFilter entityFilter,
       OrderByDirection orderByDirection,
       Integer limit,
@@ -124,11 +123,16 @@ public class UnderlayService {
     }
 
     // Build the attribute fields for select and group by.
-    List<ValueDisplayField> attributeFields = new ArrayList<>();
-    groupByAttributeNames.forEach(
-        attributeName ->
-            attributeFields.add(
-                new AttributeField(underlay, entity, entity.getAttribute(attributeName), false)));
+    List<ValueDisplayField> attributeFields =
+        (groupByAttributeNames != null)
+            ? groupByAttributeNames.stream()
+                .map(
+                    attributeName ->
+                        (ValueDisplayField)
+                            new AttributeField(
+                                underlay, entity, entity.getAttribute(attributeName), false))
+                .toList()
+            : List.of();
 
     CountQueryRequest countQueryRequest =
         new CountQueryRequest(

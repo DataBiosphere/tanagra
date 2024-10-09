@@ -240,6 +240,31 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/underlays/{underlayName}/criteriaCounts":
+    parameters:
+      - $ref: "#/components/parameters/UnderlayName"
+    post:
+      summary: Run a count query for a search criteria
+      operationId: queryCriteriaCounts
+      tags: [Underlays]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CriteriaCountQuery"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceCountList"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   # --------------- Studies ---------------
 
   "/v2/studies":
@@ -1438,6 +1463,10 @@ components:
           items:
             $ref: "#/components/schemas/Entity"
 
+    EntityToCount:
+      description: Entity to count. Defaults to primary entity.
+      type: string
+
     Attribute:
       type: object
       description: Entity attribute
@@ -1632,6 +1661,31 @@ components:
             id:
               $ref: "#/components/schemas/Literal"
 
+    CriteriaCountQuery:
+      type: object
+      description: Count output entity instances for a search criteria
+      required: [groupByAttributes, criteriaGroupSections]
+      properties:
+        criteriaGroupSections:
+          type: array
+          description: Criteria group sections that define the entity filter
+          items:
+            $ref: "#/components/schemas/CriteriaGroupSection"
+        entity:
+          $ref: "#/components/schemas/EntityToCount"
+        countDistinctAttribute:
+          $ref: "#/components/schemas/CountDistinctAttribute"
+        groupByAttributes:
+          $ref: "#/components/schemas/GroupByAttributes"
+        orderByDirection:
+          $ref: "#/components/schemas/OrderByDirection"
+        limit:
+          type: integer
+        pageSize:
+          $ref: "#/components/schemas/PageSize"
+        pageMarker:
+          $ref: "#/components/schemas/PageMarker"
+
     CohortCountQuery:
       type: object
       description: Count output entity instances for a cohort filter
@@ -1641,20 +1695,11 @@ components:
         criteriaGroupId:
           type: string
         entity:
-          description: Entity to count. Defaults to primary entity.
-          type: string
+          $ref: "#/components/schemas/EntityToCount"
         countDistinctAttribute:
-          description: |
-            Attribute to count (e.g. person_id will return counts for the number of distinct person_ids 
-            per group by combination). Defaults to id attribute.
-          type: string
+          $ref: "#/components/schemas/CountDistinctAttribute"
         groupByAttributes:
-          description: |
-            Attributes to group by. One count will be returned for each possible combination of attribute values 
-            (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
-          type: array
-          items:
-            type: string
+          $ref: "#/components/schemas/GroupByAttributes"
         orderByDirection:
           $ref: "#/components/schemas/OrderByDirection"
         limit:
@@ -1956,6 +2001,20 @@ components:
           enum: ["EQUALS", "NOT_EQUALS", "LESS_THAN", "GREATER_THAN"]
         value:
           $ref: "#/components/schemas/Literal"
+
+    CountDistinctAttribute:
+      description: |
+        Attribute to count (e.g. person_id will return counts for the number of distinct person_ids 
+        per group by combination). Defaults to id attribute.
+      type: string
+
+    GroupByAttributes:
+      description: |
+        Attributes to group by. One count will be returned for each possible combination of attribute values 
+        (e.g. [gender, hair_color] will return counts for man+red, man+black, woman+red, woman+black).
+      type: array
+      items:
+        type: string
 
     OrderByDirection:
       type: string

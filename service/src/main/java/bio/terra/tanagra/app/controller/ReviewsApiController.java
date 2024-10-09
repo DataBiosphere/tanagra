@@ -328,6 +328,6 @@ public class ReviewsApiController implements ReviewsApi {
                 .criteriaGroupSections(
                     review.getRevision().getSections().stream()
                         .map(ToApiUtils::toApiObject)
-                        .collect(Collectors.toList())));
+                        .toList()));
   }
 }

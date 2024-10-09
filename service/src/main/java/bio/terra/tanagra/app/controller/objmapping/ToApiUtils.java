@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class ToApiUtils {
   private ToApiUtils() {}
@@ -103,7 +102,7 @@ public final class ToApiUtils {
         .criteriaGroupSections(
             cohort.getMostRecentRevision().getSections().stream()
                 .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()));
+                .toList());
   }
 
   public static ApiCriteriaGroupSection toApiObject(
@@ -119,13 +118,11 @@ public final class ToApiUtils {
         .id(criteriaGroupSection.getId())
         .displayName(criteriaGroupSection.getDisplayName())
         .criteriaGroups(
-            criteriaGroupSection.getCriteriaGroups().stream()
-                .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()))
+            criteriaGroupSection.getCriteriaGroups().stream().map(ToApiUtils::toApiObject).toList())
         .secondBlockCriteriaGroups(
             criteriaGroupSection.getSecondConditionCriteriaGroups().stream()
                 .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()))
+                .toList())
         .operator(operator)
         .operatorValue(criteriaGroupSection.getJoinOperatorValue())
         .firstBlockReducingOperator(
@@ -146,10 +143,7 @@ public final class ToApiUtils {
     return new ApiCriteriaGroup()
         .id(criteriaGroup.getId())
         .displayName(criteriaGroup.getDisplayName())
-        .criteria(
-            criteriaGroup.getCriteria().stream()
-                .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()))
+        .criteria(criteriaGroup.getCriteria().stream().map(ToApiUtils::toApiObject).toList())
         .disabled(criteriaGroup.isDisabled());
   }
 
@@ -169,9 +163,7 @@ public final class ToApiUtils {
   public static ApiInstanceListResult toApiObject(ListQueryResult listQueryResult) {
     return new ApiInstanceListResult()
         .instances(
-            listQueryResult.getListInstances().stream()
-                .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()))
+            listQueryResult.getListInstances().stream().map(ToApiUtils::toApiObject).toList())
         .sql(SqlFormatter.format(listQueryResult.getSqlNoParams()))
         .pageMarker(
             listQueryResult.getPageMarker() == null
@@ -247,9 +239,7 @@ public final class ToApiUtils {
   public static ApiInstanceCountList toApiObject(CountQueryResult countQueryResult) {
     return new ApiInstanceCountList()
         .instanceCounts(
-            countQueryResult.getCountInstances().stream()
-                .map(ToApiUtils::toApiObject)
-                .collect(Collectors.toList()))
+            countQueryResult.getCountInstances().stream().map(ToApiUtils::toApiObject).toList())
         .sql(SqlFormatter.format(countQueryResult.getSql()))
         .pageMarker(
             countQueryResult.getPageMarker() == null
