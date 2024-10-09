@@ -19,7 +19,6 @@ import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.ReviewsApi;
 import bio.terra.tanagra.generated.model.ApiAnnotationValue;
 import bio.terra.tanagra.generated.model.ApiCohort;
-import bio.terra.tanagra.generated.model.ApiCriteriaGroupSectionList;
 import bio.terra.tanagra.generated.model.ApiInstanceCountList;
 import bio.terra.tanagra.generated.model.ApiReview;
 import bio.terra.tanagra.generated.model.ApiReviewCountQuery;
@@ -327,9 +326,8 @@ public class ReviewsApiController implements ReviewsApi {
                 .createdBy(cohort.getCreatedBy())
                 .lastModified(cohort.getLastModified())
                 .criteriaGroupSections(
-                    (ApiCriteriaGroupSectionList)
-                        review.getRevision().getSections().stream()
-                            .map(ToApiUtils::toApiObject)
-                            .toList()));
+                    review.getRevision().getSections().stream()
+                        .map(ToApiUtils::toApiObject)
+                        .toList()));
   }
 }
