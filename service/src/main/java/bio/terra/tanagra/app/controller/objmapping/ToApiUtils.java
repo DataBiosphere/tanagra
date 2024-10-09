@@ -100,9 +100,10 @@ public final class ToApiUtils {
         .createdBy(cohort.getCreatedBy())
         .lastModified(cohort.getLastModified())
         .criteriaGroupSections(
-            cohort.getMostRecentRevision().getSections().stream()
-                .map(ToApiUtils::toApiObject)
-                .toList());
+            (ApiCriteriaGroupSectionList)
+                cohort.getMostRecentRevision().getSections().stream()
+                    .map(ToApiUtils::toApiObject)
+                    .toList());
   }
 
   public static ApiCriteriaGroupSection toApiObject(
