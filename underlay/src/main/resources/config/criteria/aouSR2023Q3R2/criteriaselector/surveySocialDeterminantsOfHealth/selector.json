@@ -9,8 +9,8 @@
       "Standard Codes"
     ]
   },
-  "filterBuilder": "core.EntityGroupFilterBuilder",
-  "plugin": "entityGroup",
+  "filterBuilder": "core.SurveyFilterBuilder",
+  "plugin": "survey",
   "pluginConfig": null,
   "pluginConfigFile": "surveySocialDeterminantsOfHealth.json",
   "modifiers": []
