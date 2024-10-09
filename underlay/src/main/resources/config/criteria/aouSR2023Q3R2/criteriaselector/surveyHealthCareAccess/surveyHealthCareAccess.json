@@ -26,19 +26,7 @@
       "title": "Count"
     }
   ],
-  "hierarchyColumns": [
-    {
-      "key": "name",
-      "widthString": "60%",
-      "title": "Name"
-    },
-    {
-      "key": "t_rollup_count",
-      "widthString": "40%",
-      "title": "Count"
-    }
-  ],
-  "classificationEntityGroups": [
+  "entityGroups": [
     {
       "id": "surveyHealthCareAccessPerson",
       "sortOrder": {
@@ -47,7 +35,6 @@
       }
     }
   ],
-  "multiSelect": false,
   "valueConfigs": [
     {
       "attribute": "value_numeric",
