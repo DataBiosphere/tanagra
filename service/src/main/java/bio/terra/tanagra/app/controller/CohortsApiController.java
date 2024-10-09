@@ -8,7 +8,6 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
@@ -119,7 +118,7 @@ public class CohortsApiController implements CohortsApi {
         ResourceId.forCohort(studyId, cohortId));
     List<CohortRevision.CriteriaGroupSection> sections =
         body.getCriteriaGroupSections().stream()
-            .map(CohortsApiController::fromApiObject)
+            .map(FromApiUtils::fromApiObject)
             .collect(Collectors.toList());
     Cohort updatedCohort =
         cohortService.updateCohort(
@@ -220,80 +219,5 @@ public class CohortsApiController implements CohortsApi {
             PageMarker.deserialize(body.getPageMarker()),
             body.getPageSize());
     return ResponseEntity.ok(ToApiUtils.toApiObject(countQueryResult));
-  }
-
-  private static CohortRevision.CriteriaGroupSection fromApiObject(ApiCriteriaGroupSection apiObj) {
-    BooleanAndOrFilter.LogicalOperator operator;
-    JoinOperator joinOperator;
-    switch (apiObj.getOperator()) {
-      case OR:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = null;
-        break;
-      case AND:
-        operator = BooleanAndOrFilter.LogicalOperator.AND;
-        joinOperator = null;
-        break;
-      case DURING_SAME_ENCOUNTER:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.DURING_SAME_ENCOUNTER;
-        break;
-      case WITHIN_NUM_DAYS:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.WITHIN_NUM_DAYS;
-        break;
-      case NUM_DAYS_BEFORE:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.NUM_DAYS_BEFORE;
-        break;
-      case NUM_DAYS_AFTER:
-        operator = BooleanAndOrFilter.LogicalOperator.OR;
-        joinOperator = JoinOperator.NUM_DAYS_AFTER;
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "Unknown criteria group section operator: " + apiObj.getOperator());
-    }
-
-    return CohortRevision.CriteriaGroupSection.builder()
-        .id(apiObj.getId())
-        .displayName(apiObj.getDisplayName())
-        .criteriaGroups(
-            apiObj.getCriteriaGroups().stream()
-                .map(CohortsApiController::fromApiObject)
-                .collect(Collectors.toList()))
-        .secondConditionCriteriaGroups(
-            apiObj.getSecondBlockCriteriaGroups().stream()
-                .map(CohortsApiController::fromApiObject)
-                .collect(Collectors.toList()))
-        .operator(operator)
-        .firstConditionReducingOperator(fromApiObject(apiObj.getFirstBlockReducingOperator()))
-        .secondConditionReducingOperator(fromApiObject(apiObj.getSecondBlockReducingOperator()))
-        .joinOperator(joinOperator)
-        .joinOperatorValue(apiObj.getOperatorValue())
-        .setIsExcluded(apiObj.isExcluded())
-        .setIsDisabled(apiObj.isDisabled())
-        .build();
-  }
-
-  private static CohortRevision.CriteriaGroup fromApiObject(ApiCriteriaGroup apiObj) {
-    return CohortRevision.CriteriaGroup.builder()
-        .id(apiObj.getId())
-        .displayName(apiObj.getDisplayName())
-        .criteria(
-            apiObj.getCriteria().stream()
-                .map(FromApiUtils::fromApiObject)
-                .collect(Collectors.toList()))
-        .isDisabled(apiObj.isDisabled())
-        .build();
-  }
-
-  private static ReducingOperator fromApiObject(ApiReducingOperator apiObj) {
-    return switch (apiObj) {
-      case ANY -> null;
-      case FIRST_MENTION_OF -> ReducingOperator.FIRST_MENTION_OF;
-      case LAST_MENTION_OF -> ReducingOperator.LAST_MENTION_OF;
-      default -> throw new IllegalArgumentException("Unknown reducing operator: " + apiObj);
-    };
   }
 }

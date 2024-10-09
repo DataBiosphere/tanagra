@@ -27,7 +27,6 @@ import bio.terra.tanagra.generated.model.ApiBooleanLogicFilter;
 import bio.terra.tanagra.generated.model.ApiCriteria;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroup;
 import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection;
-import bio.terra.tanagra.generated.model.ApiCriteriaGroupSection.OperatorEnum;
 import bio.terra.tanagra.generated.model.ApiFilter;
 import bio.terra.tanagra.generated.model.ApiGroupHasItemsFilter;
 import bio.terra.tanagra.generated.model.ApiHierarchyFilter;
@@ -516,18 +515,53 @@ public final class FromApiUtils {
   }
 
   public static CohortRevision.CriteriaGroupSection fromApiObject(ApiCriteriaGroupSection apiObj) {
+    BooleanAndOrFilter.LogicalOperator operator;
+    JoinOperator joinOperator;
+    switch (apiObj.getOperator()) {
+      case OR:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = null;
+        break;
+      case AND:
+        operator = BooleanAndOrFilter.LogicalOperator.AND;
+        joinOperator = null;
+        break;
+      case DURING_SAME_ENCOUNTER:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.DURING_SAME_ENCOUNTER;
+        break;
+      case WITHIN_NUM_DAYS:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.WITHIN_NUM_DAYS;
+        break;
+      case NUM_DAYS_BEFORE:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.NUM_DAYS_BEFORE;
+        break;
+      case NUM_DAYS_AFTER:
+        operator = BooleanAndOrFilter.LogicalOperator.OR;
+        joinOperator = JoinOperator.NUM_DAYS_AFTER;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "Unknown criteria group section operator: " + apiObj.getOperator());
+    }
+
     return CohortRevision.CriteriaGroupSection.builder()
         .id(apiObj.getId())
         .displayName(apiObj.getDisplayName())
         .criteriaGroups(
-            apiObj.getCriteriaGroups().stream().map(FromApiUtils::fromApiObject).toList())
-        .firstConditionReducingOperator(fromApiObject(apiObj.getFirstBlockReducingOperator()))
+            apiObj.getCriteriaGroups().stream()
+                .map(FromApiUtils::fromApiObject)
+                .collect(Collectors.toList()))
         .secondConditionCriteriaGroups(
             apiObj.getSecondBlockCriteriaGroups().stream()
                 .map(FromApiUtils::fromApiObject)
-                .toList())
+                .collect(Collectors.toList()))
+        .operator(operator)
+        .firstConditionReducingOperator(fromApiObject(apiObj.getFirstBlockReducingOperator()))
         .secondConditionReducingOperator(fromApiObject(apiObj.getSecondBlockReducingOperator()))
-        .joinOperator(fromApiObject(apiObj.getOperator()))
+        .joinOperator(joinOperator)
         .joinOperatorValue(apiObj.getOperatorValue())
         .setIsExcluded(apiObj.isExcluded())
         .setIsDisabled(apiObj.isDisabled())
@@ -558,10 +592,11 @@ public final class FromApiUtils {
   }
 
   public static ReducingOperator fromApiObject(ApiReducingOperator apiObj) {
-    return apiObj != null ? ReducingOperator.valueOf(apiObj.name()) : null;
-  }
-
-  public static JoinOperator fromApiObject(OperatorEnum apiObj) {
-    return apiObj != null ? JoinOperator.valueOf(apiObj.name()) : null;
+    return switch (apiObj) {
+      case ANY -> null;
+      case FIRST_MENTION_OF -> ReducingOperator.FIRST_MENTION_OF;
+      case LAST_MENTION_OF -> ReducingOperator.LAST_MENTION_OF;
+      default -> throw new IllegalArgumentException("Unknown reducing operator: " + apiObj);
+    };
   }
 }
