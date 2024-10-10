@@ -1620,7 +1620,8 @@ components:
     HintQuery:
       type: object
       description: |
-        Get display hints. Only one of relatedEntity and entityQuery may be provided
+        Get display hints. Only one of relatedEntity and query may be provided. 
+        Use the query field to generate hints for the entity based on a filter.
       properties:
         relatedEntity:
           description: |
@@ -1635,7 +1636,7 @@ components:
               description: Related entity name
             id:
               $ref: "#/components/schemas/Literal"
-        entityQuery:
+        query:
           $ref: "#/components/schemas/Query"
 
     CohortCountQuery:
