@@ -30,6 +30,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { SaveStatus } from "components/saveStatus";
+import { useSimpleDialog } from "components/simpleDialog";
 import { useTextInputDialog } from "components/textInputDialog";
 import {
   Group,
@@ -65,6 +66,8 @@ import { RouterLink, useNavigate } from "util/searchState";
 import { isValid } from "util/valid";
 
 export function Overview() {
+  const studySource = useStudySource();
+  const studyId = useStudyId();
   const context = useCohortContext();
   const cohort = useCohort();
   const backendCohort = useBackendCohort();
@@ -72,6 +75,7 @@ export function Overview() {
   const exit = useExitAction();
 
   const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
+  const [confirmDialog, showConfirmDialog] = useSimpleDialog();
 
   return (
     <GridLayout rows>
@@ -87,21 +91,40 @@ export function Overview() {
           </GridLayout>
         }
         titleControls={
-          <IconButton
-            onClick={() =>
-              showRenameTitleDialog({
-                title: "Editing cohort name",
-                initialText: cohort.name,
-                textLabel: "Cohort name",
-                buttonLabel: "Update",
-                onConfirm: (name: string) => {
-                  updateCohort(context, name);
-                },
-              })
-            }
-          >
-            <EditIcon />
-          </IconButton>
+          <GridLayout cols>
+            <IconButton
+              onClick={() =>
+                showRenameTitleDialog({
+                  title: "Editing cohort name",
+                  initialText: cohort.name,
+                  textLabel: "Cohort name",
+                  buttonLabel: "Update",
+                  onConfirm: (name: string) => {
+                    updateCohort(context, name);
+                  },
+                })
+              }
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              onClick={() =>
+                showConfirmDialog({
+                  title: `Delete ${cohort.name}?`,
+                  text: `Are you sure you want to delete "${cohort.name}"? This action is permanent.`,
+                  buttons: ["Cancel", "Delete"],
+                  onButton: async (button) => {
+                    if (button === 1) {
+                      await studySource.deleteCohort(studyId, cohort.id);
+                      exit();
+                    }
+                  },
+                })
+              }
+            >
+              <DeleteIcon />
+            </IconButton>
+          </GridLayout>
         }
         rightControls={<UndoRedoToolbar />}
         backAction={exit}
@@ -135,6 +158,7 @@ export function Overview() {
             }
           />
           {renameTitleDialog}
+          {confirmDialog}
         </GridBox>
         <GridBox sx={{ pt: 3 }}>
           <Paper
