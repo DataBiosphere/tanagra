@@ -52,6 +52,7 @@ function newSectionInternal(
     operatorValue: 3,
     firstBlockReducingOperator: GroupSectionReducingOperator.Any,
     secondBlockReducingOperator: GroupSectionReducingOperator.Any,
+    disabled: false,
   };
 }
 
@@ -72,6 +73,7 @@ export function defaultGroup(criteria: Criteria): Group {
     id: criteria.id,
     // TODO: **************** Is this necessary?
     entity: "",
+    disabled: false,
     criteria: [criteria],
   };
 }

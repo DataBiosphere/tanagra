@@ -1,6 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import TuneIcon from "@mui/icons-material/Tune";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -23,6 +24,7 @@ import {
   insertCohortCriteriaModifier,
   insertCohortGroupSection,
   updateCohort,
+  updateCohortGroup,
   updateCohortGroupSection,
   useCohortContext,
 } from "cohortContext";
@@ -228,7 +230,7 @@ function ParticipantsGroupSection(props: {
   );
 
   const fetchSectionCount = useCallback(async () => {
-    if (!backendGroupSection?.groups?.length) {
+    if (!backendGroupSection?.groups?.length || backendGroupSection?.disabled) {
       return -1;
     }
 
@@ -503,6 +505,8 @@ function ParticipantsGroupSection(props: {
         {combinedGroups.length !== 0 || cohort.groupSections.length > 1 ? (
           <GridLayout
             cols
+            fillCol={0}
+            spacing={2}
             colAlign="right"
             height="auto"
             sx={{
@@ -510,6 +514,22 @@ function ParticipantsGroupSection(props: {
               boxShadow: (theme) => `inset 0 1px 0 ${theme.palette.divider}`,
             }}
           >
+            <Tooltip title="Disabled groups are ignored for export and participant counts">
+              <Button
+                color={props.groupSection.disabled ? "warning" : undefined}
+                variant={props.groupSection.disabled ? "contained" : undefined}
+                startIcon={<FilterListOffIcon />}
+                onClick={() => {
+                  updateCohortGroupSection(context, props.groupSection.id, {
+                    disabled: !props.groupSection.disabled,
+                  });
+                }}
+              >
+                {props.groupSection.disabled
+                  ? "Group is disabled"
+                  : "Disable group"}
+              </Button>
+            </Tooltip>
             <Button
               color="error"
               variant="outlined"
@@ -682,7 +702,7 @@ function ParticipantsGroup(props: {
   );
 
   const fetchGroupCount = useCallback(async () => {
-    if (!backendGroup || !backendGroupSection) {
+    if (!backendGroup || !backendGroupSection || backendGroup.disabled) {
       return undefined;
     }
 
@@ -838,26 +858,26 @@ function ParticipantsGroup(props: {
                 {title}
               </Typography>
             </GridBox>
-            {selected ? (
-              <GridBox
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onMouseUp={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                {!!plugin.renderEdit ? (
-                  <IconButton
-                    data-testid={title}
-                    onClick={() => navigate(criteriaURL())}
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                ) : (
-                  <GridBox />
-                )}
+            <GridBox
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onMouseUp={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              {selected && !!plugin.renderEdit ? (
+                <IconButton
+                  data-testid={title}
+                  onClick={() => navigate(criteriaURL())}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              ) : (
+                <GridBox />
+              )}
+              {selected ? (
                 <IconButton
                   onClick={() => {
                     deleteCohortGroup(
@@ -869,18 +889,50 @@ function ParticipantsGroup(props: {
                 >
                   <DeleteIcon fontSize="small" />
                 </IconButton>
-                {hasModifiers ? (
-                  <Button
-                    startIcon={<TuneIcon fontSize="small" />}
-                    onClick={showMenu}
+              ) : null}
+              {selected && hasModifiers ? (
+                <Button
+                  startIcon={<TuneIcon fontSize="small" />}
+                  onClick={showMenu}
+                >
+                  Modifiers
+                </Button>
+              ) : undefined}
+              {selected || props.group.disabled ? (
+                <Tooltip title="Disabled criteria are ignored for export and participant counts">
+                  <IconButton
+                    sx={
+                      props.group.disabled
+                        ? {
+                            "&.MuiIconButton-root": {
+                              backgroundColor: (theme) =>
+                                theme.palette.warning.main,
+                              color: (theme) =>
+                                theme.palette.warning.contrastText,
+                            },
+                            "&.MuiIconButton-root:hover": {
+                              backgroundColor: (theme) =>
+                                theme.palette.warning.dark,
+                            },
+                          }
+                        : undefined
+                    }
+                    onClick={() => {
+                      updateCohortGroup(
+                        context,
+                        props.groupSection.id,
+                        props.group.id,
+                        {
+                          disabled: !props.group.disabled,
+                        }
+                      );
+                    }}
                   >
-                    Modifiers
-                  </Button>
-                ) : undefined}
-              </GridBox>
-            ) : (
-              <GridBox />
-            )}
+                    <FilterListOffIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              ) : null}
+            </GridBox>
             <GridBox />
             <Loading status={groupCountState} size="small">
               <Typography

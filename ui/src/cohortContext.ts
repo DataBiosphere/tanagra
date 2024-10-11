@@ -2,6 +2,7 @@ import { defaultGroup, getCriteriaTitle, newSection } from "cohort";
 import {
   Cohort,
   Criteria,
+  GroupSection,
   GroupSectionFilter,
   GroupSectionReducingOperator,
 } from "data/source";
@@ -195,18 +196,11 @@ export function insertCohortCriteria(
   );
 
   context.updatePresent((present, showSnackbar) => {
-    const sectionIndex = present.groupSections.findIndex(
-      (section) => section.id === sectionId
+    const [section, sectionIndex] = findGroupSectionAndIndex(
+      present,
+      sectionId
     );
-    if (sectionIndex < 0) {
-      throw new Error(
-        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
 
-    const section = present.groupSections[sectionIndex];
     (secondBlock ? section.secondBlockGroups : section.groups).push(...groups);
 
     let title = `${groups.length} criteria`;
@@ -227,27 +221,8 @@ export function insertCohortCriteriaModifier(
   criteria: Criteria
 ) {
   context.updatePresent((present) => {
-    const section = present.groupSections.find(
-      (section) => section.id === sectionId
-    );
-    if (!section) {
-      throw new Error(
-        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
-
-    const group =
-      section.groups.find((g) => g.id === groupId) ??
-      section.secondBlockGroups.find((g) => g.id === groupId);
-    if (!group) {
-      throw new Error(
-        `Group ${groupId} does not exist on group section ${JSON.stringify(
-          section
-        )}.`
-      );
-    }
+    const [section] = findGroupSectionAndIndex(present, sectionId);
+    const group = findGroup(section, groupId);
 
     group.criteria.push(criteria);
   });
@@ -260,27 +235,8 @@ export function deleteCohortCriteriaModifier(
   criteriaId: string
 ) {
   context.updatePresent((present) => {
-    const section = present.groupSections.find(
-      (section) => section.id === sectionId
-    );
-    if (!section) {
-      throw new Error(
-        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
-
-    const group =
-      section.groups.find((g) => g.id === groupId) ??
-      section.secondBlockGroups.find((g) => g.id === groupId);
-    if (!group) {
-      throw new Error(
-        `Group ${groupId} does not exist on group section ${JSON.stringify(
-          section
-        )}.`
-      );
-    }
+    const [section] = findGroupSectionAndIndex(present, sectionId);
+    const group = findGroup(section, groupId);
 
     group.criteria = group.criteria.filter((c) => c.id != criteriaId);
   });
@@ -294,27 +250,8 @@ export function updateCohortCriteria(
   criteriaId?: string
 ) {
   context.updatePresent((present) => {
-    const section = present.groupSections.find(
-      (section) => section.id === sectionId
-    );
-    if (!section) {
-      throw new Error(
-        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
-
-    const group =
-      section.groups.find((g) => g.id === groupId) ??
-      section.secondBlockGroups.find((g) => g.id === groupId);
-    if (!group) {
-      throw new Error(
-        `Group ${groupId} does not exist on group section ${JSON.stringify(
-          section
-        )}.`
-      );
-    }
+    const [section] = findGroupSectionAndIndex(present, sectionId);
+    const group = findGroup(section, groupId);
 
     const index = group.criteria.findIndex((c) => c.id === criteriaId);
     group.criteria[Math.max(0, index ?? 0)].data = data;
@@ -327,16 +264,7 @@ export function deleteCohortGroup(
   groupId: string
 ) {
   context.updatePresent((present) => {
-    const section = present.groupSections.find(
-      (section) => section.id === sectionId
-    );
-    if (!section) {
-      throw new Error(
-        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
+    const [section] = findGroupSectionAndIndex(present, sectionId);
 
     let groups = section.groups;
     let index = groups.findIndex((g) => g.id === groupId);
@@ -376,18 +304,9 @@ export function deleteCohortGroupSection(
       return;
     }
 
-    const index = present.groupSections.findIndex(
-      (section) => section.id === sectionId
-    );
-    if (index === -1) {
-      throw new Error(
-        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
+    const [, sectionIndex] = findGroupSectionAndIndex(present, sectionId);
 
-    present.groupSections.splice(index, 1);
+    present.groupSections.splice(sectionIndex, 1);
   });
 }
 
@@ -397,6 +316,7 @@ export type UpdateCohortGroupSectionParams = {
   operatorValue?: number;
   firstBlockReducingOperator?: GroupSectionReducingOperator;
   secondBlockReducingOperator?: GroupSectionReducingOperator;
+  disabled?: boolean;
 };
 
 export function updateCohortGroupSection(
@@ -405,16 +325,7 @@ export function updateCohortGroupSection(
   params: UpdateCohortGroupSectionParams
 ) {
   context.updatePresent((present) => {
-    const section = present.groupSections.find(
-      (section) => section.id === sectionId
-    );
-    if (!section) {
-      throw new Error(
-        `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
-          present
-        )}.`
-      );
-    }
+    const [section] = findGroupSectionAndIndex(present, sectionId);
 
     section.name = params.name ?? section.name;
     section.filter = params.filter ?? section.filter;
@@ -423,6 +334,25 @@ export function updateCohortGroupSection(
       params.firstBlockReducingOperator ?? section.firstBlockReducingOperator;
     section.secondBlockReducingOperator =
       params.secondBlockReducingOperator ?? section.secondBlockReducingOperator;
+    section.disabled = params.disabled ?? section.disabled;
+  });
+}
+
+export type UpdateCohortGroupParams = {
+  disabled?: boolean;
+};
+
+export function updateCohortGroup(
+  context: CohortContextData,
+  sectionId: string,
+  groupId: string,
+  params: UpdateCohortGroupParams
+) {
+  context.updatePresent((present) => {
+    const [section] = findGroupSectionAndIndex(present, sectionId);
+    const group = findGroup(section, groupId);
+
+    group.disabled = params.disabled ?? group.disabled;
   });
 }
 
@@ -430,4 +360,35 @@ export function updateCohort(context: CohortContextData, name: string) {
   context.updatePresent((present) => {
     present.name = name;
   });
+}
+
+function findGroupSectionAndIndex(
+  cohort: Cohort,
+  sectionId: string
+): [GroupSection, number] {
+  const sectionIndex = cohort.groupSections.findIndex(
+    (section) => section.id === sectionId
+  );
+  if (sectionIndex === -1) {
+    throw new Error(
+      `Group section ${sectionId} does not exist in cohort ${JSON.stringify(
+        cohort
+      )}.`
+    );
+  }
+  return [cohort.groupSections[sectionIndex], sectionIndex];
+}
+
+function findGroup(section: GroupSection, groupId: string) {
+  const group =
+    section.groups.find((g) => g.id === groupId) ??
+    section.secondBlockGroups.find((g) => g.id === groupId);
+  if (!group) {
+    throw new Error(
+      `Group ${groupId} does not exist on group section ${JSON.stringify(
+        section
+      )}.`
+    );
+  }
+  return group;
 }

@@ -206,6 +206,7 @@ export type GroupSection = {
   operatorValue: number;
   firstBlockReducingOperator: GroupSectionReducingOperator;
   secondBlockReducingOperator: GroupSectionReducingOperator;
+  disabled: boolean;
 };
 
 export enum GroupSectionFilterKind {
@@ -231,6 +232,7 @@ export type GroupSectionFilter = {
 export type Group = {
   id: string;
   entity: string;
+  disabled: boolean;
   criteria: Criteria[];
 };
 
@@ -1919,6 +1921,7 @@ function fromAPICriteriaGroupSections(
     secondBlockReducingOperator: fromAPIReducingOperator(
       section.secondBlockReducingOperator
     ),
+    disabled: !!section.disabled,
   }));
 }
 
@@ -1930,6 +1933,7 @@ function fromAPICriteriaGroups(
     groups?.map((group) => ({
       id: group.id,
       entity: "",
+      disabled: !!group.disabled,
       criteria: group.criteria.map((criteria, i) =>
         fromAPICriteria(
           criteria,
@@ -2033,6 +2037,7 @@ function toAPICriteriaGroupSections(
     secondBlockReducingOperator: toAPIReducingOperator(
       section.secondBlockReducingOperator
     ),
+    disabled: !!section.disabled,
   }));
   return sections;
 }
@@ -2042,6 +2047,7 @@ function toAPICriteriaGroups(groups: Group[]): tanagra.CriteriaGroup[] {
     id: group.id,
     displayName: "",
     entity: group.entity,
+    disabled: !!group.disabled,
     criteria: group.criteria.map((criteria) => toAPICriteria(criteria)),
   }));
 }
