@@ -20,6 +20,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { usePopover } from "components/popover";
 import { SaveStatus } from "components/saveStatus";
+import { useSimpleDialog } from "components/simpleDialog";
 import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
 import { TreeGrid, TreeGridData } from "components/treegrid";
@@ -64,6 +65,7 @@ export function FeatureSet() {
   const studyId = useStudyId();
 
   const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
+  const [confirmDialog, showConfirmDialog] = useSimpleDialog();
 
   const newCohort = async () => {
     const cohort = await studySource.createCohort(underlay.name, studyId);
@@ -84,21 +86,43 @@ export function FeatureSet() {
           </GridLayout>
         }
         titleControls={
-          <IconButton
-            onClick={() =>
-              showRenameTitleDialog({
-                title: "Editing feature set name",
-                initialText: featureSet.name,
-                textLabel: "FeatureSet name",
-                buttonLabel: "Update",
-                onConfirm: (name: string) => {
-                  updateFeatureSet(context, name);
-                },
-              })
-            }
-          >
-            <EditIcon />
-          </IconButton>
+          <GridLayout cols>
+            <IconButton
+              onClick={() =>
+                showRenameTitleDialog({
+                  title: "Editing feature set name",
+                  initialText: featureSet.name,
+                  textLabel: "FeatureSet name",
+                  buttonLabel: "Update",
+                  onConfirm: (name: string) => {
+                    updateFeatureSet(context, name);
+                  },
+                })
+              }
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              onClick={() =>
+                showConfirmDialog({
+                  title: `Delete ${featureSet.name}?`,
+                  text: `Are you sure you want to delete "${featureSet.name}"? This action is permanent.`,
+                  buttons: ["Cancel", "Delete"],
+                  onButton: async (button) => {
+                    if (button === 1) {
+                      await studySource.deleteFeatureSet(
+                        studyId,
+                        featureSet.id
+                      );
+                      exit();
+                    }
+                  },
+                })
+              }
+            >
+              <DeleteIcon />
+            </IconButton>
+          </GridLayout>
         }
         rightControls={<UndoRedoToolbar />}
         backAction={exit}
@@ -133,6 +157,7 @@ export function FeatureSet() {
           <Paper sx={{ height: "100%" }}>
             <FeatureList />
             {renameTitleDialog}
+            {confirmDialog}
           </Paper>
           <Paper sx={{ height: "100%" }}>
             <Preview />

@@ -25,11 +25,7 @@ import {
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
-import {
-  ROLLUP_COUNT_ATTRIBUTE,
-  SortDirection,
-  SortOrder,
-} from "data/configuration";
+import { DEFAULT_SORT_ORDER, fromProtoSortOrder } from "data/configuration";
 import {
   CommonSelectorConfig,
   dataKeyFromProto,
@@ -46,7 +42,6 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/survey";
 import * as dataProto from "proto/criteriaselector/dataschema/survey";
-import * as sortOrderProto from "proto/sort_order";
 import { useCallback, useEffect, useMemo } from "react";
 import useSWRImmutable from "swr/immutable";
 import { useImmer } from "use-immer";
@@ -829,24 +824,8 @@ function encodeData(data: Data): string {
   return JSON.stringify(dataProto.Survey.toJSON(message));
 }
 
-const DEFAULT_SORT_ORDER = {
-  attribute: ROLLUP_COUNT_ATTRIBUTE,
-  direction: sortOrderProto.SortOrder_Direction.SORT_ORDER_DIRECTION_DESCENDING,
-};
-
 function decodeConfig(selector: CommonSelectorConfig): configProto.Survey {
   return configProto.Survey.fromJSON(JSON.parse(selector.pluginConfig));
-}
-
-function fromProtoSortOrder(sortOrder: sortOrderProto.SortOrder): SortOrder {
-  return {
-    attribute: sortOrder.attribute,
-    direction:
-      sortOrder.direction ===
-      sortOrderProto.SortOrder_Direction.SORT_ORDER_DIRECTION_DESCENDING
-        ? SortDirection.Desc
-        : SortDirection.Asc,
-  };
 }
 
 function nameAttribute(config: configProto.Survey) {

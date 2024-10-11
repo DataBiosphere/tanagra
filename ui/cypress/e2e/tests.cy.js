@@ -27,7 +27,7 @@ describe("Basic tests", () => {
     cy.iframe().find("button:Contains(Add criteria)").first().click();
     cy.iframe().find("[data-testid='tanagra-race']").click();
     cy.iframe()
-      .find(".MuiSelect-select:Contains(None selected)", {
+      .find(".MuiSelect-select:Contains(Any value)", {
         timeout: 20000,
       })
       .click();
