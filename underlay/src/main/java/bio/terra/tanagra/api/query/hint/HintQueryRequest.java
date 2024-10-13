@@ -9,9 +9,9 @@ import jakarta.annotation.Nullable;
 public class HintQueryRequest {
   private final Underlay underlay;
   private final Entity hintedEntity;
-  private final @Nullable Entity relatedEntity;
-  private final @Nullable Literal relatedEntityId;
-  private final @Nullable EntityGroup entityGroup;
+  private final Entity relatedEntity;
+  private final Literal relatedEntityId;
+  private final EntityGroup entityGroup;
   private final boolean isDryRun;
 
   public HintQueryRequest(
@@ -41,14 +41,17 @@ public class HintQueryRequest {
     return hintedEntity;
   }
 
+  @Nullable
   public Entity getRelatedEntity() {
     return relatedEntity;
   }
 
+  @Nullable
   public Literal getRelatedEntityId() {
     return relatedEntityId;
   }
 
+  @Nullable
   public EntityGroup getEntityGroup() {
     return entityGroup;
   }

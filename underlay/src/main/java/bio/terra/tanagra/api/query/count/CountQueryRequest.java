@@ -18,14 +18,14 @@ public class CountQueryRequest {
 
   private final Underlay underlay;
   private final Entity entity;
-  private final @Nullable Attribute countDistinctAttribute;
+  private final Attribute countDistinctAttribute;
   private final ImmutableList<ValueDisplayField> groupByFields;
-  private final @Nullable EntityFilter filter;
+  private final EntityFilter filter;
   private final OrderByDirection orderByDirection;
-  private final @Nullable Integer limit;
-  private final @Nullable PageMarker pageMarker;
-  private final @Nullable Integer pageSize;
-  private final @Nullable HintQueryResult entityLevelHints;
+  private final Integer limit;
+  private final PageMarker pageMarker;
+  private final Integer pageSize;
+  private final HintQueryResult entityLevelHints;
   private final boolean isDryRun;
 
   @SuppressWarnings({"checkstyle:ParameterNumber", "PMD.ExcessiveParameterList"})
@@ -78,8 +78,7 @@ public class CountQueryRequest {
     return orderByDirection;
   }
 
-  @Nullable
-  public Integer getLimit() {
+  public @Nullable Integer getLimit() {
     return limit;
   }
 

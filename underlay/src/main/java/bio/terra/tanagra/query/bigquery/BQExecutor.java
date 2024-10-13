@@ -35,7 +35,6 @@ public class BQExecutor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BQExecutor.class);
   private static final String TEMPORARY_TABLE_BASE_NAME = "export";
   private final BQExecutorInfrastructure queryInfrastructure;
-
   private GoogleBigQuery bigQueryService;
   private GoogleCloudStorage cloudStorageService;
 
