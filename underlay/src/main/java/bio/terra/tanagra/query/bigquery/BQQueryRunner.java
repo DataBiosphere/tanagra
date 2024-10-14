@@ -331,6 +331,10 @@ public class BQQueryRunner implements QueryRunner {
         exportFileUrlAndFileName.getRight(), exportFileUrlAndFileName.getLeft());
   }
 
+  public SqlQueryResult run(SqlQueryRequest sqlQueryRequest) {
+    return bigQueryExecutor.run(sqlQueryRequest);
+  }
+
   public SqlQueryRequest buildListQuerySqlAgainstIndexData(ListQueryRequest listQueryRequest) {
     return buildListQuerySqlAgainstIndexData(listQueryRequest, Instant.now());
   }

@@ -1649,8 +1649,8 @@ components:
     HintQuery:
       type: object
       description: |
-        Get display hints. Only one of relatedEntity and query may be provided. 
-        Use the query field to generate hints for the entity based on a filter.
+        Get display hints. Only one of relatedEntity or filter may be provided. 
+        Use the filter field to generate hints for the entity based on a filter.
       properties:
         relatedEntity:
           description: |

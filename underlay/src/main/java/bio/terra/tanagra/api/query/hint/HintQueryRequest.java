@@ -46,13 +46,11 @@ public class HintQueryRequest {
     return relatedEntity;
   }
 
-  @Nullable
-  public Literal getRelatedEntityId() {
+  public @Nullable Literal getRelatedEntityId() {
     return relatedEntityId;
   }
 
-  @Nullable
-  public EntityGroup getEntityGroup() {
+  public @Nullable EntityGroup getEntityGroup() {
     return entityGroup;
   }
 
