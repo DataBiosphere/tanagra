@@ -103,57 +103,18 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                 LOGGER.info("Skip computing the hint for attribute {}", attribute.getName());
               } else if (isRangeHint(attribute)) {
                 Pair<Literal, Literal> minMax = computeRangeHint(attribute, isDryRun);
-                insertRows.add(buildLiteralRow(attribute, minMax));
+                insertRows.add(buildRowOfLiterals(attribute, minMax));
 
               } else if (isEnumHintForValueDisplay(attribute)) {
                 List<Pair<ValueDisplay, Long>> enumCounts =
                     computeEnumHintForValueDisplay(attribute, isDryRun);
-                enumCounts.forEach(
-                    enumCount -> {
-                      Literal int64Field =
-                          attribute.isValueDisplay()
-                              ? enumCount.getKey().getValue()
-                              : Literal.forInt64(null);
-                      Literal stringField =
-                          attribute.isValueDisplay()
-                              ? Literal.forString(enumCount.getKey().getDisplay())
-                              : enumCount.getKey().getValue();
+                insertRows.addAll(buildRowOfLiteralsValueDisplay(attribute, enumCounts));
 
-                      List<Literal> rowOfLiterals = new ArrayList<>();
-                      rowOfLiterals.add(Literal.forString(attribute.getName()));
-                      rowOfLiterals.add(Literal.forDouble(null));
-                      rowOfLiterals.add(Literal.forDouble(null));
-                      rowOfLiterals.add(int64Field);
-                      rowOfLiterals.add(stringField);
-                      rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
-                      insertRows.add(rowOfLiterals);
-                      LOGGER.info(
-                          "Enum value-display or simple-string hint: {}, {}, {}, {}",
-                          attribute.getName(),
-                          int64Field,
-                          stringField,
-                          enumCount.getValue());
-                    });
               } else if (isEnumHintForRepeatedStringValue(attribute)) {
                 List<Pair<Literal, Long>> enumCounts =
                     computeEnumHintForRepeatedStringValue(attribute, isDryRun);
-                enumCounts.forEach(
-                    enumCount -> {
-                      List<Literal> rowOfLiterals = new ArrayList<>();
-                      rowOfLiterals.add(Literal.forString(attribute.getName()));
-                      rowOfLiterals.add(Literal.forDouble(null));
-                      rowOfLiterals.add(Literal.forDouble(null));
-                      rowOfLiterals.add(Literal.forInt64(null));
-                      rowOfLiterals.add(enumCount.getKey());
-                      rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
-                      insertRows.add(rowOfLiterals);
-                      LOGGER.info(
-                          "Enum repeated-string hint: {}, {}, {}, {}",
-                          attribute.getName(),
-                          null,
-                          enumCount.getKey(),
-                          enumCount.getValue());
-                    });
+                insertRows.addAll(buildRowOfLiteralsRepeatedString(attribute, enumCounts));
+
               } else {
                 LOGGER.info(
                     "Attribute {} data type {} not yet supported for computing hint",
@@ -251,24 +212,76 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     };
   }
 
-  private List<Literal> buildLiteralRow(Attribute attribute, Pair<Literal, Literal> minMax) {
-    List<Literal> literalRow = new ArrayList<>();
-    literalRow.add(Literal.forString(attribute.getName()));
-    literalRow.add(minMax.getKey());
-    literalRow.add(minMax.getValue());
-    literalRow.add(Literal.forInt64(null));
-    literalRow.add(Literal.forString(null));
-    literalRow.add(Literal.forInt64(null));
+  private List<Literal> buildRowOfLiterals(Attribute attribute, Pair<Literal, Literal> minMax) {
+    List<Literal> rowOfLiterals = new ArrayList<>();
+    rowOfLiterals.add(Literal.forString(attribute.getName()));
+    rowOfLiterals.add(minMax.getKey());
+    rowOfLiterals.add(minMax.getValue());
+    rowOfLiterals.add(Literal.forInt64(null));
+    rowOfLiterals.add(Literal.forString(null));
+    rowOfLiterals.add(Literal.forInt64(null));
     LOGGER.info(
-        "Numeric range hint: {}, {}, {}",
-        attribute.getName(),
-        minMax.getKey(),
-        minMax.getValue());
-    return literalRow;
+        "Numeric range hint: {}, {}, {}", attribute.getName(), minMax.getKey(), minMax.getValue());
+    return rowOfLiterals;
+  }
+
+  private List<List<Literal>> buildRowOfLiteralsValueDisplay(
+      Attribute attribute, List<Pair<ValueDisplay, Long>> enumCounts) {
+    return enumCounts.stream()
+        .map(
+            enumCount -> {
+              Literal int64Field =
+                  attribute.isValueDisplay()
+                      ? enumCount.getKey().getValue()
+                      : Literal.forInt64(null);
+              Literal stringField =
+                  attribute.isValueDisplay()
+                      ? Literal.forString(enumCount.getKey().getDisplay())
+                      : enumCount.getKey().getValue();
+
+              List<Literal> rowOfLiterals = new ArrayList<>();
+              rowOfLiterals.add(Literal.forString(attribute.getName()));
+              rowOfLiterals.add(Literal.forDouble(null));
+              rowOfLiterals.add(Literal.forDouble(null));
+              rowOfLiterals.add(int64Field);
+              rowOfLiterals.add(stringField);
+              rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
+              LOGGER.info(
+                  "Enum value-display or simple-string hint: {}, {}, {}, {}",
+                  attribute.getName(),
+                  int64Field,
+                  stringField,
+                  enumCount.getValue());
+              return rowOfLiterals;
+            })
+        .toList();
+  }
+
+  private List<List<Literal>> buildRowOfLiteralsRepeatedString(
+      Attribute attribute, List<Pair<Literal, Long>> enumCounts) {
+    return enumCounts.stream()
+        .map(
+            enumCount -> {
+              List<Literal> rowOfLiterals = new ArrayList<>();
+              rowOfLiterals.add(Literal.forString(attribute.getName()));
+              rowOfLiterals.add(Literal.forDouble(null));
+              rowOfLiterals.add(Literal.forDouble(null));
+              rowOfLiterals.add(Literal.forInt64(null));
+              rowOfLiterals.add(enumCount.getKey());
+              rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
+              LOGGER.info(
+                  "Enum repeated-string hint: {}, {}, {}, {}",
+                  attribute.getName(),
+                  null,
+                  enumCount.getKey(),
+                  enumCount.getValue());
+              return rowOfLiterals;
+            })
+        .toList();
   }
 
   private Pair<Literal, Literal> computeRangeHint(Attribute attribute, boolean isDryRun) {
-   String selectMinMaxSql = buildRangeHintSql(indexAttributesTable, attribute, null);
+    String selectMinMaxSql = buildRangeHintSql(indexAttributesTable, attribute, null);
 
     // Execute the query.
     if (isDryRun) {
@@ -298,8 +311,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
   }
 
   public static String buildRangeHintSql(
-      ITEntityMain indexAttributesTable, Attribute attribute, String innerSqlSelector
-  ) {
+      ITEntityMain indexAttributesTable, Attribute attribute, String innerSqlSelector) {
     // Build the query.
     // SELECT MIN(attr) AS minVal, MAX(attr) AS maxVal FROM (SELECT * FROM indextable)
     SqlField attrField =
@@ -319,17 +331,16 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             "SELECT "
                 + SqlQueryField.of(attrField, attribute.getName()).renderForSelect()
                 + " FROM "
-                + indexAttributesTable.getTablePointer().render() +
-                innerSuffix
-        );
+                + indexAttributesTable.getTablePointer().render()
+                + innerSuffix);
 
     String selectMinMaxSql =
         "SELECT "
             + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MIN"), MIN_VAL_ALIAS)
-            .renderForSelect()
+                .renderForSelect()
             + ", "
             + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MAX"), MAX_VAL_ALIAS)
-            .renderForSelect()
+                .renderForSelect()
             + " FROM "
             + innerQueryTable.render();
 

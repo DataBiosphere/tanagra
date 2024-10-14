@@ -240,7 +240,7 @@ public class UnderlaysApiController implements UnderlaysApi {
     Entity entity = underlay.getEntity(entityName);
     HintQueryResult hintQueryResult;
 
-    if (body != null && body.getFilter() != null) {
+    if (body.getFilter() != null) { // dynamic entity level hints
       if (body.getRelatedEntity() != null) {
         throw new BadRequestException("Only one of RelatedEntity and filter may be provided");
       }
@@ -251,25 +251,20 @@ public class UnderlaysApiController implements UnderlaysApi {
           filterBuilderService.filterOutputByPrimaryEntity(underlay, entity, null, hintFilter);
       hintQueryResult = underlayService.getEntityLevelHints(underlay, entity, entityFilter);
 
-    } else {
-      // fetch static hints that were generated during indexing
-      boolean isEntityLevelHints = body == null || body.getRelatedEntity() == null;
+    } else if (body.getRelatedEntity() != null) { // instance level hints
+      Entity relatedEntity = underlay.getEntity(body.getRelatedEntity().getName());
+      HintQueryRequest hintQueryRequest =
+          new HintQueryRequest(
+              underlay,
+              entity,
+              relatedEntity,
+              FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
+              underlay.getRelationship(entity, relatedEntity).getLeft(),
+              false);
+      hintQueryResult = underlay.getQueryRunner().run(hintQueryRequest);
 
-      if (isEntityLevelHints) {
-        hintQueryResult = underlayService.getEntityLevelHints(underlay, entity);
-
-      } else { // isInstanceLevelHints
-        Entity relatedEntity = underlay.getEntity(body.getRelatedEntity().getName());
-        HintQueryRequest hintQueryRequest =
-            new HintQueryRequest(
-                underlay,
-                entity,
-                relatedEntity,
-                FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
-                underlay.getRelationship(entity, relatedEntity).getLeft(),
-                false);
-        hintQueryResult = underlay.getQueryRunner().run(hintQueryRequest);
-      }
+    } else { // static entity level hints
+      hintQueryResult = underlayService.getEntityLevelHints(underlay, entity);
     }
 
     ApiDisplayHintList displayHintList =

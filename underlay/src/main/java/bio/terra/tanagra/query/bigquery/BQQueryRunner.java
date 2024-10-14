@@ -189,7 +189,7 @@ public class BQQueryRunner implements QueryRunner {
   @Override
   public HintQueryResult run(HintQueryRequest hintQueryRequest) {
     SqlQueryRequest sqlQueryRequest = buildSqlQueryRequest(hintQueryRequest);
-    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(buildSqlQueryRequest(hintQueryRequest));
+    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // Process the rows returned.
     List<HintInstance> hintInstances = new ArrayList<>();
