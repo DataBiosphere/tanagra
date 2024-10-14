@@ -10,10 +10,11 @@ import React, { createContext, useContext, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useNavigate } from "util/searchState";
 
-const imageTitle = "Data Explorer";
+// TODO(BENCH-4320): Remove imageTitle after Image -> 'Verily Data Explorer'
+const imageAlt = "Data Explorer";
 
-export const logInText = "Log in";
-export const logOutText = "Log out";
+export const logInText = "Continue to login";
+export const logOutText = "Continue to logout";
 
 export type Profile = {
   readonly sub: string;
@@ -111,13 +112,24 @@ export const LoginPage = () => {
       >
         <img
           src={verilyImage}
-          style={{ width: "250px", height: "auto" }}
-          alt={imageTitle}
+          style={{ width: "350px", height: "auto" }}
+          alt={imageAlt}
         />
-        {imageTitle}
-        <Button variant="contained" onClick={() => signIn()} disabled={!loaded}>
+        <h2>{imageAlt}</h2>
+        <Button
+          size="medium"
+          variant="contained"
+          onClick={() => signIn()}
+          disabled={!loaded}
+        >
           {logInText}
         </Button>
+        <p>
+          Need a Data Explorer Account?{" "}
+          <a href="https://support.workbench.verily.com/docs/contact/">
+            Contact us
+          </a>
+        </p>
       </GridLayout>
     </GridLayout>
   );
@@ -140,12 +152,13 @@ export const LogoutPage = () => {
       >
         <img
           src={verilyImage}
-          style={{ width: "250px", height: "auto" }}
-          alt={imageTitle}
+          style={{ width: "350px", height: "auto" }}
+          alt={imageAlt}
         />
-        {imageTitle}
+        <h2>{imageAlt}</h2>
         <ErrorList errors={error} />
         <Button
+          size="medium"
           variant="contained"
           onClick={() => signOut()}
           disabled={!loaded}
