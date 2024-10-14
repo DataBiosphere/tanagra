@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.controller;
 import static bio.terra.tanagra.service.accesscontrol.Action.READ;
 import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -237,30 +238,46 @@ public class UnderlaysApiController implements UnderlaysApi {
         ResourceId.forUnderlay(underlayName));
     Underlay underlay = underlayService.getUnderlay(underlayName);
     Entity entity = underlay.getEntity(entityName);
+    HintQueryResult hintQueryResult;
 
-    boolean isEntityLevelHints = body == null || body.getRelatedEntity() == null;
-    HintQueryRequest hintQueryRequest;
-    if (isEntityLevelHints) {
-      hintQueryRequest = new HintQueryRequest(underlay, entity, null, null, null, false);
-    } else { // isInstanceLevelHints
-      Entity relatedEntity = underlay.getEntity(body.getRelatedEntity().getName());
-      hintQueryRequest =
-          new HintQueryRequest(
-              underlay,
-              entity,
-              relatedEntity,
-              FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
-              underlay.getRelationship(entity, relatedEntity).getLeft(),
-              false);
+    if (body != null && body.getFilter() != null) {
+      if (body.getRelatedEntity() != null) {
+        throw new BadRequestException("Only one of RelatedEntity and filter may be provided");
+      }
+
+      // generate dynamic hints for this entity from the filter
+      EntityFilter hintFilter = FromApiUtils.fromApiObject(body.getFilter(), entity, underlay);
+      EntityFilter entityFilter =
+          filterBuilderService.filterOutputByPrimaryEntity(underlay, entity, null, hintFilter);
+      hintQueryResult = underlayService.getEntityLevelHints(underlay, entity, entityFilter);
+
+    } else {
+      // fetch static hints that were generated during indexing
+      boolean isEntityLevelHints = body == null || body.getRelatedEntity() == null;
+
+      if (isEntityLevelHints) {
+        hintQueryResult = underlayService.getEntityLevelHints(underlay, entity);
+
+      } else { // isInstanceLevelHints
+        Entity relatedEntity = underlay.getEntity(body.getRelatedEntity().getName());
+        HintQueryRequest hintQueryRequest =
+            new HintQueryRequest(
+                underlay,
+                entity,
+                relatedEntity,
+                FromApiUtils.fromApiObject(body.getRelatedEntity().getId()),
+                underlay.getRelationship(entity, relatedEntity).getLeft(),
+                false);
+        hintQueryResult = underlay.getQueryRunner().run(hintQueryRequest);
+      }
     }
-    HintQueryResult hintQueryResult = underlay.getQueryRunner().run(hintQueryRequest);
-    return ResponseEntity.ok(
+
+    ApiDisplayHintList displayHintList =
         new ApiDisplayHintList()
             .sql(SqlFormatter.format(hintQueryResult.getSql()))
             .displayHints(
-                hintQueryResult.getHintInstances().stream()
-                    .map(this::toApiObject)
-                    .collect(Collectors.toList())));
+                hintQueryResult.getHintInstances().stream().map(this::toApiObject).toList());
+    return ResponseEntity.ok(displayHintList);
   }
 
   @Override
