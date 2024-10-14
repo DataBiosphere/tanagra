@@ -6,7 +6,6 @@ public class SqlQueryResult {
   private final Iterable<SqlRowResult> rowResults;
   private final PageMarker nextPageMarker;
   private final long totalNumRows;
-
   private final String sqlNoParams;
 
   public SqlQueryResult(

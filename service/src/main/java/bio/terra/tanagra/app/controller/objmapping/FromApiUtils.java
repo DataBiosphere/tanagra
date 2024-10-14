@@ -110,6 +110,7 @@ public final class FromApiUtils {
         throw new InvalidQueryException(
             "Invalid operator specified for an AttributeFilter: "
                 + apiAttributeFilter.getOperator());
+
       case TEXT:
         ApiTextFilter apiTextFilter = apiFilter.getFilterUnion().getTextFilter();
         return new TextSearchFilter(

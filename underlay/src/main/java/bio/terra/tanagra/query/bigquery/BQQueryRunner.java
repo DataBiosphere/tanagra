@@ -188,45 +188,8 @@ public class BQQueryRunner implements QueryRunner {
 
   @Override
   public HintQueryResult run(HintQueryRequest hintQueryRequest) {
-    // Build the SQL query.
-    StringBuilder sql = new StringBuilder();
-    SqlParams sqlParams = new SqlParams();
-
-    if (hintQueryRequest.isEntityLevel()) {
-      ITEntityLevelDisplayHints eldhTable =
-          hintQueryRequest
-              .getUnderlay()
-              .getIndexSchema()
-              .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
-
-      // SELECT * FROM [entity-level hint]
-      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().render());
-    } else {
-      ITInstanceLevelDisplayHints ildhTable =
-          hintQueryRequest
-              .getUnderlay()
-              .getIndexSchema()
-              .getInstanceLevelDisplayHints(
-                  hintQueryRequest.getEntityGroup().getName(),
-                  hintQueryRequest.getHintedEntity().getName(),
-                  hintQueryRequest.getRelatedEntity().getName());
-
-      // SELECT * FROM [instance-level hint]
-      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().render());
-
-      // WHERE [filter on related entity id]
-      String relatedEntityIdParam =
-          sqlParams.addParam("relatedEntityId", hintQueryRequest.getRelatedEntityId());
-      sql.append(" WHERE ")
-          .append(ITInstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName())
-          .append(" = @")
-          .append(relatedEntityIdParam);
-    }
-
-    // Execute the SQL query.
-    SqlQueryRequest sqlQueryRequest =
-        new SqlQueryRequest(sql.toString(), sqlParams, null, null, hintQueryRequest.isDryRun());
-    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
+    SqlQueryRequest sqlQueryRequest = buildSqlQueryRequest(hintQueryRequest);
+    SqlQueryResult sqlQueryResult = bigQueryExecutor.run(buildSqlQueryRequest(hintQueryRequest));
 
     // Process the rows returned.
     List<HintInstance> hintInstances = new ArrayList<>();
@@ -302,7 +265,50 @@ public class BQQueryRunner implements QueryRunner {
         (attribute, enumValuesForAttr) ->
             hintInstances.add(new HintInstance(attribute, enumValuesForAttr)));
 
-    return new HintQueryResult(sql.toString(), hintInstances);
+    return new HintQueryResult(sqlQueryRequest.getSql(), hintInstances);
+  }
+
+  private SqlQueryRequest buildSqlQueryRequest(HintQueryRequest hintQueryRequest) {
+    if (hintQueryRequest.getSqlQueryRequest() != null) {
+      return hintQueryRequest.getSqlQueryRequest();
+    }
+
+    // Build the SQL query.
+    StringBuilder sql = new StringBuilder();
+    SqlParams sqlParams = new SqlParams();
+
+    if (hintQueryRequest.isEntityLevel()) {
+      ITEntityLevelDisplayHints eldhTable =
+          hintQueryRequest
+              .getUnderlay()
+              .getIndexSchema()
+              .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
+
+      // SELECT * FROM [entity-level hint]
+      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().render());
+    } else {
+      ITInstanceLevelDisplayHints ildhTable =
+          hintQueryRequest
+              .getUnderlay()
+              .getIndexSchema()
+              .getInstanceLevelDisplayHints(
+                  hintQueryRequest.getEntityGroup().getName(),
+                  hintQueryRequest.getHintedEntity().getName(),
+                  hintQueryRequest.getRelatedEntity().getName());
+
+      // SELECT * FROM [instance-level hint]
+      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().render());
+
+      // WHERE [filter on related entity id]
+      String relatedEntityIdParam =
+          sqlParams.addParam("relatedEntityId", hintQueryRequest.getRelatedEntityId());
+      sql.append(" WHERE ")
+          .append(ITInstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName())
+          .append(" = @")
+          .append(relatedEntityIdParam);
+    }
+
+    return new SqlQueryRequest(sql.toString(), sqlParams, null, null, hintQueryRequest.isDryRun());
   }
 
   @Override
@@ -329,10 +335,6 @@ public class BQQueryRunner implements QueryRunner {
     }
     return new ExportQueryResult(
         exportFileUrlAndFileName.getRight(), exportFileUrlAndFileName.getLeft());
-  }
-
-  public SqlQueryResult run(SqlQueryRequest sqlQueryRequest) {
-    return bigQueryExecutor.run(sqlQueryRequest);
   }
 
   public SqlQueryRequest buildListQuerySqlAgainstIndexData(ListQueryRequest listQueryRequest) {

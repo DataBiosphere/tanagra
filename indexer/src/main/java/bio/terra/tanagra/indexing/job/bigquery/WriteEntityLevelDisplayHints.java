@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
   private final Entity entity;
   private final ITEntityMain indexAttributesTable;
   private final ITEntityLevelDisplayHints indexHintsTable;
+  private static final String MIN_VAL_ALIAS = "minVal";
+  private static final String MAX_VAL_ALIAS = "maxVal";
 
   public WriteEntityLevelDisplayHints(
       SZIndexer indexerConfig,
@@ -100,19 +103,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                 LOGGER.info("Skip computing the hint for attribute {}", attribute.getName());
               } else if (isRangeHint(attribute)) {
                 Pair<Literal, Literal> minMax = computeRangeHint(attribute, isDryRun);
-                List<Literal> insertRow = new ArrayList<>();
-                insertRow.add(Literal.forString(attribute.getName()));
-                insertRow.add(minMax.getKey());
-                insertRow.add(minMax.getValue());
-                insertRow.add(Literal.forInt64(null));
-                insertRow.add(Literal.forString(null));
-                insertRow.add(Literal.forInt64(null));
-                insertRows.add(insertRow);
-                LOGGER.info(
-                    "Numeric range hint: {}, {}, {}",
-                    attribute.getName(),
-                    minMax.getKey(),
-                    minMax.getValue());
+                insertRows.add(buildLiteralRow(attribute, minMax));
+
               } else if (isEnumHintForValueDisplay(attribute)) {
                 List<Pair<ValueDisplay, Long>> enumCounts =
                     computeEnumHintForValueDisplay(attribute, isDryRun);
@@ -235,21 +227,21 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     }
   }
 
-  private static boolean isEnumHintForValueDisplay(Attribute attribute) {
+  public static boolean isEnumHintForValueDisplay(Attribute attribute) {
     return (attribute.isValueDisplay() && DataType.INT64.equals(attribute.getRuntimeDataType()))
         || (attribute.isSimple()
             && !attribute.isDataTypeRepeated()
             && DataType.STRING.equals(attribute.getRuntimeDataType()));
   }
 
-  private static boolean isEnumHintForRepeatedStringValue(Attribute attribute) {
+  public static boolean isEnumHintForRepeatedStringValue(Attribute attribute) {
     // TODO: Support not-repeated string simple attributes & repeated integer attributes.
     return attribute.isSimple()
         && attribute.isDataTypeRepeated()
         && (DataType.STRING.equals(attribute.getDataType()));
   }
 
-  private static boolean isRangeHint(Attribute attribute) {
+  public static boolean isRangeHint(Attribute attribute) {
     if (attribute.isValueDisplay()) {
       return false;
     }
@@ -259,34 +251,24 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     };
   }
 
-  private Pair<Literal, Literal> computeRangeHint(Attribute attribute, boolean isDryRun) {
-    // Build the query.
-    // SELECT MIN(attr) AS minVal, MAX(attr) AS maxVal FROM (SELECT * FROM indextable)
+  private List<Literal> buildLiteralRow(Attribute attribute, Pair<Literal, Literal> minMax) {
+    List<Literal> literalRow = new ArrayList<>();
+    literalRow.add(Literal.forString(attribute.getName()));
+    literalRow.add(minMax.getKey());
+    literalRow.add(minMax.getValue());
+    literalRow.add(Literal.forInt64(null));
+    literalRow.add(Literal.forString(null));
+    literalRow.add(Literal.forInt64(null));
+    LOGGER.info(
+        "Numeric range hint: {}, {}, {}",
+        attribute.getName(),
+        minMax.getKey(),
+        minMax.getValue());
+    return literalRow;
+  }
 
-    SqlField attrField =
-        SqlField.of(
-            indexAttributesTable.getAttributeValueField(attribute.getName()).getColumnName(),
-            attribute.hasRuntimeSqlFunctionWrapper()
-                ? attribute.getRuntimeSqlFunctionWrapper()
-                : null);
-    BQTable innerQueryTable =
-        new BQTable(
-            "SELECT "
-                + SqlQueryField.of(attrField, attribute.getName()).renderForSelect()
-                + " FROM "
-                + indexAttributesTable.getTablePointer().render());
-    final String minValAlias = "minVal";
-    final String maxValAlias = "maxVal";
-    String selectMinMaxSql =
-        "SELECT "
-            + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MIN"), minValAlias)
-                .renderForSelect()
-            + ", "
-            + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MAX"), maxValAlias)
-                .renderForSelect()
-            + " FROM "
-            + innerQueryTable.render();
-    LOGGER.info("SQL numeric range: {}", selectMinMaxSql);
+  private Pair<Literal, Literal> computeRangeHint(Attribute attribute, boolean isDryRun) {
+   String selectMinMaxSql = buildRangeHintSql(indexAttributesTable, attribute, null);
 
     // Execute the query.
     if (isDryRun) {
@@ -302,10 +284,10 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       Iterator<FieldValueList> rowResults = tableResult.getValues().iterator();
       if (rowResults.hasNext()) {
         FieldValueList rowResult = rowResults.next();
-        FieldValue minFieldValue = rowResult.get(minValAlias);
+        FieldValue minFieldValue = rowResult.get(MIN_VAL_ALIAS);
         Literal minVal =
             Literal.forDouble(minFieldValue.isNull() ? null : minFieldValue.getDoubleValue());
-        FieldValue maxFieldValue = rowResult.get(maxValAlias);
+        FieldValue maxFieldValue = rowResult.get(MAX_VAL_ALIAS);
         Literal maxVal =
             Literal.forDouble(maxFieldValue.isNull() ? null : maxFieldValue.getDoubleValue());
         return Pair.of(minVal, maxVal);
@@ -313,6 +295,46 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
         return Pair.of(Literal.forDouble(null), Literal.forDouble(null));
       }
     }
+  }
+
+  public static String buildRangeHintSql(
+      ITEntityMain indexAttributesTable, Attribute attribute, String innerSqlSelector
+  ) {
+    // Build the query.
+    // SELECT MIN(attr) AS minVal, MAX(attr) AS maxVal FROM (SELECT * FROM indextable)
+    SqlField attrField =
+        SqlField.of(
+            indexAttributesTable.getAttributeValueField(attribute.getName()).getColumnName(),
+            attribute.hasRuntimeSqlFunctionWrapper()
+                ? attribute.getRuntimeSqlFunctionWrapper()
+                : null);
+
+    String innerSuffix = StringUtils.EMPTY;
+    if (innerSqlSelector != null) {
+      innerSuffix = " WHERE " + innerSqlSelector;
+    }
+
+    BQTable innerQueryTable =
+        new BQTable(
+            "SELECT "
+                + SqlQueryField.of(attrField, attribute.getName()).renderForSelect()
+                + " FROM "
+                + indexAttributesTable.getTablePointer().render() +
+                innerSuffix
+        );
+
+    String selectMinMaxSql =
+        "SELECT "
+            + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MIN"), MIN_VAL_ALIAS)
+            .renderForSelect()
+            + ", "
+            + SqlQueryField.of(attrField.cloneWithFunctionWrapper("MAX"), MAX_VAL_ALIAS)
+            .renderForSelect()
+            + " FROM "
+            + innerQueryTable.render();
+
+    LOGGER.info("SQL numeric range: {}", selectMinMaxSql);
+    return selectMinMaxSql;
   }
 
   private List<Pair<ValueDisplay, Long>> computeEnumHintForValueDisplay(
