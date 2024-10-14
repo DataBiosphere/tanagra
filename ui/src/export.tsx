@@ -93,6 +93,7 @@ export function Export() {
   const [selectedFeatureSets, updateSelectedFeatureSets] = useImmer(
     new Set<string>()
   );
+  const [allParticipants, setAllParticipants] = useState(false);
 
   const newCohort = async () => {
     const cohort = await studySource.createCohort(
@@ -170,65 +171,69 @@ export function Export() {
               >
                 <GridBox sx={{ px: 1, overflowY: "auto" }}>
                   <Loading status={cohortsState} size="medium">
-                    {cohorts.length === 0 ? (
-                      <Empty
-                        maxWidth="80%"
-                        title="Cohorts are groups of people with common traits"
-                        subtitle={
-                          <>
-                            <Link
-                              variant="link"
-                              underline="hover"
-                              onClick={() => newCohort()}
-                              sx={{ cursor: "pointer" }}
-                            >
-                              Create a new cohort
-                            </Link>{" "}
-                            to define criteria
-                          </>
+                    <GridLayout
+                      cols
+                      fillCol={2}
+                      rowAlign="middle"
+                      height="auto"
+                    >
+                      <Checkbox
+                        name="All Participants"
+                        checked={allParticipants}
+                        onChange={() =>
+                          setAllParticipants((prevState) => {
+                            if (!prevState) {
+                              updateSelectedCohorts(new Set<string>());
+                            }
+                            return !prevState;
+                          })
                         }
                       />
-                    ) : (
-                      cohorts.map((cohort, i) => (
-                        <GridLayout
-                          key={cohort.id}
-                          cols
-                          fillCol={2}
-                          rowAlign="middle"
-                          height="auto"
-                          sx={{
-                            boxShadow:
-                              i !== 0
-                                ? (theme) => `0 -1px 0 ${theme.palette.divider}`
-                                : undefined,
+                      <Typography variant="body2" sx={{ my: 0.5 }}>
+                        All Participants
+                      </Typography>
+                      <GridBox />
+                    </GridLayout>
+                    {cohorts.map((cohort, i) => (
+                      <GridLayout
+                        key={cohort.id}
+                        cols
+                        fillCol={2}
+                        rowAlign="middle"
+                        height="auto"
+                        sx={{
+                          boxShadow:
+                            i !== 0
+                              ? (theme) => `0 -1px 0 ${theme.palette.divider}`
+                              : undefined,
+                        }}
+                      >
+                        <Checkbox
+                          name={cohort.name}
+                          checked={selectedCohorts.has(cohort.id)}
+                          onChange={() => {
+                            setAllParticipants(false);
+                            onToggle(updateSelectedCohorts, cohort.id);
                           }}
+                        />
+                        <Typography variant="body2" sx={{ my: 0.5 }}>
+                          {cohort.name}
+                        </Typography>
+                        <GridBox />
+                        <Button
+                          data-testid={cohort.name}
+                          variant="outlined"
+                          onClick={() =>
+                            navigate(
+                              cohortURL(cohort.id, cohort.groupSections[0].id)
+                            )
+                          }
+                          sx={{ minWidth: "auto" }}
                         >
-                          <Checkbox
-                            name={cohort.name}
-                            checked={selectedCohorts.has(cohort.id)}
-                            onChange={() =>
-                              onToggle(updateSelectedCohorts, cohort.id)
-                            }
-                          />
-                          <Typography variant="body2" sx={{ my: 0.5 }}>
-                            {cohort.name}
-                          </Typography>
-                          <GridBox />
-                          <Button
-                            data-testid={cohort.name}
-                            variant="outlined"
-                            onClick={() =>
-                              navigate(
-                                cohortURL(cohort.id, cohort.groupSections[0].id)
-                              )
-                            }
-                            sx={{ minWidth: "auto" }}
-                          >
-                            Edit
-                          </Button>
-                        </GridLayout>
-                      ))
-                    )}
+                          Edit
+                        </Button>
+                      </GridLayout>
+                    ))}
                   </Loading>
                 </GridBox>
               </Paper>
@@ -326,6 +331,7 @@ export function Export() {
             featureSets={featureSets}
             selectedCohorts={selectedCohorts}
             selectedFeatureSets={selectedFeatureSets}
+            allParticipantsCohort={allParticipants}
           />
         </GridLayout>
       </GridBox>
@@ -338,6 +344,7 @@ type PreviewProps = {
   featureSets: FeatureSet[];
   selectedCohorts: Set<string>;
   selectedFeatureSets: Set<string>;
+  allParticipantsCohort: boolean;
 };
 
 function Preview(props: PreviewProps) {
@@ -369,7 +376,8 @@ function Preview(props: PreviewProps) {
   });
 
   const empty =
-    props.selectedCohorts.size === 0 || props.selectedFeatureSets.size === 0;
+    (props.selectedCohorts.size === 0 && !props.allParticipantsCohort) ||
+    props.selectedFeatureSets.size === 0;
 
   const onExportClick = () =>
     underlay.uiConfiguration.featureConfig?.overrideExportButton
@@ -377,6 +385,7 @@ function Preview(props: PreviewProps) {
           {
             message: "EXPORT",
             resources: {
+              allParticipantsCohort: props.allParticipantsCohort,
               cohorts: filteredCohorts.map((c) => c.id),
               featureSets: filteredFeatureSets.map((fs) => fs.id),
             },
@@ -399,6 +408,7 @@ function Preview(props: PreviewProps) {
                 featureSets={filteredFeatureSets.map((fs) => fs.id)}
                 occurrenceFilters={occurrenceFiltersState.data ?? []}
                 empty={empty}
+                allParticipantsCohort={props.allParticipantsCohort}
               />
             ),
           },
@@ -601,6 +611,7 @@ type PreviewSummaryProps = {
   featureSets: string[];
   occurrenceFilters: OccurrenceFilters[];
   empty: boolean;
+  allParticipantsCohort: boolean;
 };
 
 function PreviewSummary(props: PreviewSummaryProps) {
@@ -612,17 +623,22 @@ function PreviewSummary(props: PreviewSummaryProps) {
             <Typography variant="body1em">
               Participants in the tables share the following characteristics
             </Typography>
-            {props.cohorts.map((cohort) => (
-              <Paper
-                key={cohort.id}
-                sx={{
-                  p: 1,
-                  backgroundColor: (theme) => theme.palette.background.default,
-                }}
-              >
-                <CohortSummary cohort={cohort} />
-              </Paper>
-            ))}
+            {props.allParticipantsCohort ? (
+              <Typography variant="body2em">All participants</Typography>
+            ) : (
+              props.cohorts.map((cohort) => (
+                <Paper
+                  key={cohort.id}
+                  sx={{
+                    p: 1,
+                    backgroundColor: (theme) =>
+                      theme.palette.background.default,
+                  }}
+                >
+                  <CohortSummary cohort={cohort} />
+                </Paper>
+              ))
+            )}
           </GridLayout>
           <GridLayout rows spacing={1} height="auto">
             <Typography variant="body1em">
