@@ -901,19 +901,6 @@ function ParticipantsGroup(props: {
               ) : (
                 <GridBox />
               )}
-              {selected ? (
-                <IconButton
-                  onClick={() => {
-                    deleteCohortGroup(
-                      context,
-                      props.groupSection.id,
-                      props.group.id
-                    );
-                  }}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              ) : null}
               {selected && hasModifiers ? (
                 <Button
                   startIcon={<TuneIcon fontSize="small" />}
@@ -955,6 +942,19 @@ function ParticipantsGroup(props: {
                     <FilterListOffIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
+              ) : null}
+              {selected ? (
+                <IconButton
+                  onClick={() => {
+                    deleteCohortGroup(
+                      context,
+                      props.groupSection.id,
+                      props.group.id
+                    );
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               ) : null}
             </GridBox>
             <GridBox />
