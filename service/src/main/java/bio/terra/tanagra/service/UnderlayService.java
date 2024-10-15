@@ -1,13 +1,6 @@
 package bio.terra.tanagra.service;
 
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.ENUM_COUNT_ALIAS;
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.ENUM_DISP_ALIAS;
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.ENUM_VAL_ALIAS;
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.MAX_VAL_ALIAS;
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.MIN_VAL_ALIAS;
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.isEnumHintForRepeatedStringValue;
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.isEnumHintForValueDisplay;
-import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.isRangeHint;
+import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.*;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.field.AttributeField;
@@ -204,12 +197,12 @@ public class UnderlayService {
 
   public HintQueryResult getEntityLevelHints(
       Underlay underlay, Entity entity, EntityFilter entityFilter) {
-    if (entityFilter == null) {
-      return getEntityLevelHints(underlay, entity);
-    }
-
     // Get the list of attributes with hints already computed for this entity
     HintQueryResult entityLevelHints = getEntityLevelHints(underlay, entity);
+    if (entityFilter == null) {
+      return entityLevelHints;
+    }
+
     List<Attribute> hintAttributes =
         entityLevelHints.getHintInstances().stream().map(HintInstance::getAttribute).toList();
 
@@ -217,7 +210,6 @@ public class UnderlayService {
     BQApiTranslator bqTranslator = new BQApiTranslator();
     SqlParams sqlParams = new SqlParams();
     String bqFilterSql = bqTranslator.translator(entityFilter).buildSql(sqlParams, null);
-    LOGGER.info("Generated sql for filter: {}", bqFilterSql);
 
     StringBuilder allSql = new StringBuilder();
     List<HintInstance> allHintInstances = new ArrayList<>();
@@ -295,7 +287,7 @@ public class UnderlayService {
                     .iterator()
                     .forEachRemaining(
                         sqlRowResult -> {
-                          Literal enumVal = sqlRowResult.get(ENUM_DISP_ALIAS, DataType.STRING);
+                          Literal enumVal = sqlRowResult.get(ENUM_VAL_ALIAS, DataType.STRING);
                           Long enumCount =
                               sqlRowResult.get(ENUM_COUNT_ALIAS, DataType.INT64).getInt64Val();
                           attrEnumValues.put(new ValueDisplay(enumVal), enumCount);
