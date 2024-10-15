@@ -43,8 +43,13 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
   private final Entity entity;
   private final ITEntityMain indexAttributesTable;
   private final ITEntityLevelDisplayHints indexHintsTable;
-  private static final String MIN_VAL_ALIAS = "minVal";
-  private static final String MAX_VAL_ALIAS = "maxVal";
+  public static final String MIN_VAL_ALIAS = "minVal";
+  public static final String MAX_VAL_ALIAS = "maxVal";
+  public static final String ENUM_VAL_ALIAS = "enumVal";
+  public static final String ENUM_DISP_ALIAS = "enumDisp";
+  public static final String ENUM_COUNT_ALIAS = "enumCount";
+  private static final String FLATTENED_ATTR_VAL_ALIAS = "flattenedAttrVal";
+  private static final SqlField FLATTENED_ATTR_VAL_FIELD = SqlField.of(FLATTENED_ATTR_VAL_ALIAS);
 
   public WriteEntityLevelDisplayHints(
       SZIndexer indexerConfig,
@@ -350,35 +355,8 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
   private List<Pair<ValueDisplay, Long>> computeEnumHintForValueDisplay(
       Attribute attribute, boolean isDryRun) {
-    // Build the query.
-    // SELECT attrVal AS enumVal[, attrDisp AS enumDisp], COUNT(*) AS enumCount FROM indextable
-    // GROUP BY enumVal[, enumDisp]
-    SqlField attrValField = indexAttributesTable.getAttributeValueField(attribute.getName());
-    SqlField attrDispField =
-        attribute.isValueDisplay()
-            ? indexAttributesTable.getAttributeDisplayField(attribute.getName())
-            : null;
-    final String enumValAlias = "enumVal";
-    final String enumDispAlias = "enumDisp";
-    final String enumCountAlias = "enumCount";
-
     String selectEnumCountSql =
-        "SELECT " + SqlQueryField.of(attrValField, enumValAlias).renderForSelect();
-    if (attribute.isValueDisplay()) {
-      selectEnumCountSql += ", " + SqlQueryField.of(attrDispField, enumDispAlias).renderForSelect();
-    }
-    selectEnumCountSql +=
-        ", COUNT(*) AS "
-            + enumCountAlias
-            + " FROM "
-            + indexAttributesTable.getTablePointer().render()
-            + " GROUP BY "
-            + SqlQueryField.of(attrValField, enumValAlias).renderForGroupBy(null, true);
-    if (attribute.isValueDisplay()) {
-      selectEnumCountSql +=
-          ", " + SqlQueryField.of(attrDispField, enumDispAlias).renderForGroupBy(null, true);
-    }
-    LOGGER.info("SQL enum count: {}", selectEnumCountSql);
+        buildEnumHintForValueDisplaySql(indexAttributesTable, attribute, null);
 
     // Execute the query.
     List<Pair<ValueDisplay, Long>> enumCounts = new ArrayList<>();
@@ -394,14 +372,14 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
       // Parse the result rows.
       for (FieldValueList rowResult : tableResult.getValues()) {
-        FieldValue enumValFieldValue = rowResult.get(enumValAlias);
+        FieldValue enumValFieldValue = rowResult.get(ENUM_VAL_ALIAS);
         Literal enumVal;
         String enumDisp;
         if (attribute.isValueDisplay()) {
           enumVal =
               Literal.forInt64(
                   enumValFieldValue.isNull() ? null : enumValFieldValue.getLongValue());
-          FieldValue enumDispFieldValue = rowResult.get(enumDispAlias);
+          FieldValue enumDispFieldValue = rowResult.get(ENUM_DISP_ALIAS);
           enumDisp = enumDispFieldValue.isNull() ? null : enumDispFieldValue.getStringValue();
         } else {
           enumVal =
@@ -409,7 +387,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                   enumValFieldValue.isNull() ? null : enumValFieldValue.getStringValue());
           enumDisp = null;
         }
-        FieldValue enumCountFieldValue = rowResult.get(enumCountAlias);
+        FieldValue enumCountFieldValue = rowResult.get(ENUM_COUNT_ALIAS);
         long enumCount = enumCountFieldValue.getLongValue();
         enumCounts.add(Pair.of(new ValueDisplay(enumVal, enumDisp), enumCount));
 
@@ -440,33 +418,49 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     return enumCounts;
   }
 
-  private List<Pair<Literal, Long>> computeEnumHintForRepeatedStringValue(
-      Attribute attribute, boolean isDryRun) {
-    // TODO: Consolidate the logic here with the ValueDisplay enum hint method.
+  public static String buildEnumHintForValueDisplaySql(
+      ITEntityMain indexAttributesTable, Attribute attribute, String innerSqlSelector) {
     // Build the query.
-    // SELECT flattenedAttrVal AS enumVal, COUNT(*) AS enumCount FROM indextable
-    // CROSS JOIN UNNEST(indextable.attrVal) AS flattenedAttrVal
-    // GROUP BY enumVal
+    // SELECT attrVal AS enumVal[, attrDisp AS enumDisp], COUNT(*) AS enumCount FROM indextable
+    // GROUP BY enumVal[, enumDisp]
     SqlField attrValField = indexAttributesTable.getAttributeValueField(attribute.getName());
-    final String enumValAlias = "enumVal";
-    final String enumCountAlias = "enumCount";
-    final String flattenedAttrValAlias = "flattenedAttrVal";
-    SqlField flattenedAttrValField = SqlField.of(flattenedAttrValAlias);
+    SqlField attrDispField =
+        attribute.isValueDisplay()
+            ? indexAttributesTable.getAttributeDisplayField(attribute.getName())
+            : null;
+
+    String innerSuffix = StringUtils.EMPTY;
+    if (innerSqlSelector != null) {
+      innerSuffix = " WHERE " + innerSqlSelector;
+    }
 
     String selectEnumCountSql =
-        "SELECT "
-            + SqlQueryField.of(flattenedAttrValField, enumValAlias).renderForSelect()
-            + ", COUNT(*) AS "
-            + enumCountAlias
+        "SELECT " + SqlQueryField.of(attrValField, ENUM_VAL_ALIAS).renderForSelect();
+    if (attribute.isValueDisplay()) {
+      selectEnumCountSql +=
+          ", " + SqlQueryField.of(attrDispField, ENUM_DISP_ALIAS).renderForSelect();
+    }
+    selectEnumCountSql +=
+        ", COUNT(*) AS "
+            + ENUM_COUNT_ALIAS
             + " FROM "
             + indexAttributesTable.getTablePointer().render()
-            + " CROSS JOIN UNNEST("
-            + SqlQueryField.of(attrValField).renderForSelect()
-            + ") AS "
-            + flattenedAttrValAlias
+            + innerSuffix
             + " GROUP BY "
-            + SqlQueryField.of(attrValField, enumValAlias).renderForGroupBy(null, true);
+            + SqlQueryField.of(attrValField, ENUM_VAL_ALIAS).renderForGroupBy(null, true);
+    if (attribute.isValueDisplay()) {
+      selectEnumCountSql +=
+          ", " + SqlQueryField.of(attrDispField, ENUM_DISP_ALIAS).renderForGroupBy(null, true);
+    }
+
     LOGGER.info("SQL enum count: {}", selectEnumCountSql);
+    return selectEnumCountSql;
+  }
+
+  private List<Pair<Literal, Long>> computeEnumHintForRepeatedStringValue(
+      Attribute attribute, boolean isDryRun) {
+    String selectEnumCountSql =
+        buildEnumHintForRepeatedStringValueSql(indexAttributesTable, attribute, null);
 
     // Execute the query.
     List<Pair<Literal, Long>> enumCounts = new ArrayList<>();
@@ -482,11 +476,11 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
 
       // Parse the result rows.
       for (FieldValueList rowResult : tableResult.getValues()) {
-        FieldValue enumValFieldValue = rowResult.get(enumValAlias);
+        FieldValue enumValFieldValue = rowResult.get(ENUM_VAL_ALIAS);
         Literal enumVal =
             Literal.forString(
                 enumValFieldValue.isNull() ? null : enumValFieldValue.getStringValue());
-        FieldValue enumCountFieldValue = rowResult.get(enumCountAlias);
+        FieldValue enumCountFieldValue = rowResult.get(ENUM_COUNT_ALIAS);
         long enumCount = enumCountFieldValue.getLongValue();
         enumCounts.add(Pair.of(enumVal, enumCount));
 
@@ -501,5 +495,38 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
       }
     }
     return enumCounts;
+  }
+
+  public static String buildEnumHintForRepeatedStringValueSql(
+      ITEntityMain indexAttributesTable, Attribute attribute, String innerSqlSelector) {
+    // TODO: Consolidate the logic here with the ValueDisplay enum hint method.
+    // Build the query.
+    // SELECT flattenedAttrVal AS enumVal, COUNT(*) AS enumCount FROM indextable
+    // CROSS JOIN UNNEST(indextable.attrVal) AS flattenedAttrVal
+    // GROUP BY enumVal
+    SqlField attrValField = indexAttributesTable.getAttributeValueField(attribute.getName());
+
+    String innerSuffix = StringUtils.EMPTY;
+    if (innerSqlSelector != null) {
+      innerSuffix = " WHERE " + innerSqlSelector;
+    }
+
+    String selectEnumCountSql =
+        "SELECT "
+            + SqlQueryField.of(FLATTENED_ATTR_VAL_FIELD, ENUM_VAL_ALIAS).renderForSelect()
+            + ", COUNT(*) AS "
+            + ENUM_COUNT_ALIAS
+            + " FROM "
+            + indexAttributesTable.getTablePointer().render()
+            + " CROSS JOIN UNNEST("
+            + SqlQueryField.of(attrValField).renderForSelect()
+            + ") AS "
+            + FLATTENED_ATTR_VAL_ALIAS
+            + innerSuffix
+            + " GROUP BY "
+            + SqlQueryField.of(attrValField, ENUM_VAL_ALIAS).renderForGroupBy(null, true);
+
+    LOGGER.info("SQL enum count: {}", selectEnumCountSql);
+    return selectEnumCountSql;
   }
 }

@@ -1,5 +1,10 @@
 package bio.terra.tanagra.service;
 
+import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.ENUM_COUNT_ALIAS;
+import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.ENUM_DISP_ALIAS;
+import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.ENUM_VAL_ALIAS;
+import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.MAX_VAL_ALIAS;
+import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.MIN_VAL_ALIAS;
 import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.isEnumHintForRepeatedStringValue;
 import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.isEnumHintForValueDisplay;
 import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.isRangeHint;
@@ -14,12 +19,16 @@ import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.*;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryRequest;
+import bio.terra.tanagra.query.sql.SqlQueryResult;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
@@ -28,6 +37,7 @@ import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.serialization.*;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -209,6 +219,8 @@ public class UnderlayService {
     String bqFilterSql = bqTranslator.translator(entityFilter).buildSql(sqlParams, null);
     LOGGER.info("Generated sql for filter: {}", bqFilterSql);
 
+    StringBuilder allSql = new StringBuilder();
+    List<HintInstance> allHintInstances = new ArrayList<>();
     hintAttributes.parallelStream()
         .map(
             attribute -> {
@@ -218,24 +230,94 @@ public class UnderlayService {
                         underlay.getIndexSchema().getEntityMain(entity.getName()),
                         attribute,
                         bqFilterSql);
+                SqlQueryResult sqlQueryResult =
+                    underlay
+                        .getQueryRunner()
+                        .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
 
-                SqlQueryRequest sqlQueryRequest =
-                    new SqlQueryRequest(sql, sqlParams, null, null, false);
-
-                HintQueryRequest hintQueryRequest =
-                    new HintQueryRequest(underlay, entity, sqlQueryRequest, false);
-
-                return underlay.getQueryRunner().run(hintQueryRequest);
+                List<HintInstance> attrHintInstances = new ArrayList<>();
+                sqlQueryResult
+                    .getRowResults()
+                    .iterator()
+                    .forEachRemaining(
+                        sqlRowResult -> {
+                          Double min =
+                              sqlRowResult.get(MIN_VAL_ALIAS, DataType.DOUBLE).getDoubleVal();
+                          Double max =
+                              sqlRowResult.get(MAX_VAL_ALIAS, DataType.DOUBLE).getDoubleVal();
+                          if (min != null && max != null) {
+                            attrHintInstances.add(new HintInstance(attribute, min, max));
+                          }
+                        });
+                return new HintQueryResult(sql, attrHintInstances);
 
               } else if (isEnumHintForValueDisplay(attribute)) {
-                return null; // TODO-dex
-              } else if (isEnumHintForRepeatedStringValue(attribute)) {
-                return null; // TODO-dex
-              }
-              return null; // TODO-dex
-            })
-        .toList();
+                String sql =
+                    WriteEntityLevelDisplayHints.buildEnumHintForValueDisplaySql(
+                        underlay.getIndexSchema().getEntityMain(entity.getName()),
+                        attribute,
+                        bqFilterSql);
+                SqlQueryResult sqlQueryResult =
+                    underlay
+                        .getQueryRunner()
+                        .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
 
-    return null; // TODO-dex
+                Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
+                sqlQueryResult
+                    .getRowResults()
+                    .iterator()
+                    .forEachRemaining(
+                        sqlRowResult -> {
+                          Literal enumVal = sqlRowResult.get(ENUM_VAL_ALIAS, DataType.INT64);
+                          String enumDisplay =
+                              sqlRowResult.get(ENUM_DISP_ALIAS, DataType.STRING).getStringVal();
+                          Long enumCount =
+                              sqlRowResult.get(ENUM_COUNT_ALIAS, DataType.INT64).getInt64Val();
+                          attrEnumValues.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
+                        });
+                return new HintQueryResult(
+                    sql, List.of(new HintInstance(attribute, attrEnumValues)));
+
+              } else if (isEnumHintForRepeatedStringValue(attribute)) {
+                String sql =
+                    WriteEntityLevelDisplayHints.buildEnumHintForRepeatedStringValueSql(
+                        underlay.getIndexSchema().getEntityMain(entity.getName()),
+                        attribute,
+                        bqFilterSql);
+                SqlQueryResult sqlQueryResult =
+                    underlay
+                        .getQueryRunner()
+                        .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
+
+                Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
+                sqlQueryResult
+                    .getRowResults()
+                    .iterator()
+                    .forEachRemaining(
+                        sqlRowResult -> {
+                          Literal enumVal = sqlRowResult.get(ENUM_DISP_ALIAS, DataType.STRING);
+                          Long enumCount =
+                              sqlRowResult.get(ENUM_COUNT_ALIAS, DataType.INT64).getInt64Val();
+                          attrEnumValues.put(new ValueDisplay(enumVal), enumCount);
+                        });
+                return new HintQueryResult(
+                    sql, List.of(new HintInstance(attribute, attrEnumValues)));
+
+              } else {
+                LOGGER.info(
+                    "Attribute {} data type {} not yet supported for computing dynamic hint",
+                    attribute.getName(),
+                    attribute.getDataType());
+                return null;
+              }
+            })
+        .toList()
+        .forEach(
+            hqr -> {
+              allSql.append(hqr.getSql()).append(';');
+              allHintInstances.addAll(hqr.getHintInstances());
+            });
+
+    return new HintQueryResult(allSql.toString(), allHintInstances);
   }
 }

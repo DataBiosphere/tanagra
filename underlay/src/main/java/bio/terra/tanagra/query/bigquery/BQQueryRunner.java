@@ -49,6 +49,11 @@ public class BQQueryRunner implements QueryRunner {
   }
 
   @Override
+  public SqlQueryResult run(SqlQueryRequest sqlQueryRequest) {
+    return bigQueryExecutor.run(sqlQueryRequest);
+  }
+
+  @Override
   public ListQueryResult run(ListQueryRequest listQueryRequest) {
     // Build the SQL query.
     Instant queryInstant =
@@ -168,13 +173,13 @@ public class BQQueryRunner implements QueryRunner {
                         }
                         fieldValues.put(valueDisplayField, valueDisplay);
                       });
-              long count =
+              Long count =
                   bqTranslator
                       .translator(countDistinctField)
                       .parseValueDisplayFromResult(sqlRowResult)
                       .getValue()
                       .getInt64Val();
-              countInstances.add(new CountInstance(count, fieldValues));
+              countInstances.add(new CountInstance(count != null ? count : 0L, fieldValues));
             });
 
     return new CountQueryResult(
@@ -188,7 +193,44 @@ public class BQQueryRunner implements QueryRunner {
 
   @Override
   public HintQueryResult run(HintQueryRequest hintQueryRequest) {
-    SqlQueryRequest sqlQueryRequest = buildSqlQueryRequest(hintQueryRequest);
+    // Build the SQL query.
+    StringBuilder sql = new StringBuilder();
+    SqlParams sqlParams = new SqlParams();
+
+    if (hintQueryRequest.isEntityLevel()) {
+      ITEntityLevelDisplayHints eldhTable =
+          hintQueryRequest
+              .getUnderlay()
+              .getIndexSchema()
+              .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
+
+      // SELECT * FROM [entity-level hint]
+      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().render());
+    } else {
+      ITInstanceLevelDisplayHints ildhTable =
+          hintQueryRequest
+              .getUnderlay()
+              .getIndexSchema()
+              .getInstanceLevelDisplayHints(
+                  hintQueryRequest.getEntityGroup().getName(),
+                  hintQueryRequest.getHintedEntity().getName(),
+                  hintQueryRequest.getRelatedEntity().getName());
+
+      // SELECT * FROM [instance-level hint]
+      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().render());
+
+      // WHERE [filter on related entity id]
+      String relatedEntityIdParam =
+          sqlParams.addParam("relatedEntityId", hintQueryRequest.getRelatedEntityId());
+      sql.append(" WHERE ")
+          .append(ITInstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName())
+          .append(" = @")
+          .append(relatedEntityIdParam);
+    }
+
+    // Execute the SQL query.
+    SqlQueryRequest sqlQueryRequest =
+        new SqlQueryRequest(sql.toString(), sqlParams, null, null, hintQueryRequest.isDryRun());
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // Process the rows returned.
@@ -244,13 +286,16 @@ public class BQQueryRunner implements QueryRunner {
                     enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
                 enumValuesForAttr.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
                 enumValues.put(attribute, enumValuesForAttr);
+
               } else if (attribute.getRuntimeDataType().equals(DataType.STRING)) {
+                // repeated attribute
                 Literal enumVal = sqlRowResult.get(enumDisplayColName, DataType.STRING);
                 Long enumCount = sqlRowResult.get(enumCountColName, DataType.INT64).getInt64Val();
                 Map<ValueDisplay, Long> enumValuesForAttr =
                     enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
                 enumValuesForAttr.put(new ValueDisplay(enumVal), enumCount);
                 enumValues.put(attribute, enumValuesForAttr);
+
               } else {
                 // This is a range hint.
                 Double min = sqlRowResult.get(minColName, DataType.DOUBLE).getDoubleVal();
@@ -260,55 +305,13 @@ public class BQQueryRunner implements QueryRunner {
                 }
               }
             });
+
     // Assemble the value/count pairs into a single enum values hint for each attribute.
     enumValues.forEach(
         (attribute, enumValuesForAttr) ->
             hintInstances.add(new HintInstance(attribute, enumValuesForAttr)));
 
-    return new HintQueryResult(sqlQueryRequest.getSql(), hintInstances);
-  }
-
-  private SqlQueryRequest buildSqlQueryRequest(HintQueryRequest hintQueryRequest) {
-    if (hintQueryRequest.getSqlQueryRequest() != null) {
-      return hintQueryRequest.getSqlQueryRequest();
-    }
-
-    // Build the SQL query.
-    StringBuilder sql = new StringBuilder();
-    SqlParams sqlParams = new SqlParams();
-
-    if (hintQueryRequest.isEntityLevel()) {
-      ITEntityLevelDisplayHints eldhTable =
-          hintQueryRequest
-              .getUnderlay()
-              .getIndexSchema()
-              .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
-
-      // SELECT * FROM [entity-level hint]
-      sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().render());
-    } else {
-      ITInstanceLevelDisplayHints ildhTable =
-          hintQueryRequest
-              .getUnderlay()
-              .getIndexSchema()
-              .getInstanceLevelDisplayHints(
-                  hintQueryRequest.getEntityGroup().getName(),
-                  hintQueryRequest.getHintedEntity().getName(),
-                  hintQueryRequest.getRelatedEntity().getName());
-
-      // SELECT * FROM [instance-level hint]
-      sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().render());
-
-      // WHERE [filter on related entity id]
-      String relatedEntityIdParam =
-          sqlParams.addParam("relatedEntityId", hintQueryRequest.getRelatedEntityId());
-      sql.append(" WHERE ")
-          .append(ITInstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName())
-          .append(" = @")
-          .append(relatedEntityIdParam);
-    }
-
-    return new SqlQueryRequest(sql.toString(), sqlParams, null, null, hintQueryRequest.isDryRun());
+    return new HintQueryResult(sql.toString(), hintInstances);
   }
 
   @Override
