@@ -203,17 +203,17 @@ public class UnderlayService {
       return entityLevelHints;
     }
 
-    List<Attribute> hintAttributes =
-        entityLevelHints.getHintInstances().stream().map(HintInstance::getAttribute).toList();
-
     // Generate SQL to select for entity filter
     BQApiTranslator bqTranslator = new BQApiTranslator();
     SqlParams sqlParams = new SqlParams();
     String bqFilterSql = bqTranslator.translator(entityFilter).buildSql(sqlParams, null);
 
+    // For each attribute with a hint, calculate new hints with the filter
     StringBuilder allSql = new StringBuilder();
     List<HintInstance> allHintInstances = new ArrayList<>();
-    hintAttributes.parallelStream()
+    entityLevelHints.getHintInstances().stream()
+        .map(HintInstance::getAttribute)
+        .parallel()
         .map(
             attribute -> {
               if (isRangeHint(attribute)) {

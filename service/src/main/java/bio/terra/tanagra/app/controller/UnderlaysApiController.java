@@ -55,8 +55,6 @@ import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -247,7 +245,6 @@ public class UnderlaysApiController implements UnderlaysApi {
         throw new BadRequestException("Only one of RelatedEntity and filter may be provided");
       }
 
-      // generate dynamic hints for this entity from the filter
       EntityFilter hintFilter = FromApiUtils.fromApiObject(body.getFilter(), entity, underlay);
       hintQueryResult = underlayService.getEntityLevelHints(underlay, entity, hintFilter);
 
