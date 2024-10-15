@@ -131,6 +131,7 @@ public final class BigQueryStorageWriter {
 
     private final AtomicInteger recreateCount = new AtomicInteger(0);
 
+    @SuppressWarnings("deprecation")
     public void initialize(CredentialsProvider credentialsProvider, TableName parentTable)
         throws Descriptors.DescriptorValidationException, IOException, InterruptedException {
       // Use the JSON stream writer to send records in JSON format. Specify the table name to write
