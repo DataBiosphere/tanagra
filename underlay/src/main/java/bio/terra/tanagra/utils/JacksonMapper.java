@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  * of the Jackson {@link ObjectMapper}, to avoid re-loading the modules multiple times for a single
  * CLI command.
  */
+@SuppressWarnings("deprecation")
 public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
 

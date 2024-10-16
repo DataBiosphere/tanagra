@@ -235,6 +235,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DisplayHintList"
+        400:
+          $ref: "#/components/responses/BadRequest"
         404:
           $ref: "#/components/responses/NotFound"
         500:
@@ -1646,13 +1648,16 @@ components:
 
     HintQuery:
       type: object
-      description: Get display hints
+      description: |
+        Get display hints. Only one of relatedEntity or filter may be provided. 
+        Use the filter field to generate hints for the entity based on a filter.
       properties:
         relatedEntity:
           description: |
             Optional related entity.
-            If specified, then we return hints computed across related instances (e.g. condition occurrences where condition id=11).
-            Otherwise, we return hints computed across all instances (e.g. all persons).
+            If specified, then we return hints computed across related instances 
+            (e.g. condition occurrences where condition id=11). Otherwise, 
+            we return hints computed across all instances (e.g. all persons).
           type: object
           properties:
             name:
@@ -1660,6 +1665,8 @@ components:
               description: Related entity name
             id:
               $ref: "#/components/schemas/Literal"
+        filter:
+          $ref: "#/components/schemas/Filter"
 
     CriteriaCountQuery:
       type: object

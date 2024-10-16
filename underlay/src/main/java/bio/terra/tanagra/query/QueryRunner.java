@@ -8,8 +8,13 @@ import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
+import bio.terra.tanagra.query.sql.SqlQueryRequest;
+import bio.terra.tanagra.query.sql.SqlQueryResult;
 
 public interface QueryRunner {
+
+  SqlQueryResult run(SqlQueryRequest sqlQueryRequest);
+
   ListQueryResult run(ListQueryRequest listQueryRequest);
 
   CountQueryResult run(CountQueryRequest countQueryRequest);

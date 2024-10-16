@@ -5,8 +5,8 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import jakarta.annotation.Nullable;
 
 public class OrderBy {
-  private final @Nullable ValueDisplayField valueDisplayField;
-  private final @Nullable OrderByDirection direction;
+  private final ValueDisplayField valueDisplayField;
+  private final OrderByDirection direction;
   private final boolean isRandom;
 
   public OrderBy(ValueDisplayField valueDisplayField, OrderByDirection direction) {
@@ -26,11 +26,11 @@ public class OrderBy {
     this.isRandom = isRandom;
   }
 
-  public ValueDisplayField getEntityField() {
+  public @Nullable ValueDisplayField getEntityField() {
     return valueDisplayField;
   }
 
-  public OrderByDirection getDirection() {
+  public @Nullable OrderByDirection getDirection() {
     return direction;
   }
 

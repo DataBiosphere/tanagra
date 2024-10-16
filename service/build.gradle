@@ -58,6 +58,8 @@ dependencies {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
     }
 
+    implementation project(path: ':indexer')
+
     implementation "io.swagger.core.v3:swagger-annotations:${vSwaggerAnnotations}"
     swaggerCodegen "io.swagger.codegen.v3:swagger-codegen-cli:${vSwaggerCodegen}"
 

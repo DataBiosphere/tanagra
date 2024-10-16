@@ -1,5 +1,7 @@
 package bio.terra.tanagra.service;
 
+import static bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints.*;
+
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
@@ -7,10 +9,19 @@ import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
+import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
+import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.*;
+import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
+import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
+import bio.terra.tanagra.query.sql.SqlParams;
+import bio.terra.tanagra.query.sql.SqlQueryRequest;
+import bio.terra.tanagra.query.sql.SqlQueryResult;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
@@ -19,18 +30,23 @@ import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.serialization.*;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /** Service to handle underlay operations. */
 @Component
 public class UnderlayService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(UnderlayService.class);
+
   private final ImmutableMap<String, CachedUnderlay> underlayCache;
 
   @Autowired
@@ -89,11 +105,33 @@ public class UnderlayService {
     return underlayCache.get(underlayName).getUnderlay();
   }
 
-  public Optional<HintQueryResult> getEntityLevelHints(String underlayName, String entityName) {
+  private static class CachedUnderlay {
+    private final Underlay underlay;
+    private final Map<String, HintQueryResult> entityLevelHints;
+
+    CachedUnderlay(Underlay underlay) {
+      this.underlay = underlay;
+      this.entityLevelHints = new HashMap<>();
+    }
+
+    Underlay getUnderlay() {
+      return underlay;
+    }
+
+    Optional<HintQueryResult> getEntityLevelHints(String entityName) {
+      return Optional.ofNullable(entityLevelHints.get(entityName));
+    }
+
+    void putEntityLevelHints(String entityName, HintQueryResult hintQueryResult) {
+      entityLevelHints.put(entityName, hintQueryResult);
+    }
+  }
+
+  private Optional<HintQueryResult> getEntityLevelHints(String underlayName, String entityName) {
     return underlayCache.get(underlayName).getEntityLevelHints(entityName);
   }
 
-  public void cacheEntityLevelHints(
+  private void cacheEntityLevelHints(
       String underlayName, String entityName, HintQueryResult hintQueryResult) {
     underlayCache.get(underlayName).putEntityLevelHints(entityName, hintQueryResult);
   }
@@ -109,18 +147,7 @@ public class UnderlayService {
       Integer limit,
       PageMarker pageMarker,
       Integer pageSize) {
-    // Get the entity level hints, either via query or from the cache.
-    Optional<HintQueryResult> entityLevelHintsCached =
-        getEntityLevelHints(underlay.getName(), entity.getName());
-    HintQueryResult entityLevelHints;
-    if (entityLevelHintsCached.isPresent()) {
-      entityLevelHints = entityLevelHintsCached.get();
-    } else {
-      HintQueryRequest hintQueryRequest =
-          new HintQueryRequest(underlay, entity, null, null, null, false);
-      entityLevelHints = underlay.getQueryRunner().run(hintQueryRequest);
-      cacheEntityLevelHints(underlay.getName(), entity.getName(), entityLevelHints);
-    }
+    HintQueryResult entityLevelHints = getEntityLevelHints(underlay, entity);
 
     // Build the attribute fields for select and group by.
     List<ValueDisplayField> attributeFields =
@@ -152,25 +179,137 @@ public class UnderlayService {
     return underlay.getQueryRunner().run(countQueryRequest);
   }
 
-  private static class CachedUnderlay {
-    private final Underlay underlay;
-    private final Map<String, HintQueryResult> entityLevelHints;
+  public HintQueryResult getEntityLevelHints(Underlay underlay, Entity entity) {
+    // Get the entity level hints, either via query or from the cache.
+    Optional<HintQueryResult> entityLevelHintsCached =
+        getEntityLevelHints(underlay.getName(), entity.getName());
+    HintQueryResult entityLevelHints;
+    if (entityLevelHintsCached.isPresent()) {
+      entityLevelHints = entityLevelHintsCached.get();
+    } else {
+      HintQueryRequest hintQueryRequest =
+          new HintQueryRequest(underlay, entity, null, null, null, false);
+      entityLevelHints = underlay.getQueryRunner().run(hintQueryRequest);
+      cacheEntityLevelHints(underlay.getName(), entity.getName(), entityLevelHints);
+    }
+    return entityLevelHints;
+  }
 
-    CachedUnderlay(Underlay underlay) {
-      this.underlay = underlay;
-      this.entityLevelHints = new HashMap<>();
+  public HintQueryResult getEntityLevelHints(
+      Underlay underlay, Entity entity, EntityFilter entityFilter) {
+    // Get the list of attributes with hints already computed for this entity
+    HintQueryResult entityLevelHints = getEntityLevelHints(underlay, entity);
+    if (entityFilter == null) {
+      return entityLevelHints;
     }
 
-    Underlay getUnderlay() {
-      return underlay;
-    }
+    // Generate SQL to select for entity filter
+    BQApiTranslator bqTranslator = new BQApiTranslator();
+    SqlParams sqlParams = new SqlParams();
+    String bqFilterSql = bqTranslator.translator(entityFilter).buildSql(sqlParams, null);
 
-    Optional<HintQueryResult> getEntityLevelHints(String entityName) {
-      return Optional.ofNullable(entityLevelHints.get(entityName));
-    }
+    // For each attribute with a hint, calculate new hints with the filter
+    StringBuilder allSql = new StringBuilder();
+    List<HintInstance> allHintInstances = new ArrayList<>();
+    entityLevelHints.getHintInstances().stream()
+        .map(HintInstance::getAttribute)
+        .parallel()
+        .map(
+            attribute -> {
+              if (isRangeHint(attribute)) {
+                String sql =
+                    WriteEntityLevelDisplayHints.buildRangeHintSql(
+                        underlay.getIndexSchema().getEntityMain(entity.getName()),
+                        attribute,
+                        bqFilterSql);
+                SqlQueryResult sqlQueryResult =
+                    underlay
+                        .getQueryRunner()
+                        .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
 
-    void putEntityLevelHints(String entityName, HintQueryResult hintQueryResult) {
-      entityLevelHints.put(entityName, hintQueryResult);
-    }
+                List<HintInstance> attrHintInstances = new ArrayList<>();
+                sqlQueryResult
+                    .getRowResults()
+                    .iterator()
+                    .forEachRemaining(
+                        sqlRowResult -> {
+                          Double min =
+                              sqlRowResult.get(MIN_VAL_ALIAS, DataType.DOUBLE).getDoubleVal();
+                          Double max =
+                              sqlRowResult.get(MAX_VAL_ALIAS, DataType.DOUBLE).getDoubleVal();
+                          if (min != null && max != null) {
+                            attrHintInstances.add(new HintInstance(attribute, min, max));
+                          }
+                        });
+                return new HintQueryResult(sql, attrHintInstances);
+
+              } else if (isEnumHintForValueDisplay(attribute)) {
+                String sql =
+                    WriteEntityLevelDisplayHints.buildEnumHintForValueDisplaySql(
+                        underlay.getIndexSchema().getEntityMain(entity.getName()),
+                        attribute,
+                        bqFilterSql);
+                SqlQueryResult sqlQueryResult =
+                    underlay
+                        .getQueryRunner()
+                        .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
+
+                Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
+                sqlQueryResult
+                    .getRowResults()
+                    .iterator()
+                    .forEachRemaining(
+                        sqlRowResult -> {
+                          Literal enumVal = sqlRowResult.get(ENUM_VAL_ALIAS, DataType.INT64);
+                          String enumDisplay =
+                              sqlRowResult.get(ENUM_DISP_ALIAS, DataType.STRING).getStringVal();
+                          Long enumCount =
+                              sqlRowResult.get(ENUM_COUNT_ALIAS, DataType.INT64).getInt64Val();
+                          attrEnumValues.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
+                        });
+                return new HintQueryResult(
+                    sql, List.of(new HintInstance(attribute, attrEnumValues)));
+
+              } else if (isEnumHintForRepeatedStringValue(attribute)) {
+                String sql =
+                    WriteEntityLevelDisplayHints.buildEnumHintForRepeatedStringValueSql(
+                        underlay.getIndexSchema().getEntityMain(entity.getName()),
+                        attribute,
+                        bqFilterSql);
+                SqlQueryResult sqlQueryResult =
+                    underlay
+                        .getQueryRunner()
+                        .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
+
+                Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
+                sqlQueryResult
+                    .getRowResults()
+                    .iterator()
+                    .forEachRemaining(
+                        sqlRowResult -> {
+                          Literal enumVal = sqlRowResult.get(ENUM_VAL_ALIAS, DataType.STRING);
+                          Long enumCount =
+                              sqlRowResult.get(ENUM_COUNT_ALIAS, DataType.INT64).getInt64Val();
+                          attrEnumValues.put(new ValueDisplay(enumVal), enumCount);
+                        });
+                return new HintQueryResult(
+                    sql, List.of(new HintInstance(attribute, attrEnumValues)));
+
+              } else {
+                LOGGER.info(
+                    "Attribute {} data type {} not yet supported for computing dynamic hint",
+                    attribute.getName(),
+                    attribute.getDataType());
+                return null;
+              }
+            })
+        .toList()
+        .forEach(
+            hqr -> {
+              allSql.append(hqr.getSql()).append(';');
+              allHintInstances.addAll(hqr.getHintInstances());
+            });
+
+    return new HintQueryResult(allSql.toString(), allHintInstances);
   }
 }

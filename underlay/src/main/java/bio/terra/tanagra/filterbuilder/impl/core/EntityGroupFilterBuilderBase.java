@@ -90,6 +90,7 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
         return false;
       }
 
+      @SuppressWarnings("unchecked")
       SelectionGroup sg = (SelectionGroup) o;
       return entityGroupId.equals(sg.entityGroupId) && Objects.equals(valueData, sg.valueData);
     }

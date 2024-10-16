@@ -16,10 +16,10 @@ public final class ListQueryRequest {
   private final Underlay underlay;
   private final Entity entity;
   private final ImmutableList<ValueDisplayField> selectFields;
-  private final @Nullable EntityFilter filter;
+  private final EntityFilter filter;
   private final ImmutableList<OrderBy> orderBys;
-  private final @Nullable Integer limit;
-  private final @Nullable PageMarker pageMarker;
+  private final Integer limit;
+  private final PageMarker pageMarker;
   private final Integer pageSize;
   private final boolean isDryRun;
   private final boolean isAgainstSourceData;
@@ -104,7 +104,7 @@ public final class ListQueryRequest {
     return selectFields;
   }
 
-  public EntityFilter getFilter() {
+  public @Nullable EntityFilter getFilter() {
     return filter;
   }
 
@@ -112,11 +112,11 @@ public final class ListQueryRequest {
     return orderBys;
   }
 
-  public Integer getLimit() {
+  public @Nullable Integer getLimit() {
     return limit;
   }
 
-  public PageMarker getPageMarker() {
+  public @Nullable PageMarker getPageMarker() {
     return pageMarker;
   }
 
