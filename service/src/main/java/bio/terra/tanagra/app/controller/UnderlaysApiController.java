@@ -242,7 +242,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
     if (body.getFilter() != null) { // dynamic entity level hints
       if (body.getRelatedEntity() != null) {
-        throw new BadRequestException("Only one of RelatedEntity and filter may be provided");
+        throw new BadRequestException("Only one of relatedEntity and filter may be provided");
       }
 
       EntityFilter hintFilter = FromApiUtils.fromApiObject(body.getFilter(), entity, underlay);
