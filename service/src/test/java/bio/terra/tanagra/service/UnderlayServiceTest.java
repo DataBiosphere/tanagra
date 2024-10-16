@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,7 @@ public class UnderlayServiceTest {
   }
 
   @Test
+  @Tag("requires-cloud-access")
   void entityLevelHints() {
     Underlay underlay = underlayService.getUnderlay("cmssynpuf");
     Entity entity = underlay.getEntity("person");
