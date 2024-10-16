@@ -146,13 +146,13 @@ public class UnderlayServiceTest {
     // check that all attrs were seen
     assertFalse(hintAttributes.values().stream().anyMatch(Objects::isNull));
 
-    // Filter where year_of_birth in (1930,1932)
+    // Filter where year_of_birth in (1900 - 1932)
     EntityFilter entityFilter =
         new AttributeFilter(
             underlay,
             entity,
             hintAttributes.get("year_of_birth"),
-            NaryOperator.IN,
+            NaryOperator.BETWEEN,
             List.of(Literal.forInt64(1900L), Literal.forInt64(1932L)));
     hintQueryResult = underlayService.getEntityLevelHints(underlay, entity, entityFilter);
     assertEquals(hintAttributes.size(), hintQueryResult.getHintInstances().size());
