@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -92,12 +93,11 @@ public class UnderlayServiceTest {
     hintAttributes.put("race", null);
     hintAttributes.put("year_of_birth", null);
 
-    // verily that all hints for all attributes are returned without a filter
-
     Map<Long, Long> enumCounts = new HashMap<>(); // enumVal, count
     Long[] ageRange = new Long[2];
     Long[] yearOfBirthRange = new Long[2];
 
+    // verily that all hints for all attributes are returned without a filter
     HintQueryResult hintQueryResult = underlayService.getEntityLevelHints(underlay, entity, null);
     assertNotNull(hintQueryResult.getSql());
     hintQueryResult
@@ -105,8 +105,8 @@ public class UnderlayServiceTest {
         .forEach(
             hi -> {
               String attrName = hi.getAttribute().getName();
-              hintAttributes.put(attrName, hi.getAttribute());
               assertTrue(hintAttributes.containsKey(attrName), attrName); // expected
+              assertNull(hintAttributes.get(attrName), attrName); // not seen before
 
               if ("age".equals(attrName)) { // depends on current_Timestamp
                 assertTrue(hi.isRangeHint());
@@ -140,6 +140,8 @@ public class UnderlayServiceTest {
                 yearOfBirthRange[0] = (long) hi.getMin();
                 yearOfBirthRange[1] = (long) hi.getMax();
               }
+
+              hintAttributes.put(attrName, hi.getAttribute());
             });
     // check that all attrs were seen
     assertFalse(hintAttributes.values().stream().anyMatch(Objects::nonNull));
@@ -207,8 +209,10 @@ public class UnderlayServiceTest {
     String entityName = "person";
     Entity entity = underlay.getEntity(entityName);
     ITEntityMain entityTable = underlay.getIndexSchema().getEntityMain(entityName);
+    String bqTableName = entityTable.getTablePointer().render();
 
-    Attribute attribute = entity.getAttribute("year_of_birth");
+    String attrName = "year_of_birth";
+    Attribute attribute = entity.getAttribute(attrName);
     EntityFilter entityFilter =
         new AttributeFilter(
             underlay,
@@ -219,24 +223,27 @@ public class UnderlayServiceTest {
     BQApiTranslator bqTranslator = new BQApiTranslator();
     SqlParams sqlParams = new SqlParams();
     String bqFilterSql = bqTranslator.translator(entityFilter).buildSql(sqlParams, null);
-
+    String expectedSql =
+        String.format(
+            "SELECT MIN(%s) AS minVal, MAX(%s) AS maxVal FROM (SELECT %s FROM %s WHERE %s)",
+            attrName, attrName, attrName, bqTableName, bqFilterSql);
     String hintSql =
         WriteEntityLevelDisplayHints.buildRangeHintSql(entityTable, attribute, bqFilterSql);
-    assertTrue(
-        hintSql.startsWith("SELECT MIN(year_of_birth) AS minVal, MAX(year_of_birth) AS maxVal "));
-    assertTrue(hintSql.endsWith(bqFilterSql));
+    assertEquals(expectedSql, hintSql);
 
-    attribute = entity.getAttribute("race");
+    attrName = "race";
+    attribute = entity.getAttribute(attrName);
     entityFilter =
         new AttributeFilter(
             underlay, entity, attribute, BinaryOperator.EQUALS, Literal.forInt64(8516L));
     bqFilterSql = new BQApiTranslator().translator(entityFilter).buildSql(new SqlParams(), null);
-
-    hintSql = WriteEntityLevelDisplayHints.buildRangeHintSql(entityTable, attribute, bqFilterSql);
-    assertTrue(
-        hintSql.startsWith(
-            "SELECT race AS enumVal, T_DISP_race AS enumDisp, COUNT(*) AS enumCount "));
-    assertTrue(hintSql.contains(bqFilterSql));
-    assertTrue(hintSql.endsWith("GROUP BY enumVal, enumDisp"));
+    expectedSql =
+        String.format(
+            "SELECT %s AS enumVal, T_DISP_%s AS enumDisp, COUNT(*) AS enumCount FROM %s WHERE %s GROUP BY enumVal, enumDisp",
+            attrName, attrName, bqTableName, bqFilterSql);
+    hintSql =
+        WriteEntityLevelDisplayHints.buildEnumHintForValueDisplaySql(
+            entityTable, attribute, bqFilterSql);
+    assertEquals(expectedSql, hintSql);
   }
 }
