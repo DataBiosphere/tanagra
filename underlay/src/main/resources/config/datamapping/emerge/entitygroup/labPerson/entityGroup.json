@@ -10,7 +10,7 @@
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
       },
-      "attributesWithInstanceLevelHints": [ "value_numeric" ]
+      "attributesWithInstanceLevelHints": [ "value_numeric", "value_enum" ]
     }
   ],
   "primaryCriteriaRelationship": {

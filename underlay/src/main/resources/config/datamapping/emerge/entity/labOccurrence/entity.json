@@ -6,6 +6,8 @@
     { "name": "person_id", "dataType": "INT64" },
     { "name": "lab", "dataType": "INT64", "valueFieldName": "lab_concept_id", "displayFieldName": "lab_concept_name" },
     { "name": "value_numeric", "dataType": "DOUBLE", "valueFieldName": "value_as_number" },
+    { "name": "value_enum", "dataType": "INT64", "valueFieldName": "value_as_string_id", "displayFieldName": "value_as_string" },
+    { "name": "standard_code", "dataType": "STRING"},
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 1, "displayHintRangeMax": 120 }
   ],
   "idAttribute": "id",

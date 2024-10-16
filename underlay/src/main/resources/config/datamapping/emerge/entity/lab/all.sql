@@ -1,8 +1,13 @@
 SELECT
-    cast(parse_numeric(lc.criteria_meta_seq) as INT64) as id,
-    cast(parse_numeric(lc.criteria_meta_seq) as INT64) as concept_id,
-    lc.name,
-    'Source' as is_standard,
-    cast(parse_numeric(lc.criteria_meta_seq) as STRING) as concept_code,
-    concat(cast(parse_numeric(lc.criteria_meta_seq) as STRING),' ',lc.name) as label,
-FROM `${omopDataset}.lab_criteria` lc
+    ROW_NUMBER() OVER(ORDER BY l.loinc_code,l.lab_name) as id,
+    l.lab_name as name,
+    l.loinc_code as concept_code,
+    'LAB' as type,
+    CASE WHEN l.loinc_code IS NULL THEN 'Custom'
+         ELSE 'Standard' END as is_standard,
+    CASE WHEN l.loinc_code IS NULL THEN l.lab_name
+         ELSE concat(l.loinc_code, ' ', l.lab_name) END as label,
+    case WHEN l.loinc_code IS NULL THEN 'VUMC-Lab'
+         ELSE 'LOINC' END as vocabulary_id
+FROM `${omopDataset}.labs` l
+group by 2,3
