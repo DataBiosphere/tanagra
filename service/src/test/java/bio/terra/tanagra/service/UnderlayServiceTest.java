@@ -144,7 +144,7 @@ public class UnderlayServiceTest {
               hintAttributes.put(attrName, hi.getAttribute());
             });
     // check that all attrs were seen
-    assertFalse(hintAttributes.values().stream().anyMatch(Objects::nonNull));
+    assertFalse(hintAttributes.values().stream().anyMatch(Objects::isNull));
 
     // Filter where year_of_birth in (1930,1932)
     EntityFilter entityFilter =
