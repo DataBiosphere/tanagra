@@ -1,8 +1,8 @@
 {
-  "name": "aouSC2023Q3R2_testonly",
+  "name": "aouR2022Q4R13",
   "primaryEntity": "person",
   "entities": [
-    "aouCT/person",
+    "aouRTv7/person",
 
     "aouRT/conditionConcept",
     "aouRT/conditionOccurrence",
@@ -40,7 +40,6 @@
     "aouRT/sleepDailySummary",
     "aouRT/sleepLevel",
     "aouRT/stepsIntraday",
-    "aouCT/zipcodeSocioeconomic",
 
     "aouRT/bloodPressure",
     "aouRT/heartRate",
@@ -56,9 +55,9 @@
     "aouRT/surveyPersonalAndFamilyHealth",
     "aouRT/surveyHealthCareAccess",
     "aouRT/surveySocialDeterminantsOfHealth",
-    "aouRT/surveyOccurrence",
-
-    "aouCT_testonly/variant"
+    "aouRT/surveyCovidVaccine",
+    "aouRT/surveyCope",
+    "aouRT/surveyOccurrence"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -69,7 +68,6 @@
     "aouRT/sleepDailySummaryPerson",
     "aouRT/sleepLevelPerson",
     "aouRT/stepsIntradayPerson",
-    "aouCT/zipcodeSocioeconomicPerson",
 
     "aouRT/bloodPressurePerson",
     "aouRT/heartRatePerson",
@@ -77,9 +75,7 @@
     "aouRT/weightPerson",
     "aouRT/bmiPerson",
     "aouRT/waistCircumferencePerson",
-    "aouRT/hipCircumferencePerson",
-
-    "aouCT_testonly/variantPerson"
+    "aouRT/hipCircumferencePerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
@@ -110,14 +106,16 @@
     "aouRT/surveyOverallHealthPerson",
     "aouRT/surveyPersonalAndFamilyHealthPerson",
     "aouRT/surveyHealthCareAccessPerson",
-    "aouRT/surveySocialDeterminantsOfHealthPerson"
+    "aouRT/surveySocialDeterminantsOfHealthPerson",
+    "aouRT/surveyCovidVaccinePerson",
+    "aouRT/surveyCopePerson"
   ],
-  "criteriaSelectors": [                                                                                                                                         
-    "aouRT/conditions",                                                                                                                                  
-    "aouRT/procedures",                                                                                                                                  
+  "criteriaSelectors": [
+    "aouRT/conditions",
+    "aouRT/procedures",
     "aouRT/observations",
     "aouRT/drugs",
-    "aouSC2023Q3R2_testonly/measurement",
+    "aouRT/measurement",
     "aouRT/visits",
     "aouRT/devices",
     "aouRT/hasEHRData",
@@ -134,17 +132,11 @@
     "aouRT/sexAtBirth",
     "aouRT/fitbit",
     "aouRT/fitbitActivitySummary",
-    "aouRT/fitbitStepsIntraday", 
+    "aouRT/fitbitStepsIntraday",
     "aouRT/fitbitHeartRateLevel",
     "aouRT/fitbitHeartRateSummary",
     "aouRT/fitbitSleepDailySummary",
     "aouRT/fitbitSleepLevel",
-    "aouRT/wearConsent",
-    "aouCT/shortReadWGS",
-    "aouCT/longReadWGS",
-    "aouCT/globalDiversityArray",
-    "aouCT/structuralVariants",
-    "aouSC2023Q3R2_testonly/variant",
     "aouRT/bloodPressure",
     "aouRT/heartRate",
     "aouRT/height",
@@ -153,12 +145,14 @@
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
     "aouRT/outputUnfiltered",
-    "aouSC2023Q3R2_testonly/surveyBasics",
+    "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
     "aouRT/surveyOverallHealth",
     "aouRT/surveyPersonalAndFamilyHealth",
     "aouRT/surveyHealthCareAccess",
-    "aouRT/surveySocialDeterminantsOfHealth"
+    "aouRT/surveySocialDeterminantsOfHealth",
+    "aouRT/surveyCovidVaccine",
+    "aouRT/surveyCope"
   ],
   "prepackagedDataFeatures": [
     "aouRT/_demographics",
@@ -167,8 +161,7 @@
     "aouRT/_fitbit_heart_rate_summary_id",
     "aouRT/_fitbit_heart_rate_level_id",
     "aouRT/_fitbit_sleep_daily_summary_id",
-    "aouRT/_fitbit_sleep_level_id",
-    "aouCT/_zipcode_socioeconomic_id"
+    "aouRT/_fitbit_sleep_level_id"
   ],
   "visualizations": [
     "omop/genderAndAge",
@@ -184,8 +177,8 @@
     "omop/topMeasurements"
   ],
   "metadata": {
-    "displayName": "All Of Us Synthetic Dataset Controlled Tier",
-    "description": "SC2023Q3R2"
+    "displayName": "All Of Us Registered Tier Dataset v7",
+    "description": "R2022Q4R13"
   },
   "uiConfigFile": "ui.json"
 }

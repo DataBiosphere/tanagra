@@ -1,0 +1,164 @@
+{
+  "featureConfig": {
+    "overrideExportButton": true
+  },
+  "demographicChartConfigs": {
+    "groupByAttributes": ["gender", "race", "age"],
+    "chartConfigs": [
+      {
+        "title": "Gender identity",
+        "primaryProperties": [{ "key": "gender" }]
+      },
+      {
+        "title": "Gender identity, Current age, Race",
+        "primaryProperties": [
+          { "key": "gender" },
+          {
+            "key": "age",
+            "buckets": [
+              {
+                "min": 18,
+                "max": 45,
+                "displayName": "18-44"
+              },
+              {
+                "min": 45,
+                "max": 65,
+                "displayName": "45-64"
+              },
+              {
+                "min": 65,
+                "displayName": "65+"
+              }
+            ]
+          }
+        ],
+        "stackedProperty": { "key": "race" }
+      }
+    ]
+  },
+  "criteriaSearchConfig": {
+    "criteriaTypeWidth": 120,
+    "columns": [
+      { "key": "name", "width": "100%", "title": "Name" },
+      { "key": "vocabulary_t_value", "width": 120, "title": "Vocab" },
+      { "key": "concept_code", "width": 120, "title": "Code" },
+      { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" }
+    ]
+  },
+  "cohortReviewConfig": {
+    "participantsListColumns": [
+      { "key": "id", "width": 35, "title": "Id" },
+      { "key": "age", "width": 25, "title": "Age" },
+      { "key": "gender", "width": 30, "title": "Gender" },
+      { "key": "sex_at_birth", "width": 40, "title": "Sex at Birth" },
+      { "key": "race", "width": 60, "title": "Race" },
+      { "key": "ethnicity", "width": 60, "title": "Ethnicity" }
+    ],
+    "attributes": [
+      {
+        "title": "Gender",
+        "key": "gender"
+      },
+      {
+        "title": "Sex at Birth",
+        "key": "sex_at_birth"
+      },
+      {
+        "title": "Age",
+        "key": "age"
+      },
+      {
+        "title": "Race",
+        "key": "race"
+      },
+      {
+        "title": "Ethnicity",
+        "key": "ethnicity"
+      }
+    ],
+    "pages": [
+      {
+        "type": "entityTable",
+        "id": "condition",
+        "title": "Conditions",
+        "plugin": {
+          "entity": "conditionOccurrence",
+          "columns": [
+            { "key": "condition_start_datetime", "width": "10%", "title": "Start date", "sortable": true },
+            { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "standard_concept_name", "width": "30%", "title": "Condition name", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "15%", "title": "Age at Occurrence", "sortable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "procedure",
+        "title": "Procedures",
+        "plugin": {
+          "entity": "procedureOccurrence",
+          "columns": [
+            { "key": "procedure_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "standard_concept_name", "width": "30%", "title": "Procedure Name", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "15%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "observation",
+        "title": "Observations",
+        "plugin": {
+          "entity": "observationOccurrence",
+          "columns": [
+            { "key": "observation_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "standard_concept_name", "width": "30%", "title": "Observation Name", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "15%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "ingredient",
+        "title": "Drugs",
+        "plugin": {
+          "entity": "ingredientOccurrence",
+          "columns": [
+            { "key": "drug_exposure_start_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "standard_concept_code", "width": "15%", "title": "Standard Code", "sortable": true, "filterable": true },
+            { "key": "standard_vocabulary", "width": "15%", "title": "Standard Vocabulary", "sortable": true, "filterable": true },
+            { "key": "standard_concept_name", "width": "30%", "title": "Drug Name", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "15%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
+          ]
+        }
+      },
+      {
+        "type": "entityTable",
+        "id": "measurements",
+        "title": "Labs and measurements",
+        "plugin": {
+          "entity": "measurementOccurrence",
+          "columns": [
+            { "key": "measurement_datetime", "width": "10%", "title": "Date", "sortable": true, "filterable": true },
+            { "key": "standard_concept_name", "width": "25%", "title": "Lab/measurement Name", "sortable": true, "filterable": true },
+            { "key": "value_enum", "width": "15%", "title": "Categorical value", "sortable": true, "filterable": true },
+            { "key": "value_numeric", "width": "15%", "title": "Numeric value", "sortable": true, "filterable": true },
+            { "key": "unit_concept_name", "width": "10%", "title": "Unit", "sortable": true, "filterable": true },
+            { "key": "age_at_occurrence", "width": "10%", "title": "Age at Occurrence", "sortable": true, "filterable": true },
+            { "key": "visit_type", "width": "15%", "title": "Visit Type", "sortable": true, "filterable": true }
+          ]
+        }
+      }
+    ]
+  }
+}
