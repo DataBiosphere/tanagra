@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,9 +11,13 @@ import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
+import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.app.Main;
+import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
+import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
+import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
@@ -22,6 +25,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,8 +106,7 @@ public class UnderlayServiceTest {
             hi -> {
               String attrName = hi.getAttribute().getName();
               hintAttributes.put(attrName, hi.getAttribute());
-              assertTrue(hintAttributes.containsKey(attrName)); // expected
-              assertNull(hintAttributes.get(attrName)); // not seen yet
+              assertTrue(hintAttributes.containsKey(attrName), attrName); // expected
 
               if ("age".equals(attrName)) { // depends on current_Timestamp
                 assertTrue(hi.isRangeHint());
@@ -196,5 +199,44 @@ public class UnderlayServiceTest {
                 assertTrue(hi.getMax() <= yearOfBirthRange[1]);
               }
             });
+  }
+
+  @Test
+  void buildHintSql() {
+    Underlay underlay = underlayService.getUnderlay("cmssynpuf");
+    String entityName = "person";
+    Entity entity = underlay.getEntity(entityName);
+    ITEntityMain entityTable = underlay.getIndexSchema().getEntityMain(entityName);
+
+    Attribute attribute = entity.getAttribute("year_of_birth");
+    EntityFilter entityFilter =
+        new AttributeFilter(
+            underlay,
+            entity,
+            attribute,
+            NaryOperator.IN,
+            List.of(Literal.forInt64(1900L), Literal.forInt64(1932L)));
+    BQApiTranslator bqTranslator = new BQApiTranslator();
+    SqlParams sqlParams = new SqlParams();
+    String bqFilterSql = bqTranslator.translator(entityFilter).buildSql(sqlParams, null);
+
+    String hintSql =
+        WriteEntityLevelDisplayHints.buildRangeHintSql(entityTable, attribute, bqFilterSql);
+    assertTrue(
+        hintSql.startsWith("SELECT MIN(year_of_birth) AS minVal, MAX(year_of_birth) AS maxVal "));
+    assertTrue(hintSql.endsWith(bqFilterSql));
+
+    attribute = entity.getAttribute("race");
+    entityFilter =
+        new AttributeFilter(
+            underlay, entity, attribute, BinaryOperator.EQUALS, Literal.forInt64(8516L));
+    bqFilterSql = new BQApiTranslator().translator(entityFilter).buildSql(new SqlParams(), null);
+
+    hintSql = WriteEntityLevelDisplayHints.buildRangeHintSql(entityTable, attribute, bqFilterSql);
+    assertTrue(
+        hintSql.startsWith(
+            "SELECT race AS enumVal, T_DISP_race AS enumDisp, COUNT(*) AS enumCount "));
+    assertTrue(hintSql.contains(bqFilterSql));
+    assertTrue(hintSql.endsWith("GROUP BY enumVal, enumDisp"));
   }
 }
