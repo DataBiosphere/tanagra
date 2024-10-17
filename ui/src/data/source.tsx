@@ -49,6 +49,12 @@ export type ListDataResponse = {
   sql: string;
 };
 
+export type GetHintDataOptions = {
+  relatedEntity?: string;
+  relatedId?: DataKey;
+  filter?: tanagra.Filter | null;
+};
+
 export type IntegerHint = {
   min: number;
   max: number;
@@ -294,14 +300,12 @@ export interface UnderlaySource {
   getHintData(
     occurrenceID: string,
     attributeID: string,
-    relatedEntity?: string,
-    relatedID?: DataKey
+    options?: GetHintDataOptions
   ): Promise<HintData | undefined>;
 
   getAllHintData(
     occurrenceID: string,
-    relatedEntity?: string,
-    relatedID?: DataKey
+    options?: GetHintDataOptions
   ): Promise<HintData[]>;
 
   listExportModels(underlayName: string): Promise<ExportModel[]>;
@@ -722,60 +726,17 @@ export class BackendUnderlaySource implements UnderlaySource {
   async getHintData(
     entityId: string,
     attributeId: string,
-    relatedEntity?: string,
-    relatedId?: DataKey
+    options?: GetHintDataOptions
   ): Promise<HintData | undefined> {
-    const res = await parseAPIError(
-      this.underlaysApi.queryHints({
-        entityName:
-          entityId === ""
-            ? this.underlay.underlayConfig.primaryEntity
-            : entityId,
-        underlayName: this.underlay.name,
-        hintQuery:
-          !!relatedEntity && !!relatedId
-            ? {
-                relatedEntity: {
-                  name: relatedEntity,
-                  id: literalFromDataValue(relatedId),
-                },
-              }
-            : {},
-      })
-    );
-
-    const hint = res.displayHints?.find(
-      (hint) => hint?.attribute?.name === attributeId
-    );
-
-    return fromAPIDisplayHint(hint);
+    const hints = await this.queryHints(entityId, options);
+    return hints?.find((hint) => hint?.attribute === attributeId);
   }
 
   async getAllHintData(
     entityId: string,
-    relatedEntity?: string,
-    relatedId?: DataKey
+    options?: GetHintDataOptions
   ): Promise<HintData[]> {
-    const res = await parseAPIError(
-      this.underlaysApi.queryHints({
-        entityName:
-          entityId === ""
-            ? this.underlay.underlayConfig.primaryEntity
-            : entityId,
-        underlayName: this.underlay.name,
-        hintQuery:
-          !!relatedEntity && !!relatedId
-            ? {
-                relatedEntity: {
-                  name: relatedEntity,
-                  id: literalFromDataValue(relatedId),
-                },
-              }
-            : {},
-      })
-    );
-
-    return res.displayHints?.map((hint) => fromAPIDisplayHint(hint)) ?? [];
+    return (await this.queryHints(entityId, options)) ?? [];
   }
 
   public async listExportModels(underlayName: string): Promise<ExportModel[]> {
@@ -1045,6 +1006,33 @@ export class BackendUnderlaySource implements UnderlaySource {
       },
     };
     return req;
+  }
+
+  private async queryHints(
+    entityId: string,
+    options?: GetHintDataOptions
+  ): Promise<HintData[] | undefined> {
+    const res = await parseAPIError(
+      this.underlaysApi.queryHints({
+        entityName:
+          entityId === ""
+            ? this.underlay.underlayConfig.primaryEntity
+            : entityId,
+        underlayName: this.underlay.name,
+        hintQuery: {
+          relatedEntity:
+            !!options?.relatedEntity && !!options?.relatedId
+              ? {
+                  name: options.relatedEntity,
+                  id: literalFromDataValue(options.relatedId),
+                }
+              : undefined,
+          filter: options?.filter,
+        },
+      })
+    );
+
+    return res.displayHints?.map((hint) => fromAPIDisplayHint(hint)) ?? [];
   }
 }
 
@@ -1744,7 +1732,7 @@ function processAttributes(
   }
 }
 
-function makeBooleanLogicFilter(
+export function makeBooleanLogicFilter(
   operator: tanagra.BooleanLogicFilterOperatorEnum,
   operands: (tanagra.Filter | null)[]
 ) {
