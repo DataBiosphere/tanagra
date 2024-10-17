@@ -1,0 +1,21 @@
+{
+  "underlay": "aouSC2023Q3R2",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "fc-aou-cdr-stable-ct",
+      "datasetId": "SC2023Q3R2",
+      "sqlSubstitutions": {
+        "omopDataset": "fc-aou-cdr-stable-ct.SC2023Q3R2",
+        "staticTablesDataset": "fc-aou-cdr-stable-ct.SC2023Q3R2"
+      }
+    },
+    "indexData": {
+      "projectId": "fc-aou-cdr-stable-ct",
+      "datasetId": "SC2023Q3R2",
+      "tablePrefix": "T"
+    },
+    "queryProjectId": "fc-aou-cdr-stable-ct",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}
