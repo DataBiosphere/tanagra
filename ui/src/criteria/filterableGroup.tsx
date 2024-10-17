@@ -34,6 +34,7 @@ import {
   EntityNode,
   HintData,
   literalFromDataValue,
+  makeBooleanLogicFilter,
   protoFromDataKey,
 } from "data/source";
 import { DataKey } from "data/types";
@@ -274,7 +275,13 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
       let hintData: HintData[] | undefined;
       if (!key.pageMarker) {
         hintDataP = underlaySource.getAllHintData(
-          entityGroup.selectionEntity.name
+          entityGroup.selectionEntity.name,
+          {
+            filter: makeBooleanLogicFilter(
+              tanagra.BooleanLogicFilterOperatorEnum.And,
+              generateFilters(searchState?.query ?? "")
+            ),
+          }
         );
       }
 
@@ -742,7 +749,7 @@ const variantIdRE = /\d+-\d+-\w+-\w+/;
 
 function generateFilters(
   query: string,
-  filters: ValueData[]
+  filters?: ValueData[]
 ): tanagra.Filter[] {
   const operands: tanagra.Filter[] = [];
 
@@ -784,7 +791,7 @@ function generateFilters(
     }
   }
 
-  filters.forEach((vd) => {
+  filters?.forEach((vd) => {
     if (vd.numeric) {
       operands.push({
         filterType: tanagra.FilterFilterTypeEnum.Attribute,

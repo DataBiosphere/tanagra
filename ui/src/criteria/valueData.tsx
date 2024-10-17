@@ -100,11 +100,10 @@ export function ValueDataEdit(props: ValueDataEditProps) {
       const hintData =
         props.hintData ??
         (props.valueConfigs
-          ? await underlaySource.getAllHintData(
-              key.hintEntity,
-              key.relatedEntity,
-              key.key
-            )
+          ? await underlaySource.getAllHintData(key.hintEntity, {
+              relatedEntity: key.relatedEntity,
+              relatedId: key.key,
+            })
           : undefined);
       return {
         hintData,
