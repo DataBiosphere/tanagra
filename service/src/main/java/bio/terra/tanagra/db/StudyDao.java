@@ -219,10 +219,10 @@ public class StudyDao {
   public Optional<Study> getStudyIfExists(String id) {
     // Fetch study.
     String sql = STUDY_SELECT_SQL + " WHERE id = :id";
-    // LOGGER.debug("GET study: {}", sql);
+    LOGGER.debug("GET study: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<Study> studies = getStudiesHelper(sql, params);
-    // LOGGER.debug("GET study numFound = {}", studies.size());
+    LOGGER.debug("GET study numFound = {}", studies.size());
 
     // Make sure there's only one study returned for this id.
     if (studies.isEmpty()) {

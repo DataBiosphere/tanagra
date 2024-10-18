@@ -2,11 +2,16 @@ package bio.terra.tanagra.filterbuilder.impl.core;
 
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
+import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.filter.TextSearchFilter;
+import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
+import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
@@ -14,19 +19,19 @@ import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFFilterableGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 public class FilterableGroupFilterBuilder
     extends FilterBuilder<CFFilterableGroup.FilterableGroup, DTFilterableGroup.FilterableGroup> {
-  private static final org.slf4j.Logger LOGGER =
-      LoggerFactory.getLogger(FilterableGroupFilterBuilder.class);
 
   public FilterableGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
@@ -88,7 +93,8 @@ public class FilterableGroupFilterBuilder
     }
 
     // Grouping is not needed since filtersToOr are not subFilters
-    return new BooleanAndOrFilter(LogicalOperator.OR, filtersToOr);
+    return new BooleanAndOrFilter(
+        LogicalOperator.OR, filtersToOr.stream().filter(Objects::nonNull).toList());
   }
 
   private EntityFilter buildForIndividualSelectAll(
@@ -100,7 +106,12 @@ public class FilterableGroupFilterBuilder
 
     // string query
     if (!selectAllItem.getQuery().isEmpty()) {
-      // TODO-Dex: to be implemented
+      Entity notPrimaryEntity =
+          groupItems.getGroupEntity().isPrimary()
+              ? groupItems.getItemsEntity()
+              : groupItems.getGroupEntity();
+      filtersToAnd.add(
+          generateFilterForQuery(underlay, notPrimaryEntity, selectAllItem.getQuery()));
     }
 
     // attribute values
@@ -120,7 +131,8 @@ public class FilterableGroupFilterBuilder
                 underlay, criteriaSelector, groupItems, excludedIds, List.of())));
 
     // Grouping is not needed since filtersToAnd are not subFilters
-    return new BooleanAndOrFilter(LogicalOperator.AND, filtersToAnd);
+    return new BooleanAndOrFilter(
+        LogicalOperator.AND, filtersToAnd.stream().filter(Objects::nonNull).toList());
   }
 
   @Override
@@ -145,5 +157,28 @@ public class FilterableGroupFilterBuilder
         : deserializeFromJsonOrProtoBytes(
                 serialized, DTFilterableGroup.FilterableGroup.newBuilder())
             .build();
+  }
+
+  private static EntityFilter generateFilterForQuery(
+      Underlay underlay, Entity entity, String query) {
+    if (StringUtils.isEmpty(query)) {
+      return null;
+    }
+
+    // TODO(BENCH-4370): Make this part of underlay config
+    if (!entity.getName().equals("variant")) {
+      return null;
+    }
+    Literal literal = Literal.forString(query);
+    if (query.matches("rs[0-9]+")) {
+      return new AttributeFilter(
+          underlay, entity, entity.getAttribute("rs_number"), NaryOperator.IN, List.of(literal));
+    } else if (query.matches("[0-9]+-[0-9]+-[A-Z]+-[A-Z]+")) {
+      return new AttributeFilter(
+          underlay, entity, entity.getAttribute("variant_id"), BinaryOperator.EQUALS, literal);
+    } else {
+      return new TextSearchFilter(
+          underlay, entity, TextSearchOperator.EXACT_MATCH, query, entity.getAttribute("gene"));
+    }
   }
 }
