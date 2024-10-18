@@ -1,14 +1,14 @@
-import FilterListIcon from "@mui/icons-material/FilterList";
-import FilterListOffIcon from "@mui/icons-material/FilterListOff";
+import TuneIcon from "@mui/icons-material/Tune";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
+import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
-import Checkbox from "components/checkbox";
 import { HintDataSelect } from "components/hintDataSelect";
+import { containedIconButtonSx } from "components/iconButton";
 import Loading from "components/loading";
 import { DataRange, RangeSlider } from "components/rangeSlider";
 import { dataValueFromProto, HintData, protoFromDataValue } from "data/source";
@@ -95,6 +95,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
       hintEntity: props.hintEntity,
       relatedEntity: props.relatedEntity,
       key: props.hintKey,
+      hintData: props.hintData,
     },
     async (key) => {
       const hintData =
@@ -249,7 +250,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
   return (
     <GridLayout rows height="auto">
       {props.title ? (
-        <GridLayout cols rowAlign="middle">
+        <GridLayout cols spacing={0.5} rowAlign="middle">
           <Typography variant="body2">{props.title}</Typography>
           <Loading status={hintDataState} size="small">
             {hasHints ? (
@@ -262,16 +263,22 @@ export function ValueDataEdit(props: ValueDataEditProps) {
                   e.stopPropagation();
                 }}
               >
-                <Checkbox
-                  size="small"
-                  fontSize="inherit"
-                  checked={!!props.valueData}
-                  checkedIcon={<FilterListIcon />}
-                  uncheckedIcon={<FilterListOffIcon />}
-                  onChange={() =>
-                    props.update(props.valueData ? undefined : [ANY_VALUE_DATA])
-                  }
-                />
+                <Typography variant="body2">
+                  <IconButton
+                    sx={
+                      props.valueData
+                        ? containedIconButtonSx("primary")
+                        : undefined
+                    }
+                    onClick={() =>
+                      props.update(
+                        props.valueData ? undefined : [ANY_VALUE_DATA]
+                      )
+                    }
+                  >
+                    <TuneIcon fontSize="inherit" />
+                  </IconButton>
+                </Typography>
               </GridBox>
             ) : null}
           </Loading>
