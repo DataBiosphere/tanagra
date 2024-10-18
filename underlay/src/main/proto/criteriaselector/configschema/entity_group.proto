@@ -17,6 +17,7 @@ import "sort_order.proto";
 message EntityGroup {
   // Columns displayed in the list view.
   repeated Column columns = 1;
+
   // Columns displayed in the hierarchy view.
   repeated Column hierarchy_columns = 2;
 

@@ -68,7 +68,7 @@ type SingleSelect = {
 
 type SelectAll = {
   query: string;
-  values: ValueData[];
+  valueData: ValueData[];
   exclusions: SingleSelect[];
 };
 
@@ -363,7 +363,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                           id: generateId(),
                           all: {
                             query: searchState?.query ?? "",
-                            values: filters,
+                            valueData: filters,
                             exclusions: [],
                           },
                         });
@@ -618,7 +618,7 @@ function SelectAllStats(props: SelectAllStatsProps) {
           {props.selectAll.query}
         </Typography>
       </Typography>
-      {props.selectAll.values.map((v) => {
+      {props.selectAll.valueData.map((v) => {
         const name =
           props.config.valueConfigs.find((c) => c.attribute === v.attribute)
             ?.title ?? "Unknown";
@@ -698,7 +698,7 @@ function decodeData(data: string): Data {
           all: s.all
             ? {
                 query: s.all.query,
-                values: s.all.values.map((v) => decodeValueData(v)) ?? [],
+                valueData: s.all.valueData.map((v) => decodeValueData(v)) ?? [],
                 exclusions:
                   s.all.exclusions.map((e) => ({
                     key: dataKeyFromProto(e.key),
@@ -724,7 +724,7 @@ function encodeData(data: Data): string {
       all: s.all
         ? {
             query: s.all.query,
-            values: s.all.values.map((v) => encodeValueData(v)),
+            valueData: s.all.valueData.map((v) => encodeValueData(v)),
             exclusions: s.all.exclusions.map((e) => ({
               key: protoFromDataKey(e.key),
               name: e.name,

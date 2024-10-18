@@ -68,10 +68,8 @@ public class TextSearchFilterBuilder
 
     // Build the sub-filter on the criteria entity.
     EntityFilter criteriaSubFilter =
-        criteriaIds.isEmpty()
-            ? null
-            : EntityGroupFilterUtils.buildIdSubFilter(
-                underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds);
+        EntityGroupFilterUtils.buildIdSubFilter(
+            underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds);
 
     // Build the attribute modifier filters.
     Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity =

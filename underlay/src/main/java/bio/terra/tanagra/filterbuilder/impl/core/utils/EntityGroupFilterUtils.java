@@ -15,6 +15,7 @@ import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
+import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass.ValueData;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFUnhintedValue;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
@@ -105,7 +106,56 @@ public final class EntityGroupFilterUtils {
     return subFiltersPerOccurrenceEntity;
   }
 
-  public static EntityFilter buildGroupItemsFilter(
+  public static EntityFilter buildGroupItemsFilterFromIds(
+      Underlay underlay,
+      CriteriaSelector criteriaSelector,
+      GroupItems groupItems,
+      List<Literal> selectedIds,
+      List<SelectionData> modifiersSelectionData) {
+    Entity notPrimaryEntity =
+        groupItems.getGroupEntity().isPrimary()
+            ? groupItems.getItemsEntity()
+            : groupItems.getGroupEntity();
+
+    // Build the sub-filters on the non-primary entity.
+    List<EntityFilter> idFilterNonPrimaryEntity = new ArrayList<>();
+    if (!selectedIds.isEmpty()) {
+      idFilterNonPrimaryEntity.add(
+          EntityGroupFilterUtils.buildIdSubFilter(underlay, notPrimaryEntity, selectedIds));
+    }
+
+    return EntityGroupFilterUtils.buildGroupItemsFilterFromSubFilters(
+        underlay, criteriaSelector, groupItems, idFilterNonPrimaryEntity, modifiersSelectionData);
+  }
+
+  public static EntityFilter buildGroupItemsFilterFromValueData(
+      Underlay underlay,
+      CriteriaSelector criteriaSelector,
+      GroupItems groupItems,
+      List<ValueData> valueDataList,
+      List<SelectionData> modifiersSelectionData) {
+    Entity notPrimaryEntity =
+        groupItems.getGroupEntity().isPrimary()
+            ? groupItems.getItemsEntity()
+            : groupItems.getGroupEntity();
+
+    // Build the attribute filters on the not-primary entity.
+    List<EntityFilter> subFiltersNotPrimaryEntity =
+        valueDataList.stream()
+            .map(
+                valueData ->
+                    AttributeSchemaUtils.buildForEntity(
+                        underlay,
+                        notPrimaryEntity,
+                        notPrimaryEntity.getAttribute(valueData.getAttribute()),
+                        valueData))
+            .toList();
+
+    return EntityGroupFilterUtils.buildGroupItemsFilterFromSubFilters(
+        underlay, criteriaSelector, groupItems, subFiltersNotPrimaryEntity, modifiersSelectionData);
+  }
+
+  public static EntityFilter buildGroupItemsFilterFromSubFilters(
       Underlay underlay,
       CriteriaSelector criteriaSelector,
       GroupItems groupItems,
