@@ -2,9 +2,12 @@ package bio.terra.tanagra.filterbuilder.impl.core;
 
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
+import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
@@ -32,7 +35,7 @@ public class FilterableGroupFilterBuilder
   @Override
   public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
     if (selectionData.size() != 1) {
-      throw new InvalidConfigException(
+      throw new InvalidQueryException(
           "Filterable group filter builder does not support modifiers.");
     }
 
@@ -45,14 +48,16 @@ public class FilterableGroupFilterBuilder
     CFFilterableGroup.FilterableGroup config = deserializeConfig();
     EntityGroup entityGroup = underlay.getEntityGroup(config.getEntityGroup());
     if (entityGroup.getType() != EntityGroup.Type.GROUP_ITEMS) {
-      throw new InvalidConfigException(
+      throw new InvalidQueryException(
           "Filterable group filter builder only supports entityGroup of type GROUP_ITEMS.");
     }
     GroupItems groupItems = (GroupItems) entityGroup;
 
+    // Apply Boolean.OR to individual selection
+    List<EntityFilter> filtersToOr = new ArrayList<>();
+
     // We want to build one filter per selection item, not one filter per selected id.
     List<Literal> selectedIds = new ArrayList<>();
-    List<EntityFilter> allFilters = new ArrayList<>();
     data.getSelectedList()
         .forEach(
             selectionItem -> {
@@ -65,34 +70,61 @@ public class FilterableGroupFilterBuilder
                   break;
 
                 case ALL:
-                  allFilters.add(buildForIndividualSelectAll(selectionItem.getAll()));
+                  filtersToOr.add(
+                      buildForIndividualSelectAll(underlay, groupItems, selectionItem.getAll()));
                   break;
 
                 default:
-                  throw new InvalidConfigException(
-                      "SelectionItem must be either a single selection or selectAll. itemId: "
-                          + selectionItem.getId());
+                  throw new InvalidQueryException(
+                      "SelectionItem must be either a single selection or selectAll.");
               }
             });
 
     // singleSelect: search on primary key of the entity
     if (!selectedIds.isEmpty()) {
-      allFilters.add(
+      filtersToOr.add(
           EntityGroupFilterUtils.buildGroupItemsFilterFromIds(
-              underlay, criteriaSelector, groupItems, selectedIds, null));
+              underlay, criteriaSelector, groupItems, selectedIds, List.of()));
     }
 
-    // Perform OR on all filters
-    // TODO-Dex: to be implemented
-    return allFilters.get(0);
+    // Grouping is not needed since filtersToOr are not subFilters
+    return new BooleanAndOrFilter(LogicalOperator.OR, filtersToOr);
   }
 
   private EntityFilter buildForIndividualSelectAll(
+      Underlay underlay,
+      GroupItems groupItems,
       DTFilterableGroup.FilterableGroup.SelectAll selectAllItem) {
     // selectAll: Apply Boolean.AND to individual selections
+    List<EntityFilter> filtersToAnd = new ArrayList<>();
 
-    // TODO-Dex: to be implemented
-    return null;
+    // string query
+    if (!selectAllItem.getQuery().isEmpty()) {
+      if (selectAllItem.getAttribute().isEmpty()) {
+        throw new InvalidQueryException(
+            "SelectAllItem query must also include the attribute to query on.");
+      }
+      // TODO-Dex: to be implemented
+    }
+
+    // attribute values
+    filtersToAnd.add(
+        EntityGroupFilterUtils.buildGroupItemsFilterFromValueData(
+            underlay, criteriaSelector, groupItems, selectAllItem.getValueDataList(), List.of()));
+
+    // exclusions: NOT(ids)
+    List<Literal> excludedIds =
+        selectAllItem.getExclusionsList().stream()
+            .filter(item -> item.hasKey() && item.getKey().hasInt64Key())
+            .map(item -> Literal.forInt64(item.getKey().getInt64Key()))
+            .toList();
+    filtersToAnd.add(
+        new BooleanNotFilter(
+            EntityGroupFilterUtils.buildGroupItemsFilterFromIds(
+                underlay, criteriaSelector, groupItems, excludedIds, List.of())));
+
+    // Grouping is not needed since filtersToAnd are not subFilters
+    return new BooleanAndOrFilter(LogicalOperator.AND, filtersToAnd);
   }
 
   @Override

@@ -44,25 +44,13 @@ public class MultiAttributeFilterBuilder
         underlay.getRelationship(
             underlay.getEntity(multiAttrConfig.getEntity()), underlay.getPrimaryEntity());
     GroupItems groupItems = (GroupItems) entityGroup.getLeft();
-    Entity notPrimaryEntity =
-        groupItems.getGroupEntity().isPrimary()
-            ? groupItems.getItemsEntity()
-            : groupItems.getGroupEntity();
 
-    // Build the attribute filters on the not-primary entity.
-    List<EntityFilter> subFiltersNotPrimaryEntity = new ArrayList<>();
-    multiAttrSelectionData
-        .getValueDataList()
-        .forEach(
-            valueData ->
-                subFiltersNotPrimaryEntity.add(
-                    AttributeSchemaUtils.buildForEntity(
-                        underlay,
-                        notPrimaryEntity,
-                        notPrimaryEntity.getAttribute(valueData.getAttribute()),
-                        valueData)));
-    return EntityGroupFilterUtils.buildGroupItemsFilterFromSubFilters(
-        underlay, criteriaSelector, groupItems, subFiltersNotPrimaryEntity, modifiersSelectionData);
+    return EntityGroupFilterUtils.buildGroupItemsFilterFromValueData(
+        underlay,
+        criteriaSelector,
+        groupItems,
+        multiAttrSelectionData.getValueDataList(),
+        modifiersSelectionData);
   }
 
   @Override

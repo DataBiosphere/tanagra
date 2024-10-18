@@ -701,7 +701,7 @@ function decodeData(data: string): Data {
             ? {
                 query: s.all.query,
                 attribute: AttributeName[identifyAttribute(s.all.query)],
-                values: s.all.values.map((v) => decodeValueData(v)) ?? [],
+                values: s.all.valueData.map((v) => decodeValueData(v)) ?? [],
                 exclusions:
                   s.all.exclusions.map((e) => ({
                     key: dataKeyFromProto(e.key),
@@ -728,7 +728,7 @@ function encodeData(data: Data): string {
         ? {
             query: s.all.query,
             attribute: identifyAttribute(s.all.query).valueOf(),
-            values: s.all.values.map((v) => encodeValueData(v)),
+            valueData: s.all.values.map((v) => encodeValueData(v)),
             exclusions: s.all.exclusions.map((e) => ({
               key: protoFromDataKey(e.key),
               name: e.name,
@@ -801,7 +801,7 @@ function generateFilters(
         },
       },
     });
-  } else if (attr == AttributeName.gene){
+  } else if (attr == AttributeName.gene) {
     operands.push({
       filterType: tanagra.FilterFilterTypeEnum.Text,
       filterUnion: {

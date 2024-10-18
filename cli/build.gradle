@@ -21,7 +21,7 @@ dependencies {
     implementation "com.fasterxml.jackson.core:jackson-core:${vJackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${vJackson}"
 
-    implementation "org.apache.commons:commons-text:${vApacheCommonsText}"
+    implementation "org.apache.commons:commons-text:${vApacheText}"
     implementation "org.slf4j:slf4j-api:${vSlf4jApi}"
     implementation 'ch.qos.logback:logback-classic:1.5.6'
 
