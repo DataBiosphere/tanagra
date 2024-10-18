@@ -25,6 +25,7 @@ import useSWRImmutable from "swr/immutable";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { base64ToBytes } from "util/base64";
 import { safeRegExp } from "util/safeRegExp";
+import { isValid } from "util/valid";
 
 type Selection = {
   value: DataValue;
@@ -59,8 +60,9 @@ interface Data {
         ? [{ value: true, name: attribute.name }]
         : [],
       dataRanges:
-        attribute?.displayHintRangeMin !== undefined &&
-        attribute?.displayHintRangeMax !== undefined
+        isValid(attribute) &&
+        isValid(attribute.displayHintRangeMin) &&
+        isValid(attribute.displayHintRangeMax)
           ? [
               {
                 id: generateId(),

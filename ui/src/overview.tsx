@@ -29,6 +29,7 @@ import {
   useCohortContext,
 } from "cohortContext";
 import Empty from "components/empty";
+import { containedIconButtonSx } from "components/iconButton";
 import Loading from "components/loading";
 import { useMenu } from "components/menu";
 import { SaveStatus } from "components/saveStatus";
@@ -914,18 +915,7 @@ function ParticipantsGroup(props: {
                   <IconButton
                     sx={
                       props.group.disabled
-                        ? {
-                            "&.MuiIconButton-root": {
-                              backgroundColor: (theme) =>
-                                theme.palette.warning.main,
-                              color: (theme) =>
-                                theme.palette.warning.contrastText,
-                            },
-                            "&.MuiIconButton-root:hover": {
-                              backgroundColor: (theme) =>
-                                theme.palette.warning.dark,
-                            },
-                          }
+                        ? containedIconButtonSx("warning")
                         : undefined
                     }
                     onClick={() => {
