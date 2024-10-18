@@ -68,8 +68,7 @@ type SingleSelect = {
 
 type SelectAll = {
   query: string;
-  attribute: string;
-  values: ValueData[];
+  valueData: ValueData[];
   exclusions: SingleSelect[];
 };
 
@@ -364,8 +363,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                           id: generateId(),
                           all: {
                             query: searchState?.query ?? "",
-                            attribute: "",
-                            values: filters,
+                            valueData: filters,
                             exclusions: [],
                           },
                         });
@@ -620,7 +618,7 @@ function SelectAllStats(props: SelectAllStatsProps) {
           {props.selectAll.query}
         </Typography>
       </Typography>
-      {props.selectAll.values.map((v) => {
+      {props.selectAll.valueData.map((v) => {
         const name =
           props.config.valueConfigs.find((c) => c.attribute === v.attribute)
             ?.title ?? "Unknown";
@@ -700,8 +698,7 @@ function decodeData(data: string): Data {
           all: s.all
             ? {
                 query: s.all.query,
-                attribute: AttributeName[identifyAttribute(s.all.query)],
-                values: s.all.valueData.map((v) => decodeValueData(v)) ?? [],
+                valueData: s.all.valueData.map((v) => decodeValueData(v)) ?? [],
                 exclusions:
                   s.all.exclusions.map((e) => ({
                     key: dataKeyFromProto(e.key),
@@ -727,8 +724,7 @@ function encodeData(data: Data): string {
       all: s.all
         ? {
             query: s.all.query,
-            attribute: identifyAttribute(s.all.query).valueOf(),
-            valueData: s.all.values.map((v) => encodeValueData(v)),
+            valueData: s.all.valueData.map((v) => encodeValueData(v)),
             exclusions: s.all.exclusions.map((e) => ({
               key: protoFromDataKey(e.key),
               name: e.name,
@@ -751,67 +747,48 @@ function decodeConfig(
 const rsRE = /rs\d+/;
 const variantIdRE = /\d+-\d+-\w+-\w+/;
 
-enum AttributeName {
-  none = "none",
-  rs_number = "rs_number",
-  variant_id = "variant_id",
-  gene = "gene",
-}
-
-function identifyAttribute(query: string): AttributeName {
-  if (query == "") {
-    return AttributeName.none;
-  } else if (rsRE.test(query)) {
-    return AttributeName.rs_number;
-  } else if (variantIdRE.test(query)) {
-    return AttributeName.variant_id;
-  } else {
-    return AttributeName.gene;
-  }
-}
-
 function generateFilters(
   query: string,
   filters?: ValueData[]
 ): tanagra.Filter[] {
   const operands: tanagra.Filter[] = [];
 
-  const attr = identifyAttribute(query);
-
-  // TODO(tjennison): Consider how to make this configurable.
-  if (attr == AttributeName.rs_number) {
-    operands.push({
-      filterType: tanagra.FilterFilterTypeEnum.Attribute,
-      filterUnion: {
-        attributeFilter: {
-          attribute: query,
-          operator: tanagra.AttributeFilterOperatorEnum.In,
-          values: [literalFromDataValue(query)],
+  if (query !== "") {
+    // TODO(tjennison): Consider how to make this configurable.
+    if (rsRE.test(query)) {
+      operands.push({
+        filterType: tanagra.FilterFilterTypeEnum.Attribute,
+        filterUnion: {
+          attributeFilter: {
+            attribute: "rs_number",
+            operator: tanagra.AttributeFilterOperatorEnum.In,
+            values: [literalFromDataValue(query)],
+          },
         },
-      },
-    });
-  } else if (attr == AttributeName.variant_id) {
-    operands.push({
-      filterType: tanagra.FilterFilterTypeEnum.Attribute,
-      filterUnion: {
-        attributeFilter: {
-          attribute: query,
-          operator: tanagra.AttributeFilterOperatorEnum.Equals,
-          values: [literalFromDataValue(query)],
+      });
+    } else if (variantIdRE.test(query)) {
+      operands.push({
+        filterType: tanagra.FilterFilterTypeEnum.Attribute,
+        filterUnion: {
+          attributeFilter: {
+            attribute: "variant_id",
+            operator: tanagra.AttributeFilterOperatorEnum.Equals,
+            values: [literalFromDataValue(query)],
+          },
         },
-      },
-    });
-  } else if (attr == AttributeName.gene) {
-    operands.push({
-      filterType: tanagra.FilterFilterTypeEnum.Text,
-      filterUnion: {
-        textFilter: {
-          matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
-          text: query,
-          attribute: query,
+      });
+    } else {
+      operands.push({
+        filterType: tanagra.FilterFilterTypeEnum.Text,
+        filterUnion: {
+          textFilter: {
+            matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
+            text: query,
+            attribute: "gene",
+          },
         },
-      },
-    });
+      });
+    }
   }
 
   filters?.forEach((vd) => {

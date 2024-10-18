@@ -735,7 +735,6 @@ Data for an GroupItems entity group criteria with filterable attributes.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | query | [string](#string) |  | The string query of the selection. |
-| attribute | [string](#string) |  | The attribute for the query string. |
 | value_data | [tanagra.ValueData](#tanagra-ValueData) | repeated | Optional values that comprise the selection. |
 | exclusions | [FilterableGroup.SingleSelect](#tanagra-dataschema-FilterableGroup-SingleSelect) | repeated | Single items excluded from this selection. |
 

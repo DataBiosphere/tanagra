@@ -25,14 +25,11 @@ message FilterableGroup {
     // The string query of the selection.
     string query = 1;
 
-    // The attribute for the query string.
-    string attribute = 2;
-    
     // Optional values that comprise the selection.
-    repeated ValueData value_data = 3;
+    repeated ValueData value_data = 2;
 
     // Single items excluded from this selection.
-    repeated SingleSelect exclusions = 4;
+    repeated SingleSelect exclusions = 3;
   }
 
   message Selection {

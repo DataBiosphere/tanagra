@@ -100,10 +100,6 @@ public class FilterableGroupFilterBuilder
 
     // string query
     if (!selectAllItem.getQuery().isEmpty()) {
-      if (selectAllItem.getAttribute().isEmpty()) {
-        throw new InvalidQueryException(
-            "SelectAllItem query must also include the attribute to query on.");
-      }
       // TODO-Dex: to be implemented
     }
 
