@@ -6,6 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Popover from "@mui/material/Popover";
 import TablePagination from "@mui/material/TablePagination";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
@@ -307,6 +308,11 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
     [props.config.columns]
   );
 
+  const selectAllEnabled =
+    instancesState?.data?.[0]?.total &&
+    instancesState.data[0].total >= 25 &&
+    instancesState.data[0].total <= 10000;
+
   return (
     <GridBox
       sx={{
@@ -350,28 +356,35 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                     filters={filters}
                     setFilters={setFilters}
                   />
-                  <Button
-                    variant="outlined"
-                    disabled={
-                      instancesState.data[0].total < 25 ||
-                      instancesState.data[0].total > 10000
-                    }
-                    endIcon={<AddIcon />}
-                    onClick={() =>
-                      updateLocalCriteria((data) => {
-                        data.selected.push({
-                          id: generateId(),
-                          all: {
-                            query: searchState?.query ?? "",
-                            values: filters,
-                            exclusions: [],
-                          },
-                        });
-                      })
+                  <Tooltip
+                    title={
+                      !selectAllEnabled
+                        ? "Number of results must be between 25 and 10,000 to Select all. For results less than 25, selections must be made individually."
+                        : ""
                     }
                   >
-                    Select all
-                  </Button>
+                    <span>
+                      <Button
+                        variant="outlined"
+                        disabled={!selectAllEnabled}
+                        endIcon={<AddIcon />}
+                        onClick={() =>
+                          updateLocalCriteria((data) => {
+                            data.selected.push({
+                              id: generateId(),
+                              all: {
+                                query: searchState?.query ?? "",
+                                values: filters,
+                                exclusions: [],
+                              },
+                            });
+                          })
+                        }
+                      >
+                        Select all
+                      </Button>
+                    </span>
+                  </Tooltip>
                 </GridLayout>
                 {instancesState.data[currentPage] ? (
                   <ResultsPage
@@ -562,6 +575,13 @@ function FilterButton(props: FilterButtonProps) {
   const open = !!anchorEl;
   const id = open ? "filterableGroup-filters" : undefined;
 
+  const onClose = () => {
+    setAnchorEl(null);
+    if (isValid(filters)) {
+      props.setFilters(filters);
+    }
+  };
+
   return (
     <>
       <Button
@@ -579,25 +599,27 @@ function FilterButton(props: FilterButtonProps) {
         id={id}
         open={open}
         anchorEl={anchorEl}
-        onClose={() => {
-          setAnchorEl(null);
-          if (isValid(filters)) {
-            props.setFilters(filters);
-          }
-        }}
+        onClose={() => onClose()}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left",
         }}
       >
         <GridBox sx={{ p: 2, width: "500px" }}>
-          <ValueDataEdit
-            hintEntity={props.entity}
-            hintData={props.hintData}
-            valueConfigs={props.config.valueConfigs}
-            valueData={filters ?? props.filters}
-            update={(filters) => setFilters(filters ?? [])}
-          />
+          <GridLayout rows spacing={2} height="auto">
+            <ValueDataEdit
+              hintEntity={props.entity}
+              hintData={props.hintData}
+              valueConfigs={props.config.valueConfigs}
+              valueData={filters ?? props.filters}
+              update={(filters) => setFilters(filters ?? [])}
+            />
+            <GridLayout cols colAlign="right">
+              <Button variant="contained" onClick={() => onClose()}>
+                Apply
+              </Button>
+            </GridLayout>
+          </GridLayout>
         </GridBox>
       </Popover>
     </>
@@ -754,7 +776,7 @@ function generateFilters(
   const operands: tanagra.Filter[] = [];
 
   if (query !== "") {
-    // TODO(tjennison): Consider how to make this configurable.
+    // TODO(BENCH-4370): Consider how to make this configurable.
     if (rsRE.test(query)) {
       operands.push({
         filterType: tanagra.FilterFilterTypeEnum.Attribute,
