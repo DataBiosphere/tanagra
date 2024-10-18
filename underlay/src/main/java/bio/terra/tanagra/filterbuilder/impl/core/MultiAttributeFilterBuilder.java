@@ -61,7 +61,7 @@ public class MultiAttributeFilterBuilder
                         notPrimaryEntity,
                         notPrimaryEntity.getAttribute(valueData.getAttribute()),
                         valueData)));
-    return EntityGroupFilterUtils.buildGroupItemsFilter(
+    return EntityGroupFilterUtils.buildGroupItemsFilterFromSubFilters(
         underlay, criteriaSelector, groupItems, subFiltersNotPrimaryEntity, modifiersSelectionData);
   }
 
