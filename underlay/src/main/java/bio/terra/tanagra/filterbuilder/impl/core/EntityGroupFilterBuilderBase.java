@@ -142,8 +142,12 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
               break;
             case GROUP_ITEMS:
               entityFilters.add(
-                  buildGroupItemsFilter(
-                      underlay, (GroupItems) entityGroup, selectedIds, modifiersSelectionData));
+                  EntityGroupFilterUtils.buildGroupItemsFilterFromIds(
+                      underlay,
+                      criteriaSelector,
+                      (GroupItems) entityGroup,
+                      selectedIds,
+                      modifiersSelectionData));
               break;
             default:
               throw new SystemException("Unsupported entity group type: " + entityGroup.getType());
@@ -386,26 +390,6 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
         groupByAttributesPerOccurrenceEntity,
         GroupByCountSchemaUtils.toBinaryOperator(groupByModifierData.getOperator()),
         (int) groupByModifierData.getMin());
-  }
-
-  private EntityFilter buildGroupItemsFilter(
-      Underlay underlay,
-      GroupItems groupItems,
-      List<Literal> selectedIds,
-      List<SelectionData> modifiersSelectionData) {
-    Entity notPrimaryEntity =
-        groupItems.getGroupEntity().isPrimary()
-            ? groupItems.getItemsEntity()
-            : groupItems.getGroupEntity();
-
-    // Build the sub-filters on the non-primary entity.
-    List<EntityFilter> idFilterNonPrimaryEntity = new ArrayList<>();
-    if (!selectedIds.isEmpty()) {
-      idFilterNonPrimaryEntity.add(
-          EntityGroupFilterUtils.buildIdSubFilter(underlay, notPrimaryEntity, selectedIds));
-    }
-    return EntityGroupFilterUtils.buildGroupItemsFilter(
-        underlay, criteriaSelector, groupItems, idFilterNonPrimaryEntity, modifiersSelectionData);
   }
 
   protected abstract List<String> entityGroupIds();

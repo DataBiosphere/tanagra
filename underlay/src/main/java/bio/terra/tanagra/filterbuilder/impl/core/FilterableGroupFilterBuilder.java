@@ -1,0 +1,121 @@
+package bio.terra.tanagra.filterbuilder.impl.core;
+
+import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
+
+import bio.terra.tanagra.api.filter.EntityFilter;
+import bio.terra.tanagra.api.shared.Literal;
+import bio.terra.tanagra.exception.InvalidConfigException;
+import bio.terra.tanagra.filterbuilder.EntityOutput;
+import bio.terra.tanagra.filterbuilder.FilterBuilder;
+import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
+import bio.terra.tanagra.proto.criteriaselector.configschema.CFFilterableGroup;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup;
+import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
+import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
+import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
+import bio.terra.tanagra.underlay.uiplugin.SelectionData;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.LoggerFactory;
+
+public class FilterableGroupFilterBuilder
+    extends FilterBuilder<CFFilterableGroup.FilterableGroup, DTFilterableGroup.FilterableGroup> {
+  private static final org.slf4j.Logger LOGGER =
+      LoggerFactory.getLogger(FilterableGroupFilterBuilder.class);
+
+  public FilterableGroupFilterBuilder(CriteriaSelector criteriaSelector) {
+    super(criteriaSelector);
+  }
+
+  @Override
+  public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
+    if (selectionData.size() != 1) {
+      throw new InvalidConfigException(
+          "Filterable group filter builder does not support modifiers.");
+    }
+
+    DTFilterableGroup.FilterableGroup data = deserializeData(selectionData.get(0).getPluginData());
+    if (data == null) { // Empty selection data = null filter for a cohort.
+      return null;
+    }
+
+    // Pull the entity group from the config.
+    CFFilterableGroup.FilterableGroup config = deserializeConfig();
+    EntityGroup entityGroup = underlay.getEntityGroup(config.getEntityGroup());
+    if (entityGroup.getType() != EntityGroup.Type.GROUP_ITEMS) {
+      throw new InvalidConfigException(
+          "Filterable group filter builder only supports entityGroup of type GROUP_ITEMS.");
+    }
+    GroupItems groupItems = (GroupItems) entityGroup;
+
+    // We want to build one filter per selection item, not one filter per selected id.
+    List<Literal> selectedIds = new ArrayList<>();
+    List<EntityFilter> allFilters = new ArrayList<>();
+    data.getSelectedList()
+        .forEach(
+            selectionItem -> {
+              switch (selectionItem.getSelectionCase()) {
+                case SINGLE:
+                  DTFilterableGroup.FilterableGroup.SingleSelect item = selectionItem.getSingle();
+                  if (item.hasKey() && item.getKey().hasInt64Key()) {
+                    selectedIds.add(Literal.forInt64(item.getKey().getInt64Key()));
+                  }
+                  break;
+
+                case ALL:
+                  allFilters.add(buildForIndividualSelectAll(selectionItem.getAll()));
+                  break;
+
+                default:
+                  throw new InvalidConfigException(
+                      "SelectionItem must be either a single selection or selectAll. itemId: "
+                          + selectionItem.getId());
+              }
+            });
+
+    // singleSelect: search on primary key of the entity
+    if (!selectedIds.isEmpty()) {
+      allFilters.add(
+          EntityGroupFilterUtils.buildGroupItemsFilterFromIds(
+              underlay, criteriaSelector, groupItems, selectedIds, null));
+    }
+
+    // Perform OR on all filters
+    // TODO-Dex: to be implemented
+    return allFilters.get(0);
+  }
+
+  private EntityFilter buildForIndividualSelectAll(
+      DTFilterableGroup.FilterableGroup.SelectAll selectAllItem) {
+    // selectAll: Apply Boolean.AND to individual selections
+
+    // TODO-Dex: to be implemented
+    return null;
+  }
+
+  @Override
+  public List<EntityOutput> buildForDataFeature(
+      Underlay underlay, List<SelectionData> selectionData) {
+    // TODO(BENCH-4362): Add support for data features in filterableGroup filter
+    throw new NotImplementedException(
+        "Filterable group filter builder does not implemented for data feature set.");
+  }
+
+  @Override
+  public CFFilterableGroup.FilterableGroup deserializeConfig() {
+    return deserializeFromJsonOrProtoBytes(
+            criteriaSelector.getPluginConfig(), CFFilterableGroup.FilterableGroup.newBuilder())
+        .build();
+  }
+
+  @Override
+  public DTFilterableGroup.FilterableGroup deserializeData(String serialized) {
+    return (serialized == null || serialized.isEmpty())
+        ? null
+        : deserializeFromJsonOrProtoBytes(
+                serialized, DTFilterableGroup.FilterableGroup.newBuilder())
+            .build();
+  }
+}

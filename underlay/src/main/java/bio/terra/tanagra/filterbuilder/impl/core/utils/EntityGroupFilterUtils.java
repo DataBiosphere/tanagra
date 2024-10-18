@@ -105,7 +105,28 @@ public final class EntityGroupFilterUtils {
     return subFiltersPerOccurrenceEntity;
   }
 
-  public static EntityFilter buildGroupItemsFilter(
+  public static EntityFilter buildGroupItemsFilterFromIds(
+      Underlay underlay,
+      CriteriaSelector criteriaSelector,
+      GroupItems groupItems,
+      List<Literal> selectedIds,
+      List<SelectionData> modifiersSelectionData) {
+    Entity notPrimaryEntity =
+        groupItems.getGroupEntity().isPrimary()
+            ? groupItems.getItemsEntity()
+            : groupItems.getGroupEntity();
+
+    // Build the sub-filters on the non-primary entity.
+    List<EntityFilter> idFilterNonPrimaryEntity = new ArrayList<>();
+    if (!selectedIds.isEmpty()) {
+      idFilterNonPrimaryEntity.add(
+          EntityGroupFilterUtils.buildIdSubFilter(underlay, notPrimaryEntity, selectedIds));
+    }
+    return EntityGroupFilterUtils.buildGroupItemsFilterFromSubFilters(
+        underlay, criteriaSelector, groupItems, idFilterNonPrimaryEntity, modifiersSelectionData);
+  }
+
+  public static EntityFilter buildGroupItemsFilterFromSubFilters(
       Underlay underlay,
       CriteriaSelector criteriaSelector,
       GroupItems groupItems,

@@ -71,7 +71,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
       }
     }
-    LOGGER.info("Authorization required by endpoint: {}", request.getRequestURL().toString());
+    // LOGGER.info("Authorization required by endpoint: {}", request.getRequestURL().toString());
 
     UserId userId;
     try {
@@ -109,8 +109,8 @@ public class AuthInterceptor implements HandlerInterceptor {
                         authenticationConfiguration.getJwtAlgorithm()));
 
       } else if (authenticationConfiguration.isDisableChecks()) {
-        LOGGER.warn(
-            "Authentication checks are disabled. This should only happen for local development.");
+        // LOGGER.warn(
+        //    "Authentication checks are disabled. This should only happen for local development.");
         userId = UserId.forDisabledAuthentication();
 
       } else {

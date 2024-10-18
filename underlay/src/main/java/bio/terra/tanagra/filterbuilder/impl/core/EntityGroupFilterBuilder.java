@@ -49,17 +49,15 @@ public class EntityGroupFilterBuilder
     }
 
     return selectionData.getSelectedList().stream()
-        .filter(id -> id.hasKey())
+        .filter(id -> id.hasKey() && id.getKey().hasInt64Key())
         .map(
             selectedId -> {
               ValueDataOuterClass.ValueData valueData =
                   selectedId.hasValueData() ? selectedId.getValueData() : null;
               if (valueData == null) {
                 // For backwards compatability, put selection level value data into the individual
-                // IDs.
-                // This will only be the case when there is a single selection and any updates to
-                // the
-                // data will migrate the value data permanently.
+                // IDs. This will only be the case when there is a single selection and any updates
+                // to the data will migrate the value data permanently.
                 valueData = selectionData.hasValueData() ? selectionData.getValueData() : null;
               }
 
