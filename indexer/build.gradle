@@ -34,7 +34,7 @@ dependencies {
     implementation project(':underlay')
     testImplementation(testFixtures(project(':underlay')))
 
-    implementation "org.apache.commons:commons-text:${vApacheText}"
+    implementation "org.apache.commons:commons-text:${vApacheCommonsText}"
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     // Command parsing
