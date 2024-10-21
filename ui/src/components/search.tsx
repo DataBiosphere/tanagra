@@ -19,6 +19,7 @@ export type SearchProps = {
   searchKey?: string;
   delayMs?: number;
 
+  disabled?: boolean;
   showSearchButton?: boolean;
 };
 
@@ -70,6 +71,7 @@ export function Search(props: SearchProps) {
           <form onSubmit={handleSubmit}>
             <Stack direction="row" justifyContent="center" alignItems="center">
               <TextField
+                disabled={props.disabled}
                 autoFocus
                 fullWidth
                 name="query"
@@ -87,6 +89,7 @@ export function Search(props: SearchProps) {
                   endAdornment: values.query?.length ? (
                     <InputAdornment position="end">
                       <IconButton
+                        disabled={props.disabled}
                         onClick={() => {
                           form.reset();
                           onSearch("");
