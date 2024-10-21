@@ -247,7 +247,7 @@ function SurveyEdit(props: SurveyEditProps) {
       showUnconfirmedChangesDialog({
         title: "Unsaved changes",
         text: "Unsaved changes will be lost if you go back without saving.",
-        buttons: ["Cancel", "Go back", "Save"],
+        buttons: ["Cancel", "Discard changes", "Save"],
         onButton: (button) => {
           if (button === 1) {
             props.doneAction();
