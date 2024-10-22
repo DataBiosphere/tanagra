@@ -34,29 +34,10 @@ repositories {
 }
 
 dependencies {
-    // added to address synk warnings
-    constraints {
-        implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
-    }
-
     implementation "org.slf4j:slf4j-api:${vSlf4jApi}"
-
-    implementation("bio.terra:terra-common-lib:${vTerraCommonLib}") {
-        exclude group: 'com.azure'
-        exclude group: 'io.swagger', module: 'swagger-annotations'
-        exclude group: 'io.opentelemetry'
-        exclude group: 'io.opentelemetry.instrumentation'
-        exclude group: 'org.springframework', module: 'spring-web'
-    }
 
     implementation project(path: ':underlay')
     implementation project(path: ':service')
-
-    // explicity declare libs and version to address synk warnings
-    implementation "org.springframework:spring-web:${vSpringWeb}"
-    implementation "org.springframework:spring-webmvc:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-web:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-webmvc:${vSpringWeb}"
 
     // Static analysis
     pmd "net.sourceforge.pmd:pmd-ant:${vPmd}"

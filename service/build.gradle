@@ -56,6 +56,17 @@ dependencies {
     // added to address synk warnings
     constraints {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
+
+        def vSpringWeb = '6.1.14'
+      /*  implementation "org.springframework:spring-context:${vSpringWeb}"
+        implementation "org.springframework:spring-core:${vSpringWeb}"
+        implementation "org.springframework:spring-web:${vSpringWeb}"
+
+       */
+        implementation 'org.springframework:spring-context:6.1.14'
+        implementation 'org.springframework:spring-core:6.1.14'
+        implementation 'org.springframework:spring-web:6.1.14'
+        implementation 'org.springframework:spring-webmvc:6.1.14'
     }
 
     implementation project(path: ':indexer')
@@ -77,13 +88,23 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api'
     implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
 
+    def vTerraCommonLib = '1.1.22-SNAPSHOT'
     implementation("bio.terra:terra-common-lib:${vTerraCommonLib}") {
+        exclude group: 'bio.terra' // module: stairway-*
+        exclude group: 'com.amazonaws'
         exclude group: 'com.azure'
+        exclude group: 'com.google.protobuf' // different version used here
         exclude group: 'io.swagger', module: 'swagger-annotations'
         exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
+
+        // may include deps with security vuln, add required libs separately
+        exclude group: 'org.springframework.boot'
+        exclude group: 'org.springframework.data'
+        exclude group: 'org.springframework.retry'
+        exclude group: 'org.springframework.security'
+        exclude group: 'org.springframework'
     }
 
     implementation project(":underlay")
@@ -94,12 +115,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.security:spring-security-core'
-
-    // explicity declare libs and version to address synk warnings
-    implementation "org.springframework:spring-web:${vSpringWeb}"
-    implementation "org.springframework:spring-webmvc:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-web:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-webmvc:${vSpringWeb}"
 
     // [Application DB] MySQL/MariaDB
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.12'
