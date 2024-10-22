@@ -113,7 +113,9 @@ dependencies {
     // Spring version controlled dependencies
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation ('org.springframework.boot:spring-boot-starter-web:3.3.4') {
+        exclude group: 'org.springframework', module: 'spring-webmvc'
+    }
     implementation 'org.springframework.security:spring-security-core'
 
     // [Application DB] MySQL/MariaDB
