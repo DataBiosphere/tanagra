@@ -5,11 +5,8 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import { VALUE_SUFFIX } from "data/configuration";
-import { Cohort, StudySource, UnderlaySource } from "data/source";
+import { Cohort, StudySource } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { compareDataValues } from "data/types";
-import { useUnderlaySource } from "data/underlaySourceContext";
 import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox, GridBoxPaper } from "layout/gridBox";
@@ -17,8 +14,7 @@ import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/viz/viz_config";
 import { useMemo, useState } from "react";
 import useSWRImmutable from "swr/immutable";
-import { isValid } from "util/valid";
-import { getVizPlugin, VizData } from "viz/viz";
+import { getVizPlugin, processFilterCountValues, VizData } from "viz/viz";
 
 type UnparsedConfig = {
   dataConfig: string;
@@ -41,7 +37,6 @@ type VizContainerProps = {
 
 export function VizContainer(props: VizContainerProps) {
   const cohort = useCohort();
-  const underlaySource = useUnderlaySource();
   const studyId = useStudyId();
   const studySource = useStudySource();
 
@@ -61,21 +56,17 @@ export function VizContainer(props: VizContainerProps) {
   const dataState = useSWRImmutable(
     { type: "vizData", config: config, cohort: props.cohort },
     async () =>
-      fetchVizData(
-        config.dataConfig,
-        underlaySource,
-        studySource,
-        studyId,
-        cohort
-      ).then((data) => ({
-        data,
-        plugin: getVizPlugin(config.plugin, config.pluginConfig),
-        tablePlugin: getVizPlugin("core/table", {
-          keyTitles: config.dataConfig.sources
-            .map((s) => s.attributes.map((a) => a.attribute))
-            .flat(),
-        }),
-      }))
+      fetchVizData(config.dataConfig, studySource, studyId, cohort).then(
+        (data) => ({
+          data,
+          plugin: getVizPlugin(config.plugin, config.pluginConfig),
+          tablePlugin: getVizPlugin("core/table", {
+            keyTitles: config.dataConfig.sources
+              .map((s) => s.attributes.map((a) => a.attribute))
+              .flat(),
+          }),
+        })
+      )
   );
 
   const handleViewChange = (
@@ -142,10 +133,8 @@ const selectorToEntity: { [key: string]: string } = {
   ingredients: "ingredientOccurrence",
   measurements: "measurementOccurrence",
 };
-
 async function fetchVizData(
   vizConfig: configProto.VizConfig,
-  underlaySource: UnderlaySource,
   studySource: StudySource,
   studyId: string,
   cohort: Cohort
@@ -170,7 +159,7 @@ async function fetchVizData(
     throw new Error("Only 1 or 2 attributes are supported.");
   }
 
-  const data = await studySource.cohortCount(
+  const fcvs = await studySource.cohortCount(
     studyId,
     cohort.id,
     undefined,
@@ -179,151 +168,5 @@ async function fetchVizData(
     entity
   );
 
-  const dataMap = new Map<string, VizData>();
-  data.forEach((d) => {
-    let exclude = false;
-    const vd: VizData = {
-      keys: vizSource.attributes.map((a) => {
-        let value = d[a.attribute];
-        if (!isValid(value)) {
-          value = "Unknown";
-        }
-
-        let name: string | undefined = undefined;
-        let numericId: number | undefined = undefined;
-        let stringId: string | undefined = undefined;
-        if (a.numericBucketing) {
-          const thresholds = a.numericBucketing.thresholds ?? [];
-          if (!thresholds.length) {
-            const intervals = a.numericBucketing.intervals;
-            if (!intervals || !intervals.min || !intervals.max) {
-              throw new Error(
-                "Bucketing is configured without thresholds or intervals."
-              );
-            }
-
-            for (let i = 0; i < intervals.count + 1; i++) {
-              thresholds.push(
-                intervals.min + i * (intervals.max - intervals.min)
-              );
-            }
-          }
-
-          if (a.numericBucketing.includeLesser && value < thresholds[0]) {
-            name = `<${thresholds[0]}`;
-          } else {
-            for (let i = 0; i < thresholds.length; i++) {
-              if (value >= thresholds[i - 1] && value < thresholds[i]) {
-                name = `${thresholds[i - 1]}-${thresholds[i]}`;
-                break;
-              }
-            }
-          }
-          if (a.numericBucketing.includeGreater && !name) {
-            name = `>=${thresholds[thresholds.length - 1]}`;
-          }
-
-          if (!name) {
-            exclude = true;
-            return { name: "" };
-          }
-
-          stringId = name;
-        } else {
-          name = String(value);
-          const id = d[a.attribute + VALUE_SUFFIX];
-          if (typeof id === "number") {
-            numericId = id;
-          } else {
-            stringId = String(id) ?? name;
-          }
-        }
-
-        return {
-          name,
-          numericId,
-          stringId,
-        };
-      }),
-      values: [{ numeric: d.count ?? 0 }],
-    };
-
-    if (exclude) {
-      return;
-    }
-
-    // TODO(tjennison): Handle other values types.
-    const keyId = vd.keys
-      .map((k) => String(k.numericId ?? k.stringId))
-      .join("~");
-    const existing = dataMap.get(keyId);
-    if (existing) {
-      if (existing.values?.[0]?.numeric && vd.values?.[0]?.numeric) {
-        existing.values[0].numeric += vd.values[0].numeric;
-      }
-    } else {
-      dataMap.set(keyId, vd);
-    }
-  });
-
-  const arr = Array.from(dataMap.values());
-  arr.sort((a, b) => {
-    for (let i = 0; i < vizSource.attributes.length; i++) {
-      const attrib = vizSource.attributes[i];
-      let sortValue = 0;
-      if (
-        !attrib.sortType ||
-        attrib.sortType === configProto.VizConfig_Source_Attribute_SortType.NAME
-      ) {
-        sortValue = compareDataValues(a.keys[i].name, b.keys[i].name);
-      } else if (
-        attrib.sortType ===
-        configProto.VizConfig_Source_Attribute_SortType.VALUE
-      ) {
-        sortValue = compareDataValues(a.values[i].numeric, b.values[i].numeric);
-      }
-
-      if (sortValue === 0) {
-        sortValue = compareDataValues(a.keys[i].numericId, b.keys[i].numericId);
-      }
-      if (sortValue === 0) {
-        sortValue = compareDataValues(a.keys[i].stringId, b.keys[i].stringId);
-      }
-
-      if (attrib.sortDescending) {
-        sortValue = -sortValue;
-      }
-
-      if (sortValue !== 0) {
-        return sortValue;
-      }
-    }
-    return 0;
-  });
-
-  for (let i = 1; i < vizSource.attributes.length; i++) {
-    if (vizSource.attributes[i].limit) {
-      throw new Error(
-        "A limit is only supported on the first visualization attribute."
-      );
-    }
-  }
-
-  const limit = vizSource.attributes[0].limit;
-  if (limit) {
-    let count = 0;
-    for (let i = 1; i < arr.length; i++) {
-      const ka = arr[i].keys[0];
-      const kb = arr[i - 1].keys[0];
-      if (ka.numericId !== kb.numericId || ka.stringId !== kb.stringId) {
-        count++;
-        if (count === limit) {
-          arr.splice(i);
-          break;
-        }
-      }
-    }
-  }
-
-  return arr;
+  return processFilterCountValues(vizConfig, fcvs);
 }

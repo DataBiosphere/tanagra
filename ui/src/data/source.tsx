@@ -308,6 +308,12 @@ export interface UnderlaySource {
     options?: GetHintDataOptions
   ): Promise<HintData[]>;
 
+  criteriaCount(
+    groupSections: GroupSection[],
+    groupByAttributes?: string[],
+    entity?: string
+  ): Promise<FilterCountValue[]>;
+
   listExportModels(underlayName: string): Promise<ExportModel[]>;
 
   exportPreviewEntities(
@@ -737,6 +743,47 @@ export class BackendUnderlaySource implements UnderlaySource {
     options?: GetHintDataOptions
   ): Promise<HintData[]> {
     return (await this.queryHints(entityId, options)) ?? [];
+  }
+
+  public async criteriaCount(
+    groupSections: GroupSection[],
+    groupByAttributes?: string[],
+    entity?: string
+  ): Promise<FilterCountValue[]> {
+    let pageMarker: string | undefined;
+    const instanceCounts: tanagra.InstanceCount[] = [];
+
+    while (true) {
+      const data = await parseAPIError(
+        this.underlaysApi.queryCriteriaCounts({
+          underlayName: this.underlay.name,
+          criteriaCountQuery: {
+            criteriaGroupSections: toAPICriteriaGroupSections(groupSections),
+            countDistinctAttribute: undefined,
+            groupByAttributes:
+              groupByAttributes == null ? [] : groupByAttributes,
+            pageMarker,
+            entity,
+            limit: 1000000,
+          },
+        })
+      );
+
+      pageMarker = data.pageMarker;
+      instanceCounts.push(...(data.instanceCounts ?? []));
+
+      if (!pageMarker?.length) {
+        break;
+      }
+    }
+
+    return (instanceCounts ?? []).map((count) => {
+      const value: FilterCountValue = {
+        count: count.count ?? 0,
+      };
+      processAttributes(value, count.attributes);
+      return value;
+    });
   }
 
   public async listExportModels(underlayName: string): Promise<ExportModel[]> {

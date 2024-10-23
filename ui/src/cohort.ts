@@ -78,6 +78,16 @@ export function defaultGroup(criteria: Criteria): Group {
   };
 }
 
+export function newCohort(underlayName: string, criteria?: Criteria): Cohort {
+  return {
+    id: generateId(),
+    name: "Unnamed",
+    underlayName,
+    lastModified: new Date(),
+    groupSections: [newSection(criteria)],
+  };
+}
+
 // Having typed data here allows the registry to treat all data generically
 // while plugins can use an actual type internally.
 export interface CriteriaPlugin<DataType> {
