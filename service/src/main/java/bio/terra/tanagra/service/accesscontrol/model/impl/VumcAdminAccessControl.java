@@ -76,7 +76,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   @Override
   public Permissions getUnderlay(UserId user, ResourceId underlay) {
     Map<ResourceId, Permissions> resourcePermissionsMap =
-        listAllPermissions(user, ResourceType.UNDERLAY);
+        listAllPermissions(user, ResourceType.UNDERLAY, null);
     return resourcePermissionsMap.getOrDefault(underlay, Permissions.empty(ResourceType.UNDERLAY));
   }
 
@@ -89,12 +89,17 @@ public class VumcAdminAccessControl implements StudyAccessControl {
 
   @Override
   public ResourceCollection listStudies(UserId user, int offset, int limit) {
+     return listStudies(user,null, offset, limit);
+  }
+
+  @Override
+  public ResourceCollection listStudies(UserId user, String googleGroup, int offset, int limit) {
     // Get permissions for all studies, then splice the list to accommodate the offset+limit.
     Map<ResourceId, Permissions> resourcePermissionsMap =
-        listAllPermissions(user, ResourceType.STUDY);
+            listAllPermissions(user, ResourceType.STUDY, googleGroup);
     return resourcePermissionsMap.isEmpty()
-        ? ResourceCollection.empty(ResourceType.STUDY, null)
-        : ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap)
+            ? ResourceCollection.empty(ResourceType.STUDY, null)
+            : ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap)
             .slice(offset, limit);
   }
 
@@ -102,7 +107,7 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   public Permissions getStudy(UserId user, ResourceId study) {
     // Get permissions for all studies, then pull out the one requested here.
     Map<ResourceId, Permissions> resourcePermissionsMap =
-        listAllPermissions(user, ResourceType.STUDY);
+        listAllPermissions(user, ResourceType.STUDY, null);
     return resourcePermissionsMap.getOrDefault(study, Permissions.empty(ResourceType.STUDY));
   }
 
@@ -113,10 +118,10 @@ public class VumcAdminAccessControl implements StudyAccessControl {
         : Permissions.empty(ResourceType.ACTIVITY_LOG);
   }
 
-  private Map<ResourceId, Permissions> listAllPermissions(UserId user, ResourceType type) {
+  private Map<ResourceId, Permissions> listAllPermissions(UserId user, ResourceType type, String googleGroup) {
     ResourceList apiResourceList =
         apiListAuthorizedResources(
-            user.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(type.name()));
+            user.getEmail(), org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(type.name()), googleGroup);
 
     Map<ResourceId, Set<ResourceAction>> resourceApiActionsMap = new HashMap<>();
     apiResourceList.forEach(
@@ -197,10 +202,10 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   }
 
   protected ResourceList apiListAuthorizedResources(
-      String userEmail, org.vumc.vda.tanagra.admin.model.ResourceType resourceType) {
+      String userEmail, org.vumc.vda.tanagra.admin.model.ResourceType resourceType, String googleGroup) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      return authorizationApi.listAuthorizedResources(userEmail, resourceType);
+      return authorizationApi.listAuthorizedResources(userEmail, resourceType, googleGroup);
     } catch (ApiException apiEx) {
       throw new SystemException(
           "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);
