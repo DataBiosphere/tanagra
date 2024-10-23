@@ -1,0 +1,9 @@
+{
+  "name": "dummyEntity",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "STRING", "valueFieldName": "participant_id" }
+  ],
+  "idAttribute": "id",
+  "sourceQueryTableName": "${dataset}.DM"
+}

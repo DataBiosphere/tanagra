@@ -1,0 +1,27 @@
+{
+  "underlay": "bhs",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "wb-steady-blueberry-8554",
+      "datasetId": "BF_20240610_Screener",
+      "sqlSubstitutions": {
+        "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
+        "staticTablesDataset": ""
+      }
+    },
+    "indexData": {
+      "projectId": "aaa-willyn-test",
+      "datasetId": "bhs_index_081624"
+    },
+    "queryProjectId": "aaa-willyn-test",
+    "dataLocation": "us"
+  },
+  "dataflow": {
+    "serviceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
+    "dataflowLocation": "us-central1",
+    "gcsTempDirectory": "gs://dataflow-staging-us-central1-694046000181/temp/",
+    "workerMachineType": "n1-standard-4",
+    "usePublicIps": false,
+    "vpcSubnetworkName": null
+  }
+}

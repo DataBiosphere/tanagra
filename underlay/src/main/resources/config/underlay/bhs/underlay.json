@@ -1,0 +1,30 @@
+{
+  "name": "bhs",
+  "primaryEntity": "person",
+  "entities": [
+    "bhs/person",
+    "bhs/dummyEntity"
+  ],
+  "groupItemsEntityGroups": [
+    "bhs/dummyGroup"
+  ],
+  "criteriaOccurrenceEntityGroups": [],
+  "criteriaSelectors": [],
+  "prepackagedDataFeatures": [],
+  "visualizations": [
+    "omop/sexAndAge",
+    "omop/raceAndAge",
+    "omop/age",
+    "omop/race",
+    "omop/sex"
+  ],
+  "metadata": {
+    "displayName": "BHS metadata displayname",
+    "description": "BHS metadata description",
+    "properties": {
+      "lastUpdated": "Created 10/11/1989"
+    }
+  },
+  "uiConfigFile": "ui.json"
+}
+

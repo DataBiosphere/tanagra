@@ -1,0 +1,20 @@
+{
+  "underlay": "bhs",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "wb-steady-blueberry-8554",
+      "datasetId": "BF_20240610_Screener",
+      "sqlSubstitutions": {
+        "dataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
+        "staticTablesDataset": ""
+      }
+    },
+    "indexData": {
+      "projectId": "aaa-willyn-test",
+      "datasetId": "bhs_index_081624"
+    },
+    "queryProjectId": "aaa-willyn-test",
+    "dataLocation": "us"
+  },
+  "uiConfigFile": "ui.json"
+}
