@@ -40,7 +40,7 @@ public final class EntityGroupFilterUtils {
   private EntityGroupFilterUtils() {}
 
   public static EntityFilter buildIdSubFilter(
-      Underlay underlay, Entity criteriaEntity, List<Literal> criteriaIds) {
+      Underlay underlay, Entity criteriaEntity, List<Literal> criteriaIds, boolean shouldExclude) {
     if (criteriaIds.isEmpty()) {
       return null;
     }
@@ -60,13 +60,13 @@ public final class EntityGroupFilterUtils {
               underlay,
               criteriaEntity,
               criteriaEntity.getIdAttribute(),
-              NaryOperator.IN,
+              shouldExclude ? NaryOperator.NOT_IN : NaryOperator.IN,
               criteriaIds)
           : new AttributeFilter(
               underlay,
               criteriaEntity,
               criteriaEntity.getIdAttribute(),
-              BinaryOperator.EQUALS,
+              shouldExclude ? BinaryOperator.NOT_EQUALS : BinaryOperator.EQUALS,
               criteriaIds.get(0));
     }
   }
@@ -105,39 +105,61 @@ public final class EntityGroupFilterUtils {
     return subFiltersPerOccurrenceEntity;
   }
 
-  public static EntityFilter buildGroupItemsFilter(
+  public static EntityFilter buildGroupItemsFilterFromIds(
       Underlay underlay,
       CriteriaSelector criteriaSelector,
       GroupItems groupItems,
-      List<EntityFilter> filtersOnNotPrimaryEntity,
+      List<Literal> selectedIds,
       List<SelectionData> modifiersSelectionData) {
-    Entity notPrimaryEntity =
+    Entity nonPrimaryEntity =
+        groupItems.getGroupEntity().isPrimary()
+            ? groupItems.getItemsEntity()
+            : groupItems.getGroupEntity();
+
+    // Build the sub-filters on the non-primary entity.
+    List<EntityFilter> idFilterNonPrimaryEntity = new ArrayList<>();
+    if (!selectedIds.isEmpty()) {
+      idFilterNonPrimaryEntity.add(
+          EntityGroupFilterUtils.buildIdSubFilter(underlay, nonPrimaryEntity, selectedIds, false));
+    }
+
+    return EntityGroupFilterUtils.buildGroupItemsFilterFromSubFilters(
+        underlay, criteriaSelector, groupItems, idFilterNonPrimaryEntity, modifiersSelectionData);
+  }
+
+  public static EntityFilter buildGroupItemsFilterFromSubFilters(
+      Underlay underlay,
+      CriteriaSelector criteriaSelector,
+      GroupItems groupItems,
+      List<EntityFilter> filtersOnNonPrimaryEntity,
+      List<SelectionData> modifiersSelectionData) {
+    Entity nonPrimaryEntity =
         groupItems.getGroupEntity().isPrimary()
             ? groupItems.getItemsEntity()
             : groupItems.getGroupEntity();
 
     // Compile a list of all sub filters on the non-primary entity, which includes any passed in and
     // any attribute modifiers.
-    List<EntityFilter> allFiltersNotPrimaryEntity = new ArrayList<>(filtersOnNotPrimaryEntity);
+    List<EntityFilter> allFiltersNonPrimaryEntity = new ArrayList<>(filtersOnNonPrimaryEntity);
 
     // Build the attribute modifier filters for the non-primary entity.
     Map<Entity, List<EntityFilter>> attributeModifierFilters =
         EntityGroupFilterUtils.buildAttributeModifierFilters(
-            underlay, criteriaSelector, modifiersSelectionData, List.of(notPrimaryEntity));
-    if (attributeModifierFilters.containsKey(notPrimaryEntity)) {
-      allFiltersNotPrimaryEntity.addAll(attributeModifierFilters.get(notPrimaryEntity));
+            underlay, criteriaSelector, modifiersSelectionData, List.of(nonPrimaryEntity));
+    if (attributeModifierFilters.containsKey(nonPrimaryEntity)) {
+      allFiltersNonPrimaryEntity.addAll(attributeModifierFilters.get(nonPrimaryEntity));
     }
 
     // If there's more than one filter on the non-primary entity, AND them together.
     EntityFilter notPrimarySubFilter;
-    if (allFiltersNotPrimaryEntity.isEmpty()) {
+    if (allFiltersNonPrimaryEntity.isEmpty()) {
       notPrimarySubFilter = null;
-    } else if (allFiltersNotPrimaryEntity.size() == 1) {
-      notPrimarySubFilter = allFiltersNotPrimaryEntity.get(0);
+    } else if (allFiltersNonPrimaryEntity.size() == 1) {
+      notPrimarySubFilter = allFiltersNonPrimaryEntity.get(0);
     } else {
       notPrimarySubFilter =
           new BooleanAndOrFilter(
-              BooleanAndOrFilter.LogicalOperator.AND, allFiltersNotPrimaryEntity);
+              BooleanAndOrFilter.LogicalOperator.AND, allFiltersNonPrimaryEntity);
     }
 
     Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
@@ -159,10 +181,10 @@ public final class EntityGroupFilterUtils {
     // Build the group by filter information.
     Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity =
         GroupByCountSchemaUtils.getGroupByAttributesPerOccurrenceEntity(
-            underlay, groupByModifierConfigAndData, List.of(notPrimaryEntity));
+            underlay, groupByModifierConfigAndData, List.of(nonPrimaryEntity));
     List<Attribute> groupByAttributes =
-        groupByAttributesPerOccurrenceEntity.containsKey(notPrimaryEntity)
-            ? groupByAttributesPerOccurrenceEntity.get(notPrimaryEntity)
+        groupByAttributesPerOccurrenceEntity.containsKey(nonPrimaryEntity)
+            ? groupByAttributesPerOccurrenceEntity.get(nonPrimaryEntity)
             : new ArrayList<>();
     DTUnhintedValue.UnhintedValue groupByModifierData =
         groupByModifierConfigAndData.get().getRight();
@@ -232,7 +254,7 @@ public final class EntityGroupFilterUtils {
   public static Map<Entity, List<EntityFilter>> addOccurrenceFiltersForDataFeature(
       Underlay underlay, CriteriaOccurrence criteriaOccurrence, List<Literal> criteriaIds) {
     EntityFilter criteriaSubFilterCO =
-        buildIdSubFilter(underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds);
+        buildIdSubFilter(underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds, false);
 
     Map<Entity, List<EntityFilter>> filtersPerEntity = new HashMap<>();
     criteriaOccurrence.getOccurrenceEntities().stream()
