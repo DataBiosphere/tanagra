@@ -19,11 +19,6 @@ public interface UnderlayAccessControl extends FineGrainedAccessControl {
   }
 
   @Override
-  default ResourceCollection listStudies(UserId user, String googleGroup, int offset, int limit) {
-    return ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null);
-  }
-
-  @Override
   default Permissions createStudy(UserId user) {
     return Permissions.forActions(ResourceType.STUDY, Action.CREATE);
   }
