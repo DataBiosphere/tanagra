@@ -191,6 +191,11 @@ Use `plugin: "attribute"`.
 
 Use `plugin: "entityGroup"`.
 
+### SZCorePlugin.FILTERABLE_GROUP
+**required** [SZCorePlugin](#szcoreplugin)
+
+Use `plugin: "filterableGroup"`.
+
 ### SZCorePlugin.MULTI_ATTRIBUTE
 **required** [SZCorePlugin](#szcoreplugin)
 
