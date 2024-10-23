@@ -1,9 +1,6 @@
 package bio.terra.tanagra.service.accesscontrol.model;
 
-import bio.terra.tanagra.service.accesscontrol.AccessControlHelper;
-import bio.terra.tanagra.service.accesscontrol.Permissions;
-import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
-import bio.terra.tanagra.service.accesscontrol.ResourceId;
+import bio.terra.tanagra.service.accesscontrol.*;
 import bio.terra.tanagra.service.authentication.UserId;
 import java.util.List;
 
@@ -28,7 +25,9 @@ public interface FineGrainedAccessControl {
 
   ResourceCollection listStudies(UserId user, int offset, int limit);
 
-  ResourceCollection listStudies(UserId user, String googleGroup, int offset, int limit);
+  default ResourceCollection listStudies(UserId user, String googleGroup, int offset, int limit) {
+    return ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null);
+  }
 
   Permissions getStudy(UserId user, ResourceId study);
 
