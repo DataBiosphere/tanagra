@@ -28,6 +28,8 @@ public interface FineGrainedAccessControl {
 
   ResourceCollection listStudies(UserId user, int offset, int limit);
 
+  ResourceCollection listStudies(UserId user, String googleGroup, int offset, int limit);
+
   Permissions getStudy(UserId user, ResourceId study);
 
   ResourceCollection listCohorts(UserId user, ResourceId study, int offset, int limit);
