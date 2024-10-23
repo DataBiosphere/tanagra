@@ -10,7 +10,13 @@ import Popover from "@mui/material/Popover";
 import TablePagination from "@mui/material/TablePagination";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
+import {
+  createCriteria,
+  CriteriaPlugin,
+  generateId,
+  newCohort,
+  registerCriteriaPlugin,
+} from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import { containedIconButtonSx } from "components/iconButton";
@@ -31,17 +37,25 @@ import {
   ValueData,
   ValueDataEdit,
 } from "criteria/valueData";
-import { DEFAULT_SORT_ORDER, fromProtoSortOrder } from "data/configuration";
 import {
+  DEFAULT_SORT_ORDER,
+  fromProtoSortOrder,
+  ITEM_COUNT_ATTRIBUTE,
+  SortDirection,
+} from "data/configuration";
+import {
+  Cohort,
   CommonSelectorConfig,
   dataKeyFromProto,
   EntityNode,
+  FilterCountValue,
   HintData,
   literalFromDataValue,
   makeBooleanLogicFilter,
   protoFromDataKey,
+  UnderlaySource,
 } from "data/source";
-import { DataKey } from "data/types";
+import { DataEntry, DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";
@@ -58,12 +72,14 @@ import {
   useMemo,
   useState,
 } from "react";
+import useSWRImmutable from "swr/immutable";
 import useSWRInfinite from "swr/infinite";
 import * as tanagra from "tanagra-api";
 import { useImmer } from "use-immer";
 import { base64ToBytes } from "util/base64";
 import { useLocalSearchState } from "util/searchState";
 import { isValid } from "util/valid";
+import { processFilterCountValues } from "viz/viz";
 
 type SingleSelect = {
   key: DataKey;
@@ -97,11 +113,22 @@ interface Data {
 
 // "filterableGroup" plugins allow a GroupItems entity group to be filtered by
 // multiple attributes.
-@registerCriteriaPlugin("filterableGroup", () => {
-  return encodeData({
-    selected: [],
-  });
-})
+@registerCriteriaPlugin(
+  "filterableGroup",
+  (
+    underlaySource: UnderlaySource,
+    c: CommonSelectorConfig,
+    dataEntry?: DataEntry
+  ) => {
+    if (dataEntry && dataEntry.encoded) {
+      return String(dataEntry.encoded);
+    }
+
+    return encodeData({
+      selected: [],
+    });
+  }
+)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
@@ -124,6 +151,7 @@ class _ implements CriteriaPlugin<string> {
         config={this.config}
         doneAction={doneAction}
         setBackAction={setBackAction}
+        selector={this.selector}
       />
     );
   }
@@ -168,6 +196,7 @@ type FilterableGroupEditProps = {
   config: configProto.FilterableGroup;
   doneAction: () => void;
   setBackAction: (action?: () => void) => void;
+  selector: CommonSelectorConfig;
 };
 
 function FilterableGroupEdit(props: FilterableGroupEditProps) {
@@ -494,6 +523,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                               <SelectAllStats
                                 config={props.config}
                                 selectAll={s.all}
+                                selector={props.selector}
                                 selected={s.id === selectedExclusion}
                                 setSelected={(selected: boolean) => {
                                   const all = s.all;
@@ -698,11 +728,92 @@ function FilterButton(props: FilterButtonProps) {
 type SelectAllStatsProps = {
   config: configProto.FilterableGroup;
   selectAll: SelectAll;
+  selector?: CommonSelectorConfig;
   selected?: boolean;
   setSelected?: (selected: boolean) => void;
 };
 
 function SelectAllStats(props: SelectAllStatsProps) {
+  const underlaySource = useUnderlaySource();
+
+  const vizDataConfig = {
+    sources: [
+      {
+        criteriaSelector: "unused",
+        joins: [],
+        attributes: [
+          {
+            attribute: ITEM_COUNT_ATTRIBUTE,
+            numericBucketing: {
+              thresholds: [1000, 5000, 10000, 50000, 100000, 500000],
+              includeLesser: true,
+              includeGreater: true,
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  const cohort = props.selector
+    ? useSelectAllCohort(props.selectAll, props.selector)
+    : undefined;
+
+  const statsState = useSWRImmutable(
+    { type: "variantsVizData", cohort, selectAll: props.selectAll },
+    async () => {
+      if (!cohort) {
+        return {
+          variants: [],
+          total: 0,
+          participants: 0,
+        };
+      }
+
+      // TODO(tjennison): Ideally this would be fully shared with the viz code
+      // but there's currently no way to group by relationship fields (i.e.
+      // ITEM_COUNT_ATTRIBUTE) using the cohortCount API. Adding them to the
+      // input wouldn't be too hard but the output would need signficant
+      // changes.
+      const instancesP = await underlaySource.searchEntityGroup(
+        vizDataConfig.sources[0].attributes.map((a) => a.attribute),
+        props.config.entityGroup,
+        {
+          attribute: ITEM_COUNT_ATTRIBUTE,
+          direction: SortDirection.Desc,
+        },
+        {
+          filters: generateFilters(
+            props.selectAll.query,
+            props.selectAll.valueData
+          ),
+          limit: 1000000,
+          pageSize: 1000000,
+        }
+      );
+
+      const participantsP = underlaySource.criteriaCount(cohort.groupSections);
+
+      const instances = (await instancesP) ?? [];
+      const fcvs: FilterCountValue[] = [];
+      instances.nodes.forEach((i) =>
+        fcvs.push({
+          ...i.data,
+          count: 1,
+        })
+      );
+      const variants = processFilterCountValues(vizDataConfig, fcvs);
+
+      const participants = (await participantsP)?.[0]?.count ?? 0;
+
+      return {
+        variants,
+        total: variants.reduce((tot, v) => (v.values[0].numeric ?? 0) + tot, 0),
+        participants,
+      };
+    }
+  );
+
   return (
     <GridLayout rows sx={{ pl: 2 }}>
       <Typography variant="body2em">
@@ -749,7 +860,64 @@ function SelectAllStats(props: SelectAllStatsProps) {
           </Typography>
         </Typography>
       </GridLayout>
+      {props.selector ? (
+        <GridLayout rows>
+          <Typography variant="body2em">Participant overview:</Typography>
+          <Loading status={statsState}>
+            <GridLayout rows sx={{ pl: 2 }}>
+              <Typography variant="body2em">
+                {"Total participant count: "}
+                <Typography variant="body2" component="span">
+                  {statsState.data?.participants}
+                </Typography>
+              </Typography>
+              <Typography variant="body2em">
+                {"Total variant count: "}
+                <Typography variant="body2" component="span">
+                  {statsState.data?.total}
+                </Typography>
+              </Typography>
+              <GridLayout rows sx={{ pl: 2 }}>
+                {statsState.data?.variants?.map((v) => (
+                  <Typography key={v.keys[0].name} variant="body2em">
+                    {`${v.keys[0].name} participants: `}
+                    <Typography variant="body2" component="span">
+                      {v.values[0].numeric}
+                    </Typography>
+                  </Typography>
+                ))}
+              </GridLayout>
+            </GridLayout>
+          </Loading>
+        </GridLayout>
+      ) : null}
     </GridLayout>
+  );
+}
+
+function useSelectAllCohort(
+  selectAll: SelectAll,
+  selector: CommonSelectorConfig
+): Cohort {
+  const underlaySource = useUnderlaySource();
+
+  return useMemo(
+    () =>
+      newCohort(
+        underlaySource.underlay.name,
+        createCriteria(underlaySource, selector, {
+          key: generateId(),
+          encoded: encodeData({
+            selected: [
+              {
+                id: generateId(),
+                all: selectAll,
+              },
+            ],
+          }),
+        })
+      ),
+    [selectAll]
   );
 }
 
