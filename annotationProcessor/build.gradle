@@ -34,27 +34,34 @@ repositories {
 }
 
 dependencies {
-    // added to address synk warnings
-    constraints {
-        implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
-    }
+    implementation project(path: ':underlay')
+    implementation project(path: ':service')
 
     implementation "org.slf4j:slf4j-api:${vSlf4jApi}"
 
     implementation("bio.terra:terra-common-lib:${vTerraCommonLib}") {
+        // excluded since they are not needed, avoid vuln & mismatches
+        exclude group: 'bio.terra', module: 'stairway'
+        exclude group: 'bio.terra', module: 'stairway-azure'
+        exclude group: 'bio.terra', module: 'stairway-gcp'
         exclude group: 'com.azure'
+        exclude group: 'com.amazonaws'
+
+        // excluded due to version mismatch
+        exclude group: 'com.google.cloud.opentelemetry'
+        exclude group: 'com.google.protobuf'
         exclude group: 'io.swagger', module: 'swagger-annotations'
         exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
-        exclude group: 'org.springframework', module: 'spring-web'
     }
 
-    implementation project(path: ':underlay')
-    implementation project(path: ':service')
-
     // explicity declare libs and version to address synk warnings
+    implementation "org.springframework:spring-context:${vSpringWeb}"
+    implementation "org.springframework:spring-core:${vSpringWeb}"
     implementation "org.springframework:spring-web:${vSpringWeb}"
     implementation "org.springframework:spring-webmvc:${vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-context:${vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-core:${vSpringWeb}"
     testFixturesImplementation "org.springframework:spring-web:${vSpringWeb}"
     testFixturesImplementation "org.springframework:spring-webmvc:${vSpringWeb}"
 
