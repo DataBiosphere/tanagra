@@ -45,7 +45,7 @@ public class SurveyFilterBuilder
     }
 
     return selectionData.getSelectedList().stream()
-        .filter(id -> id.hasKey())
+        .filter(id -> id.hasKey() && id.getKey().hasInt64Key())
         .map(
             selectedId ->
                 new SelectionItem(

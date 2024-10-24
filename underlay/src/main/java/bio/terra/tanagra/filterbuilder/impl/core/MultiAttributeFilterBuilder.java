@@ -44,25 +44,26 @@ public class MultiAttributeFilterBuilder
         underlay.getRelationship(
             underlay.getEntity(multiAttrConfig.getEntity()), underlay.getPrimaryEntity());
     GroupItems groupItems = (GroupItems) entityGroup.getLeft();
-    Entity notPrimaryEntity =
+
+    Entity nonPrimaryEntity =
         groupItems.getGroupEntity().isPrimary()
             ? groupItems.getItemsEntity()
             : groupItems.getGroupEntity();
 
     // Build the attribute filters on the not-primary entity.
-    List<EntityFilter> subFiltersNotPrimaryEntity = new ArrayList<>();
-    multiAttrSelectionData
-        .getValueDataList()
-        .forEach(
-            valueData ->
-                subFiltersNotPrimaryEntity.add(
+    List<EntityFilter> subFiltersNonPrimaryEntity =
+        multiAttrSelectionData.getValueDataList().stream()
+            .map(
+                valueData ->
                     AttributeSchemaUtils.buildForEntity(
                         underlay,
-                        notPrimaryEntity,
-                        notPrimaryEntity.getAttribute(valueData.getAttribute()),
-                        valueData)));
-    return EntityGroupFilterUtils.buildGroupItemsFilter(
-        underlay, criteriaSelector, groupItems, subFiltersNotPrimaryEntity, modifiersSelectionData);
+                        nonPrimaryEntity,
+                        nonPrimaryEntity.getAttribute(valueData.getAttribute()),
+                        valueData))
+            .toList();
+
+    return EntityGroupFilterUtils.buildGroupItemsFilterFromSubFilters(
+        underlay, criteriaSelector, groupItems, subFiltersNonPrimaryEntity, modifiersSelectionData);
   }
 
   @Override
@@ -74,13 +75,13 @@ public class MultiAttributeFilterBuilder
         underlay.getRelationship(
             underlay.getEntity(multiAttrConfig.getEntity()), underlay.getPrimaryEntity());
     GroupItems groupItems = (GroupItems) entityGroup.getLeft();
-    Entity notPrimaryEntity =
+    Entity nonPrimaryEntity =
         groupItems.getGroupEntity().isPrimary()
             ? groupItems.getItemsEntity()
             : groupItems.getGroupEntity();
 
     // Empty selection data = not-primary entity with no filter.
-    List<EntityFilter> subFiltersNotPrimaryEntity = new ArrayList<>();
+    List<EntityFilter> subFiltersNonPrimaryEntity = new ArrayList<>();
     if (!selectionData.isEmpty()) {
       DTMultiAttribute.MultiAttribute multiAttrSelectionData =
           deserializeData(selectionData.get(0).getPluginData());
@@ -90,26 +91,26 @@ public class MultiAttributeFilterBuilder
             .getValueDataList()
             .forEach(
                 valueData ->
-                    subFiltersNotPrimaryEntity.add(
+                    subFiltersNonPrimaryEntity.add(
                         AttributeSchemaUtils.buildForEntity(
                             underlay,
-                            notPrimaryEntity,
-                            notPrimaryEntity.getAttribute(valueData.getAttribute()),
+                            nonPrimaryEntity,
+                            nonPrimaryEntity.getAttribute(valueData.getAttribute()),
                             valueData)));
       }
 
       List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
       Map<Entity, List<EntityFilter>> attributeModifierFilters =
           EntityGroupFilterUtils.buildAttributeModifierFilters(
-              underlay, criteriaSelector, modifiersSelectionData, List.of(notPrimaryEntity));
-      if (attributeModifierFilters.containsKey(notPrimaryEntity)) {
-        subFiltersNotPrimaryEntity.addAll(attributeModifierFilters.get(notPrimaryEntity));
+              underlay, criteriaSelector, modifiersSelectionData, List.of(nonPrimaryEntity));
+      if (attributeModifierFilters.containsKey(nonPrimaryEntity)) {
+        subFiltersNonPrimaryEntity.addAll(attributeModifierFilters.get(nonPrimaryEntity));
       }
     }
 
     // Output the not primary entity.
     return EntityGroupFilterUtils.mergeFiltersForDataFeature(
-        Map.of(notPrimaryEntity, subFiltersNotPrimaryEntity),
+        Map.of(nonPrimaryEntity, subFiltersNonPrimaryEntity),
         BooleanAndOrFilter.LogicalOperator.AND);
   }
 
