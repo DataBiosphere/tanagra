@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class TextSearchFilterBuilder
@@ -54,8 +55,7 @@ public class TextSearchFilterBuilder
             underlay.getEntity(textSearchConfig.getEntity()), underlay.getPrimaryEntity());
     CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup.getLeft();
     String textSearchAttrName =
-        textSearchConfig.getSearchAttribute() == null
-                || textSearchConfig.getSearchAttribute().isEmpty()
+        textSearchConfig.getSearchAttribute().isEmpty()
             ? null
             : textSearchConfig.getSearchAttribute();
 
@@ -68,10 +68,8 @@ public class TextSearchFilterBuilder
 
     // Build the sub-filter on the criteria entity.
     EntityFilter criteriaSubFilter =
-        criteriaIds.isEmpty()
-            ? null
-            : EntityGroupFilterUtils.buildIdSubFilter(
-                underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds);
+        EntityGroupFilterUtils.buildIdSubFilter(
+            underlay, criteriaOccurrence.getCriteriaEntity(), criteriaIds, false);
 
     // Build the attribute modifier filters.
     Map<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity =
@@ -82,7 +80,7 @@ public class TextSearchFilterBuilder
             criteriaOccurrence.getOccurrenceEntities());
 
     // Build the text search filter on each of the occurrence entities.
-    if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
+    if (!StringUtils.isBlank(textQuery)) {
       criteriaOccurrence
           .getOccurrenceEntities()
           .forEach(
@@ -147,8 +145,7 @@ public class TextSearchFilterBuilder
             underlay.getEntity(textSearchConfig.getEntity()), underlay.getPrimaryEntity());
     CriteriaOccurrence criteriaOccurrence = (CriteriaOccurrence) entityGroup.getLeft();
     String textSearchAttrName =
-        textSearchConfig.getSearchAttribute() == null
-                || textSearchConfig.getSearchAttribute().isEmpty()
+        textSearchConfig.getSearchAttribute().isEmpty()
             ? null
             : textSearchConfig.getSearchAttribute();
 
@@ -187,7 +184,7 @@ public class TextSearchFilterBuilder
               criteriaOccurrence.getOccurrenceEntities());
 
       // Build the text search filter on each of the occurrence entities.
-      if (textQuery != null && !textQuery.isEmpty() && !textQuery.isBlank()) {
+      if (!StringUtils.isBlank(textQuery)) {
         criteriaOccurrence
             .getOccurrenceEntities()
             .forEach(

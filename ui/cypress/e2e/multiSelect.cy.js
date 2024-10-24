@@ -22,7 +22,7 @@ describe("Basic tests", () => {
     cy.iframe().find("button:Contains('Cancel')").click();
 
     cy.iframe().find("button[aria-label=back]").click();
-    cy.iframe().find("button:Contains('Go back')").click();
+    cy.iframe().find("button:Contains('Discard changes')").click();
 
     cy.iframe()
       .find("p:Contains('Condition: Clinical finding and 1 more')")

@@ -1,5 +1,7 @@
 import AddIcon from "@mui/icons-material/Add";
+import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -11,6 +13,7 @@ import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, generateId, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
+import { containedIconButtonSx } from "components/iconButton";
 import Loading from "components/loading";
 import { Search } from "components/search";
 import { useSimpleDialog } from "components/simpleDialog";
@@ -69,7 +72,7 @@ type SingleSelect = {
 
 type SelectAll = {
   query: string;
-  values: ValueData[];
+  valueData: ValueData[];
   exclusions: SingleSelect[];
 };
 
@@ -188,6 +191,9 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [filters, setFilters] = useState<ValueData[]>([]);
+  const [selectedExclusion, setSelectedExclusion] = useState<
+    string | undefined
+  >();
 
   const [unconfirmedChangesDialog, showUnconfirmedChangesDialog] =
     useSimpleDialog();
@@ -197,7 +203,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
       showUnconfirmedChangesDialog({
         title: "Unsaved changes",
         text: "Unsaved changes will be lost if you go back without saving.",
-        buttons: ["Cancel", "Go back", "Save"],
+        buttons: ["Cancel", "Discard changes", "Save"],
         onButton: (button) => {
           if (button === 1) {
             props.doneAction();
@@ -330,6 +336,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
           >
             <Search
               placeholder="Search variants"
+              disabled={!!selectedExclusion}
               onSearch={(query: string) => {
                 updateSearchState((data: SearchState) => {
                   data.query = query;
@@ -349,48 +356,62 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
             {instancesState.data?.length && instancesState.data?.[0]?.total ? (
               <GridLayout rows fillRow={1}>
                 <GridLayout cols spacing={2} sx={{ px: 5 }}>
-                  <FilterButton
-                    hintData={instancesState.data?.[0]?.hintData}
-                    entity={entityGroup.selectionEntity.name}
-                    config={props.config}
-                    filters={filters}
-                    setFilters={setFilters}
-                  />
-                  <Tooltip
-                    title={
-                      !selectAllEnabled
-                        ? "Number of results must be between 25 and 10,000 to Select all. For results less than 25, selections must be made individually."
-                        : ""
-                    }
-                  >
-                    <span>
-                      <Button
-                        variant="outlined"
-                        disabled={!selectAllEnabled}
-                        endIcon={<AddIcon />}
-                        onClick={() =>
-                          updateLocalCriteria((data) => {
-                            data.selected.push({
-                              id: generateId(),
-                              all: {
-                                query: searchState?.query ?? "",
-                                values: filters,
-                                exclusions: [],
-                              },
-                            });
-                          })
-                        }
-                      >
-                        Select all
-                      </Button>
-                    </span>
-                  </Tooltip>
+                  {!selectedExclusion ? (
+                    <FilterButton
+                      hintData={instancesState.data?.[0]?.hintData}
+                      entity={entityGroup.selectionEntity.name}
+                      config={props.config}
+                      filters={filters}
+                      setFilters={setFilters}
+                    />
+                  ) : null}
+                  {!selectedExclusion ? (
+                    <Tooltip
+                      title={
+                        !selectAllEnabled
+                          ? "Number of results must be between 25 and 10,000 to Select all. For results less than 25, selections must be made individually."
+                          : ""
+                      }
+                    >
+                      <span>
+                        <Button
+                          variant="outlined"
+                          disabled={!selectAllEnabled}
+                          endIcon={<AddIcon />}
+                          onClick={() =>
+                            updateLocalCriteria((data) => {
+                              data.selected.push({
+                                id: generateId(),
+                                all: {
+                                  query: searchState?.query ?? "",
+                                  valueData: filters,
+                                  exclusions: [],
+                                },
+                              });
+                            })
+                          }
+                        >
+                          Select all
+                        </Button>
+                      </span>
+                    </Tooltip>
+                  ) : null}
+                  {selectedExclusion ? (
+                    <Button
+                      variant="contained"
+                      onClick={() => setSelectedExclusion(undefined)}
+                    >
+                      Confirm exclusions
+                    </Button>
+                  ) : null}
                 </GridLayout>
                 {instancesState.data[currentPage] ? (
                   <ResultsPage
                     columns={columns}
                     nodes={instancesState.data[currentPage].nodes}
                     selectedSet={selectedSet}
+                    selectedExclusion={selectedExclusion}
+                    localCriteria={localCriteria}
                     updateLocalCriteria={updateLocalCriteria}
                   />
                 ) : null}
@@ -459,6 +480,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                                 {selectionTitle(s)}
                               </Typography>
                               <IconButton
+                                disabled={!!selectedExclusion}
                                 onClick={() =>
                                   updateLocalCriteria((data) => {
                                     data.selected.splice(i, 1);
@@ -472,6 +494,21 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                               <SelectAllStats
                                 config={props.config}
                                 selectAll={s.all}
+                                selected={s.id === selectedExclusion}
+                                setSelected={(selected: boolean) => {
+                                  const all = s.all;
+
+                                  setSelectedExclusion(
+                                    selected ? s.id : undefined
+                                  );
+                                  if (selected && all) {
+                                    updateSearchState((data: SearchState) => {
+                                      data.query = all.query;
+                                    });
+
+                                    setFilters(all.valueData);
+                                  }
+                                }}
                               />
                             ) : null}
                           </GridLayout>
@@ -508,6 +545,8 @@ type ResultsPageProps = {
   columns: TreeGridColumn[];
   nodes: EntityNode[];
   selectedSet: Set<DataKey>;
+  selectedExclusion?: string;
+  localCriteria: Data;
   updateLocalCriteria: (fn: (data: Data) => void) => void;
 };
 
@@ -517,17 +556,52 @@ function ResultsPage(props: ResultsPageProps) {
     "key"
   );
 
+  const selectAll = useMemo(() => {
+    return props.localCriteria.selected.find(
+      (s) => s.id === props.selectedExclusion
+    )?.all;
+  }, [props.localCriteria, props.selectedExclusion]);
+
   return (
     <TreeGrid
       columns={props.columns}
       data={data}
       rowCustomization={(key: TreeGridId, rowData: TreeGridRowData) => {
-        const found = !!props.selectedSet.has(key);
+        const found = selectAll
+          ? !!selectAll.exclusions.find((e) => e.key === key)
+          : props.selectedSet.has(key);
+        const newSelection = {
+          key,
+          name: String(rowData[props.columns[0].key] ?? "Unknown"),
+        };
 
         return [
           {
             column: 0,
-            prefixElements: (
+            prefixElements: selectAll ? (
+              <IconButton
+                color={!found ? "error" : undefined}
+                sx={found ? containedIconButtonSx("error") : undefined}
+                onClick={() => {
+                  props.updateLocalCriteria((data) => {
+                    const all = data.selected.find(
+                      (s) => s.id === props.selectedExclusion
+                    )?.all;
+                    if (all) {
+                      if (found) {
+                        all.exclusions = all.exclusions.filter(
+                          (e) => e.key !== key
+                        );
+                      } else {
+                        all.exclusions.push(newSelection);
+                      }
+                    }
+                  });
+                }}
+              >
+                <ClearIcon fontSize="small" />
+              </IconButton>
+            ) : (
               <Checkbox
                 size="small"
                 fontSize="inherit"
@@ -541,12 +615,7 @@ function ResultsPage(props: ResultsPageProps) {
                     } else {
                       data.selected.push({
                         id: generateId(),
-                        single: {
-                          key,
-                          name: String(
-                            rowData[props.columns[0].key] ?? "Unknown"
-                          ),
-                        },
+                        single: newSelection,
                       });
                     }
                   });
@@ -629,6 +698,8 @@ function FilterButton(props: FilterButtonProps) {
 type SelectAllStatsProps = {
   config: configProto.FilterableGroup;
   selectAll: SelectAll;
+  selected?: boolean;
+  setSelected?: (selected: boolean) => void;
 };
 
 function SelectAllStats(props: SelectAllStatsProps) {
@@ -640,7 +711,7 @@ function SelectAllStats(props: SelectAllStatsProps) {
           {props.selectAll.query}
         </Typography>
       </Typography>
-      {props.selectAll.values.map((v) => {
+      {props.selectAll.valueData.map((v) => {
         const name =
           props.config.valueConfigs.find((c) => c.attribute === v.attribute)
             ?.title ?? "Unknown";
@@ -656,6 +727,28 @@ function SelectAllStats(props: SelectAllStatsProps) {
           </Typography>
         );
       })}
+      <GridLayout cols rowAlign="middle">
+        {props.setSelected ? (
+          <IconButton
+            sx={props.selected ? containedIconButtonSx("primary") : undefined}
+            onClick={() => {
+              if (props.setSelected) {
+                props.setSelected(!props.selected);
+              }
+            }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        ) : null}
+        <Typography variant="body2em">
+          {"Exclusions: "}
+          <Typography variant="body2" component="span">
+            {props.selectAll.exclusions.length
+              ? props.selectAll.exclusions.map((e) => e.name).join(", ")
+              : "None"}
+          </Typography>
+        </Typography>
+      </GridLayout>
     </GridLayout>
   );
 }
@@ -720,7 +813,7 @@ function decodeData(data: string): Data {
           all: s.all
             ? {
                 query: s.all.query,
-                values: s.all.values.map((v) => decodeValueData(v)) ?? [],
+                valueData: s.all.valueData.map((v) => decodeValueData(v)) ?? [],
                 exclusions:
                   s.all.exclusions.map((e) => ({
                     key: dataKeyFromProto(e.key),
@@ -746,7 +839,7 @@ function encodeData(data: Data): string {
       all: s.all
         ? {
             query: s.all.query,
-            values: s.all.values.map((v) => encodeValueData(v)),
+            valueData: s.all.valueData.map((v) => encodeValueData(v)),
             exclusions: s.all.exclusions.map((e) => ({
               key: protoFromDataKey(e.key),
               name: e.name,
