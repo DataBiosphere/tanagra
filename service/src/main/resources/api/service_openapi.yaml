@@ -279,6 +279,7 @@ paths:
         - $ref: "#/components/parameters/StudyFilterProperties"
         - $ref: "#/components/parameters/Offset"
         - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/GoogleGroupKey"
       summary: List all studies a user can read
       operationId: listStudies
       tags: [Studies]
@@ -1204,6 +1205,14 @@ components:
         type: integer
         minimum: 1
         default: 50
+
+    GoogleGroupKey:
+      name: googleGroupKey
+      in: query
+      description: The Google Group Key that is used to verify user is an admin in order to return to list studies for all users. Defaults to null.
+      required: false
+      schema:
+        type: string
 
     StudyFilterDisplayName:
       name: displayName
