@@ -28,7 +28,9 @@ public enum SZCorePlugin {
   OUTPUT_UNFILTERED("outputUnfiltered"),
   @AnnotatedField(name = "SZCorePlugin.SURVEY", markdown = "Use `plugin: \"survey\"`.")
   SURVEY("survey"),
-  @AnnotatedField(name = "SZCorePlugin.FILTERABLE_GROUP", markdown = "Use `plugin: \"filterableGroup\"`.")
+  @AnnotatedField(
+      name = "SZCorePlugin.FILTERABLE_GROUP",
+      markdown = "Use `plugin: \"filterableGroup\"`.")
   FILTERABLE_GROUP("filterableGroup");
   private final String idInConfig;
 

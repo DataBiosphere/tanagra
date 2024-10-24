@@ -11,6 +11,7 @@ import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.filterbuilder.FilterBuilder;
@@ -44,16 +45,11 @@ public class FilterableGroupFilterBuilder
           "Filterable group filter builder does not support modifiers.");
     }
 
-    DTFilterableGroup.FilterableGroup data = deserializeData(selectionData.get(0).getPluginData());
-    if (data == null) { // Empty selection data = null filter for a cohort.
-      return null;
-    }
-
     // Pull the entity group from the config.
     CFFilterableGroup.FilterableGroup config = deserializeConfig();
     EntityGroup entityGroup = underlay.getEntityGroup(config.getEntityGroup());
     if (entityGroup.getType() != EntityGroup.Type.GROUP_ITEMS) {
-      throw new InvalidQueryException(
+      throw new InvalidConfigException(
           "Filterable group filter builder only supports entityGroup of type GROUP_ITEMS.");
     }
     GroupItems groupItems = (GroupItems) entityGroup;
@@ -63,7 +59,8 @@ public class FilterableGroupFilterBuilder
 
     // We want to build one filter per selection item, not one filter per selected id.
     List<Literal> selectedIds = new ArrayList<>();
-    data.getSelectedList()
+    deserializeData(selectionData.get(0).getPluginData())
+        .getSelectedList()
         .forEach(
             selectionItem -> {
               switch (selectionItem.getSelectionCase()) {
@@ -86,7 +83,8 @@ public class FilterableGroupFilterBuilder
             });
 
     // singleSelect: search on primary key of the entity
-    if (!selectedIds.isEmpty()) {
+    // filtersToOr.empty: no selection data - return participants with any variant data
+    if (!selectedIds.isEmpty() || filtersToOr.isEmpty()) {
       filtersToOr.add(
           EntityGroupFilterUtils.buildGroupItemsFilterFromIds(
               underlay, criteriaSelector, groupItems, selectedIds, List.of()));
