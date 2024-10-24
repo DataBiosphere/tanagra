@@ -9,6 +9,9 @@ import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.common.annotations.VisibleForTesting;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,11 +132,11 @@ public class AccessControlService {
   }
 
   public ResourceCollection listAuthorizedResources(
-      UserId user, Permissions permissions, int offset, int limit) {
+      UserId user, Permissions permissions, int offset, int limit, String... googleGroupKey) {
     ResourceCollection allResources =
         switch (permissions.getType()) {
           case UNDERLAY -> accessControlImpl.listUnderlays(user, offset, limit);
-          case STUDY -> accessControlImpl.listStudies(user, offset, limit);
+          case STUDY -> googleGroupKey.length==0 ? accessControlImpl.listStudies(user, offset, limit): accessControlImpl.listStudies(user, googleGroupKey[0], offset, limit);
           default ->
               throw new SystemException(
                   "Listing " + permissions.getType() + " resources requires a parent resource id");
