@@ -8,9 +8,9 @@ buildscript {
         vGoogleProtobuf = '0.9.4'
 
         // library versions
-        vSpringWeb = '6.1.13'
+        vSpringWeb = '6.1.14'
         vPmd = '7.1.0'
-        vTerraCommonLib = '1.1.16-SNAPSHOT'
+        vTerraCommonLib = '1.1.22-SNAPSHOT'
         vApacheCommonsText = '1.12.0'
         vSlf4jApi = '2.0.16'
         vSpotBugs = '4.8.5'

@@ -59,6 +59,8 @@ dependencies {
     }
 
     implementation project(path: ':indexer')
+    implementation project(":underlay")
+    testImplementation(testFixtures(project(":underlay")))
 
     implementation "io.swagger.core.v3:swagger-annotations:${vSwaggerAnnotations}"
     swaggerCodegen "io.swagger.codegen.v3:swagger-codegen-cli:${vSwaggerCodegen}"
@@ -77,17 +79,23 @@ dependencies {
     implementation 'jakarta.validation:jakarta.validation-api'
     implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api:4.0.0'
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.78'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
 
     implementation("bio.terra:terra-common-lib:${vTerraCommonLib}") {
+        // excluded since they are not needed, avoid vuln & mismatches
+        exclude group: 'bio.terra', module: 'stairway'
+        exclude group: 'bio.terra', module: 'stairway-azure'
+        exclude group: 'bio.terra', module: 'stairway-gcp'
         exclude group: 'com.azure'
+        exclude group: 'com.amazonaws'
+
+        // excluded due to version mismatch
+        exclude group: 'com.google.cloud.opentelemetry'
+        exclude group: 'com.google.protobuf'
         exclude group: 'io.swagger', module: 'swagger-annotations'
         exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
     }
-
-    implementation project(":underlay")
-    testImplementation(testFixtures(project(":underlay")))
 
     // Spring version controlled dependencies
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
@@ -96,8 +104,12 @@ dependencies {
     implementation 'org.springframework.security:spring-security-core'
 
     // explicity declare libs and version to address synk warnings
+    implementation "org.springframework:spring-context:${vSpringWeb}"
+    implementation "org.springframework:spring-core:${vSpringWeb}"
     implementation "org.springframework:spring-web:${vSpringWeb}"
     implementation "org.springframework:spring-webmvc:${vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-context:${vSpringWeb}"
+    testFixturesImplementation "org.springframework:spring-core:${vSpringWeb}"
     testFixturesImplementation "org.springframework:spring-web:${vSpringWeb}"
     testFixturesImplementation "org.springframework:spring-webmvc:${vSpringWeb}"
 
