@@ -79,7 +79,11 @@ public class UnderlaysApiController implements UnderlaysApi {
   public ResponseEntity<ApiUnderlaySummaryList> listUnderlaySummaries() {
     ResourceCollection authorizedUnderlayNames =
         accessControlService.listAuthorizedResources(
-            SpringAuthentication.getCurrentUser(), Permissions.forActions(UNDERLAY, READ), 0, 1000);
+            SpringAuthentication.getCurrentUser(),
+            Permissions.forActions(UNDERLAY, READ),
+            (ResourceId) null,
+            0,
+            1000);
     List<Underlay> authorizedUnderlays = underlayService.listUnderlays(authorizedUnderlayNames);
     ApiUnderlaySummaryList apiUnderlays = new ApiUnderlaySummaryList();
     authorizedUnderlays.forEach(

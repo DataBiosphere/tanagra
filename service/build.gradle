@@ -19,7 +19,6 @@ ext {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
@@ -147,7 +146,7 @@ dependencies {
     implementation "org.glassfish.jersey.media:jersey-media-multipart:${vJersey}"
     implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${vJersey}"
 
-    implementation 'org.vumc.vda.vumc-cohort-builder:admin-client:VDA-1785-TEST-SNAPSHOT'
+    implementation 'org.vumc.vda.vumc-cohort-builder:admin-client:1.0.10-SNAPSHOT'
 
     // [Access control]: VerilyGroups
     implementation 'org.json:json:20240303'

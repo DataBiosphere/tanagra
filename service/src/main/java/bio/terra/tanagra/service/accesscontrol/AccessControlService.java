@@ -133,7 +133,10 @@ public class AccessControlService {
     ResourceCollection allResources =
         switch (permissions.getType()) {
           case UNDERLAY -> accessControlImpl.listUnderlays(user, offset, limit);
-          case STUDY -> accessControlImpl.listStudies(user, userAccessGroup, offset, limit);
+          case STUDY ->
+              userAccessGroup != null
+                  ? accessControlImpl.listStudies(user, userAccessGroup, offset, limit)
+                  : accessControlImpl.listStudies(user, offset, limit);
           default ->
               throw new SystemException(
                   "Listing " + permissions.getType() + " resources requires a parent resource id");

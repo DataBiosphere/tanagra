@@ -66,6 +66,7 @@ public class AccessControlImplTest {
             .listAuthorizedResources(
                 UserId.forDisabledAuthentication(),
                 Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
+                (ResourceId) null,
                 0,
                 10)
             .getResources()
@@ -91,6 +92,7 @@ public class AccessControlImplTest {
             .listAuthorizedResources(
                 UserId.forDisabledAuthentication(),
                 Permissions.forActions(ResourceType.STUDY, Action.READ),
+                (ResourceId) null,
                 0,
                 10)
             .isAllResources());
@@ -122,6 +124,7 @@ public class AccessControlImplTest {
             .listAuthorizedResources(
                 UserId.forDisabledAuthentication(),
                 Permissions.forActions(ResourceType.UNDERLAY, Action.READ),
+                (ResourceId) null,
                 0,
                 10)
             .getResources()
