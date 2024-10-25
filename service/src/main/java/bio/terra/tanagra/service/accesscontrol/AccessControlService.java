@@ -9,9 +9,6 @@ import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.common.annotations.VisibleForTesting;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,11 +129,11 @@ public class AccessControlService {
   }
 
   public ResourceCollection listAuthorizedResources(
-      UserId user, Permissions permissions, int offset, int limit, String... googleGroupKey) {
+      UserId user, Permissions permissions, String userAccessGroup, int offset, int limit) {
     ResourceCollection allResources =
         switch (permissions.getType()) {
           case UNDERLAY -> accessControlImpl.listUnderlays(user, offset, limit);
-          case STUDY -> googleGroupKey.length==0 ? accessControlImpl.listStudies(user, offset, limit): accessControlImpl.listStudies(user, googleGroupKey[0], offset, limit);
+          case STUDY -> accessControlImpl.listStudies(user, userAccessGroup, offset, limit);
           default ->
               throw new SystemException(
                   "Listing " + permissions.getType() + " resources requires a parent resource id");
@@ -147,7 +144,7 @@ public class AccessControlService {
   public ResourceCollection listAuthorizedResources(
       UserId user, Permissions permissions, ResourceId parentResource, int offset, int limit) {
     if (parentResource == null) {
-      return listAuthorizedResources(user, permissions, offset, limit);
+      return listAuthorizedResources(user, permissions, (String) null, offset, limit);
     }
 
     if (!parentResource.getType().equals(permissions.getType().getParentResourceType())) {

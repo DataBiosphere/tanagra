@@ -25,8 +25,8 @@ public interface FineGrainedAccessControl {
 
   ResourceCollection listStudies(UserId user, int offset, int limit);
 
-  default ResourceCollection listStudies(UserId user, String googleGroup, int offset, int limit) {
-    return ResourceCollection.allResourcesAllPermissions(ResourceType.STUDY, null);
+  default ResourceCollection listStudies(UserId user, String accessGroup, int offset, int limit) {
+    return listStudies(user, offset, limit);
   }
 
   Permissions getStudy(UserId user, ResourceId study);

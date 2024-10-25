@@ -277,9 +277,9 @@ paths:
         - $ref: "#/components/parameters/StudyFilterCreatedBy"
         - $ref: "#/components/parameters/StudyFilterIncludeDeleted"
         - $ref: "#/components/parameters/StudyFilterProperties"
+        - $ref: "#/components/parameters/UserAccessGroup"
         - $ref: "#/components/parameters/Offset"
         - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/GoogleGroupKey"
       summary: List all studies a user can read
       operationId: listStudies
       tags: [Studies]
@@ -1206,10 +1206,10 @@ components:
         minimum: 1
         default: 50
 
-    GoogleGroupKey:
-      name: googleGroupKey
+    UserAccessGroup:
+      name: userAccessGroup
       in: query
-      description: The Google Group Key that is used to verify user is an admin in order to return to list studies for all users. Defaults to null.
+      description: The user access group to get role. Defaults to null.
       required: false
       schema:
         type: string

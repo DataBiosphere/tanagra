@@ -93,10 +93,10 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   }
 
   @Override
-  public ResourceCollection listStudies(UserId user, String googleGroup, int offset, int limit) {
+  public ResourceCollection listStudies(UserId user, String accessGroup, int offset, int limit) {
     // Get permissions for all studies, then splice the list to accommodate the offset+limit.
     Map<ResourceId, Permissions> resourcePermissionsMap =
-        listAllPermissions(user, ResourceType.STUDY, googleGroup);
+        listAllPermissions(user, ResourceType.STUDY, accessGroup);
     return resourcePermissionsMap.isEmpty()
         ? ResourceCollection.empty(ResourceType.STUDY, null)
         : ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap)
@@ -119,12 +119,12 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   }
 
   private Map<ResourceId, Permissions> listAllPermissions(
-      UserId user, ResourceType type, String googleGroup) {
+      UserId user, ResourceType type, String accessGroup) {
     ResourceList apiResourceList =
         apiListAuthorizedResources(
             user.getEmail(),
             org.vumc.vda.tanagra.admin.model.ResourceType.valueOf(type.name()),
-            googleGroup);
+            accessGroup);
 
     Map<ResourceId, Set<ResourceAction>> resourceApiActionsMap = new HashMap<>();
     apiResourceList.forEach(
@@ -207,10 +207,10 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   protected ResourceList apiListAuthorizedResources(
       String userEmail,
       org.vumc.vda.tanagra.admin.model.ResourceType resourceType,
-      String googleGroup) {
+      String accessGroup) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      return authorizationApi.listAuthorizedResources(userEmail, resourceType, googleGroup);
+      return authorizationApi.listAuthorizedResources(userEmail, resourceType, accessGroup);
     } catch (ApiException apiEx) {
       throw new SystemException(
           "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);

@@ -84,26 +84,18 @@ public class StudiesApiController implements StudiesApi {
       String createdBy,
       Boolean includeDeleted,
       List<String> properties,
+      String userAccessGroup,
       Integer offset,
-      Integer limit,
-      String googleGroupKey) {
-    ResourceCollection authorizedStudyIds;
-    if (googleGroupKey == null) {
+      Integer limit){
+    ResourceCollection
       authorizedStudyIds =
-              accessControlService.listAuthorizedResources(
-                      SpringAuthentication.getCurrentUser(),
-                      Permissions.forActions(STUDY, READ),
-                      offset,
-                      limit);
-    } else {
-      authorizedStudyIds =
-              accessControlService.listAuthorizedResources(
-                      SpringAuthentication.getCurrentUser(),
-                      Permissions.forActions(STUDY, READ),
-                      offset,
-                      limit,
-                      googleGroupKey);
-    }
+          accessControlService.listAuthorizedResources (
+              SpringAuthentication.getCurrentUser(),
+              Permissions.forActions(STUDY, READ),
+              userAccessGroup,
+              offset,
+              limit);
+
     List<Study> authorizedStudies =
         studyService.listStudies(
             authorizedStudyIds,
