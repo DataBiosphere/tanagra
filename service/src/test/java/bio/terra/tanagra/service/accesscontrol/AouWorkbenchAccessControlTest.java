@@ -295,7 +295,11 @@ public class AouWorkbenchAccessControlTest extends BaseAccessControlTest {
   private void assertStudyNoListPermissions(UserId user, ResourceType resource, Action... actions) {
     ResourceCollection resources =
         accessControlService.listAuthorizedResources(
-            user, Permissions.forActions(resource, actions), 0, Integer.MAX_VALUE);
+            user,
+            Permissions.forActions(resource, actions),
+            (ResourceId) null,
+            0,
+            Integer.MAX_VALUE);
     assertFalse(resources.isAllResources());
     assertEquals(
         0,

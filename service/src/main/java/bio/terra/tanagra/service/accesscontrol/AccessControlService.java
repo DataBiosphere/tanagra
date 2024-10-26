@@ -129,11 +129,14 @@ public class AccessControlService {
   }
 
   public ResourceCollection listAuthorizedResources(
-      UserId user, Permissions permissions, int offset, int limit) {
+      UserId user, Permissions permissions, String userAccessGroup, int offset, int limit) {
     ResourceCollection allResources =
         switch (permissions.getType()) {
           case UNDERLAY -> accessControlImpl.listUnderlays(user, offset, limit);
-          case STUDY -> accessControlImpl.listStudies(user, offset, limit);
+          case STUDY ->
+              userAccessGroup != null
+                  ? accessControlImpl.listStudies(user, userAccessGroup, offset, limit)
+                  : accessControlImpl.listStudies(user, offset, limit);
           default ->
               throw new SystemException(
                   "Listing " + permissions.getType() + " resources requires a parent resource id");
@@ -144,7 +147,7 @@ public class AccessControlService {
   public ResourceCollection listAuthorizedResources(
       UserId user, Permissions permissions, ResourceId parentResource, int offset, int limit) {
     if (parentResource == null) {
-      return listAuthorizedResources(user, permissions, offset, limit);
+      return listAuthorizedResources(user, permissions, (String) null, offset, limit);
     }
 
     if (!parentResource.getType().equals(permissions.getType().getParentResourceType())) {

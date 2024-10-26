@@ -24,7 +24,8 @@ public class MockVumcAdminAccessControl extends VumcAdminAccessControl {
   }
 
   @Override
-  protected ResourceList apiListAuthorizedResources(String userEmail, ResourceType resourceType) {
+  protected ResourceList apiListAuthorizedResources(
+      String userEmail, ResourceType resourceType, String userAccessGroup) {
     ResourceList resourceList = new ResourceList();
     if (permissions.containsKey(userEmail)) {
       permissions.get(userEmail).stream()

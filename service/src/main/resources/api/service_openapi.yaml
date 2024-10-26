@@ -277,6 +277,7 @@ paths:
         - $ref: "#/components/parameters/StudyFilterCreatedBy"
         - $ref: "#/components/parameters/StudyFilterIncludeDeleted"
         - $ref: "#/components/parameters/StudyFilterProperties"
+        - $ref: "#/components/parameters/UserAccessGroup"
         - $ref: "#/components/parameters/Offset"
         - $ref: "#/components/parameters/Limit"
       summary: List all studies a user can read
@@ -1204,6 +1205,14 @@ components:
         type: integer
         minimum: 1
         default: 50
+
+    UserAccessGroup:
+      name: userAccessGroup
+      in: query
+      description: The user access group to get role. Defaults to null.
+      required: false
+      schema:
+        type: string
 
     StudyFilterDisplayName:
       name: displayName
