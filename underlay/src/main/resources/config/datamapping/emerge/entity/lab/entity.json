@@ -3,10 +3,11 @@
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64" },
-    { "name": "concept_id", "dataType": "INT64" },
     { "name": "name", "dataType": "STRING" },
-    { "name": "is_standard", "dataType": "STRING", "isComputeDisplayHint": true },
+    { "name": "type", "dataType": "STRING" },
     { "name": "concept_code", "dataType": "STRING" },
+    { "name": "vocabulary_id", "dataType": "STRING" },
+    { "name": "is_standard", "dataType": "STRING", "isComputeDisplayHint": true },
     { "name": "label", "dataType": "STRING" }
   ],
   "idAttribute": "id",
