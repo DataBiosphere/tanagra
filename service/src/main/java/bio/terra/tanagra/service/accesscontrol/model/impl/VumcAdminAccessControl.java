@@ -210,7 +210,11 @@ public class VumcAdminAccessControl implements StudyAccessControl {
       String accessGroup) {
     AuthorizationApi authorizationApi = new AuthorizationApi(getApiClientAuthenticated());
     try {
-      return authorizationApi.listAuthorizedResources(userEmail, resourceType, accessGroup);
+      if (accessGroup == null || accessGroup.isEmpty()) {
+        return authorizationApi.listAuthorizedResources(userEmail, resourceType);
+      } else {
+        return authorizationApi.listGroupAuthorizedResources(userEmail, resourceType, accessGroup);
+      }
     } catch (ApiException apiEx) {
       throw new SystemException(
           "Error calling VUMC admin service listAuthorizedResources endpoint", apiEx);
