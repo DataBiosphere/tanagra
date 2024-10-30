@@ -12,6 +12,8 @@ export function isAuth0Enabled(): boolean {
 export function Auth0AuthProvider() {
   const env = getEnvironment();
   const navigate = useNavigate();
+  const audience = env.REACT_APP_AUTH0_AUDIENCE;
+  const scope = audience ? "profile email ciam": "profile email";
 
   return (
     <Auth0Provider
@@ -22,7 +24,8 @@ export function Auth0AuthProvider() {
         navigate(appState?.returnTo || "/", { replace: true })
       }
       authorizationParams={{
-        scope: "profile email",
+        audience,
+        scope,
         redirect_uri: window.location.origin,
       }}
     >
