@@ -2087,9 +2087,6 @@ components:
       properties:
         sql:
           type: string
-        entityIdSql:
-          description: SQL for core entity ids, included in the primary sql
-          type: string
         instances:
           type: array
           items:
@@ -2867,10 +2864,14 @@ components:
           description: |
             SQL string against the source tables.
             This will be populated if source queries are configured for this entity.
+        entityIdSql:
+          type: string
+          description: SQL string for the entityId attribute.
       required:
         - entity
         - includedAttributes
         - criteria
+        - entityIdSql
 
     EntityOutputPreviewList:
       type: object
