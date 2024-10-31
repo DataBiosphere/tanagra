@@ -13,7 +13,7 @@ export function Auth0AuthProvider() {
   const env = getEnvironment();
   const navigate = useNavigate();
   const audience = env.REACT_APP_AUTH0_AUDIENCE;
-  const scope = audience ? "profile email ciam": "profile email";
+  const scope = audience ? "profile email ciam" : "profile email";
 
   return (
     <Auth0Provider
