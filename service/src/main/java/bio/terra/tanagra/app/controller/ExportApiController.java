@@ -19,9 +19,6 @@ import bio.terra.tanagra.generated.model.ApiExportPreviewRequest;
 import bio.terra.tanagra.generated.model.ApiExportRequest;
 import bio.terra.tanagra.generated.model.ApiExportResult;
 import bio.terra.tanagra.generated.model.ApiInstanceListResult;
-import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
-import bio.terra.tanagra.query.sql.SqlParams;
-import bio.terra.tanagra.query.sql.SqlQueryRequest;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -229,22 +226,12 @@ public class ExportApiController implements ExportApi {
             cohorts.stream().map(Cohort::getMostRecentRevision).collect(Collectors.toList()));
     Entity idEntity = underlay.getPrimaryEntity();
     AttributeField idAttributeField =
-        new AttributeField(
-            underlay,
-            idEntity,
-            idEntity.getIdAttribute(),
-            true);
+        new AttributeField(underlay, idEntity, idEntity.getIdAttribute(), true);
     ListQueryRequest indexListQueryRequest =
         ListQueryRequest.dryRunAgainstIndexData(
-            underlay,
-            idEntity,
-            List.of(idAttributeField),
-            combinedCohortFilter,
-            null,
-            null);
-    String entityIdSql = underlay.getQueryRunner().run(indexListQueryRequest).getSql();
-
-    return ResponseEntity.ok(apiEntityOutputs.entityIdSql(entityIdSql));
+            underlay, idEntity, List.of(idAttributeField), combinedCohortFilter, null, null);
+    String entityIdSql = underlay.getQueryRunner().run(indexListQueryRequest).getSqlNoParams();
+    return ResponseEntity.ok(apiEntityOutputs.entityIdSql(SqlFormatter.format(entityIdSql)));
   }
 
   @Override
