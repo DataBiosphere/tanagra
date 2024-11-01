@@ -16,6 +16,7 @@ function renderApp(fakeAuthCtx?: FakeAuthContextType) {
     const env = getEnvironment();
     env.REACT_APP_AUTH0_DOMAIN = "fake-domain"
     env.REACT_APP_AUTH0_CLIENT_ID = "fake-client"
+    env.REACT_APP_AUTH0_AUDIENCE = "fake-audience"
     appRouter = createAppRouter({authCtx: fakeAuthCtx});
     render(<AppWithRouter {...appRouter} />);
 
