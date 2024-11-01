@@ -75,10 +75,7 @@ public class FeatureSetsApiController implements FeatureSetsApi {
 
   @Override
   public ResponseEntity<ApiFeatureSet> getFeatureSet(String studyId, String featureSetId) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(FEATURE_SET, READ),
-        ResourceId.forFeatureSet(studyId, featureSetId));
+    accessControlService.checkReadAccess(studyId, List.of(), List.of(featureSetId));
     return ResponseEntity.ok(toApiObject(featureSetService.getFeatureSet(studyId, featureSetId)));
   }
 
@@ -138,10 +135,7 @@ public class FeatureSetsApiController implements FeatureSetsApi {
     UserId user = SpringAuthentication.getCurrentUser();
 
     // should have read access to original feature set
-    accessControlService.throwIfUnauthorized(
-        user,
-        Permissions.forActions(FEATURE_SET, READ),
-        ResourceId.forFeatureSet(studyId, featureSetId));
+    accessControlService.checkReadAccess(studyId, List.of(), List.of(featureSetId));
 
     // should have write access to create feature set in destination study
     String destinationStudyId =

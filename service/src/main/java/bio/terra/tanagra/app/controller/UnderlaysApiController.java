@@ -93,10 +93,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
   @Override
   public ResponseEntity<ApiUnderlay> getUnderlay(String underlayName) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
     Underlay underlay = underlayService.getUnderlay(underlayName);
     return ResponseEntity.ok(
         new ApiUnderlay()
@@ -107,10 +104,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
   @Override
   public ResponseEntity<ApiEntityList> listEntities(String underlayName) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
     ApiEntityList apiEntities = new ApiEntityList();
     underlayService
         .getUnderlay(underlayName)
@@ -121,10 +115,7 @@ public class UnderlaysApiController implements UnderlaysApi {
 
   @Override
   public ResponseEntity<ApiEntity> getEntity(String underlayName, String entityName) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
     Entity entity = underlayService.getUnderlay(underlayName).getEntity(entityName);
     return ResponseEntity.ok(toApiObject(entity));
   }
@@ -132,10 +123,7 @@ public class UnderlaysApiController implements UnderlaysApi {
   @Override
   public ResponseEntity<ApiInstanceListResult> listInstances(
       String underlayName, String entityName, ApiQuery body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
     Underlay underlay = underlayService.getUnderlay(underlayName);
     ListQueryRequest listQueryRequest =
         FromApiUtils.fromApiObject(body, underlay.getEntity(entityName), underlay);
@@ -148,10 +136,7 @@ public class UnderlaysApiController implements UnderlaysApi {
   @Override
   public ResponseEntity<ApiInstanceListResult> listInstancesForPrimaryEntity(
       String underlayName, String entityName, ApiQueryFilterOnPrimaryEntity body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
     Underlay underlay = underlayService.getUnderlay(underlayName);
 
     // Build the attribute fields to select.
@@ -205,10 +190,7 @@ public class UnderlaysApiController implements UnderlaysApi {
   @Override
   public ResponseEntity<ApiInstanceCountList> countInstances(
       String underlayName, String entityName, ApiCountQuery body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
 
     // Build the entity filter.
     Underlay underlay = underlayService.getUnderlay(underlayName);
@@ -236,10 +218,7 @@ public class UnderlaysApiController implements UnderlaysApi {
   @Override
   public ResponseEntity<ApiDisplayHintList> queryHints(
       String underlayName, String entityName, ApiHintQuery body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
     Underlay underlay = underlayService.getUnderlay(underlayName);
     Entity entity = underlay.getEntity(entityName);
     HintQueryResult hintQueryResult;
@@ -279,10 +258,7 @@ public class UnderlaysApiController implements UnderlaysApi {
   @Override
   public ResponseEntity<ApiInstanceCountList> queryCriteriaCounts(
       String underlayName, ApiCriteriaCountQuery body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
 
     // Build the entity filter.
     List<CriteriaGroupSection> criteriaGroupSections =

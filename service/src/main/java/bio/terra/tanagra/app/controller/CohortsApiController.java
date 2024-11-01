@@ -86,10 +86,7 @@ public class CohortsApiController implements CohortsApi {
   @Override
   public ResponseEntity<ApiCohort> getCohort(
       String studyId, String cohortId, String cohortRevisionId) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT, READ),
-        ResourceId.forCohort(studyId, cohortId));
+    accessControlService.checkReadAccess(studyId, List.of(cohortId), List.of());
     return ResponseEntity.ok(ToApiUtils.toApiObject(cohortService.getCohort(studyId, cohortId)));
   }
 
@@ -162,10 +159,7 @@ public class CohortsApiController implements CohortsApi {
   @Override
   public ResponseEntity<ApiInstanceCountList> queryCohortCounts(
       String studyId, String cohortId, ApiCohortCountQuery body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(COHORT, READ),
-        ResourceId.forCohort(studyId, cohortId));
+    accessControlService.checkReadAccess(studyId, List.of(cohortId), List.of());
     Cohort cohort = cohortService.getCohort(studyId, cohortId);
 
     accessControlService.throwIfUnauthorized(

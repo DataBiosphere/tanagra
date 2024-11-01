@@ -1,6 +1,13 @@
 package bio.terra.tanagra.service.accesscontrol;
 
+import static bio.terra.tanagra.service.accesscontrol.Action.READ;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.FEATURE_SET;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.STUDY;
+import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
+
 import bio.terra.common.exception.UnauthorizedException;
+import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.accesscontrol.model.CoreModel;
@@ -8,7 +15,9 @@ import bio.terra.tanagra.service.accesscontrol.model.FineGrainedAccessControl;
 import bio.terra.tanagra.service.artifact.StudyService;
 import bio.terra.tanagra.service.authentication.UserId;
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,5 +181,36 @@ public class AccessControlService {
                       + " resources does not require a parent resource id");
         };
     return allResources.filter(permissions);
+  }
+
+  public void checkUnderlayAccess(@NotNull String underlayName) {
+    throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(UNDERLAY, READ),
+        ResourceId.forUnderlay(underlayName));
+  }
+
+  public void checkReadAccess(
+      @NotNull String studyName,
+      @NotNull List<String> cohortIds,
+      @NotNull List<String> featureSetIds) {
+    throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(STUDY, READ),
+        ResourceId.forStudy(studyName));
+
+    for (String cohortId : cohortIds) {
+      throwIfUnauthorized(
+          SpringAuthentication.getCurrentUser(),
+          Permissions.forActions(COHORT, READ),
+          ResourceId.forCohort(studyName, cohortId));
+    }
+
+    for (String featureSetId : featureSetIds) {
+      throwIfUnauthorized(
+          SpringAuthentication.getCurrentUser(),
+          Permissions.forActions(FEATURE_SET, READ),
+          ResourceId.forFeatureSet(studyName, featureSetId));
+    }
   }
 }
