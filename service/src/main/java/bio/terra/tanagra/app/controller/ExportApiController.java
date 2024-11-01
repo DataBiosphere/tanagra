@@ -2,6 +2,7 @@ package bio.terra.tanagra.app.controller;
 
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
@@ -18,6 +19,9 @@ import bio.terra.tanagra.generated.model.ApiExportPreviewRequest;
 import bio.terra.tanagra.generated.model.ApiExportRequest;
 import bio.terra.tanagra.generated.model.ApiExportResult;
 import bio.terra.tanagra.generated.model.ApiInstanceListResult;
+import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
+import bio.terra.tanagra.query.sql.SqlParams;
+import bio.terra.tanagra.query.sql.SqlQueryRequest;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.artifact.CohortService;
@@ -218,7 +222,29 @@ public class ExportApiController implements ExportApi {
                       SqlFormatter.format(sourceSqlForEntityOutputs.get(entityOutputPreview)));
           apiEntityOutputs.addEntityOutputsItem(apiEntityOutput);
         });
-    return ResponseEntity.ok(apiEntityOutputs);
+
+    EntityFilter combinedCohortFilter =
+        filterBuilderService.buildFilterForCohortRevisions(
+            underlayName,
+            cohorts.stream().map(Cohort::getMostRecentRevision).collect(Collectors.toList()));
+    Entity idEntity = underlay.getPrimaryEntity();
+    AttributeField idAttributeField =
+        new AttributeField(
+            underlay,
+            idEntity,
+            idEntity.getIdAttribute(),
+            true);
+    ListQueryRequest indexListQueryRequest =
+        ListQueryRequest.dryRunAgainstIndexData(
+            underlay,
+            idEntity,
+            List.of(idAttributeField),
+            combinedCohortFilter,
+            null,
+            null);
+    String entityIdSql = underlay.getQueryRunner().run(indexListQueryRequest).getSql();
+
+    return ResponseEntity.ok(apiEntityOutputs.entityIdSql(entityIdSql));
   }
 
   @Override
