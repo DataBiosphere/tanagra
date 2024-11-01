@@ -344,8 +344,7 @@ public class BQQueryRunner implements QueryRunner {
     return buildListQuerySqlAgainstIndexData(listQueryRequest, Instant.now());
   }
 
-  @VisibleForTesting
-  public SqlQueryRequest buildListQuerySqlAgainstIndexData(
+  private SqlQueryRequest buildListQuerySqlAgainstIndexData(
       ListQueryRequest listQueryRequest, Instant queryInstant) {
     return buildQuerySqlAgainstIndexData(
         listQueryRequest.getUnderlay(),

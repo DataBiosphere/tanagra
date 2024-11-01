@@ -1,12 +1,8 @@
 package bio.terra.tanagra.app.controller;
 
-import static bio.terra.tanagra.service.accesscontrol.Action.READ;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.COHORT;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.FEATURE_SET;
-import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
-
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
+import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
@@ -25,8 +21,6 @@ import bio.terra.tanagra.generated.model.ApiExportResult;
 import bio.terra.tanagra.generated.model.ApiInstanceListResult;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
-import bio.terra.tanagra.service.accesscontrol.Permissions;
-import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.FeatureSetService;
 import bio.terra.tanagra.service.artifact.StudyService;
@@ -83,10 +77,7 @@ public class ExportApiController implements ExportApi {
 
   @Override
   public ResponseEntity<ApiExportModelList> listExportModels(String underlayName) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
+    accessControlService.checkUnderlayAccess(underlayName);
     // Get a map of implementation name -> (display name, class instance).
     List<DataExportModel> exportModels = dataExportService.getModels(underlayName);
     ApiExportModelList apiExportImpls = new ApiExportModelList();
@@ -97,32 +88,18 @@ public class ExportApiController implements ExportApi {
   @Override
   public ResponseEntity<ApiInstanceListResult> previewExportInstances(
       String underlayName, String entityName, ApiExportPreviewRequest body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
-    for (String cohortId : body.getCohorts()) {
-      accessControlService.throwIfUnauthorized(
-          SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(COHORT, READ),
-          ResourceId.forCohort(body.getStudy(), cohortId));
-    }
-    for (String featureSetId : body.getFeatureSets()) {
-      accessControlService.throwIfUnauthorized(
-          SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(FEATURE_SET, READ),
-          ResourceId.forFeatureSet(body.getStudy(), featureSetId));
-    }
+    accessControlService.checkUnderlayAccess(underlayName);
+    accessControlService.checkReadAccess(body.getStudy(), body.getCohorts(), body.getFeatureSets());
 
-    // Build the entity outputs.
+    // Build the entity output previews.
     List<Cohort> cohorts =
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
-            .collect(Collectors.toList());
+            .toList();
     List<FeatureSet> featureSets =
         body.getFeatureSets().stream()
             .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
-            .collect(Collectors.toList());
+            .toList();
     List<EntityOutputPreview> entityOutputPreviews =
         filterBuilderService.buildOutputPreviewsForExport(
             cohorts, featureSets, body.isIncludeAllAttributes());
@@ -169,26 +146,18 @@ public class ExportApiController implements ExportApi {
   @Override
   public ResponseEntity<ApiEntityOutputPreviewList> describeExport(
       String underlayName, ApiExportPreviewRequest body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
-    for (String featureSetId : body.getFeatureSets()) {
-      accessControlService.throwIfUnauthorized(
-          SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(FEATURE_SET, READ),
-          ResourceId.forFeatureSet(body.getStudy(), featureSetId));
-    }
+    accessControlService.checkUnderlayAccess(underlayName);
+    accessControlService.checkReadAccess(body.getStudy(), body.getCohorts(), body.getFeatureSets());
 
     // Build the entity output previews.
     List<Cohort> cohorts =
         body.getCohorts().stream()
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
-            .collect(Collectors.toList());
+            .toList();
     List<FeatureSet> featureSets =
         body.getFeatureSets().stream()
             .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
-            .collect(Collectors.toList());
+            .toList();
     List<EntityOutputPreview> entityOutputPreviews =
         filterBuilderService.buildOutputPreviewsForExport(
             cohorts, featureSets, body.isIncludeAllAttributes());
@@ -250,32 +219,26 @@ public class ExportApiController implements ExportApi {
                       SqlFormatter.format(sourceSqlForEntityOutputs.get(entityOutputPreview)));
           apiEntityOutputs.addEntityOutputsItem(apiEntityOutput);
         });
-    return ResponseEntity.ok(apiEntityOutputs);
+
+    EntityFilter combinedCohortFilter =
+        filterBuilderService.buildFilterForCohortRevisions(
+            underlayName,
+            cohorts.stream().map(Cohort::getMostRecentRevision).collect(Collectors.toList()));
+    Entity idEntity = underlay.getPrimaryEntity();
+    AttributeField idAttributeField =
+        new AttributeField(underlay, idEntity, idEntity.getIdAttribute(), true);
+    ListQueryRequest indexListQueryRequest =
+        ListQueryRequest.dryRunAgainstIndexData(
+            underlay, idEntity, List.of(idAttributeField), combinedCohortFilter, null, null);
+    String entityIdSql = underlay.getQueryRunner().run(indexListQueryRequest).getSqlNoParams();
+    return ResponseEntity.ok(apiEntityOutputs.entityIdSql(SqlFormatter.format(entityIdSql)));
   }
 
   @Override
   public ResponseEntity<ApiExportResult> exportInstancesAndAnnotations(
       String underlayName, ApiExportRequest body) {
-    accessControlService.throwIfUnauthorized(
-        SpringAuthentication.getCurrentUser(),
-        Permissions.forActions(UNDERLAY, READ),
-        ResourceId.forUnderlay(underlayName));
-    for (String cohortId : body.getCohorts()) {
-      accessControlService.throwIfUnauthorized(
-          SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(COHORT, READ),
-          ResourceId.forCohort(body.getStudy(), cohortId));
-    }
-    List<String> featureSetIds = new ArrayList<>();
-    if (body.getFeatureSets() != null) {
-      featureSetIds.addAll(body.getFeatureSets());
-    }
-    for (String featureSetId : featureSetIds) {
-      accessControlService.throwIfUnauthorized(
-          SpringAuthentication.getCurrentUser(),
-          Permissions.forActions(FEATURE_SET, READ),
-          ResourceId.forFeatureSet(body.getStudy(), featureSetId));
-    }
+    accessControlService.checkUnderlayAccess(underlayName);
+    accessControlService.checkReadAccess(body.getStudy(), body.getCohorts(), body.getFeatureSets());
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
     Study study = studyService.getStudy(body.getStudy());
@@ -284,7 +247,7 @@ public class ExportApiController implements ExportApi {
             .map(cohortId -> cohortService.getCohort(body.getStudy(), cohortId))
             .collect(Collectors.toList());
     List<FeatureSet> featureSets =
-        featureSetIds.stream()
+        body.getFeatureSets().stream()
             .map(featureSetId -> featureSetService.getFeatureSet(body.getStudy(), featureSetId))
             .collect(Collectors.toList());
 
