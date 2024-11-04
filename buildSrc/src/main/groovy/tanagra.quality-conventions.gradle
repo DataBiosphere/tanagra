@@ -23,8 +23,8 @@ quality {
     configDir = "${rootDir}/gradle/config/"
 
     sourceSets = [
-            project.sourceSets.main,
-            project.sourceSets.test
+        project.sourceSets.main,
+        project.sourceSets.test
     ]
 
     excludeSources = fileTree('build')

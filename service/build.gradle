@@ -3,7 +3,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
     id 'tanagra.java-conventions'
 
-    id 'com.google.cloud.tools.jib' version '3.1.2'
+    id 'com.google.cloud.tools.jib' version '3.4.4'
     id 'io.spring.dependency-management' version "${vSpringDepMgt}"
     id 'org.springframework.boot' version "${vSpringBoot}"
     id 'org.hidetake.swagger.generator' version "${vHidetakeSwagger}"
@@ -52,6 +52,11 @@ dependencyManagement {
     }
 }
 
+configurations.all {
+    // excluded to avoid LoggerFactory conflicts (logback/slf4j)
+    exclude group: 'ch.qos.logback', module: 'logback-classic'
+}
+
 dependencies {
     // added to address synk warnings
     constraints {
@@ -69,6 +74,7 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:${vJackson}"
     implementation "com.fasterxml.jackson.core:jackson-core:${vJackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${vJackson}"
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
 
     implementation 'org.webjars:webjars-locator-core:0.58'
     implementation 'org.webjars.npm:swagger-ui-dist:5.17.12'

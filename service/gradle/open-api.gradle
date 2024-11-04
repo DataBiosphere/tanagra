@@ -25,7 +25,8 @@ swaggerSources {
                 'interfaceOnly=true,' +
                 'useTags=true,' +
                 'dateLibrary=java8,' +
-                'jakarta=true'
+                'jakarta=true, ' +
+                'validationMode=legacy'
             ]
         }
     }

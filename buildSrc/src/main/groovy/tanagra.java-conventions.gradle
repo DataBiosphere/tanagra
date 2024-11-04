@@ -41,7 +41,7 @@ dependencyLocking {
 
 dependencies {
     // GCP BOM - See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
-    implementation platform('com.google.cloud:libraries-bom:26.47.0')
+    implementation platform('com.google.cloud:libraries-bom:26.49.0')
     constraints {
         // "-jre" for Java 8 or higher
         implementation 'com.google.guava:guava:33.3.1-jre'
