@@ -60,7 +60,7 @@ dependencies {
     // Apache Beam depends on specific JUnit versions
     // https://github.com/apache/beam/blob/release-2.56.0/buildSrc/src/main/groovy/org/apache/beam/gradle/BeamModulePlugin.groovy
     testImplementation 'junit:junit:4.13.1'
-    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.7.0'
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine:${vJunit5}"
 
     // Static analysis
     pmd "net.sourceforge.pmd:pmd-ant:${vPmd}"

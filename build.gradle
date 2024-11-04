@@ -2,7 +2,7 @@
 buildscript {
     ext {
         // plugin versions
-        vSpringBoot = '3.3.4'
+        vSpringBoot = '3.3.5'
         vSpringDepMgt = '1.1.6'
         vHidetakeSwagger = '2.19.2'
         vGoogleProtobuf = '0.9.4'
@@ -13,13 +13,13 @@ buildscript {
         vTerraCommonLib = '1.1.22-SNAPSHOT'
         vApacheCommonsText = '1.12.0'
         vSlf4jApi = '2.0.16'
-        vSpotBugs = '4.8.5'
-        vJackson = '2.17.2'
-        vJersey = '3.1.8' // Java 17 compatible
-        vSwaggerAnnotations = '2.2.22'
-        vSwaggerCodegen = '3.0.57'
+        vSpotBugs = '4.8.6'
+        vJackson = '2.18.1'
+        vJersey = '3.1.9' // Java 17 compatible
+        vSwaggerAnnotations = '2.2.25'
+        vSwaggerCodegen = '3.0.63'
         vPicocliVersion = '4.7.6'
-        vJunit5 = '5.10.2'
+        vJunit5 = '5.11.3'
     }
     repositories {
         mavenCentral()
