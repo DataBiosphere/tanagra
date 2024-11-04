@@ -10,7 +10,7 @@ import static bio.terra.tanagra.service.accesscontrol.ResourceType.UNDERLAY;
 import bio.terra.tanagra.exception.SystemException;
 import java.util.List;
 import java.util.Objects;
-import org.apache.logging.log4j.util.Strings;
+import org.apache.commons.lang3.StringUtils;
 
 public final class ResourceId {
   private static final char COMPOSITE_ID_SEPARATOR = '-';
@@ -103,7 +103,7 @@ public final class ResourceId {
   }
 
   private static String buildCompositeId(List<String> ids) {
-    return Strings.join(ids, COMPOSITE_ID_SEPARATOR);
+    return StringUtils.join(ids, COMPOSITE_ID_SEPARATOR);
   }
 
   public String getUnderlay() {
