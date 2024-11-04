@@ -69,6 +69,7 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:${vJackson}"
     implementation "com.fasterxml.jackson.core:jackson-core:${vJackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${vJackson}"
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
 
     implementation 'org.webjars:webjars-locator-core:0.58'
     implementation 'org.webjars.npm:swagger-ui-dist:5.17.12'
