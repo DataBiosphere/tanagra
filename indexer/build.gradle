@@ -25,8 +25,6 @@ repositories {
 dependencies {
     // added to address synk warnings
     constraints {
-        implementation 'org.apache.commons:commons-compress:1.26.2'
-        implementation 'io.netty:netty-codec-http:4.1.108.Final'
         implementation 'org.apache.avro:avro:1.11.4'
         runtimeOnly 'com.charleskorn.kaml:kaml:0.60.0'
     }

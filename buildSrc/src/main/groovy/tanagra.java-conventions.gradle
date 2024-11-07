@@ -39,16 +39,18 @@ dependencyLocking {
     lockAllConfigurations()
 }
 
+configurations.all {
+    // Excluded to avoid potential conflicts
+    exclude group: 'ch.qos.logback', module: 'logback-classic'
+    exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 dependencies {
     // GCP BOM - See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
     implementation platform('com.google.cloud:libraries-bom:26.49.0')
     constraints {
         // "-jre" for Java 8 or higher
         implementation 'com.google.guava:guava:33.3.1-jre'
-
-        def vGcpProtobuf = '3.25.5'
-        implementation "com.google.protobuf:protobuf-java:${vGcpProtobuf}"
-        implementation "com.google.protobuf:protobuf-java-util:${vGcpProtobuf}"
     }
 }
 
