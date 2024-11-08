@@ -6,6 +6,7 @@ import { Theme, useTheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import errorImage from "images/error.png";
+import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
@@ -129,16 +130,18 @@ function showStatus(
     );
   }
   return !noProgress && visible ? (
-    <CircularProgress
-      size={size === "small" ? theme.typography.body2.fontSize : undefined}
-      sx={
-        size !== "small"
-          ? {
-              display: "block",
-              m: "auto",
-            }
-          : {}
-      }
-    />
+    <GridBox sx={{ p: size !== "small" ? 3 : undefined }}>
+      <CircularProgress
+        size={size === "small" ? theme.typography.body2.fontSize : undefined}
+        sx={
+          size !== "small"
+            ? {
+                display: "block",
+                m: "auto",
+              }
+            : {}
+        }
+      />
+    </GridBox>
   ) : null;
 }

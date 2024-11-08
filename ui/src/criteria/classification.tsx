@@ -2,7 +2,9 @@ import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
+import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import Checkbox from "components/checkbox";
@@ -45,7 +47,7 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/entity_group";
 import * as dataProto from "proto/criteriaselector/dataschema/entity_group";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSWRImmutable from "swr/immutable";
 import { useImmer } from "use-immer";
 import { base64ToBytes } from "util/base64";
@@ -245,6 +247,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
   }, [updateCriteria, localCriteria]);
 
   const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
+  const searchRef = useRef<HTMLDivElement | null>(null);
+  const [hierarchySearchAnchor, setHierarchySearchAnchor] =
+    useState<HTMLDivElement | null>(null);
+  const [hierarchyQuery, setHierarchyQuery] = useState<string | undefined>();
 
   const [unconfirmedChangesDialog, showUnconfirmedChangesDialog] =
     useSimpleDialog();
@@ -360,7 +366,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
       return data;
     },
-    [updateSearchState]
+    []
   );
 
   const attributes = useMemo(
@@ -400,6 +406,14 @@ function ClassificationEdit(props: ClassificationEditProps) {
     props.config.classificationEntityGroups,
     props.config.groupingEntityGroups,
   ]);
+
+  const hierarchyEntityConfig = useMemo(
+    () =>
+      allEntityGroupConfigs.find(
+        (c) => searchState?.hierarchyEntityGroup === c.eg.id
+      )?.eg,
+    [allEntityGroupConfigs, searchState?.hierarchyEntityGroup]
+  );
 
   const calcSortOrder = useCallback(
     (
@@ -476,7 +490,14 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
     const merged = [classifications, ...groups].flat();
     return processEntities(merged, searchState?.hierarchy);
-  }, [underlaySource, attributes, processEntities, searchState]);
+  }, [
+    underlaySource,
+    attributes,
+    processEntities,
+    searchState.query,
+    searchState.hierarchy,
+    searchState.hierarchyEntityGroup,
+  ]);
   const instancesState = useSWRImmutable(
     {
       type: "entityGroupInstances",
@@ -484,7 +505,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
         ...classificationEntityGroupData,
         ...groupingEntityGroupData,
       ].map((eg) => eg.id),
-      searchState,
+      query: searchState.query,
+      hierarchy: searchState.hierarchy,
+      hierarchyEntityGroup: searchState.hierarchyEntityGroup,
       attributes,
     },
     fetchInstances
@@ -533,11 +556,16 @@ function ClassificationEdit(props: ClassificationEditProps) {
     >
       <GridLayout cols fillCol={0}>
         <GridLayout rows>
-          {!searchState?.hierarchy && (
+          <GridBox
+            sx={{
+              px: 5,
+              py: 3,
+              height: "auto",
+            }}
+          >
             <GridBox
+              ref={searchRef}
               sx={{
-                px: 5,
-                py: 3,
                 height: "auto",
               }}
             >
@@ -545,13 +573,55 @@ function ClassificationEdit(props: ClassificationEditProps) {
                 placeholder="Search by code or description"
                 onSearch={(query: string) => {
                   updateSearchState((data: SearchState) => {
-                    data.query = query;
+                    if (data.hierarchy) {
+                      setHierarchyQuery(query);
+                      if (query?.length) {
+                        setHierarchySearchAnchor(searchRef.current);
+                      }
+                    } else {
+                      data.query = query;
+                    }
                   });
                 }}
-                initialValue={searchState?.query}
+                initialValue={
+                  searchState?.hierarchy ? hierarchyQuery : searchState?.query
+                }
               />
+              <Popover
+                open={!!hierarchySearchAnchor}
+                anchorEl={hierarchySearchAnchor}
+                onClose={() => setHierarchySearchAnchor(null)}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                disableAutoFocus
+                disableEnforceFocus
+              >
+                <GridBox
+                  sx={{
+                    minWidth: "500px",
+                    maxWidth: "700px",
+                    maxHeight: "300px",
+                    overflowY: "auto",
+                  }}
+                >
+                  <HierarchySearchList
+                    config={props.config}
+                    hierarchyQuery={hierarchyQuery}
+                    hierarchyEntityConfig={hierarchyEntityConfig}
+                    onClick={(ancestors: string[], highlightId: DataKey) => {
+                      setHierarchySearchAnchor(null);
+                      updateSearchState((data: SearchState) => {
+                        data.hierarchy = ancestors;
+                        data.highlightId = highlightId;
+                      });
+                    }}
+                  />
+                </GridBox>
+              </Popover>
             </GridBox>
-          )}
+          </GridBox>
           <Loading status={instancesState}>
             {!instancesState.data?.root?.children?.length ? (
               <Empty
@@ -600,6 +670,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     <Button
                       startIcon={<AccountTreeIcon />}
                       onClick={() => {
+                        setHierarchyQuery(undefined);
                         updateSearchState((data: SearchState) => {
                           if (rowData.view_hierarchy) {
                             data.hierarchyEntityGroup = item.entityGroup;
@@ -838,6 +909,87 @@ function ClassificationEdit(props: ClassificationEditProps) {
       </GridLayout>
       {unconfirmedChangesDialog}
     </GridBox>
+  );
+}
+
+type HierarchySearchListProps = {
+  config: configProto.EntityGroup;
+  hierarchyQuery?: string;
+  hierarchyEntityConfig?: configProto.EntityGroup_EntityGroupConfig;
+  onClick: (ancestors: string[], highlightId: DataKey) => void;
+};
+
+function HierarchySearchList(props: HierarchySearchListProps) {
+  const underlaySource = useUnderlaySource();
+
+  const [searchState] = useLocalSearchState<SearchState>();
+
+  const fetchHierarchySearchInstances = useCallback(async () => {
+    if (!props.hierarchyEntityConfig || !props.hierarchyQuery) {
+      return [];
+    }
+
+    return (
+      await underlaySource.searchEntityGroup(
+        [nameAttribute(props.config)],
+        props.hierarchyEntityConfig.id,
+        fromProtoSortOrder(props.config.defaultSort ?? DEFAULT_SORT_ORDER),
+        {
+          query: props.hierarchyQuery,
+          limit: DEFAULT_LIMIT,
+          hierarchy: true,
+        }
+      )
+    ).nodes;
+  }, [
+    underlaySource,
+    props.hierarchyQuery,
+    searchState?.hierarchy,
+    searchState?.hierarchyEntityGroup,
+  ]);
+  const hierarchySearchState = useSWRImmutable(
+    {
+      type: "hierarchySearchInstances",
+      query: props.hierarchyQuery,
+      hierarchy: searchState?.hierarchy,
+      hierarchyEntityGroup: searchState?.hierarchyEntityGroup,
+    },
+    fetchHierarchySearchInstances
+  );
+
+  return (
+    <Loading status={hierarchySearchState} immediate>
+      {!hierarchySearchState.data?.length ? (
+        <Empty title="No matches found" />
+      ) : (
+        <GridLayout rows height="auto" sx={{ px: 2, py: 1 }}>
+          {hierarchySearchState.data?.map((n) => {
+            const title = String(n.data?.[nameAttribute(props.config)]);
+            return (
+              <Link
+                key={n.data.key}
+                component="button"
+                variant="body2"
+                color="inherit"
+                underline="hover"
+                title={title}
+                onClick={() => {
+                  const entityGroup = props.hierarchyEntityConfig?.id;
+                  if (entityGroup) {
+                    props.onClick(
+                      n.ancestors?.map((a) => dataKey(a, entityGroup)) ?? [],
+                      dataKey(n.data.key, entityGroup)
+                    );
+                  }
+                }}
+              >
+                {title}
+              </Link>
+            );
+          })}
+        </GridLayout>
+      )}
+    </Loading>
   );
 }
 
