@@ -130,7 +130,7 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
     []
   );
 
-  const scrolledToHighlightRef = useRef<boolean>(false);
+  const scrolledToHighlightId = useRef<TreeGridId>();
   const highlightRef = useRef<HTMLTableRowElement>(null);
 
   const toggleExpanded = (draft: TreeGridState, id: TreeGridId) => {
@@ -161,14 +161,17 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
               }
             })
             .then(() => {
-              if (!scrolledToHighlightRef.current && highlightRef.current) {
+              if (
+                scrolledToHighlightId.current !== props.highlightId &&
+                highlightRef.current
+              ) {
                 // Delay scroll to allow time for rendering.
                 setTimeout(() => {
                   if (highlightRef.current) {
                     highlightRef.current.scrollIntoView({ block: "center" });
                   }
                 }, 0);
-                scrolledToHighlightRef.current = true;
+                scrolledToHighlightId.current = props.highlightId;
               }
             })
             .catch((error) => {
