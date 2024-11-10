@@ -53,6 +53,10 @@ dependencyManagement {
 }
 
 dependencies {
+    configurations.all {
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+    }
+
     implementation project(path: ':indexer')
     implementation project(":underlay")
     testImplementation(testFixtures(project(":underlay")))

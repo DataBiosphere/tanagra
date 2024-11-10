@@ -40,8 +40,6 @@ dependencyLocking {
 }
 
 configurations.all {
-    // Excluded to avoid potential conflicts
-    exclude group: 'ch.qos.logback', module: 'logback-classic'
     exclude group: 'commons-logging', module: 'commons-logging'
 }
 
