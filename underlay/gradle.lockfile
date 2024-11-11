@@ -79,7 +79,6 @@ commons-beanutils:commons-beanutils:1.9.4=checkstyle
 commons-codec:commons-codec:1.15=checkstyle,pmd,spotbugs
 commons-codec:commons-codec:1.17.1=compileClasspath,compileProtoPath,runtimeClasspath,testCompileClasspath,testCompileProtoPath,testFixturesCompileProtoPath,testFixturesRuntimeClasspath,testRuntimeClasspath
 commons-collections:commons-collections:3.2.2=checkstyle
-commons-logging:commons-logging:1.2=compileProtoPath,runtimeClasspath,testCompileProtoPath,testFixturesCompileProtoPath,testFixturesRuntimeClasspath,testRuntimeClasspath
 info.picocli:picocli:4.7.5=checkstyle
 io.github.pseudomuto:protoc-gen-doc:1.5.1=protobufToolsLocator_doc
 io.grpc:grpc-alts:1.67.1=compileClasspath,compileProtoPath,runtimeClasspath,testCompileClasspath,testCompileProtoPath,testFixturesCompileProtoPath,testFixturesRuntimeClasspath,testRuntimeClasspath
