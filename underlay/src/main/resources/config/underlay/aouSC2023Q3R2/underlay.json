@@ -169,7 +169,8 @@
     "aouRT/_fitbit_heart_rate_level_id",
     "aouRT/_fitbit_sleep_daily_summary_id",
     "aouRT/_fitbit_sleep_level_id",
-    "aouCT/_zipcode_socioeconomic_id"
+    "aouCT/_zipcode_socioeconomic_id",
+    "aouCT/_short_read_wgs"
   ],
   "visualizations": [
     "omop/genderAndAge",
