@@ -2,5 +2,5 @@
   "name": "_short_read_wgs",
   "displayName": "Short Read WGS",
   "criteriaSelector": "outputUnfiltered",
-  "pluginData": null
+  "pluginData": "{}"
 }
