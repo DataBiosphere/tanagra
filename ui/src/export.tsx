@@ -386,9 +386,11 @@ function Preview(props: PreviewProps) {
             message: "EXPORT",
             resources: {
               allParticipantsCohort: props.allParticipantsCohort,
-              hasWGSFeatureSet: filteredFeatureSets.some((fs) =>
-                fs.predefinedCriteria.includes("_short_read_wgs")
-              ),
+              predefinedCriteria: [
+                ...new Set(
+                  filteredFeatureSets.map((fs) => fs.predefinedCriteria).flat()
+                ),
+              ],
               cohorts: filteredCohorts.map((c) => c.id),
               featureSets: filteredFeatureSets.map((fs) => fs.id),
             },
