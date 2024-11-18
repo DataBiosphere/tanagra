@@ -52,9 +52,15 @@ dependencyManagement {
     }
 }
 
+configurations.all {
+    // excluded to avoid LoggerFactory conflicts (logback/slf4j)
+    exclude group: 'ch.qos.logback', module: 'logback-classic'
+}
+
 dependencies {
-    configurations.all {
-        exclude group: 'ch.qos.logback', module: 'logback-classic'
+    // added to address synk warnings
+    constraints {
+        implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
     }
 
     implementation project(path: ':indexer')
