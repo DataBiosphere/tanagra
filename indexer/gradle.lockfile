@@ -2,6 +2,8 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 args4j:args4j:2.33=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
+ch.qos.logback:logback-classic:1.5.8=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
+ch.qos.logback:logback-core:1.5.8=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 com.charleskorn.kaml:kaml-jvm:0.60.0=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 com.charleskorn.kaml:kaml:0.60.0=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 com.fasterxml.jackson.core:jackson-annotations:2.18.0=compileClasspath,testCompileClasspath
@@ -150,6 +152,7 @@ commons-codec:commons-codec:1.15=checkstyle,pmd,spotbugs
 commons-codec:commons-codec:1.17.1=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 commons-collections:commons-collections:3.2.2=checkstyle
 commons-io:commons-io:2.16.1=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
+commons-logging:commons-logging:1.2=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 info.picocli:picocli-codegen:4.7.6=annotationProcessor
 info.picocli:picocli:4.7.5=checkstyle
 info.picocli:picocli:4.7.6=annotationProcessor,compileClasspath,runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath

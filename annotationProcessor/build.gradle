@@ -34,10 +34,6 @@ repositories {
 }
 
 dependencies {
-    configurations.all {
-        exclude group: 'ch.qos.logback', module: 'logback-classic'
-    }
-
     implementation project(path: ':underlay')
     implementation project(path: ':service')
 
