@@ -195,7 +195,7 @@ function AddCriteria(props: AddCriteriaProps) {
       title: "Add feature set criteria",
       category: "Other",
       tags: [],
-      cohort: true,
+      cohort: !underlay.uiConfiguration.featureConfig?.disableFeatureSets,
       showMore: false,
       fn: () => {
         navigate(addFeatureSetCriteriaURL());
