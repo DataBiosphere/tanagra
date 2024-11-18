@@ -29,10 +29,6 @@ dependencies {
         runtimeOnly 'com.charleskorn.kaml:kaml:0.60.0'
     }
 
-    configurations.all {
-        exclude group: 'ch.qos.logback', module: 'logback-classic'
-    }
-
     implementation project(':underlay')
     testImplementation(testFixtures(project(':underlay')))
 
