@@ -1,4 +1,7 @@
 {
+  "featureConfig": {
+    "disableFeatureSets": true
+  },
   "demographicChartConfigs": {
     "groupByAttributes": ["gender", "race", "age"],
     "chartConfigs": [
