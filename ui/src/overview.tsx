@@ -152,7 +152,6 @@ export function Overview() {
             extraControls={
               <Button
                 variant="outlined"
-                size="large"
                 component={RouterLink}
                 to={absoluteCohortReviewListURL(params, cohort.id)}
               >
@@ -188,10 +187,43 @@ function GroupDivider() {
 function GroupList() {
   const context = useCohortContext();
   const cohort = useCohort();
+  const studyId = useStudyId();
+  const studySource = useStudySource();
+
+  const fetchCount = useCallback(async () => {
+    return (
+      (
+        await studySource.cohortCount(
+          studyId,
+          cohort.id,
+          undefined,
+          undefined,
+          []
+        )
+      )?.[0]?.count ?? 0
+    );
+  }, [studyId, cohort]);
+
+  const countState = useSWRImmutable(
+    {
+      component: "Overview",
+      studyId,
+      cohort,
+    },
+    fetchCount
+  );
 
   return (
     <GridLayout rows spacing={2} height="auto">
-      <Typography variant="h6">Cohort filter</Typography>
+      <GridLayout cols fillCol={1} rowAlign="baseline">
+        <Typography variant="h6">Cohort filter</Typography>
+        <GridBox />
+        <Loading size="small" status={countState}>
+          <Typography variant="body1">
+            {countState.data?.toLocaleString()} participants
+          </Typography>
+        </Loading>
+      </GridLayout>
       {cohort.groupSections.map((s, index) => (
         <GridLayout key={s.id} rows spacing={2} height="auto">
           {index !== 0 ? <GroupDivider /> : null}

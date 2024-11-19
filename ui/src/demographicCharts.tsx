@@ -1,13 +1,10 @@
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import Loading from "components/loading";
 import { Cohort } from "data/source";
-import { useStudySource } from "data/studySourceContext";
-import { useStudyId, useUnderlay } from "hooks";
+import { useUnderlay } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { ReactNode, useCallback } from "react";
-import useSWRImmutable from "swr/immutable";
+import { ReactNode } from "react";
 import { VizContainer } from "viz/vizContainer";
 
 export type DemographicChartsProps = {
@@ -17,35 +14,6 @@ export type DemographicChartsProps = {
 
 export function DemographicCharts(props: DemographicChartsProps) {
   const underlay = useUnderlay();
-  const studyId = useStudyId();
-  const studySource = useStudySource();
-
-  const fetchCount = useCallback(async () => {
-    if (!props.cohort) {
-      return 0;
-    }
-
-    return (
-      (
-        await studySource.cohortCount(
-          studyId,
-          props.cohort.id,
-          undefined,
-          undefined,
-          []
-        )
-      )?.[0]?.count ?? 0
-    );
-  }, [underlay, props.cohort]);
-
-  const countState = useSWRImmutable(
-    {
-      component: "DemographicCharts",
-      underlayName: underlay.name,
-      cohort: props.cohort,
-    },
-    fetchCount
-  );
 
   return (
     <Paper
@@ -56,16 +24,7 @@ export function DemographicCharts(props: DemographicChartsProps) {
     >
       <GridLayout rows spacing={2}>
         <GridLayout cols fillCol={1} rowAlign="middle">
-          <GridLayout rows>
-            <Typography variant="h6">Cohort visualizations</Typography>
-            <GridLayout cols fillCol={2} rowAlign="bottom">
-              <Loading size="small" status={countState}>
-                <Typography variant="body1">
-                  {countState.data?.toLocaleString()} participants
-                </Typography>
-              </Loading>
-            </GridLayout>
-          </GridLayout>
+          <Typography variant="h6">Cohort visualizations</Typography>
           <GridBox />
           {props.extraControls}
         </GridLayout>
