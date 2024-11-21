@@ -33,8 +33,6 @@ dependencies {
         // added to use same netty versions across subprojects
         implementation "io.netty:netty-codec-socks:${vIoNetty}"
         implementation "io.netty:netty-handler-proxy:${vIoNetty}"
-
-        def vIoNettyNative = '2.0.69.Final'
         implementation "io.netty:netty-tcnative-boringssl-static:${vIoNettyNative}"
         implementation "io.netty:netty-tcnative-classes:${vIoNettyNative}"
     }

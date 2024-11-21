@@ -58,11 +58,6 @@ configurations.all {
 }
 
 dependencies {
-    // added to address snyk warnings
-    constraints {
-        implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
-    }
-
     implementation project(':indexer')
     implementation project(':underlay')
     testImplementation(testFixtures(project(":underlay")))
