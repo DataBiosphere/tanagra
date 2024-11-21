@@ -19,6 +19,12 @@ repositories {
 }
 
 dependencies {
+    // added to address snyk warnings
+    constraints {
+        implementation "io.netty:netty-buffer:${vIoNetty}"
+        implementation "io.netty:netty-common:${vIoNetty}"
+    }
+
     implementation "com.fasterxml.jackson.core:jackson-core:${vJackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${vJackson}"
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'

@@ -34,8 +34,8 @@ repositories {
 }
 
 dependencies {
-    implementation project(path: ':underlay')
-    implementation project(path: ':service')
+    implementation project(':underlay')
+    implementation project(':service')
 
     implementation "org.slf4j:slf4j-api:${vSlf4jApi}"
 
@@ -54,16 +54,6 @@ dependencies {
         exclude group: 'io.opentelemetry'
         exclude group: 'io.opentelemetry.instrumentation'
     }
-
-    // explicity declare libs and version to address synk warnings
-    implementation "org.springframework:spring-context:${vSpringWeb}"
-    implementation "org.springframework:spring-core:${vSpringWeb}"
-    implementation "org.springframework:spring-web:${vSpringWeb}"
-    implementation "org.springframework:spring-webmvc:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-context:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-core:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-web:${vSpringWeb}"
-    testFixturesImplementation "org.springframework:spring-webmvc:${vSpringWeb}"
 
     // Static analysis
     pmd "net.sourceforge.pmd:pmd-ant:${vPmd}"

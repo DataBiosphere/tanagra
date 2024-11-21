@@ -2,13 +2,16 @@
 buildscript {
     ext {
         // plugin versions
-        vSpringBoot = '3.3.5'
+        vSpringBoot = '3.4.0'
         vSpringDepMgt = '1.1.6'
         vHidetakeSwagger = '2.19.2'
         vGoogleProtobuf = '0.9.4'
 
+        // library versions - constraints to address vulns
+        vIoNetty = '4.1.115.Final'
+        vIoNettyNative = '2.0.69.Final'
+
         // library versions
-        vSpringWeb = '6.1.14'
         vPmd = '7.1.0'
         vTerraCommonLib = '1.1.22-SNAPSHOT'
         vApacheCommonsText = '1.12.0'
