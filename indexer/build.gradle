@@ -29,6 +29,14 @@ dependencies {
         implementation "io.netty:netty-codec-http2:${vIoNetty}"
         implementation 'org.apache.avro:avro:1.11.4'
         runtimeOnly 'com.charleskorn.kaml:kaml:0.60.0'
+
+        // added to use same netty versions across subprojects
+        implementation "io.netty:netty-codec-socks:${vIoNetty}"
+        implementation "io.netty:netty-handler-proxy:${vIoNetty}"
+
+        def vIoNettyNative = '2.0.69.Final'
+        implementation "io.netty:netty-tcnative-boringssl-static:${vIoNettyNative}"
+        implementation "io.netty:netty-tcnative-classes:${vIoNettyNative}"
     }
 
     implementation project(':underlay')

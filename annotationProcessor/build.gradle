@@ -34,11 +34,6 @@ repositories {
 }
 
 dependencies {
-    // added to address snyk warnings
-    constraints {
-        implementation 'io.netty:netty-common:4.1.115.Final'
-    }
-
     implementation project(':underlay')
     implementation project(':service')
 

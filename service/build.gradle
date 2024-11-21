@@ -61,8 +61,6 @@ dependencies {
     // added to address snyk warnings
     constraints {
         implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
-        implementation "io.netty:netty-codec-http2:${vIoNetty}"
-        implementation "io.netty:netty-common:${vIoNetty}"
     }
 
     implementation project(':indexer')
