@@ -12,12 +12,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
-    }
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
-    }
     google()
 }
 
