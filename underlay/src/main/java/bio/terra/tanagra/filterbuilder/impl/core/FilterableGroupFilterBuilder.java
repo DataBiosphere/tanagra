@@ -181,7 +181,7 @@ public class FilterableGroupFilterBuilder
           underlay, entity, entity.getAttribute("rs_number"), NaryOperator.IN, List.of(literal));
     } else if (query.matches("[0-9]+-[0-9]+-[A-Z]+-[A-Z]+")) {
       return new AttributeFilter(
-          underlay, entity, entity.getAttribute("variant_id"), BinaryOperator.EQUALS, literal);
+          underlay, entity, entity.getAttribute("id"), BinaryOperator.EQUALS, literal);
     } else {
       return new TextSearchFilter(
           underlay, entity, TextSearchOperator.EXACT_MATCH, query, entity.getAttribute("gene"));

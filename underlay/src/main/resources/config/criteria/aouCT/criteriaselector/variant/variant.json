@@ -1,0 +1,81 @@
+{
+  "columns": [
+    {
+      "key": "id",
+      "widthString": "100%",
+      "title": "Variant id"
+    },
+    {
+      "key": "gene",
+      "widthDouble": 100,
+      "title": "Gene"
+    },
+    {
+      "key": "rs_number",
+      "widthDouble": 100,
+      "title": "RS number"
+    },
+    {
+      "key": "consequence",
+      "widthDouble": 100,
+      "title": "Consequence"
+    },
+    {
+      "key": "clinvar_significance",
+      "widthDouble": 100,
+      "title": "ClinVar significance"
+    },
+    {
+      "key": "protein_change",
+      "widthDouble": 100,
+      "title": "Protein change"
+    },
+    {
+      "key": "allele_count",
+      "widthDouble": 100,
+      "title": "Allele count"
+    },
+    {
+      "key": "allele_number",
+      "widthDouble": 100,
+      "title": "Allele number"
+    },
+    {
+      "key": "allele_frequency",
+      "widthDouble": 100,
+      "title": "Allele frequency"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 150,
+      "title": "Participant count"
+    }
+  ],
+  "entityGroup": "variantPerson",
+  "valueConfigs": [
+    {
+      "attribute": "gene",
+      "title": "Gene"
+    },
+    {
+      "attribute": "consequence",
+      "title": "Consequence"
+    },
+    {
+      "attribute": "clinvar_significance",
+      "title": "ClinVar significance"
+    },
+    {
+      "attribute": "allele_count",
+      "title": "Allele count"
+    },
+    {
+      "attribute": "allele_number",
+      "title": "Allele number"
+    },
+    {
+      "attribute": "allele_frequency",
+      "title": "Allele frequency"
+    }
+  ]
+}
