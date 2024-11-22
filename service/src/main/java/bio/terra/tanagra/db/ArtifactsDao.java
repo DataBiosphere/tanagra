@@ -42,7 +42,7 @@ public class ArtifactsDao {
       String displayName,
       String description) {
     // Cohort
-    String clCohortId = RandomStringUtils.randomAlphanumeric(10);
+    String clCohortId = RandomStringUtils.secure().nextAlphanumeric(10);
 
     // underlay: same as that of the original rows
     MapSqlParameterSource cohortParamSets =
@@ -72,7 +72,7 @@ public class ArtifactsDao {
     ogReviews.forEach(
         review -> {
           String ogReviewId = review.getId();
-          String clReviewId = RandomStringUtils.randomAlphanumeric(10);
+          String clReviewId = RandomStringUtils.secure().nextAlphanumeric(10);
           ogRevisionIdReviewIdMap.put(review.getRevision().getId(), ogReviewId);
           reviewIdMap.put(ogReviewId, clReviewId);
 
@@ -118,7 +118,7 @@ public class ArtifactsDao {
         builderPair -> {
           CohortRevision ogRevision = builderPair.getValue().build();
           String ogRevisionId = ogRevision.getId();
-          String clRevisionId = RandomStringUtils.randomAlphanumeric(10);
+          String clRevisionId = RandomStringUtils.secure().nextAlphanumeric(10);
 
           revisionParamSets.add(
               CohortDao.buildRevisionParam(

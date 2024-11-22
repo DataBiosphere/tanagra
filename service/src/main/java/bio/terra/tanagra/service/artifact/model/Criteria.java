@@ -136,7 +136,7 @@ public final class Criteria {
 
     public Criteria build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = RandomStringUtils.secure().nextAlphanumeric(10);
       }
       return new Criteria(
           id,
