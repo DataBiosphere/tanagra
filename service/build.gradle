@@ -19,16 +19,6 @@ ext {
 }
 
 repositories {
-    mavenCentral()
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
-    }
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
-    }
-    maven {
-        url 'https://packages.confluent.io/maven/'
-    }
     maven {
         name 'github'
         url 'https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries'
