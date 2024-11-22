@@ -1054,7 +1054,7 @@ function generateFilters(
         filterType: tanagra.FilterFilterTypeEnum.Attribute,
         filterUnion: {
           attributeFilter: {
-            attribute: "variant_id",
+            attribute: "id",
             operator: tanagra.AttributeFilterOperatorEnum.Equals,
             values: [literalFromDataValue(query)],
           },
