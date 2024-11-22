@@ -1,10 +1,8 @@
 SELECT
     pc.criteria_meta_seq as id,
-    pc.criteria_meta_seq as concept_id,
     case when starts_with(pc.label,'Root ICD10' ) then regexp_extract(pc.name, '^[A-Z0-9-]* (.*)')
          else regexp_extract(pc.name, '.*-(.*)') end as name,
     'ICD10CM' as type,
-    'Source' as is_standard,
     case when starts_with(pc.label,'Root ICD10' ) then regexp_extract(pc.name, '^([A-Z0-9-]*) .*')
          else regexp_extract(pc.name, '(.*)-.*') end as concept_code,
     case when starts_with(pc.label,'Root ICD10' ) then

@@ -1,9 +1,7 @@
 SELECT
     pc.criteria_meta_seq AS id,
-    pc.criteria_meta_seq AS concept_id,
     IF(STARTS_WITH(pc.label, 'Phenotype_'), REGEXP_EXTRACT(label,'Phenotype_(.* - C.*)_'),label) as name,
     'PHENOTYPE' as type,
-    'Source' as is_standard,
     CASE WHEN pc.is_leaf = true THEN
          CONCAT(
              CASE WHEN REGEXP_CONTAINS(pc.label, 'Resistant Hypertension') THEN 'RESHYP'
