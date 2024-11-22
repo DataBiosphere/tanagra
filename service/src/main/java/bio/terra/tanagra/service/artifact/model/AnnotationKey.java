@@ -142,7 +142,7 @@ public final class AnnotationKey {
 
     public AnnotationKey build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = RandomStringUtils.secure().nextAlphanumeric(10);
       }
       if (displayName == null) {
         throw new BadRequestException("Annotation key requires a display name");

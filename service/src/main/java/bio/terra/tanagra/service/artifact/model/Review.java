@@ -140,7 +140,7 @@ public final class Review {
 
     public Review build() {
       if (id == null) {
-        id = RandomStringUtils.randomAlphanumeric(10);
+        id = RandomStringUtils.secure().nextAlphanumeric(10);
       }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(
