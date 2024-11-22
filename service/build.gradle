@@ -19,16 +19,6 @@ ext {
 }
 
 repositories {
-    mavenCentral()
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
-    }
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
-    }
-    maven {
-        url 'https://packages.confluent.io/maven/'
-    }
     maven {
         name 'github'
         url 'https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries'
@@ -106,7 +96,9 @@ dependencies {
 
     // [Application DB] MySQL/MariaDB
     implementation 'org.mariadb.jdbc:mariadb-java-client:2.7.12'
-    implementation 'com.mysql:mysql-connector-j:8.4.0'
+    implementation('com.mysql:mysql-connector-j:8.4.0') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+    }
     implementation 'com.google.cloud.sql:mysql-socket-factory-connector-j-8:1.18.1'
 
     // GCP libraries versions are controlled by the BOM specified in buildSrc.

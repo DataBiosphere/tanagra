@@ -24,9 +24,6 @@ buildscript {
         vPicocliVersion = '4.7.6'
         vJunit5 = '5.11.3'
     }
-    repositories {
-        mavenCentral()
-    }
 }
 
 tasks.named('dependencies') {
