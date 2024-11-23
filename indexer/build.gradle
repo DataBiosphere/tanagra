@@ -9,19 +9,6 @@ ext {
     resourceDir = "${projectDir}/src/main/resources"
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
-    }
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
-    }
-    maven {
-        url 'https://packages.confluent.io/maven/'
-    }
-}
-
 dependencies {
     // added to address snyk warnings
     constraints {
