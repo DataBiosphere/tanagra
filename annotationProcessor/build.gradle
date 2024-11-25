@@ -9,30 +9,6 @@ plugins {
 
 sourceCompatibility = JavaVersion.VERSION_17
 
-repositories {
-    mavenCentral()
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-release/'
-    }
-    maven {
-        url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
-    }
-    maven {
-        url 'https://packages.confluent.io/maven/'
-    }
-    maven {
-        name 'github'
-        url 'https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries'
-        credentials {
-            // Credentials required to access tanagra-client-libraries,
-            // GITHUB_ACTOR: user running build task
-            // GITHUB_TOKEN: user token or workflow token that grants access to libraries
-            username = System.getenv('GITHUB_ACTOR')
-            password = System.getenv('GITHUB_TOKEN')
-        }
-    }
-}
-
 dependencies {
     implementation project(':underlay')
     implementation project(':service')
