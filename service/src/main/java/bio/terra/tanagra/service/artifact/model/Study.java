@@ -194,7 +194,7 @@ public class Study {
     public Study build() {
       // true if the id is empty or null
       if (StringUtils.isEmpty(id)) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       // Always have a map, even if it is empty
       if (properties == null) {

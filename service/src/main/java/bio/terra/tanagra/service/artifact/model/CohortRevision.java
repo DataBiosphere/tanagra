@@ -167,7 +167,7 @@ public final class CohortRevision {
 
     public CohortRevision build() {
       if (id == null) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       if (lastModifiedBy == null) {
         lastModifiedBy = createdBy;
@@ -390,7 +390,7 @@ public final class CohortRevision {
 
       public CriteriaGroupSection build() {
         if (id == null) {
-          id = RandomStringUtils.secure().nextAlphanumeric(10);
+          id = ArtifactUtils.newId();
         }
         return new CriteriaGroupSection(
             id,
@@ -520,7 +520,7 @@ public final class CohortRevision {
 
       public CriteriaGroup build() {
         if (id == null) {
-          id = RandomStringUtils.secure().nextAlphanumeric(10);
+          id = ArtifactUtils.newId();
         }
         return new CriteriaGroup(id, displayName, criteria, isDisabled);
       }

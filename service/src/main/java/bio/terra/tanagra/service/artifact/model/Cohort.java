@@ -155,7 +155,7 @@ public final class Cohort {
 
     public Cohort build() {
       if (id == null) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       if (displayName != null && displayName.length() > MAX_DISPLAY_NAME_LENGTH) {
         throw new BadRequestException(

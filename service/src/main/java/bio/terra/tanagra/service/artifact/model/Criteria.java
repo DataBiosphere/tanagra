@@ -136,7 +136,7 @@ public final class Criteria {
 
     public Criteria build() {
       if (id == null) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       return new Criteria(
           id,
