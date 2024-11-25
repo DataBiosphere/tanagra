@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.*;
-import org.apache.commons.lang3.RandomStringUtils;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
 public final class CohortRevision {

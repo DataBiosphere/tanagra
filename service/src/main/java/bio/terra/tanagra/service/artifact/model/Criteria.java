@@ -3,7 +3,6 @@ package bio.terra.tanagra.service.artifact.model;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Criteria {
   private final String id;

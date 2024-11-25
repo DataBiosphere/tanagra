@@ -5,7 +5,6 @@ import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LE
 import bio.terra.common.exception.*;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Review {
   private final String id;

@@ -9,7 +9,6 @@ import bio.terra.tanagra.exception.SystemException;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class AnnotationKey {
   private final String id;
