@@ -351,7 +351,6 @@ org.slf4j:slf4j-api:2.0.13=spotbugs
 org.slf4j:slf4j-api:2.0.16=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.slf4j:slf4j-api:2.0.9=compileClasspath,testCompileClasspath
 org.slf4j:slf4j-simple:2.0.0=spotbugsSlf4j
-org.slf4j:slf4j-simple:2.0.16=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.threeten:threeten-extra:1.8.0=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.threeten:threetenbp:1.7.0=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.xerial.snappy:snappy-java:1.1.10.4=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath

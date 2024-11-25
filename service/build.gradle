@@ -28,11 +28,6 @@ dependencyManagement {
     }
 }
 
-configurations.all {
-    // excluded to avoid LoggerFactory conflicts (logback/slf4j)
-    exclude group: 'ch.qos.logback', module: 'logback-classic'
-}
-
 dependencies {
     implementation project(':indexer')
     implementation project(':underlay')

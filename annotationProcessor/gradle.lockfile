@@ -415,7 +415,6 @@ org.slf4j:jcl-over-slf4j:2.0.16=productionRuntimeClasspath,runtimeClasspath,test
 org.slf4j:jul-to-slf4j:2.0.16=pmd,productionRuntimeClasspath,runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.slf4j:slf4j-api:2.0.16=compileClasspath,productionRuntimeClasspath,runtimeClasspath,spotbugs,spotbugsSlf4j,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.slf4j:slf4j-simple:2.0.0=spotbugsSlf4j
-org.slf4j:slf4j-simple:2.0.16=productionRuntimeClasspath,runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.springframework.boot:spring-boot-autoconfigure:3.3.6=productionRuntimeClasspath,runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.springframework.boot:spring-boot-starter-data-jdbc:3.3.6=productionRuntimeClasspath,runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.springframework.boot:spring-boot-starter-jdbc:3.3.6=productionRuntimeClasspath,runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
