@@ -76,6 +76,7 @@ export function Overview() {
   const backendCohort = useBackendCohort();
   const params = useBaseParams();
   const exit = useExitAction();
+  const underlay = useUnderlaySource().underlay;
 
   const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
   const [confirmDialog, showConfirmDialog] = useSimpleDialog();
@@ -147,18 +148,22 @@ export function Overview() {
             height: "auto",
           }}
         >
-          <DemographicCharts
-            cohort={backendCohort}
-            extraControls={
-              <Button
-                variant="outlined"
-                component={RouterLink}
-                to={absoluteCohortReviewListURL(params, cohort.id)}
-              >
-                Review individuals
-              </Button>
-            }
-          />
+          {underlay.uiConfiguration.featureConfig?.disableCohortReview ? (
+            <DemographicCharts cohort={backendCohort} extraControls={null} />
+          ) : (
+            <DemographicCharts
+              cohort={backendCohort}
+              extraControls={
+                <Button
+                  variant="outlined"
+                  component={RouterLink}
+                  to={absoluteCohortReviewListURL(params, cohort.id)}
+                >
+                  Review individuals
+                </Button>
+              }
+            />
+          )}
           {renameTitleDialog}
           {confirmDialog}
         </GridBox>
