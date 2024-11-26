@@ -9,7 +9,6 @@ import bio.terra.tanagra.exception.SystemException;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class AnnotationKey {
   private final String id;
@@ -142,7 +141,7 @@ public final class AnnotationKey {
 
     public AnnotationKey build() {
       if (id == null) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       if (displayName == null) {
         throw new BadRequestException("Annotation key requires a display name");

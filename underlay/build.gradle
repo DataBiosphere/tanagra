@@ -17,7 +17,6 @@ dependencies {
     implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
     implementation "org.apache.commons:commons-text:${vApacheCommonsText}"
-    implementation "org.slf4j:slf4j-simple:${vSlf4jApi}"
     testFixturesImplementation "org.slf4j:slf4j-api:${vSlf4jApi}"
 
     // GCP libraries versions are controlled by the BOM specified in buildSrc.

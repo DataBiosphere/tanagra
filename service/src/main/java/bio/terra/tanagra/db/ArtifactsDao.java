@@ -1,6 +1,7 @@
 package bio.terra.tanagra.db;
 
 import bio.terra.common.db.WriteTransaction;
+import bio.terra.tanagra.service.artifact.model.ArtifactUtils;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import bio.terra.tanagra.service.artifact.model.Review;
 import java.util.ArrayList;
@@ -8,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -42,7 +42,7 @@ public class ArtifactsDao {
       String displayName,
       String description) {
     // Cohort
-    String clCohortId = RandomStringUtils.secure().nextAlphanumeric(10);
+    String clCohortId = ArtifactUtils.newId();
 
     // underlay: same as that of the original rows
     MapSqlParameterSource cohortParamSets =
@@ -72,7 +72,7 @@ public class ArtifactsDao {
     ogReviews.forEach(
         review -> {
           String ogReviewId = review.getId();
-          String clReviewId = RandomStringUtils.secure().nextAlphanumeric(10);
+          String clReviewId = ArtifactUtils.newId();
           ogRevisionIdReviewIdMap.put(review.getRevision().getId(), ogReviewId);
           reviewIdMap.put(ogReviewId, clReviewId);
 
@@ -118,7 +118,7 @@ public class ArtifactsDao {
         builderPair -> {
           CohortRevision ogRevision = builderPair.getValue().build();
           String ogRevisionId = ogRevision.getId();
-          String clRevisionId = RandomStringUtils.secure().nextAlphanumeric(10);
+          String clRevisionId = ArtifactUtils.newId();
 
           revisionParamSets.add(
               CohortDao.buildRevisionParam(

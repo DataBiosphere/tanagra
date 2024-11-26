@@ -3,7 +3,6 @@ package bio.terra.tanagra.service.artifact.model;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang3.RandomStringUtils;
 
 public final class Criteria {
   private final String id;
@@ -136,7 +135,7 @@ public final class Criteria {
 
     public Criteria build() {
       if (id == null) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       return new Criteria(
           id,

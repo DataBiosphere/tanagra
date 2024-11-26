@@ -2,7 +2,7 @@
 buildscript {
     ext {
         // plugin versions
-        vSpringBoot = '3.4.0'
+        vSpringBoot = '3.3.6'
         vSpringDepMgt = '1.1.6'
         vHidetakeSwagger = '2.19.2'
         vGoogleProtobuf = '0.9.4'
@@ -17,7 +17,7 @@ buildscript {
         vApacheCommonsText = '1.12.0'
         vSlf4jApi = '2.0.16'
         vSpotBugs = '4.8.6'
-        vJackson = '2.18.1'
+        vJackson = '2.17.3'
         vJersey = '3.1.9' // Java 17 compatible
         vSwaggerAnnotations = '2.2.25'
         vSwaggerCodegen = '3.0.63'

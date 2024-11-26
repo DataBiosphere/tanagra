@@ -8,7 +8,6 @@ import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -194,7 +193,7 @@ public class Study {
     public Study build() {
       // true if the id is empty or null
       if (StringUtils.isEmpty(id)) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       // Always have a map, even if it is empty
       if (properties == null) {

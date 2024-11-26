@@ -31,6 +31,17 @@ repositories {
     maven {
         url 'https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/'
     }
+    maven {
+        name 'github'
+        url 'https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries'
+        credentials {
+            // Credentials required to access tanagra-client-libraries,
+            // GITHUB_ACTOR: user running build task
+            // GITHUB_TOKEN: user token or workflow token that grants access to libraries
+            username = System.getenv('GITHUB_ACTOR')
+            password = System.getenv('GITHUB_TOKEN')
+        }
+    }
     google()
 }
 
@@ -41,7 +52,7 @@ dependencyLocking {
 
 dependencies {
     // GCP BOM - See https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
-    implementation platform('com.google.cloud:libraries-bom:26.49.0')
+    implementation platform('com.google.cloud:libraries-bom:26.50.0')
 }
 
 // Javadoc
