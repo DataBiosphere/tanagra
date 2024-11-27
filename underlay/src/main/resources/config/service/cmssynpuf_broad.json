@@ -6,11 +6,11 @@
       "datasetId": "cms_synthetic_patient_data_omop",
       "sqlSubstitutions": {
         "omopDataset": "bigquery-public-data.cms_synthetic_patient_data_omop",
-        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep"
+        "staticTablesDataset": "broad-tanagra-dev.aou_static_prep_us"
       }
     },
     "indexData": {
-      "projectId": "verily-tanagra-dev",
+      "projectId": "broad-tanagra-dev",
       "datasetId": "cmssynpuf_index_060724"
     },
     "queryProjectId": "broad-tanagra-dev",
