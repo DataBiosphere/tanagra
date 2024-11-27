@@ -263,21 +263,13 @@ public class WriteRollupCounts extends BigQueryJob {
 
     // Optionally handle a hierarchy for the rollup entity.
     if (hierarchy != null) {
-      // Build a query to select all ancestor-descendant pairs from the ancestor-descendant table,
-      // and the pipeline step to read the results.
-      String ancestorDescendantSql =
-          "SELECT * FROM " + ancestorDescendantTable.getTablePointer().render();
-      LOGGER.info("ancestor-descendant query: {}", ancestorDescendantSql);
-      PCollection<KV<Long, Long>> ancestorDescendantRelationshipsPC =
-          BigQueryBeamUtils.readTwoFieldRowsFromBQ(
-              pipeline,
-              ancestorDescendantSql,
-              ITHierarchyAncestorDescendant.Column.DESCENDANT.getSchema().getColumnName(),
-              ITHierarchyAncestorDescendant.Column.ANCESTOR.getSchema().getColumnName());
+      PCollection<KV<Long, Long>> descendantAncestorRelationshipsPC =
+          BigQueryBeamUtils.readDescendantAncestorRelationshipsFromBQ(
+              pipeline, ancestorDescendantTable);
 
       // Expand the set of occurrences to include a repeat for each ancestor.
       idPairsPC =
-          CountUtils.repeatOccurrencesForHierarchy(idPairsPC, ancestorDescendantRelationshipsPC);
+          CountUtils.repeatOccurrencesForHierarchy(idPairsPC, descendantAncestorRelationshipsPC);
     }
 
     // Count the number of distinct occurrences per entity id.

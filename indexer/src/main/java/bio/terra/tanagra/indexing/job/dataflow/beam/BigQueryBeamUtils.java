@@ -3,6 +3,7 @@ package bio.terra.tanagra.indexing.job.dataflow.beam;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.underlay.ColumnSchema;
+import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
@@ -20,8 +21,11 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.TypeDescriptors;
 import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BigQueryBeamUtils {
+  private static final Logger LOGGER = LoggerFactory.getLogger(BigQueryBeamUtils.class);
 
   private BigQueryBeamUtils() {}
 
@@ -63,6 +67,22 @@ public final class BigQueryBeamUtils {
                   Long field2 = Long.parseLong((String) tableRow.get(field2Name));
                   return KV.of(field1, field2);
                 }));
+  }
+
+  /**
+   * Build a query to select all descendant-ancestor pairs from the ancestor-descendant table, and
+   * the pipeline step to read the results.
+   */
+  public static PCollection<KV<Long, Long>> readDescendantAncestorRelationshipsFromBQ(
+      Pipeline pipeline, ITHierarchyAncestorDescendant ancestorDescendantTable) {
+    String descendantAncestorSql =
+        "SELECT * FROM " + ancestorDescendantTable.getTablePointer().render();
+    LOGGER.info("descendant-ancestor query: {}", descendantAncestorSql);
+    return BigQueryBeamUtils.readTwoFieldRowsFromBQ(
+        pipeline,
+        descendantAncestorSql,
+        ITHierarchyAncestorDescendant.Column.DESCENDANT.getSchema().getColumnName(),
+        ITHierarchyAncestorDescendant.Column.ANCESTOR.getSchema().getColumnName());
   }
 
   public static String getTableSqlPath(String projectId, String datasetId, String tableName) {

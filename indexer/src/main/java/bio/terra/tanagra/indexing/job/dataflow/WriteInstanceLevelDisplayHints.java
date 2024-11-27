@@ -3,25 +3,30 @@ package bio.terra.tanagra.indexing.job.dataflow;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
+import bio.terra.tanagra.indexing.job.dataflow.beam.CountUtils;
 import bio.terra.tanagra.indexing.job.dataflow.beam.DataflowUtils;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.api.services.bigquery.model.TableRow;
 import jakarta.annotation.Nullable;
 import java.io.Serializable;
+import java.util.stream.StreamSupport;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.Filter;
+import org.apache.beam.sdk.transforms.FlatMapElements;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.Max;
 import org.apache.beam.sdk.transforms.Min;
@@ -48,6 +53,8 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
   private final @Nullable ITRelationshipIdPairs occurrenceCriteriaRelationshipIdPairsTable;
   private final @Nullable ITRelationshipIdPairs occurrencePrimaryRelationshipIdPairsTable;
   private final ITInstanceLevelDisplayHints indexTable;
+  private final @Nullable Hierarchy hierarchy;
+  private final @Nullable ITHierarchyAncestorDescendant ancestorDescendantTable;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   public WriteInstanceLevelDisplayHints(
@@ -59,7 +66,9 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
       ITEntityMain primaryEntityIndexTable,
       @Nullable ITRelationshipIdPairs occurrenceCriteriaRelationshipIdPairsTable,
       @Nullable ITRelationshipIdPairs occurrencePrimaryRelationshipIdPairsTable,
-      ITInstanceLevelDisplayHints indexTable) {
+      ITInstanceLevelDisplayHints indexTable,
+      @Nullable Hierarchy hierarchy,
+      @Nullable ITHierarchyAncestorDescendant ancestorDescendantTable) {
     super(indexerConfig);
     this.criteriaOccurrence = criteriaOccurrence;
     this.occurrenceEntity = occurrenceEntity;
@@ -69,6 +78,8 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
     this.occurrenceCriteriaRelationshipIdPairsTable = occurrenceCriteriaRelationshipIdPairsTable;
     this.occurrencePrimaryRelationshipIdPairsTable = occurrencePrimaryRelationshipIdPairsTable;
     this.indexTable = indexTable;
+    this.hierarchy = hierarchy;
+    this.ancestorDescendantTable = ancestorDescendantTable;
   }
 
   @Override
@@ -119,8 +130,8 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
         readInRelationshipIdPairs(
             pipeline, occCriIdPairsSql, entityAIdColumnName, entityBIdColumnName);
 
-    // Build a query to select all occurrence-criteria id pairs, and the pipeline steps to read the
-    // results and build a (occurrence id, criteria id) KV PCollection.
+    // Build a query to select all occurrence-primary id pairs, and the pipeline steps to read the
+    // results and build a (occurrence id, primary id) KV PCollection.
     String occPriIdPairsSql =
         getQueryRelationshipIdPairs(
             entityAIdColumnName,
@@ -134,17 +145,32 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
         readInRelationshipIdPairs(
             pipeline, occPriIdPairsSql, entityAIdColumnName, entityBIdColumnName);
 
+    PCollection<KV<Long, Long>> rollupOccCriIdPairKVs = null;
+    if (hierarchy != null
+        && criteriaOccurrence.hasRollupInstanceLevelDisplayHints(occurrenceEntity)) {
+      PCollection<KV<Long, Long>> descendantAncestorRelationshipsPC =
+          BigQueryBeamUtils.readDescendantAncestorRelationshipsFromBQ(
+              pipeline, ancestorDescendantTable);
+
+      // Expand the set of occurrences to include a repeat for each ancestor.
+      rollupOccCriIdPairKVs =
+          CountUtils.repeatOccurrencesForHints(occCriIdPairKVs, descendantAncestorRelationshipsPC);
+    }
+    final PCollection<KV<Long, Long>> finalRollupOccCriIdPairKVs = rollupOccCriIdPairKVs;
+
     criteriaOccurrence
         .getAttributesWithInstanceLevelDisplayHints(occurrenceEntity)
         .forEach(
-            attribute -> {
+            (attribute, rollup) -> {
+              PCollection<KV<Long, Long>> idPairsKVs =
+                  rollup ? finalRollupOccCriIdPairKVs : occCriIdPairKVs;
               if (attribute.isValueDisplay()) {
                 LOGGER.info("enum val hint: {}", attribute.getName());
-                enumValHint(occCriIdPairKVs, occPriIdPairKVs, occIdRowKVs, attribute);
+                enumValHint(idPairsKVs, occPriIdPairKVs, occIdRowKVs, attribute);
               } else if (DataType.INT64.equals(attribute.getDataType())
                   || DataType.DOUBLE.equals(attribute.getDataType())) {
                 LOGGER.info("numeric range hint: {}", attribute.getName());
-                numericRangeHint(occCriIdPairKVs, occIdRowKVs, attribute);
+                numericRangeHint(idPairsKVs, occIdRowKVs, attribute);
               } // TODO: Calculate display hints for other data types.
             });
 
@@ -287,13 +313,15 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
         occIdAndNumValCriId
             .apply(Filter.by(cogb -> cogb.getValue().getAll(numValTag).iterator().hasNext()))
             .apply(
-                MapElements.into(
+                FlatMapElements.into(
                         TypeDescriptors.kvs(TypeDescriptors.longs(), TypeDescriptors.doubles()))
                     .via(
-                        cogb ->
-                            KV.of(
-                                cogb.getValue().getOnly(criIdTag),
-                                cogb.getValue().getOnly(numValTag))));
+                        cogb -> {
+                          Iterable<Long> criIds = cogb.getValue().getAll(criIdTag);
+                          return StreamSupport.stream(criIds.spliterator(), false)
+                              .map((Long criId) -> KV.of(criId, cogb.getValue().getOnly(numValTag)))
+                              .toList();
+                        }));
 
     // Compute numeric range for each criteriaId.
     PCollection<IdNumericRange> numericRanges = numericRangeHint(criteriaValuePairs);
@@ -361,23 +389,28 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
             .and(criIdTag, occCriIdPairs)
             .and(priIdTag, occPriIdPairs)
             .apply(CoGroupByKey.create());
+
     PCollection<KV<IdEnumValue, Long>> criteriaEnumPrimaryPairs =
         occIdAndAttrsCriIdPriId
             .apply(Filter.by(cogb -> cogb.getValue().getAll(occAttrsTag).iterator().hasNext()))
             .apply(
-                MapElements.into(
+                FlatMapElements.into(
                         TypeDescriptors.kvs(
                             new TypeDescriptor<IdEnumValue>() {}, TypeDescriptors.longs()))
                     .via(
                         cogb -> {
-                          Long criId = cogb.getValue().getOnly(criIdTag);
+                          Iterable<Long> criIds = cogb.getValue().getAll(criIdTag);
                           Long priId = cogb.getValue().getOnly(priIdTag);
 
                           TableRow occAttrs = cogb.getValue().getOnly(occAttrsTag);
                           String enumValue = (String) occAttrs.get(enumValColName);
                           String enumDisplay = (String) occAttrs.get(enumDisplayColName);
 
-                          return KV.of(new IdEnumValue(criId, enumValue, enumDisplay), priId);
+                          return StreamSupport.stream(criIds.spliterator(), false)
+                              .map(
+                                  (Long criId) ->
+                                      KV.of(new IdEnumValue(criId, enumValue, enumDisplay), priId))
+                              .toList();
                         }));
 
     // Compute enum values and counts for each criteriaId.

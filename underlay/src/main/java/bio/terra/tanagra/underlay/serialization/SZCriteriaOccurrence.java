@@ -73,6 +73,13 @@ public class SZCriteriaOccurrence {
                 + "code \"glucose test\").")
     public Set<String> attributesWithInstanceLevelHints;
 
+    @AnnotatedField(
+        name = "SZOccurrenceEntity.attributesWithRollupInstanceLevelHints",
+        markdown =
+            "Names of attributes that we want to calculate instance-level hints for which values "
+                + "should be rolled up and included in their ancestors hints as well.")
+    public Set<String> attributesWithRollupInstanceLevelHints;
+
     @AnnotatedClass(
         name = "SZCriteriaRelationship",
         markdown =

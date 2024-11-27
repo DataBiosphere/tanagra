@@ -4,6 +4,7 @@ import org.apache.beam.sdk.extensions.joinlibrary.Join;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.Flatten;
+import org.apache.beam.sdk.transforms.KvSwap;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.transforms.Values;
@@ -134,6 +135,55 @@ public final class CountUtils {
     // duplicates.
     return PCollectionList.of(distinctOccurrences)
         .and(ancestorOccurrences)
+        .apply(Flatten.pCollections());
+  }
+
+  /**
+   * For each occurrence (occurrence, criteria), generate a new occurrence for each ancestor of the
+   * criteria node (occurrence, ancestor).
+   *
+   * <p>This is the same concept as repeatOccurrencesForHierarchy but over occurrence ids.
+   *
+   * @param occurrences a collection of all occurrences that we want to count and the criteria
+   *     they're associated with
+   * @param descendantAncestor a collection of (descendant, ancestor) pairs for the criteria nodes
+   *     that we want a count for. note that this is the expanded set of all transitive
+   *     relationships in the hierarchy, not just the parent/child pairs
+   * @return an expanded collection of occurrences (occurrence, ancestor), where each occurrence has
+   *     been repeated for each ancestor of its primary node. note for later steps that this will
+   *     contain multiple keys
+   */
+  public static PCollection<KV<Long, Long>> repeatOccurrencesForHints(
+      PCollection<KV<Long, Long>> occurrences, PCollection<KV<Long, Long>> descendantAncestor) {
+    // Remove duplicate occurrences.
+    PCollection<KV<Long, Long>> distinctOccurrences =
+        occurrences.apply(
+            "remove duplicate occurrences before repeating for hints", Distinct.create());
+
+    // Swap (occurrence, criteria) to (criteria, occurrence). Duplicate keys are allowed at this
+    // point.
+    PCollection<KV<Long, Long>> criteriaOccurrences =
+        distinctOccurrences.apply(
+            "swap (occurrence, criteria) to (criteria, occurrence)", KvSwap.create());
+
+    // JOIN: distinctOccurrences (criteria, occurrence) INNER JOIN descendantAncestor (descendant,
+    //     ancestor)
+    //       ON criteria=descendant
+    // RESULT: occurrenceToAncestorAndOccurrence (criteria=descendant, (occurrence, ancestor))
+    PCollection<KV<Long, KV<Long, Long>>> criteriaToOccurrenceAndAncestor =
+        Join.innerJoin(
+            "inner join occurrences with ancestors", criteriaOccurrences, descendantAncestor);
+
+    // Get rid of the descendant node. That was only needed as the innerJoin field.
+    // RESULT: (occurrence, ancestor)
+    PCollection<KV<Long, Long>> occurrenceAncestors =
+        criteriaToOccurrenceAndAncestor.apply(Values.create());
+
+    // The descendant-ancestor pairs don't include a self-reference row (i.e. descendant=ancestor).
+    // So to get the full set of occurrences, concatenate the original occurrences with the ancestor
+    // duplicates.
+    return PCollectionList.of(distinctOccurrences)
+        .and(occurrenceAncestors)
         .apply(Flatten.pCollections());
   }
 }

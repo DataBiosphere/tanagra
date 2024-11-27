@@ -321,11 +321,16 @@ public final class ConfigReader {
               ? new HashSet<>()
               : szCriteriaOccurrence.occurrenceEntities;
       szCriteriaOccurrence.occurrenceEntities.forEach(
-          szOccurrenceEntity ->
-              szOccurrenceEntity.attributesWithInstanceLevelHints =
-                  szOccurrenceEntity.attributesWithInstanceLevelHints == null
-                      ? new HashSet<>()
-                      : szOccurrenceEntity.attributesWithInstanceLevelHints);
+          szOccurrenceEntity -> {
+            szOccurrenceEntity.attributesWithInstanceLevelHints =
+                szOccurrenceEntity.attributesWithInstanceLevelHints == null
+                    ? new HashSet<>()
+                    : szOccurrenceEntity.attributesWithInstanceLevelHints;
+            szOccurrenceEntity.attributesWithRollupInstanceLevelHints =
+                szOccurrenceEntity.attributesWithRollupInstanceLevelHints == null
+                    ? new HashSet<>()
+                    : szOccurrenceEntity.attributesWithRollupInstanceLevelHints;
+          });
 
       return szCriteriaOccurrence;
     } catch (IOException ioEx) {

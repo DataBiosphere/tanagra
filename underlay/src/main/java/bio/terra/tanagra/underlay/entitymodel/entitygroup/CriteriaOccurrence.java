@@ -6,6 +6,7 @@ import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,8 @@ public class CriteriaOccurrence extends EntityGroup {
   private final Relationship primaryCriteriaRelationship;
   private final ImmutableMap<String, ImmutableSet<String>>
       occurrenceAttributesWithInstanceLevelDisplayHints;
+  private final ImmutableMap<String, ImmutableSet<String>>
+      occurrenceAttributesWithRollupInstanceLevelDisplayHints;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
   public CriteriaOccurrence(
@@ -32,7 +35,8 @@ public class CriteriaOccurrence extends EntityGroup {
       Map<String, Relationship> occurrenceCriteriaRelationships,
       Map<String, Relationship> occurrencePrimaryRelationships,
       Relationship primaryCriteriaRelationship,
-      Map<String, Set<String>> occurrenceAttributesWithInstanceLevelDisplayHints) {
+      Map<String, Set<String>> occurrenceAttributesWithInstanceLevelDisplayHints,
+      Map<String, Set<String>> occurrenceAttributesWithRollupInstanceLevelDisplayHints) {
     super(name);
     this.criteriaEntity = criteriaEntity;
     this.occurrenceEntities = ImmutableList.copyOf(occurrenceEntities);
@@ -43,6 +47,12 @@ public class CriteriaOccurrence extends EntityGroup {
     this.occurrenceAttributesWithInstanceLevelDisplayHints =
         ImmutableMap.copyOf(
             occurrenceAttributesWithInstanceLevelDisplayHints.entrySet().stream()
+                .collect(
+                    Collectors.toMap(
+                        Entry::getKey, entry -> ImmutableSet.copyOf(entry.getValue()))));
+    this.occurrenceAttributesWithRollupInstanceLevelDisplayHints =
+        ImmutableMap.copyOf(
+            occurrenceAttributesWithRollupInstanceLevelDisplayHints.entrySet().stream()
                 .collect(
                     Collectors.toMap(
                         Entry::getKey, entry -> ImmutableSet.copyOf(entry.getValue()))));
@@ -102,15 +112,32 @@ public class CriteriaOccurrence extends EntityGroup {
 
   public boolean hasInstanceLevelDisplayHints(Entity occurrenceEntity) {
     return !occurrenceAttributesWithInstanceLevelDisplayHints
+            .get(occurrenceEntity.getName())
+            .isEmpty()
+        || !occurrenceAttributesWithRollupInstanceLevelDisplayHints
+            .get(occurrenceEntity.getName())
+            .isEmpty();
+  }
+
+  public boolean hasRollupInstanceLevelDisplayHints(Entity occurrenceEntity) {
+    return !occurrenceAttributesWithRollupInstanceLevelDisplayHints
         .get(occurrenceEntity.getName())
         .isEmpty();
   }
 
-  public ImmutableSet<Attribute> getAttributesWithInstanceLevelDisplayHints(
+  public ImmutableMap<Attribute, Boolean> getAttributesWithInstanceLevelDisplayHints(
       Entity occurrenceEntity) {
-    return ImmutableSet.copyOf(
-        occurrenceAttributesWithInstanceLevelDisplayHints.get(occurrenceEntity.getName()).stream()
-            .map(occurrenceEntity::getAttribute)
-            .collect(Collectors.toSet()));
+    Map<Attribute, Boolean> merged =
+        new HashMap<>(
+            occurrenceAttributesWithInstanceLevelDisplayHints
+                .get(occurrenceEntity.getName())
+                .stream()
+                .collect(Collectors.toMap(occurrenceEntity::getAttribute, entry -> false)));
+    merged.putAll(
+        occurrenceAttributesWithRollupInstanceLevelDisplayHints
+            .get(occurrenceEntity.getName())
+            .stream()
+            .collect(Collectors.toMap(occurrenceEntity::getAttribute, entry -> true)));
+    return ImmutableMap.copyOf(merged);
   }
 }

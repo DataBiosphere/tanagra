@@ -474,6 +474,7 @@ public final class Underlay {
     Map<String, Relationship> occurrenceCriteriaRelationships = new HashMap<>();
     Map<String, Relationship> occurrencePrimaryRelationships = new HashMap<>();
     Map<String, Set<String>> occurrenceAttributesWithInstanceLevelHints = new HashMap<>();
+    Map<String, Set<String>> occurrenceAttributesWithRollupInstanceLevelHints = new HashMap<>();
     szCriteriaOccurrence.occurrenceEntities.forEach(
         szOccurrenceEntity -> {
           // Get the occurrence entity.
@@ -518,6 +519,9 @@ public final class Underlay {
           // Get the attributes with instance-level hints.
           occurrenceAttributesWithInstanceLevelHints.put(
               occurrenceEntity.getName(), szOccurrenceEntity.attributesWithInstanceLevelHints);
+          occurrenceAttributesWithRollupInstanceLevelHints.put(
+              occurrenceEntity.getName(),
+              szOccurrenceEntity.attributesWithRollupInstanceLevelHints);
         });
 
     // Build the primary-criteria relationship.
@@ -532,7 +536,8 @@ public final class Underlay {
         occurrenceCriteriaRelationships,
         occurrencePrimaryRelationships,
         primaryCriteriaRelationship,
-        occurrenceAttributesWithInstanceLevelHints);
+        occurrenceAttributesWithInstanceLevelHints,
+        occurrenceAttributesWithRollupInstanceLevelHints);
   }
 
   @VisibleForTesting

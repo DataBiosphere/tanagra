@@ -860,6 +860,11 @@ Names of attributes that we want to calculate instance-level hints for.
 
 Instance-level hints are ranges of possible values for a particular criteria instance. They are used to support criteria-specific modifiers (e.g. range of values for measurement code "glucose test").
 
+### SZOccurrenceEntity.attributesWithRollupInstanceLevelHints
+**required** Set [ String ]
+
+Names of attributes that we want to calculate instance-level hints for which values should be rolled up and included in their ancestors hints as well.
+
 ### SZOccurrenceEntity.criteriaRelationship
 **required** [SZCriteriaRelationship](#szcriteriarelationship)
 

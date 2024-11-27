@@ -152,6 +152,7 @@ export type SZMetadata = {
 
 export type SZOccurrenceEntity = {
   attributesWithInstanceLevelHints: string[];
+  attributesWithRollupInstanceLevelHints: string[];
   criteriaRelationship: SZCriteriaRelationship;
   occurrenceEntity: string;
   primaryRelationship: SZPrimaryRelationship;

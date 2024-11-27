@@ -21,6 +21,7 @@ import bio.terra.tanagra.indexing.jobexecutor.SerialRunner;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
+import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import bio.terra.tanagra.underlay.entitymodel.Relationship;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
@@ -421,6 +422,12 @@ public final class JobSequencer {
     // TODO: Handle >1 occurrence entity.
     Entity occurrenceEntity = criteriaOccurrence.getOccurrenceEntities().get(0);
     if (criteriaOccurrence.hasInstanceLevelDisplayHints(occurrenceEntity)) {
+      // TODO: Handle >1 hierarchy.
+      Hierarchy hierarchy =
+          criteriaOccurrence.getCriteriaEntity().hasHierarchies()
+              ? criteriaOccurrence.getCriteriaEntity().getHierarchies().get(0)
+              : null;
+
       Relationship occurrenceCriteriaRelationship =
           criteriaOccurrence.getOccurrenceCriteriaRelationship(occurrenceEntity.getName());
       Relationship occurrencePrimaryRelationship =
@@ -458,7 +465,14 @@ public final class JobSequencer {
                   .getInstanceLevelDisplayHints(
                       criteriaOccurrence.getName(),
                       occurrenceEntity.getName(),
-                      criteriaOccurrence.getCriteriaEntity().getName())));
+                      criteriaOccurrence.getCriteriaEntity().getName()),
+              hierarchy,
+              hierarchy != null
+                  ? underlay
+                      .getIndexSchema()
+                      .getHierarchyAncestorDescendant(
+                          criteriaOccurrence.getCriteriaEntity().getName(), hierarchy.getName())
+                  : null));
     }
 
     if (criteriaOccurrence.getCriteriaEntity().hasHierarchies()) {

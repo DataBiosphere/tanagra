@@ -124,7 +124,7 @@ public class BQHintQueryResultsTest extends BQRunnerTest {
               assertTrue(
                   criteriaOccurrence
                       .getAttributesWithInstanceLevelDisplayHints(hintedEntity)
-                      .contains(attribute));
+                      .containsKey(attribute));
               if (hintInstance.isRangeHint()) {
                 assertTrue(
                     List.of(DataType.INT64, DataType.DOUBLE)
