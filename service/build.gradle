@@ -18,20 +18,6 @@ ext {
     resourceDir = "${projectDir}/src/main/resources"
 }
 
-repositories {
-    maven {
-        name 'github'
-        url 'https://maven.pkg.github.com/vanderbilt/tanagra-client-libraries'
-        credentials {
-            // Credentials required to access tanagra-client-libraries,
-            // GITHUB_ACTOR: user running build task
-            // GITHUB_TOKEN: user token or workflow token that grants access to libraries
-            username = System.getenv('GITHUB_ACTOR')
-            password = System.getenv('GITHUB_TOKEN')
-        }
-    }
-}
-
 dependencyManagement {
     imports {
         mavenBom SpringBootPlugin.BOM_COORDINATES
@@ -40,11 +26,6 @@ dependencyManagement {
         dependency "io.swagger.core.v3:swagger-annotations:${vSwaggerAnnotations}"
         dependency "io.swagger.codegen.v3:swagger-codegen-cli:${vSwaggerCodegen}"
     }
-}
-
-configurations.all {
-    // excluded to avoid LoggerFactory conflicts (logback/slf4j)
-    exclude group: 'ch.qos.logback', module: 'logback-classic'
 }
 
 dependencies {

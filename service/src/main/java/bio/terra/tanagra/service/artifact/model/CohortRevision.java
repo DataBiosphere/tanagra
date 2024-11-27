@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.*;
-import org.apache.commons.lang3.RandomStringUtils;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
 public final class CohortRevision {
@@ -167,7 +166,7 @@ public final class CohortRevision {
 
     public CohortRevision build() {
       if (id == null) {
-        id = RandomStringUtils.secure().nextAlphanumeric(10);
+        id = ArtifactUtils.newId();
       }
       if (lastModifiedBy == null) {
         lastModifiedBy = createdBy;
@@ -390,7 +389,7 @@ public final class CohortRevision {
 
       public CriteriaGroupSection build() {
         if (id == null) {
-          id = RandomStringUtils.secure().nextAlphanumeric(10);
+          id = ArtifactUtils.newId();
         }
         return new CriteriaGroupSection(
             id,
@@ -520,7 +519,7 @@ public final class CohortRevision {
 
       public CriteriaGroup build() {
         if (id == null) {
-          id = RandomStringUtils.secure().nextAlphanumeric(10);
+          id = ArtifactUtils.newId();
         }
         return new CriteriaGroup(id, displayName, criteria, isDisabled);
       }
