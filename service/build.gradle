@@ -119,14 +119,6 @@ dependencies {
 protobuf {
     // Configure the protoc executable
     protoc {
-        /*
-        val version = project.configurations.findByName("compileClasspath")?.copyRecursive()?.resolvedConfiguration?.resolvedArtifacts?.find {
-            it.moduleVersion.id.module.toString() == "com.google.protobuf:protobuf-java"
-        }?.moduleVersion?.id?.version
-
-        artifact = "com.google.protobuf:protoc:$version"
-         */
-
         // This executable is downloaded from Maven.
         // The version here must match the Google Cloud libraries BOM specified in the buildSrc Gradle sub-project.
         // https://cloud.google.com/java/docs/bom
