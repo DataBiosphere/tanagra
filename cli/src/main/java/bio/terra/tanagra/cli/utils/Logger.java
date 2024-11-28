@@ -14,6 +14,7 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.util.FileSize;
 import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,7 @@ public final class Logger {
     loggerContext.reset();
 
     // Turn on logging for the logger for errors only.
-    StatusPrinter.printIfErrorsOccured(loggerContext);
+    (new StatusPrinter2()).printIfErrorsOccured(loggerContext);
 
     // Build the rolling file appender.
     RollingFileAppender<ILoggingEvent> rollingFileAppender = new RollingFileAppender<>();

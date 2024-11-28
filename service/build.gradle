@@ -119,6 +119,14 @@ dependencies {
 protobuf {
     // Configure the protoc executable
     protoc {
+        /*
+        val version = project.configurations.findByName("compileClasspath")?.copyRecursive()?.resolvedConfiguration?.resolvedArtifacts?.find {
+            it.moduleVersion.id.module.toString() == "com.google.protobuf:protobuf-java"
+        }?.moduleVersion?.id?.version
+
+        artifact = "com.google.protobuf:protoc:$version"
+         */
+
         // This executable is downloaded from Maven.
         // The version here must match the Google Cloud libraries BOM specified in the buildSrc Gradle sub-project.
         // https://cloud.google.com/java/docs/bom
@@ -126,7 +134,7 @@ protobuf {
         // https://github.com/google/protobuf-gradle-plugin/issues/412
         // So we have to manually keep this version in sync, by referencing the BOM dashboard.
         // https://storage.googleapis.com/cloud-opensource-java-dashboard/com.google.cloud/libraries-bom/index.html
-        artifact = 'com.google.protobuf:protoc:3.25.3'
+        artifact = "com.google.protobuf:protoc:${vGoogleProtobufProtoc}"
     }
 }
 
