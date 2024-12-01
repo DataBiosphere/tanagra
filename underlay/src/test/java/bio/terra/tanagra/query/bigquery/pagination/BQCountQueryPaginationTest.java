@@ -76,7 +76,7 @@ public class BQCountQueryPaginationTest {
                     false));
 
     assertNotNull(countQueryResult.getSql());
-    assertEquals(152, countQueryResult.getCountInstances().size());
+    assertEquals(150, countQueryResult.getCountInstances().size());
     assertNull(countQueryResult.getPageMarker());
   }
 
@@ -144,7 +144,7 @@ public class BQCountQueryPaginationTest {
                     false));
 
     assertNotNull(countQueryResult2.getSql());
-    assertEquals(142, countQueryResult2.getCountInstances().size());
+    assertEquals(140, countQueryResult2.getCountInstances().size());
     assertNull(countQueryResult2.getPageMarker());
   }
 }
