@@ -11,7 +11,6 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
     gradlePluginPortal() // Allows external plugins to be resolved in dependencies section.
 }
 
