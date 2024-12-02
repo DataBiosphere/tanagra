@@ -48,14 +48,14 @@ protobuf {
         // https://github.com/google/protobuf-gradle-plugin/issues/412
         // So we have to manually keep this version in sync, by referencing the BOM dashboard.
         // https://storage.googleapis.com/cloud-opensource-java-dashboard/com.google.cloud/libraries-bom/index.html
-        artifact = 'com.google.protobuf:protoc:3.25.3'
+        artifact = "com.google.protobuf:protoc:${vGoogleProtobufProtoc}"
     }
     // By default, the proto plugin generates Java classes in the build/classes/ directory.
     // generatedFilesBaseDir = "$projectDir/src/generated"
 
     plugins {
         doc {
-            artifact = "io.github.pseudomuto:protoc-gen-doc:1.5.1"
+            artifact = 'io.github.pseudomuto:protoc-gen-doc:1.5.1'
         }
     }
 
