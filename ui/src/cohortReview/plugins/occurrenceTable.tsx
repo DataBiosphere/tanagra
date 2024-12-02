@@ -66,7 +66,7 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
       root: { data: {}, children },
     };
 
-    context.rows[config.entity].forEach((o) => {
+    context.rows[config.entity]?.forEach((o) => {
       data[o.key] = { data: o };
       children.push(o.key);
     });
