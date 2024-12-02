@@ -8,8 +8,11 @@ import useSWRImmutable from "swr/immutable";
 export function CohortRevision() {
   const studySource = useStudySource();
   const underlaySource = useUnderlaySource();
-  const { studyId, cohortId, revisionId } =
-    useParams<{ studyId: string; cohortId: string; revisionId: string }>();
+  const { studyId, cohortId, revisionId } = useParams<{
+    studyId: string;
+    cohortId: string;
+    revisionId: string;
+  }>();
 
   const cohortState = useSWRImmutable(
     { type: "cohort", studyId, cohortId, revisionId },

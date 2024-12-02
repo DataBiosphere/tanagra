@@ -50,8 +50,10 @@ export function useCohortContext() {
 export function useNewCohortContext(showSnackbar: (message: string) => void) {
   const studySource = useStudySource();
   const underlaySource = useUnderlaySource();
-  const { studyId, cohortId } =
-    useParams<{ studyId: string; cohortId: string }>();
+  const { studyId, cohortId } = useParams<{
+    studyId: string;
+    cohortId: string;
+  }>();
 
   if (!studyId || !cohortId) {
     throw new Error(
@@ -148,9 +150,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
 
         mutate(
           (key: { type: string; studyId: string; list: boolean }) =>
-            key.type === "cohort" &&
-            key.studyId === studyId &&
-            key.list === true,
+            key.type === "cohort" && key.studyId === studyId && key.list,
           undefined,
           { revalidate: true }
         );

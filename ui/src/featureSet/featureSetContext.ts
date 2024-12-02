@@ -45,8 +45,10 @@ export function useNewFeatureSetContext(
 ) {
   const studySource = useStudySource();
   const underlaySource = useUnderlaySource();
-  const { studyId, featureSetId } =
-    useParams<{ studyId: string; featureSetId: string }>();
+  const { studyId, featureSetId } = useParams<{
+    studyId: string;
+    featureSetId: string;
+  }>();
 
   if (!studyId || !featureSetId) {
     throw new Error(
@@ -144,9 +146,7 @@ export function useNewFeatureSetContext(
 
         mutate(
           (key: { type: string; studyId: string; list: boolean }) =>
-            key.type === "featureSet" &&
-            key.studyId === studyId &&
-            key.list === true,
+            key.type === "featureSet" && key.studyId === studyId && key.list,
           undefined,
           { revalidate: true }
         );

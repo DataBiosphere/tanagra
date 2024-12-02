@@ -49,8 +49,10 @@ export function useBackendCohort() {
 export function useCohortGroupSectionAndGroup() {
   const cohort = useCohort();
 
-  const { groupSectionId, groupId } =
-    useParams<{ groupSectionId: string; groupId: string }>();
+  const { groupSectionId, groupId } = useParams<{
+    groupSectionId: string;
+    groupId: string;
+  }>();
   const sectionIndex = Math.max(
     0,
     cohort.groupSections.findIndex((s) => s.id === groupSectionId)
