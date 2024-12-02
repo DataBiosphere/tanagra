@@ -13,7 +13,6 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.util.FileSize;
-import ch.qos.logback.core.util.StatusPrinter;
 import ch.qos.logback.core.util.StatusPrinter2;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
