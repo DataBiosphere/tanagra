@@ -67,7 +67,7 @@ exports[`Table renders correctly 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"
+                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
                         />
                       </svg>
                       <span
@@ -128,7 +128,7 @@ exports[`Table renders correctly 1`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"
+                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
                         />
                       </svg>
                       <span
@@ -265,7 +265,7 @@ exports[`Table renders correctly 1`] = `
                   viewBox="0 0 24 24"
                 >
                   <path
-                    d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                    d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2m-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
                   />
                 </svg>
                 <span
@@ -434,7 +434,7 @@ exports[`Table renders correctly 2`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"
+                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
                         />
                       </svg>
                       <span
@@ -504,7 +504,7 @@ exports[`Table renders correctly 2`] = `
                         viewBox="0 0 24 24"
                       >
                         <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3 5 6.99h3V14h2V6.99h3L9 3z"
+                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
                         />
                       </svg>
                       <span
@@ -641,7 +641,7 @@ exports[`Table renders correctly 2`] = `
                   viewBox="0 0 24 24"
                 >
                   <path
-                    d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                    d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2m-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
                   />
                 </svg>
                 <span
