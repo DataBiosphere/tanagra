@@ -22,17 +22,20 @@ export type EntityNode = {
   childCount?: number;
 };
 
+export type RelatedEntityOptions = {
+  hierarchy?: boolean;
+  parent?: DataKey;
+};
+
 export type SearchEntityGroupOptions = {
   query?: string;
-  parent?: DataKey;
   limit?: number;
   pageSize?: number;
-  hierarchy?: boolean;
   fetchAll?: boolean;
   isLeaf?: boolean;
   pageMarker?: string;
   filters?: tanagra.Filter[];
-};
+} & RelatedEntityOptions;
 
 export type SearchEntityGroupResult = {
   nodes: EntityNode[];
@@ -276,6 +279,10 @@ export interface UnderlaySource {
 
   lookupEntityGroup(entityGroupId: string): EntityGroupData;
   lookupEntity(entityId: string): tanagraUnderlay.SZEntity;
+  lookupRelatedEntity(
+    entityGroupId: string,
+    options?: RelatedEntityOptions
+  ): [tanagraUnderlay.SZEntity, EntityGroupData];
   lookupCriteriaSelector(id: string): tanagraUnderlay.SZCriteriaSelector;
   lookupModifierSelector(id: string, modifierId: string): CommonSelectorConfig;
   primaryEntity(): tanagraUnderlay.SZEntity;
@@ -589,6 +596,23 @@ export class BackendUnderlaySource implements UnderlaySource {
     return entity;
   }
 
+  lookupRelatedEntity(
+    entityGroupId: string,
+    options?: RelatedEntityOptions
+  ): [tanagraUnderlay.SZEntity, EntityGroupData] {
+    let entityGroup = this.lookupEntityGroup(entityGroupId);
+    if (entityGroup.relatedEntityGroupId && options?.hierarchy) {
+      entityGroup = this.lookupEntityGroup(entityGroup.relatedEntityGroupId);
+    }
+
+    const entity =
+      entityGroup.relatedEntityId && options?.parent
+        ? this.lookupEntity(entityGroup.relatedEntityId)
+        : this.lookupEntity(entityGroup.entityId);
+
+    return [entity, entityGroup];
+  }
+
   lookupCriteriaSelector(id: string): tanagraUnderlay.SZCriteriaSelector {
     const selector = this.underlay.criteriaSelectors.find((e) => e.name === id);
     if (!selector) {
@@ -639,15 +663,10 @@ export class BackendUnderlaySource implements UnderlaySource {
     sortOrder: SortOrder,
     options?: SearchEntityGroupOptions
   ): Promise<SearchEntityGroupResult> {
-    let entityGroup = this.lookupEntityGroup(entityGroupId);
-    if (entityGroup.relatedEntityGroupId && options?.hierarchy) {
-      entityGroup = this.lookupEntityGroup(entityGroup.relatedEntityGroupId);
-    }
-
-    const entity =
-      entityGroup.relatedEntityId && options?.parent
-        ? this.lookupEntity(entityGroup.relatedEntityId)
-        : this.lookupEntity(entityGroup.entityId);
+    const [entity, entityGroup] = this.lookupRelatedEntity(
+      entityGroupId,
+      options
+    );
 
     return parseAPIError(
       this.underlaysApi

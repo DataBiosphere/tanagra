@@ -18,6 +18,11 @@
   
 - [criteriaselector/configschema/filterable_group.proto](#criteriaselector_configschema_filterable_group-proto)
     - [FilterableGroup](#tanagra-configschema-FilterableGroup)
+    - [FilterableGroup.SearchConfig](#tanagra-configschema-FilterableGroup-SearchConfig)
+    - [FilterableGroup.SearchConfig.Parameter](#tanagra-configschema-FilterableGroup-SearchConfig-Parameter)
+  
+    - [FilterableGroup.SearchConfig.Parameter.Case](#tanagra-configschema-FilterableGroup-SearchConfig-Parameter-Case)
+    - [FilterableGroup.SearchConfig.Parameter.Operator](#tanagra-configschema-FilterableGroup-SearchConfig-Parameter-Operator)
   
 - [criteriaselector/configschema/multi_attribute.proto](#criteriaselector_configschema_multi_attribute-proto)
     - [MultiAttribute](#tanagra-configschema-MultiAttribute)
@@ -296,12 +301,86 @@ the ability to select all items that match a set of attributes.
 | value_configs | [tanagra.ValueConfig](#tanagra-ValueConfig) | repeated | Attributes that can be part of a select all. |
 | sort_order | [tanagra.SortOrder](#tanagra-SortOrder) |  | The sort order to use in the list view. |
 | page_size | [int32](#int32) | optional | Number of values to display on each page in the list view. Otherwise, a default value is applied. |
+| search_configs | [FilterableGroup.SearchConfig](#tanagra-configschema-FilterableGroup-SearchConfig) | repeated |  |
+
+
+
+
+
+
+<a name="tanagra-configschema-FilterableGroup-SearchConfig"></a>
+
+### FilterableGroup.SearchConfig
+Each SearchConfig corresponds to a valid search query format and is a regex
+which are checked in order with the first matching one being used. Each
+capture group is mapped to a Parameter which will be checked against a
+specified attribute using a specified operator. If no capture groups are
+specified, then the entire match is mapped to the first parameter. If there
+are no configs, a generic text search will be performed across the search
+fields specified by the entity.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  | The list of names and corresponding examples are shown in a tooltip. |
+| example | [string](#string) |  |  |
+| regex | [string](#string) |  | The regular expression to match against. |
+| displayOrder | [int64](#int64) |  | The tooltips are sorted according to displayOrder, which defaults to 0 when unspecified, and falls back on the order specified in the config. This allows the visible order to differ from the matching order. |
+| parameters | [FilterableGroup.SearchConfig.Parameter](#tanagra-configschema-FilterableGroup-SearchConfig-Parameter) | repeated |  |
+
+
+
+
+
+
+<a name="tanagra-configschema-FilterableGroup-SearchConfig-Parameter"></a>
+
+### FilterableGroup.SearchConfig.Parameter
+Each parameter corresponds to a capture group in the regex, or the entire
+match if none are specified. At least one parameter must be specified.
+The order of arguments is &lt;attribute&gt; &lt;operator&gt; &lt;query&gt;.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| attribute | [string](#string) |  | The attribute to compare against. |
+| operator | [FilterableGroup.SearchConfig.Parameter.Operator](#tanagra-configschema-FilterableGroup-SearchConfig-Parameter-Operator) |  |  |
+| case | [FilterableGroup.SearchConfig.Parameter.Case](#tanagra-configschema-FilterableGroup-SearchConfig-Parameter-Case) |  |  |
 
 
 
 
 
  
+
+
+<a name="tanagra-configschema-FilterableGroup-SearchConfig-Parameter-Case"></a>
+
+### FilterableGroup.SearchConfig.Parameter.Case
+If specified, the matched string is converted to lower or upper case.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| CASE_NONE | 0 |  |
+| CASE_LOWER | 1 |  |
+| CASE_UPPER | 2 |  |
+
+
+
+<a name="tanagra-configschema-FilterableGroup-SearchConfig-Parameter-Operator"></a>
+
+### FilterableGroup.SearchConfig.Parameter.Operator
+The operator to compare with.
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| OPERATOR_UNKNOWN | 0 |  |
+| OPERATOR_EQUALS | 1 |  |
+| OPERATOR_GREATER_THAN | 2 |  |
+| OPERATOR_GREATER_THAN_OR_EQUAL | 3 |  |
+| OPERATOR_LESS_THAN | 4 |  |
+| OPERATOR_LESS_THAN_OR_EQUAL | 5 |  |
+
 
  
 

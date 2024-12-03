@@ -10,7 +10,6 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
-import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
@@ -20,6 +19,7 @@ import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFFilterableGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
@@ -28,6 +28,8 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -73,7 +75,8 @@ public class FilterableGroupFilterBuilder
 
                 case ALL:
                   filtersToOr.add(
-                      buildForIndividualSelectAll(underlay, groupItems, selectionItem.getAll()));
+                      buildForIndividualSelectAll(
+                          config, underlay, groupItems, selectionItem.getAll()));
                   break;
 
                 default:
@@ -96,6 +99,7 @@ public class FilterableGroupFilterBuilder
   }
 
   private EntityFilter buildForIndividualSelectAll(
+      CFFilterableGroup.FilterableGroup config,
       Underlay underlay,
       GroupItems groupItems,
       DTFilterableGroup.FilterableGroup.SelectAll selectAllItem) {
@@ -109,8 +113,8 @@ public class FilterableGroupFilterBuilder
 
     // string query
     if (!selectAllItem.getQuery().isEmpty()) {
-      subFiltersToAnd.add(
-          generateFilterForQuery(underlay, nonPrimaryEntity, selectAllItem.getQuery()));
+      subFiltersToAnd.addAll(
+          generateFilterForQuery(config, underlay, nonPrimaryEntity, selectAllItem.getQuery()));
     }
 
     // attribute values
@@ -165,26 +169,60 @@ public class FilterableGroupFilterBuilder
             .build();
   }
 
-  private static EntityFilter generateFilterForQuery(
-      Underlay underlay, Entity entity, String query) {
+  private List<EntityFilter> generateFilterForQuery(
+      CFFilterableGroup.FilterableGroup config, Underlay underlay, Entity entity, String query) {
     if (StringUtils.isEmpty(query)) {
-      return null;
+      return List.of();
     }
 
-    // TODO(BENCH-4370): Make this part of underlay config
-    if (!entity.getName().equals("variant")) {
-      return null;
+    if (config.getSearchConfigsList().size() == 0) {
+      return List.of(
+          new TextSearchFilter(underlay, entity, TextSearchOperator.EXACT_MATCH, query, null));
     }
-    Literal literal = Literal.forString(query);
-    if (query.matches("rs[0-9]+")) {
-      return new AttributeFilter(
-          underlay, entity, entity.getAttribute("rs_number"), NaryOperator.IN, List.of(literal));
-    } else if (query.matches("[0-9]+-[0-9]+-[A-Z]+-[A-Z]+")) {
-      return new AttributeFilter(
-          underlay, entity, entity.getAttribute("variant_id"), BinaryOperator.EQUALS, literal);
-    } else {
-      return new TextSearchFilter(
-          underlay, entity, TextSearchOperator.EXACT_MATCH, query, entity.getAttribute("gene"));
+
+    List<EntityFilter> filters = new ArrayList<>();
+    for (CFFilterableGroup.FilterableGroup.SearchConfig searchConfig :
+        config.getSearchConfigsList()) {
+      Pattern pattern = Pattern.compile(searchConfig.getRegex());
+      Matcher matcher = pattern.matcher(query);
+      if (!matcher.matches()) {
+        continue;
+      }
+
+      for (int i = 0; i < searchConfig.getParametersList().size(); i++) {
+        CFFilterableGroup.FilterableGroup.SearchConfig.Parameter param =
+            searchConfig.getParameters(i);
+        Attribute attribute = entity.getAttribute(param.getAttribute());
+
+        String group = matcher.groupCount() > 0 ? matcher.group(i + 1) : matcher.group(0);
+        if (param.getCase()
+            == CFFilterableGroup.FilterableGroup.SearchConfig.Parameter.Case.CASE_LOWER) {
+          group = group.toLowerCase();
+        } else if (param.getCase()
+            == CFFilterableGroup.FilterableGroup.SearchConfig.Parameter.Case.CASE_UPPER) {
+          group = group.toUpperCase();
+        }
+
+        Literal literal = Literal.forGenericString(attribute.getDataType(), group);
+        filters.add(
+            new AttributeFilter(
+                underlay, entity, attribute, lookupOperator(param.getOperator()), literal));
+      }
+      break;
     }
+
+    return filters;
+  }
+
+  private static BinaryOperator lookupOperator(
+      CFFilterableGroup.FilterableGroup.SearchConfig.Parameter.Operator operator) {
+    return switch (operator) {
+      case OPERATOR_EQUALS -> BinaryOperator.EQUALS;
+      case OPERATOR_GREATER_THAN -> BinaryOperator.GREATER_THAN;
+      case OPERATOR_GREATER_THAN_OR_EQUAL -> BinaryOperator.GREATER_THAN_OR_EQUAL;
+      case OPERATOR_LESS_THAN -> BinaryOperator.LESS_THAN;
+      case OPERATOR_LESS_THAN_OR_EQUAL -> BinaryOperator.LESS_THAN_OR_EQUAL;
+      default -> throw new InvalidQueryException("Unhandled operator type: " + operator);
+    };
   }
 }
