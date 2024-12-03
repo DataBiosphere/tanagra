@@ -10,8 +10,6 @@ import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
 import bio.terra.tanagra.api.filter.ItemInGroupFilter;
-import bio.terra.tanagra.api.filter.TextSearchFilter;
-import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
@@ -42,8 +40,71 @@ import org.junit.jupiter.api.Test;
 public class FilterableGroupFilterBuilderTest {
   private static Underlay underlay;
   private static Entity entity_variant;
-  private static CFFilterableGroup.FilterableGroup config;
   private static GroupItems groupItems_variant;
+
+  // Double escaped for Java then for JSON.
+  private static String configJson =
+      """
+{
+  "entityGroup": "variantPerson",
+  "searchConfigs": [
+    {
+      "name": "RS number",
+      "example": "rs558865434",
+      "regex": "rs\\\\d+",
+      "parameters": [
+        {
+          "attribute": "rs_number",
+          "operator": "OPERATOR_EQUALS"
+        }
+      ]
+    },
+    {
+      "name": "Variant id",
+      "example": "20-38623282-G-A",
+      "regex": "\\\\d+-\\\\d+-\\\\w+-\\\\w+",
+      "parameters": [
+        {
+          "attribute": "variant_id",
+          "operator": "OPERATOR_EQUALS"
+        }
+      ]
+    },
+    {
+      "name": "Genomic region",
+      "example": "chr20:38623000-38623379",
+      "regex": "(\\\\w+):(\\\\d+)-(\\\\d+)",
+      "parameters": [
+        {
+          "attribute": "gene",
+          "operator": "OPERATOR_EQUALS"
+        },
+        {
+          "attribute": "allele_number",
+          "operator": "OPERATOR_GREATER_THAN_OR_EQUAL"
+        },
+        {
+          "attribute": "allele_number",
+          "operator": "OPERATOR_LESS_THAN_OR_EQUAL"
+        }
+      ]
+    },
+    {
+      "name": "Gene",
+      "example": "WFDC2",
+      "regex": "\\\\w+",
+      "displayOrder": -1,
+      "parameters": [
+        {
+          "attribute": "gene",
+          "operator": "OPERATOR_EQUALS",
+          "case": "CASE_UPPER"
+        }
+      ]
+    }
+  ]
+}
+      """;
 
   @BeforeAll
   static void setup() {
@@ -52,10 +113,8 @@ public class FilterableGroupFilterBuilderTest {
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
 
-    config = CFFilterableGroup.FilterableGroup.newBuilder().setEntityGroup("variantPerson").build();
-
     entity_variant = underlay.getEntity("variant");
-    groupItems_variant = (GroupItems) underlay.getEntityGroup(config.getEntityGroup());
+    groupItems_variant = (GroupItems) underlay.getEntityGroup("variantPerson");
   }
 
   private static FilterableGroupFilterBuilder newFilterBuilder() {
@@ -67,7 +126,7 @@ public class FilterableGroupFilterBuilderTest {
             false,
             "core.FilterableGroupFilterBuilder",
             SZCorePlugin.FILTERABLE_GROUP.getIdInConfig(),
-            serializeToJson(config),
+            configJson,
             List.of()));
   }
 
@@ -131,8 +190,8 @@ public class FilterableGroupFilterBuilderTest {
             underlay,
             entity_variant,
             entity_variant.getAttribute("rs_number"),
-            NaryOperator.IN,
-            List.of(Literal.forString(query)));
+            BinaryOperator.EQUALS,
+            Literal.forString(query));
     EntityFilter expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedQuerySubFilter, List.of(), null, null);
@@ -167,7 +226,7 @@ public class FilterableGroupFilterBuilderTest {
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertEquals(expectedCohortFilter, cohortFilter);
 
-    // query format: all others
+    // query format: gene
     query = "xyz123";
     data =
         FilterableGroup.newBuilder()
@@ -176,12 +235,51 @@ public class FilterableGroupFilterBuilderTest {
             .build();
 
     expectedQuerySubFilter =
-        new TextSearchFilter(
+        new AttributeFilter(
             underlay,
             entity_variant,
-            TextSearchOperator.EXACT_MATCH,
-            query,
-            entity_variant.getAttribute("gene"));
+            entity_variant.getAttribute("gene"),
+            BinaryOperator.EQUALS,
+            Literal.forString(query.toUpperCase()));
+    expectedSubFilter =
+        new ItemInGroupFilter(
+            underlay, groupItems_variant, expectedQuerySubFilter, List.of(), null, null);
+    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+
+    selectionData = new SelectionData(null, serializeToJson(data));
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // query format: region
+    query = "xyz:123-456";
+    data =
+        FilterableGroup.newBuilder()
+            .addSelected(
+                Selection.newBuilder().setAll(SelectAll.newBuilder().setQuery(query).build()))
+            .build();
+
+    expectedQuerySubFilter =
+        new BooleanAndOrFilter(
+            LogicalOperator.AND,
+            List.of(
+                new AttributeFilter(
+                    underlay,
+                    entity_variant,
+                    entity_variant.getAttribute("gene"),
+                    BinaryOperator.EQUALS,
+                    Literal.forString("xyz")),
+                new AttributeFilter(
+                    underlay,
+                    entity_variant,
+                    entity_variant.getAttribute("allele_number"),
+                    BinaryOperator.GREATER_THAN_OR_EQUAL,
+                    Literal.forInt64(123L)),
+                new AttributeFilter(
+                    underlay,
+                    entity_variant,
+                    entity_variant.getAttribute("allele_number"),
+                    BinaryOperator.LESS_THAN_OR_EQUAL,
+                    Literal.forInt64(456L))));
     expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedQuerySubFilter, List.of(), null, null);
@@ -260,7 +358,7 @@ public class FilterableGroupFilterBuilderTest {
                     .setAll(SelectAll.newBuilder().addValueData(valueData).build()))
             .build();
 
-    EntityFilter expectedValueDateSubFilter =
+    EntityFilter expectedValueDataSubFilter =
         new AttributeFilter(
             underlay,
             entity_variant,
@@ -269,7 +367,7 @@ public class FilterableGroupFilterBuilderTest {
             Literal.forString(attrVal));
     EntityFilter expectedSubFilter =
         new ItemInGroupFilter(
-            underlay, groupItems_variant, expectedValueDateSubFilter, List.of(), null, null);
+            underlay, groupItems_variant, expectedValueDataSubFilter, List.of(), null, null);
     EntityFilter expectedCohortFilter =
         new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
@@ -374,13 +472,13 @@ public class FilterableGroupFilterBuilderTest {
             underlay,
             entity_variant,
             entity_variant.getAttribute("rs_number"),
-            NaryOperator.IN,
-            List.of(Literal.forString(query)));
+            BinaryOperator.EQUALS,
+            Literal.forString(query));
 
     // value-data
     String attr = "consequence";
     String attrVal = "abcdef";
-    EntityFilter expectedValueDateSubFilter =
+    EntityFilter expectedValueDataSubFilter =
         new AttributeFilter(
             underlay,
             entity_variant,
@@ -404,7 +502,7 @@ public class FilterableGroupFilterBuilderTest {
             underlay,
             groupItems_variant,
             new BooleanAndOrFilter(
-                LogicalOperator.AND, List.of(expectedQuerySubFilter, expectedValueDateSubFilter)),
+                LogicalOperator.AND, List.of(expectedQuerySubFilter, expectedValueDataSubFilter)),
             List.of(),
             null,
             null));
@@ -414,7 +512,7 @@ public class FilterableGroupFilterBuilderTest {
             groupItems_variant,
             new BooleanAndOrFilter(
                 LogicalOperator.AND,
-                List.of(expectedValueDateSubFilter, expectedExclusionsSubFilter)),
+                List.of(expectedValueDataSubFilter, expectedExclusionsSubFilter)),
             List.of(),
             null,
             null));

@@ -28,4 +28,54 @@ message FilterableGroup {
   // Number of values to display on each page in the list view. Otherwise, a
   // default value is applied.
   optional int32 page_size = 5;
+
+  // Each SearchConfig corresponds to a valid search query format and is a regex
+  // which are checked in order with the first matching one being used. Each
+  // capture group is mapped to a Parameter which will be checked against a
+  // specified attribute using a specified operator. If no capture groups are
+  // specified, then the entire match is mapped to the first parameter. If there
+  // are no configs, a generic text search will be performed across the search
+  // fields specified by the entity.
+  message SearchConfig {
+    // The list of names and corresponding examples are shown in a tooltip.
+    string name = 1;
+    string example = 2;
+
+    // The regular expression to match against.
+    string regex = 3;
+
+    // The tooltips are sorted according to displayOrder, which defaults to 0
+    // when unspecified, and falls back on the order specified in the config.
+    // This allows the visible order to differ from the matching order.
+    int64 displayOrder = 4;
+
+    // Each parameter corresponds to a capture group in the regex, or the entire
+    // match if none are specified. At least one parameter must be specified.
+    // The order of arguments is <attribute> <operator> <query>.
+    message Parameter {
+      // The attribute to compare against.
+      string attribute = 1;
+
+      // The operator to compare with.
+      enum Operator {
+        OPERATOR_UNKNOWN = 0;
+        OPERATOR_EQUALS = 1;
+        OPERATOR_GREATER_THAN = 2;
+        OPERATOR_GREATER_THAN_OR_EQUAL = 3;
+        OPERATOR_LESS_THAN = 4;
+        OPERATOR_LESS_THAN_OR_EQUAL = 5;
+      }
+      Operator operator = 2;
+
+      // If specified, the matched string is converted to lower or upper case.
+      enum Case {
+        CASE_NONE = 0;
+        CASE_LOWER = 1;
+        CASE_UPPER = 2;
+      }
+      Case case = 3;
+    }
+    repeated Parameter parameters = 5;
+  }
+  repeated SearchConfig search_configs = 6;
 }

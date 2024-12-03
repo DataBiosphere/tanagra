@@ -82,5 +82,61 @@
       "attribute": "allele_frequency",
       "title": "Allele frequency"
     }
+  ],
+  "searchConfigs": [
+    {
+      "name": "RS number",
+      "example": "rs558865434",
+      "regex": "rs\\d+",
+      "parameters": [
+        {
+          "attribute": "rs_number",
+          "operator": "OPERATOR_EQUALS"
+        }
+      ]
+    },
+    {
+      "name": "Variant id",
+      "example": "20-38623282-G-A",
+      "regex": "\\d+-\\d+-\\w+-\\w+",
+      "parameters": [
+        {
+          "attribute": "variant_id",
+          "operator": "OPERATOR_EQUALS"
+        }
+      ]
+    },
+    {
+      "name": "Genomic region",
+      "example": "chr20:38623000-38623379",
+      "regex": "(\\w+):(\\d+)-(\\d+)",
+      "parameters": [
+        {
+          "attribute": "gene",
+          "operator": "OPERATOR_EQUALS"
+        },
+        {
+          "attribute": "allele_number",
+          "operator": "OPERATOR_GREATER_THAN_OR_EQUAL"
+        },
+        {
+          "attribute": "allele_number",
+          "operator": "OPERATOR_LESS_THAN_OR_EQUAL"
+        }
+      ]
+    },
+    {
+      "name": "Gene",
+      "example": "WFDC2",
+      "regex": "\\w+",
+      "displayOrder": -1,
+      "parameters": [
+        {
+          "attribute": "gene",
+          "operator": "OPERATOR_EQUALS",
+          "case": "CASE_UPPER"
+        }
+      ]
+    }
   ]
 }
