@@ -1082,7 +1082,7 @@ function ParticipantsGroup(props: {
                     </GridLayout>
                   </GridLayout>
                 ) : (
-                  <GridLayout cols rowAlign="middle" sx={{ pl: 4 }}>
+                  <GridLayout key={p.id} cols rowAlign="middle" sx={{ pl: 4 }}>
                     {isTemporalSection(props.groupSection) &&
                     !modifierCriteria[i].config.supportsTemporalQueries ? (
                       <Tooltip

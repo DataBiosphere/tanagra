@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import { SxProps, Theme, useTheme } from "@mui/material/styles";
-import {
+import React, {
   Children,
   cloneElement,
   isValidElement,
@@ -117,7 +117,9 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
         // aligned correctly so in that case embed them directly, which requires
         // adding the gridArea style to them.
         if (ra === "baseline" && isValidElement(child)) {
-          return cloneElement(child, { sx: { gridArea, ...child.props.sx } });
+          return cloneElement(child as React.JSX.Element, {
+            sx: { gridArea, ...child.props.sx },
+          });
         }
 
         return (

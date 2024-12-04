@@ -14,19 +14,17 @@ function renderApp(fakeAuthCtx?: FakeAuthContextType) {
   let appRouter: Router;
   if (fakeAuthCtx) {
     const env = getEnvironment();
-    env.REACT_APP_AUTH0_DOMAIN = "fake-domain"
-    env.REACT_APP_AUTH0_CLIENT_ID = "fake-client"
-    env.REACT_APP_AUTH0_AUDIENCE = "fake-audience"
-    appRouter = createAppRouter({authCtx: fakeAuthCtx});
+    env.REACT_APP_AUTH0_DOMAIN = "fake-domain";
+    env.REACT_APP_AUTH0_CLIENT_ID = "fake-client";
+    env.REACT_APP_AUTH0_AUDIENCE = "fake-audience";
+    appRouter = createAppRouter({ authCtx: fakeAuthCtx });
     render(<AppWithRouter {...appRouter} />);
-
   } else {
-     appRouter = createAppRouter({} as AuthProviderProps);
+    appRouter = createAppRouter({} as AuthProviderProps);
     render(<App />);
-
   }
 
-  return appRouter
+  return appRouter;
 }
 
 test("render included datasets heading", async () => {
@@ -41,37 +39,45 @@ test("render included datasets heading", async () => {
 });
 
 test("with-auth: signed out redirects to login screen", () => {
-  renderApp( makeFakeAuth({
-    expired: true
-  }));
+  renderApp(
+    makeFakeAuth({
+      expired: true,
+    })
+  );
   expect(screen.getByText(logInText)).toBeInTheDocument();
-  expect(
-    screen.getByRole("button", { name: logInText })
-  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: logInText })).toBeInTheDocument();
 });
 
 test("with-auth: signed in renders the home page", async () => {
-  renderApp(makeFakeAuth({
-    expired: false, profile: FakeProfile
-  }));
+  renderApp(
+    makeFakeAuth({
+      expired: false,
+      profile: FakeProfile,
+    })
+  );
   await waitFor(() => {
     expect(screen.getByText(/underlay_name/i)).toBeInTheDocument();
   });
 });
 
 test("with-auth: login page while signed in redirects to home page", () => {
-  const appRouter =   renderApp(makeFakeAuth({
-    expired: false, profile: FakeProfile
-  }));
+  const appRouter = renderApp(
+    makeFakeAuth({
+      expired: false,
+      profile: FakeProfile,
+    })
+  );
   appRouter.navigate({ pathname: "/login" });
   render(<RouterProvider router={appRouter} />);
   expect(appRouter.state.location.pathname).toBe("/");
 });
 
 test("with-auth: signed out with bad url redirects to login screen", () => {
-  const appRouter =   renderApp(makeFakeAuth({
-    expired: true
-  }));
+  const appRouter = renderApp(
+    makeFakeAuth({
+      expired: true,
+    })
+  );
   appRouter.navigate({ pathname: "/badurl" });
   render(<RouterProvider router={appRouter} />);
   expect(screen.getByText(logInText)).toBeInTheDocument();
