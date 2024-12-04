@@ -32,7 +32,7 @@ export function DemographicCharts(props: DemographicChartsProps) {
           sx={{
             display: "grid",
             gridAutoRows: "380px",
-            gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
             alignItems: "stretch",
             justifyItems: "stretch",
             gridGap: (theme) => theme.spacing(3),
