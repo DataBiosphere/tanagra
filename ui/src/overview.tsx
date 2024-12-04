@@ -137,7 +137,7 @@ export function Overview() {
         rows="minmax(max-content, 100%)"
         cols="minmax(440px, auto) 450px"
         spacing={2}
-        sx={{ px: 5, overflow: "auto" }}
+        sx={{ display: "flex", px: 5, overflow: "auto" }}
       >
         <GridBox
           sx={{
@@ -148,12 +148,10 @@ export function Overview() {
             height: "auto",
           }}
         >
-          {underlay.uiConfiguration.featureConfig?.disableCohortReview ? (
-            <DemographicCharts cohort={backendCohort} extraControls={null} />
-          ) : (
-            <DemographicCharts
-              cohort={backendCohort}
-              extraControls={
+          <DemographicCharts
+            cohort={backendCohort}
+            extraControls={
+              underlay.uiConfiguration.featureConfig?.disableCohortReview ? (
                 <Button
                   variant="outlined"
                   component={RouterLink}
@@ -161,9 +159,9 @@ export function Overview() {
                 >
                   Review individuals
                 </Button>
-              }
-            />
-          )}
+              ) : undefined
+            }
+          />
           {renameTitleDialog}
           {confirmDialog}
         </GridBox>
