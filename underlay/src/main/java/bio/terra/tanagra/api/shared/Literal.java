@@ -91,6 +91,17 @@ public final class Literal implements Comparable<Literal> {
     };
   }
 
+  public static Literal forGenericString(DataType dataType, String genericVal) {
+    return switch (dataType) {
+      case STRING -> forString(genericVal);
+      case INT64 -> forInt64(Long.valueOf(genericVal));
+      case BOOLEAN -> forBoolean(Boolean.valueOf(genericVal));
+      case DATE -> forDate(genericVal);
+      case TIMESTAMP -> forTimestamp(Timestamp.valueOf(genericVal));
+      default -> throw new SystemException("Unsupported data type: " + dataType);
+    };
+  }
+
   public String getStringVal() {
     return !isNull && dataType.equals(STRING) ? stringVal : null;
   }

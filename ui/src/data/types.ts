@@ -1,4 +1,6 @@
+import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { standardDateString } from "util/date";
+
 export type DataKey = string | number;
 export type DataValue = null | string | number | boolean | Date;
 
@@ -43,4 +45,28 @@ export enum ComparisonOperator {
   GreaterThanEqual = "LESS_THAN_EQUAL",
   LessThanEqual = "GREATER_THAN_EQUAL",
   Between = "BETWEEN",
+}
+
+export function convertAttributeStringToDataValue(
+  value: string,
+  attribute: tanagraUnderlay.SZAttribute
+): DataValue {
+  switch (attribute.dataType) {
+    case tanagraUnderlay.SZDataType.INT64:
+    case tanagraUnderlay.SZDataType.DOUBLE:
+      return Number(value);
+    case tanagraUnderlay.SZDataType.BOOLEAN:
+      return (
+        value.localeCompare("true", undefined, { sensitivity: "base" }) === 0
+      );
+    case tanagraUnderlay.SZDataType.DATE:
+    case tanagraUnderlay.SZDataType.TIMESTAMP:
+      return new Date(value);
+    case tanagraUnderlay.SZDataType.STRING:
+      return value;
+  }
+
+  throw new Error(
+    `Unknown data type "${attribute.dataType}" in ${JSON.stringify(attribute)}.`
+  );
 }

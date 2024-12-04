@@ -3,6 +3,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import InfoIcon from "@mui/icons-material/Info";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
@@ -55,7 +56,11 @@ import {
   protoFromDataKey,
   UnderlaySource,
 } from "data/source";
-import { DataEntry, DataKey } from "data/types";
+import {
+  convertAttributeStringToDataValue,
+  DataEntry,
+  DataKey,
+} from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";
@@ -189,6 +194,7 @@ type PageData = {
   pageMarker?: string;
   total: number;
   hintData?: HintData[];
+  invalidQuery?: boolean;
 };
 
 type FilterableGroupEditProps = {
@@ -291,8 +297,18 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
       };
     },
     async (key) => {
-      if (!searchState?.query) {
-        return { nodes: [], pageMarker: undefined };
+      const generatedFilters = generateFilters(
+        underlaySource,
+        props.config,
+        searchState?.query ?? ""
+      );
+
+      if (!searchState?.query || !generatedFilters.length) {
+        return {
+          nodes: [],
+          pageMarker: undefined,
+          invalidQuery: !generatedFilters.length,
+        };
       }
 
       const resP = underlaySource.searchEntityGroup(
@@ -300,7 +316,12 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
         entityGroup.id,
         fromProtoSortOrder(props.config.sortOrder ?? DEFAULT_SORT_ORDER),
         {
-          filters: generateFilters(searchState?.query ?? "", filters),
+          filters: generateFilters(
+            underlaySource,
+            props.config,
+            searchState?.query ?? "",
+            filters
+          ),
           pageSize: rowsPerPage,
           limit: 10000000,
           pageMarker: key.pageMarker,
@@ -315,7 +336,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
           {
             filter: makeBooleanLogicFilter(
               tanagra.BooleanLogicFilterOperatorEnum.And,
-              generateFilters(searchState?.query ?? "")
+              generatedFilters
             ),
           }
         );
@@ -363,17 +384,43 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
               height: "auto",
             }}
           >
-            <Search
-              placeholder="Search variants"
-              disabled={!!selectedExclusion}
-              onSearch={(query: string) => {
-                updateSearchState((data: SearchState) => {
-                  data.query = query;
-                });
-                setCurrentPage(0);
-              }}
-              initialValue={searchState?.query}
-            />
+            <GridLayout cols fillCol={0} spacing={1} rowAlign="middle">
+              <Search
+                placeholder="Search variants"
+                disabled={!!selectedExclusion}
+                onSearch={(query: string) => {
+                  updateSearchState((data: SearchState) => {
+                    data.query = query;
+                  });
+                  setCurrentPage(0);
+                }}
+                initialValue={searchState?.query}
+              />
+              {props.config.searchConfigs.length ? (
+                <Tooltip
+                  title={
+                    <GridLayout rows>
+                      <Typography variant="body1">Query examples:</Typography>
+                      {[...props.config.searchConfigs]
+                        .sort(
+                          (a, b) =>
+                            (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
+                        )
+                        .map((sc) => (
+                          <Typography key={sc.name} variant="body2em">
+                            {sc.name}:&nbsp;
+                            <Typography variant="body2" component="span">
+                              {sc.example}
+                            </Typography>
+                          </Typography>
+                        ))}
+                    </GridLayout>
+                  }
+                >
+                  <InfoIcon color="primary" sx={{ display: "block" }} />
+                </Tooltip>
+              ) : null}
+            </GridLayout>
           </GridBox>
           <Loading
             status={instancesState}
@@ -466,7 +513,9 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                 minHeight="300px"
                 image={emptyImage}
                 title={
-                  searchState?.query?.length
+                  instancesState.data?.[0]?.invalidQuery
+                    ? "Invalid query format"
+                    : searchState?.query?.length
                     ? "No matches found"
                     : "Enter a search query to start"
                 }
@@ -784,6 +833,8 @@ function SelectAllStats(props: SelectAllStatsProps) {
         },
         {
           filters: generateFilters(
+            underlaySource,
+            props.config,
             props.selectAll.query,
             props.selectAll.valueData
           ),
@@ -1027,39 +1078,88 @@ function decodeConfig(
   );
 }
 
-const rsRE = /rs\d+/;
-const variantIdRE = /\d+-\d+-\w+-\w+/;
+const operatorMap = {
+  [configProto.FilterableGroup_SearchConfig_Parameter_Operator.UNRECOGNIZED]:
+    undefined,
+  [configProto.FilterableGroup_SearchConfig_Parameter_Operator
+    .OPERATOR_UNKNOWN]: tanagra.AttributeFilterOperatorEnum.Equals,
+  [configProto.FilterableGroup_SearchConfig_Parameter_Operator.OPERATOR_EQUALS]:
+    tanagra.AttributeFilterOperatorEnum.Equals,
+  [configProto.FilterableGroup_SearchConfig_Parameter_Operator
+    .OPERATOR_GREATER_THAN]: tanagra.AttributeFilterOperatorEnum.GreaterThan,
+  [configProto.FilterableGroup_SearchConfig_Parameter_Operator
+    .OPERATOR_GREATER_THAN_OR_EQUAL]:
+    tanagra.AttributeFilterOperatorEnum.GreaterThanOrEqual,
+  [configProto.FilterableGroup_SearchConfig_Parameter_Operator
+    .OPERATOR_LESS_THAN]: tanagra.AttributeFilterOperatorEnum.LessThan,
+  [configProto.FilterableGroup_SearchConfig_Parameter_Operator
+    .OPERATOR_LESS_THAN_OR_EQUAL]:
+    tanagra.AttributeFilterOperatorEnum.LessThanOrEqual,
+};
 
 function generateFilters(
+  underlaySource: UnderlaySource,
+  config: configProto.FilterableGroup,
   query: string,
   filters?: ValueData[]
 ): tanagra.Filter[] {
+  const [entity] = underlaySource.lookupRelatedEntity(config.entityGroup);
   const operands: tanagra.Filter[] = [];
 
   if (query !== "") {
-    // TODO(BENCH-4370): Consider how to make this configurable.
-    if (rsRE.test(query)) {
-      operands.push({
-        filterType: tanagra.FilterFilterTypeEnum.Attribute,
-        filterUnion: {
-          attributeFilter: {
-            attribute: "rs_number",
-            operator: tanagra.AttributeFilterOperatorEnum.In,
-            values: [literalFromDataValue(query)],
-          },
-        },
-      });
-    } else if (variantIdRE.test(query)) {
-      operands.push({
-        filterType: tanagra.FilterFilterTypeEnum.Attribute,
-        filterUnion: {
-          attributeFilter: {
-            attribute: "variant_id",
-            operator: tanagra.AttributeFilterOperatorEnum.Equals,
-            values: [literalFromDataValue(query)],
-          },
-        },
-      });
+    if (config.searchConfigs.length > 0) {
+      for (const sc of config.searchConfigs) {
+        const match = query.match(new RegExp(sc.regex));
+        if (!match || match[0].length !== query.length) {
+          continue;
+        }
+
+        sc.parameters.forEach((p, i) => {
+          let group = match.length > 1 ? match[i + 1] : match[0];
+          if (
+            p.case ===
+            configProto.FilterableGroup_SearchConfig_Parameter_Case.CASE_UPPER
+          ) {
+            group = group.toUpperCase();
+          } else if (
+            p.case ===
+            configProto.FilterableGroup_SearchConfig_Parameter_Case.CASE_LOWER
+          ) {
+            group = group.toLowerCase();
+          }
+
+          const attribute = entity.attributes.find(
+            (a) => a.name === p.attribute
+          );
+          if (!attribute) {
+            throw new Error(
+              `Unknown attribute "${p.attribute}" in entity "${entity.name}".`
+            );
+          }
+          const value = convertAttributeStringToDataValue(group, attribute);
+
+          const operator = operatorMap[p.operator];
+          if (!operator) {
+            throw new Error(`Unknown operator in ${JSON.stringify(p)}.`);
+          }
+
+          operands.push({
+            filterType: tanagra.FilterFilterTypeEnum.Attribute,
+            filterUnion: {
+              attributeFilter: {
+                attribute: p.attribute,
+                operator,
+                values: [literalFromDataValue(value)],
+              },
+            },
+          });
+        });
+        break;
+      }
+
+      if (!operands.length) {
+        return [];
+      }
     } else {
       operands.push({
         filterType: tanagra.FilterFilterTypeEnum.Text,
@@ -1067,7 +1167,6 @@ function generateFilters(
           textFilter: {
             matchType: tanagra.TextFilterMatchTypeEnum.ExactMatch,
             text: query,
-            attribute: "gene",
           },
         },
       });
