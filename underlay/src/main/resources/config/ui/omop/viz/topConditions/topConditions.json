@@ -2,7 +2,11 @@
   "sources": [
     {
       "criteriaSelector": "conditions",
-      "joins": [],
+      "joins": [
+        {
+          "entity": "person"
+        }
+      ],
       "attributes": [
         {
           "attribute": "condition",

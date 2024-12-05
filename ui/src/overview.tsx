@@ -194,17 +194,7 @@ function GroupList() {
   const studySource = useStudySource();
 
   const fetchCount = useCallback(async () => {
-    return (
-      (
-        await studySource.cohortCount(
-          studyId,
-          cohort.id,
-          undefined,
-          undefined,
-          []
-        )
-      )?.[0]?.count ?? 0
-    );
+    return (await studySource.cohortCount(studyId, cohort.id))?.[0]?.count ?? 0;
   }, [studyId, cohort]);
 
   const countState = useSWRImmutable(
@@ -295,7 +285,9 @@ function ParticipantsGroupSection(props: {
     }
 
     return (
-      await studySource.cohortCount(studyId, cohort.id, backendGroupSection.id)
+      await studySource.cohortCount(studyId, cohort.id, {
+        groupSectionId: backendGroupSection.id,
+      })
     )[0].count;
   }, [studyId, cohort.id, cohort.underlayName, backendGroupSection]);
 
@@ -767,12 +759,10 @@ function ParticipantsGroup(props: {
     }
 
     return (
-      await studySource.cohortCount(
-        studyId,
-        cohort.id,
-        backendGroupSection.id,
-        backendGroup.id
-      )
+      await studySource.cohortCount(studyId, cohort.id, {
+        groupSectionId: backendGroupSection.id,
+        groupId: backendGroup.id,
+      })
     )[0].count;
   }, [
     studyId,

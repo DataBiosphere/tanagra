@@ -152,21 +152,18 @@ async function fetchVizData(
       `Visualizations of ${vizSource.criteriaSelector} are not supported.`
     );
   }
-  if (vizSource.joins?.length) {
-    throw new Error("Joins are unsupported.");
+  if (vizSource.joins?.find((j) => j.entity !== "person" || j.aggregation)) {
+    throw new Error("Only unique joins to person are supported.");
   }
   if (!vizSource.attributes?.length || vizSource.attributes.length > 2) {
     throw new Error("Only 1 or 2 attributes are supported.");
   }
 
-  const fcvs = await studySource.cohortCount(
-    studyId,
-    cohort.id,
-    undefined,
-    undefined,
-    vizSource.attributes.map((a) => a.attribute),
-    entity
-  );
+  const fcvs = await studySource.cohortCount(studyId, cohort.id, {
+    groupByAttributes: vizSource.attributes.map((a) => a.attribute),
+    entity,
+    countDistinctAttribute: vizSource.joins?.length ? "person_id" : undefined,
+  });
 
   return processFilterCountValues(vizConfig, fcvs);
 }
