@@ -2,7 +2,11 @@
   "sources": [
     {
       "criteriaSelector": "procedures",
-      "joins": [],
+      "joins": [
+        {
+          "entity": "person"
+        }
+      ],
       "attributes": [
         {
           "attribute": "procedure",

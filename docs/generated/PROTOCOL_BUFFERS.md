@@ -1375,7 +1375,7 @@ and [3, 5).
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | entity | [string](#string) |  | The next entity to join to in order to eventually get to the entity the visualization is displaying (e.g. person when joining condition_occurences to age). |
-| aggregation | [VizConfig.Source.Join.Aggregation](#tanagra-viz-VizConfig-Source-Join-Aggregation) | optional | When joining an entity with an N:1 relationship (e.g. multiple weight values to a person), an aggregation is often required to make the data visualizable. For example, to visualize weight vs. race, each person needs to have a single weight value associated with them, such as the average or most recent. |
+| aggregation | [VizConfig.Source.Join.Aggregation](#tanagra-viz-VizConfig-Source-Join-Aggregation) | optional | When joining an entity with an N:1 relationship (e.g. multiple weight values to a person), an aggregation is often required to make the data visualizable. For example, to visualize weight vs. race, each person needs to have a single weight value associated with them, such as the average or most recent. For simple cases, simply counting unique instances of a related entity may be sufficient (e.g. to count people with related condition occurrences). |
 
 
 
@@ -1390,7 +1390,7 @@ and [3, 5).
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| type | [VizConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType) |  | The type of aggregation being performed. |
+| type | [VizConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType) | optional | The type of aggregation being performed. |
 | attribute | [string](#string) | optional | The output is always ids and values but aggregation may occur over another field (e.g. date to find the most recent value). |
 
 
@@ -1420,7 +1420,7 @@ and [3, 5).
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| UNKNOWN | 0 |  |
+| UNIQUE | 0 |  |
 | MIN | 1 |  |
 | MAX | 2 |  |
 | AVERAGE | 3 |  |

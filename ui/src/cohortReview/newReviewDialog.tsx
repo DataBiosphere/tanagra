@@ -56,15 +56,7 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
       cohort: props.cohort,
     },
     async () =>
-      (
-        await studySource.cohortCount(
-          studyId,
-          props.cohort.id,
-          undefined,
-          undefined,
-          []
-        )
-      )?.[0]?.count ?? 0
+      (await studySource.cohortCount(studyId, props.cohort.id))?.[0]?.count ?? 0
   );
 
   const cohortCount = countState.data;

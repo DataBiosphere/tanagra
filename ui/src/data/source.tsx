@@ -80,6 +80,14 @@ export type FilterCountValue = {
   [x: string]: DataValue;
 };
 
+export type CohortCountOptions = {
+  groupSectionId?: string;
+  groupId?: string;
+  groupByAttributes?: string[];
+  entity?: string;
+  countDistinctAttribute?: string;
+};
+
 export type PropertyMap = {
   [key: string]: string;
 };
@@ -431,10 +439,7 @@ export interface StudySource {
   cohortCount(
     studyId: string,
     cohortId: string,
-    groupSectionId?: string,
-    groupId?: string,
-    groupByAttributes?: string[],
-    entity?: string
+    options?: CohortCountOptions
   ): Promise<FilterCountValue[]>;
 
   getFeatureSetMetadata(
@@ -1344,10 +1349,7 @@ export class BackendStudySource implements StudySource {
   async cohortCount(
     studyId: string,
     cohortId: string,
-    groupSectionId?: string,
-    groupId?: string,
-    groupByAttributes?: string[],
-    entity?: string
+    options?: CohortCountOptions
   ): Promise<FilterCountValue[]> {
     let pageMarker: string | undefined;
     const instanceCounts: tanagra.InstanceCount[] = [];
@@ -1358,13 +1360,15 @@ export class BackendStudySource implements StudySource {
           studyId,
           cohortId,
           cohortCountQuery: {
-            countDistinctAttribute: undefined,
+            countDistinctAttribute: options?.countDistinctAttribute,
             groupByAttributes:
-              groupByAttributes == null ? [] : groupByAttributes,
-            criteriaGroupSectionId: groupSectionId,
-            criteriaGroupId: groupId,
+              options?.groupByAttributes == null
+                ? []
+                : options?.groupByAttributes,
+            criteriaGroupSectionId: options?.groupSectionId,
+            criteriaGroupId: options?.groupId,
             pageMarker,
-            entity,
+            entity: options?.entity,
             limit: 1000000,
           },
         })
