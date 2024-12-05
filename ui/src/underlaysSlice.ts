@@ -29,6 +29,7 @@ export type UIConfiguration = {
 };
 
 export type FeatureConfig = {
+  disableCohortReview?: boolean;
   disableExportButton?: boolean;
   overrideExportButton?: boolean;
   disableFeatureSets?: boolean;
