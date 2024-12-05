@@ -137,7 +137,7 @@ export function Overview() {
         rows="minmax(max-content, 100%)"
         cols="minmax(440px, auto) 450px"
         spacing={2}
-        sx={{ display: "flex", px: 5, overflow: "auto" }}
+        sx={{ px: 5, overflow: "auto" }}
       >
         <GridBox
           sx={{
