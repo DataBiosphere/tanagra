@@ -1,7 +1,7 @@
 {
   "featureConfig": {
     "disableFeatureSets": true,
-    "disableCohortReview": false
+    "disableCohortReview": true
   },
   "demographicChartConfigs": {
     "groupByAttributes": ["gender", "race", "age"],
