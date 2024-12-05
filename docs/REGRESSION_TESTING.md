@@ -111,3 +111,5 @@ for running these tests in a "downstream" repo. To get this working in your own 
     - The `env.DEFAULT_UNDERLAYS` variable for on-PR (or other triggered) runs.
 - If your regression test files are stored in your "downstream" repo, update the name of the Gradle parameter in the 
   run command from `-PregressionTestUnderlays` to `-PregressionTestDirs`.
+- As an alternate to  `-PregressionTestDirs`, `-PregressionTestUnderlays` and `-PregressionTestFiles` set
+  environment variables `REGRESSION_TEST_DIRS`, `REGRESSION_TEST_UNDERLAYS` and `REGRESSION_TEST_FILES` respectively.

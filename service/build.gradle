@@ -154,12 +154,18 @@ tasks.withType(Test).configureEach {
     // See bio.terra.tanagra.regression.QueryCountRegressionTest for how it's used.
     if (project.findProperty('regressionTestDirs')) {
         systemProperty('REGRESSION_TEST_DIRS', project.findProperty('regressionTestDirs'))
+    } else {
+        systemProperty('REGRESSION_TEST_DIRS', System.getenv('REGRESSION_TEST_DIRS'))
     }
     if (project.findProperty('regressionTestUnderlays')) {
         systemProperty('REGRESSION_TEST_UNDERLAYS', project.findProperty('regressionTestUnderlays'))
+    } else {
+        systemProperty('REGRESSION_TEST_UNDERLAYS', System.getenv('REGRESSION_TEST_UNDERLAYS'))
     }
     if (project.findProperty('regressionTestFiles')) {
         systemProperty('REGRESSION_TEST_FILES', project.findProperty('regressionTestFiles'))
+    } else {
+        systemProperty('REGRESSION_TEST_FILES', System.getenv('REGRESSION_TEST_FILES'))
     }
 }
 
