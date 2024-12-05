@@ -151,7 +151,7 @@ export function Overview() {
           <DemographicCharts
             cohort={backendCohort}
             extraControls={
-              underlay.uiConfiguration.featureConfig?.disableCohortReview ? (
+              !underlay.uiConfiguration.featureConfig?.disableCohortReview ? (
                 <Button
                   variant="outlined"
                   component={RouterLink}
