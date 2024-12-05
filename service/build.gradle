@@ -4,7 +4,6 @@ plugins {
     id 'tanagra.java-conventions'
 
     id 'com.google.cloud.tools.jib' version '3.4.4'
-    id 'io.spring.dependency-management' version "${vSpringDepMgt}"
     id 'org.springframework.boot' version "${vSpringBoot}"
     id 'org.hidetake.swagger.generator' version "${vHidetakeSwagger}"
     id 'org.barfuin.gradle.taskinfo' version '2.2.0'

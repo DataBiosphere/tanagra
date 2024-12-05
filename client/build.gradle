@@ -5,7 +5,7 @@ plugins {
     id 'maven-publish'
 
     id 'com.jfrog.artifactory' version '5.2.2'
-    id 'io.spring.dependency-management' version "${vSpringDepMgt}"
+    id 'io.spring.dependency-management'
     id 'org.springframework.boot' version "${vSpringBoot}"
     id 'org.hidetake.swagger.generator' version "${vHidetakeSwagger}"
 }
