@@ -3,7 +3,6 @@ plugins {
 
     // These plugins are needed to resolve versions of spring dependencies
     // transitively added by terra-common-lib
-    id 'io.spring.dependency-management' version "${vSpringDepMgt}"
     id 'org.springframework.boot' version "${vSpringBoot}"
 }
 
