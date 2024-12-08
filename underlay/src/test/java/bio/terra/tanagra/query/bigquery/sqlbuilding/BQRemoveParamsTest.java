@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.AOUSR2019Q4R4;
 import static bio.terra.tanagra.UnderlayTestConfigs.CMSSYNPUF;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class BQRemoveParamsTest extends BQRunnerTest {
   @Override
   protected String getServiceConfigName() {
-    return "aouSR2019q4r4_broad";
+    return AOUSR2019Q4R4.fileName();
   }
 
   @Test
