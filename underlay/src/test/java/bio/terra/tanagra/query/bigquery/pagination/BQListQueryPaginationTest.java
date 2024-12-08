@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query.bigquery.pagination;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.CMSSYNPUF;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -22,13 +23,12 @@ import org.junit.jupiter.api.Test;
 @Tag("requires-cloud-access")
 @Tag("broad-underlays")
 public class BQListQueryPaginationTest {
-  private static final String SERVICE_CONFIG_NAME = "cmssynpuf_broad";
   private Underlay underlay;
 
   @BeforeEach
   void setup() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService(SERVICE_CONFIG_NAME);
+    SZService szService = configReader.readService(CMSSYNPUF.fileName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
   }
