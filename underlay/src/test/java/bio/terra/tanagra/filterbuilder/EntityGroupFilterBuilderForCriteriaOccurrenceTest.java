@@ -1,5 +1,6 @@
 package bio.terra.tanagra.filterbuilder;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.AOUSR2019Q4R4;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -48,7 +49,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
   @BeforeEach
   void setup() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("aouSR2019q4r4_broad");
+    SZService szService = configReader.readService(AOUSR2019Q4R4.fileName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
   }

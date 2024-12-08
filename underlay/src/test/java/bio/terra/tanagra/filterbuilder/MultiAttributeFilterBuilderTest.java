@@ -1,5 +1,6 @@
 package bio.terra.tanagra.filterbuilder;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.SD20230831;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,7 +41,7 @@ public class MultiAttributeFilterBuilderTest {
   @BeforeEach
   void setup() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("sd20230831_verily");
+    SZService szService = configReader.readService(SD20230831.fileName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
   }

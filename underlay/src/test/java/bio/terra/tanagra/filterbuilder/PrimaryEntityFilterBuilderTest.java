@@ -1,5 +1,6 @@
 package bio.terra.tanagra.filterbuilder;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.CMSSYNPUF;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,7 +33,7 @@ public class PrimaryEntityFilterBuilderTest {
   @BeforeEach
   void setup() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("cmssynpuf_broad");
+    SZService szService = configReader.readService(CMSSYNPUF.fileName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
   }
