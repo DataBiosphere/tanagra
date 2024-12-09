@@ -1,8 +1,8 @@
 {
-  "name": "aouR2022Q4R13",
+  "name": "aouR2024Q3R4",
   "primaryEntity": "person",
   "entities": [
-    "aouRTv7/person",
+    "aouRT/person",
 
     "aouRT/conditionConcept",
     "aouRT/conditionOccurrence",
@@ -177,8 +177,8 @@
     "omop/topMeasurements"
   ],
   "metadata": {
-    "displayName": "All Of Us Registered Tier Dataset v7",
-    "description": "R2022Q4R13"
+    "displayName": "All Of Us Registered Tier Dataset v8",
+    "description": "R2024Q3R4"
   },
   "uiConfigFile": "ui.json"
 }
