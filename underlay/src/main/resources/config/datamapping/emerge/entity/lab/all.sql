@@ -3,10 +3,7 @@ SELECT
     l.lab_name as name,
     l.loinc_code as concept_code,
     'LAB' as type,
-    CASE WHEN l.loinc_code IS NULL THEN 'Custom'
-         ELSE 'Standard' END as is_standard,
-    CASE WHEN l.loinc_code IS NULL THEN l.lab_name
-         ELSE concat(l.loinc_code, ' ', l.lab_name) END as label,
+    l.lab_name as label,
     case WHEN l.loinc_code IS NULL THEN 'VUMC-Lab'
          ELSE 'LOINC' END as vocabulary_id
 FROM `${omopDataset}.labs` l

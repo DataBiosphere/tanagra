@@ -6,19 +6,9 @@
       "title": "Label"
     },
     {
-      "key": "id",
-      "widthDouble": 120,
-      "title": "Concept Id"
-    },
-    {
-      "key": "is_standard",
-      "widthDouble": 180,
-      "title": "Source/Standard"
-    },
-    {
       "key": "concept_code",
       "widthDouble": 120,
-      "title": "Code"
+      "title": "RxNorm"
     },
     {
       "key": "t_item_count",
