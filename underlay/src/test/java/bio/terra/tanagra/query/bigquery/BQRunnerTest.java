@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.CMSSYNPUF;
+
 import bio.terra.tanagra.testing.GeneratedSqlUtils;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
@@ -24,7 +26,7 @@ public abstract class BQRunnerTest {
   }
 
   protected String getServiceConfigName() {
-    return "cmssynpuf_broad";
+    return CMSSYNPUF.fileName();
   }
 
   protected void assertSqlMatchesWithTableNameOnly(String testName, String sql, BQTable... tables)

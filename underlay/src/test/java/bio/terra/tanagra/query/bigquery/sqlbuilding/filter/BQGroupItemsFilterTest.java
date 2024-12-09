@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding.filter;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.SD20230331;
+
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -204,7 +206,7 @@ public class BQGroupItemsFilterTest extends BQRunnerTest {
     // of the test, we use the SD underlay. But since we the GHA does not have
     // credentials to query against an SD dataset, here we just check the generated SQL.
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("sd20230331_verily");
+    SZService szService = configReader.readService(SD20230331.fileName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
     BQQueryRunner bqQueryRunner = (BQQueryRunner) underlay.getQueryRunner();

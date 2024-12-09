@@ -1,5 +1,6 @@
 package bio.terra.tanagra.filterbuilder;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.AOUSC2023Q3R2;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,7 +44,7 @@ public class FilterableGroupFilterBuilderTest {
   private static GroupItems groupItems_variant;
 
   // Double escaped for Java then for JSON.
-  private static String configJson =
+  private static final String configJson =
       """
 {
   "entityGroup": "variantPerson",
@@ -109,7 +110,7 @@ public class FilterableGroupFilterBuilderTest {
   @BeforeAll
   static void setup() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("aouSC2023Q3R2_verily");
+    SZService szService = configReader.readService(AOUSC2023Q3R2.fileName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
 

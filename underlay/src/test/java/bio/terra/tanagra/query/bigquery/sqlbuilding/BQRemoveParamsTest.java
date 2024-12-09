@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.AOUSR2019Q4R4;
+import static bio.terra.tanagra.UnderlayTestConfigs.CMSSYNPUF;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import bio.terra.tanagra.api.field.AttributeField;
@@ -28,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class BQRemoveParamsTest extends BQRunnerTest {
   @Override
   protected String getServiceConfigName() {
-    return "aouSR2019q4r4_broad";
+    return AOUSR2019Q4R4.fileName();
   }
 
   @Test
@@ -99,7 +101,7 @@ public class BQRemoveParamsTest extends BQRunnerTest {
     // The aouSR2019q4r4 underlay does not have an example of a field with DATE type.
     // So for this test, we use the cmssynpuf underlay.
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZService szService = configReader.readService("cmssynpuf_broad");
+    SZService szService = configReader.readService(CMSSYNPUF.fileName());
     SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
     Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
     BQQueryRunner bqQueryRunner = (BQQueryRunner) underlay.getQueryRunner();
