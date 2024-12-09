@@ -1,8 +1,8 @@
 {
-  "name": "aouC2022Q4R13",
+  "name": "aouC2024Q3R4",
   "primaryEntity": "person",
   "entities": [
-    "aouRTv7/person",
+    "aouRT/person",
 
     "aouRT/conditionConcept",
     "aouRT/conditionOccurrence",
@@ -184,8 +184,8 @@
     "omop/topMeasurements"
   ],
   "metadata": {
-    "displayName": "All Of Us Controlled Tier Dataset v7",
-    "description": "C2022Q4R13"
+    "displayName": "All Of Us Controlled Tier Dataset v8",
+    "description": "C2024Q3R4"
   },
   "uiConfigFile": "ui.json"
 }

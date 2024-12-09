@@ -1,17 +1,17 @@
 {
-  "underlay": "aouC2022Q4R13",
+  "underlay": "aouR2024Q3R4",
   "bigQuery": {
     "sourceData": {
       "projectId": "aou-res-curation-output-prod",
-      "datasetId": "C2022Q4R13",
+      "datasetId": "R2024Q3R4_data_apps_2",
       "sqlSubstitutions": {
-        "omopDataset": "aou-res-curation-output-prod.C2022Q4R13",
-        "staticTablesDataset": "aou-res-curation-output-prod.C2022Q4R13"
+        "omopDataset": "aou-res-curation-output-prod.R2024Q3R4_data_apps_2",
+        "staticTablesDataset": "aou-res-curation-output-prod.R2024Q3R4_data_apps_2"
       }
     },
     "indexData": {
       "projectId": "aou-res-curation-output-prod",
-      "datasetId": "C2022Q4R13",
+      "datasetId": "R2024Q3R4_data_apps_2",
       "tablePrefix": "T"
     },
     "queryProjectId": "aou-res-curation-output-prod",
@@ -19,7 +19,7 @@
   },
   "dataflow": {
     "serviceAccountEmail": "tanagra-indexing-runner@aou-res-curation-output-prod.iam.gserviceaccount.com",
-    "gcsTempDirectory": "gs://aou-res-curation-output-prod-tanagra-indexing/C2022Q4R13/",
+    "gcsTempDirectory": "gs://aou-res-curation-output-prod-tanagra-indexing/R2024Q3R4/",
     "workerMachineType": "n1-standard-4",
     "usePublicIps": false,
     "vpcSubnetworkName": "us-central1"
