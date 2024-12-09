@@ -1,5 +1,7 @@
 package bio.terra.tanagra.datasetspecific.cmssynpuf;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.CMSSYNPUF;
+
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
@@ -15,7 +17,7 @@ public class CmsSynpufHintsTest extends BaseHintsTest {
 
   @Override
   protected String getServiceConfigName() {
-    return "cmssynpuf_broad";
+    return CMSSYNPUF.fileName();
   }
 
   @Test

@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding;
 
+import static bio.terra.tanagra.UnderlayTestConfigs.AOUSR2019Q4R4;
+
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.Literal;
@@ -13,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class BQHintQueryTest extends BQRunnerTest {
   @Override
   protected String getServiceConfigName() {
-    return "aouSR2019q4r4_broad";
+    return AOUSR2019Q4R4.fileName();
   }
 
   @Test
