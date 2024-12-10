@@ -23,6 +23,7 @@ public class ITEntitySearchByAttribute extends IndexTable {
     this.entity = entity.name;
 
     List<ColumnSchema> columnSchemasBuilder = new ArrayList<>();
+    // columns used for primary id or clustering cannot be repeated
 
     SZAttribute idAttribute =
         entity.attributes.stream()
@@ -31,10 +32,7 @@ public class ITEntitySearchByAttribute extends IndexTable {
             .orElseThrow();
     columnSchemasBuilder.add(
         new ColumnSchema(
-            idAttribute.name,
-            ConfigReader.deserializeDataType(idAttribute.dataType),
-            idAttribute.isDataTypeRepeated,
-            true));
+            idAttribute.name, ConfigReader.deserializeDataType(idAttribute.dataType), false, true));
 
     SZAttribute searchAttribute =
         entity.attributes.stream()
@@ -44,8 +42,8 @@ public class ITEntitySearchByAttribute extends IndexTable {
     columnSchemasBuilder.add(
         new ColumnSchema(
             searchAttribute.name,
-            ConfigReader.deserializeDataType(idAttribute.dataType),
-            searchAttribute.isDataTypeRepeated,
+            ConfigReader.deserializeDataType(searchAttribute.dataType),
+            false,
             false));
     this.attribute = searchAttribute.name;
     this.columnSchemas = ImmutableList.copyOf(columnSchemasBuilder);
