@@ -226,11 +226,13 @@ public final class IndexSchema {
         new ITEntityLevelDisplayHints(nameHelper, szBigQueryIndexData, szEntity.name));
 
     // EntitySearchByAttribute tables.
-    szEntity.optimizeSearchByAttributes.forEach(
-        attribute ->
-            entitySearchByAttributeTables.add(
-                new ITEntitySearchByAttribute(
-                    nameHelper, szBigQueryIndexData, szEntity, attribute)));
+    if (szEntity.optimizeSearchByAttributes != null) {
+      szEntity.optimizeSearchByAttributes.forEach(
+          attribute ->
+              entitySearchByAttributeTables.add(
+                  new ITEntitySearchByAttribute(
+                      nameHelper, szBigQueryIndexData, szEntity, attribute)));
+    }
 
     szEntity.hierarchies.forEach(
         szHierarchy -> {
