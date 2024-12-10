@@ -590,6 +590,13 @@ The typical use case for this is to optimize cohort breakdown queries on the pri
 
 You can currently specify a maximum of four attributes, because we implement this using BigQuery clustering which has this [limitation](https://cloud.google.com/bigquery/docs/clustered-tables#limitations).
 
+### SZEntity.optimizeSearchByAttributes
+**optional** List [ String ]
+
+List of attributes to optimize for search queries.
+
+The typical use case for this is to optimize attribute based search on large entity tables that cannot be optimised for search on multiple attribute fields. For example, to optimize search on the variant table using attributes values for gene, rs_number and genomic_location. 
+
 ### SZEntity.sourceQueryTableName
 **optional** String
 
