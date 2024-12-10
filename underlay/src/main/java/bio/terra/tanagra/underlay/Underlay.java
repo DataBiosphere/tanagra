@@ -395,6 +395,16 @@ public final class Underlay {
               .filter(attribute -> szEntity.optimizeGroupByAttributes.contains(attribute.getName()))
               .collect(Collectors.toList());
     }
+
+    List<Attribute> optimizeSearchByAttributes = new ArrayList<>();
+    if (szEntity.optimizeSearchByAttributes != null) {
+      optimizeSearchByAttributes =
+          attributes.stream()
+              .filter(
+                  attribute -> szEntity.optimizeSearchByAttributes.contains(attribute.getName()))
+              .collect(Collectors.toList());
+    }
+
     List<Attribute> optimizeTextSearchAttributes = new ArrayList<>();
     if (szEntity.textSearch != null && szEntity.textSearch.attributes != null) {
       optimizeTextSearchAttributes =
@@ -426,6 +436,7 @@ public final class Underlay {
         attributes,
         hierarchies,
         optimizeGroupByAttributes,
+        optimizeSearchByAttributes,
         szEntity.textSearch != null,
         optimizeTextSearchAttributes,
         szEntity.sourceQueryTableName);

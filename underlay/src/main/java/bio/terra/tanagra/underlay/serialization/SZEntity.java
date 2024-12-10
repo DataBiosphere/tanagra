@@ -67,6 +67,16 @@ public class SZEntity {
   public List<String> optimizeGroupByAttributes;
 
   @AnnotatedField(
+      name = "SZEntity.optimizeSearchByAttributes",
+      markdown =
+          "List of attributes to optimize for search queries.\n\n"
+              + "The typical use case for this is to optimize attribute based search on large entity tables that "
+              + "cannot be optimised for search on multiple attribute fields. For example, to optimize search "
+              + "on the variant table using attributes values for gene, rs_number and genomic_location. ",
+      optional = true)
+  public List<String> optimizeSearchByAttributes;
+
+  @AnnotatedField(
       name = "SZEntity.hierarchies",
       markdown =
           "List of hierarchies.\n\n"

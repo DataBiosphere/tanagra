@@ -18,5 +18,6 @@
   "textSearch": {
     "attributes": [ "variant_id", "gene", "rs_number", "genomic_location" ]
   },
-  "optimizeGroupByAttributes": [ "variant_id" ]
+  "optimizeGroupByAttributes": [ "variant_id" ],
+  "optimizeSearchByAttributes": [ "gene", "rs_number", "genomic_location" ]
 }

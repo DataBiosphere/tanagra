@@ -175,7 +175,7 @@ public class FilterableGroupFilterBuilder
       return List.of();
     }
 
-    if (config.getSearchConfigsList().size() == 0) {
+    if (config.getSearchConfigsList().isEmpty()) {
       return List.of(
           new TextSearchFilter(underlay, entity, TextSearchOperator.EXACT_MATCH, query, null));
     }
