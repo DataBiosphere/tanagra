@@ -9,7 +9,6 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import jakarta.annotation.*;
 
 public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   private final AttributeFilter attributeFilter;
