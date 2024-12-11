@@ -1,7 +1,7 @@
 {
   "columns": [
     {
-      "key": "variant_id",
+      "key": "id",
       "widthString": "100%",
       "title": "Variant id"
     },
@@ -101,7 +101,7 @@
       "regex": "\\d+-\\d+-\\w+-\\w+",
       "parameters": [
         {
-          "attribute": "variant_id",
+          "attribute": "id",
           "operator": "OPERATOR_EQUALS"
         }
       ]

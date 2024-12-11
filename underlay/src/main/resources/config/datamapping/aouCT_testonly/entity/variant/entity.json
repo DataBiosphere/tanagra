@@ -2,8 +2,7 @@
   "name": "variant",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "row_num" },
-    { "name": "variant_id", "dataType": "STRING", "valueFieldName": "vid" },
+    { "name": "id", "dataType": "STRING", "valueFieldName": "vid" },
     { "name": "gene", "dataType": "STRING", "valueFieldName": "gene_symbol", "isComputeDisplayHint": true },
     { "name": "rs_number", "dataType": "STRING", "isDataTypeRepeated": true, "valueFieldName": "dbsnp_rsid" },
     { "name": "genomic_location", "dataType": "STRING" },
@@ -16,7 +15,7 @@
   ],
   "idAttribute": "id",
   "textSearch": {
-    "attributes": [ "variant_id", "gene", "rs_number", "genomic_location" ]
+    "attributes": [ "gene", "rs_number", "genomic_location" ]
   },
-  "optimizeGroupByAttributes": [ "variant_id" ]
+  "optimizeGroupByAttributes": [ "id" ]
 }

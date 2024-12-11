@@ -66,7 +66,7 @@ public class FilterableGroupFilterBuilderTest {
       "regex": "\\\\d+-\\\\d+-\\\\w+-\\\\w+",
       "parameters": [
         {
-          "attribute": "variant_id",
+          "attribute": "id",
           "operator": "OPERATOR_EQUALS"
         }
       ]
@@ -203,7 +203,7 @@ public class FilterableGroupFilterBuilderTest {
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertEquals(expectedCohortFilter, cohortFilter);
 
-    // query format: variant_id ("[0-9]+-[0-9]+-[A-Z]+-[A-Z]+")
+    // query format: id ("[0-9]+-[0-9]+-[A-Z]+-[A-Z]+")
     query = "12-34-AB-CD";
     data =
         FilterableGroup.newBuilder()
@@ -215,7 +215,7 @@ public class FilterableGroupFilterBuilderTest {
         new AttributeFilter(
             underlay,
             entity_variant,
-            entity_variant.getAttribute("variant_id"),
+            entity_variant.getAttribute("id"),
             BinaryOperator.EQUALS,
             Literal.forString(query));
     expectedSubFilter =
