@@ -16,11 +16,6 @@
       "title": "RS number"
     },
     {
-      "key": "genomic_location",
-      "widthDouble": 100,
-      "title": "Genomic location"
-    },
-    {
       "key": "consequence",
       "widthDouble": 100,
       "title": "Consequence"
