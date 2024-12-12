@@ -34,11 +34,11 @@
     "aouRT/icd10cmConcept",
     "aouRT/icd10pcsConcept",
 
-    "aouRT/activitySummary",
+    "aouRT_testonly/activitySummary",
     "aouRT/heartRateLevel",
-    "aouRT/heartRateSummary",
-    "aouRT/sleepDailySummary",
-    "aouRT/sleepLevel",
+    "aouRT_testonly/heartRateSummary",
+    "aouRT_testonly/sleepDailySummary",
+    "aouRT_testonly/sleepLevel",
     "aouRT/stepsIntraday",
     "aouCT/zipcodeSocioeconomic",
 
