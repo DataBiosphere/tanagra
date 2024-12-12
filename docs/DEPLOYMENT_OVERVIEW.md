@@ -38,7 +38,7 @@ Some of these may be enabled by default in your project.
    - Kickoff Dataflow jobs. `roles/dataflow.admin` granted at the project-level (on the indexer GCP project)
      includes the [required permissions](https://cloud.google.com/dataflow/docs/concepts/access-control#dataflow.admin).
    - Attach the **"VM"** service account credentials to the Dataflow worker VMs. `roles/iam.serviceAccountUser` granted 
-     ~~~~at the service account-level (on the "VM" service account) 
+     at the service account-level (on the "VM" service account) 
      includes the [required permissions](https://cloud.google.com/compute/docs/access/iam#the_serviceaccountuser_role).
    - Rename files in the GCS bucket. `roles/storage.admin` granted at the GCS bucket level
      includes the [required permissions](https://cloud.google.com/storage/docs/access-control/iam-roles).
