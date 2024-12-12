@@ -1,5 +1,6 @@
+-- test data does not have row_id, compute it
 SELECT
-    row_id,
+    ROW_NUMBER() OVER() AS row_id,
     person_id,
     sleep_date,
     is_main_sleep,
