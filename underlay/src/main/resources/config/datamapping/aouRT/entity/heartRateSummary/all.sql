@@ -1,5 +1,5 @@
 SELECT
-    row_id,
+    ROW_NUMBER() OVER() AS row_id,
     person_id,
     date,
     zone_name,

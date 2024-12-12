@@ -13,15 +13,15 @@ WITH sorted_transcripts AS (
            gvs_all_ac,
            gvs_all_an,
            gvs_all_af,
-           ROW_NUMBER() OVER(PARTITION BY vid ORDER BY CASE ARRAY_TO_STRING(consequence, ', ')
-                                                           WHEN 'upstream_gene_variant'
-                                                               THEN 4
-                                                           WHEN 'downstream_gene_variant'
-                                                               THEN 5
-                                                           ELSE 1
-               END
-               ASC
-               )  AS row_number
+           ROW_NUMBER() OVER(
+                PARTITION BY vid ORDER BY
+                    CASE ARRAY_TO_STRING(consequence, ', ')
+                        WHEN 'upstream_gene_variant'
+                            THEN 4
+                        WHEN 'downstream_gene_variant'
+                            THEN 5
+                        ELSE 1
+                    END) AS row_number
     FROM `${omopDataset}.prep_vat`
     WHERE is_canonical_transcript OR transcript IS NULL
     ORDER BY vid, row_number),
