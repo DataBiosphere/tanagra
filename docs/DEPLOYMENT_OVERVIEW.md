@@ -17,30 +17,36 @@ Some of these may be enabled by default in your project.
    - [BigQuery](https://cloud.google.com/bigquery) `bigquery.googleapis.com`
    - [Cloud Storage](https://cloud.google.com/storage) `storage.googleapis.com`
    - [Dataflow](https://cloud.google.com/dataflow) `dataflow.googleapis.com`
-- GCS bucket in the same location as the source and index BigQuery datasets.
+- GCS bucket in the same location as the Dataflow locations. Multi-region `US` is not supported for dataflow, pick `us-central1`.
+  More details at [supported locations](https://cloud.google.com/dataflow/docs/resources/locations). Create a folder within this bucket.
 - **"VM"** service account with the below permissions to attach to the Dataflow worker VMs.
    - Read the source BigQuery dataset. `roles/bigquery.dataViewer` granted at the dataset-level (on the source dataset)
      includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.dataViewer).
    - Create BigQuery jobs. `roles/bigquery.jobUser` granted at the project-level (on the indexer GCP project)
      includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.jobUser).
    - Write to the index BigQuery dataset. `roles/bigquery.dataOwner` granted at the dataset-level (on the index dataset)
-   includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.dataOwner).
+     includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.dataOwner).
    - Execute Dataflow work units. `roles/dataflow.worker` granted at the project-level (on the indexer GCP project)
      includes the [required permissions](https://cloud.google.com/dataflow/docs/concepts/access-control#dataflow.worker).
 - **"Runner"** end-user or service account with the below permissions to run indexing.
    - Read the source BigQuery dataset. `roles/bigquery.dataViewer` granted at the dataset-level (on the source dataset)
      includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.dataViewer).
    - Create BigQuery jobs. `roles/bigquery.jobUser` granted at the project-level (on the indexer GCP project)
-   includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.jobUser).
+     includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.jobUser).
    - Create/delete and write to the index BigQuery dataset. `roles/bigquery.dataOwner` granted at the project-level (on
      the indexer GCP project) includes the [required permissions](https://cloud.google.com/bigquery/docs/access-control#bigquery.dataOwner).
    - Kickoff Dataflow jobs. `roles/dataflow.admin` granted at the project-level (on the indexer GCP project)
-   includes the [required permissions](https://cloud.google.com/dataflow/docs/concepts/access-control#dataflow.admin).
+     includes the [required permissions](https://cloud.google.com/dataflow/docs/concepts/access-control#dataflow.admin).
    - Attach the **"VM"** service account credentials to the Dataflow worker VMs. `roles/iam.serviceAccountUser` granted 
-   at the service account-level (on the "VM" service account) 
-   includes the [required permissions](https://cloud.google.com/compute/docs/access/iam#the_serviceaccountuser_role).
-- (Optional) VPC sub-network configured with [Private Google Access](https://cloud.google.com/vpc/docs/configure-private-google-access#configuring_access_to_google_services_from_internal_ips)
-  to help speed up the Dataflow jobs.
+     ~~~~at the service account-level (on the "VM" service account) 
+     includes the [required permissions](https://cloud.google.com/compute/docs/access/iam#the_serviceaccountuser_role).
+   - Rename files in the GCS bucket. `roles/storage.admin` granted at the GCS bucket level
+     includes the [required permissions](https://cloud.google.com/storage/docs/access-control/iam-roles).
+- **VPC network and subnet** may be needed in your project
+  - Unless specified, data flow jobs use a VPC network named `default`. Create a VPC network by that name if not present.
+  - Use auto creation mode to automatically create subnets in the network. 
+  - Enable [Private Google Access](https://cloud.google.com/vpc/docs/configure-private-google-access#configuring_access_to_google_services_from_internal_ips) 
+    in the subnet used by the dataflow region.
 
 You can use a single service account for both the "VM" and "runner" use cases, as long as it has all the permissions.
 
