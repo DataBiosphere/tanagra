@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ValidateUniqueIds extends BigQueryJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ValidateDataTypes.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ValidateUniqueIds.class);
 
   private final Entity entity;
   private final ITEntityMain indexTable;

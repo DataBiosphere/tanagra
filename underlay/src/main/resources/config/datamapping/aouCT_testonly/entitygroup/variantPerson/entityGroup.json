@@ -4,11 +4,11 @@
   "itemsEntity": "person",
   "idPairsSqlFile":  "idPairs.sql",
   "useSourceIdPairsSql": true,
-  "groupEntityIdFieldName": "variant_row_num",
+  "groupEntityIdFieldName": "variant_id",
   "itemsEntityIdFieldName": "flattened_person_id",
   "rollupCountsSql": {
     "sqlFile": "rollupCounts.sql",
-    "entityIdFieldName": "variant_row_num",
+    "entityIdFieldName": "variant_id",
     "rollupCountFieldName": "num_persons"
   }
 }
