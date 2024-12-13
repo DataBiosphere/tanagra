@@ -12,4 +12,4 @@ JOIN `${omopDataset}.prep_survey` AS ps
     )
     AND ps.subtype = 'ANSWER'
 
-WHERE ps.survey = 'Lifestyle'
+WHERE ps.survey = 'HealthCareAccessUtiliza'
