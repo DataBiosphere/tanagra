@@ -15,8 +15,10 @@
     { "name": "position", "dataType": "INT64" }
   ],
   "idAttribute": "id",
-  "textSearch": {
-    "attributes": [ "gene", "rs_number", "contig", "position" ]
-  },
-  "optimizeGroupByAttributes": [ "id" ]
+  "optimizeGroupByAttributes": [ "id" ],
+  "optimizeSearchByAttributes": [
+    [ "gene" ],
+    [ "rs_number" ],
+    [ "contig", "position" ]
+  ]
 }

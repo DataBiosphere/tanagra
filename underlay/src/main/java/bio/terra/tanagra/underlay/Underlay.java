@@ -95,16 +95,13 @@ public final class Underlay {
     return displayName == null || displayName.isEmpty() ? name : displayName;
   }
 
+  @Nullable
   public String getDescription() {
     return description;
   }
 
   public ImmutableMap<String, String> getProperties() {
     return properties;
-  }
-
-  public String getMetadataProperty(String key) {
-    return properties.get(key);
   }
 
   public ImmutableList<Entity> getEntities() {
@@ -393,8 +390,22 @@ public final class Underlay {
       optimizeGroupByAttributes =
           attributes.stream()
               .filter(attribute -> szEntity.optimizeGroupByAttributes.contains(attribute.getName()))
-              .collect(Collectors.toList());
+              .toList();
     }
+
+    List<List<Attribute>> optimizeSearchByAttributes = new ArrayList<>();
+    if (szEntity.optimizeSearchByAttributes != null) {
+      optimizeSearchByAttributes =
+          szEntity.optimizeSearchByAttributes.stream()
+              .map(
+                  attrList ->
+                      attributes.stream()
+                          .filter(attribute -> attrList.contains(attribute.getName()))
+                          .toList())
+              .filter(attrList -> !attrList.isEmpty())
+              .toList();
+    }
+
     List<Attribute> optimizeTextSearchAttributes = new ArrayList<>();
     if (szEntity.textSearch != null && szEntity.textSearch.attributes != null) {
       optimizeTextSearchAttributes =
@@ -426,6 +437,7 @@ public final class Underlay {
         attributes,
         hierarchies,
         optimizeGroupByAttributes,
+        optimizeSearchByAttributes,
         szEntity.textSearch != null,
         optimizeTextSearchAttributes,
         szEntity.sourceQueryTableName);

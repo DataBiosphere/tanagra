@@ -102,6 +102,7 @@ export type SZEntity = {
   idAttribute: string;
   name: string;
   optimizeGroupByAttributes?: string[];
+  optimizeSearchByAttributes?: string[][];
   sourceQueryTableName?: string;
   temporalQuery?: SZTemporalQuery;
   textSearch?: SZTextSearch;

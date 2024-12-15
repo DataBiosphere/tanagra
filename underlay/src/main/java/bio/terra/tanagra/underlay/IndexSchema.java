@@ -1,7 +1,10 @@
 package bio.terra.tanagra.underlay;
 
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
@@ -25,6 +28,7 @@ import java.util.Set;
 public final class IndexSchema {
   private final ImmutableList<ITEntityMain> entityMainTables;
   private final ImmutableList<ITEntityLevelDisplayHints> entityLevelDisplayHintTables;
+  private final ImmutableList<ITEntitySearchByAttribute> entitySearchByAttributeTables;
   private final ImmutableList<ITHierarchyChildParent> hierarchyChildParentTables;
   private final ImmutableList<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables;
   private final ImmutableList<ITRelationshipIdPairs> relationshipIdPairTables;
@@ -33,12 +37,14 @@ public final class IndexSchema {
   private IndexSchema(
       List<ITEntityMain> entityMainTables,
       List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables,
+      List<ITEntitySearchByAttribute> entitySearchByAttributeTables,
       List<ITHierarchyChildParent> hierarchyChildParentTables,
       List<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables,
       List<ITRelationshipIdPairs> relationshipIdPairTables,
       List<ITInstanceLevelDisplayHints> instanceLevelDisplayHintTables) {
     this.entityMainTables = ImmutableList.copyOf(entityMainTables);
     this.entityLevelDisplayHintTables = ImmutableList.copyOf(entityLevelDisplayHintTables);
+    this.entitySearchByAttributeTables = ImmutableList.copyOf(entitySearchByAttributeTables);
     this.hierarchyChildParentTables = ImmutableList.copyOf(hierarchyChildParentTables);
     this.hierarchyAncestorDescendantTables =
         ImmutableList.copyOf(hierarchyAncestorDescendantTables);
@@ -56,6 +62,37 @@ public final class IndexSchema {
   public ITEntityLevelDisplayHints getEntityLevelDisplayHints(String entity) {
     return entityLevelDisplayHintTables.stream()
         .filter(entityLevelDisplayHints -> entityLevelDisplayHints.getEntity().equals(entity))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  // function used during indexing: when table clustered on all attributes are needed
+  public ITEntitySearchByAttribute getEntitySearchByAttributeTable(
+      Entity entity, List<Attribute> attributes) {
+    List<String> attrNames = attributes.stream().map(Attribute::getName).toList();
+    return entitySearchByAttributeTables.stream()
+        .filter(
+            searchTable ->
+                searchTable.getEntity().equals(entity.getName())
+                    && searchTable.getAttributeNames().containsAll(attrNames))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  /**
+   * function used during filter translation: Currently filterableGroup creates an BOOLEAN_AND of
+   * attribute filters for search config with multiple attributes. eg: genomic_region is searched
+   * with contig=x AND position>=y AND position<=z There are three sub-filters that are queried on
+   * the same table but separately TODO-Dex: Change this to combine sub-filters into a single
+   * suq-query
+   */
+  public ITEntitySearchByAttribute getEntitySearchByAttributeTable(
+      Entity entity, Attribute attribute) {
+    return entitySearchByAttributeTables.stream()
+        .filter(
+            searchTable ->
+                searchTable.getEntity().equals(entity.getName())
+                    && searchTable.getAttributeNames().contains(attribute.getName()))
         .findFirst()
         .orElseThrow();
   }
@@ -114,6 +151,7 @@ public final class IndexSchema {
 
     List<ITEntityMain> entityMainTables = new ArrayList<>();
     List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables = new ArrayList<>();
+    List<ITEntitySearchByAttribute> entitySearchByAttributeTables = new ArrayList<>();
     List<ITHierarchyChildParent> hierarchyChildParentTables = new ArrayList<>();
     List<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables = new ArrayList<>();
     List<ITRelationshipIdPairs> relationshipIdPairTables = new ArrayList<>();
@@ -130,6 +168,7 @@ public final class IndexSchema {
                 szBigQuery.indexData,
                 entityMainTables,
                 entityLevelDisplayHintTables,
+                entitySearchByAttributeTables,
                 hierarchyChildParentTables,
                 hierarchyAncestorDescendantTables));
 
@@ -156,6 +195,7 @@ public final class IndexSchema {
     return new IndexSchema(
         entityMainTables,
         entityLevelDisplayHintTables,
+        entitySearchByAttributeTables,
         hierarchyChildParentTables,
         hierarchyAncestorDescendantTables,
         relationshipIdPairTables,
@@ -171,6 +211,7 @@ public final class IndexSchema {
       SZBigQuery.IndexData szBigQueryIndexData,
       List<ITEntityMain> entityMainTables,
       List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables,
+      List<ITEntitySearchByAttribute> entitySearchByAttributeTables,
       List<ITHierarchyChildParent> hierarchyChildParentTables,
       List<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables) {
     SZEntity szEntity = configReader.readEntity(entityPath);
@@ -205,6 +246,15 @@ public final class IndexSchema {
     // EntityLevelDisplayHints table.
     entityLevelDisplayHintTables.add(
         new ITEntityLevelDisplayHints(nameHelper, szBigQueryIndexData, szEntity.name));
+
+    // EntitySearchByAttribute tables.
+    if (szEntity.optimizeSearchByAttributes != null) {
+      szEntity.optimizeSearchByAttributes.forEach(
+          attributes ->
+              entitySearchByAttributeTables.add(
+                  new ITEntitySearchByAttribute(
+                      nameHelper, szBigQueryIndexData, szEntity, attributes)));
+    }
 
     szEntity.hierarchies.forEach(
         szHierarchy -> {
