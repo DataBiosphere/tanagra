@@ -151,12 +151,6 @@ public final class Entity {
     return optimizeTextSearchAttributes;
   }
 
-  public boolean containsOptimizeTextSearchAttribute(String attributeName) {
-    return optimizeTextSearchAttributes != null
-        && optimizeTextSearchAttributes.stream()
-            .anyMatch(attr -> attr.getName().equals(attributeName));
-  }
-
   public String getSourceQueryTableName() {
     return sourceQueryTableName;
   }

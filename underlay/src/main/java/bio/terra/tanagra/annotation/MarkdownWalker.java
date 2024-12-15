@@ -71,7 +71,7 @@ public class MarkdownWalker extends AnnotationWalker {
                               nestedTypeParam ->
                                   annotationPath
                                           .getClassesToWalk()
-                                          .contains(nestedTypeParam.getTypeName())
+                                          .contains(nestedTypeParam.getClass())
                                       ? "${" + nestedTypeParam.getTypeName() + "}"
                                       : getSimpleName(nestedTypeParam.getTypeName()))
                           .collect(Collectors.joining(", ")))
@@ -80,7 +80,7 @@ public class MarkdownWalker extends AnnotationWalker {
 
         } else {
           params.add(
-              annotationPath.getClassesToWalk().contains(typeParam.getTypeName())
+              annotationPath.getClassesToWalk().contains(typeParam.getClass())
                   ? "${" + typeParam.getTypeName() + "}"
                   : getSimpleName(typeParam.getTypeName()));
         }
