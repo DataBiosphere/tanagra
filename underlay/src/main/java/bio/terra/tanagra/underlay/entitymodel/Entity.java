@@ -5,8 +5,6 @@ import bio.terra.tanagra.exception.SystemException;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class Entity {
   private final String name;
@@ -16,9 +14,7 @@ public final class Entity {
   private final ImmutableList<Attribute> attributes;
   private final ImmutableList<Hierarchy> hierarchies;
   private final ImmutableList<Attribute> optimizeGroupByAttributes;
-  // TODO-dex: remove this optimizeSearchByAttributes
   private final ImmutableList<ImmutableList<Attribute>> optimizeSearchByAttributes;
-  private final Set<String> optimizeSearchByAttributeNames;
   private final boolean hasTextSearch;
   private final ImmutableList<Attribute> optimizeTextSearchAttributes;
   private final String sourceQueryTableName;
@@ -46,11 +42,6 @@ public final class Entity {
     this.optimizeSearchByAttributes =
         ImmutableList.copyOf(
             optimizeSearchByAttributes.stream().map(ImmutableList::copyOf).toList());
-    this.optimizeSearchByAttributeNames =
-        optimizeSearchByAttributes.stream()
-            .flatMap(List::stream)
-            .map(Attribute::getName)
-            .collect(Collectors.toUnmodifiableSet());
     this.hasTextSearch = hasTextSearch;
     this.optimizeTextSearchAttributes = ImmutableList.copyOf(optimizeTextSearchAttributes);
     this.sourceQueryTableName = sourceQueryTableName;
@@ -139,8 +130,10 @@ public final class Entity {
     return optimizeSearchByAttributes;
   }
 
-  public boolean containsOptimizeSearchByAttribute(String attribute) {
-    return optimizeSearchByAttributeNames.contains(attribute);
+  public boolean containsOptimizeSearchByAttribute(String attributeName) {
+    return optimizeSearchByAttributes.stream()
+        .flatMap(List::stream)
+        .anyMatch(attribute -> attribute.getName().equals(attributeName));
   }
 
   public boolean hasTextSearch() {
