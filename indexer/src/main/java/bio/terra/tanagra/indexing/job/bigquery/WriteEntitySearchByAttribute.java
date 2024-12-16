@@ -95,13 +95,12 @@ public class WriteEntitySearchByAttribute extends BigQueryJob {
               }
             });
 
-    // TODO-dex: check is select distinct is feasible
     String insertFromSelectSql =
         "INSERT INTO "
             + searchTable.getTablePointer().render()
             + " ("
             + String.join(", ", insertColumns)
-            + ") SELECT "
+            + ") SELECT DISTINCT "
             + String.join(", ", selectColumns)
             + " FROM "
             + entityTable.getTablePointer().render()
