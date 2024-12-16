@@ -4,6 +4,7 @@ This file lists all the configuration properties available for an underlay, incl
 This documentation is generated from annotations in the configuration classes.
 
 * [SZAttribute](#szattribute)
+* [SZAttributeSearch](#szattributesearch)
 * [SZBigQuery](#szbigquery)
 * [SZCorePlugin](#szcoreplugin)
 * [SZCriteriaOccurrence](#szcriteriaoccurrence)
@@ -124,6 +125,27 @@ If unspecified and exporting queries against the source data is supported for th
 **optional** String
 
 Field or column name in the [all instances SQL file](#szentityallinstancessqlfile) that maps to the value of this attribute. If unset, we assume the field name is the same as the attribute name.
+
+
+
+## SZAttributeSearch
+Configuration to optimize entity search by attributes.
+
+Define the list of attributes to group together for optimization and specific is search for null attribute values is supported. 
+
+### SZAttributeSearch.attributes
+**required** List [ String ]
+
+List of attributes grouped together for search optimization.
+
+ Order matter. Each entry is a list of attributes that are search for together. For example search is typically performed for contig and position together. 
+
+### SZAttributeSearch.includeNullValues
+**optional** boolean
+
+True if search for null values in attributes is supported. 
+
+*Default value:* `false`
 
 
 
@@ -591,9 +613,9 @@ The typical use case for this is to optimize cohort breakdown queries on the pri
 You can currently specify a maximum of four attributes, because we implement this using BigQuery clustering which has this [limitation](https://cloud.google.com/bigquery/docs/clustered-tables#limitations).
 
 ### SZEntity.optimizeSearchByAttributes
-**optional** List [ List [ String ] ]
+**optional** List [ SZAttributeSearch ]
 
-List of (list of) attributes to optimize for search queries.
+List of search configs to optimize entity search by attributes.
 
 The typical use case for this is to optimize attribute based search on large entity tables that cannot be optimised for search on multiple attribute fields. For example, to optimize search on the variant table using attributes values for gene and rs_number. Each entry is a list of attributes that are search for together. For example search is typically performed for contig and position together. 
 

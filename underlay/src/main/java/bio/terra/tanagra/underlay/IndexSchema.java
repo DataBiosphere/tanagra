@@ -250,10 +250,10 @@ public final class IndexSchema {
     // EntitySearchByAttribute tables.
     if (szEntity.optimizeSearchByAttributes != null) {
       szEntity.optimizeSearchByAttributes.forEach(
-          attributes ->
+          attributeSearch ->
               entitySearchByAttributeTables.add(
                   new ITEntitySearchByAttribute(
-                      nameHelper, szBigQueryIndexData, szEntity, attributes)));
+                      nameHelper, szBigQueryIndexData, szEntity, attributeSearch)));
     }
 
     szEntity.hierarchies.forEach(

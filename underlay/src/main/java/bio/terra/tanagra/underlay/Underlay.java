@@ -398,9 +398,10 @@ public final class Underlay {
       optimizeSearchByAttributes =
           szEntity.optimizeSearchByAttributes.stream()
               .map(
-                  attrList ->
+                  attributeSearch ->
                       attributes.stream()
-                          .filter(attribute -> attrList.contains(attribute.getName()))
+                          .filter(
+                              attribute -> attributeSearch.attributes.contains(attribute.getName()))
                           .toList())
               .filter(attrList -> !attrList.isEmpty())
               .toList();
