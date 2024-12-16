@@ -48,6 +48,7 @@
     "aouRT/bmi",
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
+    "aouRT/wheelchair",
 
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
@@ -145,6 +146,7 @@
     "aouRT/bmi",
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
+    "aouRT/wheelchair",
     "aouRT/outputUnfiltered",
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",

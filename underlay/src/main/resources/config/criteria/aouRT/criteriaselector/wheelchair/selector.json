@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-wheelchair",
+  "displayName": "Wheelchair user at enrollment",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Physical Measurements",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "wheelchair.json",
+  "modifiers": null
+}
