@@ -3,7 +3,7 @@
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "STRING", "valueFieldName": "vid" },
-    { "name": "gene", "dataType": "STRING", "valueFieldName": "gene_symbol", "isComputeDisplayHint": true },
+    { "name": "gene", "dataType": "STRING", "isDataTypeRepeated": true, "valueFieldName": "gene_symbol", "isComputeDisplayHint": true },
     { "name": "rs_number", "dataType": "STRING", "isDataTypeRepeated": true, "valueFieldName": "dbsnp_rsid" },
     { "name": "consequence", "dataType": "STRING", "isDataTypeRepeated":  true, "isComputeDisplayHint": true },
     { "name": "protein_change", "dataType": "STRING", "valueFieldName": "aa_change" },
