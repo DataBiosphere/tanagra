@@ -8,10 +8,12 @@ import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.Field;
+import com.google.cloud.bigquery.Field.Mode;
 import com.google.cloud.bigquery.Schema;
 import com.google.cloud.bigquery.TableId;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +59,7 @@ public class WriteEntitySearchByAttribute extends BigQueryJob {
                     Field.newBuilder(
                             columnSchema.getColumnName(),
                             BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
+                        .setMode(searchTable.includeNullValues() ? Mode.NULLABLE : Mode.REQUIRED)
                         .build())
             .toList();
 
@@ -80,6 +83,7 @@ public class WriteEntitySearchByAttribute extends BigQueryJob {
     selectColumns.add(entity.getIdAttribute().getName());
 
     List<String> crossJoins = new ArrayList<>();
+    List<String> whereClauses = new ArrayList<>();
     searchTable
         .getAttributeNames()
         .forEach(
@@ -93,7 +97,14 @@ public class WriteEntitySearchByAttribute extends BigQueryJob {
               } else {
                 selectColumns.add(attribute);
               }
+
+              if (!searchTable.includeNullValues()) {
+                whereClauses.add(attribute + " IS NOT NULL");
+              }
             });
+
+    String whereSql =
+        whereClauses.isEmpty() ? StringUtils.EMPTY : " WHERE " + String.join(" AND ", whereClauses);
 
     String insertFromSelectSql =
         "INSERT INTO "
@@ -104,7 +115,8 @@ public class WriteEntitySearchByAttribute extends BigQueryJob {
             + String.join(", ", selectColumns)
             + " FROM "
             + entityTable.getTablePointer().render()
-            + String.join(" ", crossJoins);
+            + String.join(" ", crossJoins)
+            + whereSql;
     LOGGER.info("Generated insert SQL: {}", insertFromSelectSql);
 
     runQueryIfTableExists(searchTable.getTablePointer(), insertFromSelectSql, isDryRun);

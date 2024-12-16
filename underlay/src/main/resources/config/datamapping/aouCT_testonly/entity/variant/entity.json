@@ -17,8 +17,8 @@
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "id" ],
   "optimizeSearchByAttributes": [
-    [ "gene" ],
-    [ "rs_number" ],
-    [ "contig", "position" ]
+    { "attributes": [ "gene" ] },
+    { "attributes": [ "rs_number" ] },
+    { "attributes": [ "contig", "position" ] }
   ]
 }

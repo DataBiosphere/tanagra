@@ -4,6 +4,7 @@ import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.NameHelper;
 import bio.terra.tanagra.underlay.serialization.SZAttribute;
+import bio.terra.tanagra.underlay.serialization.SZAttributeSearch;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZEntity;
 import com.google.common.collect.ImmutableList;
@@ -15,13 +16,14 @@ public class ITEntitySearchByAttribute extends IndexTable {
 
   private final String entity;
   private final ImmutableList<String> attributeNames;
+  private final boolean includeNullValues;
   private final ImmutableList<ColumnSchema> columnSchemas;
 
   public ITEntitySearchByAttribute(
       NameHelper namer,
       SZBigQuery.IndexData bigQueryConfig,
       SZEntity entity,
-      List<String> attributes) {
+      SZAttributeSearch attributeSearch) {
     super(namer, bigQueryConfig);
     this.entity = entity.name;
 
@@ -34,7 +36,7 @@ public class ITEntitySearchByAttribute extends IndexTable {
         new ColumnSchema(
             idAttribute.name, ConfigReader.deserializeDataType(idAttribute.dataType), false, true));
 
-    attributes.forEach(
+    attributeSearch.attributes.forEach(
         attribute -> {
           SZAttribute searchAttribute = entity.getAttribute(attribute);
           attrNames.add(searchAttribute.name);
@@ -47,6 +49,7 @@ public class ITEntitySearchByAttribute extends IndexTable {
         });
 
     this.attributeNames = ImmutableList.copyOf(attrNames);
+    this.includeNullValues = attributeSearch.includeNullValues;
     this.columnSchemas = ImmutableList.copyOf(attrSchemas);
   }
 
@@ -66,5 +69,9 @@ public class ITEntitySearchByAttribute extends IndexTable {
 
   public ImmutableList<String> getAttributeNames() {
     return attributeNames;
+  }
+
+  public boolean includeNullValues() {
+    return includeNullValues;
   }
 }
