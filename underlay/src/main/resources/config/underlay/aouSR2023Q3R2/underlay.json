@@ -142,6 +142,7 @@
     "aouRT/fitbitSleepDailySummary",
     "aouRT/fitbitSleepLevel",
     "aouRT/wearConsent",
+    "aouRT/hasPMData",
     "aouRT/bloodPressure",
     "aouRT/heartRate",
     "aouRT/height",
