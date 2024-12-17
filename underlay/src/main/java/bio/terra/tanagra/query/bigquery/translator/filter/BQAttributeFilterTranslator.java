@@ -12,13 +12,23 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
+import java.util.List;
 
 public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   private final AttributeFilter attributeFilter;
+  private final List<AttributeFilter> attributeFilters;
 
   public BQAttributeFilterTranslator(ApiTranslator apiTranslator, AttributeFilter attributeFilter) {
     super(apiTranslator);
     this.attributeFilter = attributeFilter;
+    this.attributeFilters = null;
+  }
+
+  public BQAttributeFilterTranslator(
+      ApiTranslator apiTranslator, List<AttributeFilter> attributeFilters) {
+    super(apiTranslator);
+    this.attributeFilter = null;
+    this.attributeFilters = attributeFilters; // TODO-Dex use this
   }
 
   @Override
@@ -108,5 +118,10 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
     return attribute.equals(attributeFilter.getAttribute());
+  }
+
+  public static boolean canMergeTranslation(List<AttributeFilter> attributeFilters) {
+    // TODO-Dex
+    return false;
   }
 }

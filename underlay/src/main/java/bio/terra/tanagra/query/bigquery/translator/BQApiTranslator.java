@@ -76,6 +76,13 @@ public final class BQApiTranslator implements ApiTranslator {
   }
 
   @Override
+  public Optional<ApiFilterTranslator> mergedTranslator(List<AttributeFilter> attributeFilters) {
+    return BQAttributeFilterTranslator.canMergeTranslation(attributeFilters)
+        ? Optional.of(new BQAttributeFilterTranslator(this, attributeFilters))
+        : Optional.empty();
+  }
+
+  @Override
   public ApiFilterTranslator translator(HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
     return new BQHierarchyHasAncestorFilterTranslator(this, hierarchyHasAncestorFilter);
   }
