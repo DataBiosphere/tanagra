@@ -7,8 +7,8 @@
     "category": "Physical Measurements",
     "tags": null
   },
-  "filterBuilder": "core.PrimaryEntityFilterBuilder",
-  "plugin": "attribute",
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
   "pluginConfig": null,
   "pluginConfigFile": "pregnant.json",
   "modifiers": null

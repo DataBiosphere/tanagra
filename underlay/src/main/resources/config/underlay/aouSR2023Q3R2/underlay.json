@@ -49,6 +49,7 @@
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
     "aouRT/wheelchair",
+    "aouRT/pregnant",
 
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
@@ -77,7 +78,8 @@
     "aouRT/bmiPerson",
     "aouRT/waistCircumferencePerson",
     "aouRT/hipCircumferencePerson",
-    "aouRT/wheelchairPerson"
+    "aouRT/wheelchairPerson",
+    "aouRT/pregnantPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
@@ -148,6 +150,7 @@
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
     "aouRT/wheelchair",
+    "aouRT/pregnant",
     "aouRT/outputUnfiltered",
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
