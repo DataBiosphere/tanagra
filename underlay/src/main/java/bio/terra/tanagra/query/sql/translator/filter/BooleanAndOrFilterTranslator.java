@@ -20,7 +20,8 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
     super(apiTranslator);
     this.booleanAndOrFilter = booleanAndOrFilter;
     this.mergedSubFiltersTranslator =
-        apiTranslator.optionalMergedTranslator(booleanAndOrFilter.getSubFilters());
+        apiTranslator.optionalMergedTranslator(
+            booleanAndOrFilter.getSubFilters(), booleanAndOrFilter.getOperator());
     this.subFilterTranslators =
         mergedSubFiltersTranslator.isEmpty()
             ? booleanAndOrFilter.getSubFilters().stream()

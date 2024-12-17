@@ -9,6 +9,7 @@ import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.*;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
@@ -292,7 +293,8 @@ public interface ApiTranslator {
 
   ApiFilterTranslator translator(AttributeFilter attributeFilter);
 
-  Optional<ApiFilterTranslator> mergedTranslator(List<AttributeFilter> attributeFilter);
+  Optional<ApiFilterTranslator> mergedTranslator(
+      List<AttributeFilter> attributeFilter, LogicalOperator logicalOperator);
 
   default ApiFilterTranslator translator(BooleanAndOrFilter booleanAndOrFilter) {
     return new BooleanAndOrFilterTranslator(this, booleanAndOrFilter);
@@ -368,7 +370,8 @@ public interface ApiTranslator {
     }
   }
 
-  default Optional<ApiFilterTranslator> optionalMergedTranslator(List<EntityFilter> entityFilters) {
+  default Optional<ApiFilterTranslator> optionalMergedTranslator(
+      List<EntityFilter> entityFilters, LogicalOperator logicalOperator) {
     // A list of sub-filters can be merged (optimized) if they are of the same type
     // Additional checks may be needed for individual sub-filter types
     EntityFilter firstFilter = entityFilters.get(0);
@@ -379,6 +382,6 @@ public interface ApiTranslator {
       return Optional.empty();
     }
     return mergedTranslator(
-        entityFilters.stream().map(filter -> (AttributeFilter) filter).toList());
+        entityFilters.stream().map(filter -> (AttributeFilter) filter).toList(), logicalOperator);
   }
 }
