@@ -13,6 +13,11 @@ export type SZAttribute = {
   valueFieldName?: string;
 };
 
+export type SZAttributeSearch = {
+  attributes: string[];
+  includeNullValues?: boolean;
+};
+
 export type SZBigQuery = {
   dataLocation: string;
   exportBucketNames?: string[];
@@ -102,6 +107,7 @@ export type SZEntity = {
   idAttribute: string;
   name: string;
   optimizeGroupByAttributes?: string[];
+  optimizeSearchByAttributes?: SZAttributeSearch[];
   sourceQueryTableName?: string;
   temporalQuery?: SZTemporalQuery;
   textSearch?: SZTextSearch;

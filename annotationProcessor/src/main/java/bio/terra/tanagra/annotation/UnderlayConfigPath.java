@@ -25,6 +25,7 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZEntity.TemporalQuery.class,
           SZAttribute.class,
           SZAttribute.SourceQuery.class,
+          SZAttributeSearch.class,
           SZHierarchy.class,
           SZTextSearch.class,
           SZDataType.class,

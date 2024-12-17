@@ -5,11 +5,13 @@ import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.exception.*;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
+import bio.terra.tanagra.query.sql.SqlQueryField;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import jakarta.annotation.*;
+import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
 
 public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   private final AttributeFilter attributeFilter;
@@ -21,22 +23,17 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
-    ITEntityMain indexTable =
-        attributeFilter
-            .getUnderlay()
-            .getIndexSchema()
-            .getEntityMain(attributeFilter.getEntity().getName());
+    Entity entity = attributeFilter.getEntity();
+    ITEntityMain entityTable =
+        attributeFilter.getUnderlay().getIndexSchema().getEntityMain(entity.getName());
 
     Attribute attribute = attributeFilter.getAttribute();
-    SqlField valueField =
-        attributeSwapFields.containsKey(attribute)
-            ? attributeSwapFields.get(attribute)
-            : indexTable.getAttributeValueField(attribute.getName());
-    if (attribute.hasRuntimeSqlFunctionWrapper()) {
-      valueField = valueField.cloneWithFunctionWrapper(attribute.getRuntimeSqlFunctionWrapper());
-    }
+    SqlField valueField = fetchSelectField(entityTable, attribute);
 
-    if (attribute.isDataTypeRepeated()) {
+    // search attribute-specific table if attribute is optimized for search
+    boolean isSearchOptimized = entity.containsOptimizeSearchByAttribute(attribute.getName());
+
+    if (!isSearchOptimized && attribute.isDataTypeRepeated()) {
       boolean naryOperatorIn =
           (attributeFilter.hasBinaryOperator()
                   && BinaryOperator.EQUALS.equals(attributeFilter.getBinaryOperator()))
@@ -60,24 +57,52 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
           attributeFilter.getValues(),
           tableAlias,
           sqlParams);
-    } else if (attributeFilter.hasUnaryOperator()) {
-      return apiTranslator.unaryFilterSql(
-          valueField, attributeFilter.getUnaryOperator(), tableAlias, sqlParams);
-    } else if (attributeFilter.hasBinaryOperator()) {
-      return apiTranslator.binaryFilterSql(
-          valueField,
-          attributeFilter.getBinaryOperator(),
-          attributeFilter.getValues().get(0),
-          tableAlias,
-          sqlParams);
-    } else {
-      return apiTranslator.naryFilterSql(
-          valueField,
-          attributeFilter.getNaryOperator(),
-          attributeFilter.getValues(),
-          tableAlias,
-          sqlParams);
     }
+
+    // Build sql where clause for the attribute values
+    String whereClause;
+    if (attributeFilter.hasUnaryOperator()) {
+      whereClause =
+          apiTranslator.unaryFilterSql(
+              valueField, attributeFilter.getUnaryOperator(), tableAlias, sqlParams);
+    } else if (attributeFilter.hasBinaryOperator()) {
+      whereClause =
+          apiTranslator.binaryFilterSql(
+              valueField,
+              attributeFilter.getBinaryOperator(),
+              attributeFilter.getValues().get(0),
+              tableAlias,
+              sqlParams);
+    } else {
+      whereClause =
+          apiTranslator.naryFilterSql(
+              valueField,
+              attributeFilter.getNaryOperator(),
+              attributeFilter.getValues(),
+              tableAlias,
+              sqlParams);
+    }
+
+    if (!isSearchOptimized) {
+      return whereClause;
+    }
+
+    ITEntitySearchByAttribute searchTable =
+        attributeFilter
+            .getUnderlay()
+            .getIndexSchema()
+            .getEntitySearchByAttributeTable(entity, attribute);
+    SqlQueryField id = SqlQueryField.of(fetchSelectField(searchTable, entity.getIdAttribute()));
+
+    return id.renderForWhere(tableAlias)
+        + " IN ("
+        + "SELECT "
+        + id.renderForSelect()
+        + " FROM "
+        + searchTable.getTablePointer().render()
+        + " WHERE "
+        + whereClause
+        + ')';
   }
 
   @Override

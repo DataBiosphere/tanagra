@@ -3,6 +3,7 @@ package bio.terra.tanagra.annotation;
 import bio.terra.tanagra.exception.SystemException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +46,43 @@ public class TypescriptWalker extends AnnotationWalker {
       fieldNameAndType.append(": ");
       if (pTypeName.equals(List.class.getTypeName()) || pTypeName.equals(Set.class.getTypeName())) {
         // Convert Typescript array e.g. string[]
-        fieldNameAndType
-            .append(getTypeNameOrSubstitutionLink(pType.getActualTypeArguments()[0].getTypeName()))
-            .append("[]");
+        Type typeParam = pType.getActualTypeArguments()[0];
+        if (typeParam instanceof ParameterizedType pNestedType) {
+          // This is a type-parameterized class (e.g. List, Map).
+          String pNestedTypeName = pNestedType.getRawType().getTypeName();
+
+          if (pNestedTypeName.equals(List.class.getTypeName())
+              || pNestedTypeName.equals(Set.class.getTypeName())) {
+            // Convert Typescript array e.g. string[]
+            fieldNameAndType
+                .append(
+                    getTypeNameOrSubstitutionLink(
+                        pNestedType.getActualTypeArguments()[0].getTypeName()))
+                .append("[]");
+          } else if (pTypeName.equals(Map.class.getTypeName())) {
+            // Convert to Typescript map e.g. { [key: string]: string }
+            fieldNameAndType
+                .append("{ [key: ")
+                .append(
+                    getTypeNameOrSubstitutionLink(
+                        pNestedType.getActualTypeArguments()[0].getTypeName()))
+                .append("]: ")
+                .append(
+                    getTypeNameOrSubstitutionLink(
+                        pNestedType.getActualTypeArguments()[1].getTypeName()))
+                .append(" }");
+          } else {
+            throw new SystemException(
+                "Undefined conversion to Typescript for Java type: " + pTypeName);
+          }
+
+        } else {
+          // This is a field with a simple type (e.g. String).
+          fieldNameAndType.append(getTypeNameOrSubstitutionLink(typeParam.getTypeName()));
+        }
+
+        fieldNameAndType.append("[]");
+
       } else if (pTypeName.equals(Map.class.getTypeName())) {
         // Convert to Typescript map e.g. { [key: string]: string }
         fieldNameAndType
@@ -60,6 +95,7 @@ public class TypescriptWalker extends AnnotationWalker {
         throw new SystemException("Undefined conversion to Typescript for Java type: " + pTypeName);
       }
       fieldNameAndType.append(';');
+
     } else if (field.getDeclaringClass().isEnum()) {
       // This is an enum value.
       try {

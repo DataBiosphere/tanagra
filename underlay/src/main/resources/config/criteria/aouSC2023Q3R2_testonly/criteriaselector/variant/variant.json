@@ -107,15 +107,15 @@
       "regex": "(\\w+):(\\d+)-(\\d+)",
       "parameters": [
         {
-          "attribute": "gene",
+          "attribute": "contig",
           "operator": "OPERATOR_EQUALS"
         },
         {
-          "attribute": "allele_number",
+          "attribute": "position",
           "operator": "OPERATOR_GREATER_THAN_OR_EQUAL"
         },
         {
-          "attribute": "allele_number",
+          "attribute": "position",
           "operator": "OPERATOR_LESS_THAN_OR_EQUAL"
         }
       ]

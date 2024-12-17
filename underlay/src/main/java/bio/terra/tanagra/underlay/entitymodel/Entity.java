@@ -14,6 +14,7 @@ public final class Entity {
   private final ImmutableList<Attribute> attributes;
   private final ImmutableList<Hierarchy> hierarchies;
   private final ImmutableList<Attribute> optimizeGroupByAttributes;
+  private final ImmutableList<ImmutableList<Attribute>> optimizeSearchByAttributes;
   private final boolean hasTextSearch;
   private final ImmutableList<Attribute> optimizeTextSearchAttributes;
   private final String sourceQueryTableName;
@@ -22,11 +23,12 @@ public final class Entity {
   public Entity(
       String name,
       String displayName,
-      String description,
+      @Nullable String description,
       boolean isPrimary,
       List<Attribute> attributes,
       List<Hierarchy> hierarchies,
       List<Attribute> optimizeGroupByAttributes,
+      List<List<Attribute>> optimizeSearchByAttributes,
       boolean hasTextSearch,
       List<Attribute> optimizeTextSearchAttributes,
       String sourceQueryTableName) {
@@ -37,6 +39,9 @@ public final class Entity {
     this.attributes = ImmutableList.copyOf(attributes);
     this.hierarchies = ImmutableList.copyOf(hierarchies);
     this.optimizeGroupByAttributes = ImmutableList.copyOf(optimizeGroupByAttributes);
+    this.optimizeSearchByAttributes =
+        ImmutableList.copyOf(
+            optimizeSearchByAttributes.stream().map(ImmutableList::copyOf).toList());
     this.hasTextSearch = hasTextSearch;
     this.optimizeTextSearchAttributes = ImmutableList.copyOf(optimizeTextSearchAttributes);
     this.sourceQueryTableName = sourceQueryTableName;
@@ -115,6 +120,20 @@ public final class Entity {
 
   public ImmutableList<Attribute> getOptimizeGroupByAttributes() {
     return optimizeGroupByAttributes;
+  }
+
+  public boolean hasOptimizeSearchByAttributes() {
+    return !optimizeSearchByAttributes.isEmpty();
+  }
+
+  public ImmutableList<ImmutableList<Attribute>> getOptimizeSearchByAttributes() {
+    return optimizeSearchByAttributes;
+  }
+
+  public boolean containsOptimizeSearchByAttribute(String attributeName) {
+    return optimizeSearchByAttributes.stream()
+        .flatMap(List::stream)
+        .anyMatch(attribute -> attribute.getName().equals(attributeName));
   }
 
   public boolean hasTextSearch() {

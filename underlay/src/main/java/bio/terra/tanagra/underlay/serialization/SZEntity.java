@@ -67,6 +67,18 @@ public class SZEntity {
   public List<String> optimizeGroupByAttributes;
 
   @AnnotatedField(
+      name = "SZEntity.optimizeSearchByAttributes",
+      markdown =
+          "List of search configs to optimize entity search by attributes.\n\n"
+              + "The typical use case for this is to optimize attribute based search on large entity tables that "
+              + "cannot be optimised for search on multiple attribute fields. For example, to optimize search "
+              + "on the variant table using attributes values for gene and rs_number. "
+              + "Each entry is a list of attributes that are search for together. "
+              + "For example search is typically performed for contig and position together. ",
+      optional = true)
+  public List<SZAttributeSearch> optimizeSearchByAttributes;
+
+  @AnnotatedField(
       name = "SZEntity.hierarchies",
       markdown =
           "List of hierarchies.\n\n"
@@ -117,5 +129,9 @@ public class SZEntity {
             "Name of the attribute to use for the visit (occurrence) id in a temporal query.",
         exampleValue = "visit_occurrence_id")
     public String visitIdAttribute;
+  }
+
+  public SZAttribute getAttribute(String attrName) {
+    return attributes.stream().filter(attr -> attr.name.equals(attrName)).findFirst().orElseThrow();
   }
 }

@@ -5,7 +5,6 @@ import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.NameHelper;
-import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.serialization.SZAttribute;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.serialization.SZHierarchy;
@@ -103,24 +102,6 @@ public final class ITEntityMain extends IndexTable {
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
     return columnSchemas;
-  }
-
-  public SqlField getAttributeValueField(String attribute) {
-    return SqlField.of(attribute);
-  }
-
-  public ColumnSchema getAttributeValueColumnSchema(Attribute attribute) {
-    return new ColumnSchema(
-        attribute.getName(), attribute.getDataType(), attribute.isDataTypeRepeated(), false);
-  }
-
-  public SqlField getAttributeDisplayField(String attribute) {
-    return SqlField.of(getAttributeDisplayFieldName(attribute));
-  }
-
-  private String getAttributeDisplayFieldName(String attribute) {
-    return NameHelper.getReservedFieldName(
-        ColumnTemplate.ATTRIBUTE_DISPLAY.getColumnNamePrefixed(attribute));
   }
 
   public SqlField getHierarchyPathField(String hierarchy) {

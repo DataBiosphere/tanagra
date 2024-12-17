@@ -2,6 +2,7 @@ package bio.terra.tanagra.annotation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,18 +56,37 @@ public class MarkdownWalker extends AnnotationWalker {
     // Add the markdown for field type.
     if (field.getGenericType() instanceof ParameterizedType pType) {
       // This is a type-parameterized class (e.g. List, Map).
-      markdown
-          .append(getSimpleName(pType.getRawType().getTypeName()))
-          .append(" [ ")
-          .append(
-              Arrays.stream(pType.getActualTypeArguments())
-                  .map(
-                      typeParam ->
-                          annotationPath.getClassesToWalk().contains(typeParam.getTypeName())
-                              ? "${" + typeParam.getTypeName() + "}"
-                              : getSimpleName(typeParam.getTypeName()))
-                  .collect(Collectors.joining(", ")))
-          .append(" ]");
+      markdown.append(getSimpleName(pType.getRawType().getTypeName())).append(" [ ");
+
+      List<String> params = new ArrayList<>();
+      for (Type typeParam : pType.getActualTypeArguments()) {
+        if (typeParam instanceof ParameterizedType pNestedType) {
+          StringBuilder sb =
+              new StringBuilder()
+                  .append(getSimpleName(pNestedType.getRawType().getTypeName()))
+                  .append(" [ ")
+                  .append(
+                      Arrays.stream(pNestedType.getActualTypeArguments())
+                          .map(
+                              nestedTypeParam ->
+                                  annotationPath
+                                          .getClassesToWalk()
+                                          .contains(nestedTypeParam.getClass())
+                                      ? "${" + nestedTypeParam.getTypeName() + "}"
+                                      : getSimpleName(nestedTypeParam.getTypeName()))
+                          .collect(Collectors.joining(", ")))
+                  .append(" ]");
+          params.add(sb.toString());
+
+        } else {
+          params.add(
+              annotationPath.getClassesToWalk().contains(typeParam.getClass())
+                  ? "${" + typeParam.getTypeName() + "}"
+                  : getSimpleName(typeParam.getTypeName()));
+        }
+      }
+      markdown.append(String.join(", ", params)).append(" ]");
+
     } else {
       markdown.append(
           annotationPath.getClassesToWalk().contains(field.getType())

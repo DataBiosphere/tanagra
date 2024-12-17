@@ -8,6 +8,7 @@ import bio.terra.tanagra.indexing.job.bigquery.ValidateUniqueIds;
 import bio.terra.tanagra.indexing.job.bigquery.WriteChildParent;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityAttributes;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
+import bio.terra.tanagra.indexing.job.bigquery.WriteEntitySearchByAttribute;
 import bio.terra.tanagra.indexing.job.bigquery.WriteRelationshipIntermediateTable;
 import bio.terra.tanagra.indexing.job.bigquery.WriteTextSearchField;
 import bio.terra.tanagra.indexing.job.dataflow.WriteAncestorDescendant;
@@ -28,6 +29,7 @@ import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
@@ -62,6 +64,23 @@ public final class JobSequencer {
         underlay.getIndexSchema().getEntityLevelDisplayHints(entity.getName());
     jobSet.addJob(
         new WriteEntityLevelDisplayHints(indexerConfig, entity, indexEntityMain, indexEntityHints));
+
+    if (entity.hasOptimizeSearchByAttributes()) {
+      jobSet.startNewStage();
+
+      entity
+          .getOptimizeSearchByAttributes()
+          .forEach(
+              searchTableAttributes -> {
+                ITEntitySearchByAttribute searchTable =
+                    underlay
+                        .getIndexSchema()
+                        .getEntitySearchByAttributeTable(entity, searchTableAttributes);
+                jobSet.addJob(
+                    new WriteEntitySearchByAttribute(
+                        indexerConfig, entity, indexEntityMain, searchTable));
+              });
+    }
 
     if (entity.hasTextSearch() || entity.hasHierarchies()) {
       jobSet.startNewStage();

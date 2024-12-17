@@ -27,7 +27,7 @@ WITH sorted_transcripts AS (
     ORDER BY vid, row_number),
 
     genes AS (
-         SELECT vid, ARRAY_TO_STRING(ARRAY_AGG(DISTINCT gene_symbol IGNORE NULLS ORDER BY gene_symbol), ', ') AS genes
+         SELECT vid, ARRAY_AGG(DISTINCT gene_symbol IGNORE NULLS ORDER BY gene_symbol) AS genes
          FROM `${omopDataset}.prep_vat`
          GROUP BY vid
     )
