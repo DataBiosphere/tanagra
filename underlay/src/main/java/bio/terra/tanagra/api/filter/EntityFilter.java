@@ -18,6 +18,6 @@ public abstract class EntityFilter {
 
   public static boolean areSameFilterType(List<EntityFilter> filters) {
     Class<?> filterType = filters.get(0).getClass();
-    return filters.stream().anyMatch(filter -> !filter.getClass().equals(filterType));
+    return filters.stream().allMatch(filter -> filter.getClass().equals(filterType));
   }
 }
