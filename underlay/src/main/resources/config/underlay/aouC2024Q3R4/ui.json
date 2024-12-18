@@ -53,7 +53,8 @@
       { "key": "gender", "width": 30, "title": "Gender" },
       { "key": "sex_at_birth", "width": 40, "title": "Sex at Birth" },
       { "key": "race", "width": 60, "title": "Race" },
-      { "key": "ethnicity", "width": 60, "title": "Ethnicity" }
+      { "key": "ethnicity", "width": 60, "title": "Ethnicity" },
+      { "key": "self_reported_category", "width": 60, "title": "Self Reported Category" }
     ],
     "attributes": [
       {
@@ -75,6 +76,10 @@
       {
         "title": "Ethnicity",
         "key": "ethnicity"
+      },
+      {
+        "title": "Self Reported Category",
+        "key": "self_reported_category"
       }
     ],
     "pages": [
