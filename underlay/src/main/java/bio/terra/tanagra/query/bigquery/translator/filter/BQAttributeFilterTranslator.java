@@ -160,26 +160,23 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
     Entity firstEntity = firstFilter.getEntity();
     Attribute firstAttribute = firstFilter.getAttribute();
 
-    String firstTableName =
+    if (!firstEntity.containsOptimizeSearchByAttribute(firstAttribute.getName())) {
+      // first attribute itself is not optimized for search
+      return false;
+    }
+
+    List<String> searchTableAttributes =
         firstFilter
             .getUnderlay()
             .getIndexSchema()
             .getEntitySearchByAttributeTable(firstEntity, firstAttribute)
-            .getTableBaseName();
+            .getAttributeNames();
 
+    // check if all attributes in the filters are in the same search table for the same entity
     return attributeFilters.stream()
         .allMatch(
-            filter -> {
-              Entity entity = filter.getEntity();
-              Attribute attribute = filter.getAttribute();
-              return entity.getName().equals(firstEntity.getName())
-                  && attribute.getName().equals(firstAttribute.getName())
-                  && filter
-                      .getUnderlay()
-                      .getIndexSchema()
-                      .getEntitySearchByAttributeTable(entity, attribute)
-                      .getTableBaseName()
-                      .equals(firstTableName);
-            });
+            filter ->
+                filter.getEntity().getName().equals(firstEntity.getName())
+                    && searchTableAttributes.contains(filter.getAttribute().getName()));
   }
 }
