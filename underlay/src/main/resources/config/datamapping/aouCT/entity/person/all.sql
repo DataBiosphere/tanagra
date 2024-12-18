@@ -5,8 +5,13 @@ SELECT p.person_id,
            WHEN d.death_date IS NULL THEN p.birth_datetime END birth_datetime_not_deceased,
        p.gender_concept_id,
        CASE
+           WHEN gc.concept_name = 'No matching concept' THEN 'Unknown'
            WHEN gc.concept_name = 'Male' THEN 'Man'
            WHEN gc.concept_name = 'Female' THEN 'Woman'
+           WHEN gc.concept_name = 'PMI: Skip' THEN 'Skip'
+           WHEN gc.concept_name = 'Gender Identity: Transgender' THEN 'Transgender'
+           WHEN gc.concept_name = 'Gender Identity: Non Binary' THEN 'Non Binary'
+           WHEN gc.concept_name = 'Gender Identity: Additional Options' THEN 'Additional Options'
            ELSE gc.concept_name
            END AS gender_concept_name,
        p.race_concept_id,
@@ -18,12 +23,25 @@ SELECT p.person_id,
     p.ethnicity_concept_id,
         CASE
             WHEN ec.concept_name = 'No matching concept' THEN 'Unknown'
+            WHEN ec.concept_name = 'PMI: Skip' THEN 'Skip'
+            WHEN ec.concept_name = 'PMI: Prefer Not To Answer' THEN 'Prefer Not To Answer'
+            WHEN ec.concept_name = 'What Race Ethnicity: Race Ethnicity None Of These' THEN 'None Of These'
             ELSE ec.concept_name
             END AS ethnicity_concept_name,
        p.sex_at_birth_concept_id,
-       sc.concept_name AS sex_at_birth_concept_name,
+       CASE
+           WHEN sc.concept_name = 'No matching concept' THEN 'Unknown'
+           WHEN sc.concept_name = 'PMI: Skip' THEN 'Skip'
+           WHEN sc.concept_name = 'Sex At Birth: Sex At Birth None Of These' THEN 'None Of These'
+           ELSE sc.concept_name
+           END AS sex_at_birth_concept_name,
        p.self_reported_category_concept_id,
-       sr.concept_name as self_reported_category,
+       CASE
+           WHEN sr.concept_name = 'No matching concept' THEN 'Unknown'
+           WHEN sr.concept_name = 'PMI: Skip' THEN 'Skip'
+           WHEN sr.concept_name = 'What Race Ethnicity: Hispanic' THEN 'Hispanic'
+           ELSE sr.concept_name
+           END AS self_reported_category_concept_name,
        CASE
            WHEN asum.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_activity_summary,
        CASE
