@@ -1,0 +1,137 @@
+{
+  "columns": [
+    {
+      "key": "id",
+      "widthString": "100%",
+      "title": "Variant id"
+    },
+    {
+      "key": "gene",
+      "widthDouble": 100,
+      "title": "Gene"
+    },
+    {
+      "key": "rs_number",
+      "widthDouble": 100,
+      "title": "RS number"
+    },
+    {
+      "key": "consequence",
+      "widthDouble": 100,
+      "title": "Consequence"
+    },
+    {
+      "key": "clinvar_significance",
+      "widthDouble": 100,
+      "title": "ClinVar significance"
+    },
+    {
+      "key": "protein_change",
+      "widthDouble": 100,
+      "title": "Protein change"
+    },
+    {
+      "key": "allele_count",
+      "widthDouble": 100,
+      "title": "Allele count"
+    },
+    {
+      "key": "allele_number",
+      "widthDouble": 100,
+      "title": "Allele number"
+    },
+    {
+      "key": "allele_frequency",
+      "widthDouble": 100,
+      "title": "Allele frequency"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 150,
+      "title": "Participant count"
+    }
+  ],
+  "entityGroup": "variantPerson",
+  "valueConfigs": [
+    {
+      "attribute": "gene",
+      "title": "Gene"
+    },
+    {
+      "attribute": "consequence",
+      "title": "Consequence"
+    },
+    {
+      "attribute": "clinvar_significance",
+      "title": "ClinVar significance"
+    },
+    {
+      "attribute": "allele_count",
+      "title": "Allele count"
+    },
+    {
+      "attribute": "allele_number",
+      "title": "Allele number"
+    },
+    {
+      "attribute": "allele_frequency",
+      "title": "Allele frequency"
+    }
+  ],
+  "searchConfigs": [
+    {
+      "name": "RS number",
+      "example": "rs558865434",
+      "regex": "rs\\d+",
+      "parameters": [
+        {
+          "attribute": "rs_number",
+          "operator": "OPERATOR_EQUALS"
+        }
+      ]
+    },
+    {
+      "name": "Variant id",
+      "example": "20-38623282-G-A",
+      "regex": "\\d+-\\d+-\\w+-\\w+",
+      "parameters": [
+        {
+          "attribute": "id",
+          "operator": "OPERATOR_EQUALS"
+        }
+      ]
+    },
+    {
+      "name": "Genomic region",
+      "example": "chr20:38623000-38623379",
+      "regex": "(\\w+):(\\d+)-(\\d+)",
+      "parameters": [
+        {
+          "attribute": "contig",
+          "operator": "OPERATOR_EQUALS"
+        },
+        {
+          "attribute": "position",
+          "operator": "OPERATOR_GREATER_THAN_OR_EQUAL"
+        },
+        {
+          "attribute": "position",
+          "operator": "OPERATOR_LESS_THAN_OR_EQUAL"
+        }
+      ]
+    },
+    {
+      "name": "Gene",
+      "example": "WFDC2",
+      "regex": "\\w+",
+      "displayOrder": -1,
+      "parameters": [
+        {
+          "attribute": "gene",
+          "operator": "OPERATOR_EQUALS",
+          "case": "CASE_UPPER"
+        }
+      ]
+    }
+  ]
+}
