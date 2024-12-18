@@ -170,7 +170,6 @@ public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
             + SqlQueryField.of(idField).renderForSelect(updateTableAlias)
             + " = "
             + SqlQueryField.of(parentField).renderForSelect(tempTableAlias);
-
     LOGGER.info("update-num-children-from-select query: {}", updateFromSelectSql);
 
     // Run the update-from-select to update the count for num children.
