@@ -17,7 +17,7 @@ public abstract class EntityFilter {
   }
 
   public static boolean areSameFilterType(List<EntityFilter> filters) {
-    Class<?> filterType = filters.get(0).getClass();
-    return filters.stream().allMatch(filter -> filter.getClass().equals(filterType));
+    String filterType = filters.get(0).getClass().getName();
+    return filters.stream().allMatch(filter -> filter.getClass().getName().equals(filterType));
   }
 }
