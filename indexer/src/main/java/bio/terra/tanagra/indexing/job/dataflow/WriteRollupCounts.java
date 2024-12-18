@@ -427,7 +427,7 @@ public class WriteRollupCounts extends BigQueryJob {
     // If other entities need this, add regex values as a property of entityGroup config
     // i.e. property SZRollupCountsSql.regexIdSub &entityGroup.json#rollupCountsSql#regexIdSub
     Stream<String> digitStream =
-        IntStream.range(1, 9)
+        IntStream.range(1, 10)
             .mapToObj(
                 i -> {
                   List<String> forI = new ArrayList<>();
@@ -435,7 +435,7 @@ public class WriteRollupCounts extends BigQueryJob {
                   forI.add(String.format("^%d[^0-9]", i));
                   // regex: 1 digit followed by digit
                   forI.addAll(
-                      IntStream.range(0, 9).mapToObj(j -> String.format("^%d%d", i, j)).toList());
+                      IntStream.range(0, 10).mapToObj(j -> String.format("^%d%d", i, j)).toList());
                   return forI;
                 })
             .flatMap(List::stream);
