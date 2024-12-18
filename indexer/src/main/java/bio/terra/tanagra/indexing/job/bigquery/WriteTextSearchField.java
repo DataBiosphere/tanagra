@@ -129,7 +129,6 @@ public class WriteTextSearchField extends BigQueryJob {
             + unionAllTable.render()
             + " GROUP BY "
             + SqlQueryField.of(tempTableIdField).renderForGroupBy(null, true);
-    LOGGER.info("idTextPairs union query: {}", selectTextConcatSql);
 
     // Build an update-from-select query for the index entity main table and the id text pairs
     // query.

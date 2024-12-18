@@ -392,14 +392,13 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
     SqlField tempTableNumChildrenField = SqlField.of(entityTableNumChildrenField.getColumnName());
     String tempTableSql =
         "SELECT "
-            + SqlQueryField.of(tempTableIdField).renderForSelect()
-            + ", "
             + SqlQueryField.of(tempTablePathField).renderForSelect()
             + ", "
             + SqlQueryField.of(tempTableNumChildrenField).renderForSelect()
+            + ", "
+            + SqlQueryField.of(tempTableIdField).renderForSelect()
             + " FROM "
             + tempBQTable.render();
-    LOGGER.info("temp table query: {}", tempTableSql);
 
     // Build an update-from-select query for the index entity main table and the
     // id-path-num_children query.
@@ -418,14 +417,8 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
             + SqlQueryField.of(entityTableNumChildrenField).renderForSelect(updateTableAlias)
             + " = "
             + SqlQueryField.of(tempTableNumChildrenField).renderForSelect(tempTableAlias)
-            + " FROM (SELECT "
-            + SqlQueryField.of(tempTablePathField).renderForSelect()
-            + ", "
-            + SqlQueryField.of(tempTableNumChildrenField).renderForSelect()
-            + ", "
-            + SqlQueryField.of(tempTableIdField).renderForSelect()
-            + " FROM "
-            + tempBQTable.render()
+            + " FROM ("
+            + tempTableSql
             + ") AS "
             + tempTableAlias
             + " WHERE "
