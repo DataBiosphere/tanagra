@@ -9,6 +9,7 @@ import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.*;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
 
@@ -291,6 +293,9 @@ public interface ApiTranslator {
 
   ApiFilterTranslator translator(AttributeFilter attributeFilter);
 
+  Optional<ApiFilterTranslator> mergedTranslator(
+      List<AttributeFilter> attributeFilter, LogicalOperator logicalOperator);
+
   default ApiFilterTranslator translator(BooleanAndOrFilter booleanAndOrFilter) {
     return new BooleanAndOrFilterTranslator(this, booleanAndOrFilter);
   }
@@ -363,5 +368,20 @@ public interface ApiTranslator {
     } else {
       throw new InvalidQueryException("No SQL translator defined for filter");
     }
+  }
+
+  default Optional<ApiFilterTranslator> optionalMergedTranslator(
+      List<EntityFilter> entityFilters, LogicalOperator logicalOperator) {
+    // A list of sub-filters can be merged (optimized) if they are of the same type
+    // Additional checks may be needed for individual sub-filter types
+    EntityFilter firstFilter = entityFilters.get(0);
+
+    // At this time only optimize attribute filters are supported
+    if (!(firstFilter instanceof AttributeFilter)
+        || !EntityFilter.areSameFilterType(entityFilters)) {
+      return Optional.empty();
+    }
+    return mergedTranslator(
+        entityFilters.stream().map(filter -> (AttributeFilter) filter).toList(), logicalOperator);
   }
 }

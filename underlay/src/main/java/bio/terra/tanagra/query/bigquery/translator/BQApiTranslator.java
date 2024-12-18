@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.filter.*;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
 import bio.terra.tanagra.api.shared.*;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
@@ -73,6 +74,14 @@ public final class BQApiTranslator implements ApiTranslator {
   @Override
   public ApiFilterTranslator translator(AttributeFilter attributeFilter) {
     return new BQAttributeFilterTranslator(this, attributeFilter);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslator(
+      List<AttributeFilter> attributeFilters, LogicalOperator logicalOperator) {
+    return BQAttributeFilterTranslator.canMergeTranslation(attributeFilters)
+        ? Optional.of(new BQAttributeFilterTranslator(this, attributeFilters, logicalOperator))
+        : Optional.empty();
   }
 
   @Override
