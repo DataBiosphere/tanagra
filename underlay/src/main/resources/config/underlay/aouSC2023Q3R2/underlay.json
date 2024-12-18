@@ -60,7 +60,9 @@
     "aouRT/surveySocialDeterminantsOfHealth",
     "aouRT/surveyCovidVaccine",
     "aouRT/surveyCope",
-    "aouRT/surveyOccurrence"
+    "aouRT/surveyOccurrence",
+
+    "aouCT/variant"
   ],
   "groupItemsEntityGroups": [
     "aouRT/brandIngredientConcept",
@@ -81,7 +83,9 @@
     "aouRT/waistCircumferencePerson",
     "aouRT/hipCircumferencePerson",
     "aouRT/wheelchairPerson",
-    "aouRT/pregnantPerson"
+    "aouRT/pregnantPerson",
+
+    "aouCT/variantPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
@@ -148,6 +152,7 @@
     "aouCT/longReadWGS",
     "aouCT/globalDiversityArray",
     "aouCT/structuralVariants",
+    "aouCT/variant",
     "aouRT/hasPMData",
     "aouRT/bloodPressure",
     "aouRT/heartRate",
