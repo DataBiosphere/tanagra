@@ -2,7 +2,6 @@ package bio.terra.tanagra.filterbuilder.impl.core;
 
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
-import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFSurvey;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFSurvey.Survey.EntityGroupConfig;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTSurvey;
@@ -49,7 +48,7 @@ public class SurveyFilterBuilder
         .map(
             selectedId ->
                 new SelectionItem(
-                    Literal.forInt64(selectedId.getKey().getInt64Key()),
+                    keyToLiteral(selectedId.getKey()),
                     new SelectionGroup(
                         selectedId.getEntityGroup(),
                         selectedId.hasValueData() ? selectedId.getValueData() : null)))

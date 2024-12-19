@@ -2,7 +2,6 @@ package bio.terra.tanagra.filterbuilder.impl.core;
 
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
-import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFEntityGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
@@ -62,7 +61,7 @@ public class EntityGroupFilterBuilder
               }
 
               return new SelectionItem(
-                  Literal.forInt64(selectedId.getKey().getInt64Key()),
+                  keyToLiteral(selectedId.getKey()),
                   new SelectionGroup(selectedId.getEntityGroup(), valueData));
             })
         .toList();

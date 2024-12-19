@@ -18,6 +18,7 @@ import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFFilterableGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.FilterableGroup.SingleSelect;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -32,9 +33,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 
 public class FilterableGroupFilterBuilder
     extends FilterBuilder<CFFilterableGroup.FilterableGroup, DTFilterableGroup.FilterableGroup> {
+
+  private static final org.slf4j.Logger LOGGER =
+      LoggerFactory.getLogger(FilterableGroupFilterBuilder.class);
 
   public FilterableGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
@@ -46,6 +51,9 @@ public class FilterableGroupFilterBuilder
       throw new InvalidQueryException(
           "Filterable group filter builder does not support modifiers.");
     }
+
+    LOGGER.error("DEX --> getModifierName " + selectionData.get(0).getModifierName());
+    LOGGER.error("DEX --> getPluginData " + selectionData.get(0).getPluginData());
 
     // Pull the entity group from the config.
     CFFilterableGroup.FilterableGroup config = deserializeConfig();
@@ -68,8 +76,8 @@ public class FilterableGroupFilterBuilder
               switch (selectionItem.getSelectionCase()) {
                 case SINGLE:
                   DTFilterableGroup.FilterableGroup.SingleSelect item = selectionItem.getSingle();
-                  if (item.hasKey() && item.getKey().hasInt64Key()) {
-                    selectedIds.add(Literal.forInt64(item.getKey().getInt64Key()));
+                  if (item.hasKey()) {
+                    selectedIds.add(keyToLiteral(item.getKey()));
                   }
                   break;
 
@@ -132,8 +140,8 @@ public class FilterableGroupFilterBuilder
     // exclusions: NOT(ids)
     List<Literal> excludedIds =
         selectAllItem.getExclusionsList().stream()
-            .filter(item -> item.hasKey() && item.getKey().hasInt64Key())
-            .map(item -> Literal.forInt64(item.getKey().getInt64Key()))
+            .filter(SingleSelect::hasKey)
+            .map(item -> keyToLiteral(item.getKey()))
             .toList();
     if (!excludedIds.isEmpty()) {
       subFiltersToAnd.add(
