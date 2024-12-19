@@ -24,6 +24,9 @@ dependencyManagement {
     dependencies {
         dependency "io.swagger.core.v3:swagger-annotations:${vSwaggerAnnotations}"
         dependency "io.swagger.codegen.v3:swagger-codegen-cli:${vSwaggerCodegen}"
+
+        // added to address snyk vulnerability
+        dependency "org.apache.tomcat.embed:tomcat-embed-core:${vApacheTomcat}"
     }
 }
 
