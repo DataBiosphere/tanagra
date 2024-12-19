@@ -48,6 +48,8 @@
     "aouRT/bmi",
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
+    "aouRT/wheelchair",
+    "aouRT/pregnant",
 
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
@@ -75,7 +77,9 @@
     "aouRT/weightPerson",
     "aouRT/bmiPerson",
     "aouRT/waistCircumferencePerson",
-    "aouRT/hipCircumferencePerson"
+    "aouRT/hipCircumferencePerson",
+    "aouRT/wheelchairPerson",
+    "aouRT/pregnantPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
@@ -137,6 +141,7 @@
     "aouRT/fitbitHeartRateSummary",
     "aouRT/fitbitSleepDailySummary",
     "aouRT/fitbitSleepLevel",
+    "aouRT/hasPMData",
     "aouRT/bloodPressure",
     "aouRT/heartRate",
     "aouRT/height",
@@ -144,6 +149,8 @@
     "aouRT/bmi",
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
+    "aouRT/wheelchair",
+    "aouRT/pregnant",
     "aouRT/outputUnfiltered",
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
