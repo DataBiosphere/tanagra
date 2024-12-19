@@ -133,6 +133,7 @@
     "aouRT/ethnicity",
     "aouRT/gender",
     "aouRT/race",
+    "aouRT/selfReportedCategory",
     "aouRT/sexAtBirth",
     "aouRT/fitbit",
     "aouRT/fitbitActivitySummary",

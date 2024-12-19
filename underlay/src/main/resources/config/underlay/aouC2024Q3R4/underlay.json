@@ -2,7 +2,7 @@
   "name": "aouC2024Q3R4",
   "primaryEntity": "person",
   "entities": [
-    "aouRT/person",
+    "aouCT/person",
 
     "aouRT/conditionConcept",
     "aouRT/conditionOccurrence",
@@ -135,6 +135,7 @@
     "aouRT/ethnicity",
     "aouRT/gender",
     "aouRT/race",
+    "aouRT/selfReportedCategory",
     "aouRT/sexAtBirth",
     "aouRT/fitbit",
     "aouRT/fitbitActivitySummary",
