@@ -1,0 +1,6 @@
+{
+  "name": "pregnantPerson",
+  "groupEntity": "person",
+  "itemsEntity": "pregnant",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

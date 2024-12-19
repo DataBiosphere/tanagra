@@ -59,6 +59,7 @@
     { "name": "has_fitbit", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_wear_consent", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_ehr_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
+    { "name": "has_pm_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "is_deceased", "dataType": "BOOLEAN", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",

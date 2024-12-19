@@ -1,0 +1,6 @@
+{
+  "name": "wheelchairPerson",
+  "groupEntity": "person",
+  "itemsEntity": "wheelchair",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}
