@@ -33,13 +33,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 
 public class FilterableGroupFilterBuilder
     extends FilterBuilder<CFFilterableGroup.FilterableGroup, DTFilterableGroup.FilterableGroup> {
-
-  private static final org.slf4j.Logger LOGGER =
-      LoggerFactory.getLogger(FilterableGroupFilterBuilder.class);
 
   public FilterableGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
@@ -51,9 +47,6 @@ public class FilterableGroupFilterBuilder
       throw new InvalidQueryException(
           "Filterable group filter builder does not support modifiers.");
     }
-
-    LOGGER.error("DEX --> getModifierName " + selectionData.get(0).getModifierName());
-    LOGGER.error("DEX --> getPluginData " + selectionData.get(0).getPluginData());
 
     // Pull the entity group from the config.
     CFFilterableGroup.FilterableGroup config = deserializeConfig();
