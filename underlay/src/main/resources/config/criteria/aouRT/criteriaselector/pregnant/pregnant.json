@@ -1,0 +1,8 @@
+{
+  "entity": "pregnant",
+  "valueConfigs": [
+    {
+      "attribute": "pregnant_at_enrollment"
+    }
+  ]
+}

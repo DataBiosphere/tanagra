@@ -1,0 +1,8 @@
+{
+  "entity": "wheelchair",
+  "valueConfigs": [
+    {
+      "attribute": "wheelchair_at_enrollment"
+    }
+  ]
+}
