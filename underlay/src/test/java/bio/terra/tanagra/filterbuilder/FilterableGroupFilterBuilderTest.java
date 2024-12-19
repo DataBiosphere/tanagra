@@ -20,7 +20,7 @@ import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass.ValueData;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFFilterableGroup;
-import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.*;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.FilterableGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.FilterableGroup.SelectAll;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.FilterableGroup.Selection;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.FilterableGroup.SingleSelect;

@@ -18,6 +18,7 @@ import bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils;
 import bio.terra.tanagra.filterbuilder.impl.core.utils.EntityGroupFilterUtils;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFFilterableGroup;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.FilterableGroup.SingleSelect;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
@@ -68,8 +69,8 @@ public class FilterableGroupFilterBuilder
               switch (selectionItem.getSelectionCase()) {
                 case SINGLE:
                   DTFilterableGroup.FilterableGroup.SingleSelect item = selectionItem.getSingle();
-                  if (item.hasKey() && item.getKey().hasInt64Key()) {
-                    selectedIds.add(Literal.forInt64(item.getKey().getInt64Key()));
+                  if (item.hasKey()) {
+                    selectedIds.add(keyToLiteral(item.getKey()));
                   }
                   break;
 
@@ -132,8 +133,8 @@ public class FilterableGroupFilterBuilder
     // exclusions: NOT(ids)
     List<Literal> excludedIds =
         selectAllItem.getExclusionsList().stream()
-            .filter(item -> item.hasKey() && item.getKey().hasInt64Key())
-            .map(item -> Literal.forInt64(item.getKey().getInt64Key()))
+            .filter(SingleSelect::hasKey)
+            .map(item -> keyToLiteral(item.getKey()))
             .toList();
     if (!excludedIds.isEmpty()) {
       subFiltersToAnd.add(
