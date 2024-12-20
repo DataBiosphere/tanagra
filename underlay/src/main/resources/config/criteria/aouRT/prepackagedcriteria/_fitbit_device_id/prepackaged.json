@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_device_id",
+  "displayName": "Fitbit Device",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitDeviceId.json"
+}

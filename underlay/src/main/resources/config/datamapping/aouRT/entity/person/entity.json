@@ -57,6 +57,7 @@
     { "name": "has_fitbit_sleep_daily_summary", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_fitbit_sleep_level", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_fitbit", "dataType": "BOOLEAN", "isSuppressedForExport": true },
+    { "name": "has_fitbit_device", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_wear_consent", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_ehr_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_pm_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },

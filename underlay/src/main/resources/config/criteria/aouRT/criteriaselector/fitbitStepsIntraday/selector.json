@@ -1,6 +1,6 @@
 {
   "name": "tanagra-fitbit-steps-intraday",
-  "displayName": "Fitbit Steps Intraday",
+  "displayName": "Has Fitbit Steps Intraday",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {

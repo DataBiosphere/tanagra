@@ -54,6 +54,8 @@ SELECT p.person_id,
            WHEN sds.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_daily_summary,
        CASE
            WHEN sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_level,
+        CASE
+           WHEN dev.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_device,
        CASE
            WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
            AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit,
@@ -85,6 +87,7 @@ LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_summary`) h
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.steps_intraday`) si ON (p.person_id = si.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_daily_summary`) sds ON (p.person_id = sds.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_level`) sl ON (p.person_id = sl.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.device`) dev ON (p.person_id = dev.person_id)
 LEFT JOIN (SELECT DISTINCT sample_name FROM `${omopDataset}.prep_wgs_metadata`) wgv ON (CAST(p.person_id AS STRING) = wgv.sample_name)
 LEFT JOIN (SELECT DISTINCT sample_name FROM `${omopDataset}.prep_microarray_metadata`) mad ON (CAST(p.person_id AS STRING) = mad.sample_name)
 LEFT JOIN (SELECT DISTINCT sample_name FROM `${omopDataset}.prep_longreads_metadata`) lrwgv ON (CAST(p.person_id AS STRING) = lrwgv.sample_name)

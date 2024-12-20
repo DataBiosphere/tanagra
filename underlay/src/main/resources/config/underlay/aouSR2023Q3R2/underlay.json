@@ -40,6 +40,7 @@
     "aouRT/sleepDailySummary",
     "aouRT/sleepLevel",
     "aouRT/stepsIntraday",
+    "aouRT/wearableDevice",
 
     "aouRT/bloodPressure",
     "aouRT/heartRate",
@@ -70,6 +71,7 @@
     "aouRT/sleepDailySummaryPerson",
     "aouRT/sleepLevelPerson",
     "aouRT/stepsIntradayPerson",
+    "aouRT/wearableDevicePerson",
 
     "aouRT/bloodPressurePerson",
     "aouRT/heartRatePerson",
@@ -142,6 +144,7 @@
     "aouRT/fitbitHeartRateSummary",
     "aouRT/fitbitSleepDailySummary",
     "aouRT/fitbitSleepLevel",
+    "aouRT/fitbitDevice",
     "aouRT/wearConsent",
     "aouRT/hasPMData",
     "aouRT/bloodPressure",
@@ -165,12 +168,13 @@
   ],
   "prepackagedDataFeatures": [
     "aouRT/_demographics",
-    "aouRT/_fitbit_actvity_summary_id",
+    "aouRT/_fitbit_activity_summary_id",
     "aouRT/_fitbit_steps_intraday_id",
     "aouRT/_fitbit_heart_rate_summary_id",
     "aouRT/_fitbit_heart_rate_level_id",
     "aouRT/_fitbit_sleep_daily_summary_id",
-    "aouRT/_fitbit_sleep_level_id"
+    "aouRT/_fitbit_sleep_level_id",
+    "aouRT/_fitbit_device_id"
   ],
   "visualizations": [
     "omop/genderAndAge",

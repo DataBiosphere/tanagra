@@ -162,7 +162,7 @@
   ],
   "prepackagedDataFeatures": [
     "aouRT/_demographics",
-    "aouRT/_fitbit_actvity_summary_id",
+    "aouRT/_fitbit_activity_summary_id",
     "aouRT/_fitbit_steps_intraday_id",
     "aouRT/_fitbit_heart_rate_summary_id",
     "aouRT/_fitbit_heart_rate_level_id",

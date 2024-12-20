@@ -1,0 +1,18 @@
+{
+  "name": "wearableDevice",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id", "isSuppressedForExport": true },
+    { "name": "person_id", "dataType": "INT64" },
+    { "name": "device_id", "dataType": "STRING" },
+    { "name": "device_date", "dataType": "DATE" },
+    { "name": "battery", "dataType": "STRING" },
+    { "name": "battery_level", "dataType": "STRING" },
+    { "name": "device_version", "dataType": "STRING" },
+    { "name": "device_type", "dataType": "STRING" },
+    { "name": "last_sync_time", "dataType": "TIMESTAMP" },
+    { "name": "src_id", "dataType": "STRING" }
+  ],
+  "idAttribute": "id",
+  "sourceQueryTableName": "${omopDataset}.device"
+}

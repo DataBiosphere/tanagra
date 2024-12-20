@@ -1,15 +1,15 @@
 {
-  "name": "tanagra-fitbit-sleep-level",
-  "displayName": "Has Fitbit Sleep Level",
+  "name": "tanagra-fitbit-device",
+  "displayName": "Has Fitbit Device",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
-    "category": "Fitbit",
+    "category": "Wearables",
     "tags": null
   },
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
   "plugin": "attribute",
   "pluginConfig": null,
-  "pluginConfigFile": "fitbitSleepLevel.json",
+  "pluginConfigFile": "fitbitDevice.json",
   "modifiers": null
 }

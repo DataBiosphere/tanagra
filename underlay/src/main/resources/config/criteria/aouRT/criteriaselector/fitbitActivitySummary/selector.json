@@ -1,6 +1,6 @@
 {
   "name": "tanagra-fitbit-activity-summary",
-  "displayName": "Fitbit Activity Summary",
+  "displayName": "Has Fitbit Activity Summary",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {

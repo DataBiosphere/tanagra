@@ -1,6 +1,6 @@
 {
   "name": "tanagra-fitbit-heart-rate-level",
-  "displayName": "Fitbit Heart Rate Minute Level",
+  "displayName": "Has Fitbit Heart Rate Minute Level",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {

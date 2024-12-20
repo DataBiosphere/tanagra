@@ -1,6 +1,6 @@
 {
   "name": "tanagra-fitbit-heart-rate-summary",
-  "displayName": "Fitbit Heart Rate Summary",
+  "displayName": "Has Fitbit Heart Rate Summary",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
