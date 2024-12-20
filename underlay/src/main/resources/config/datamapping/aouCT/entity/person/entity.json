@@ -58,6 +58,7 @@
     { "name": "has_fitbit_sleep_level", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_fitbit", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_fitbit_device", "dataType": "BOOLEAN", "isSuppressedForExport": true },
+    { "name": "has_fitbit_plus_device", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_array_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_whole_genome_variant", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_lr_whole_genome_variant", "dataType": "BOOLEAN", "isSuppressedForExport": true },
@@ -65,6 +66,8 @@
     { "name": "has_wear_consent", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_ehr_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_pm_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
+    { "name": "has_pregnant_at_enrollment", "dataType": "BOOLEAN", "isSuppressedForExport": true },
+    { "name": "has_wheelchair_at_enrollment", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "is_deceased", "dataType": "BOOLEAN", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",

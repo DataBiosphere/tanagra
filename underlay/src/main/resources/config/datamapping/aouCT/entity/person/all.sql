@@ -60,6 +60,9 @@ SELECT p.person_id,
            WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
            AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit,
        CASE
+           WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
+           AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL AND dev.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_plus_device,
+       CASE
            WHEN wgv.sample_name IS NULL THEN FALSE ELSE TRUE END has_whole_genome_variant,
        CASE
            WHEN mad.sample_name IS NULL THEN FALSE ELSE TRUE END has_array_data,
@@ -73,6 +76,10 @@ SELECT p.person_id,
            WHEN ehr.person_id IS NULL THEN FALSE ELSE TRUE END has_ehr_data,
        CASE
            WHEN pm.person_id IS NULL THEN FALSE ELSE TRUE END has_pm_data,
+       CASE
+           WHEN pregnant.person_id IS NULL THEN FALSE ELSE TRUE END has_pregnant_at_enrollment,
+       CASE
+           WHEN wheelchair.person_id IS NULL THEN FALSE ELSE TRUE END has_wheelchair_at_enrollment,
        CASE
            WHEN d.death_date is null THEN FALSE ELSE TRUE END is_deceased
 FROM `${omopDataset}.person` p
@@ -129,5 +136,13 @@ LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.measurement`
                  AND domain_id = 'Measurement'
            )
 ) pm ON (p.person_id = pm.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.observation`
+           WHERE observation_source_concept_id = 903120
+             AND value_as_concept_id = 45877994
+) pregnant ON (p.person_id = pregnant.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.measurement`
+           WHERE measurement_source_concept_id = 903111
+             AND value_as_concept_id = 4023190
+) wheelchair ON (p.person_id = wheelchair.person_id)
 LEFT JOIN (SELECT person_id, max(death_date) as death_date FROM `${omopDataset}.death` GROUP BY person_id) d
 ON (p.person_id = d.person_id)

@@ -7,8 +7,8 @@
     "category": "Physical Measurements",
     "tags": null
   },
-  "filterBuilder": "core.MultiAttributeFilterBuilder",
-  "plugin": "multiAttribute",
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
   "pluginConfig": null,
   "pluginConfigFile": "wheelchair.json",
   "modifiers": null

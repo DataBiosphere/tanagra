@@ -4,7 +4,7 @@
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
-    "category": "Fitbit",
+    "category": "Wearables",
     "tags": null
   },
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
