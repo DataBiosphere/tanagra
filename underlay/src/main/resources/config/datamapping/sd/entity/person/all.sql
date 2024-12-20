@@ -13,7 +13,9 @@ SELECT
     /* As a courtesy, convert string fields to boolean: 0 -> No, 1 -> Yes */
     CASE WHEN x.compromise_ind = '1' THEN true WHEN x.compromise_ind = '0' THEN false ELSE null END AS biovu_sample_is_compromised,
     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,
-    CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma
+    CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma,
+    EXISTS
+        (SELECT 1 FROM `${omopDataset}.x_agd_queue` aq WHERE p.person_id = aq.person_id) AS has_agd_queue
 
 FROM `${omopDataset}.person` p
 
