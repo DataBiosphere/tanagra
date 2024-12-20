@@ -89,6 +89,7 @@
     "sd/age",
     "sd/bioVU",
     "sd/bioVUPlasma",
+    "sd/agdSubjectQueue",
     "sd/genotyping",
     "sd/measurement",
     "sd/documents",
