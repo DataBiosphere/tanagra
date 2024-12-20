@@ -5,8 +5,10 @@ SELECT p.person_id,
            WHEN d.death_date IS NULL THEN p.birth_datetime END birth_datetime_not_deceased,
        p.gender_concept_id,
        CASE
+           WHEN gc.concept_name = 'No matching concept' THEN 'Unknown'
            WHEN gc.concept_name = 'Male' THEN 'Man'
            WHEN gc.concept_name = 'Female' THEN 'Woman'
+           WHEN gc.concept_name = 'PMI: Skip' THEN 'Skip'
            ELSE gc.concept_name
            END AS gender_concept_name,
        p.race_concept_id,
@@ -16,14 +18,26 @@ SELECT p.person_id,
            ELSE rc.concept_name
            END AS race_concept_name,
        p.ethnicity_concept_id,
-        CASE
-            WHEN ec.concept_name = 'No matching concept' THEN 'Unknown'
-            ELSE ec.concept_name
-            END AS ethnicity_concept_name,
+       CASE
+           WHEN ec.concept_name = 'No matching concept' THEN 'Unknown'
+           WHEN ec.concept_name = 'PMI: Skip' THEN 'Skip'
+           WHEN ec.concept_name = 'PMI: Prefer Not To Answer' THEN 'Prefer Not To Answer'
+           WHEN ec.concept_name = 'What Race Ethnicity: Race Ethnicity None Of These' THEN 'None Of These'
+           ELSE ec.concept_name
+           END AS ethnicity_concept_name,
        p.sex_at_birth_concept_id,
-       sc.concept_name AS sex_at_birth_concept_name,
+       CASE
+           WHEN sc.concept_name = 'No matching concept' THEN 'Unknown'
+           WHEN sc.concept_name = 'PMI: Skip' THEN 'Skip'
+           ELSE sc.concept_name
+           END AS sex_at_birth_concept_name,
        p.self_reported_category_concept_id,
-       sr.concept_name as self_reported_category,
+       CASE
+           WHEN sr.concept_name = 'No matching concept' THEN 'Unknown'
+           WHEN sr.concept_name = 'PMI: Skip' THEN 'Skip'
+           WHEN sr.concept_name = 'What Race Ethnicity: Hispanic' THEN 'Hispanic'
+           ELSE sr.concept_name
+           END AS self_reported_category_concept_name,
        CASE
            WHEN asum.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_activity_summary,
        CASE
@@ -38,11 +52,13 @@ SELECT p.person_id,
            WHEN sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_level,
        CASE
            WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
-            AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit,
+           AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit,
        CASE
            WHEN ws.person_id IS NULL THEN FALSE ELSE TRUE END has_wear_consent,
        CASE
            WHEN ehr.person_id IS NULL THEN FALSE ELSE TRUE END has_ehr_data,
+       CASE
+           WHEN pm.person_id IS NULL THEN FALSE ELSE TRUE END has_pm_data,
        CASE
            WHEN d.death_date is null THEN FALSE ELSE TRUE END is_deceased
 FROM `${omopDataset}.person` p
@@ -85,6 +101,14 @@ LEFT JOIN (SELECT DISTINCT person_id FROM`${omopDataset}.measurement` as a
             SELECT DISTINCT person_id FROM`${omopDataset}.visit_occurrence` as a
             LEFT JOIN`${omopDataset}.visit_occurrence_ext` as b on a.visit_occurrence_id = b.visit_occurrence_id
             WHERE lower(b.src_id) like 'ehr site%'
-          ) ehr ON (p.person_id = ehr.person_id)
+           ) ehr ON (p.person_id = ehr.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.measurement`
+           WHERE measurement_source_concept_id in (
+               SELECT concept_id FROM `${omopDataset}.concept`
+               WHERE vocabulary_id = 'PPI'
+                 AND concept_class_id = 'Clinical Observation'
+                 AND domain_id = 'Measurement'
+           )
+) pm ON (p.person_id = pm.person_id)
 LEFT JOIN (SELECT person_id, max(death_date) as death_date FROM `${omopDataset}.death` GROUP BY person_id) d
-            ON (p.person_id = d.person_id)
+ON (p.person_id = d.person_id)

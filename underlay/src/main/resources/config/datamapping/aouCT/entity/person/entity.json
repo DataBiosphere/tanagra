@@ -38,7 +38,7 @@
       }
     },
     { "name": "self_reported_category_concept_id", "dataType": "INT64" },
-    { "name": "self_reported_category", "dataType": "INT64", "valueFieldName": "self_reported_category_concept_id", "isComputeDisplayHint": true,
+    { "name": "self_reported_category", "dataType": "INT64", "valueFieldName": "self_reported_category_concept_id", "displayFieldName": "self_reported_category_concept_name", "isComputeDisplayHint": true,
       "sourceQuery": {
         "displayFieldName": "concept_name",
         "displayFieldTable": "${omopDataset}.concept",
@@ -49,7 +49,7 @@
     { "name": "age", "dataType": "TIMESTAMP", "valueFieldName": "birth_datetime_not_deceased",
       "runtimeSqlFunctionWrapper": "CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), ${fieldSql}, DAY) / 365.25) AS INT64)",
       "runtimeDataType": "INT64", "isComputeDisplayHint": true, "isSuppressedForExport": true,
-      "displayHintRangeMin": 18, "displayHintRangeMax": 125 },
+      "displayHintRangeMin": 18, "displayHintRangeMax": 120 },
     { "name": "has_fitbit_activity_summary", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_fitbit_heart_rate_level", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_fitbit_heart_rate_summary", "dataType": "BOOLEAN", "isSuppressedForExport": true },
@@ -63,6 +63,7 @@
     { "name": "has_structural_variant_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_wear_consent", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_ehr_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
+    { "name": "has_pm_data", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "is_deceased", "dataType": "BOOLEAN", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",

@@ -2,19 +2,19 @@
   "underlay": "aouSC2023Q3R2_testonly",
   "bigQuery": {
     "sourceData": {
-      "projectId": "prj-e-dexamundsen-hd2",
+      "projectId": "vwb-dev-blissful-eggplant-4805",
       "datasetId": "aou_test_data_SC2023Q3R2",
       "sqlSubstitutions": {
-        "omopDataset": "prj-e-dexamundsen-hd2.aou_test_data_SC2023Q3R2",
-        "staticTablesDataset": "prj-e-dexamundsen-hd2.aou_static_prep_us"
+        "omopDataset": "vwb-dev-blissful-eggplant-4805.aou_test_data_SC2023Q3R2",
+        "staticTablesDataset": "vwb-dev-blissful-eggplant-4805.aou_static_prep_us"
       }
     },
     "indexData": {
-      "projectId": "prj-e-dexamundsen-hd2",
+      "projectId": "vwb-dev-blissful-eggplant-4805",
       "datasetId": "aou_test_data_SC2023Q3R2_index_121624",
       "tablePrefix": "T"
     },
-    "queryProjectId": "prj-e-dexamundsen-hd2",
+    "queryProjectId": "prj-d-1v-ucd",
     "dataLocation": "us"
   },
   "uiConfigFile": "ui.json"

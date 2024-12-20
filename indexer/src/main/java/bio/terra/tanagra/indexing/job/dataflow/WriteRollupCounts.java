@@ -18,15 +18,16 @@ import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.sourcetable.*;
-import com.google.api.*;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
 import com.google.cloud.bigquery.Table;
 import jakarta.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
@@ -34,6 +35,7 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +72,7 @@ public class WriteRollupCounts extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteRollupCounts.class);
 
   private static final String TEMP_TABLE_NAME = "RC";
-
+  private static final String INDEX_ID_REGEX_BRACES = "{indexIdRegex}";
   private final EntityGroup entityGroup;
   private final Entity entity;
   private final Entity countedEntity;
@@ -370,43 +372,88 @@ public class WriteRollupCounts extends BigQueryJob {
       rollupCountsTableIdField = relationshipRollupCountsSourceTable.getEntityIdField();
       rollupCountsTableCountField = relationshipRollupCountsSourceTable.getCountField();
     }
-    String rollupCountsTableSql =
-        "SELECT "
-            + SqlQueryField.of(rollupCountsTableIdField).renderForSelect()
-            + ", "
-            + SqlQueryField.of(rollupCountsTableCountField).renderForSelect()
-            + " FROM "
-            + rollupCountsBQTable.render();
-    LOGGER.info("rollup counts table query: {}", rollupCountsTableSql);
 
     // Build an update-from-select query for the index entity main table and the
     // id-count query.
     String updateTableAlias = "updatetable";
     String tempTableAlias = "temptable";
-    String updateFromSelectSql =
-        "UPDATE "
-            + indexTable.getTablePointer().render()
-            + " AS "
-            + updateTableAlias
-            + " SET "
-            + SqlQueryField.of(entityTableCountField).renderForSelect(updateTableAlias)
-            + " = "
-            + SqlQueryField.of(rollupCountsTableCountField).renderForSelect(tempTableAlias)
-            + " FROM (SELECT "
-            + SqlQueryField.of(rollupCountsTableCountField).renderForSelect()
-            + ", "
-            + SqlQueryField.of(rollupCountsTableIdField).renderForSelect()
-            + " FROM "
-            + rollupCountsBQTable.render()
-            + ") AS "
-            + tempTableAlias
-            + " WHERE "
-            + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
-            + " = "
-            + SqlQueryField.of(rollupCountsTableIdField).renderForSelect(tempTableAlias);
-    LOGGER.info("update-from-select query: {}", updateFromSelectSql);
 
-    // Run the update-from-select to write the count field in the index entity main table.
-    runQueryIfTableExists(indexTable.getTablePointer(), updateFromSelectSql, isDryRun);
+    // Some rollupCounts source table are very large (eg. variant_to_person)
+    // Split the read into smaller chunks: use Id field since the table may be clustered on it
+    // If such splitting of the update is needed, add a where clause regex in rollupCounts.sql
+    // format:  WHERE REGEXP_CONTAINS(id, r"{indexIdRegex}")
+    String rollUpCountRawSql = rollupCountsBQTable.render();
+
+    List<String> regexSubValues = List.of(StringUtils.EMPTY); // default: no-op
+    if (rollUpCountRawSql.contains(INDEX_ID_REGEX_BRACES)) {
+      regexSubValues = generateRegexIdSubValues();
+    }
+
+    regexSubValues.forEach(
+        subValue -> {
+          String rollupCountsTableSql =
+              "SELECT "
+                  + SqlQueryField.of(rollupCountsTableCountField).renderForSelect()
+                  + ", "
+                  + SqlQueryField.of(rollupCountsTableIdField).renderForSelect()
+                  + " FROM "
+                  + rollUpCountRawSql.replace(INDEX_ID_REGEX_BRACES, subValue);
+          String updateFromSelectSql =
+              "UPDATE "
+                  + indexTable.getTablePointer().render()
+                  + " AS "
+                  + updateTableAlias
+                  + " SET "
+                  + SqlQueryField.of(entityTableCountField).renderForSelect(updateTableAlias)
+                  + " = "
+                  + SqlQueryField.of(rollupCountsTableCountField).renderForSelect(tempTableAlias)
+                  + " FROM ("
+                  + rollupCountsTableSql
+                  + ") AS "
+                  + tempTableAlias
+                  + " WHERE "
+                  + SqlQueryField.of(entityTableIdField).renderForSelect(updateTableAlias)
+                  + " = "
+                  + SqlQueryField.of(rollupCountsTableIdField).renderForSelect(tempTableAlias);
+          LOGGER.info("update-from-select query: {}", updateFromSelectSql);
+
+          // Run the update-from-select to write the count field in the index entity main table.
+          runQueryIfTableExists(indexTable.getTablePointer(), updateFromSelectSql, isDryRun);
+        });
+  }
+
+  private List<String> generateRegexIdSubValues() {
+    // This is currently used only for variant_id and hence optimized for the same
+    // If other entities need this, add regex values as a property of entityGroup config
+    // i.e. property SZRollupCountsSql.regexIdSub &entityGroup.json#rollupCountsSql#regexIdSub
+    Stream<String> digitStream =
+        IntStream.range(1, 10)
+            .mapToObj(
+                i -> {
+                  List<String> forI = new ArrayList<>();
+                  // regex: 1 digit followed by alphabet
+                  forI.add(String.format("^%d[^0-9]", i));
+                  // regex: 1 digit followed by digit
+                  forI.addAll(
+                      IntStream.range(0, 10).mapToObj(j -> String.format("^%d%d", i, j)).toList());
+                  return forI;
+                })
+            .flatMap(List::stream);
+
+    Stream<String> alphabetStream =
+        "XY"
+            .chars()
+            .mapToObj(
+                c -> {
+                  List<String> forC = new ArrayList<>();
+                  // regex: 1 alphabet followed by digit
+                  forC.add(String.format("^%c[0-9]", c));
+                  // regex: 1 alphabet followed by alphabet
+                  forC.add(String.format("^%c[^0-9]", c));
+                  return forC;
+                })
+            .flatMap(List::stream);
+
+    return Stream.concat(digitStream, alphabetStream).toList();
   }
 }
