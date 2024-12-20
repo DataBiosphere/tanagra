@@ -1,10 +1,10 @@
 {
   "name": "tanagra-fitbit-sleep-daily-summary",
-  "displayName": "Fitbit Sleep Daily Summary",
+  "displayName": "Has Fitbit Sleep Daily Summary",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
-    "category": "Fitbit",
+    "category": "Wearables",
     "tags": null
   },
   "filterBuilder": "core.PrimaryEntityFilterBuilder",

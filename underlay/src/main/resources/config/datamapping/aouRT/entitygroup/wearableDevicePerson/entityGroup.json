@@ -1,6 +1,6 @@
 {
-  "name": "wheelchairPerson",
+  "name": "wearableDevicePerson",
   "groupEntity": "person",
-  "itemsEntity": "wheelchair",
+  "itemsEntity": "wearableDevice",
   "foreignKeyAttributeItemsEntity":  "person_id"
 }

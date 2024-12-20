@@ -1,10 +1,10 @@
 {
   "name": "tanagra-fitbit-heart-rate-summary",
-  "displayName": "Fitbit Heart Rate Summary",
+  "displayName": "Has Fitbit Heart Rate Summary",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
-    "category": "Fitbit",
+    "category": "Wearables",
     "tags": null
   },
   "filterBuilder": "core.PrimaryEntityFilterBuilder",

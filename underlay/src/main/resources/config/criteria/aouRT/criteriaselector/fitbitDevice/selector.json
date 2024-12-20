@@ -1,6 +1,6 @@
 {
-  "name": "tanagra-fitbit",
-  "displayName": "Has Any Fitbit Data",
+  "name": "tanagra-fitbit-device",
+  "displayName": "Has Fitbit Device",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
@@ -10,6 +10,6 @@
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
   "plugin": "attribute",
   "pluginConfig": null,
-  "pluginConfigFile": "fitbit.json",
+  "pluginConfigFile": "fitbitDevice.json",
   "modifiers": null
 }

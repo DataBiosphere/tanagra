@@ -40,6 +40,7 @@
     "aouRT/sleepDailySummary",
     "aouRT/sleepLevel",
     "aouRT/stepsIntraday",
+    "aouRT/wearableDevice",
     "aouCT/zipcodeSocioeconomic",
 
     "aouRT/bloodPressure",
@@ -49,8 +50,6 @@
     "aouRT/bmi",
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
-    "aouRT/wheelchair",
-    "aouRT/pregnant",
 
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
@@ -71,6 +70,7 @@
     "aouRT/sleepDailySummaryPerson",
     "aouRT/sleepLevelPerson",
     "aouRT/stepsIntradayPerson",
+    "aouRT/wearableDevicePerson",
     "aouCT/zipcodeSocioeconomicPerson",
 
     "aouRT/bloodPressurePerson",
@@ -79,9 +79,7 @@
     "aouRT/weightPerson",
     "aouRT/bmiPerson",
     "aouRT/waistCircumferencePerson",
-    "aouRT/hipCircumferencePerson",
-    "aouRT/wheelchairPerson",
-    "aouRT/pregnantPerson"
+    "aouRT/hipCircumferencePerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouRT/conditionPerson",
@@ -135,8 +133,8 @@
     "aouRT/ethnicity",
     "aouRT/gender",
     "aouRT/race",
-    "aouRT/selfReportedCategory",
     "aouRT/sexAtBirth",
+    "aouRT/selfReportedCategory",
     "aouRT/fitbit",
     "aouRT/fitbitActivitySummary",
     "aouRT/fitbitStepsIntraday", 
@@ -144,6 +142,8 @@
     "aouRT/fitbitHeartRateSummary",
     "aouRT/fitbitSleepDailySummary",
     "aouRT/fitbitSleepLevel",
+    "aouRT/fitbitPlusDevice",
+    "aouRT/fitbitDevice",
     "aouRT/wearConsent",
     "aouCT/shortReadWGS",
     "aouCT/longReadWGS",
@@ -157,8 +157,8 @@
     "aouRT/bmi",
     "aouRT/waistCircumference",
     "aouRT/hipCircumference",
-    "aouRT/wheelchair",
     "aouRT/pregnant",
+    "aouRT/wheelchair",
     "aouRT/outputUnfiltered",
     "aouRT/surveyBasics",
     "aouRT/surveyLifestyle",
@@ -171,12 +171,13 @@
   ],
   "prepackagedDataFeatures": [
     "aouRT/_demographics",
-    "aouRT/_fitbit_actvity_summary_id",
+    "aouRT/_fitbit_activity_summary_id",
     "aouRT/_fitbit_steps_intraday_id",
     "aouRT/_fitbit_heart_rate_summary_id",
     "aouRT/_fitbit_heart_rate_level_id",
     "aouRT/_fitbit_sleep_daily_summary_id",
     "aouRT/_fitbit_sleep_level_id",
+    "aouRT/_fitbit_device_id",
     "aouCT/_zipcode_socioeconomic_id",
     "aouCT/_short_read_wgs"
   ],
