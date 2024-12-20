@@ -83,8 +83,7 @@ public final class IndexSchema {
    * function used during filter translation: Currently filterableGroup creates an BOOLEAN_AND of
    * attribute filters for search config with multiple attributes. eg: genomic_region is searched
    * with contig=x AND position>=y AND position<=z There are three sub-filters that are queried on
-   * the same table but separately TODO-Dex: Change this to combine sub-filters into a single
-   * suq-query
+   * the same table
    */
   public ITEntitySearchByAttribute getEntitySearchByAttributeTable(
       Entity entity, Attribute attribute) {
