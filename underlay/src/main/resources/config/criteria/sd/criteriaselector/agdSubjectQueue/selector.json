@@ -7,9 +7,9 @@
     "category": "BioVU",
     "tags": null
   },
-  "filterBuilder": "sd.BioVUFilterBuilder",
-  "plugin": "biovu",
-  "pluginConfig": "{}",
-  "pluginConfigFile": null,
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "agdSubjectQueue.json",
   "modifiers": null
 }
