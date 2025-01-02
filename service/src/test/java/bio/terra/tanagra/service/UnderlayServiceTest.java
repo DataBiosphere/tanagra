@@ -170,7 +170,7 @@ public class UnderlayServiceTest {
                 assertNotEquals(0, hi.getMin());
                 assertNotEquals(0, hi.getMax());
                 assertTrue(hi.getMin() >= ageRange[0]);
-                assertTrue(hi.getMax() <= ageRange[1]);
+                assertTrue(hi.getMax() <= ageRange[1], "expected " + ageRange[1] + " actual " + hi.getMax());
 
               } else if ("ethnicity".equals(attrName)) {
                 assertEquals(2, hi.getEnumValueCounts().size());
