@@ -9,6 +9,7 @@ buildscript {
         // library versions - constraints to address vulns
         vIoNetty = '4.1.115.Final'
         vIoNettyNative = '2.0.69.Final'
+        vLogback = '1.5.15'
 
         // library versions
         vPmd = '7.1.0'

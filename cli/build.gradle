@@ -10,9 +10,9 @@ dependencies {
 
     implementation "org.apache.commons:commons-text:${vApacheCommonsText}"
     implementation "org.slf4j:slf4j-api:${vSlf4jApi}"
-    implementation 'ch.qos.logback:logback-classic:1.5.8'
 
-    // GCP libraries versions are controlled by the BOM specified in buildSrc.
+    // version controlled in buildSrc.
+    implementation 'ch.qos.logback:logback-classic'
     implementation 'com.google.guava:guava'
 
     // Command parsing

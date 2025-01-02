@@ -56,6 +56,11 @@ dependencyManagement {
         // GCP BOM includes 4.x protobuf versions which are not compatible with current beam libs
         dependency "com.google.protobuf:protobuf-java:${vGoogleProtobufProtoc}"
         dependency "com.google.protobuf:protobuf-java-util:${vGoogleProtobufProtoc}"
+
+        // addresses security vulnerabilities
+
+        dependency "ch.qos.logback:logback-classic:${vLogback}"
+        dependency "ch.qos.logback:logback-core:${vLogback}"
     }
 }
 
