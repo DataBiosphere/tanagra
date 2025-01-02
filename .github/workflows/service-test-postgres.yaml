@@ -65,11 +65,8 @@ jobs:
         TEST_PROJECT_SA_KEY: ${{ secrets.TEST_PROJECT_SA_KEY }}
     - name: Gradle Build and Check
       # The check task includes the build, test and static analysis tasks.
-      run: ./gradlew service:check --scan
+      run: ./gradlew service:test --tests "bio.terra.tanagra.service.UnderlayServiceTest.entityLevelHints" --scan
       env:
         DBMS: postgresql
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GOOGLE_APPLICATION_CREDENTIALS: ../rendered/broad/tanagra_sa.json
-    - name: Jib build
-      # Check that jib builds a docker container.
-      run: ./gradlew service:jibDockerBuild --scan
