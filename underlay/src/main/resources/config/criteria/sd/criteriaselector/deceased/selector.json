@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-deceased",
+  "displayName": "Deceased",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Demographics",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "deceased.json",
+  "modifiers": null
+}
