@@ -58,7 +58,6 @@ dependencyManagement {
         dependency "com.google.protobuf:protobuf-java-util:${vGoogleProtobufProtoc}"
 
         // addresses security vulnerabilities
-
         dependency "ch.qos.logback:logback-classic:${vLogback}"
         dependency "ch.qos.logback:logback-core:${vLogback}"
     }
