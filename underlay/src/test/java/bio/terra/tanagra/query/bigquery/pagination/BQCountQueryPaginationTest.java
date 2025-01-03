@@ -76,7 +76,8 @@ public class BQCountQueryPaginationTest {
                     false));
 
     assertNotNull(countQueryResult.getSql());
-    assertEquals(150, countQueryResult.getCountInstances().size());
+    // TODO(BENCH-4854): age is computed every time and hence highest age changes every year
+    assertEquals(152, countQueryResult.getCountInstances().size());
     assertNull(countQueryResult.getPageMarker());
   }
 
@@ -144,7 +145,8 @@ public class BQCountQueryPaginationTest {
                     false));
 
     assertNotNull(countQueryResult2.getSql());
-    assertEquals(140, countQueryResult2.getCountInstances().size());
+    // TODO(BENCH-4854): age is computed every time and hence highest age changes every year
+    assertEquals(142, countQueryResult2.getCountInstances().size());
     assertNull(countQueryResult2.getPageMarker());
   }
 }
