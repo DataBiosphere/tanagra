@@ -32,7 +32,6 @@ ON rc.concept_id = p.race_source_concept_id
 LEFT JOIN `${omopDataset}.concept` ec
 ON ec.concept_id = p.ethnicity_concept_id
 
-left join victr_sd.sd_omop_prod.death d on d.person_id = p.person_id
 LEFT JOIN `${omopDataset}.death` d
 ON p.person_id = d.person_id
 
