@@ -95,21 +95,6 @@ tanagra:
         oauth-client-id: 12345.apps.googleusercontent.com    <--- Example value only. Get this from the Cloud Console.
 ```
 
-### VerilyGroups Access Control
-Access control is enforced on underlays only. For underlays, send a request to the VerilyGroups API to check membership.
-For studies and their child artifacts, allow everything. This was written to support the Verily dev deployment.
-
-`params` is a list of `underlayName,verilyGroupName` pairs. Each underlay can have a different set of allowed users. 
-The special `ALL_ACCESS` key means that members of the accompanying group have access to all underlays.
-```
-tanagra:
-    access-control:
-        model: VERILY_GROUP
-        params: [ALL_ACCESS,tanagra-dev-all, sdd_refresh0323,tanagra-dev-sdd, cms_synpuf,tanagra-dev-public]
-        base-path: https://www.verilygroups.com
-        oauth-client-id: 12345.apps.googleusercontent.com    <--- Example value only. Get this from the VerilyGroups docs.
-```
-
 ### AouWorkbench Access Control
 Access control is enforced on studies only. For studies and their child artifacts (e.g. cohorts), send a request to
 the AoU Researcher Workbench API to check access on the containing workspace. Expect the Tanagra study id to be the

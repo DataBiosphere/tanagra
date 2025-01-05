@@ -8,7 +8,6 @@ import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.app.configuration.AccessControlConfiguration;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.model.impl.AouWorkbenchAccessControl;
-import bio.terra.tanagra.service.accesscontrol.model.impl.VerilyGroupsAccessControl;
 import bio.terra.tanagra.service.accesscontrol.model.impl.VumcAdminAccessControl;
 import bio.terra.tanagra.service.artifact.CohortService;
 import bio.terra.tanagra.service.artifact.StudyService;
@@ -71,31 +70,6 @@ public class AccessControlImplTest {
                 10)
             .getResources()
             .isEmpty());
-  }
-
-  @Disabled(
-      "VerilyGroup base path + oauth client id are not checked into this repo. You can run this test locally by setting the access-control properties in application-test.yaml.")
-  @Test
-  void verilyGroups() {
-    VerilyGroupsAccessControl impl = new VerilyGroupsAccessControl();
-    AccessControlService accessControlService =
-        new AccessControlService(impl, accessControlConfiguration, studyService);
-
-    // Access control is only on underlays, no other resource types.
-    assertTrue(
-        accessControlService.isAuthorized(
-            UserId.forDisabledAuthentication(),
-            Permissions.forActions(ResourceType.STUDY, Action.CREATE),
-            null));
-    assertTrue(
-        accessControlService
-            .listAuthorizedResources(
-                UserId.forDisabledAuthentication(),
-                Permissions.forActions(ResourceType.STUDY, Action.READ),
-                (ResourceId) null,
-                0,
-                10)
-            .isAllResources());
   }
 
   @Disabled(
