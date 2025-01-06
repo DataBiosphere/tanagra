@@ -32,8 +32,9 @@ ON rc.concept_id = p.race_source_concept_id
 LEFT JOIN `${omopDataset}.concept` ec
 ON ec.concept_id = p.ethnicity_concept_id
 
-LEFT JOIN `${omopDataset}.death` d
-ON p.person_id = d.person_id
+LEFT JOIN (SELECT person_id, max(death_date) as death_date
+           FROM `${omopDataset}.death` GROUP BY person_id) d
+          ON (p.person_id = d.person_id)
 
 LEFT OUTER JOIN
     (
