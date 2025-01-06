@@ -13,7 +13,7 @@ tanagra:
     password: dbpwd
 
   access-control:
-    model: OPEN_ACCESS # VUMC_ADMIN, VERILY_GROUP
+    model: OPEN_ACCESS # VUMC_ADMIN
     params: []
     base-path:
     oauth-client-id:
