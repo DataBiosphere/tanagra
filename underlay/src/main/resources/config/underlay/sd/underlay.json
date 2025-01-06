@@ -4,7 +4,7 @@
   "entities": [
     "sd/person",
 
-    "omop/condition",
+    "sd/condition",
     "sd/conditionOccurrence",
     "omop/procedure",
     "sd/procedureOccurrence",
@@ -87,9 +87,11 @@
     "sd/gender",
     "sd/race",
     "sd/age",
+    "sd/deceased",
     "sd/bioVU",
     "sd/bioVUPlasma",
     "sd/agdSubjectQueue",
+    "sd/agdGenotypeResult",
     "sd/genotyping",
     "sd/measurement",
     "sd/documents",

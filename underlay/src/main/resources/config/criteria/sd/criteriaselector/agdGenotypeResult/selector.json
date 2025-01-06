@@ -1,0 +1,15 @@
+{
+  "name": "agdGenotypeResult",
+  "displayName": "AGD Data Availability",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "BioVU",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "agdGenotypeResult.json",
+  "modifiers": null
+}

@@ -1,4 +1,4 @@
-SELECT
+SELECT DISTINCT
   mo.measurement_id,
   mo.person_id,
   p.person_source_value,

@@ -1,4 +1,4 @@
-SELECT
+SELECT DISTINCT
   o.observation_id,
   o.person_id,
   p.person_source_value,
