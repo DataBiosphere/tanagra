@@ -1,4 +1,4 @@
-SELECT
+SELECT DISTINCT
   co.condition_occurrence_id,
   co.person_id,
   p.person_source_value,
