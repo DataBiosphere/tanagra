@@ -163,6 +163,54 @@
               "width": 200,
               "title": "End date",
               "sortable": true
+            },
+            {
+              "key": "exposure_type",
+              "width": 200,
+              "title": "Exposure type",
+              "sortable": true
+            },
+            {
+              "key": "form",
+              "width": 130,
+              "title": "Form",
+              "sortable": true
+            },
+            {
+              "key": "strength",
+              "width": 150,
+              "title": "Strength",
+              "sortable": true
+            },
+            {
+              "key": "amount",
+              "width": 130,
+              "title": "Amount",
+              "sortable": true
+            },
+            {
+              "key": "route",
+              "width": 150,
+              "title": "Route",
+              "sortable": true
+            },
+            {
+              "key": "frequency",
+              "width": 150,
+              "title": "Frequency",
+              "sortable": true
+            },
+            {
+              "key": "source",
+              "width": 150,
+              "title": "Source",
+              "sortable": true
+            },
+            {
+              "key": "age_at_occurrence",
+              "width": 200,
+              "title": "Age At Event",
+              "sortable": true
             }
           ]
         }
