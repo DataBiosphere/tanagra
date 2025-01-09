@@ -1,0 +1,20 @@
+{
+  "underlay": "cmssynpuf",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "bigquery-public-data",
+      "datasetId": "cms_synthetic_patient_data_omop",
+      "sqlSubstitutions": {
+        "omopDataset": "bigquery-public-data.cms_synthetic_patient_data_omop",
+        "staticTablesDataset": "vwb-dev-tepid-almond-1191.aou_static_prep_us"
+      }
+    },
+    "indexData": {
+      "projectId": "vwb-dev-tepid-almond-1191",
+      "datasetId": "cmssynpuf_index_010325"
+    },
+    "queryProjectId": "prj-d-1v-ucd",
+    "dataLocation": "us"
+  },
+  "uiConfigFile": "ui.json"
+}
