@@ -1,0 +1,20 @@
+{
+  "underlay": "pilotsynthea2022q3",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "vwb-dev-mighty-chestnut-9122",
+      "datasetId": "pilot_synthea_2022q3",
+      "sqlSubstitutions": {
+        "omopDataset": "vwb-dev-mighty-chestnut-9122.pilot_synthea_2022q3",
+        "staticTablesDataset": "vwb-dev-mighty-chestnut-9122.aou_static_prep_us"
+      }
+    },
+    "indexData": {
+      "projectId": "vwb-dev-mighty-chestnut-9122",
+      "datasetId": "pilotsynthea2022q3_index_010325"
+    },
+    "queryProjectId": "prj-d-1v-ucd",
+    "dataLocation": "us"
+  },
+  "uiConfigFile": "ui.json"
+}

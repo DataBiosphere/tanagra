@@ -1,0 +1,21 @@
+{
+  "underlay": "aouSR2019q4r4",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "vwb-dev-blissful-apple-9726",
+      "datasetId": "aou_synthetic_SR2019q4r4",
+      "sqlSubstitutions": {
+        "omopDataset": "vwb-dev-blissful-apple-9726.aou_synthetic_SR2019q4r4",
+        "staticTablesDataset": "vwb-dev-blissful-apple-9726.aou_static_prep_us_central1"
+      }
+    },
+    "indexData": {
+      "projectId": "vwb-dev-blissful-apple-9726",
+      "datasetId": "aouSR2019q4r4_index_010325",
+      "tablePrefix": "T"
+    },
+    "queryProjectId": "prj-d-1v-ucd",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}

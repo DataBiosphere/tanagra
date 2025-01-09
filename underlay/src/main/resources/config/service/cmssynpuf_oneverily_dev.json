@@ -6,14 +6,14 @@
       "datasetId": "cms_synthetic_patient_data_omop",
       "sqlSubstitutions": {
         "omopDataset": "bigquery-public-data.cms_synthetic_patient_data_omop",
-        "staticTablesDataset": "verily-tanagra-dev.aou_static_prep"
+        "staticTablesDataset": "vwb-dev-tepid-almond-1191.aou_static_prep_us"
       }
     },
     "indexData": {
-      "projectId": "verily-tanagra-dev",
-      "datasetId": "cmssynpuf_index_060724"
+      "projectId": "vwb-dev-tepid-almond-1191",
+      "datasetId": "cmssynpuf_index_010325"
     },
-    "queryProjectId": "verily-tanagra-dev",
+    "queryProjectId": "prj-d-1v-ucd",
     "dataLocation": "us"
   },
   "uiConfigFile": "ui.json"
