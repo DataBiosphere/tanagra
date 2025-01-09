@@ -5,16 +5,13 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":ajvstemd" arg; do
+while getopts ":ajstemd" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
       ;;
     j) # Generic JWT
       jwt=1
-      ;;
-    v) # Use Verily underlays.
-      useVerilyUnderlays=1
       ;;
     s) # Use sd underlays.
       useSdUnderlays=1
@@ -52,13 +49,7 @@ else
   export TANAGRA_DB_URI=jdbc:postgresql://127.0.0.1:5432/${TANAGRA_DATABASE_NAME}
 fi
 
-if [[ ${useVerilyUnderlays} ]]; then
-  echo "Using Verily underlays."
-  export TANAGRA_UNDERLAY_FILES=cmssynpuf_verily,aouSR2019q4r4_verily,sd20230831_verily,pilotsynthea2022q3_verily,aouSC2023Q3R2_verily
-  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=verily-tanagra-test
-  export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=service_export_us,service_export_uscentral1
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=verily-tanagra-test-export-bucket,verily-tanagra-test-export-bucket-uscentral1
-elif [[ ${useAouUnderlays} ]]; then
+if [[ ${useAouUnderlays} ]]; then
   echo "Using AoU test underlays."
   export TANAGRA_UNDERLAY_FILES=aou/SR2023Q3R2_local,aou/SC2023Q3R2_local
   export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=broad-tanagra-dev
