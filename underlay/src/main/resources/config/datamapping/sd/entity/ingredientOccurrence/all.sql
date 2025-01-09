@@ -14,6 +14,7 @@ SELECT
   CAST(FLOOR(TIMESTAMP_DIFF(de.drug_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   de.visit_occurrence_id,
   de.drug_type_concept_id,
+  tc.concept_name AS drug_type_concept_name,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name,
   de.route_source_value AS route,
@@ -39,3 +40,6 @@ LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
 
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
+
+LEFT JOIN `${omopDataset}.concept` AS tc
+    ON tc.concept_id = de.drug_type_concept_id

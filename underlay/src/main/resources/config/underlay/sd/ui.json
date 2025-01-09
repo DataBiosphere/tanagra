@@ -154,19 +154,19 @@
             },
             {
               "key": "start_date",
-              "width": 200,
+              "width": 150,
               "title": "Start date",
               "sortable": true
             },
             {
               "key": "end_date",
-              "width": 200,
+              "width": 150,
               "title": "End date",
               "sortable": true
             },
             {
               "key": "exposure_type",
-              "width": 200,
+              "width": 250,
               "title": "Exposure type",
               "sortable": true
             },
@@ -229,22 +229,40 @@
               "sortable": true,
               "filterable": true
             },
-            { "key": "date", "width": 200, "title": "Date", "sortable": true },
+            { "key": "start_date", "width": 200, "title": "Date", "sortable": true },
             {
               "key": "value_enum",
-              "width": 160,
+              "width": 200,
               "title": "Categorical value",
               "sortable": true,
               "filterable": true
             },
             {
               "key": "value_numeric",
-              "width": 160,
+              "width": 200,
               "title": "Numeric value",
               "sortable": true,
               "filterable": true
             },
-            { "key": "unit", "width": 160, "title": "Unit", "sortable": true }
+            { "key": "unit", "width": 160, "title": "Unit", "sortable": true },
+            {
+              "key": "measurement_type",
+              "width": 250,
+              "title": "Measurement type",
+              "sortable": true
+            },
+            {
+              "key": "source_value",
+              "width": 200,
+              "title": "Source value",
+              "sortable": true
+            },
+            {
+              "key": "age_at_occurrence",
+              "width": 170,
+              "title": "Age at event",
+              "sortable": true
+            }
           ]
         }
       },
