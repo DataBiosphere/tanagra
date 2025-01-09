@@ -82,7 +82,7 @@ public class ConfigReaderTest {
 
   @Test
   void deserializeCmssynpufServiceAndUnderlay() {
-    SZService verilyCmssynpuf = ConfigReader.fromJarResources().readService("cmssynpuf_verily");
+    SZService verilyCmssynpuf = ConfigReader.fromJarResources().readService("cmssynpuf_broad");
     assertNotNull(verilyCmssynpuf);
     SZUnderlay szCmssynpuf = ConfigReader.fromJarResources().readUnderlay("cmssynpuf");
     assertNotNull(szCmssynpuf);
