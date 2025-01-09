@@ -15,7 +15,10 @@ SELECT DISTINCT
   CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   mo.visit_occurrence_id,
   vo.visit_concept_id,
-  vc.concept_name AS visit_concept_name
+  vc.concept_name AS visit_concept_name,
+  mo.measurement_type_concept_id,
+  tc.concept_name AS measurement_type_concept_name
+
 
 FROM `${omopDataset}.measurement` AS mo
 
@@ -36,3 +39,6 @@ ON vo.visit_occurrence_id = mo.visit_occurrence_id
 
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
+
+LEFT JOIN `${omopDataset}.concept` AS tc
+    ON tc.concept_id = mo.measurement_type_concept_id

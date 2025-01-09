@@ -14,7 +14,8 @@
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "measurement_source_concept_id" },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true },
+    {"name":  "measurement_type", "dataType":  "INT64", "valueFieldName":  "measurement_type_concept_id", "displayFieldName":  "measurement_type_concept_name"}
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "measurement" ]
