@@ -15,7 +15,14 @@
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "drug_source_concept_id" },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true }
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true },
+    {"name":  "exposure_type", "dataType":  "INT64", "valueFieldName":  "drug_type_concept_id", "displayFieldName":  "drug_type_concept_name"},
+    {"name":  "form", "dataType":  "STRING", "valueFieldName":  "drug_form"},
+    {"name":  "strength", "dataType":  "STRING", "valueFieldName":  "drug_strength"},
+    {"name":  "amount", "dataType":  "STRING", "valueFieldName":  "dose_amt"},
+    {"name":  "route", "dataType":  "STRING", "valueFieldName":  "route"},
+    {"name":  "frequency", "dataType":  "STRING", "valueFieldName":  "drug_freq"},
+    {"name":  "source", "dataType":  "STRING", "valueFieldName":  "source_table"}
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "ingredient" ]

@@ -19,7 +19,7 @@ SELECT
     EXISTS
         (SELECT 1 FROM `${omopDataset}.genotype_result` gr WHERE p.person_id = gr.person_id
                   AND gr.assay_name = 'agd whole genome sequencing'  ) AS has_agd_genotype_result,
-    CASE WHEN d.death_date is null THEN true ELSE false END AS is_deceased
+    CASE WHEN d.death_date is null THEN false ELSE true END AS is_deceased
 
 FROM `${omopDataset}.person` p
 
