@@ -1,6 +1,7 @@
 {
   "featureConfig": {
-    "overrideExportButton": true
+    "overrideExportButton": true,
+    "renameStudyLabel": "Workspace"
   },
   "demographicChartConfigs": {
     "groupByAttributes": ["gender", "race", "age"],
