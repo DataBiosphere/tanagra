@@ -4,7 +4,13 @@
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "condition_occurrence_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
-    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value", "isSuppressedForExport": true },
+    { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_id", "displayFieldName": "person_source_value",
+      "sourceQuery": {
+        "displayFieldName": "person_source_value",
+        "displayFieldTable": "${omopDataset}.person",
+        "displayFieldTableJoinFieldName": "person_id"
+      }
+    },
     { "name": "condition", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "condition_concept_name",
       "sourceQuery": {
         "displayFieldName": "concept_name",
