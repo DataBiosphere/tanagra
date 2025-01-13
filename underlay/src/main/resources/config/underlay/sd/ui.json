@@ -255,7 +255,8 @@
               "key": "source_value",
               "width": 200,
               "title": "Source value",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "age_at_occurrence",
