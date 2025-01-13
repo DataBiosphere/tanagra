@@ -86,10 +86,6 @@ export function RangeSlider(props: RangeSliderProps) {
         height: "auto",
         mt: 0.5,
       }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
     >
       <GridLayout cols fillCol={1} spacing={3} height="auto">
         <Input

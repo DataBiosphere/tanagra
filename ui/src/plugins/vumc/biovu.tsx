@@ -146,15 +146,7 @@ function BioVUInline(props: BioVUInlineProps) {
 
   return !props.config.plasmaFilter ? (
     <GridLayout rows spacing={1} height="auto">
-      <FormControl
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onMouseUp={(e) => {
-          e.stopPropagation();
-        }}
-      >
+      <FormControl>
         <Select
           value={decodedData.sampleFilter}
           input={<OutlinedInput />}
@@ -168,15 +160,7 @@ function BioVUInline(props: BioVUInlineProps) {
         </Select>
       </FormControl>
       <GridLayout cols rowAlign="middle">
-        <GridBox
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onMouseUp={(e) => {
-            e.stopPropagation();
-          }}
-        >
+        <GridBox>
           <Checkbox
             checked={decodedData.excludeCompromised}
             onChange={() =>
@@ -194,15 +178,7 @@ function BioVUInline(props: BioVUInlineProps) {
         </Tooltip>
       </GridLayout>
       <GridLayout cols rowAlign="middle">
-        <GridBox
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onMouseUp={(e) => {
-            e.stopPropagation();
-          }}
-        >
+        <GridBox>
           <Checkbox
             checked={decodedData.excludeInternal}
             onChange={() =>

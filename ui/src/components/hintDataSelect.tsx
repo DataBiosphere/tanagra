@@ -58,15 +58,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
   };
 
   return (
-    <FormControl
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      onMouseUp={(e) => {
-        e.stopPropagation();
-      }}
-    >
+    <FormControl>
       <Select
         multiple
         displayEmpty
@@ -81,15 +73,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
                   <Chip
                     key={s}
                     label={s}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                    }}
-                    onMouseUp={(e) => {
-                      e.stopPropagation();
-                    }}
-                    onDelete={(e) => {
-                      e.stopPropagation();
+                    onDelete={() => {
                       onDelete(s);
                     }}
                   />

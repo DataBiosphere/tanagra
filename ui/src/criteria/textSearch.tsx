@@ -193,16 +193,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
   return (
     <Loading status={hintDataState}>
       {!!hintDataState.data?.hintData?.enumHintOptions ? (
-        <FormControl
-          sx={{ maxWidth: 500 }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onMouseUp={(e) => {
-            e.stopPropagation();
-          }}
-        >
+        <FormControl sx={{ maxWidth: 500 }}>
           <GridLayout rows spacing={1} height="auto">
             <TextField
               label="Search text"
@@ -224,15 +215,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
                       <Chip
                         key={c}
                         label={c}
-                        onMouseDown={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                        }}
-                        onMouseUp={(e) => {
-                          e.stopPropagation();
-                        }}
-                        onDelete={(e) => {
-                          e.stopPropagation();
+                        onDelete={() => {
                           onDelete(c);
                         }}
                       />
