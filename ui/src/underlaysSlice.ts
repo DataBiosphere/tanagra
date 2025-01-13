@@ -33,6 +33,7 @@ export type FeatureConfig = {
   disableExportButton?: boolean;
   overrideExportButton?: boolean;
   disableFeatureSets?: boolean;
+  renameStudyLabel?: string;
 };
 
 export type DemographicChartConfig = {

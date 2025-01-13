@@ -136,7 +136,7 @@ export function Export() {
             <StudyName />
             <Typography variant="body1">•</Typography>
             <Typography variant="body1">
-              Data source: {underlay.name}
+              Data source: {underlay.underlayConfig.metadata.displayName}
             </Typography>
           </GridLayout>
         }
