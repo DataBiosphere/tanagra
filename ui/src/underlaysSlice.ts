@@ -26,6 +26,7 @@ export type UIConfiguration = {
   demographicChartConfigs: DemographicChartConfig;
   criteriaSearchConfig: CriteriaSearchConfig;
   cohortReviewConfig: CohortReviewConfig;
+  defaultVisualizations: string[];
 };
 
 export type FeatureConfig = {

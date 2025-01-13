@@ -1,3 +1,4 @@
+import { uncontainedSelectSx } from "components/select";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -135,10 +136,19 @@ export function Overview() {
       />
       <GridLayout
         rows="minmax(max-content, 100%)"
-        cols="minmax(440px, auto) 450px"
+        cols="max(450px, 40%) minmax(440px, auto)"
         spacing={2}
         sx={{ px: 5, overflow: "auto" }}
       >
+        <GridBox sx={{ pt: 3 }}>
+          <Paper
+            sx={{
+              p: 2,
+            }}
+          >
+            <GroupList />
+          </Paper>
+        </GridBox>
         <GridBox
           sx={{
             pt: 3,
@@ -164,15 +174,6 @@ export function Overview() {
           />
           {renameTitleDialog}
           {confirmDialog}
-        </GridBox>
-        <GridBox sx={{ pt: 3 }}>
-          <Paper
-            sx={{
-              p: 2,
-            }}
-          >
-            <GroupList />
-          </Paper>
         </GridBox>
       </GridLayout>
     </GridLayout>
@@ -441,6 +442,7 @@ function ParticipantsGroupSection(props: {
           ) : (
             <Empty
               maxWidth="90%"
+              minHeight="60px"
               subtitle={
                 <>
                   <Link
@@ -531,6 +533,7 @@ function ParticipantsGroupSection(props: {
           ) : (
             <Empty
               maxWidth="90%"
+              minHeight="60px"
               subtitle={
                 <>
                   <Link
@@ -647,7 +650,6 @@ function ReducingOperator(props: {
                   operatorValue: parseInt(event.target.value) ?? 0,
                 });
               }}
-              onClick={(e) => e.stopPropagation()}
               inputProps={{
                 type: "number",
                 min: 1,
@@ -697,19 +699,7 @@ function ReducingOperatorSelect(props: {
               : undefined,
           });
         }}
-        sx={{
-          color: (theme) => theme.palette.primary.main,
-          "& .MuiOutlinedInput-input": {
-            px: 0,
-            py: "2px",
-          },
-          "& .MuiSelect-select": (theme) => ({
-            ...theme.typography.body2,
-          }),
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderStyle: "none",
-          },
-        }}
+        sx={uncontainedSelectSx()}
       >
         <MenuItem value={GroupSectionReducingOperator.Any}>
           Any mention of
@@ -851,16 +841,6 @@ function ParticipantsGroup(props: {
   return (
     <GridLayout key={props.group.id} rows height="auto">
       <GridBox
-        onClick={() => {
-          navigate(
-            "../" +
-              cohortURL(
-                cohort.id,
-                props.groupSection.id,
-                !selected ? props.group.id : undefined
-              )
-          );
-        }}
         sx={{
           p: 2,
           height: "auto",
@@ -869,15 +849,7 @@ function ParticipantsGroup(props: {
                 backgroundColor: "#F1F2FA",
                 boxShadow: "inset 0 -1px 0 #BEC2E9, inset 0 1px 0 #BEC2E9",
               }
-            : {
-                "&:hover": {
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                  color: (theme) =>
-                    (theme.typography as { link: { color: string } }).link
-                      .color,
-                },
-              }),
+            : undefined),
         }}
       >
         <GridLayout key={props.group.id} rows height="auto">
@@ -894,10 +866,29 @@ function ParticipantsGroup(props: {
               <GridBox />
             )}
             <GridBox
+              onClick={() => {
+                navigate(
+                  "../" +
+                    cohortURL(
+                      cohort.id,
+                      props.groupSection.id,
+                      !selected ? props.group.id : undefined
+                    )
+                );
+              }}
               sx={{
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
+                "&:hover": {
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  color: (theme) =>
+                    !selected
+                      ? (theme.typography as { link: { color: string } }).link
+                          .color
+                      : undefined,
+                },
               }}
             >
               <Typography
@@ -908,15 +899,7 @@ function ParticipantsGroup(props: {
                 {title}
               </Typography>
             </GridBox>
-            <GridBox
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              onMouseUp={(e) => {
-                e.stopPropagation();
-              }}
-            >
+            <GridLayout cols rowAlign="middle">
               {selected && !!plugin.renderEdit ? (
                 <IconButton
                   data-testid={title}
@@ -971,7 +954,7 @@ function ParticipantsGroup(props: {
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               ) : null}
-            </GridBox>
+            </GridLayout>
             <GridBox />
             <Loading status={groupCountState} size="small">
               <Typography
@@ -1035,28 +1018,18 @@ function ParticipantsGroup(props: {
                         <Typography variant="body2">
                           {modifierCriteria[i].config.displayName}
                         </Typography>
-                        <GridBox
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                          onMouseUp={(e) => {
-                            e.stopPropagation();
-                          }}
+                        <IconButton
+                          onClick={() =>
+                            deleteCohortCriteriaModifier(
+                              context,
+                              props.groupSection.id,
+                              props.group.id,
+                              p.id
+                            )
+                          }
                         >
-                          <IconButton
-                            onClick={() =>
-                              deleteCohortCriteriaModifier(
-                                context,
-                                props.groupSection.id,
-                                props.group.id,
-                                p.id
-                              )
-                            }
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </GridBox>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
                         <GridBox />
                       </GridLayout>
                     </GridLayout>
