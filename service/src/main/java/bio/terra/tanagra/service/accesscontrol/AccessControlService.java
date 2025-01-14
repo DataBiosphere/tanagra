@@ -146,6 +146,10 @@ public class AccessControlService {
               userAccessGroup != null
                   ? accessControlImpl.listStudies(user, userAccessGroup, offset, limit)
                   : accessControlImpl.listStudies(user, offset, limit);
+          case COHORT ->
+              userAccessGroup != null
+                  ? accessControlImpl.listAllCohorts(user, userAccessGroup, offset, limit)
+                  : ResourceCollection.empty(ResourceType.COHORT, null);
           default ->
               throw new SystemException(
                   "Listing " + permissions.getType() + " resources requires a parent resource id");

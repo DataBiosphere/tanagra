@@ -406,6 +406,27 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  # --------------- Cohorts ---------------
+
+  "/v2/cohorts":
+    get:
+      parameters:
+        - $ref: "#/components/parameters/UserAccessGroup"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Limit"
+      summary: List all cohorts a user can access
+      operationId: listAllCohorts
+      tags: [Cohorts]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CohortList"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   # --------------- Studies: Cohorts ---------------
 
   "/v2/studies/{studyId}/cohorts":

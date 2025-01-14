@@ -22,4 +22,9 @@ public class OpenAccessControl implements UnderlayAccessControl {
   public Permissions getUnderlay(UserId user, ResourceId underlay) {
     return Permissions.allActions(ResourceType.UNDERLAY);
   }
+
+  @Override
+  public ResourceCollection listAllCohorts(UserId user, String accessGroup, int offset, int limit) {
+    return ResourceCollection.empty(ResourceType.COHORT, null);
+  }
 }

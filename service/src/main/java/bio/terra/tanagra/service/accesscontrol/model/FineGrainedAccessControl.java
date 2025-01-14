@@ -31,6 +31,8 @@ public interface FineGrainedAccessControl {
 
   Permissions getStudy(UserId user, ResourceId study);
 
+  ResourceCollection listAllCohorts(UserId user, String accessGroup, int offset, int limit);
+
   ResourceCollection listCohorts(UserId user, ResourceId study, int offset, int limit);
 
   Permissions getCohort(UserId user, ResourceId cohort);

@@ -112,6 +112,17 @@ public class VumcAdminAccessControl implements StudyAccessControl {
   }
 
   @Override
+  public ResourceCollection listAllCohorts(UserId user, String accessGroup, int offset, int limit) {
+    // Get permissions for all cohorts, then splice the list to accommodate the offset+limit.
+    Map<ResourceId, Permissions> resourcePermissionsMap =
+        listAllPermissions(user, ResourceType.COHORT, accessGroup);
+    return resourcePermissionsMap.isEmpty()
+        ? ResourceCollection.empty(ResourceType.COHORT, null)
+        : ResourceCollection.resourcesDifferentPermissions(resourcePermissionsMap)
+            .slice(offset, limit);
+  }
+
+  @Override
   public Permissions getActivityLog(UserId user) {
     return apiIsAuthorizedUser(user.getEmail())
         ? Permissions.allActions(ResourceType.ACTIVITY_LOG)

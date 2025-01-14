@@ -107,6 +107,23 @@ public class CohortsApiController implements CohortsApi {
   }
 
   @Override
+  public ResponseEntity<ApiCohortList> listAllCohorts(
+      String userAccessGroup, Integer offset, Integer limit) {
+    ResourceCollection authorizedCohortIds =
+        accessControlService.listAuthorizedResources(
+            SpringAuthentication.getCurrentUser(),
+            Permissions.forActions(COHORT, READ),
+            userAccessGroup,
+            offset,
+            limit);
+    ApiCohortList apiCohorts = new ApiCohortList();
+    cohortService
+        .listCohorts(authorizedCohortIds, offset, limit)
+        .forEach(cohort -> apiCohorts.add(ToApiUtils.toApiObject(cohort)));
+    return ResponseEntity.ok(apiCohorts);
+  }
+
+  @Override
   public ResponseEntity<ApiCohort> updateCohort(
       String studyId, String cohortId, ApiCohortUpdateInfo body, String cohortRevisionId) {
     accessControlService.throwIfUnauthorized(

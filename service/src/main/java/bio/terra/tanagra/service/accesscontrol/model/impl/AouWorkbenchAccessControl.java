@@ -77,6 +77,11 @@ public class AouWorkbenchAccessControl implements StudyAccessControl {
         : Permissions.forActions(ResourceType.STUDY, role.getStudyPermissions());
   }
 
+  @Override
+  public ResourceCollection listAllCohorts(UserId user, String accessGroup, int offset, int limit) {
+    return ResourceCollection.empty(ResourceType.COHORT, null);
+  }
+
   public enum WorkspaceRole {
     OWNER(ResourceType.STUDY.getActions()),
     WRITER(Set.of(Action.READ, Action.UPDATE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET)),

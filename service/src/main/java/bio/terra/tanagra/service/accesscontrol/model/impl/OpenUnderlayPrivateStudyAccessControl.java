@@ -70,4 +70,9 @@ public class OpenUnderlayPrivateStudyAccessControl implements StudyAccessControl
         ? STUDY_PERMISSIONS_WITHOUT_CREATE
         : Permissions.empty(ResourceType.STUDY);
   }
+
+  @Override
+  public ResourceCollection listAllCohorts(UserId user, String accessGroup, int offset, int limit) {
+    return ResourceCollection.empty(ResourceType.COHORT, null);
+  }
 }
