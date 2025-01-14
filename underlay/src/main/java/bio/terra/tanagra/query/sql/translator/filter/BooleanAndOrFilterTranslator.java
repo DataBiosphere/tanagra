@@ -7,6 +7,7 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -16,16 +17,20 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
   private final Optional<ApiFilterTranslator> mergedSubFiltersTranslator;
 
   public BooleanAndOrFilterTranslator(
-      ApiTranslator apiTranslator, BooleanAndOrFilter booleanAndOrFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      BooleanAndOrFilter booleanAndOrFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.booleanAndOrFilter = booleanAndOrFilter;
     this.mergedSubFiltersTranslator =
         apiTranslator.optionalMergedTranslator(
-            booleanAndOrFilter.getSubFilters(), booleanAndOrFilter.getOperator());
+            booleanAndOrFilter.getSubFilters(),
+            booleanAndOrFilter.getOperator(),
+            attributeSwapFields);
     this.subFilterTranslators =
         mergedSubFiltersTranslator.isEmpty()
             ? booleanAndOrFilter.getSubFilters().stream()
-                .map(apiTranslator::translator)
+                .map(filter -> apiTranslator.translator(filter, attributeSwapFields))
                 .collect(Collectors.toList())
             : List.of();
   }

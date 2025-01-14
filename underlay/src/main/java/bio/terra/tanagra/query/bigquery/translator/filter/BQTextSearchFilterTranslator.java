@@ -8,13 +8,16 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import java.util.Map;
 
 public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
   private final TextSearchFilter textSearchFilter;
 
   public BQTextSearchFilterTranslator(
-      ApiTranslator apiTranslator, TextSearchFilter textSearchFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      TextSearchFilter textSearchFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.textSearchFilter = textSearchFilter;
   }
 

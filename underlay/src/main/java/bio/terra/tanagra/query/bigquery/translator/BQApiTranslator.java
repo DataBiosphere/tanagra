@@ -32,6 +32,7 @@ import bio.terra.tanagra.query.sql.*;
 import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import jakarta.annotation.*;
 import java.util.*;
 
@@ -72,61 +73,83 @@ public final class BQApiTranslator implements ApiTranslator {
   }
 
   @Override
-  public ApiFilterTranslator translator(AttributeFilter attributeFilter) {
-    return new BQAttributeFilterTranslator(this, attributeFilter);
+  public ApiFilterTranslator translator(
+      AttributeFilter attributeFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQAttributeFilterTranslator(this, attributeFilter, attributeSwapFields);
   }
 
   @Override
   public Optional<ApiFilterTranslator> mergedTranslator(
-      List<AttributeFilter> attributeFilters, LogicalOperator logicalOperator) {
+      List<AttributeFilter> attributeFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
     return BQAttributeFilterTranslator.canMergeTranslation(attributeFilters)
-        ? Optional.of(new BQAttributeFilterTranslator(this, attributeFilters, logicalOperator))
+        ? Optional.of(
+            new BQAttributeFilterTranslator(
+                this, attributeFilters, logicalOperator, attributeSwapFields))
         : Optional.empty();
   }
 
   @Override
-  public ApiFilterTranslator translator(HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
-    return new BQHierarchyHasAncestorFilterTranslator(this, hierarchyHasAncestorFilter);
+  public ApiFilterTranslator translator(
+      HierarchyHasAncestorFilter hierarchyHasAncestorFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQHierarchyHasAncestorFilterTranslator(
+        this, hierarchyHasAncestorFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter) {
-    return new BQHierarchyHasParentFilterTranslator(this, hierarchyHasParentFilter);
+  public ApiFilterTranslator translator(
+      HierarchyHasParentFilter hierarchyHasParentFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQHierarchyHasParentFilterTranslator(
+        this, hierarchyHasParentFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(HierarchyIsLeafFilter hierarchyIsLeafFilter) {
-    return new BQHierarchyIsLeafFilterTranslator(this, hierarchyIsLeafFilter);
+  public ApiFilterTranslator translator(
+      HierarchyIsLeafFilter hierarchyIsLeafFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQHierarchyIsLeafFilterTranslator(this, hierarchyIsLeafFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(HierarchyIsMemberFilter hierarchyIsMemberFilter) {
-    return new BQHierarchyIsMemberFilterTranslator(this, hierarchyIsMemberFilter);
+  public ApiFilterTranslator translator(
+      HierarchyIsMemberFilter hierarchyIsMemberFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQHierarchyIsMemberFilterTranslator(
+        this, hierarchyIsMemberFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter) {
-    return new BQHierarchyIsRootFilterTranslator(this, hierarchyIsRootFilter);
+  public ApiFilterTranslator translator(
+      HierarchyIsRootFilter hierarchyIsRootFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQHierarchyIsRootFilterTranslator(this, hierarchyIsRootFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(PrimaryWithCriteriaFilter primaryWithCriteriaFilter) {
-    return new BQPrimaryWithCriteriaFilterTranslator(this, primaryWithCriteriaFilter);
+  public ApiFilterTranslator translator(
+      PrimaryWithCriteriaFilter primaryWithCriteriaFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQPrimaryWithCriteriaFilterTranslator(
+        this, primaryWithCriteriaFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(RelationshipFilter relationshipFilter) {
-    return new BQRelationshipFilterTranslator(this, relationshipFilter);
+  public ApiFilterTranslator translator(
+      RelationshipFilter relationshipFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQRelationshipFilterTranslator(this, relationshipFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(TextSearchFilter textSearchFilter) {
-    return new BQTextSearchFilterTranslator(this, textSearchFilter);
+  public ApiFilterTranslator translator(
+      TextSearchFilter textSearchFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQTextSearchFilterTranslator(this, textSearchFilter, attributeSwapFields);
   }
 
   @Override
-  public ApiFilterTranslator translator(TemporalPrimaryFilter temporalPrimaryFilter) {
-    return new BQTemporalPrimaryFilterTranslator(this, temporalPrimaryFilter);
+  public ApiFilterTranslator translator(
+      TemporalPrimaryFilter temporalPrimaryFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BQTemporalPrimaryFilterTranslator(this, temporalPrimaryFilter, attributeSwapFields);
   }
 
   @Override

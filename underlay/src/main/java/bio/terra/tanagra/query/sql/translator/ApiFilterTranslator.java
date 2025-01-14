@@ -11,8 +11,12 @@ public abstract class ApiFilterTranslator {
   protected final ApiTranslator apiTranslator;
   protected final Map<Attribute, SqlField> attributeSwapFields = new HashMap<>();
 
-  protected ApiFilterTranslator(ApiTranslator apiTranslator) {
+  protected ApiFilterTranslator(
+      ApiTranslator apiTranslator, Map<Attribute, SqlField> attributeSwapFields) {
     this.apiTranslator = apiTranslator;
+    if (attributeSwapFields != null) {
+      this.attributeSwapFields.putAll(attributeSwapFields);
+    }
   }
 
   public abstract String buildSql(SqlParams sqlParams, String tableAlias);

@@ -26,6 +26,7 @@ import bio.terra.tanagra.query.sql.translator.filter.BooleanNotFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.GroupHasItemsFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.ItemInGroupFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.filter.OccurrenceForPrimaryFilterTranslator;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -291,87 +292,117 @@ public interface ApiTranslator {
     }
   }
 
-  ApiFilterTranslator translator(AttributeFilter attributeFilter);
+  ApiFilterTranslator translator(
+      AttributeFilter attributeFilter, Map<Attribute, SqlField> attributeSwapFields);
 
   Optional<ApiFilterTranslator> mergedTranslator(
-      List<AttributeFilter> attributeFilter, LogicalOperator logicalOperator);
+      List<AttributeFilter> attributeFilter,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
 
-  default ApiFilterTranslator translator(BooleanAndOrFilter booleanAndOrFilter) {
-    return new BooleanAndOrFilterTranslator(this, booleanAndOrFilter);
+  default ApiFilterTranslator translator(
+      BooleanAndOrFilter booleanAndOrFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BooleanAndOrFilterTranslator(this, booleanAndOrFilter, attributeSwapFields);
   }
 
-  default ApiFilterTranslator translator(BooleanNotFilter booleanNotFilter) {
-    return new BooleanNotFilterTranslator(this, booleanNotFilter);
+  default ApiFilterTranslator translator(
+      BooleanNotFilter booleanNotFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new BooleanNotFilterTranslator(this, booleanNotFilter, attributeSwapFields);
   }
 
-  ApiFilterTranslator translator(HierarchyHasAncestorFilter hierarchyHasAncestorFilter);
+  ApiFilterTranslator translator(
+      HierarchyHasAncestorFilter hierarchyHasAncestorFilter,
+      Map<Attribute, SqlField> attributeSwapFields);
 
-  ApiFilterTranslator translator(HierarchyHasParentFilter hierarchyHasParentFilter);
+  ApiFilterTranslator translator(
+      HierarchyHasParentFilter hierarchyHasParentFilter,
+      Map<Attribute, SqlField> attributeSwapFields);
 
-  ApiFilterTranslator translator(HierarchyIsLeafFilter hierarchyIsLeafFilter);
+  ApiFilterTranslator translator(
+      HierarchyIsLeafFilter hierarchyIsLeafFilter, Map<Attribute, SqlField> attributeSwapFields);
 
-  ApiFilterTranslator translator(HierarchyIsMemberFilter hierarchyIsMemberFilter);
+  ApiFilterTranslator translator(
+      HierarchyIsMemberFilter hierarchyIsMemberFilter,
+      Map<Attribute, SqlField> attributeSwapFields);
 
-  ApiFilterTranslator translator(HierarchyIsRootFilter hierarchyIsRootFilter);
+  ApiFilterTranslator translator(
+      HierarchyIsRootFilter hierarchyIsRootFilter, Map<Attribute, SqlField> attributeSwapFields);
 
-  default ApiFilterTranslator translator(GroupHasItemsFilter groupHasItemsFilter) {
-    return new GroupHasItemsFilterTranslator(this, groupHasItemsFilter);
+  default ApiFilterTranslator translator(
+      GroupHasItemsFilter groupHasItemsFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new GroupHasItemsFilterTranslator(this, groupHasItemsFilter, attributeSwapFields);
   }
 
-  default ApiFilterTranslator translator(ItemInGroupFilter itemInGroupFilter) {
-    return new ItemInGroupFilterTranslator(this, itemInGroupFilter);
+  default ApiFilterTranslator translator(
+      ItemInGroupFilter itemInGroupFilter, Map<Attribute, SqlField> attributeSwapFields) {
+    return new ItemInGroupFilterTranslator(this, itemInGroupFilter, attributeSwapFields);
   }
 
-  default ApiFilterTranslator translator(OccurrenceForPrimaryFilter occurrenceForPrimaryFilter) {
-    return new OccurrenceForPrimaryFilterTranslator(this, occurrenceForPrimaryFilter);
+  default ApiFilterTranslator translator(
+      OccurrenceForPrimaryFilter occurrenceForPrimaryFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return new OccurrenceForPrimaryFilterTranslator(
+        this, occurrenceForPrimaryFilter, attributeSwapFields);
   }
 
-  ApiFilterTranslator translator(PrimaryWithCriteriaFilter primaryWithCriteriaFilter);
+  ApiFilterTranslator translator(
+      PrimaryWithCriteriaFilter primaryWithCriteriaFilter,
+      Map<Attribute, SqlField> attributeSwapFields);
 
-  ApiFilterTranslator translator(RelationshipFilter relationshipFilter);
+  ApiFilterTranslator translator(
+      RelationshipFilter relationshipFilter, Map<Attribute, SqlField> attributeSwapFields);
 
-  ApiFilterTranslator translator(TextSearchFilter textSearchFilter);
+  ApiFilterTranslator translator(
+      TextSearchFilter textSearchFilter, Map<Attribute, SqlField> attributeSwapFields);
 
-  ApiFilterTranslator translator(TemporalPrimaryFilter temporalPrimaryFilter);
+  ApiFilterTranslator translator(
+      TemporalPrimaryFilter temporalPrimaryFilter, Map<Attribute, SqlField> attributeSwapFields);
 
   default ApiFilterTranslator translator(EntityFilter entityFilter) {
+    return translator(entityFilter, null);
+  }
+
+  default ApiFilterTranslator translator(
+      EntityFilter entityFilter, Map<Attribute, SqlField> attributeSwapFields) {
     if (entityFilter instanceof AttributeFilter) {
-      return translator((AttributeFilter) entityFilter);
+      return translator((AttributeFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof BooleanAndOrFilter) {
-      return translator((BooleanAndOrFilter) entityFilter);
+      return translator((BooleanAndOrFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof BooleanNotFilter) {
-      return translator((BooleanNotFilter) entityFilter);
+      return translator((BooleanNotFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof HierarchyHasAncestorFilter) {
-      return translator((HierarchyHasAncestorFilter) entityFilter);
+      return translator((HierarchyHasAncestorFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof HierarchyHasParentFilter) {
-      return translator((HierarchyHasParentFilter) entityFilter);
+      return translator((HierarchyHasParentFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof HierarchyIsLeafFilter) {
-      return translator((HierarchyIsLeafFilter) entityFilter);
+      return translator((HierarchyIsLeafFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof HierarchyIsMemberFilter) {
-      return translator((HierarchyIsMemberFilter) entityFilter);
+      return translator((HierarchyIsMemberFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof HierarchyIsRootFilter) {
-      return translator((HierarchyIsRootFilter) entityFilter);
+      return translator((HierarchyIsRootFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof GroupHasItemsFilter) {
-      return translator((GroupHasItemsFilter) entityFilter);
+      return translator((GroupHasItemsFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof ItemInGroupFilter) {
-      return translator((ItemInGroupFilter) entityFilter);
+      return translator((ItemInGroupFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof OccurrenceForPrimaryFilter) {
-      return translator((OccurrenceForPrimaryFilter) entityFilter);
+      return translator((OccurrenceForPrimaryFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof PrimaryWithCriteriaFilter) {
-      return translator((PrimaryWithCriteriaFilter) entityFilter);
+      return translator((PrimaryWithCriteriaFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof RelationshipFilter) {
-      return translator((RelationshipFilter) entityFilter);
+      return translator((RelationshipFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof TextSearchFilter) {
-      return translator((TextSearchFilter) entityFilter);
+      return translator((TextSearchFilter) entityFilter, attributeSwapFields);
     } else if (entityFilter instanceof TemporalPrimaryFilter) {
-      return translator((TemporalPrimaryFilter) entityFilter);
+      return translator((TemporalPrimaryFilter) entityFilter, attributeSwapFields);
     } else {
       throw new InvalidQueryException("No SQL translator defined for filter");
     }
   }
 
   default Optional<ApiFilterTranslator> optionalMergedTranslator(
-      List<EntityFilter> entityFilters, LogicalOperator logicalOperator) {
+      List<EntityFilter> entityFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
     // A list of sub-filters can be merged (optimized) if they are of the same type
     // Additional checks may be needed for individual sub-filter types
     EntityFilter firstFilter = entityFilters.get(0);
@@ -382,6 +413,8 @@ public interface ApiTranslator {
       return Optional.empty();
     }
     return mergedTranslator(
-        entityFilters.stream().map(filter -> (AttributeFilter) filter).toList(), logicalOperator);
+        entityFilters.stream().map(filter -> (AttributeFilter) filter).toList(),
+        logicalOperator,
+        attributeSwapFields);
   }
 }

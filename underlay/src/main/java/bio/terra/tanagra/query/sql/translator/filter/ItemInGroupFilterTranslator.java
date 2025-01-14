@@ -2,18 +2,22 @@ package bio.terra.tanagra.query.sql.translator.filter;
 
 import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
+import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
+import java.util.Map;
 
 public class ItemInGroupFilterTranslator extends ApiFilterTranslator {
   private final ItemInGroupFilter itemInGroupFilter;
 
   public ItemInGroupFilterTranslator(
-      ApiTranslator apiTranslator, ItemInGroupFilter itemInGroupFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      ItemInGroupFilter itemInGroupFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.itemInGroupFilter = itemInGroupFilter;
   }
 
@@ -30,7 +34,9 @@ public class ItemInGroupFilterTranslator extends ApiFilterTranslator {
             itemInGroupFilter.getGroupByCountAttributes(),
             itemInGroupFilter.getGroupByCountOperator(),
             itemInGroupFilter.getGroupByCountValue());
-    return apiTranslator.translator(relationshipFilter).buildSql(sqlParams, tableAlias);
+    return apiTranslator
+        .translator(relationshipFilter, attributeSwapFields)
+        .buildSql(sqlParams, tableAlias);
   }
 
   @Override

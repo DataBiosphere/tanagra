@@ -18,14 +18,17 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
   private final PrimaryWithCriteriaFilter primaryWithCriteriaFilter;
 
   public BQPrimaryWithCriteriaFilterTranslator(
-      ApiTranslator apiTranslator, PrimaryWithCriteriaFilter primaryWithCriteriaFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      PrimaryWithCriteriaFilter primaryWithCriteriaFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.primaryWithCriteriaFilter = primaryWithCriteriaFilter;
   }
 
@@ -152,7 +155,9 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
                       + " FROM "
                       + occurrenceEntityTable.getTablePointer().render()
                       + " WHERE "
-                      + apiTranslator.translator(allOccurrenceFilters).buildSql(sqlParams, null));
+                      + apiTranslator
+                          .translator(allOccurrenceFilters, attributeSwapFields)
+                          .buildSql(sqlParams, null));
             });
 
     ITEntityMain selectEntityTable =

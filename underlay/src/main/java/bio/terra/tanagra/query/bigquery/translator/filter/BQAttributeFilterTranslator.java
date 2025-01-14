@@ -14,6 +14,7 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
 import java.util.List;
+import java.util.Map;
 
 public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   private final AttributeFilter attributeFilter;
@@ -21,8 +22,10 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   private final LogicalOperator logicalOperatorForList;
 
   public BQAttributeFilterTranslator(
-      ApiTranslator apiTranslator, AttributeFilter singleAttributeFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      AttributeFilter singleAttributeFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.attributeFilter = singleAttributeFilter;
     this.attributeFilterList = null;
     this.logicalOperatorForList = null;
@@ -31,8 +34,9 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
   public BQAttributeFilterTranslator(
       ApiTranslator apiTranslator,
       List<AttributeFilter> attributeFilters,
-      LogicalOperator logicalOperator) {
-    super(apiTranslator);
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.attributeFilter = null;
     this.attributeFilterList = attributeFilters;
     this.logicalOperatorForList = logicalOperator;
