@@ -391,15 +391,19 @@ function SurveyEdit(props: SurveyEditProps) {
     fetchInstances
   );
 
-  const filteredData = useMemo(() => {
+  const [filteredData, defaultExpanded] = useMemo(() => {
     const data = instancesState.data;
-    if (!data || !searchState?.query) {
-      return data ?? {};
+    if (!data) {
+      return [{}, []];
+    }
+    if (!searchState?.query) {
+      return [data, data["root"]?.children ?? []];
     }
 
     // TODO(tjennison): Handle RegExp errors.
     const [re] = safeRegExp(searchState?.query);
     const matched = new Set<TreeGridId>();
+    const ancestors = new Set<TreeGridId>();
 
     const matchNode = (key: TreeGridId) => {
       const node = data[key];
@@ -408,7 +412,7 @@ function SurveyEdit(props: SurveyEditProps) {
           if (re.test(String(node.data[k]))) {
             matched.add(key);
             node.node.ancestors?.forEach((a) =>
-              matched.add(dataKey(a, node.entityGroup))
+              ancestors.add(dataKey(a, node.entityGroup))
             );
             break;
           }
@@ -423,12 +427,12 @@ function SurveyEdit(props: SurveyEditProps) {
       for (const key in data) {
         const node = data[key];
         data[key].children =
-          node.type !== EntityNodeItemType.Topic
+          node.type === EntityNodeItemType.Question && matched.has(key)
             ? node.children
-            : node.children?.filter((c) => matched.has(c));
+            : node.children?.filter((c) => ancestors.has(c) || matched.has(c));
       }
     });
-    return filtered;
+    return [filtered, Array.from(ancestors)];
   }, [instancesState.data, searchState?.query]);
 
   const columns: TreeGridColumn[] = useMemo(
@@ -478,6 +482,7 @@ function SurveyEdit(props: SurveyEditProps) {
                 columns={columns}
                 data={filteredData}
                 expandable
+                defaultExpanded={defaultExpanded}
                 reserveExpansionSpacing
                 rowCustomization={(
                   id: TreeGridId,

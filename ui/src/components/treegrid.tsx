@@ -22,6 +22,7 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -189,7 +190,8 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
     draft.set(id, itemState);
   };
 
-  useEffect(() => {
+  // Ensure default expansions take effect before rendering.
+  useLayoutEffect(() => {
     const de = props?.defaultExpanded;
     if (de && de.length > 0) {
       updateState((draft) => {
