@@ -254,15 +254,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
           <Typography variant="body2">{props.title}</Typography>
           <Loading status={hintDataState} size="small">
             {hasHints ? (
-              <GridBox
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onMouseUp={(e) => {
-                  e.stopPropagation();
-                }}
-              >
+              <GridBox>
                 <Typography variant="body2">
                   <IconButton
                     sx={
@@ -289,15 +281,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
         {hasHints && (!props.title || isValid(props.valueData)) ? (
           <GridLayout rows height="auto">
             {!!valueDataList.length && props.singleValue ? (
-              <FormControl
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onMouseUp={(e) => {
-                  e.stopPropagation();
-                }}
-              >
+              <FormControl>
                 <Select
                   value={valueDataList[0].attribute}
                   input={<OutlinedInput />}

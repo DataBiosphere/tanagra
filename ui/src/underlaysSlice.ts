@@ -23,9 +23,9 @@ export type Underlay = {
 
 export type UIConfiguration = {
   featureConfig?: FeatureConfig;
-  demographicChartConfigs: DemographicChartConfig;
   criteriaSearchConfig: CriteriaSearchConfig;
   cohortReviewConfig: CohortReviewConfig;
+  defaultVisualizations: string[];
 };
 
 export type FeatureConfig = {
