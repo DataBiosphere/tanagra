@@ -10,13 +10,16 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
+import java.util.Map;
 
 public class BQHierarchyHasAncestorFilterTranslator extends ApiFilterTranslator {
   private final HierarchyHasAncestorFilter hierarchyHasAncestorFilter;
 
   public BQHierarchyHasAncestorFilterTranslator(
-      ApiTranslator apiTranslator, HierarchyHasAncestorFilter hierarchyHasAncestorFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      HierarchyHasAncestorFilter hierarchyHasAncestorFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.hierarchyHasAncestorFilter = hierarchyHasAncestorFilter;
   }
 

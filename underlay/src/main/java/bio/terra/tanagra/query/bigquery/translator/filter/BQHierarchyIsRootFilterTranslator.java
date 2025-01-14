@@ -8,13 +8,16 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import java.util.Map;
 
 public class BQHierarchyIsRootFilterTranslator extends ApiFilterTranslator {
   private final HierarchyIsRootFilter hierarchyIsRootFilter;
 
   public BQHierarchyIsRootFilterTranslator(
-      ApiTranslator apiTranslator, HierarchyIsRootFilter hierarchyIsRootFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      HierarchyIsRootFilter hierarchyIsRootFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.hierarchyIsRootFilter = hierarchyIsRootFilter;
   }
 

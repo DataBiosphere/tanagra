@@ -34,8 +34,10 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
   private final TemporalPrimaryFilter temporalPrimaryFilter;
 
   public BQTemporalPrimaryFilterTranslator(
-      ApiTranslator apiTranslator, TemporalPrimaryFilter temporalPrimaryFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      TemporalPrimaryFilter temporalPrimaryFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.temporalPrimaryFilter = temporalPrimaryFilter;
   }
 
@@ -165,7 +167,7 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
                 subSelectSql +=
                     " WHERE "
                         + apiTranslator
-                            .translator(entityOutput.getDataFeatureFilter())
+                            .translator(entityOutput.getDataFeatureFilter(), attributeSwapFields)
                             .buildSql(sqlParams, null);
               }
               subSelectSqls.add(subSelectSql);

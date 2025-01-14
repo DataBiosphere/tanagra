@@ -6,14 +6,18 @@ import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import java.util.Map;
 
 public class BooleanNotFilterTranslator extends ApiFilterTranslator {
   private final ApiFilterTranslator subFilterTranslator;
 
   public BooleanNotFilterTranslator(
-      ApiTranslator apiTranslator, BooleanNotFilter booleanNotFilter) {
-    super(apiTranslator);
-    this.subFilterTranslator = apiTranslator.translator(booleanNotFilter.getSubFilter());
+      ApiTranslator apiTranslator,
+      BooleanNotFilter booleanNotFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
+    this.subFilterTranslator =
+        apiTranslator.translator(booleanNotFilter.getSubFilter(), attributeSwapFields);
   }
 
   @Override

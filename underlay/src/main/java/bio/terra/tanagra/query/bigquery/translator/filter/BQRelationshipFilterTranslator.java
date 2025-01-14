@@ -15,6 +15,7 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +26,10 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
   private final RelationshipFilter relationshipFilter;
 
   public BQRelationshipFilterTranslator(
-      ApiTranslator apiTranslator, RelationshipFilter relationshipFilter) {
-    super(apiTranslator);
+      ApiTranslator apiTranslator,
+      RelationshipFilter relationshipFilter,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
     this.relationshipFilter = relationshipFilter;
   }
 
@@ -62,12 +65,12 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
       return apiTranslator.unaryFilterSql(
           foreignKeyField, UnaryOperator.IS_NOT_NULL, null, sqlParams);
     } else if (apiTranslator
-            .translator(relationshipFilter.getSubFilter())
+            .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
             .isFilterOnAttribute(relationshipFilter.getFilterEntity().getIdAttribute())
         && !relationshipFilter.hasGroupByFilter()) {
       // subFilter(filterId=>foreignKey)
       return apiTranslator
-          .translator(relationshipFilter.getSubFilter())
+          .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
           .swapAttributeField(
               relationshipFilter.getFilterEntity().getIdAttribute(), foreignKeyField)
           .buildSql(sqlParams, tableAlias);
@@ -84,7 +87,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
       String inSelectFilterSql =
           relationshipFilter.hasSubFilter()
               ? apiTranslator
-                  .translator(relationshipFilter.getSubFilter())
+                  .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
                   .buildSql(sqlParams, null)
               : null;
       LOGGER.debug(
@@ -150,12 +153,12 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           selectRollupField, BinaryOperator.GREATER_THAN, Literal.forInt64(0L), null, sqlParams);
     } else if (relationshipFilter.hasSubFilter()
         && apiTranslator
-            .translator(relationshipFilter.getSubFilter())
+            .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
             .isFilterOnAttribute(foreignKeyAttribute)
         && !relationshipFilter.hasGroupByFilter()) {
       // subFilter(foreignKey=selectId)
       return apiTranslator
-          .translator(relationshipFilter.getSubFilter())
+          .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
           .swapAttributeField(foreignKeyAttribute, selectIdField)
           .buildSql(sqlParams, tableAlias);
     } else {
@@ -163,7 +166,9 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
       String inSelectFilterSql = null;
       if (relationshipFilter.hasSubFilter()) {
         inSelectFilterSql =
-            apiTranslator.translator(relationshipFilter.getSubFilter()).buildSql(sqlParams, null);
+            apiTranslator
+                .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
+                .buildSql(sqlParams, null);
         if (inSelectFilterSql.isEmpty()) {
           inSelectFilterSql = null;
         }
@@ -276,7 +281,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           selectRollupField, BinaryOperator.GREATER_THAN, Literal.forInt64(0L), null, sqlParams);
     } else if (relationshipFilter.hasSubFilter()
         && apiTranslator
-            .translator(relationshipFilter.getSubFilter())
+            .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
             .isFilterOnAttribute(relationshipFilter.getFilterEntity().getIdAttribute())
         && (!relationshipFilter.hasGroupByFilter()
             || !relationshipFilter.hasGroupByCountAttributes())) {
@@ -286,7 +291,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
       if (relationshipFilter.hasSubFilter()) {
         subFilterSql =
             apiTranslator
-                .translator(relationshipFilter.getSubFilter())
+                .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
                 .swapAttributeField(
                     relationshipFilter.getFilterEntity().getIdAttribute(), filterIdIntTable)
                 .buildSql(sqlParams, null);
@@ -326,7 +331,9 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             filterEntityTable.getAttributeValueField(
                 relationshipFilter.getFilterEntity().getIdAttribute().getName());
         String subFilterSql =
-            apiTranslator.translator(relationshipFilter.getSubFilter()).buildSql(sqlParams, null);
+            apiTranslator
+                .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
+                .buildSql(sqlParams, null);
         filterIdInSelectSql =
             apiTranslator.inSelectFilterSql(
                 filterIdIntTable,
@@ -415,7 +422,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           + (relationshipFilter.hasSubFilter()
               ? " WHERE "
                   + apiTranslator
-                      .translator(relationshipFilter.getSubFilter())
+                      .translator(relationshipFilter.getSubFilter(), attributeSwapFields)
                       .buildSql(sqlParams, filterTableAlias)
               : "")
           + " GROUP BY "
