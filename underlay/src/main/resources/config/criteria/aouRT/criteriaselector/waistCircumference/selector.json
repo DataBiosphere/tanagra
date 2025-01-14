@@ -2,7 +2,7 @@
   "name": "tanagra-waist-circumference",
   "displayName": "Waist Circumference",
   "isEnabledForCohorts": true,
-  "isEnabledForDataFeatureSets": false,
+  "isEnabledForDataFeatureSets": true,
   "display": {
     "category": "Physical Measurements",
     "tags": null
