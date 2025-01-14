@@ -124,10 +124,11 @@ export function CohortReview() {
       cohortId: params.cohort.id,
       reviewId: params.reviewId,
       instanceIndex,
+      instanceKey: instance?.data?.key,
     },
     async () => {
       if (!instance?.data) {
-        throw new Error("Instances not loaded yet.");
+        return null;
       }
 
       const entityIds: string[] = [];
