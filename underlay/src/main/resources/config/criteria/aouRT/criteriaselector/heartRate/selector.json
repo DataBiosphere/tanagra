@@ -2,7 +2,7 @@
   "name": "tanagra-heart-rate",
   "displayName": "Heart Rate",
   "isEnabledForCohorts": true,
-  "isEnabledForDataFeatureSets": false,
+  "isEnabledForDataFeatureSets": true,
   "display": {
     "category": "Physical Measurements",
     "tags": null
