@@ -4,6 +4,7 @@ import bio.terra.tanagra.query.sql.SqlTable;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.text.StringSubstitutor;
 
 public class BQTable extends SqlTable {
@@ -24,8 +25,14 @@ public class BQTable extends SqlTable {
 
   @Override
   public String render() {
+    return render(null);
+  }
+
+  @Override
+  public String render(String appendToSql) {
+    String appendNotNull = Optional.ofNullable(appendToSql).orElse("");
     if (isRawSql()) {
-      return "(" + sql + ")";
+      return "(" + sql + appendNotNull + ")";
     } else {
       String template = "`${projectId}.${datasetId}`.${tableName}";
       Map<String, String> params =
@@ -34,7 +41,7 @@ public class BQTable extends SqlTable {
               .put("datasetId", datasetId)
               .put("tableName", tableName)
               .build();
-      return StringSubstitutor.replace(template, params);
+      return StringSubstitutor.replace(template, params) + appendNotNull;
     }
   }
 

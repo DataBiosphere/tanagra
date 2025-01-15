@@ -50,6 +50,7 @@ public class SZGroupItems {
       name = "SZGroupItems.useSourceIdPairsSql",
       markdown =
           "True to skip copying the id-pairs SQL into a new index table, and use the source SQL directly.\n\n"
+              + "When set filter conditions are directly applied on the id-pairs SQL to fetch cohort counts. "
               + "Ignored if the [id pairs SQL](${SZGroupItems.idPairsSqlFile}) is undefined.",
       optional = true,
       defaultValue = "false")

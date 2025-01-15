@@ -714,7 +714,7 @@ Pointer to SQL that returns entity id - rollup count (= number of related entity
 
 True to skip copying the id-pairs SQL into a new index table, and use the source SQL directly.
 
-Ignored if the [id pairs SQL](#szgroupitemsidpairssqlfile) is undefined.
+When set filter conditions are directly applied on the id-pairs SQL to fetch cohort counts. Ignored if the [id pairs SQL](#szgroupitemsidpairssqlfile) is undefined.
 
 *Default value:* `false`
 

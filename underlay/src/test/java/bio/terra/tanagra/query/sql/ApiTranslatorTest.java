@@ -172,7 +172,7 @@ public class ApiTranslatorTest {
         apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val, null, sqlParams);
     String sql =
         apiTranslator.inSelectFilterSql(
-            field, tableAlias, joinField, joinTable, joinFilterSql, null, sqlParams);
+            field, tableAlias, joinField, joinTable, joinFilterSql, null, false, sqlParams);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0)",
         sql);
@@ -186,7 +186,16 @@ public class ApiTranslatorTest {
     Literal val1 = Literal.forInt64(25L);
     sql =
         apiTranslator.inSelectFilterSql(
-            field, tableAlias, joinField, joinTable, joinFilterSql, null, sqlParams, val0, val1);
+            field,
+            tableAlias,
+            joinField,
+            joinTable,
+            joinFilterSql,
+            null,
+            false,
+            sqlParams,
+            val0,
+            val1);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName WHERE joinColumnName = @val0 UNION ALL SELECT @val1 UNION ALL SELECT @val2)",
         sql);
@@ -197,7 +206,7 @@ public class ApiTranslatorTest {
     val = Literal.forInt64(38L);
     sql =
         apiTranslator.inSelectFilterSql(
-            field, tableAlias, joinField, joinTable, null, null, sqlParams, val);
+            field, tableAlias, joinField, joinTable, null, null, false, sqlParams, val);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName UNION ALL SELECT @val0)",
         sql);
@@ -213,6 +222,7 @@ public class ApiTranslatorTest {
             joinTable,
             null,
             "GROUP BY joinColumnName HAVING COUNT(*) > 1",
+            false,
             sqlParams);
     assertEquals(
         "tableAlias.columnName IN (SELECT joinColumnName FROM `projectId.datasetId`.joinTableName GROUP BY joinColumnName HAVING COUNT(*) > 1)",
@@ -237,7 +247,7 @@ public class ApiTranslatorTest {
         apiTranslator.binaryFilterSql(joinField, BinaryOperator.EQUALS, val2, null, sqlParams);
     String filterSql2 =
         apiTranslator.inSelectFilterSql(
-            field, tableAlias, joinField, joinTable, joinFilterSql, null, sqlParams);
+            field, tableAlias, joinField, joinTable, joinFilterSql, null, false, sqlParams);
 
     String sql =
         apiTranslator.booleanAndOrFilterSql(

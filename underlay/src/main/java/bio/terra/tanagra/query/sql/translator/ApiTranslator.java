@@ -205,16 +205,18 @@ public interface ApiTranslator {
       SqlTable table,
       @Nullable String filterSql,
       @Nullable String havingSql,
+      boolean appendSqlToTable,
       SqlParams sqlParams,
       Literal... unionAllLiterals) {
     List<String> selectSqls = new ArrayList<>();
+    String sqlClause =
+        (filterSql != null ? " WHERE " + filterSql : "")
+            + (havingSql != null ? ' ' + havingSql : "");
     selectSqls.add(
         "SELECT "
             + SqlQueryField.of(selectField).renderForSelect()
             + " FROM "
-            + table.render()
-            + (filterSql != null ? " WHERE " + filterSql : "")
-            + (havingSql != null ? ' ' + havingSql : ""));
+            + (appendSqlToTable ? table.render(sqlClause) : table.render() + sqlClause));
     Arrays.stream(unionAllLiterals)
         .forEach(literal -> selectSqls.add("SELECT @" + sqlParams.addParam("val", literal)));
     return SqlQueryField.of(whereField).renderForWhere(tableAlias)

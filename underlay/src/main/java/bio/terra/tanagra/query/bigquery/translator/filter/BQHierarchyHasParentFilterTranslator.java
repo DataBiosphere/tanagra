@@ -65,6 +65,7 @@ public class BQHierarchyHasParentFilterTranslator extends ApiFilterTranslator {
         childParentIndexTable.getTablePointer(),
         parentIdFilterSql,
         null,
+        false,
         sqlParams);
   }
 

@@ -106,6 +106,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           filterEntityTable.getTablePointer(),
           inSelectFilterSql,
           null,
+          relationshipFilter.getEntityGroup().isUseSourceIdPairsSql(),
           sqlParams);
     }
   }
@@ -182,6 +183,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             filterEntityTable.getTablePointer(),
             inSelectFilterSql,
             null,
+            relationshipFilter.getEntityGroup().isUseSourceIdPairsSql(),
             sqlParams);
       }
 
@@ -264,6 +266,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
         idPairsTable.getEntityIdField(relationshipFilter.getSelectEntity().getName());
     SqlField filterIdIntTable =
         idPairsTable.getEntityIdField(relationshipFilter.getFilterEntity().getName());
+    boolean appendSqlToTable = relationshipFilter.getEntityGroup().isUseSourceIdPairsSql();
 
     if (!relationshipFilter.hasSubFilter()
         && !relationshipFilter.hasGroupByFilter()
@@ -313,6 +316,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
           idPairsTable.getTablePointer(),
           subFilterSql.isEmpty() ? null : subFilterSql,
           havingSql.isEmpty() ? null : havingSql,
+          appendSqlToTable,
           sqlParams);
     } else {
       // id IN (SELECT selectId FROM
@@ -342,6 +346,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
                 filterEntityTable.getTablePointer(),
                 subFilterSql,
                 null,
+                appendSqlToTable,
                 sqlParams);
       }
 
@@ -353,6 +358,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             idPairsTable.getTablePointer(),
             filterIdInSelectSql.isEmpty() ? null : filterIdInSelectSql,
             null,
+            appendSqlToTable,
             sqlParams);
       }
 
@@ -374,6 +380,7 @@ public class BQRelationshipFilterTranslator extends ApiFilterTranslator {
             idPairsTable.getTablePointer(),
             filterIdInSelectSql.isEmpty() ? null : filterIdInSelectSql,
             havingSql,
+            appendSqlToTable,
             sqlParams);
       }
 

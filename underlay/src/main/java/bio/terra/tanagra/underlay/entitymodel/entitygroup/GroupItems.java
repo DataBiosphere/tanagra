@@ -10,8 +10,12 @@ public class GroupItems extends EntityGroup {
   private final Relationship groupItemsRelationship;
 
   public GroupItems(
-      String name, Entity groupEntity, Entity itemsEntity, Relationship groupItemsRelationship) {
-    super(name);
+      String name,
+      boolean useSourceIdPairsSql,
+      Entity groupEntity,
+      Entity itemsEntity,
+      Relationship groupItemsRelationship) {
+    super(name, useSourceIdPairsSql);
     this.groupEntity = groupEntity;
     this.itemsEntity = itemsEntity;
     this.groupItemsRelationship = groupItemsRelationship;
