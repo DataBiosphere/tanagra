@@ -37,7 +37,7 @@ public class CriteriaOccurrence extends EntityGroup {
       Relationship primaryCriteriaRelationship,
       Map<String, Set<String>> occurrenceAttributesWithInstanceLevelDisplayHints,
       Map<String, Set<String>> occurrenceAttributesWithRollupInstanceLevelDisplayHints) {
-    super(name);
+    super(name, false);
     this.criteriaEntity = criteriaEntity;
     this.occurrenceEntities = ImmutableList.copyOf(occurrenceEntities);
     this.primaryEntity = primaryEntity;
