@@ -60,6 +60,7 @@ dependencyManagement {
         // addresses security vulnerabilities
         dependency "ch.qos.logback:logback-classic:${vLogback}"
         dependency "ch.qos.logback:logback-core:${vLogback}"
+        dependency 'org.jetbrains.kotlin:kotlin-stdlib:2.1.0'
     }
 }
 
