@@ -29,19 +29,19 @@ exports[`Table renders correctly 1`] = `
             style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
-              class="MuiBox-root css-1381h1c"
+              class="MuiBox-root css-v9ukhz"
             >
               <div
                 class="MuiBox-root css-yd8pse"
               >
                 <div
-                  class="MuiBox-root css-1pmmyr1"
+                  class="MuiBox-root css-1dcztv6"
                 >
                   <div
                     class="MuiBox-root css-1mn1dx4"
                   >
                     <div
-                      class="css-caf4u6"
+                      class="css-1qpq2i4"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
@@ -54,26 +54,30 @@ exports[`Table renders correctly 1`] = `
                   <div
                     class="MuiBox-root css-vaarr9"
                   >
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                      tabindex="0"
-                      type="button"
+                    <div
+                      class="css-uwwqev"
                     >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                        data-testid="SwapVertIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
+                      <button
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        tabindex="0"
+                        type="button"
                       >
-                        <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                          data-testid="SwapVertIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
+                      </button>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-50v8qf"
@@ -90,19 +94,19 @@ exports[`Table renders correctly 1`] = `
             style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
-              class="MuiBox-root css-1381h1c"
+              class="MuiBox-root css-v9ukhz"
             >
               <div
                 class="MuiBox-root css-yd8pse"
               >
                 <div
-                  class="MuiBox-root css-1pmmyr1"
+                  class="MuiBox-root css-1dcztv6"
                 >
                   <div
                     class="MuiBox-root css-1mn1dx4"
                   >
                     <div
-                      class="css-caf4u6"
+                      class="css-1qpq2i4"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
@@ -115,26 +119,30 @@ exports[`Table renders correctly 1`] = `
                   <div
                     class="MuiBox-root css-vaarr9"
                   >
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                      tabindex="0"
-                      type="button"
+                    <div
+                      class="css-uwwqev"
                     >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                        data-testid="SwapVertIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
+                      <button
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        tabindex="0"
+                        type="button"
                       >
-                        <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                          data-testid="SwapVertIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
+                      </button>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-50v8qf"
@@ -151,13 +159,13 @@ exports[`Table renders correctly 1`] = `
             style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
-              class="MuiBox-root css-1381h1c"
+              class="MuiBox-root css-v9ukhz"
             >
               <div
                 class="MuiBox-root css-yd8pse"
               >
                 <div
-                  class="MuiBox-root css-nuvgx9"
+                  class="MuiBox-root css-k58yl"
                 >
                   <div
                     class="MuiBox-root css-1mn1dx4"
@@ -396,19 +404,19 @@ exports[`Table renders correctly 2`] = `
             style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
-              class="MuiBox-root css-1381h1c"
+              class="MuiBox-root css-v9ukhz"
             >
               <div
                 class="MuiBox-root css-yd8pse"
               >
                 <div
-                  class="MuiBox-root css-1pmmyr1"
+                  class="MuiBox-root css-1dcztv6"
                 >
                   <div
                     class="MuiBox-root css-1mn1dx4"
                   >
                     <div
-                      class="css-caf4u6"
+                      class="css-1qpq2i4"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
@@ -421,35 +429,39 @@ exports[`Table renders correctly 2`] = `
                   <div
                     class="MuiBox-root css-vaarr9"
                   >
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                      tabindex="0"
-                      type="button"
+                    <div
+                      class="css-uwwqev"
                     >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                        data-testid="SwapVertIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
+                      <button
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        tabindex="0"
+                        type="button"
                       >
-                        <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
-                        />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      >
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                          data-testid="SwapVertIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
+                          />
+                        </svg>
                         <span
-                          class="css-y4cjyz-MuiTouchRipple-ripple MuiTouchRipple-ripple MuiTouchRipple-rippleVisible"
-                          style="width: 1px; height: 1px; top: -0.5px; left: -0.5px;"
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         >
                           <span
-                            class="MuiTouchRipple-child MuiTouchRipple-childLeaving"
-                          />
+                            class="css-y4cjyz-MuiTouchRipple-ripple MuiTouchRipple-ripple MuiTouchRipple-rippleVisible"
+                            style="width: 1px; height: 1px; top: -0.5px; left: -0.5px;"
+                          >
+                            <span
+                              class="MuiTouchRipple-child MuiTouchRipple-childLeaving"
+                            />
+                          </span>
                         </span>
-                      </span>
-                    </button>
+                      </button>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-50v8qf"
@@ -466,19 +478,19 @@ exports[`Table renders correctly 2`] = `
             style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
-              class="MuiBox-root css-1381h1c"
+              class="MuiBox-root css-v9ukhz"
             >
               <div
                 class="MuiBox-root css-yd8pse"
               >
                 <div
-                  class="MuiBox-root css-1pmmyr1"
+                  class="MuiBox-root css-1dcztv6"
                 >
                   <div
                     class="MuiBox-root css-1mn1dx4"
                   >
                     <div
-                      class="css-caf4u6"
+                      class="css-1qpq2i4"
                     >
                       <span
                         class="MuiTypography-root MuiTypography-overline css-szitil-MuiTypography-root"
@@ -491,26 +503,30 @@ exports[`Table renders correctly 2`] = `
                   <div
                     class="MuiBox-root css-vaarr9"
                   >
-                    <button
-                      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
-                      tabindex="0"
-                      type="button"
+                    <div
+                      class="css-uwwqev"
                     >
-                      <svg
-                        aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
-                        data-testid="SwapVertIcon"
-                        focusable="false"
-                        viewBox="0 0 24 24"
+                      <button
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                        tabindex="0"
+                        type="button"
                       >
-                        <path
-                          d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
+                        <svg
+                          aria-hidden="true"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeInherit css-1vooibu-MuiSvgIcon-root"
+                          data-testid="SwapVertIcon"
+                          focusable="false"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99zM9 3 5 6.99h3V14h2V6.99h3z"
+                          />
+                        </svg>
+                        <span
+                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
-                      </svg>
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
+                      </button>
+                    </div>
                   </div>
                   <div
                     class="MuiBox-root css-50v8qf"
@@ -527,13 +543,13 @@ exports[`Table renders correctly 2`] = `
             style="position: sticky; top: 0px; background-color: rgb(255, 255, 255); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12); z-index: 1;"
           >
             <div
-              class="MuiBox-root css-1381h1c"
+              class="MuiBox-root css-v9ukhz"
             >
               <div
                 class="MuiBox-root css-yd8pse"
               >
                 <div
-                  class="MuiBox-root css-nuvgx9"
+                  class="MuiBox-root css-k58yl"
                 >
                   <div
                     class="MuiBox-root css-1mn1dx4"
