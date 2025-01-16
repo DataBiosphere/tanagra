@@ -297,14 +297,16 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
               >
                 <GridLayout
                   rows
-                  spacing={1}
+                  spacing={0.5}
                   sx={{
                     py: 1,
                   }}
                 >
-                  <GridLayout cols spacing={1} rowAlign="middle" sx={{ px: 2 }}>
+                  <GridLayout cols rowAlign="middle" sx={{ px: 1 }}>
                     <GridBox
                       sx={{
+                        pr:
+                          col.sortable || col.suffixElements ? 0.5 : undefined,
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                         overflow: "hidden",
@@ -321,11 +323,15 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
                       </Typography>
                     </GridBox>
                     {col.sortable ? (
-                      <SortIconButton
-                        col={col}
-                        orders={props.sortOrders}
-                        onClick={() => onSort(col, props.sortOrders)}
-                      />
+                      <GridBox
+                        sx={{ mr: col.suffixElements ? 0.5 : undefined }}
+                      >
+                        <SortIconButton
+                          col={col}
+                          orders={props.sortOrders}
+                          onClick={() => onSort(col, props.sortOrders)}
+                        />
+                      </GridBox>
                     ) : null}
                     {col.suffixElements}
                     <GridBox />
