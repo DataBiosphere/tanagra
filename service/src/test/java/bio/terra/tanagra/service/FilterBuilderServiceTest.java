@@ -223,7 +223,9 @@ public class FilterBuilderServiceTest {
     entityOutputs =
         filterBuilderService.buildOutputPreviewsForFeatureSets(List.of(CS_DEMOGRAPHICS), false);
     assertEquals(1, entityOutputs.size());
-    EntityOutput expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
+    EntityOutput expectedOutput =
+        EntityOutput.unfiltered(
+            underlay.getPrimaryEntity(), underlay.getPrimaryEntity().getAttributes(), true);
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
     List<Pair<FeatureSet, Criteria>> expectedAttributedCriteria = new ArrayList<>();
     CS_DEMOGRAPHICS
@@ -236,7 +238,9 @@ public class FilterBuilderServiceTest {
         filterBuilderService.buildOutputPreviewsForFeatureSets(
             List.of(CS_DEMOGRAPHICS_EXCLUDE_ID_AGE), true);
     assertEquals(1, entityOutputs.size());
-    expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
+    expectedOutput =
+        EntityOutput.unfiltered(
+            underlay.getPrimaryEntity(), underlay.getPrimaryEntity().getAttributes(), true);
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
 
     // Multiple feature sets, with overlapping excluded attributes.
@@ -255,7 +259,8 @@ public class FilterBuilderServiceTest {
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttributes().stream()
                 .filter(attribute -> !attribute.isId())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()),
+            true);
     Optional<EntityOutputPreview> entityOutputAndAttributedCriteria1 =
         entityOutputs.stream()
             .filter(
@@ -281,7 +286,10 @@ public class FilterBuilderServiceTest {
 
     EntityOutput expectedOutput2 =
         EntityOutput.filtered(
-            underlay.getEntity("conditionOccurrence"), conditionEqType2DiabetesDataFeatureFilter());
+            underlay.getEntity("conditionOccurrence"),
+            conditionEqType2DiabetesDataFeatureFilter(),
+            underlay.getEntity("conditionOccurrence").getAttributes(),
+            true);
     Optional<EntityOutputPreview> entityOutputAndAttributedCriteria2 =
         entityOutputs.stream()
             .filter(
@@ -297,7 +305,10 @@ public class FilterBuilderServiceTest {
 
     EntityOutput expectedOutput3 =
         EntityOutput.filtered(
-            underlay.getEntity("procedureOccurrence"), procedureEqAmputationDataFeatureFilter());
+            underlay.getEntity("procedureOccurrence"),
+            procedureEqAmputationDataFeatureFilter(),
+            underlay.getEntity("procedureOccurrence").getAttributes(),
+            true);
     Optional<EntityOutputPreview> entityOutputAndAttributedCriteria3 =
         entityOutputs.stream()
             .filter(
@@ -365,7 +376,9 @@ public class FilterBuilderServiceTest {
     entityOutputs =
         filterBuilderService.buildOutputsForExport(List.of(), List.of(CS_EMPTY, CS_DEMOGRAPHICS));
     assertEquals(1, entityOutputs.size());
-    EntityOutput expectedOutput = EntityOutput.unfiltered(underlay.getPrimaryEntity());
+    EntityOutput expectedOutput =
+        EntityOutput.unfiltered(
+            underlay.getPrimaryEntity(), underlay.getPrimaryEntity().getAttributes(), true);
     assertEquals(expectedOutput, entityOutputs.get(0));
 
     // Cohort with null filter, feature set with not-null filter.
@@ -375,10 +388,16 @@ public class FilterBuilderServiceTest {
     assertEquals(2, entityOutputs.size());
     EntityOutput expectedOutput1 =
         EntityOutput.filtered(
-            underlay.getEntity("conditionOccurrence"), conditionEqType2DiabetesDataFeatureFilter());
+            underlay.getEntity("conditionOccurrence"),
+            conditionEqType2DiabetesDataFeatureFilter(),
+            underlay.getEntity("conditionOccurrence").getAttributes(),
+            true);
     EntityOutput expectedOutput2 =
         EntityOutput.filtered(
-            underlay.getEntity("procedureOccurrence"), procedureEqAmputationDataFeatureFilter());
+            underlay.getEntity("procedureOccurrence"),
+            procedureEqAmputationDataFeatureFilter(),
+            underlay.getEntity("procedureOccurrence").getAttributes(),
+            true);
     assertTrue(entityOutputs.contains(expectedOutput1));
     assertTrue(entityOutputs.contains(expectedOutput2));
 
@@ -397,15 +416,20 @@ public class FilterBuilderServiceTest {
             procCondGendCohortFilter(),
             underlay.getPrimaryEntity().getAttributes().stream()
                 .filter(attribute -> !attribute.isId())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()),
+            true);
     expectedOutput2 =
         EntityOutput.filtered(
             underlay.getEntity("conditionOccurrence"),
-            procCondGendCohortAndConditionEqType2DiabetesDataFeatureFilter());
+            procCondGendCohortAndConditionEqType2DiabetesDataFeatureFilter(),
+            underlay.getEntity("conditionOccurrence").getAttributes(),
+            true);
     EntityOutput expectedOutput3 =
         EntityOutput.filtered(
             underlay.getEntity("procedureOccurrence"),
-            procCondGendCohortAndProcedureEqAmputationDataFeatureFilter());
+            procCondGendCohortAndProcedureEqAmputationDataFeatureFilter(),
+            underlay.getEntity("procedureOccurrence").getAttributes(),
+            true);
     assertTrue(entityOutputs.contains(expectedOutput1));
     assertTrue(entityOutputs.contains(expectedOutput2));
     assertTrue(entityOutputs.contains(expectedOutput3));

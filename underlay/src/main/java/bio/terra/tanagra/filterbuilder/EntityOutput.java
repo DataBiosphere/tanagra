@@ -14,9 +14,13 @@ public final class EntityOutput {
   private final Entity entity;
   private final @Nullable EntityFilter dataFeatureFilter;
   private final ImmutableList<Attribute> attributes;
+  private final Boolean filterAttributesForExport;
 
   private EntityOutput(
-      Entity entity, @Nullable EntityFilter dataFeatureFilter, List<Attribute> attributes) {
+      Entity entity,
+      @Nullable EntityFilter dataFeatureFilter,
+      List<Attribute> attributes,
+      Boolean filterAttributesForExport) {
     this.entity = entity;
     this.dataFeatureFilter = dataFeatureFilter;
 
@@ -24,25 +28,42 @@ public final class EntityOutput {
     this.attributes =
         ImmutableList.copyOf(
             attributes.stream()
+                .filter(
+                    attribute -> !filterAttributesForExport || !attribute.isSuppressedForExport())
                 .sorted(Comparator.comparingInt(entity.getAttributes()::indexOf))
                 .collect(Collectors.toList()));
+
+    this.filterAttributesForExport = filterAttributesForExport;
   }
 
   public static EntityOutput filtered(Entity entity, EntityFilter entityFilter) {
-    return new EntityOutput(entity, entityFilter, entity.getAttributes());
+    return new EntityOutput(entity, entityFilter, entity.getAttributes(), false);
   }
 
   public static EntityOutput filtered(
       Entity entity, EntityFilter entityFilter, List<Attribute> attributes) {
-    return new EntityOutput(entity, entityFilter, attributes);
+    return new EntityOutput(entity, entityFilter, attributes, false);
+  }
+
+  public static EntityOutput filtered(
+      Entity entity,
+      EntityFilter entityFilter,
+      List<Attribute> attributes,
+      Boolean filterAttributesForExport) {
+    return new EntityOutput(entity, entityFilter, attributes, filterAttributesForExport);
   }
 
   public static EntityOutput unfiltered(Entity entity) {
-    return new EntityOutput(entity, null, entity.getAttributes());
+    return new EntityOutput(entity, null, entity.getAttributes(), false);
   }
 
   public static EntityOutput unfiltered(Entity entity, List<Attribute> attributes) {
-    return new EntityOutput(entity, null, attributes);
+    return new EntityOutput(entity, null, attributes, false);
+  }
+
+  public static EntityOutput unfiltered(
+      Entity entity, List<Attribute> attributes, Boolean filterAttributesForExport) {
+    return new EntityOutput(entity, null, attributes, filterAttributesForExport);
   }
 
   public Entity getEntity() {
