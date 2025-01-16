@@ -225,7 +225,10 @@ public class FilterBuilderServiceTest {
     assertEquals(1, entityOutputs.size());
     EntityOutput expectedOutput =
         EntityOutput.unfiltered(
-            underlay.getPrimaryEntity(), underlay.getPrimaryEntity().getAttributes(), true);
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
     List<Pair<FeatureSet, Criteria>> expectedAttributedCriteria = new ArrayList<>();
     CS_DEMOGRAPHICS
@@ -240,7 +243,10 @@ public class FilterBuilderServiceTest {
     assertEquals(1, entityOutputs.size());
     expectedOutput =
         EntityOutput.unfiltered(
-            underlay.getPrimaryEntity(), underlay.getPrimaryEntity().getAttributes(), true);
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     assertEquals(expectedOutput, entityOutputs.get(0).getEntityOutput());
 
     // Multiple feature sets, with overlapping excluded attributes.
@@ -258,9 +264,8 @@ public class FilterBuilderServiceTest {
         EntityOutput.unfiltered(
             underlay.getPrimaryEntity(),
             underlay.getPrimaryEntity().getAttributes().stream()
-                .filter(attribute -> !attribute.isId())
-                .collect(Collectors.toList()),
-            true);
+                .filter(attribute -> !attribute.isId() && !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     Optional<EntityOutputPreview> entityOutputAndAttributedCriteria1 =
         entityOutputs.stream()
             .filter(
@@ -288,8 +293,9 @@ public class FilterBuilderServiceTest {
         EntityOutput.filtered(
             underlay.getEntity("conditionOccurrence"),
             conditionEqType2DiabetesDataFeatureFilter(),
-            underlay.getEntity("conditionOccurrence").getAttributes(),
-            true);
+            underlay.getEntity("conditionOccurrence").getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     Optional<EntityOutputPreview> entityOutputAndAttributedCriteria2 =
         entityOutputs.stream()
             .filter(
@@ -307,8 +313,9 @@ public class FilterBuilderServiceTest {
         EntityOutput.filtered(
             underlay.getEntity("procedureOccurrence"),
             procedureEqAmputationDataFeatureFilter(),
-            underlay.getEntity("procedureOccurrence").getAttributes(),
-            true);
+            underlay.getEntity("procedureOccurrence").getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     Optional<EntityOutputPreview> entityOutputAndAttributedCriteria3 =
         entityOutputs.stream()
             .filter(
@@ -378,7 +385,10 @@ public class FilterBuilderServiceTest {
     assertEquals(1, entityOutputs.size());
     EntityOutput expectedOutput =
         EntityOutput.unfiltered(
-            underlay.getPrimaryEntity(), underlay.getPrimaryEntity().getAttributes(), true);
+            underlay.getPrimaryEntity(),
+            underlay.getPrimaryEntity().getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     assertEquals(expectedOutput, entityOutputs.get(0));
 
     // Cohort with null filter, feature set with not-null filter.
@@ -390,14 +400,16 @@ public class FilterBuilderServiceTest {
         EntityOutput.filtered(
             underlay.getEntity("conditionOccurrence"),
             conditionEqType2DiabetesDataFeatureFilter(),
-            underlay.getEntity("conditionOccurrence").getAttributes(),
-            true);
+            underlay.getEntity("conditionOccurrence").getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     EntityOutput expectedOutput2 =
         EntityOutput.filtered(
             underlay.getEntity("procedureOccurrence"),
             procedureEqAmputationDataFeatureFilter(),
-            underlay.getEntity("procedureOccurrence").getAttributes(),
-            true);
+            underlay.getEntity("procedureOccurrence").getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     assertTrue(entityOutputs.contains(expectedOutput1));
     assertTrue(entityOutputs.contains(expectedOutput2));
 
@@ -415,21 +427,22 @@ public class FilterBuilderServiceTest {
             underlay.getPrimaryEntity(),
             procCondGendCohortFilter(),
             underlay.getPrimaryEntity().getAttributes().stream()
-                .filter(attribute -> !attribute.isId())
-                .collect(Collectors.toList()),
-            true);
+                .filter(attribute -> !attribute.isId() && !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     expectedOutput2 =
         EntityOutput.filtered(
             underlay.getEntity("conditionOccurrence"),
             procCondGendCohortAndConditionEqType2DiabetesDataFeatureFilter(),
-            underlay.getEntity("conditionOccurrence").getAttributes(),
-            true);
+            underlay.getEntity("conditionOccurrence").getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     EntityOutput expectedOutput3 =
         EntityOutput.filtered(
             underlay.getEntity("procedureOccurrence"),
             procCondGendCohortAndProcedureEqAmputationDataFeatureFilter(),
-            underlay.getEntity("procedureOccurrence").getAttributes(),
-            true);
+            underlay.getEntity("procedureOccurrence").getAttributes().stream()
+                .filter(attribute -> !attribute.isSuppressedForExport())
+                .collect(Collectors.toList()));
     assertTrue(entityOutputs.contains(expectedOutput1));
     assertTrue(entityOutputs.contains(expectedOutput2));
     assertTrue(entityOutputs.contains(expectedOutput3));
