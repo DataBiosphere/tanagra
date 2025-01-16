@@ -258,7 +258,17 @@ public final class GoogleBigQuery {
           TableResult tableResult =
               job.getQueryResults(
                   queryJobConfig.getRight().toArray(new BigQuery.QueryResultsOption[0]));
-          LOGGER.info("SQL query returns {} rows across all pages", tableResult.getTotalRows());
+          Job completedJob = job.waitFor();
+          JobStatistics.QueryStatistics stats = completedJob.getStatistics();
+          Long totalBytesProcessed = stats.getTotalBytesProcessed();
+          String jobId = completedJob.getJobId().getJob();
+          LOGGER.info("job: {}, query: {}", jobId, sql);
+          LOGGER.info(
+              "job: {}, total rows: {}, cache hit: {}, total megabytes processed: {}MB",
+              jobId,
+              tableResult.getTotalRows(),
+              stats.getCacheHit(),
+              totalBytesProcessed / 1_048_576);
           return tableResult;
         },
         "Error running query: " + queryJobConfig.getLeft().getQuery());
