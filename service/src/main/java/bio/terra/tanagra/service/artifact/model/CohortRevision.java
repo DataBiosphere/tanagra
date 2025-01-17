@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.*;
+import java.util.stream.Stream;
 
 @SuppressWarnings("PMD.ExcessivePublicCount")
 public final class CohortRevision {
@@ -238,7 +238,7 @@ public final class CohortRevision {
     @SuppressWarnings("checkstyle:ParameterNumber")
     private CriteriaGroupSection(
         String id,
-        String displayName,
+        @Nullable String displayName,
         List<CriteriaGroup> criteriaGroups,
         List<CriteriaGroup> secondConditionCriteriaGroups,
         BooleanAndOrFilter.LogicalOperator operator,
@@ -269,6 +269,7 @@ public final class CohortRevision {
       return id;
     }
 
+    @Nullable
     public String getDisplayName() {
       return displayName;
     }

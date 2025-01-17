@@ -6,7 +6,7 @@ import bio.terra.tanagra.query.sql.SqlRowResult;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValueList;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
 
 public class BQRowResult implements SqlRowResult {
   private final FieldValueList fieldValues;

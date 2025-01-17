@@ -33,8 +33,10 @@ import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
-import jakarta.annotation.*;
-import java.util.*;
+import jakarta.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public final class BQApiTranslator implements ApiTranslator {
   @Override
