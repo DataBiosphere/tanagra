@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +136,7 @@ public final class JacksonMapper {
 
   public static <T> T deserializeJavaObject(String jsonStr, Class<T> javaObjectClass)
       throws JsonProcessingException {
-    if (jsonStr == null || jsonStr.isEmpty()) {
+    if (StringUtils.isEmpty(jsonStr)) {
       return null;
     }
     return getMapper().readValue(jsonStr, javaObjectClass);

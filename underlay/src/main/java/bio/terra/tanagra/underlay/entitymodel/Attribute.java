@@ -2,6 +2,7 @@ package bio.terra.tanagra.underlay.entitymodel;
 
 import bio.terra.tanagra.api.shared.DataType;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 public final class Attribute {
   private final String name;
@@ -182,7 +183,7 @@ public final class Attribute {
     }
 
     public boolean hasDisplayFieldTableJoin() {
-      return displayFieldTable != null && !displayFieldTable.isEmpty();
+      return StringUtils.isNotEmpty(displayFieldTable);
     }
 
     @Override

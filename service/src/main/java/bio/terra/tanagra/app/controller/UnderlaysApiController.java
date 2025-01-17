@@ -58,6 +58,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 
 @Controller
 public class UnderlaysApiController implements UnderlaysApi {
@@ -145,8 +146,7 @@ public class UnderlaysApiController implements UnderlaysApi {
         outputEntity.getAttributes().stream()
             .filter(
                 attribute ->
-                    body.getIncludeAttributes() == null
-                        || body.getIncludeAttributes().isEmpty()
+                    CollectionUtils.isEmpty(body.getIncludeAttributes())
                         || body.getIncludeAttributes().contains(attribute.getName()))
             .map(attribute -> new AttributeField(underlay, outputEntity, attribute, false))
             .collect(Collectors.toList());

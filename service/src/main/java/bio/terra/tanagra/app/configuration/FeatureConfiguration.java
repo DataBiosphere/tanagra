@@ -3,6 +3,7 @@ package bio.terra.tanagra.app.configuration;
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -48,9 +49,7 @@ public class FeatureConfiguration {
 
   public Integer getMaxChildThreads() {
     try {
-      return maxChildThreads == null || maxChildThreads.isEmpty()
-          ? null
-          : Integer.parseInt(maxChildThreads);
+      return StringUtils.isEmpty(maxChildThreads) ? null : Integer.parseInt(maxChildThreads);
     } catch (NumberFormatException nfEx) {
       // Don't throw an exception here, which would prevent the service from starting up.
       LOGGER.warn("Invalid max child threads: {}", maxChildThreads);

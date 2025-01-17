@@ -8,6 +8,7 @@ import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 
 public class EntityGroupFilterBuilder
     extends EntityGroupFilterBuilderBase<CFEntityGroup.EntityGroup, DTEntityGroup.EntityGroup> {
@@ -24,7 +25,7 @@ public class EntityGroupFilterBuilder
 
   @Override
   public DTEntityGroup.EntityGroup deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, DTEntityGroup.EntityGroup.newBuilder())
             .build();

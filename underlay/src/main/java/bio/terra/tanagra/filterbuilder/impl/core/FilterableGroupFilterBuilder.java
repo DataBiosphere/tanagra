@@ -163,7 +163,7 @@ public class FilterableGroupFilterBuilder
 
   @Override
   public DTFilterableGroup.FilterableGroup deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(
                 serialized, DTFilterableGroup.FilterableGroup.newBuilder())

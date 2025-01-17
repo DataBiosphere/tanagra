@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 @SuppressFBWarnings(
@@ -92,7 +93,7 @@ public final class Underlay {
   }
 
   public String getDisplayName() {
-    return displayName == null || displayName.isEmpty() ? name : displayName;
+    return StringUtils.isEmpty(displayName) ? name : displayName;
   }
 
   @Nullable
@@ -304,10 +305,10 @@ public final class Underlay {
             SZVisualization szViz = configReader.readViz(vizPath);
 
             // Update the szViz with the contents of the plugin data files.
-            if (szViz.dataConfigFile != null && !szViz.dataConfigFile.isEmpty()) {
+            if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
               szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
             }
-            if (szViz.pluginConfigFile != null && !szViz.pluginConfigFile.isEmpty()) {
+            if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
               szViz.pluginConfig =
                   configReader.readVizPluginConfig(vizPath, szViz.pluginConfigFile);
             }
@@ -577,7 +578,7 @@ public final class Underlay {
       szCriteriaSelector.modifiers.forEach(
           szModifier -> {
             String modifierPluginConfig = szModifier.pluginConfig;
-            if (szModifier.pluginConfigFile != null && !szModifier.pluginConfigFile.isEmpty()) {
+            if (StringUtils.isNotEmpty(szModifier.pluginConfigFile)) {
               modifierPluginConfig =
                   configReader.readCriteriaSelectorPluginConfig(
                       criteriaSelectorPath, szModifier.pluginConfigFile);

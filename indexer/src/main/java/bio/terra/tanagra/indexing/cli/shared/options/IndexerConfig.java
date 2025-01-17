@@ -1,6 +1,7 @@
 package bio.terra.tanagra.indexing.cli.shared.options;
 
 import java.nio.file.Path;
+import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine;
 
 /**
@@ -22,6 +23,6 @@ public class IndexerConfig {
   public String githubDir;
 
   public Path getGitHubDirWithDefault() {
-    return githubDir == null || githubDir.isEmpty() ? Path.of("") : Path.of(githubDir);
+    return StringUtils.isEmpty(githubDir) ? Path.of("") : Path.of(githubDir);
   }
 }
