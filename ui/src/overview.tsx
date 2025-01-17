@@ -17,7 +17,12 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { createCriteria, getCriteriaPlugin, getCriteriaTitle } from "cohort";
+import {
+  createCriteria,
+  getCriteriaPlugin,
+  getCriteriaTitle,
+  sectionName,
+} from "cohort";
 import {
   deleteCohortCriteriaModifier,
   deleteCohortGroup,
@@ -274,6 +279,8 @@ function ParticipantsGroupSection(props: {
   const navigate = useNavigate();
   const { group } = useCohortGroupSectionAndGroup();
 
+  const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
+
   const backendGroupSection = useMemo(
     () =>
       backendCohort.groupSections.find((gs) => gs.id === props.groupSection.id),
@@ -321,6 +328,36 @@ function ParticipantsGroupSection(props: {
       }}
     >
       <GridLayout rows height="auto">
+        <GridLayout
+          cols
+          rowAlign="middle"
+          sx={{
+            px: 2,
+            pt: 2,
+            backgroundColor: (theme) => theme.palette.info.main,
+          }}
+        >
+          <Typography variant="body1em">
+            {sectionName(props.groupSection, props.sectionIndex)}
+          </Typography>
+          <IconButton
+            onClick={() => {
+              showRenameTitleDialog({
+                title: "Editing group name",
+                initialText: props.groupSection.name,
+                textLabel: "Group name",
+                buttonLabel: "Update",
+                onConfirm: (name: string) => {
+                  updateCohortGroupSection(context, props.groupSection.id, {
+                    name: name,
+                  });
+                },
+              });
+            }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </GridLayout>
         <GridLayout
           cols
           fillCol={3}
@@ -597,6 +634,7 @@ function ParticipantsGroupSection(props: {
             </Button>
           </GridLayout>
         ) : null}
+        {renameTitleDialog}
       </GridLayout>
     </GridBoxPaper>
   );
