@@ -8,6 +8,7 @@ import bio.terra.tanagra.proto.criteriaselector.dataschema.DTSurvey;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public class SurveyFilterBuilder
     extends EntityGroupFilterBuilderBase<CFSurvey.Survey, DTSurvey.Survey> {
@@ -24,7 +25,7 @@ public class SurveyFilterBuilder
 
   @Override
   public DTSurvey.Survey deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, DTSurvey.Survey.newBuilder()).build();
   }

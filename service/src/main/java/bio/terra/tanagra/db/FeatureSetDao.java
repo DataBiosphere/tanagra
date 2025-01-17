@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 public class FeatureSetDao {
@@ -165,7 +166,7 @@ public class FeatureSetDao {
     LOGGER.debug("CREATE feature set rowsAffected = {}", rowsAffected);
 
     // Write the criteria.
-    if (featureSet.getCriteria() != null && !featureSet.getCriteria().isEmpty()) {
+    if (!CollectionUtils.isEmpty(featureSet.getCriteria())) {
       updateCriteriaHelper(featureSet.getId(), featureSet.getCriteria());
     }
 
@@ -188,7 +189,7 @@ public class FeatureSetDao {
     if (displayName == null
         && description == null
         && (criteria == null)
-        && (outputAttributesPerEntity == null || outputAttributesPerEntity.isEmpty())) {
+        && CollectionUtils.isEmpty(outputAttributesPerEntity)) {
       throw new MissingRequiredFieldException("Must specify field to update.");
     }
 
@@ -223,7 +224,7 @@ public class FeatureSetDao {
     }
 
     // Write the output attributes.
-    if (outputAttributesPerEntity != null && !outputAttributesPerEntity.isEmpty()) {
+    if (!CollectionUtils.isEmpty(outputAttributesPerEntity)) {
       updateOutputAttributesHelper(id, outputAttributesPerEntity);
     }
   }

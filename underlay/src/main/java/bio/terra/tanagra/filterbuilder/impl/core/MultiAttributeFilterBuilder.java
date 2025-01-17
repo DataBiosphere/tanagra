@@ -20,6 +20,7 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class MultiAttributeFilterBuilder
@@ -123,7 +124,7 @@ public class MultiAttributeFilterBuilder
 
   @Override
   public DTMultiAttribute.MultiAttribute deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, DTMultiAttribute.MultiAttribute.newBuilder())
             .build();

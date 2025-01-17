@@ -22,6 +22,7 @@ import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class AttributeSchemaUtils {
@@ -106,7 +107,7 @@ public final class AttributeSchemaUtils {
   }
 
   public static DTAttribute.Attribute deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, DTAttribute.Attribute.newBuilder()).build();
   }

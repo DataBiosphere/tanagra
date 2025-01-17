@@ -4,6 +4,7 @@ import bio.terra.common.db.DataSourceInitializer;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,9 +20,7 @@ public class TanagraDatabaseConfiguration {
   private final DataSource dataSource;
 
   public TanagraDatabaseConfiguration(TanagraDatabaseProperties databaseProperties) {
-    boolean useCloudSqlConnector =
-        databaseProperties.getCloudSqlInstance() != null
-            && !databaseProperties.getCloudSqlInstance().isEmpty();
+    boolean useCloudSqlConnector = StringUtils.isNotEmpty(databaseProperties.getCloudSqlInstance());
 
     if (useCloudSqlConnector) {
       // Connect to application DB using CloudSQL connector (e.g. when deployed in AppEngine).
@@ -34,7 +33,7 @@ public class TanagraDatabaseConfiguration {
       config.addDataSourceProperty("cloudSqlInstance", databaseProperties.getCloudSqlInstance());
       config.addDataSourceProperty("socketFactory", databaseProperties.getSocketFactory());
 
-      if (databaseProperties.getIpTypes() != null && !databaseProperties.getIpTypes().isEmpty()) {
+      if (StringUtils.isNotEmpty(databaseProperties.getIpTypes())) {
         config.addDataSourceProperty("ipTypes", databaseProperties.getIpTypes());
       }
 

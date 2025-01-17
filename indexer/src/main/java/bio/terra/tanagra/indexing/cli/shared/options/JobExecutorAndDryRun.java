@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.cli.shared.options;
 
 import bio.terra.tanagra.indexing.JobSequencer;
 import java.nio.file.Path;
+import org.apache.commons.lang3.StringUtils;
 import picocli.CommandLine;
 
 /**
@@ -31,6 +32,6 @@ public class JobExecutorAndDryRun {
   public String outputDir;
 
   public Path getOutputDirWithDefault() {
-    return outputDir == null || outputDir.isEmpty() ? Path.of("") : Path.of(outputDir);
+    return StringUtils.isEmpty(outputDir) ? Path.of("") : Path.of(outputDir);
   }
 }

@@ -17,20 +17,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class GroupByCountSchemaUtils {
   private GroupByCountSchemaUtils() {}
 
   public static CFUnhintedValue.UnhintedValue deserializeConfig(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, CFUnhintedValue.UnhintedValue.newBuilder())
             .build();
   }
 
   public static DTUnhintedValue.UnhintedValue deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, DTUnhintedValue.UnhintedValue.newBuilder())
             .build();

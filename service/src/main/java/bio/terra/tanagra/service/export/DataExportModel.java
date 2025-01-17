@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.export;
 
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
+import org.apache.commons.lang3.StringUtils;
 
 public class DataExportModel {
   private final String name;
@@ -27,7 +28,7 @@ public class DataExportModel {
 
   public String getDisplayName() {
     String displayName = config.getDisplayName();
-    if (displayName == null || displayName.isEmpty()) {
+    if (StringUtils.isEmpty(displayName)) {
       displayName = impl.getDefaultDisplayName();
     }
     return displayName;

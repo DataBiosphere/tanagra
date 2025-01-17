@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -179,10 +180,10 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
     LOGGER.info("GRADLE_PROJECT_DIR = {}", gradleProjectDir);
 
     List<Path> regressionTestDirs = new ArrayList<>();
-    if (regressionTestDirsParam != null && !regressionTestDirsParam.isEmpty()) {
+    if (StringUtils.isNotEmpty(regressionTestDirsParam)) {
       List.of(regressionTestDirsParam.split(","))
           .forEach(dirName -> regressionTestDirs.add(Path.of(dirName)));
-    } else if (regressionTestUnderlaysParam != null && !regressionTestUnderlaysParam.isEmpty()) {
+    } else if (StringUtils.isNotEmpty(regressionTestUnderlaysParam)) {
       List<String> underlaySubDirs = List.of(regressionTestUnderlaysParam.split(","));
       Path regressionParentDir =
           Path.of(gradleProjectDir).resolve("src/test/resources/regression/");
@@ -194,7 +195,7 @@ public class QueryCountRegressionTest extends BaseSpringUnitTest {
     }
 
     List<String> regressionTestFileNameFilters = new ArrayList<>();
-    if (regressionTestFilesParam != null && !regressionTestFilesParam.isEmpty()) {
+    if (StringUtils.isNotEmpty(regressionTestFilesParam)) {
       regressionTestFileNameFilters.addAll(List.of(regressionTestFilesParam.split(",")));
     }
 

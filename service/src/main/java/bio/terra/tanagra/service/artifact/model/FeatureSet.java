@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public final class FeatureSet {
   private final String id;
@@ -103,12 +104,9 @@ public final class FeatureSet {
   }
 
   public String getDisplayNameOrDefault() {
-    if (displayName != null && !displayName.isEmpty()) {
-      return displayName;
-    } else {
-      DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy, hh:mm:ss a");
-      return "Untitled " + outputFormatter.format(created);
-    }
+    return StringUtils.isNotEmpty(displayName)
+        ? displayName
+        : "Untitled " + DateTimeFormatter.ofPattern("MM/dd/yyyy, hh:mm:ss a").format(created);
   }
 
   public static class Builder {

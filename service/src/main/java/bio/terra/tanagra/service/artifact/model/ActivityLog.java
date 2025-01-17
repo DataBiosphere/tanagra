@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 
 public final class ActivityLog {
   public enum Type {
@@ -157,7 +158,7 @@ public final class ActivityLog {
     }
 
     public ActivityLog build() {
-      if (id == null || id.isEmpty()) {
+      if (StringUtils.isEmpty(id)) {
         id = UUID.randomUUID().toString();
       }
       if (resources == null) {

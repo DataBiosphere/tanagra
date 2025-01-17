@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 public class StudyDao {
@@ -181,21 +183,21 @@ public class StudyDao {
 
     if (studyFilter != null) {
       // Filter on the displayName and/or description.
-      if (studyFilter.getDisplayName() != null && !studyFilter.getDisplayName().isEmpty()) {
+      if (StringUtils.isNotEmpty(studyFilter.getDisplayName())) {
         whereConditions.add("display_name LIKE :display_name_filter");
         params.addValue("display_name_filter", "%" + studyFilter.getDisplayName() + "%");
       }
-      if (studyFilter.getDescription() != null && !studyFilter.getDescription().isEmpty()) {
+      if (StringUtils.isNotEmpty(studyFilter.getDescription())) {
         whereConditions.add("description LIKE :description_filter");
         params.addValue("description_filter", "%" + studyFilter.getDescription() + "%");
       }
-      if (studyFilter.getCreatedBy() != null && !studyFilter.getCreatedBy().isEmpty()) {
+      if (StringUtils.isNotEmpty(studyFilter.getCreatedBy())) {
         whereConditions.add("created_by LIKE :created_by_filter");
         params.addValue("created_by_filter", "%" + studyFilter.getCreatedBy() + "%");
       }
 
       // Filter on specific properties key-value pairs.
-      if (studyFilter.getProperties() != null && !studyFilter.getProperties().isEmpty()) {
+      if (!CollectionUtils.isEmpty(studyFilter.getProperties())) {
         int ctr = 0;
         for (Map.Entry<String, String> entry : studyFilter.getProperties().entrySet()) {
           whereConditions.add(

@@ -18,6 +18,7 @@ import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.SelectionData;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.BioVU> {
   private static final String SAMPLE_HAS_PLASMA_ATTRIBUTE = "biovu_sample_has_plasma";
@@ -134,7 +135,7 @@ public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.Bio
 
   @Override
   public DTBioVU.BioVU deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, DTBioVU.BioVU.newBuilder()).build();
   }

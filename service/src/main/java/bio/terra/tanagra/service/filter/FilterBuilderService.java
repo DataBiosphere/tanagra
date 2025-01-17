@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,8 +244,7 @@ public class FilterBuilderService {
                   criteria -> {
                     String criteriaSelectorName;
                     List<SelectionData> selectionData;
-                    if (criteria.getPredefinedId() != null
-                        && !criteria.getPredefinedId().isEmpty()) {
+                    if (StringUtils.isNotEmpty(criteria.getPredefinedId())) {
                       LOGGER.debug(
                           "Feature set contains prepackaged criteria: {}",
                           criteria.getPredefinedId());
@@ -264,8 +264,7 @@ public class FilterBuilderService {
                       // itself.
                       criteriaSelectorName = criteria.getSelectorOrModifierName();
                       selectionData =
-                          criteria.getSelectionData() == null
-                                  || criteria.getSelectionData().isEmpty()
+                          StringUtils.isEmpty(criteria.getSelectionData())
                               ? List.of()
                               : List.of(new SelectionData(null, criteria.getSelectionData()));
                     }
