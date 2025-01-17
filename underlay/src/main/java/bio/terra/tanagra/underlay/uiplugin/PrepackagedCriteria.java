@@ -1,5 +1,7 @@
 package bio.terra.tanagra.underlay.uiplugin;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class PrepackagedCriteria {
   private final String name;
   private final String criteriaSelector;
@@ -20,7 +22,7 @@ public class PrepackagedCriteria {
   }
 
   public boolean hasSelectionData() {
-    return pluginData != null && !pluginData.isEmpty();
+    return StringUtils.isNotEmpty(pluginData);
   }
 
   public SelectionData getSelectionData() {

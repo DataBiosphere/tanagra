@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +154,7 @@ public class ActivityLogDao {
       ActivityLog.Type activityTypeFilter,
       ActivityLogResource.Type resourceTypeFilter,
       MapSqlParameterSource params) {
-    if ((userEmailFilter == null || userEmailFilter.isEmpty())
+    if (StringUtils.isEmpty(userEmailFilter)
         && activityTypeFilter == null
         && resourceTypeFilter == null) {
       return "";
@@ -161,7 +162,7 @@ public class ActivityLogDao {
 
     // Filter on the userEmail, activityType, and/or resourceType.
     List<String> whereConditions = new ArrayList<>();
-    if (userEmailFilter != null && !userEmailFilter.isEmpty()) {
+    if (StringUtils.isNotEmpty(userEmailFilter)) {
       if (userEmailExactMatch) {
         whereConditions.add("user_email = :user_email_filter");
         params.addValue("user_email_filter", userEmailFilter);

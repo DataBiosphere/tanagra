@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 /** Service to handle underlay operations. */
 @Component
@@ -63,12 +64,10 @@ public class UnderlayService {
       if (szService.bigQuery.queryProjectId == null) {
         szService.bigQuery.queryProjectId = exportConfiguration.getShared().getGcpProjectId();
       }
-      if (szService.bigQuery.exportDatasetIds == null
-          || szService.bigQuery.exportDatasetIds.isEmpty()) {
+      if (CollectionUtils.isEmpty(szService.bigQuery.exportDatasetIds)) {
         szService.bigQuery.exportDatasetIds = exportConfiguration.getShared().getBqDatasetIds();
       }
-      if (szService.bigQuery.exportBucketNames == null
-          || szService.bigQuery.exportBucketNames.isEmpty()) {
+      if (CollectionUtils.isEmpty(szService.bigQuery.exportBucketNames)) {
         szService.bigQuery.exportBucketNames = exportConfiguration.getShared().getGcsBucketNames();
       }
 

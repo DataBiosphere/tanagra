@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class DataExportService {
 
       // If no model name is defined, default it to the type name.
       String modelName = perModelConfig.getName();
-      if (modelName == null || modelName.isEmpty()) {
+      if (StringUtils.isEmpty(modelName)) {
         modelName = perModelConfig.getType().name();
       }
       this.nameToModel.put(

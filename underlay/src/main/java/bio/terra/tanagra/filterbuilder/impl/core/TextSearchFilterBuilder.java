@@ -226,7 +226,7 @@ public class TextSearchFilterBuilder
 
   @Override
   public DTTextSearch.TextSearch deserializeData(String serialized) {
-    return (serialized == null || serialized.isEmpty())
+    return StringUtils.isEmpty(serialized)
         ? null
         : deserializeFromJsonOrProtoBytes(serialized, DTTextSearch.TextSearch.newBuilder()).build();
   }

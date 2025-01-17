@@ -3,6 +3,7 @@ package bio.terra.tanagra.query.sql;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import jakarta.annotation.Nullable;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 
 public final class SqlQueryField {
@@ -49,7 +50,7 @@ public final class SqlQueryField {
     } else {
       baseFieldSql = field.getFunctionWrapper() + '(' + baseFieldSql + ')';
     }
-    return isForOrderOrGroupBy || alias == null || alias.isEmpty()
+    return isForOrderOrGroupBy || StringUtils.isEmpty(alias)
         ? baseFieldSql
         : (baseFieldSql + " AS " + alias);
   }
@@ -69,7 +70,7 @@ public final class SqlQueryField {
   public String renderForOrderBy(@Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {
       String alias = getAlias();
-      return alias == null || alias.isEmpty() ? getField().getColumnName() : alias;
+      return StringUtils.isEmpty(alias) ? getField().getColumnName() : alias;
     } else {
       return render(tableAlias, true);
     }
@@ -78,7 +79,7 @@ public final class SqlQueryField {
   public String renderForGroupBy(@Nullable String tableAlias, boolean fieldIsSelected) {
     if (fieldIsSelected) {
       String alias = getAlias();
-      return alias == null || alias.isEmpty() ? getField().getColumnName() : alias;
+      return StringUtils.isEmpty(alias) ? getField().getColumnName() : alias;
     } else {
       return render(tableAlias, true);
     }

@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 public class CohortDao {
@@ -264,7 +265,7 @@ public class CohortDao {
     LOGGER.debug("UPDATE cohort rowsAffected = {}", rowsAffected);
 
     // Update the most recent cohort revision.
-    if (criteriaGroupSections != null && !criteriaGroupSections.isEmpty()) {
+    if (!CollectionUtils.isEmpty(criteriaGroupSections)) {
       // Expect a single most recent, editable cohort revision.
       sql =
           "SELECT id FROM cohort_revision WHERE cohort_id = :cohort_id AND is_editable AND is_most_recent";
