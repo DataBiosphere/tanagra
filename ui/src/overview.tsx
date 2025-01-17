@@ -330,9 +330,10 @@ function ParticipantsGroupSection(props: {
       <GridLayout rows height="auto">
         <GridLayout
           cols
+          rowAlign="middle"
           sx={{
-            p: 2,
-            paddingBottom: 0,
+            px: 2,
+            pt: 2,
             backgroundColor: (theme) => theme.palette.info.main,
           }}
         >
