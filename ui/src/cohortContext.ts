@@ -310,6 +310,22 @@ export function deleteCohortGroupSection(
   });
 }
 
+export function renameCohortGroupSection(
+  context: CohortContextData,
+  sectionId: string
+) {
+  context.updatePresent((present) => {
+    if (present.groupSections.length === 1) {
+      present.groupSections = [newSection()];
+      return;
+    }
+
+    const [, sectionIndex] = findGroupSectionAndIndex(present, sectionId);
+
+    present.groupSections.splice(sectionIndex, 1);
+  });
+}
+
 export type UpdateCohortGroupSectionParams = {
   name?: string;
   filter?: GroupSectionFilter;

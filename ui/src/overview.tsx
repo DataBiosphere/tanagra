@@ -274,6 +274,8 @@ function ParticipantsGroupSection(props: {
   const navigate = useNavigate();
   const { group } = useCohortGroupSectionAndGroup();
 
+  const [renameTitleDialog, showRenameTitleDialog] = useTextInputDialog();
+
   const backendGroupSection = useMemo(
     () =>
       backendCohort.groupSections.find((gs) => gs.id === props.groupSection.id),
@@ -321,6 +323,9 @@ function ParticipantsGroupSection(props: {
       }}
     >
       <GridLayout rows height="auto">
+        {!!props.groupSection.name && (
+          <Typography sx={{ p: 1 }}>{props.groupSection.name}</Typography>
+        )}
         <GridLayout
           cols
           fillCol={3}
@@ -569,6 +574,24 @@ function ParticipantsGroupSection(props: {
               boxShadow: (theme) => `inset 0 1px 0 ${theme.palette.divider}`,
             }}
           >
+            <Button
+              startIcon={<EditIcon />}
+              onClick={() => {
+                showRenameTitleDialog({
+                  title: "Editing group name",
+                  initialText: props.groupSection.name,
+                  textLabel: "Group name",
+                  buttonLabel: "Update",
+                  onConfirm: (name: string) => {
+                    updateCohortGroupSection(context, props.groupSection.id, {
+                      name: name,
+                    });
+                  },
+                });
+              }}
+            >
+              Rename group
+            </Button>
             <Tooltip title="Disabled groups are ignored for export and participant counts">
               <Button
                 color={props.groupSection.disabled ? "warning" : undefined}
@@ -597,6 +620,7 @@ function ParticipantsGroupSection(props: {
             </Button>
           </GridLayout>
         ) : null}
+        {renameTitleDialog}
       </GridLayout>
     </GridBoxPaper>
   );
