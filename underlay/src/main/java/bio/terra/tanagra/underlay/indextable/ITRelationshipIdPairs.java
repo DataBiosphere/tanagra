@@ -6,8 +6,8 @@ import bio.terra.tanagra.underlay.*;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import bio.terra.tanagra.underlay.sourcetable.*;
 import com.google.common.collect.ImmutableList;
-import java.util.*;
-import java.util.stream.*;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public final class ITRelationshipIdPairs extends IndexTable {
   private static final String TABLE_NAME = "RIDS";

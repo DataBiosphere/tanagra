@@ -1,8 +1,8 @@
 package bio.terra.tanagra.query.bigquery;
 
-import com.google.common.collect.*;
-import jakarta.annotation.*;
-import java.util.*;
+import com.google.common.collect.ImmutableList;
+import jakarta.annotation.Nullable;
+import java.util.List;
 
 public class BQExecutorInfrastructure {
   private final String queryProjectId;
@@ -12,7 +12,7 @@ public class BQExecutorInfrastructure {
 
   private BQExecutorInfrastructure(
       String queryProjectId,
-      String datasetLocation,
+      @Nullable String datasetLocation,
       List<String> exportDatasetIds,
       List<String> exportBucketNames) {
     this.queryProjectId = queryProjectId;
@@ -40,14 +40,17 @@ public class BQExecutorInfrastructure {
     return queryProjectId;
   }
 
+  @Nullable
   public String getDatasetLocation() {
     return datasetLocation;
   }
 
+  @Nullable
   public ImmutableList<String> getExportDatasetIds() {
     return exportDatasetIds;
   }
 
+  @Nullable
   public ImmutableList<String> getExportBucketNames() {
     return exportBucketNames;
   }

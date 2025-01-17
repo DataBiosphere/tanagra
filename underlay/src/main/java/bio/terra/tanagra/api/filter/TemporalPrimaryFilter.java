@@ -7,7 +7,8 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.*;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 public class TemporalPrimaryFilter extends EntityFilter {
   private final Underlay underlay;

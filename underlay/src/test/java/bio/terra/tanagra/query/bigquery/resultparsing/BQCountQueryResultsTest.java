@@ -23,7 +23,9 @@ import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;
 import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class BQCountQueryResultsTest extends BQRunnerTest {
@@ -213,8 +215,8 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
                         .equals(Literal.forString("baz")))
             .findAny();
     assertTrue(bazCount.isPresent());
-    assertTrue(fooCount.get().getCount() == barCount.get().getCount());
-    assertTrue(barCount.get().getCount() == bazCount.get().getCount());
+    assertEquals(fooCount.get().getCount(), barCount.get().getCount());
+    assertEquals(barCount.get().getCount(), bazCount.get().getCount());
   }
 
   @Test

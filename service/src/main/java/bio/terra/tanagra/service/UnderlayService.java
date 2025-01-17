@@ -29,7 +29,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.*;
 import bio.terra.tanagra.underlay.serialization.*;
 import com.google.common.collect.ImmutableMap;
-import jakarta.annotation.*;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

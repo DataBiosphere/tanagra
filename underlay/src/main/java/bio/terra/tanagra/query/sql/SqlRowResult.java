@@ -2,7 +2,7 @@ package bio.terra.tanagra.query.sql;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
-import java.util.*;
+import java.util.List;
 
 public interface SqlRowResult {
   /** Get literal value for the column in this row. */

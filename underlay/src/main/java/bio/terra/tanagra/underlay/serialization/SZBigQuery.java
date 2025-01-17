@@ -2,7 +2,8 @@ package bio.terra.tanagra.underlay.serialization;
 
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @AnnotatedClass(
     name = "SZBigQuery",

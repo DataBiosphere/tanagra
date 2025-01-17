@@ -12,7 +12,7 @@ import bio.terra.tanagra.query.sql.SqlRowResult;
 import bio.terra.tanagra.query.sql.translator.ApiFieldTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import jakarta.annotation.*;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

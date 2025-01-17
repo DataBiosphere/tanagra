@@ -1,7 +1,8 @@
 package bio.terra.tanagra.api.shared;
 
-import com.google.common.collect.*;
-import java.util.*;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.Objects;
 
 public class ValueDisplay {
   private final Literal value;

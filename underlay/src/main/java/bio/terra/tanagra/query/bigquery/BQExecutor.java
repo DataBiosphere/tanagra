@@ -16,7 +16,7 @@ import com.google.cloud.bigquery.QueryParameterValue;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableResult;
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.BlobId;
 import com.google.common.collect.Iterables;
 import java.math.BigInteger;
 import java.sql.Timestamp;
