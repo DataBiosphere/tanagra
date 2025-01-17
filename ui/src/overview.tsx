@@ -17,7 +17,12 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { createCriteria, getCriteriaPlugin, getCriteriaTitle } from "cohort";
+import {
+  createCriteria,
+  getCriteriaPlugin,
+  getCriteriaTitle,
+  sectionName,
+} from "cohort";
 import {
   deleteCohortCriteriaModifier,
   deleteCohortGroup,
@@ -323,9 +328,35 @@ function ParticipantsGroupSection(props: {
       }}
     >
       <GridLayout rows height="auto">
-        {!!props.groupSection.name && (
-          <Typography sx={{ p: 1 }}>{props.groupSection.name}</Typography>
-        )}
+        <GridLayout
+          cols
+          sx={{
+            p: 2,
+            paddingBottom: 0,
+            backgroundColor: (theme) => theme.palette.info.main,
+          }}
+        >
+          <Typography variant="body1em">
+            {sectionName(props.groupSection, props.sectionIndex)}
+          </Typography>
+          <IconButton
+            onClick={() => {
+              showRenameTitleDialog({
+                title: "Editing group name",
+                initialText: props.groupSection.name,
+                textLabel: "Group name",
+                buttonLabel: "Update",
+                onConfirm: (name: string) => {
+                  updateCohortGroupSection(context, props.groupSection.id, {
+                    name: name,
+                  });
+                },
+              });
+            }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </GridLayout>
         <GridLayout
           cols
           fillCol={3}
@@ -574,24 +605,6 @@ function ParticipantsGroupSection(props: {
               boxShadow: (theme) => `inset 0 1px 0 ${theme.palette.divider}`,
             }}
           >
-            <Button
-              startIcon={<EditIcon />}
-              onClick={() => {
-                showRenameTitleDialog({
-                  title: "Editing group name",
-                  initialText: props.groupSection.name,
-                  textLabel: "Group name",
-                  buttonLabel: "Update",
-                  onConfirm: (name: string) => {
-                    updateCohortGroupSection(context, props.groupSection.id, {
-                      name: name,
-                    });
-                  },
-                });
-              }}
-            >
-              Rename group
-            </Button>
             <Tooltip title="Disabled groups are ignored for export and participant counts">
               <Button
                 color={props.groupSection.disabled ? "warning" : undefined}
