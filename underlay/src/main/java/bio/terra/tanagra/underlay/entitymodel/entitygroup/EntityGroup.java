@@ -10,13 +10,19 @@ public abstract class EntityGroup {
   }
 
   private final String name;
+  private final boolean useSourceIdPairsSql;
 
-  protected EntityGroup(String name) {
+  protected EntityGroup(String name, boolean useSourceIdPairsSql) {
     this.name = name;
+    this.useSourceIdPairsSql = useSourceIdPairsSql;
   }
 
   public String getName() {
     return name;
+  }
+
+  public boolean isUseSourceIdPairsSql() {
+    return useSourceIdPairsSql;
   }
 
   public abstract Type getType();

@@ -52,7 +52,6 @@ public class BQExecutor {
               '@' + paramName,
               toSql(toQueryParameterValue(queryRequest.getSqlParams().getParamValue(paramName))));
     }
-    LOGGER.info("SQL no parameters: {}", sqlNoParams);
 
     // Build a BQ parameter value object for each SQL query parameter.
     Map<String, QueryParameterValue> bqQueryParams =

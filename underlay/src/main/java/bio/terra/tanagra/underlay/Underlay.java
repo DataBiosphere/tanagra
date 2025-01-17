@@ -467,7 +467,12 @@ public final class Underlay {
             szGroupItems.foreignKeyAttributeItemsEntity == null
                 ? null
                 : itemsEntity.getAttribute(szGroupItems.foreignKeyAttributeItemsEntity));
-    return new GroupItems(szGroupItems.name, groupEntity, itemsEntity, groupItemsRelationship);
+    return new GroupItems(
+        szGroupItems.name,
+        szGroupItems.useSourceIdPairsSql,
+        groupEntity,
+        itemsEntity,
+        groupItemsRelationship);
   }
 
   private static CriteriaOccurrence fromConfigCriteriaOccurrence(

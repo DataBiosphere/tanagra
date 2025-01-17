@@ -22,4 +22,6 @@ public abstract class SqlTable {
   }
 
   public abstract String render();
+
+  public abstract String render(String append);
 }
