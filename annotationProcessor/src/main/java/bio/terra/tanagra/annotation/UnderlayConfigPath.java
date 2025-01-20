@@ -1,6 +1,22 @@
 package bio.terra.tanagra.annotation;
 
-import bio.terra.tanagra.underlay.serialization.*;
+import bio.terra.tanagra.underlay.serialization.SZAttribute;
+import bio.terra.tanagra.underlay.serialization.SZAttributeSearch;
+import bio.terra.tanagra.underlay.serialization.SZBigQuery;
+import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaOccurrence;
+import bio.terra.tanagra.underlay.serialization.SZCriteriaSelector;
+import bio.terra.tanagra.underlay.serialization.SZDataType;
+import bio.terra.tanagra.underlay.serialization.SZEntity;
+import bio.terra.tanagra.underlay.serialization.SZGroupItems;
+import bio.terra.tanagra.underlay.serialization.SZHierarchy;
+import bio.terra.tanagra.underlay.serialization.SZIndexer;
+import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
+import bio.terra.tanagra.underlay.serialization.SZRollupCountsSql;
+import bio.terra.tanagra.underlay.serialization.SZService;
+import bio.terra.tanagra.underlay.serialization.SZTextSearch;
+import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import java.util.List;
 
 @SuppressWarnings("PMD.CouplingBetweenObjects")
