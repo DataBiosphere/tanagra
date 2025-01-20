@@ -15,6 +15,7 @@ public final class Entity {
   private final ImmutableList<Hierarchy> hierarchies;
   private final ImmutableList<Attribute> optimizeGroupByAttributes;
   private final ImmutableList<ImmutableList<Attribute>> optimizeSearchByAttributes;
+  private final ImmutableList<ImmutableList<String>> optimizeSearchByAttributeNames;
   private final boolean hasTextSearch;
   private final ImmutableList<Attribute> optimizeTextSearchAttributes;
   private final String sourceQueryTableName;
@@ -42,6 +43,14 @@ public final class Entity {
     this.optimizeSearchByAttributes =
         ImmutableList.copyOf(
             optimizeSearchByAttributes.stream().map(ImmutableList::copyOf).toList());
+    this.optimizeSearchByAttributeNames =
+        ImmutableList.copyOf(
+            optimizeSearchByAttributes.stream()
+                .map(
+                    attributesList ->
+                        ImmutableList.copyOf(
+                            attributesList.stream().map(Attribute::getName).toList()))
+                .toList());
     this.hasTextSearch = hasTextSearch;
     this.optimizeTextSearchAttributes = ImmutableList.copyOf(optimizeTextSearchAttributes);
     this.sourceQueryTableName = sourceQueryTableName;
@@ -130,10 +139,10 @@ public final class Entity {
     return optimizeSearchByAttributes;
   }
 
-  public boolean containsOptimizeSearchByAttribute(String attributeName) {
-    return optimizeSearchByAttributes.stream()
-        .flatMap(List::stream)
-        .anyMatch(attribute -> attribute.getName().equals(attributeName));
+  public boolean containsOptimizeSearchByAttributes(List<String> attributeNames) {
+    return !attributeNames.isEmpty()
+        && optimizeSearchByAttributeNames.stream()
+            .anyMatch(attributeList -> attributeList.containsAll(attributeNames));
   }
 
   public boolean hasTextSearch() {

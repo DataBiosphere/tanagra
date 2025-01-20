@@ -1,12 +1,16 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.underlay.entitymodel.*;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class BooleanNotFilter extends EntityFilter {
   private final EntityFilter subFilter;
 
   public BooleanNotFilter(EntityFilter subFilter) {
+    super(
+        LoggerFactory.getLogger(BooleanNotFilter.class),
+        subFilter.getUnderlay(),
+        subFilter.getEntity());
     this.subFilter = subFilter;
   }
 
@@ -15,16 +19,8 @@ public class BooleanNotFilter extends EntityFilter {
   }
 
   @Override
-  public Entity getEntity() {
-    return subFilter.getEntity();
-  }
-
-  @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     BooleanNotFilter that = (BooleanNotFilter) o;
@@ -33,6 +29,6 @@ public class BooleanNotFilter extends EntityFilter {
 
   @Override
   public int hashCode() {
-    return Objects.hash(subFilter);
+    return Objects.hash(super.hashCode(), subFilter);
   }
 }

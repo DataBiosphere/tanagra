@@ -1,10 +1,9 @@
 package bio.terra.tanagra.underlay;
 
-import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
+import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttributes;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyChildParent;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
@@ -26,9 +25,10 @@ import java.util.Set;
     justification =
         "Jackson object mapper writes the POJO fields during deserialization. Need to put this at the class level, because method-level does not handle internal lambdas.")
 public final class IndexSchema {
+  // TODO:dexamundsen change list to map
   private final ImmutableList<ITEntityMain> entityMainTables;
   private final ImmutableList<ITEntityLevelDisplayHints> entityLevelDisplayHintTables;
-  private final ImmutableList<ITEntitySearchByAttribute> entitySearchByAttributeTables;
+  private final ImmutableList<ITEntitySearchByAttributes> entitySearchByAttributesTables;
   private final ImmutableList<ITHierarchyChildParent> hierarchyChildParentTables;
   private final ImmutableList<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables;
   private final ImmutableList<ITRelationshipIdPairs> relationshipIdPairTables;
@@ -37,14 +37,14 @@ public final class IndexSchema {
   private IndexSchema(
       List<ITEntityMain> entityMainTables,
       List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables,
-      List<ITEntitySearchByAttribute> entitySearchByAttributeTables,
+      List<ITEntitySearchByAttributes> entitySearchByAttributesTables,
       List<ITHierarchyChildParent> hierarchyChildParentTables,
       List<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables,
       List<ITRelationshipIdPairs> relationshipIdPairTables,
       List<ITInstanceLevelDisplayHints> instanceLevelDisplayHintTables) {
     this.entityMainTables = ImmutableList.copyOf(entityMainTables);
     this.entityLevelDisplayHintTables = ImmutableList.copyOf(entityLevelDisplayHintTables);
-    this.entitySearchByAttributeTables = ImmutableList.copyOf(entitySearchByAttributeTables);
+    this.entitySearchByAttributesTables = ImmutableList.copyOf(entitySearchByAttributesTables);
     this.hierarchyChildParentTables = ImmutableList.copyOf(hierarchyChildParentTables);
     this.hierarchyAncestorDescendantTables =
         ImmutableList.copyOf(hierarchyAncestorDescendantTables);
@@ -66,32 +66,13 @@ public final class IndexSchema {
         .orElseThrow();
   }
 
-  // function used during indexing: when table clustered on all attributes are needed
-  public ITEntitySearchByAttribute getEntitySearchByAttributeTable(
-      Entity entity, List<Attribute> attributes) {
-    List<String> attrNames = attributes.stream().map(Attribute::getName).toList();
-    return entitySearchByAttributeTables.stream()
+  public ITEntitySearchByAttributes getEntitySearchByAttributes(
+      Entity entity, List<String> attributeNames) {
+    return entitySearchByAttributesTables.stream()
         .filter(
             searchTable ->
                 searchTable.getEntity().equals(entity.getName())
-                    && searchTable.getAttributeNames().containsAll(attrNames))
-        .findFirst()
-        .orElseThrow();
-  }
-
-  /**
-   * function used during filter translation: Currently filterableGroup creates an BOOLEAN_AND of
-   * attribute filters for search config with multiple attributes. eg: genomic_region is searched
-   * with contig=x AND position>=y AND position<=z There are three sub-filters that are queried on
-   * the same table
-   */
-  public ITEntitySearchByAttribute getEntitySearchByAttributeTable(
-      Entity entity, Attribute attribute) {
-    return entitySearchByAttributeTables.stream()
-        .filter(
-            searchTable ->
-                searchTable.getEntity().equals(entity.getName())
-                    && searchTable.getAttributeNames().contains(attribute.getName()))
+                    && searchTable.getAttributeNames().containsAll(attributeNames))
         .findFirst()
         .orElseThrow();
   }
@@ -150,7 +131,7 @@ public final class IndexSchema {
 
     List<ITEntityMain> entityMainTables = new ArrayList<>();
     List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables = new ArrayList<>();
-    List<ITEntitySearchByAttribute> entitySearchByAttributeTables = new ArrayList<>();
+    List<ITEntitySearchByAttributes> entitySearchByAttributesTables = new ArrayList<>();
     List<ITHierarchyChildParent> hierarchyChildParentTables = new ArrayList<>();
     List<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables = new ArrayList<>();
     List<ITRelationshipIdPairs> relationshipIdPairTables = new ArrayList<>();
@@ -167,7 +148,7 @@ public final class IndexSchema {
                 szBigQuery.indexData,
                 entityMainTables,
                 entityLevelDisplayHintTables,
-                entitySearchByAttributeTables,
+                entitySearchByAttributesTables,
                 hierarchyChildParentTables,
                 hierarchyAncestorDescendantTables));
 
@@ -194,7 +175,7 @@ public final class IndexSchema {
     return new IndexSchema(
         entityMainTables,
         entityLevelDisplayHintTables,
-        entitySearchByAttributeTables,
+        entitySearchByAttributesTables,
         hierarchyChildParentTables,
         hierarchyAncestorDescendantTables,
         relationshipIdPairTables,
@@ -210,7 +191,7 @@ public final class IndexSchema {
       SZBigQuery.IndexData szBigQueryIndexData,
       List<ITEntityMain> entityMainTables,
       List<ITEntityLevelDisplayHints> entityLevelDisplayHintTables,
-      List<ITEntitySearchByAttribute> entitySearchByAttributeTables,
+      List<ITEntitySearchByAttributes> entitySearchByAttributesTables,
       List<ITHierarchyChildParent> hierarchyChildParentTables,
       List<ITHierarchyAncestorDescendant> hierarchyAncestorDescendantTables) {
     SZEntity szEntity = configReader.readEntity(entityPath);
@@ -250,8 +231,8 @@ public final class IndexSchema {
     if (szEntity.optimizeSearchByAttributes != null) {
       szEntity.optimizeSearchByAttributes.forEach(
           attributeSearch ->
-              entitySearchByAttributeTables.add(
-                  new ITEntitySearchByAttribute(
+              entitySearchByAttributesTables.add(
+                  new ITEntitySearchByAttributes(
                       nameHelper, szBigQueryIndexData, szEntity, attributeSearch)));
     }
 

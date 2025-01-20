@@ -3,15 +3,15 @@
   "bigQuery": {
     "sourceData": {
       "projectId": "vwb-dev-blissful-eggplant-4805",
-      "datasetId": "aou_test_data_SC2023Q3R2",
+      "datasetId": "aou_test_data_SC2023Q3R2_011625",
       "sqlSubstitutions": {
-        "omopDataset": "vwb-dev-blissful-eggplant-4805.aou_test_data_SC2023Q3R2",
+        "omopDataset": "vwb-dev-blissful-eggplant-4805.aou_test_data_SC2023Q3R2_011625",
         "staticTablesDataset": "vwb-dev-blissful-eggplant-4805.aou_static_prep_us"
       }
     },
     "indexData": {
       "projectId": "vwb-dev-blissful-eggplant-4805",
-      "datasetId": "aou_test_data_SC2023Q3R2_index_121624",
+      "datasetId": "aou_test_data_SC2023Q3R2_011625",
       "tablePrefix": "T"
     },
     "queryProjectId": "prj-d-1v-ucd",

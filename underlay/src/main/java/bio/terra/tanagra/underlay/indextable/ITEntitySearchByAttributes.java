@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ITEntitySearchByAttribute extends IndexTable {
+public class ITEntitySearchByAttributes extends IndexTable {
   public static final String TABLE_NAME = "ESA";
 
   private final String entity;
@@ -19,7 +19,7 @@ public class ITEntitySearchByAttribute extends IndexTable {
   private final boolean includeNullValues;
   private final ImmutableList<ColumnSchema> columnSchemas;
 
-  public ITEntitySearchByAttribute(
+  public ITEntitySearchByAttributes(
       NameHelper namer,
       SZBigQuery.IndexData bigQueryConfig,
       SZEntity entity,

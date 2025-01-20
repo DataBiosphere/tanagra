@@ -1,7 +1,8 @@
 package bio.terra.tanagra.service.criteriaconstants.cmssynpuf;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.shared.*;
+import bio.terra.tanagra.api.shared.JoinOperator;
+import bio.terra.tanagra.api.shared.ReducingOperator;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import java.util.List;
 

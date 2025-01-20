@@ -5,11 +5,10 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import jakarta.annotation.Nullable;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class OccurrenceForPrimaryFilter extends EntityFilter {
-  private final Underlay underlay;
   private final CriteriaOccurrence criteriaOccurrence;
-  private final Entity occurrenceEntity;
   // At least one of the sub-filters must be not-null.
   private final @Nullable EntityFilter primarySubFilter;
   private final @Nullable EntityFilter criteriaSubFilter;
@@ -20,15 +19,10 @@ public class OccurrenceForPrimaryFilter extends EntityFilter {
       Entity occurrenceEntity,
       @Nullable EntityFilter primarySubFilter,
       @Nullable EntityFilter criteriaSubFilter) {
-    this.underlay = underlay;
+    super(LoggerFactory.getLogger(OccurrenceForPrimaryFilter.class), underlay, occurrenceEntity);
     this.criteriaOccurrence = criteriaOccurrence;
-    this.occurrenceEntity = occurrenceEntity;
     this.primarySubFilter = primarySubFilter;
     this.criteriaSubFilter = criteriaSubFilter;
-  }
-
-  public Underlay getUnderlay() {
-    return underlay;
   }
 
   public CriteriaOccurrence getCriteriaOccurrence() {
@@ -36,7 +30,7 @@ public class OccurrenceForPrimaryFilter extends EntityFilter {
   }
 
   public Entity getOccurrenceEntity() {
-    return occurrenceEntity;
+    return getEntity();
   }
 
   public boolean hasPrimarySubFilter() {
@@ -56,29 +50,18 @@ public class OccurrenceForPrimaryFilter extends EntityFilter {
   }
 
   @Override
-  public Entity getEntity() {
-    return occurrenceEntity;
-  }
-
-  @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     OccurrenceForPrimaryFilter that = (OccurrenceForPrimaryFilter) o;
-    return underlay.equals(that.underlay)
-        && criteriaOccurrence.equals(that.criteriaOccurrence)
-        && occurrenceEntity.equals(that.occurrenceEntity)
+    return criteriaOccurrence.equals(that.criteriaOccurrence)
         && Objects.equals(primarySubFilter, that.primarySubFilter)
         && Objects.equals(criteriaSubFilter, that.criteriaSubFilter);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        underlay, criteriaOccurrence, occurrenceEntity, primarySubFilter, criteriaSubFilter);
+    return Objects.hash(super.hashCode(), criteriaOccurrence, primarySubFilter, criteriaSubFilter);
   }
 }

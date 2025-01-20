@@ -7,36 +7,24 @@ import bio.terra.tanagra.underlay.entitymodel.Hierarchy;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class HierarchyHasAncestorFilter extends EntityFilter {
-  private final Underlay underlay;
-  private final Entity entity;
   private final Hierarchy hierarchy;
   private final ImmutableList<Literal> ancestorIds;
 
   public HierarchyHasAncestorFilter(
       Underlay underlay, Entity entity, Hierarchy hierarchy, Literal ancestorId) {
-    this.underlay = underlay;
-    this.entity = entity;
+    super(LoggerFactory.getLogger(HierarchyHasAncestorFilter.class), underlay, entity);
     this.hierarchy = hierarchy;
     this.ancestorIds = ImmutableList.of(ancestorId);
   }
 
   public HierarchyHasAncestorFilter(
       Underlay underlay, Entity entity, Hierarchy hierarchy, List<Literal> ancestorIds) {
-    this.underlay = underlay;
-    this.entity = entity;
+    super(LoggerFactory.getLogger(HierarchyHasAncestorFilter.class), underlay, entity);
     this.hierarchy = hierarchy;
     this.ancestorIds = ImmutableList.copyOf(ancestorIds);
-  }
-
-  public Underlay getUnderlay() {
-    return underlay;
-  }
-
-  @Override
-  public Entity getEntity() {
-    return entity;
   }
 
   public Hierarchy getHierarchy() {
@@ -49,21 +37,15 @@ public class HierarchyHasAncestorFilter extends EntityFilter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     HierarchyHasAncestorFilter that = (HierarchyHasAncestorFilter) o;
-    return underlay.equals(that.underlay)
-        && entity.equals(that.entity)
-        && hierarchy.equals(that.hierarchy)
-        && ancestorIds.equals(that.ancestorIds);
+    return hierarchy.equals(that.hierarchy) && ancestorIds.equals(that.ancestorIds);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(underlay, entity, hierarchy, ancestorIds);
+    return Objects.hash(super.hashCode(), hierarchy, ancestorIds);
   }
 }

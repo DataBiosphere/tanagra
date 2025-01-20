@@ -4,7 +4,9 @@ import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass;
-import bio.terra.tanagra.proto.criteriaselector.dataschema.*;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTEntityGroup;
+import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import java.util.Map;
 
 public final class Criteria {

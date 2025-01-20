@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.common.exception.*;
+import bio.terra.common.exception.BadRequestException;
+import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.app.Main;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
 import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
@@ -14,7 +15,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.service.accesscontrol.ResourceType;
 import bio.terra.tanagra.service.artifact.ActivityLogService;
 import bio.terra.tanagra.service.artifact.StudyService;
-import bio.terra.tanagra.service.artifact.model.*;
+import bio.terra.tanagra.service.artifact.model.Study;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;

@@ -2,15 +2,15 @@ package bio.terra.tanagra.api.filter;
 
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.*;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class ItemInGroupFilter extends EntityFilter {
-  private final Underlay underlay;
   private final GroupItems groupItems;
   private final @Nullable EntityFilter groupSubFilter;
   private final @Nullable List<Attribute> groupByCountAttributes;
@@ -24,7 +24,7 @@ public class ItemInGroupFilter extends EntityFilter {
       @Nullable List<Attribute> groupByCountAttributes,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
-    this.underlay = underlay;
+    super(LoggerFactory.getLogger(ItemInGroupFilter.class), underlay, groupItems.getItemsEntity());
     this.groupItems = groupItems;
     this.groupSubFilter = groupSubFilter;
     this.groupByCountAttributes =
@@ -35,14 +35,11 @@ public class ItemInGroupFilter extends EntityFilter {
     this.groupByCountValue = groupByCountValue;
   }
 
-  public Underlay getUnderlay() {
-    return underlay;
-  }
-
   public GroupItems getGroupItems() {
     return groupItems;
   }
 
+  @Nullable
   public EntityFilter getGroupSubFilter() {
     return groupSubFilter;
   }
@@ -63,21 +60,12 @@ public class ItemInGroupFilter extends EntityFilter {
   }
 
   @Override
-  public Entity getEntity() {
-    return groupItems.getItemsEntity();
-  }
-
-  @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     ItemInGroupFilter that = (ItemInGroupFilter) o;
-    return underlay.equals(that.underlay)
-        && groupItems.equals(that.groupItems)
+    return groupItems.equals(that.groupItems)
         && Objects.equals(groupSubFilter, that.groupSubFilter)
         && Objects.equals(groupByCountAttributes, that.groupByCountAttributes)
         && groupByCountOperator == that.groupByCountOperator
@@ -87,7 +75,7 @@ public class ItemInGroupFilter extends EntityFilter {
   @Override
   public int hashCode() {
     return Objects.hash(
-        underlay,
+        super.hashCode(),
         groupItems,
         groupSubFilter,
         groupByCountAttributes,

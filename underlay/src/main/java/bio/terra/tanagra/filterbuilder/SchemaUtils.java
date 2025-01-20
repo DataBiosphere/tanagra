@@ -1,6 +1,7 @@
 package bio.terra.tanagra.filterbuilder;
 
-import bio.terra.tanagra.api.shared.*;
+import bio.terra.tanagra.api.shared.DataType;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
 import java.sql.Timestamp;

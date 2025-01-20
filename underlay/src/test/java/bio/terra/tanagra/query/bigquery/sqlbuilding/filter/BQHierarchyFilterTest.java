@@ -1,7 +1,11 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding.filter;
 
 import bio.terra.tanagra.api.field.AttributeField;
-import bio.terra.tanagra.api.filter.*;
+import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
+import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
+import bio.terra.tanagra.api.filter.HierarchyIsLeafFilter;
+import bio.terra.tanagra.api.filter.HierarchyIsMemberFilter;
+import bio.terra.tanagra.api.filter.HierarchyIsRootFilter;
 import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.shared.Literal;

@@ -2,7 +2,8 @@ package bio.terra.tanagra.service.artifact.model;
 
 import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.shared.*;
+import bio.terra.tanagra.api.shared.JoinOperator;
+import bio.terra.tanagra.api.shared.ReducingOperator;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;

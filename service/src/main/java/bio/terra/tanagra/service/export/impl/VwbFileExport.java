@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.export.impl;
 
 import static bio.terra.tanagra.service.export.DataExportHelper.urlEncode;
 
-import bio.terra.tanagra.api.query.export.*;
+import bio.terra.tanagra.api.query.export.ExportQueryResult;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.DeploymentConfig;

@@ -1,7 +1,7 @@
 package bio.terra.tanagra.api.field;
 
 import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.underlay.entitymodel.*;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 
 public abstract class ValueDisplayField {
   public abstract Entity getEntity();

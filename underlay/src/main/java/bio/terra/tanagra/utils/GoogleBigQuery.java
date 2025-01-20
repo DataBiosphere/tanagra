@@ -262,13 +262,13 @@ public final class GoogleBigQuery {
           JobStatistics.QueryStatistics stats = completedJob.getStatistics();
           Long totalBytesProcessed = stats.getTotalBytesProcessed();
           String jobId = completedJob.getJobId().getJob();
-          LOGGER.info("job: {}, query: {}", jobId, sql);
           LOGGER.info(
-              "job: {}, total rows: {}, cache hit: {}, total megabytes processed: {}MB",
+              "BQ job: {}, total rows: {}, cache hit: {}, total data processed: {}MB, sql: {}",
               jobId,
               tableResult.getTotalRows(),
               stats.getCacheHit(),
-              totalBytesProcessed / 1_048_576);
+              totalBytesProcessed / 1_048_576,
+              sql);
           return tableResult;
         },
         "Error running query: " + queryJobConfig.getLeft().getQuery());
