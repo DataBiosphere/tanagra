@@ -10,11 +10,10 @@ import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class RelationshipFilter extends EntityFilter {
-  private final Underlay underlay;
   private final EntityGroup entityGroup;
-  private final Entity selectEntity;
   private final Entity filterEntity;
   private final Relationship relationship;
   private final @Nullable EntityFilter subFilter;
@@ -32,9 +31,8 @@ public class RelationshipFilter extends EntityFilter {
       @Nullable List<Attribute> groupByCountAttributes,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
-    this.underlay = underlay;
+    super(LoggerFactory.getLogger(RelationshipFilter.class), underlay, selectEntity);
     this.entityGroup = entityGroup;
-    this.selectEntity = selectEntity;
     this.filterEntity =
         relationship.getEntityA().equals(selectEntity)
             ? relationship.getEntityB()
@@ -49,16 +47,12 @@ public class RelationshipFilter extends EntityFilter {
     this.groupByCountValue = groupByCountValue;
   }
 
-  public Underlay getUnderlay() {
-    return underlay;
-  }
-
   public EntityGroup getEntityGroup() {
     return entityGroup;
   }
 
   public Entity getSelectEntity() {
-    return selectEntity;
+    return getEntity();
   }
 
   public Entity getFilterEntity() {
@@ -73,6 +67,7 @@ public class RelationshipFilter extends EntityFilter {
     return subFilter != null;
   }
 
+  @Nullable
   public EntityFilter getSubFilter() {
     return subFilter;
   }
@@ -85,6 +80,7 @@ public class RelationshipFilter extends EntityFilter {
     return groupByCountOperator != null && groupByCountValue != null;
   }
 
+  @Nullable
   public List<Attribute> getGroupByCountAttributes() {
     return groupByCountAttributes;
   }
@@ -100,7 +96,7 @@ public class RelationshipFilter extends EntityFilter {
   }
 
   public boolean isForeignKeyOnSelectTable() {
-    return relationship.isForeignKeyAttribute(selectEntity);
+    return relationship.isForeignKeyAttribute(getSelectEntity());
   }
 
   public boolean isForeignKeyOnFilterTable() {
@@ -108,22 +104,12 @@ public class RelationshipFilter extends EntityFilter {
   }
 
   @Override
-  public Entity getEntity() {
-    return getSelectEntity();
-  }
-
-  @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     RelationshipFilter that = (RelationshipFilter) o;
-    return underlay.equals(that.underlay)
-        && entityGroup.equals(that.entityGroup)
-        && selectEntity.equals(that.selectEntity)
+    return entityGroup.equals(that.entityGroup)
         && filterEntity.equals(that.filterEntity)
         && relationship.equals(that.relationship)
         && Objects.equals(subFilter, that.subFilter)
@@ -135,9 +121,8 @@ public class RelationshipFilter extends EntityFilter {
   @Override
   public int hashCode() {
     return Objects.hash(
-        underlay,
+        super.hashCode(),
         entityGroup,
-        selectEntity,
         filterEntity,
         relationship,
         subFilter,

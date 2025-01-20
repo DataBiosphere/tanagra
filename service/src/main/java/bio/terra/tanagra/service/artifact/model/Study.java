@@ -1,6 +1,6 @@
 package bio.terra.tanagra.service.artifact.model;
 
-import bio.terra.common.exception.*;
+import bio.terra.common.exception.BadRequestException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import jakarta.annotation.Nullable;

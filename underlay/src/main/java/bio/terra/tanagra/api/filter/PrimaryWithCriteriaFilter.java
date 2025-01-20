@@ -12,9 +12,10 @@ import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class PrimaryWithCriteriaFilter extends EntityFilter {
-  private final Underlay underlay;
+
   private final CriteriaOccurrence criteriaOccurrence;
   private final EntityFilter criteriaSubFilter;
   private final ImmutableMap<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity;
@@ -30,7 +31,10 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
       @Nullable Map<Entity, List<Attribute>> groupByAttributesPerOccurrenceEntity,
       @Nullable BinaryOperator groupByCountOperator,
       @Nullable Integer groupByCountValue) {
-    this.underlay = underlay;
+    super(
+        LoggerFactory.getLogger(PrimaryWithCriteriaFilter.class),
+        underlay,
+        underlay.getPrimaryEntity());
     this.criteriaOccurrence = criteriaOccurrence;
     this.criteriaSubFilter = criteriaSubFilter;
     this.subFiltersPerOccurrenceEntity =
@@ -43,10 +47,6 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
             : ImmutableMap.copyOf(groupByAttributesPerOccurrenceEntity);
     this.groupByCountOperator = groupByCountOperator;
     this.groupByCountValue = groupByCountValue;
-  }
-
-  public Underlay getUnderlay() {
-    return underlay;
   }
 
   public CriteriaOccurrence getCriteriaOccurrence() {
@@ -106,21 +106,12 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
   }
 
   @Override
-  public Entity getEntity() {
-    return underlay.getPrimaryEntity();
-  }
-
-  @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     PrimaryWithCriteriaFilter that = (PrimaryWithCriteriaFilter) o;
-    return underlay.equals(that.underlay)
-        && criteriaOccurrence.equals(that.criteriaOccurrence)
+    return criteriaOccurrence.equals(that.criteriaOccurrence)
         && Objects.equals(criteriaSubFilter, that.criteriaSubFilter)
         && Objects.equals(subFiltersPerOccurrenceEntity, that.subFiltersPerOccurrenceEntity)
         && Objects.equals(
@@ -132,7 +123,7 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
   @Override
   public int hashCode() {
     return Objects.hash(
-        underlay,
+        super.hashCode(),
         criteriaOccurrence,
         criteriaSubFilter,
         subFiltersPerOccurrenceEntity,

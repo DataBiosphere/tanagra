@@ -2,8 +2,9 @@ package bio.terra.tanagra.query.bigquery.translator.filter;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
-import bio.terra.tanagra.api.shared.*;
-import bio.terra.tanagra.exception.*;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
@@ -12,7 +13,7 @@ import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
+import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttributes;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +60,8 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
     SqlField valueField = fetchSelectField(entityTable, attribute);
 
     // search attribute-specific table if attribute is optimized for search
-    boolean isSearchOptimized = entity.containsOptimizeSearchByAttribute(attribute.getName());
+    boolean isSearchOptimized =
+        entity.containsOptimizeSearchByAttributes(List.of(attribute.getName()));
 
     if (!isSearchOptimized && attribute.isDataTypeRepeated()) {
       boolean naryOperatorIn =
@@ -120,11 +122,11 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
 
   private String searchOptimizedSql(AttributeFilter filter, String tableAlias, String whereClause) {
     Entity firstEntity = filter.getEntity();
-    ITEntitySearchByAttribute searchTable =
+    ITEntitySearchByAttributes searchTable =
         filter
             .getUnderlay()
             .getIndexSchema()
-            .getEntitySearchByAttributeTable(firstEntity, filter.getAttribute());
+            .getEntitySearchByAttributes(firstEntity, List.of(filter.getAttribute().getName()));
     SqlQueryField id =
         SqlQueryField.of(fetchSelectField(searchTable, firstEntity.getIdAttribute()));
     return id.renderForWhere(tableAlias)
@@ -162,9 +164,9 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
     // Can merge (AND) the 'where' clauses if are all optimized on search together
     AttributeFilter firstFilter = attributeFilters.get(0);
     Entity firstEntity = firstFilter.getEntity();
-    Attribute firstAttribute = firstFilter.getAttribute();
+    List<String> firstAttributeName = List.of(firstFilter.getAttribute().getName());
 
-    if (!firstEntity.containsOptimizeSearchByAttribute(firstAttribute.getName())) {
+    if (!firstEntity.containsOptimizeSearchByAttributes(firstAttributeName)) {
       // first attribute itself is not optimized for search
       return false;
     }
@@ -173,7 +175,7 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
         firstFilter
             .getUnderlay()
             .getIndexSchema()
-            .getEntitySearchByAttributeTable(firstEntity, firstAttribute)
+            .getEntitySearchByAttributes(firstEntity, firstAttributeName)
             .getAttributeNames();
 
     // check if all attributes in the filters are in the same search table for the same entity

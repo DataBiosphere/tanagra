@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.export.impl;
 
 import static bio.terra.tanagra.utils.NameUtils.simplifyStringForName;
 
-import bio.terra.tanagra.api.query.export.*;
+import bio.terra.tanagra.api.query.export.ExportQueryResult;
 import bio.terra.tanagra.proto.regressiontest.RTCohort;
 import bio.terra.tanagra.proto.regressiontest.RTCriteria;
 import bio.terra.tanagra.proto.regressiontest.RTDataFeatureSet;

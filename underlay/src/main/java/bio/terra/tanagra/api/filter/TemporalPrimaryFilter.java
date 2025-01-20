@@ -4,14 +4,14 @@ import bio.terra.tanagra.api.shared.JoinOperator;
 import bio.terra.tanagra.api.shared.ReducingOperator;
 import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.underlay.Underlay;
-import bio.terra.tanagra.underlay.entitymodel.*;
 import com.google.common.collect.ImmutableList;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class TemporalPrimaryFilter extends EntityFilter {
-  private final Underlay underlay;
+
   private final @Nullable ReducingOperator firstConditionReducingOperator;
   private final ImmutableList<EntityOutput> firstCondition;
   private final JoinOperator joinOperator;
@@ -27,17 +27,16 @@ public class TemporalPrimaryFilter extends EntityFilter {
       @Nullable Integer joinOperatorValue,
       @Nullable ReducingOperator secondConditionReducingOperator,
       List<EntityOutput> secondCondition) {
-    this.underlay = underlay;
+    super(
+        LoggerFactory.getLogger(TemporalPrimaryFilter.class),
+        underlay,
+        underlay.getPrimaryEntity());
     this.firstConditionReducingOperator = firstConditionReducingOperator;
     this.firstCondition = ImmutableList.copyOf(firstCondition);
     this.joinOperator = joinOperator;
     this.joinOperatorValue = joinOperatorValue;
     this.secondConditionReducingOperator = secondConditionReducingOperator;
     this.secondCondition = ImmutableList.copyOf(secondCondition);
-  }
-
-  public Underlay getUnderlay() {
-    return underlay;
   }
 
   @Nullable
@@ -68,21 +67,12 @@ public class TemporalPrimaryFilter extends EntityFilter {
   }
 
   @Override
-  public Entity getEntity() {
-    return underlay.getPrimaryEntity();
-  }
-
-  @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     TemporalPrimaryFilter that = (TemporalPrimaryFilter) o;
-    return underlay.equals(that.underlay)
-        && firstConditionReducingOperator == that.firstConditionReducingOperator
+    return firstConditionReducingOperator == that.firstConditionReducingOperator
         && firstCondition.equals(that.firstCondition)
         && joinOperator == that.joinOperator
         && Objects.equals(joinOperatorValue, that.joinOperatorValue)
@@ -93,7 +83,7 @@ public class TemporalPrimaryFilter extends EntityFilter {
   @Override
   public int hashCode() {
     return Objects.hash(
-        underlay,
+        super.hashCode(),
         firstConditionReducingOperator,
         firstCondition,
         joinOperator,

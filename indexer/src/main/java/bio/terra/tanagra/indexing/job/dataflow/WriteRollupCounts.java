@@ -17,7 +17,7 @@ import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
 import bio.terra.tanagra.underlay.indextable.ITRelationshipIdPairs;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
-import bio.terra.tanagra.underlay.sourcetable.*;
+import bio.terra.tanagra.underlay.sourcetable.STRelationshipRollupCounts;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;

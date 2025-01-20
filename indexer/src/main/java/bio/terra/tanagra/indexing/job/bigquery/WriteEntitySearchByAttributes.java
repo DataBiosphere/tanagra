@@ -4,7 +4,7 @@ import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
-import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttribute;
+import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttributes;
 import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import com.google.cloud.bigquery.Clustering;
 import com.google.cloud.bigquery.Field;
@@ -17,18 +17,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WriteEntitySearchByAttribute extends BigQueryJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(WriteEntitySearchByAttribute.class);
+public class WriteEntitySearchByAttributes extends BigQueryJob {
+  private static final Logger LOGGER = LoggerFactory.getLogger(WriteEntitySearchByAttributes.class);
 
   private final Entity entity;
   private final ITEntityMain entityTable;
-  private final ITEntitySearchByAttribute searchTable;
+  private final ITEntitySearchByAttributes searchTable;
 
-  public WriteEntitySearchByAttribute(
+  public WriteEntitySearchByAttributes(
       SZIndexer indexerConfig,
       Entity entity,
       ITEntityMain entityTable,
-      ITEntitySearchByAttribute searchTable) {
+      ITEntitySearchByAttributes searchTable) {
     super(indexerConfig);
     this.entity = entity;
     this.entityTable = entityTable;

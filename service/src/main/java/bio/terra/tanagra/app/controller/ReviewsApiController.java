@@ -46,7 +46,7 @@ import bio.terra.tanagra.service.artifact.reviewquery.ReviewInstance;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryOrderBy;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryRequest;
 import bio.terra.tanagra.service.artifact.reviewquery.ReviewQueryResult;
-import bio.terra.tanagra.service.filter.*;
+import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;

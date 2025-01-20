@@ -4,7 +4,9 @@ import static bio.terra.tanagra.UnderlayTestConfigs.AOUSR2019Q4R4;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.tanagra.api.query.hint.*;
+import bio.terra.tanagra.api.query.hint.HintInstance;
+import bio.terra.tanagra.api.query.hint.HintQueryRequest;
+import bio.terra.tanagra.api.query.hint.HintQueryResult;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.query.bigquery.BQRunnerTest;

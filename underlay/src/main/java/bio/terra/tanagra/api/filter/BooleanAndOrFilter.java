@@ -1,12 +1,14 @@
 package bio.terra.tanagra.api.filter;
 
-import bio.terra.tanagra.exception.*;
-import bio.terra.tanagra.underlay.entitymodel.*;
+import bio.terra.tanagra.exception.InvalidQueryException;
+import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class BooleanAndOrFilter extends EntityFilter {
+
   public enum LogicalOperator {
     AND,
     OR
@@ -16,6 +18,10 @@ public class BooleanAndOrFilter extends EntityFilter {
   private final List<EntityFilter> subFilters;
 
   public BooleanAndOrFilter(LogicalOperator operator, List<EntityFilter> subFilters) {
+    super(
+        LoggerFactory.getLogger(BooleanAndOrFilter.class),
+        /* underlay= */ null,
+        getSubFiltersEntity(subFilters));
     this.operator = operator;
     this.subFilters = subFilters;
   }
@@ -28,10 +34,9 @@ public class BooleanAndOrFilter extends EntityFilter {
     return ImmutableList.copyOf(subFilters);
   }
 
-  @Override
-  public Entity getEntity() {
-    Entity entity = subFilters.get(0).getEntity();
-    if (subFilters.stream().anyMatch(subFilter -> !subFilter.getEntity().equals(entity))) {
+  private static Entity getSubFiltersEntity(List<EntityFilter> filters) {
+    Entity entity = filters.get(0).getEntity();
+    if (filters.stream().anyMatch(filter -> !filter.getEntity().equals(entity))) {
       throw new InvalidQueryException(
           "All sub-filters of a boolean and/or filter must be for the same entity.");
     }
@@ -40,10 +45,7 @@ public class BooleanAndOrFilter extends EntityFilter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     BooleanAndOrFilter that = (BooleanAndOrFilter) o;
@@ -52,6 +54,6 @@ public class BooleanAndOrFilter extends EntityFilter {
 
   @Override
   public int hashCode() {
-    return Objects.hash(operator, subFilters);
+    return Objects.hash(super.hashCode(), operator, subFilters);
   }
 }

@@ -1,7 +1,8 @@
 package bio.terra.tanagra.query.bigquery.translator.filter;
 
-import bio.terra.tanagra.api.filter.*;
-import bio.terra.tanagra.api.shared.*;
+import bio.terra.tanagra.api.filter.HierarchyIsLeafFilter;
+import bio.terra.tanagra.api.shared.BinaryOperator;
+import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;

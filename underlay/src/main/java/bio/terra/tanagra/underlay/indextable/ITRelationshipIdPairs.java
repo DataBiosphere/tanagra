@@ -2,9 +2,11 @@ package bio.terra.tanagra.underlay.indextable;
 
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.query.sql.SqlField;
-import bio.terra.tanagra.underlay.*;
+import bio.terra.tanagra.underlay.ColumnSchema;
+import bio.terra.tanagra.underlay.NameHelper;
+import bio.terra.tanagra.underlay.SourceSchema;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
-import bio.terra.tanagra.underlay.sourcetable.*;
+import bio.terra.tanagra.underlay.sourcetable.STRelationshipIdPairs;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.stream.Collectors;

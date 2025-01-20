@@ -1,6 +1,7 @@
 package bio.terra.tanagra.underlay.serialization;
 
-import bio.terra.tanagra.annotation.*;
+import bio.terra.tanagra.annotation.AnnotatedClass;
+import bio.terra.tanagra.annotation.AnnotatedField;
 
 @AnnotatedClass(
     name = "SZRollupCountsSql",

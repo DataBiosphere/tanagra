@@ -10,10 +10,9 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.LoggerFactory;
 
 public class AttributeFilter extends EntityFilter {
-  private final Underlay underlay;
-  private final Entity entity;
   private final Attribute attribute;
   private final UnaryOperator unaryOperator;
   private final BinaryOperator binaryOperator;
@@ -22,8 +21,7 @@ public class AttributeFilter extends EntityFilter {
 
   public AttributeFilter(
       Underlay underlay, Entity entity, Attribute attribute, UnaryOperator unaryOperator) {
-    this.underlay = underlay;
-    this.entity = entity;
+    super(LoggerFactory.getLogger(AttributeFilter.class), underlay, entity);
     this.attribute = attribute;
     this.unaryOperator = unaryOperator;
     this.binaryOperator = null;
@@ -37,8 +35,7 @@ public class AttributeFilter extends EntityFilter {
       Attribute attribute,
       BinaryOperator binaryOperator,
       Literal value) {
-    this.underlay = underlay;
-    this.entity = entity;
+    super(LoggerFactory.getLogger(AttributeFilter.class), underlay, entity);
     this.attribute = attribute;
     this.unaryOperator = null;
     this.binaryOperator = binaryOperator;
@@ -52,8 +49,7 @@ public class AttributeFilter extends EntityFilter {
       Attribute attribute,
       NaryOperator naryOperator,
       List<Literal> values) {
-    this.underlay = underlay;
-    this.entity = entity;
+    super(LoggerFactory.getLogger(AttributeFilter.class), underlay, entity);
     this.attribute = attribute;
     this.unaryOperator = null;
     this.binaryOperator = null;
@@ -61,17 +57,8 @@ public class AttributeFilter extends EntityFilter {
     this.values = ImmutableList.copyOf(values);
   }
 
-  public Underlay getUnderlay() {
-    return underlay;
-  }
-
   public Attribute getAttribute() {
     return attribute;
-  }
-
-  @Override
-  public Entity getEntity() {
-    return entity;
   }
 
   public UnaryOperator getUnaryOperator() {
@@ -116,16 +103,11 @@ public class AttributeFilter extends EntityFilter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
+    if (!super.equals(o)) {
       return false;
     }
     AttributeFilter that = (AttributeFilter) o;
-    return underlay.equals(that.underlay)
-        && entity.equals(that.entity)
-        && attribute.equals(that.attribute)
+    return attribute.equals(that.attribute)
         && unaryOperator == that.unaryOperator
         && binaryOperator == that.binaryOperator
         && naryOperator == that.naryOperator
@@ -135,6 +117,6 @@ public class AttributeFilter extends EntityFilter {
   @Override
   public int hashCode() {
     return Objects.hash(
-        underlay, entity, attribute, unaryOperator, binaryOperator, naryOperator, values);
+        super.hashCode(), attribute, unaryOperator, binaryOperator, naryOperator, values);
   }
 }

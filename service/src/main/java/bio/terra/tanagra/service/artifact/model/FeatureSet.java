@@ -2,7 +2,7 @@ package bio.terra.tanagra.service.artifact.model;
 
 import static bio.terra.tanagra.service.artifact.model.Study.MAX_DISPLAY_NAME_LENGTH;
 
-import bio.terra.common.exception.*;
+import bio.terra.common.exception.BadRequestException;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import jakarta.annotation.Nullable;
 import java.time.OffsetDateTime;

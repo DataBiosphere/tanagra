@@ -13,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import bio.terra.common.exception.*;
+import bio.terra.common.exception.BadRequestException;
+import bio.terra.common.exception.NotFoundException;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.app.Main;
