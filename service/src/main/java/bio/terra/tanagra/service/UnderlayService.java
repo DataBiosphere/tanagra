@@ -183,7 +183,7 @@ public class UnderlayService {
             pageMarker,
             pageSize,
             entityLevelHints,
-            false);
+            true);
     return underlay.getQueryRunner().run(countQueryRequest);
   }
 

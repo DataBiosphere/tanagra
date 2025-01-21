@@ -1,6 +1,7 @@
 package bio.terra.tanagra.api.filter;
 
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +29,12 @@ public abstract class EntityFilter {
 
   public Entity getEntity() {
     return entity;
+  }
+
+  public List<Attribute> getFilterAttributes() {
+    logger.debug(
+        "FilterAttributes not supported/implemented for " + this.getClass().getSimpleName());
+    return List.of();
   }
 
   // TODO: Add logic here to merge filters automatically to get a simpler filter overall.

@@ -4,6 +4,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import jakarta.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +31,9 @@ public class TextSearchFilter extends EntityFilter {
     this.attribute = attribute;
   }
 
-  public boolean isForSpecificAttribute() {
-    return attribute != null;
-  }
-
-  @Nullable
-  public Attribute getAttribute() {
-    return attribute;
+  @Override
+  public List<Attribute> getFilterAttributes() {
+    return (attribute != null) ? List.of(attribute) : List.of();
   }
 
   public TextSearchOperator getOperator() {

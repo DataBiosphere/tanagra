@@ -47,6 +47,12 @@ public class RelationshipFilter extends EntityFilter {
     this.groupByCountValue = groupByCountValue;
   }
 
+  @Override
+  public List<Attribute> getFilterAttributes() {
+    Attribute attribute = relationship.getForeignKeyAttribute(getSelectEntity());
+    return attribute != null ? List.of(attribute) : List.of();
+  }
+
   public EntityGroup getEntityGroup() {
     return entityGroup;
   }

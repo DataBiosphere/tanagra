@@ -56,7 +56,7 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
     Entity entity = attributeFilter.getEntity();
     ITEntityMain entityTable =
         attributeFilter.getUnderlay().getIndexSchema().getEntityMain(entity.getName());
-    Attribute attribute = attributeFilter.getAttribute();
+    Attribute attribute = attributeFilter.getFilterAttributes().get(0);
     SqlField valueField = fetchSelectField(entityTable, attribute);
 
     // search attribute-specific table if attribute is optimized for search
@@ -110,7 +110,7 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
                         filter,
                         sqlParams,
                         tableAlias,
-                        fetchSelectField(entityTable, filter.getAttribute())))
+                        fetchSelectField(entityTable, filter.getFilterAttributes().get(0))))
             .toList()
             .toArray(new String[0]);
 
@@ -126,7 +126,9 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
         filter
             .getUnderlay()
             .getIndexSchema()
-            .getEntitySearchByAttributes(firstEntity, List.of(filter.getAttribute().getName()));
+            .getEntitySearchByAttributes(
+                firstEntity,
+                filter.getFilterAttributes().stream().map(Attribute::getName).toList());
     SqlQueryField id =
         SqlQueryField.of(fetchSelectField(searchTable, firstEntity.getIdAttribute()));
     return id.renderForWhere(tableAlias)
@@ -157,16 +159,18 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return attributeFilter != null && attribute.equals(attributeFilter.getAttribute());
+    return attributeFilter != null
+        && attribute.equals(attributeFilter.getFilterAttributes().get(0));
   }
 
   public static boolean canMergeTranslation(List<AttributeFilter> attributeFilters) {
     // Can merge (AND) the 'where' clauses if are all optimized on search together
     AttributeFilter firstFilter = attributeFilters.get(0);
     Entity firstEntity = firstFilter.getEntity();
-    List<String> firstAttributeName = List.of(firstFilter.getAttribute().getName());
+    List<String> attributeNames =
+        firstFilter.getFilterAttributes().stream().map(Attribute::getName).toList();
 
-    if (!firstEntity.containsOptimizeSearchByAttributes(firstAttributeName)) {
+    if (!firstEntity.containsOptimizeSearchByAttributes(List.of(attributeNames.get(0)))) {
       // first attribute itself is not optimized for search
       return false;
     }
@@ -175,7 +179,7 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
         firstFilter
             .getUnderlay()
             .getIndexSchema()
-            .getEntitySearchByAttributes(firstEntity, firstAttributeName)
+            .getEntitySearchByAttributes(firstEntity, attributeNames)
             .getAttributeNames();
 
     // check if all attributes in the filters are in the same search table for the same entity
@@ -183,6 +187,7 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
         .allMatch(
             filter ->
                 filter.getEntity().getName().equals(firstEntity.getName())
-                    && searchTableAttributes.contains(filter.getAttribute().getName()));
+                    && searchTableAttributes.contains(
+                        filter.getFilterAttributes().get(0).getName()));
   }
 }

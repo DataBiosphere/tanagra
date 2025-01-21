@@ -34,8 +34,8 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
-import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
+import bio.terra.tanagra.underlay.indextable.IndexTable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -402,10 +402,6 @@ public class BQQueryRunner implements QueryRunner {
       throw new NotImplementedException("Queries with more than one entity are not yet supported");
     }
 
-    // Build the list of entity main tables we need to query or join.
-    Entity singleEntity = entities.iterator().next();
-    ITEntityMain entityMain = underlay.getIndexSchema().getEntityMain(singleEntity.getName());
-
     List<String> selectFieldSqls = new ArrayList<>();
     List<String> joinTableSqls = new ArrayList<>();
     selectFields.forEach(
@@ -431,11 +427,26 @@ public class BQQueryRunner implements QueryRunner {
               sqlQueryField -> selectFieldSqls.add(sqlQueryField.renderForSelect()));
         });
 
+    // Build the list of entity tables we need to query or join.
+    Entity singleEntity = entities.iterator().next();
+    EntityFilter singleEntityFilter = filters.get(singleEntity);
+    List<String> filterAttributes =
+        singleEntityFilter != null
+            ? singleEntityFilter.getFilterAttributes().stream().map(Attribute::getName).toList()
+            : List.of();
+
+    // if entity is optimized for each of these attributes, pick the search table.
+    // Else, pick the entity main table
+    IndexTable entityTable =
+        singleEntity.containsOptimizeSearchByAttributes(filterAttributes)
+            ? underlay.getIndexSchema().getEntitySearchByAttributes(singleEntity, filterAttributes)
+            : underlay.getIndexSchema().getEntityMain(singleEntity.getName());
+
     // SELECT [select fields] FROM [entity main] JOIN [join tables]
     sql.append("SELECT ")
         .append(String.join(", ", selectFieldSqls))
         .append(" FROM ")
-        .append(entityMain.getTablePointer().render());
+        .append(entityTable.getTablePointer().render());
 
     // JOIN [join tables]
     if (!joinTableSqls.isEmpty()) {
@@ -443,7 +454,6 @@ public class BQQueryRunner implements QueryRunner {
     }
 
     // WHERE [filter]
-    EntityFilter singleEntityFilter = filters.get(singleEntity);
     if (singleEntityFilter != null) {
       sql.append(" WHERE ")
           .append(bqTranslator.translator(singleEntityFilter).buildSql(sqlParams, null));

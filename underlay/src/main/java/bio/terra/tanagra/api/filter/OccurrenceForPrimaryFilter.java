@@ -1,9 +1,11 @@
 package bio.terra.tanagra.api.filter;
 
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.CriteriaOccurrence;
 import jakarta.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,15 @@ public class OccurrenceForPrimaryFilter extends EntityFilter {
     this.criteriaOccurrence = criteriaOccurrence;
     this.primarySubFilter = primarySubFilter;
     this.criteriaSubFilter = criteriaSubFilter;
+  }
+
+  @Override
+  public List<Attribute> getFilterAttributes() {
+    Attribute attribute =
+        criteriaOccurrence
+            .getOccurrencePrimaryRelationship(getOccurrenceEntity().getName())
+            .getForeignKeyAttribute(getOccurrenceEntity());
+    return attribute != null ? List.of(attribute) : List.of();
   }
 
   public CriteriaOccurrence getCriteriaOccurrence() {

@@ -1,6 +1,7 @@
 package bio.terra.tanagra.api.filter;
 
 import bio.terra.tanagra.exception.InvalidQueryException;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -41,6 +42,15 @@ public class BooleanAndOrFilter extends EntityFilter {
           "All sub-filters of a boolean and/or filter must be for the same entity.");
     }
     return entity;
+  }
+
+  @Override
+  public List<Attribute> getFilterAttributes() {
+    return subFilters.stream()
+        .map(EntityFilter::getFilterAttributes)
+        .flatMap(List::stream)
+        .distinct()
+        .toList();
   }
 
   @Override

@@ -1,5 +1,7 @@
 package bio.terra.tanagra.api.filter;
 
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import java.util.List;
 import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,11 @@ public class BooleanNotFilter extends EntityFilter {
 
   public EntityFilter getSubFilter() {
     return subFilter;
+  }
+
+  @Override
+  public List<Attribute> getFilterAttributes() {
+    return subFilter.getFilterAttributes();
   }
 
   @Override
