@@ -1,0 +1,24 @@
+{
+  "name": "variant",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "STRING", "valueFieldName": "vid" },
+    { "name": "gene", "dataType": "STRING", "isDataTypeRepeated": true, "valueFieldName": "gene_symbol", "isComputeDisplayHint": true },
+    { "name": "rs_number", "dataType": "STRING", "isDataTypeRepeated": true, "valueFieldName": "dbsnp_rsid" },
+    { "name": "consequence", "dataType": "STRING", "isDataTypeRepeated":  true, "isComputeDisplayHint": true },
+    { "name": "protein_change", "dataType": "STRING", "valueFieldName": "aa_change" },
+    { "name": "clinvar_significance", "dataType": "STRING", "isDataTypeRepeated":  true, "valueFieldName": "clinvar_classification", "isComputeDisplayHint": true },
+    { "name": "allele_count", "dataType": "INT64", "valueFieldName": "gvs_all_ac", "isComputeDisplayHint": true },
+    { "name": "allele_number", "dataType": "INT64", "valueFieldName": "gvs_all_an", "isComputeDisplayHint": true },
+    { "name": "allele_frequency", "dataType": "DOUBLE", "valueFieldName": "gvs_all_af", "isComputeDisplayHint": true },
+    { "name": "contig", "dataType": "STRING" },
+    { "name": "position", "dataType": "INT64" }
+  ],
+  "idAttribute": "id",
+  "optimizeGroupByAttributes": [ "id" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "gene" ] },
+    { "attributes": [ "rs_number" ] },
+    { "attributes": [ "contig", "position" ] }
+  ]
+}
