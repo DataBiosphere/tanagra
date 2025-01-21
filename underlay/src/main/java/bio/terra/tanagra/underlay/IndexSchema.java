@@ -213,7 +213,7 @@ public final class IndexSchema {
             entityGroupsWithCount.add(szCriteriaOccurrence.name);
           }
         });
-    entityMainTables.add(
+    ITEntityMain entityMain =
         new ITEntityMain(
             nameHelper,
             szBigQueryIndexData,
@@ -221,7 +221,8 @@ public final class IndexSchema {
             szEntity.attributes,
             szEntity.hierarchies,
             szEntity.textSearch != null,
-            entityGroupsWithCount));
+            entityGroupsWithCount);
+    entityMainTables.add(entityMain);
 
     // EntityLevelDisplayHints table.
     entityLevelDisplayHintTables.add(
@@ -233,7 +234,7 @@ public final class IndexSchema {
           attributeSearch ->
               entitySearchByAttributesTables.add(
                   new ITEntitySearchByAttributes(
-                      nameHelper, szBigQueryIndexData, szEntity, attributeSearch)));
+                      nameHelper, szBigQueryIndexData, entityMain, szEntity, attributeSearch)));
     }
 
     szEntity.hierarchies.forEach(

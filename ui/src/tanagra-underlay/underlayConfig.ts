@@ -15,6 +15,7 @@ export type SZAttribute = {
 
 export type SZAttributeSearch = {
   attributes: string[];
+  includeEntityMainColumns?: boolean;
   includeNullValues?: boolean;
 };
 

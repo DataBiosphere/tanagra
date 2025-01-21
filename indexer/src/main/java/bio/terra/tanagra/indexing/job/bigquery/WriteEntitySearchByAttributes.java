@@ -2,6 +2,7 @@ package bio.terra.tanagra.indexing.job.bigquery;
 
 import bio.terra.tanagra.indexing.job.BigQueryJob;
 import bio.terra.tanagra.indexing.job.dataflow.beam.BigQueryBeamUtils;
+import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttributes;
@@ -52,16 +53,58 @@ public class WriteEntitySearchByAttributes extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-    List<Field> fields =
-        searchTable.getColumnSchemas().stream()
-            .map(
-                columnSchema ->
-                    Field.newBuilder(
-                            columnSchema.getColumnName(),
-                            BigQueryBeamUtils.fromDataType(columnSchema.getDataType()))
-                        .setMode(searchTable.includeNullValues() ? Mode.NULLABLE : Mode.REQUIRED)
-                        .build())
-            .toList();
+
+    // Define create table definition
+    // Build the query to insert to the search table using a select from the main entity table.
+    List<Field> fields = new ArrayList<>();
+    List<String> insertColumns = new ArrayList<>();
+    List<String> selectColumns = new ArrayList<>();
+    List<String> crossJoins = new ArrayList<>();
+    List<String> whereClauses = new ArrayList<>();
+
+    searchTable
+        .getColumnSchemas()
+        .forEach(
+            colSchema -> {
+              String attribute = colSchema.getColumnName();
+              insertColumns.add(attribute);
+
+              if (entityTable.getColumnSchemas().stream()
+                      .filter(col -> col.getColumnName().equals(attribute))
+                      .anyMatch(ColumnSchema::isDataTypeRepeated)
+                  != colSchema.isDataTypeRepeated()) {
+                // entityTable.repeated != searchTable.notRepeated
+                String alias = "flattened_" + attribute;
+                selectColumns.add(alias);
+                crossJoins.add(" CROSS JOIN UNNEST(" + attribute + ") AS " + alias);
+              } else {
+                selectColumns.add(attribute);
+              }
+
+              Mode mode;
+
+              if (searchTable.getAttributeNames().contains(attribute)) {
+                if (searchTable.includeNullValues()) {
+                  mode = Mode.NULLABLE;
+                } else {
+                  mode = Mode.REQUIRED;
+                  whereClauses.add(attribute + " IS NOT NULL");
+                }
+              } else {
+                // all other attributes
+                mode =
+                    colSchema.isRequired()
+                        ? Mode.REQUIRED
+                        : (colSchema.isDataTypeRepeated() ? Mode.REPEATED : Mode.NULLABLE);
+              }
+
+              fields.add(
+                  Field.newBuilder(
+                          colSchema.getColumnName(),
+                          BigQueryBeamUtils.fromDataType(colSchema.getDataType()))
+                      .setMode(mode)
+                      .build());
+            });
 
     // Build a clustering specification.
     Clustering clustering =
@@ -74,34 +117,6 @@ public class WriteEntitySearchByAttributes extends BigQueryJob {
             indexerConfig.bigQuery.indexData.datasetId,
             getOutputTableName());
     googleBigQuery.createTableFromSchema(destinationTable, Schema.of(fields), clustering, isDryRun);
-
-    // Build the query to insert to the search table using a select from the main entity table.
-    List<String> insertColumns = new ArrayList<>();
-    insertColumns.add(entity.getIdAttribute().getName());
-
-    List<String> selectColumns = new ArrayList<>();
-    selectColumns.add(entity.getIdAttribute().getName());
-
-    List<String> crossJoins = new ArrayList<>();
-    List<String> whereClauses = new ArrayList<>();
-    searchTable
-        .getAttributeNames()
-        .forEach(
-            attribute -> {
-              insertColumns.add(attribute);
-
-              if (entity.getAttribute(attribute).isDataTypeRepeated()) {
-                String alias = "flattened_" + attribute;
-                selectColumns.add(alias);
-                crossJoins.add(" CROSS JOIN UNNEST(" + attribute + ") AS " + alias);
-              } else {
-                selectColumns.add(attribute);
-              }
-
-              if (!searchTable.includeNullValues()) {
-                whereClauses.add(attribute + " IS NOT NULL");
-              }
-            });
 
     String whereSql =
         whereClauses.isEmpty() ? StringUtils.EMPTY : " WHERE " + String.join(" AND ", whereClauses);
