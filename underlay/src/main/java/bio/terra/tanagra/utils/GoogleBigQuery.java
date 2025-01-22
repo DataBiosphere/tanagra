@@ -266,7 +266,7 @@ public final class GoogleBigQuery {
           JobStatistics.QueryStatistics stats = completedJob.getStatistics();
           LOGGER.info(
               "BQ SQL run stats: jobId={}, totalRows={}, cacheHit={}, totalMegaBytesProcessed={}, totalSlotMs={}",
-              jobId,
+              jobId.getJob(),
               tableResult.getTotalRows(),
               stats.getCacheHit(),
               stats.getTotalBytesProcessed() / 1_048_576,

@@ -73,6 +73,7 @@ public class BQExecutor {
               null);
       return new SqlQueryResult(List.of(), null, 0, sqlNoParams);
     } else {
+      LOGGER.error("DEX -- " + queryRequest.getSql());
       // For a regular run, convert the BQ query results to our internal result objects.
       TableResult tableResult =
           getBigQueryService()
@@ -84,6 +85,7 @@ public class BQExecutor {
                   null,
                   null,
                   null);
+      LOGGER.error("DEX success -- " + queryRequest.getSql());
       Iterable<SqlRowResult> rowResults =
           Iterables.transform(
               tableResult.getValues() /* Single page of results. */, BQRowResult::new);

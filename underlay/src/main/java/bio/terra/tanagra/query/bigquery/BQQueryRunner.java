@@ -34,6 +34,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints;
+import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttributes;
 import bio.terra.tanagra.underlay.indextable.ITInstanceLevelDisplayHints;
 import bio.terra.tanagra.underlay.indextable.IndexTable;
 import com.google.common.annotations.VisibleForTesting;
@@ -48,6 +49,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -395,13 +397,13 @@ public class BQQueryRunner implements QueryRunner {
     BQApiTranslator bqTranslator = new BQApiTranslator();
 
     // Build the list of entities we need for the select fields and filters.
-    Set<Entity> entities = new HashSet<>();
-    selectFields.forEach(selectField -> entities.add(selectField.getEntity()));
-    entities.addAll(filters.keySet());
+    Set<Entity> entities =
+        selectFields.stream().map(ValueDisplayField::getEntity).collect(Collectors.toSet());
     if (entities.size() > 1) {
       throw new NotImplementedException("Queries with more than one entity are not yet supported");
     }
 
+    List<String> selectFieldNames = new ArrayList<>();
     List<String> selectFieldSqls = new ArrayList<>();
     List<String> joinTableSqls = new ArrayList<>();
     selectFields.forEach(
@@ -424,23 +426,34 @@ public class BQQueryRunner implements QueryRunner {
           }
 
           sqlQueryFields.forEach(
-              sqlQueryField -> selectFieldSqls.add(sqlQueryField.renderForSelect()));
+              sqlQueryField -> {
+                selectFieldNames.add(sqlQueryField.getField().getColumnName());
+                selectFieldSqls.add(sqlQueryField.renderForSelect());
+              });
         });
 
     // Build the list of entity tables we need to query or join.
     Entity singleEntity = entities.iterator().next();
     EntityFilter singleEntityFilter = filters.get(singleEntity);
-    List<String> filterAttributes =
+
+    // get a list of attributes filtered on, if implemented for the filter
+    List<String> filterAttributeNames =
         singleEntityFilter != null
             ? singleEntityFilter.getFilterAttributes().stream().map(Attribute::getName).toList()
             : List.of();
 
-    // if entity is optimized for each of these attributes, pick the search table.
-    // Else, pick the entity main table
-    IndexTable entityTable =
-        singleEntity.containsOptimizeSearchByAttributes(filterAttributes)
-            ? underlay.getIndexSchema().getEntitySearchByAttributes(singleEntity, filterAttributes)
-            : underlay.getIndexSchema().getEntityMain(singleEntity.getName());
+    // default: use entityMain table
+    // check if: entity is optimized for search on filterAttributes &
+    // (either search table contains entityMain fields OR all selectFields)
+    IndexTable entityTable = underlay.getIndexSchema().getEntityMain(singleEntity.getName());
+    if (singleEntity.containsOptimizeSearchByAttributes(filterAttributeNames)) {
+      ITEntitySearchByAttributes searchTable =
+          underlay.getIndexSchema().getEntitySearchByAttributes(singleEntity, filterAttributeNames);
+      if (searchTable.includeEntityMainColumns()
+          || new HashSet<>(searchTable.getColumnNames()).containsAll(selectFieldNames)) {
+        entityTable = searchTable;
+      }
+    }
 
     // SELECT [select fields] FROM [entity main] JOIN [join tables]
     sql.append("SELECT ")

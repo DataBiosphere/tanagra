@@ -14,6 +14,7 @@ public class ITEntitySearchByAttributes extends IndexTable {
   private final String entity;
   private final ImmutableList<String> attributeNames;
   private final boolean includeNullValues;
+  private final boolean includeEntityMainColumns;
   private final ImmutableList<ColumnSchema> columnSchemas;
 
   public ITEntitySearchByAttributes(
@@ -54,6 +55,7 @@ public class ITEntitySearchByAttributes extends IndexTable {
             });
     this.columnSchemas = ImmutableList.copyOf(attrSchemas);
     this.includeNullValues = attributeSearch.includeNullValues;
+    this.includeEntityMainColumns = attributeSearch.includeEntityMainColumns;
   }
 
   @Override
@@ -76,5 +78,9 @@ public class ITEntitySearchByAttributes extends IndexTable {
 
   public boolean includeNullValues() {
     return includeNullValues;
+  }
+
+  public boolean includeEntityMainColumns() {
+    return includeEntityMainColumns;
   }
 }

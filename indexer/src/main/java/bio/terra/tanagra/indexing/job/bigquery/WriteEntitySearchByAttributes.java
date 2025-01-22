@@ -53,9 +53,8 @@ public class WriteEntitySearchByAttributes extends BigQueryJob {
 
   @Override
   public void run(boolean isDryRun) {
-
-    // Define create table definition
-    // Build the query to insert to the search table using a select from the main entity table.
+    // Create table definition & build the query to insert into the search table
+    // using a select from the main entity table.
     List<Field> fields = new ArrayList<>();
     List<String> insertColumns = new ArrayList<>();
     List<String> selectColumns = new ArrayList<>();
@@ -82,7 +81,6 @@ public class WriteEntitySearchByAttributes extends BigQueryJob {
               }
 
               Mode mode;
-
               if (searchTable.getAttributeNames().contains(attribute)) {
                 if (searchTable.includeNullValues()) {
                   mode = Mode.NULLABLE;
