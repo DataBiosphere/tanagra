@@ -143,7 +143,7 @@ List of attributes grouped together for search optimization.
 ### SZAttributeSearch.includeEntityMainColumns
 **optional** boolean
 
-True if all columns from the EntityMain table should be included in this table. 
+Whether all columns in the entity main table should also be included in this search table. Improves performance if other attributes are also fetched when performing this search by attributes.
 
 *Default value:* `false`
 

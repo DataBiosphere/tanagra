@@ -32,8 +32,7 @@ public abstract class EntityFilter {
   }
 
   public List<Attribute> getFilterAttributes() {
-    logger.debug(
-        "FilterAttributes not supported/implemented for " + this.getClass().getSimpleName());
+    // not supported or not implemented
     return List.of();
   }
 
