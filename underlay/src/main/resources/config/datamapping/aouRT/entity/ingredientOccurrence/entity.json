@@ -84,6 +84,9 @@
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "drug_concept_id" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "temporalQuery": {
     "visitDateAttribute": "drug_exposure_start_datetime",
     "visitIdAttribute": "visit_occurrence_id"

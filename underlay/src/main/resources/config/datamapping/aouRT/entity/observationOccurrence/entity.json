@@ -97,6 +97,9 @@
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "observation_concept_id" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "temporalQuery": {
     "visitDateAttribute": "observation_datetime",
     "visitIdAttribute": "visit_occurrence_id"

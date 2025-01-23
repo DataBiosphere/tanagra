@@ -25,4 +25,14 @@ public class SZAttributeSearch {
       optional = true,
       defaultValue = "false")
   public boolean includeNullValues;
+
+  @AnnotatedField(
+      name = "SZAttributeSearch.includeEntityMainColumns",
+      markdown =
+          "Whether all columns in the entity main table should also be included "
+              + "in this search table. Improves performance if other attributes are also fetched "
+              + "when performing this search by attributes.",
+      optional = true,
+      defaultValue = "false")
+  public boolean includeEntityMainColumns;
 }

@@ -76,6 +76,9 @@
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "procedure_concept_id" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "temporalQuery": {
     "visitDateAttribute": "procedure_datetime",
     "visitIdAttribute": "visit_occurrence_id"

@@ -57,8 +57,9 @@ public class AttributeFilter extends EntityFilter {
     this.values = ImmutableList.copyOf(values);
   }
 
-  public Attribute getAttribute() {
-    return attribute;
+  @Override
+  public List<Attribute> getFilterAttributes() {
+    return List.of(attribute);
   }
 
   public UnaryOperator getUnaryOperator() {

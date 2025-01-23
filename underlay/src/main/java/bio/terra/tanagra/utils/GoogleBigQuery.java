@@ -12,6 +12,7 @@ import com.google.cloud.bigquery.Dataset;
 import com.google.cloud.bigquery.DatasetId;
 import com.google.cloud.bigquery.ExtractJobConfiguration;
 import com.google.cloud.bigquery.Job;
+import com.google.cloud.bigquery.JobId;
 import com.google.cloud.bigquery.JobInfo;
 import com.google.cloud.bigquery.JobStatistics;
 import com.google.cloud.bigquery.QueryJobConfiguration;
@@ -252,23 +253,24 @@ public final class GoogleBigQuery {
             destinationTable,
             clustering,
             queryTimeout);
+    JobId jobId = JobId.of();
+    LOGGER.info("BQ SQL run: jobId: {}, sql: {}", jobId.getJob(), sql);
     return callWithRetries(
         () -> {
-          Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
+          Job job =
+              bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).setJobId(jobId).build());
           TableResult tableResult =
               job.getQueryResults(
                   queryJobConfig.getRight().toArray(new BigQuery.QueryResultsOption[0]));
           Job completedJob = job.waitFor();
           JobStatistics.QueryStatistics stats = completedJob.getStatistics();
-          Long totalBytesProcessed = stats.getTotalBytesProcessed();
-          String jobId = completedJob.getJobId().getJob();
           LOGGER.info(
-              "BQ job: {}, total rows: {}, cache hit: {}, total data processed: {}MB, sql: {}",
-              jobId,
+              "BQ SQL run stats: jobId={}, totalRows={}, cacheHit={}, totalMegaBytesProcessed={}, totalSlotMs={}",
+              jobId.getJob(),
               tableResult.getTotalRows(),
               stats.getCacheHit(),
-              totalBytesProcessed / 1_048_576,
-              sql);
+              stats.getTotalBytesProcessed() / 1_048_576,
+              stats.getTotalSlotMs());
           return tableResult;
         },
         "Error running query: " + queryJobConfig.getLeft().getQuery());
@@ -284,17 +286,20 @@ public final class GoogleBigQuery {
     Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
         buildQueryJobConfig(
             sql, true, queryParams, pageToken, pageSize, destinationTable, clustering, null);
+    JobId jobId = JobId.of();
+    LOGGER.info("BQ SQL dry run sql: jobId: {}, sql: {}", jobId.getJob(), sql);
     return callWithRetries(
         () -> {
-          Job job = bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).build());
-          JobStatistics.QueryStatistics queryStatistics = job.getStatistics();
+          Job job =
+              bigQuery.create(JobInfo.newBuilder(queryJobConfig.getLeft()).setJobId(jobId).build());
+          JobStatistics.QueryStatistics stats = job.getStatistics();
           LOGGER.info(
-              "SQL dry run: statementType={}, cacheHit={}, totalBytesProcessed={}, totalSlotMs={}",
-              queryStatistics.getStatementType(),
-              queryStatistics.getCacheHit(),
-              queryStatistics.getTotalBytesProcessed(),
-              queryStatistics.getTotalSlotMs());
-          return queryStatistics;
+              "BQ SQL dry run stats: statementType={}, cacheHit={}, totalMegaBytesProcessed={}, totalSlotMs={}",
+              stats.getStatementType(),
+              stats.getCacheHit(),
+              stats.getTotalBytesProcessed() / 1_048_576,
+              stats.getTotalSlotMs());
+          return stats;
         },
         "Error getting job statistics for query: " + queryJobConfig.getLeft().getQuery());
   }

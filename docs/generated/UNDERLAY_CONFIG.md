@@ -140,6 +140,13 @@ List of attributes grouped together for search optimization.
 
  Order matter. Each entry is a list of attributes that are search for together. For example search is typically performed for contig and position together. 
 
+### SZAttributeSearch.includeEntityMainColumns
+**optional** boolean
+
+Whether all columns in the entity main table should also be included in this search table. Improves performance if other attributes are also fetched when performing this search by attributes.
+
+*Default value:* `false`
+
 ### SZAttributeSearch.includeNullValues
 **optional** boolean
 

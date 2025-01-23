@@ -97,6 +97,9 @@
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "measurement_concept_id" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "temporalQuery": {
     "visitDateAttribute": "measurement_datetime",
     "visitIdAttribute": "visit_occurrence_id"

@@ -43,8 +43,7 @@ public class BQExecutor {
   }
 
   public SqlQueryResult run(SqlQueryRequest queryRequest) {
-    // Log the SQL statement with parameters substituted locally (i.e. not by BQ) to help with
-    // debugging.
+    // Log the SQL statement with parameters substituted locally (i.e. not by BQ) for debugging.
     String sqlNoParams = queryRequest.getSql();
     for (String paramName : queryRequest.getSqlParams().getParamNamesLongestFirst()) {
       sqlNoParams =

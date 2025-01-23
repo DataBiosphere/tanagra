@@ -8,6 +8,7 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
+import java.util.List;
 import java.util.Map;
 
 public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
@@ -28,14 +29,15 @@ public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(textSearchFilter.getEntity().getName());
-    SqlField textSearchField;
-    if (textSearchFilter.isForSpecificAttribute()) {
-      // Search only on the specified attribute.
-      textSearchField = fetchSelectField(indexTable, textSearchFilter.getAttribute());
-    } else {
-      // Search the text index specified in the underlay config.
-      textSearchField = indexTable.getTextSearchField();
-    }
+
+    // Search the text index specified in the underlay config if not filtered
+    // on a specific attribute
+    List<Attribute> filterAttributes = textSearchFilter.getFilterAttributes();
+    SqlField textSearchField =
+        filterAttributes.isEmpty()
+            ? indexTable.getTextSearchField()
+            : fetchSelectField(indexTable, textSearchFilter.getFilterAttributes().get(0));
+
     return apiTranslator.textSearchFilterSql(
         textSearchField,
         textSearchFilter.getOperator(),
@@ -46,7 +48,6 @@ public class BQTextSearchFilterTranslator extends ApiFilterTranslator {
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
-    return textSearchFilter.isForSpecificAttribute()
-        && textSearchFilter.getAttribute().equals(attribute);
+    return textSearchFilter.getFilterAttributes().stream().anyMatch(attr -> attr.equals(attribute));
   }
 }
