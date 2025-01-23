@@ -112,7 +112,8 @@ dependencies {
     implementation "org.glassfish.jersey.media:jersey-media-multipart:${vJersey}"
     implementation "org.glassfish.jersey.media:jersey-media-json-jackson:${vJersey}"
 
-    implementation 'org.vumc.vda.tanagra:admin-client:1.0.18-SNAPSHOT'
+    // https://github.com/vanderbilt/tanagra-client-libraries/packages/1855306
+    implementation 'org.vumc.vda.tanagra:admin-client:1.0.34-SNAPSHOT'
 }
 
 protobuf {
