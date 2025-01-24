@@ -33,6 +33,7 @@ export type FeatureConfig = {
   disableExportButton?: boolean;
   overrideExportButton?: boolean;
   disableFeatureSets?: boolean;
+  enableAddByCode?: boolean;
 };
 
 export type DemographicChartConfig = {

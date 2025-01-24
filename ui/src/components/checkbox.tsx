@@ -1,12 +1,13 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import IconButton from "@mui/material/IconButton";
-import { useTheme } from "@mui/material/styles";
+import { useTheme, alpha } from "@mui/material/styles";
 import { cloneElement, ReactElement } from "react";
 
 export type CheckboxProps = {
   checked?: boolean;
   faded?: boolean;
+  disabled?: boolean;
   onChange?: () => void;
   size?: "small" | "medium" | "large";
   fontSize?: "small" | "medium" | "large" | "inherit";
@@ -21,6 +22,7 @@ const defaultUncheckedIcon = <CheckBoxOutlineBlankIcon />;
 export default function Checkbox({
   checked,
   faded,
+  disabled,
   onChange,
   size,
   fontSize,
@@ -35,6 +37,7 @@ export default function Checkbox({
       role={"checkbox"}
       size={size}
       name={name}
+      disabled={disabled}
       onClick={() => {
         if (onChange) {
           onChange();
@@ -45,19 +48,20 @@ export default function Checkbox({
         ? cloneElement(checkedIcon, {
             size: size,
             fontSize: fontSize,
-            ...(faded
-              ? {
-                  sx: {
-                    fill: theme.palette.primary.light,
-                  },
-                }
-              : { color: "primary" }),
+            sx: {
+              fill: alpha(
+                faded
+                  ? theme.palette.primary.light
+                  : theme.palette.primary.main,
+                !disabled ? 1 : theme.palette.action.disabledOpacity
+              ),
+            },
           })
         : cloneElement(uncheckedIcon, {
             size: size,
             fontSize: fontSize,
             sx: {
-              fill: "inherit",
+              fill: !disabled ? "inherit" : theme.palette.action.disabled,
             },
           })}
     </IconButton>

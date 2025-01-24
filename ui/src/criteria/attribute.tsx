@@ -45,7 +45,7 @@ interface Data {
   (
     underlaySource: UnderlaySource,
     c: CommonSelectorConfig,
-    dataEntry?: DataEntry
+    dataEntries?: DataEntry[]
   ) => {
     const entity = underlaySource.lookupEntity("");
     const config = decodeConfig(c);
@@ -54,8 +54,8 @@ interface Data {
     );
 
     return encodeData({
-      selected: dataEntry
-        ? [{ value: dataEntry.key, name: dataEntry.name as string }]
+      selected: dataEntries
+        ? dataEntries.map((e) => ({ value: e.key, name: e.name as string }))
         : attribute?.dataType === tanagraUnderlay.SZDataType.BOOLEAN
         ? [{ value: true, name: attribute.name }]
         : [],

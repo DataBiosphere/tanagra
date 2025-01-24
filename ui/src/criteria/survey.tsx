@@ -89,7 +89,7 @@ export interface Data {
   (
     underlaySource: UnderlaySource,
     c: CommonSelectorConfig,
-    dataEntry?: DataEntry
+    dataEntries?: DataEntry[]
   ) => {
     const config = decodeConfig(c);
 
@@ -98,25 +98,29 @@ export interface Data {
       valueData: { ...ANY_VALUE_DATA },
     };
 
-    if (dataEntry) {
-      const name = String(dataEntry[nameAttribute(config)]);
-      const entityGroup = String(dataEntry.entityGroup);
-      if (!name || !entityGroup) {
-        throw new Error(
-          `Invalid parameters from search [${name}, ${entityGroup}].`
-        );
-      }
-
+    if (dataEntries?.length) {
       // TODO(tjennison): There's no way to get the question information for
       // answers added via global search. We're currently not showing answers
       // there so this isn't an issue, but if we were, that information would
       // need to be made available at index time.
-      data.selected.push({
-        key: dataEntry.key,
-        name,
-        entityGroup,
-        questionName: "",
-      });
+      data.selected.push(
+        ...dataEntries?.map((e) => {
+          const name = String(e[nameAttribute(config)]);
+          const entityGroup = String(e.entityGroup);
+          if (!name || !entityGroup) {
+            throw new Error(
+              `Invalid parameters from search [${name}, ${entityGroup}].`
+            );
+          }
+
+          return {
+            key: e.key,
+            name,
+            entityGroup,
+            questionName: "",
+          };
+        })
+      );
     }
 
     return encodeData(data);

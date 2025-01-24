@@ -55,10 +55,16 @@ interface Data {
   (
     underlaySource: UnderlaySource,
     c: CommonSelectorConfig,
-    dataEntry?: DataEntry
+    dataEntries?: DataEntry[]
   ) => {
+    if (dataEntries?.length ?? 0 > 1) {
+      throw new Error(
+        `Only one entry is supported, got ${JSON.stringify(dataEntries)}`
+      );
+    }
+
     return encodeData({
-      sampleFilter: (dataEntry?.key as SampleFilter) ?? SampleFilter.ANY,
+      sampleFilter: (dataEntries?.[0]?.key as SampleFilter) ?? SampleFilter.ANY,
     });
   },
   search

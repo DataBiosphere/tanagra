@@ -76,5 +76,9 @@
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
       }
     }
+  ],
+  "codeAttributes": [
+    "concept_code",
+    "id"
   ]
 }

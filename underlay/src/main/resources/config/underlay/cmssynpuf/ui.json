@@ -1,4 +1,7 @@
 {
+  "featureConfig": {
+    "enableAddByCode": true
+  },
   "criteriaSearchConfig": {
     "criteriaTypeWidth": 120,
     "columns": [

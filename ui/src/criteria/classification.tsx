@@ -1,3 +1,4 @@
+import * as tanagra from "tanagra-api";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
@@ -6,7 +7,7 @@ import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
-import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
+import { CriteriaPlugin, registerCriteriaPlugin, LookupEntry } from "cohort";
 import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
@@ -37,8 +38,14 @@ import {
   EntityNode,
   protoFromDataKey,
   UnderlaySource,
+  literalFromDataValue,
+  makeBooleanLogicFilter,
 } from "data/source";
-import { DataEntry, DataKey } from "data/types";
+import {
+  convertAttributeStringToDataValue,
+  DataEntry,
+  DataKey,
+} from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";
@@ -82,7 +89,7 @@ export interface Data {
   (
     underlaySource: UnderlaySource,
     c: CommonSelectorConfig,
-    dataEntry?: DataEntry
+    dataEntries?: DataEntry[]
   ) => {
     const config = decodeConfig(c);
 
@@ -91,25 +98,28 @@ export interface Data {
       valueData: { ...ANY_VALUE_DATA },
     };
 
-    if (dataEntry) {
-      const name = String(dataEntry[nameAttribute(config)]);
-      const entityGroup = String(dataEntry.entityGroup);
-      if (!name || !entityGroup) {
-        throw new Error(
-          `Invalid parameters from search [${name}, ${entityGroup}].`
-        );
-      }
+    if (dataEntries) {
+      dataEntries?.forEach((e) => {
+        const name = String(e[nameAttribute(config)]);
+        const entityGroup = String(e.entityGroup);
+        if (!name || !entityGroup) {
+          throw new Error(
+            `Invalid parameters from search [${name}, ${entityGroup}].`
+          );
+        }
 
-      data.selected.push({
-        key: dataEntry.key,
-        name,
-        entityGroup,
+        data.selected.push({
+          key: e.key,
+          name,
+          entityGroup,
+        });
       });
     }
 
     return encodeData(data);
   },
-  search
+  search,
+  lookup
 )
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
@@ -231,6 +241,15 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   const [localCriteria, updateLocalCriteria] = useImmer(decodedData);
 
+  // TODO(tjennison): AddByCode creates the possiblity that there can be more
+  // than one selected item in single select mode. In order to solve it properly
+  // there would need to be an option at the selector level that indicates
+  // whether a criteria can accept more than one DataEnrty on creation. For now,
+  // the docs recommend not using AddByCode without multi select and this forces
+  // multi select behavior in that case.
+  const multiSelect =
+    props.config.multiSelect || decodedData.selected.length > 1;
+
   const selectedSets = useMemo(() => {
     const sets = new Map<string, Set<DataKey>>();
     localCriteria.selected.forEach((s) => {
@@ -287,10 +306,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         };
       }
 
-      if (
-        !props.config.multiSelect ||
-        isDataEqual(decodedData, localCriteria)
-      ) {
+      if (!multiSelect || isDataEqual(decodedData, localCriteria)) {
         return undefined;
       } else {
         return unconfirmedChangesCallback;
@@ -524,9 +540,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const hierarchyColumns: TreeGridColumn[] = useMemo(
     () => [
       ...(fromProtoColumns(props.config.hierarchyColumns) ?? []),
-      ...(!props.config.multiSelect
-        ? [{ key: "t_add_button", width: 60 }]
-        : []),
+      ...(!multiSelect ? [{ key: "t_add_button", width: 60 }] : []),
     ],
     [props.config.hierarchyColumns]
   );
@@ -534,13 +548,11 @@ function ClassificationEdit(props: ClassificationEditProps) {
   const allColumns: TreeGridColumn[] = useMemo(
     () => [
       ...fromProtoColumns(props.config.columns),
-      ...(hasHierarchies || !props.config.multiSelect
+      ...(hasHierarchies || !multiSelect
         ? [
             {
               key: "view_hierarchy",
-              width:
-                (hasHierarchies ? 160 : 0) +
-                (!props.config.multiSelect ? 40 : 0),
+              width: (hasHierarchies ? 160 : 0) + (!multiSelect ? 40 : 0),
             },
           ]
         : []),
@@ -712,7 +724,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                               {entityGroup.selectionEntity.hierarchies?.length
                                 ? hierarchyButton
                                 : null}
-                              {!props.config.multiSelect ? addButton : null}
+                              {!multiSelect ? addButton : null}
                             </GridLayout>
                           ),
                         },
@@ -720,7 +732,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                     : [];
 
                   const hierarchyContent =
-                    searchState?.hierarchy && !props.config.multiSelect
+                    searchState?.hierarchy && !multiSelect
                       ? [
                           {
                             column: hierarchyColumns.length - 1,
@@ -733,7 +745,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                         ]
                       : [];
 
-                  if (props.config.multiSelect) {
+                  if (multiSelect) {
                     const entityGroupSet = selectedSets.get(item.entityGroup);
                     const found = !!entityGroupSet?.has(item.node.data.key);
                     const foundAncestor = !!item.node.ancestors?.reduce(
@@ -838,7 +850,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
             )}
           </Loading>
         </GridLayout>
-        {props.config.multiSelect ? (
+        {multiSelect ? (
           <GridBox
             sx={{
               p: 1,
@@ -1070,6 +1082,104 @@ async function search(
   );
 
   return results.flat();
+}
+
+async function lookup(
+  underlaySource: UnderlaySource,
+  c: CommonSelectorConfig,
+  codes: string[]
+): Promise<LookupEntry[]> {
+  const config = decodeConfig(c);
+  if (!config.codeAttributes?.length) {
+    return [];
+  }
+
+  const codesSet = new Set(codes);
+
+  const results = await Promise.all(
+    (config.classificationEntityGroups ?? []).map((eg) =>
+      underlaySource
+        .searchEntityGroup(
+          config.columns.map(({ key }) => key),
+          eg.id,
+          fromProtoSortOrder(config.defaultSort ?? DEFAULT_SORT_ORDER),
+          {
+            filters: generateLookupFilters(underlaySource, config, eg, codes),
+            fetchAll: true,
+          }
+        )
+        .then((res) =>
+          res.nodes.map((node) => {
+            let code: string | undefined;
+            for (const a of config.codeAttributes) {
+              const val = String(node.data[a]);
+              if (codesSet.has(val)) {
+                code = val;
+              }
+            }
+
+            if (!code) {
+              throw new Error(
+                `Result ${JSON.stringify(
+                  node
+                )} does not contain a code from ${codes}.`
+              );
+            }
+
+            return {
+              config: c.name,
+              code,
+              name: String(node.data[nameAttribute(config)]),
+              data: {
+                ...node.data,
+                entityGroup: eg.id,
+              },
+            };
+          })
+        )
+    )
+  );
+
+  return results.flat();
+}
+
+function generateLookupFilters(
+  underlaySource: UnderlaySource,
+  config: configProto.EntityGroup,
+  entityGroup: configProto.EntityGroup_EntityGroupConfig,
+  codes: string[]
+): tanagra.Filter[] | undefined {
+  const [entity] = underlaySource.lookupRelatedEntity(entityGroup.id);
+  const operands: tanagra.Filter[] = [];
+
+  for (const ca of config.codeAttributes) {
+    const attribute = entity.attributes.find((a) => a.name === ca);
+    if (!attribute) {
+      throw new Error(`Unknown attribute "${ca}" in entity "${entity.name}".`);
+    }
+
+    operands.push({
+      filterType: tanagra.FilterFilterTypeEnum.Attribute,
+      filterUnion: {
+        attributeFilter: {
+          attribute: ca,
+          operator: tanagra.AttributeFilterOperatorEnum.In,
+          values: codes.map((c) =>
+            literalFromDataValue(
+              convertAttributeStringToDataValue(c, attribute)
+            )
+          ),
+        },
+      },
+    });
+  }
+
+  const combined =
+    makeBooleanLogicFilter(
+      tanagra.BooleanLogicFilterOperatorEnum.Or,
+      operands
+    ) ?? undefined;
+  return combined ? [combined] : undefined;
 }
 
 function useEntityData(
