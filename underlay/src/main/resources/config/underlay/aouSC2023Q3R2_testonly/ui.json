@@ -1,6 +1,7 @@
 {
   "featureConfig": {
-    "overrideExportButton": true
+    "overrideExportButton": true,
+    "enableAddByCode": true
   },
   "criteriaSearchConfig": {
     "criteriaTypeWidth": 120,

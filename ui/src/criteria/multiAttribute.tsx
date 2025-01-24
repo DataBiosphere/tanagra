@@ -31,15 +31,24 @@ export interface Data {
   (
     underlaySource: UnderlaySource,
     c: CommonSelectorConfig,
-    dataEntry?: DataEntry
+    dataEntries?: DataEntry[]
   ) => {
     const valueData: ValueData[] = [];
-    if (dataEntry) {
+    if (dataEntries?.length) {
       valueData.push({
         ...ANY_VALUE_DATA,
-        attribute: String(dataEntry.t_attribute),
+        attribute: String(dataEntries[0].t_attribute),
         numeric: false,
-        selected: [{ name: String(dataEntry.name), value: dataEntry.key }],
+        selected: dataEntries.map((e) => {
+          if (e.t_attribute !== dataEntries[0].t_attribute) {
+            throw new Error(
+              `All entries must be for the same attribute ${JSON.stringify(
+                dataEntries
+              )}`
+            );
+          }
+          return { name: String(e.name), value: e.key };
+        }),
       });
     }
 
