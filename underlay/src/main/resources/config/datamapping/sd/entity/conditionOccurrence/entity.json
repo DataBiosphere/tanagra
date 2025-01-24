@@ -28,8 +28,8 @@
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true,
       "sourceQuery": {
         "displayFieldName": "concept_name",
-        "displayFieldTable": "${omopDataset}.concept",
-        "displayFieldTableJoinFieldName": "concept_id"
+        "displayFieldTable": "${omopDataset}.visit_occurrence",
+        "displayFieldTableJoinFieldName": "visit_occurrence_id"
       }
     }
   ],

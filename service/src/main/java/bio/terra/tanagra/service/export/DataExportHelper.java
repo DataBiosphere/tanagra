@@ -116,7 +116,9 @@ public class DataExportHelper {
     List<ValueDisplayField> selectedAttributeFields = new ArrayList<>();
     exportRequest.getUnderlay().getPrimaryEntity().getAttributes().stream()
         .filter(
-            attribute -> attributeNames.isEmpty() || attributeNames.contains(attribute.getName()))
+            attribute ->
+                (attributeNames.isEmpty() || attributeNames.contains(attribute.getName()))
+                    && !attribute.isSuppressedForExport())
         .forEach(
             attribute ->
                 selectedAttributeFields.add(
