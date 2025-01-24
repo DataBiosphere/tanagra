@@ -25,13 +25,7 @@
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "condition_source_concept_id" },
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89, "isSuppressedForExport": true },
     { "name": "visit_occurrence_id", "dataType": "INT64", "isSuppressedForExport": true },
-    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true,
-      "sourceQuery": {
-        "displayFieldName": "concept_name",
-        "displayFieldTable": "${omopDataset}.visit_occurrence",
-        "displayFieldTableJoinFieldName": "visit_occurrence_id"
-      }
-    }
+    { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
   "temporalQuery": {
