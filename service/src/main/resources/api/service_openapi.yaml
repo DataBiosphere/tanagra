@@ -1696,7 +1696,7 @@ components:
         orderByDirection:
           $ref: "#/components/schemas/OrderByDirection"
         limit:
-          type: integer
+          $ref: "#/components/schemas/Limit"
         pageSize:
           $ref: "#/components/schemas/PageSize"
         pageMarker:
@@ -1719,7 +1719,7 @@ components:
         orderByDirection:
           $ref: "#/components/schemas/OrderByDirection"
         limit:
-          type: integer
+          $ref: "#/components/schemas/Limit"
         pageSize:
           $ref: "#/components/schemas/PageSize"
         pageMarker:
@@ -2819,7 +2819,7 @@ components:
           items:
             type: string
         limit:
-          type: integer
+          $ref: "#/components/schemas/Limit"
         includeAllAttributes:
           type: boolean
           description: |
