@@ -117,9 +117,8 @@ public class DataExportHelper {
     exportRequest.getUnderlay().getPrimaryEntity().getAttributes().stream()
         .filter(
             attribute ->
-                attributeNames.isEmpty()
-                    || attributeNames.contains(attribute.getName())
-                        && !attribute.isSuppressedForExport())
+                (attributeNames.isEmpty() || attributeNames.contains(attribute.getName()))
+                    && !attribute.isSuppressedForExport())
         .forEach(
             attribute ->
                 selectedAttributeFields.add(
