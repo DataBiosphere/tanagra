@@ -3,7 +3,9 @@ package bio.terra.tanagra.underlay.serialization;
 import bio.terra.tanagra.annotation.AnnotatedClass;
 import bio.terra.tanagra.annotation.AnnotatedField;
 
-@AnnotatedClass(name = "SZVisualizationConfig", markdown = "Configuration for a single visualization.")
+@AnnotatedClass(
+    name = "SZVisualizationConfig",
+    markdown = "Configuration for a single visualization.")
 public class SZVisualizationConfig {
   @AnnotatedField(
       name = "SZVisualizationConfig.name",
@@ -14,7 +16,9 @@ public class SZVisualizationConfig {
               + "Name may not include spaces or special characters, only letters and numbers.")
   public String name;
 
-  @AnnotatedField(name = "SZVisualizationConfig.title", markdown = "Visible title of the visualization.")
+  @AnnotatedField(
+      name = "SZVisualizationConfig.title",
+      markdown = "Visible title of the visualization.")
   public String title;
 
   @AnnotatedField(

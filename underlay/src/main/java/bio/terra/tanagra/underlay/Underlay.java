@@ -307,7 +307,8 @@ public final class Underlay {
 
             // Update the szViz with the contents of the plugin data files.
             if (StringUtils.isNotEmpty(szVizConfig.dataConfigFile)) {
-              szVizConfig.dataConfig = configReader.readVizDataConfig(vizPath, szVizConfig.dataConfigFile);
+              szVizConfig.dataConfig =
+                  configReader.readVizDataConfig(vizPath, szVizConfig.dataConfigFile);
             }
             if (StringUtils.isNotEmpty(szVizConfig.pluginConfigFile)) {
               szVizConfig.pluginConfig =
