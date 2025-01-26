@@ -101,17 +101,17 @@
 - [value.proto](#value-proto)
     - [Value](#tanagra-Value)
   
-- [viz/viz_config.proto](#viz_viz_config-proto)
-    - [VizConfig](#tanagra-viz-VizConfig)
-    - [VizConfig.Source](#tanagra-viz-VizConfig-Source)
-    - [VizConfig.Source.Attribute](#tanagra-viz-VizConfig-Source-Attribute)
-    - [VizConfig.Source.Attribute.NumericBucketing](#tanagra-viz-VizConfig-Source-Attribute-NumericBucketing)
-    - [VizConfig.Source.Attribute.NumericBucketing.Intervals](#tanagra-viz-VizConfig-Source-Attribute-NumericBucketing-Intervals)
-    - [VizConfig.Source.Join](#tanagra-viz-VizConfig-Source-Join)
-    - [VizConfig.Source.Join.Aggregation](#tanagra-viz-VizConfig-Source-Join-Aggregation)
+- [viz/viz_data_config.proto](#viz_viz_data_config-proto)
+    - [VizDataConfig](#tanagra-viz-VizDataConfig)
+    - [VizDataConfig.Source](#tanagra-viz-VizDataConfig-Source)
+    - [VizDataConfig.Source.Attribute](#tanagra-viz-VizDataConfig-Source-Attribute)
+    - [VizDataConfig.Source.Attribute.NumericBucketing](#tanagra-viz-VizDataConfig-Source-Attribute-NumericBucketing)
+    - [VizDataConfig.Source.Attribute.NumericBucketing.Intervals](#tanagra-viz-VizDataConfig-Source-Attribute-NumericBucketing-Intervals)
+    - [VizDataConfig.Source.Join](#tanagra-viz-VizDataConfig-Source-Join)
+    - [VizDataConfig.Source.Join.Aggregation](#tanagra-viz-VizDataConfig-Source-Join-Aggregation)
   
-    - [VizConfig.Source.Attribute.SortType](#tanagra-viz-VizConfig-Source-Attribute-SortType)
-    - [VizConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType)
+    - [VizDataConfig.Source.Attribute.SortType](#tanagra-viz-VizDataConfig-Source-Attribute-SortType)
+    - [VizDataConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizDataConfig-Source-Join-Aggregation-AggregationType)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -1270,31 +1270,31 @@ A single selected categorical value (e.g. {value: 1234, name: &#34;Diabetes&#34;
 
 
 
-<a name="viz_viz_config-proto"></a>
+<a name="viz_viz_data_config-proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## viz/viz_config.proto
+## viz/viz_data_config.proto
 
 
 
-<a name="tanagra-viz-VizConfig"></a>
+<a name="tanagra-viz-VizDataConfig"></a>
 
-### VizConfig
+### VizDataConfig
 The configuration of a underlay or cohort level visualization.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| sources | [VizConfig.Source](#tanagra-viz-VizConfig-Source) | repeated | The visualization must have one or two sources of data to display. |
+| sources | [VizDataConfig.Source](#tanagra-viz-VizDataConfig-Source) | repeated | The visualization must have one or two sources of data to display. |
 
 
 
 
 
 
-<a name="tanagra-viz-VizConfig-Source"></a>
+<a name="tanagra-viz-VizDataConfig-Source"></a>
 
-### VizConfig.Source
+### VizDataConfig.Source
 
 
 
@@ -1303,25 +1303,25 @@ The configuration of a underlay or cohort level visualization.
 | criteriaSelector | [string](#string) |  | The criteria selector (e.g. condition) determines which entities the data is being pulled from. |
 | selectionData | [string](#string) | optional | Configuration of the specified criteria selection (e.g. to select conditions under diabetes). |
 | entity | [string](#string) | optional | For criteria selectors that return more than one entity. |
-| joins | [VizConfig.Source.Join](#tanagra-viz-VizConfig-Source-Join) | repeated | To visualize data from different entities, the data must be joined to a common entity. Each source must specify a series of joins that ends up at the same entity if it does not already come from that entity. |
-| attributes | [VizConfig.Source.Attribute](#tanagra-viz-VizConfig-Source-Attribute) | repeated | Which attributes should be returned from the selected data source (e.g. condition_name from condition_occurrence or age from person). |
+| joins | [VizDataConfig.Source.Join](#tanagra-viz-VizDataConfig-Source-Join) | repeated | To visualize data from different entities, the data must be joined to a common entity. Each source must specify a series of joins that ends up at the same entity if it does not already come from that entity. |
+| attributes | [VizDataConfig.Source.Attribute](#tanagra-viz-VizDataConfig-Source-Attribute) | repeated | Which attributes should be returned from the selected data source (e.g. condition_name from condition_occurrence or age from person). |
 
 
 
 
 
 
-<a name="tanagra-viz-VizConfig-Source-Attribute"></a>
+<a name="tanagra-viz-VizDataConfig-Source-Attribute"></a>
 
-### VizConfig.Source.Attribute
+### VizDataConfig.Source.Attribute
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | attribute | [string](#string) |  | The attribute to read. |
-| numeric_bucketing | [VizConfig.Source.Attribute.NumericBucketing](#tanagra-viz-VizConfig-Source-Attribute-NumericBucketing) |  |  |
-| sort_type | [VizConfig.Source.Attribute.SortType](#tanagra-viz-VizConfig-Source-Attribute-SortType) | optional | How to sort this attribute for display. Defaults to NAME. |
+| numeric_bucketing | [VizDataConfig.Source.Attribute.NumericBucketing](#tanagra-viz-VizDataConfig-Source-Attribute-NumericBucketing) |  |  |
+| sort_type | [VizDataConfig.Source.Attribute.SortType](#tanagra-viz-VizDataConfig-Source-Attribute-SortType) | optional | How to sort this attribute for display. Defaults to NAME. |
 | sort_descending | [bool](#bool) | optional | Whether to sort in descending order. |
 | limit | [int64](#int64) | optional | Whether a limited amount of data should be returned (e.g. 10 most common conditions). |
 
@@ -1330,16 +1330,16 @@ The configuration of a underlay or cohort level visualization.
 
 
 
-<a name="tanagra-viz-VizConfig-Source-Attribute-NumericBucketing"></a>
+<a name="tanagra-viz-VizDataConfig-Source-Attribute-NumericBucketing"></a>
 
-### VizConfig.Source.Attribute.NumericBucketing
+### VizDataConfig.Source.Attribute.NumericBucketing
 Converts a continuous numeric range into ids with count as the value.
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | thresholds | [double](#double) | repeated | Buckets can be specified as either a list of thresholds or a range and number of buckets. For thresholds [18, 45, 65], results in two buckets [18, 45), and [45, 65). Lesser and greater buckets can be added if desired. |
-| intervals | [VizConfig.Source.Attribute.NumericBucketing.Intervals](#tanagra-viz-VizConfig-Source-Attribute-NumericBucketing-Intervals) | optional |  |
+| intervals | [VizDataConfig.Source.Attribute.NumericBucketing.Intervals](#tanagra-viz-VizDataConfig-Source-Attribute-NumericBucketing-Intervals) | optional |  |
 | includeLesser | [bool](#bool) | optional | Whether to create buckets for values outside of the explicitly specified ones or ignore them. |
 | includeGreater | [bool](#bool) | optional |  |
 
@@ -1348,9 +1348,9 @@ Converts a continuous numeric range into ids with count as the value.
 
 
 
-<a name="tanagra-viz-VizConfig-Source-Attribute-NumericBucketing-Intervals"></a>
+<a name="tanagra-viz-VizDataConfig-Source-Attribute-NumericBucketing-Intervals"></a>
 
-### VizConfig.Source.Attribute.NumericBucketing.Intervals
+### VizDataConfig.Source.Attribute.NumericBucketing.Intervals
 For intervals {min:1, max:5, count: 2}, creates two buckets [1, 3)
 and [3, 5).
 
@@ -1366,31 +1366,31 @@ and [3, 5).
 
 
 
-<a name="tanagra-viz-VizConfig-Source-Join"></a>
+<a name="tanagra-viz-VizDataConfig-Source-Join"></a>
 
-### VizConfig.Source.Join
+### VizDataConfig.Source.Join
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | entity | [string](#string) |  | The next entity to join to in order to eventually get to the entity the visualization is displaying (e.g. person when joining condition_occurences to age). |
-| aggregation | [VizConfig.Source.Join.Aggregation](#tanagra-viz-VizConfig-Source-Join-Aggregation) | optional | When joining an entity with an N:1 relationship (e.g. multiple weight values to a person), an aggregation is often required to make the data visualizable. For example, to visualize weight vs. race, each person needs to have a single weight value associated with them, such as the average or most recent. For simple cases, simply counting unique instances of a related entity may be sufficient (e.g. to count people with related condition occurrences). |
+| aggregation | [VizDataConfig.Source.Join.Aggregation](#tanagra-viz-VizDataConfig-Source-Join-Aggregation) | optional | When joining an entity with an N:1 relationship (e.g. multiple weight values to a person), an aggregation is often required to make the data visualizable. For example, to visualize weight vs. race, each person needs to have a single weight value associated with them, such as the average or most recent. For simple cases, simply counting unique instances of a related entity may be sufficient (e.g. to count people with related condition occurrences). |
 
 
 
 
 
 
-<a name="tanagra-viz-VizConfig-Source-Join-Aggregation"></a>
+<a name="tanagra-viz-VizDataConfig-Source-Join-Aggregation"></a>
 
-### VizConfig.Source.Join.Aggregation
+### VizDataConfig.Source.Join.Aggregation
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| type | [VizConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType) | optional | The type of aggregation being performed. |
+| type | [VizDataConfig.Source.Join.Aggregation.AggregationType](#tanagra-viz-VizDataConfig-Source-Join-Aggregation-AggregationType) | optional | The type of aggregation being performed. |
 | attribute | [string](#string) | optional | The output is always ids and values but aggregation may occur over another field (e.g. date to find the most recent value). |
 
 
@@ -1400,9 +1400,9 @@ and [3, 5).
  
 
 
-<a name="tanagra-viz-VizConfig-Source-Attribute-SortType"></a>
+<a name="tanagra-viz-VizDataConfig-Source-Attribute-SortType"></a>
 
-### VizConfig.Source.Attribute.SortType
+### VizDataConfig.Source.Attribute.SortType
 
 
 | Name | Number | Description |
@@ -1413,9 +1413,9 @@ and [3, 5).
 
 
 
-<a name="tanagra-viz-VizConfig-Source-Join-Aggregation-AggregationType"></a>
+<a name="tanagra-viz-VizDataConfig-Source-Join-Aggregation-AggregationType"></a>
 
-### VizConfig.Source.Join.Aggregation.AggregationType
+### VizDataConfig.Source.Join.Aggregation.AggregationType
 
 
 | Name | Number | Description |

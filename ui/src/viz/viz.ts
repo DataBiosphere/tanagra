@@ -1,7 +1,7 @@
 import { VALUE_SUFFIX } from "data/configuration";
 import { FilterCountValue } from "data/source";
 import { compareDataValues } from "data/types";
-import * as vizProto from "proto/viz/viz_config";
+import * as vizProto from "proto/viz/viz_data_config";
 import { useMemo } from "react";
 import { isValid } from "util/valid";
 
@@ -48,7 +48,7 @@ export type VizDataFormat = {
 };
 
 export function processFilterCountValues(
-  vizConfig: vizProto.VizConfig,
+  vizConfig: vizProto.VizDataConfig,
   fcvs: FilterCountValue[]
 ): VizData[] {
   const vizSource = vizConfig.sources[0];
@@ -149,11 +149,11 @@ export function processFilterCountValues(
       if (!attrib.numericBucketing) {
         if (
           !attrib.sortType ||
-          attrib.sortType === vizProto.VizConfig_Source_Attribute_SortType.NAME
+          attrib.sortType === vizProto.VizDataConfig_Source_Attribute_SortType.NAME
         ) {
           sortValue = compareDataValues(a.keys[i].name, b.keys[i].name);
         } else if (
-          attrib.sortType === vizProto.VizConfig_Source_Attribute_SortType.VALUE
+          attrib.sortType === vizProto.VizDataConfig_Source_Attribute_SortType.VALUE
         ) {
           sortValue = compareDataValues(
             a.values[i].numeric,

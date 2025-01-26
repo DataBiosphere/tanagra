@@ -3,10 +3,10 @@ syntax = "proto3";
 package tanagra.viz;
 
 option java_package = "bio.terra.tanagra.proto.viz";
-option java_outer_classname = "Viz";
+option java_outer_classname = "VizConfig";
 
 // The configuration of a underlay or cohort level visualization.
-message VizConfig {
+message VizDataConfig {
   message Source {
     // The criteria selector (e.g. condition) determines which entities the data
     // is being pulled from.
