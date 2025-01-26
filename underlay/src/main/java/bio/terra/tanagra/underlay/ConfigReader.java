@@ -150,7 +150,7 @@ public final class ConfigReader {
 
   public SZVisualizationConfig readVizConfig(String vizPath) {
     if (!szVizConfigCache.containsKey(vizPath)) {
-      szVizConfigCache.put(vizPath, deserializeViz(vizPath));
+      szVizConfigCache.put(vizPath, deserializeVizConfig(vizPath));
     }
     return szVizConfigCache.get(vizPath);
   }
@@ -198,7 +198,7 @@ public final class ConfigReader {
 
   public String readVizDataConfig(String vizPath, String fileName) {
     if (!vizDataConfigCache.containsKey(Pair.of(vizPath, fileName))) {
-      Path dataConfigFile = resolveVizDir(vizPath).resolve(fileName);
+      Path dataConfigFile = resolveVizConfigDir(vizPath).resolve(fileName);
       String config = FileUtils.readStringFromFile(getStream(dataConfigFile));
       vizDataConfigCache.put(Pair.of(vizPath, fileName), config);
     }
@@ -207,7 +207,7 @@ public final class ConfigReader {
 
   public String readVizPluginConfig(String vizPath, String fileName) {
     if (!vizPluginConfigCache.containsKey(Pair.of(vizPath, fileName))) {
-      Path pluginConfigFile = resolveVizDir(vizPath).resolve(fileName);
+      Path pluginConfigFile = resolveVizConfigDir(vizPath).resolve(fileName);
       String config = FileUtils.readStringFromFile(getStream(pluginConfigFile));
       vizPluginConfigCache.put(Pair.of(vizPath, fileName), config);
     }
@@ -371,10 +371,10 @@ public final class ConfigReader {
     }
   }
 
-  private SZVisualizationConfig deserializeViz(String vizPath) {
+  private SZVisualizationConfig deserializeVizConfig(String vizPath) {
     try {
       return JacksonMapper.readFileIntoJavaObject(
-          getStream(resolveVizDir(vizPath).resolve(VIZ_FILE_NAME + FILE_EXTENSION)),
+          getStream(resolveVizConfigDir(vizPath).resolve(VIZ_FILE_NAME + FILE_EXTENSION)),
           SZVisualizationConfig.class);
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing visualization config file", ioEx);
@@ -432,13 +432,13 @@ public final class ConfigReader {
         .resolve(underlayPrepackagedCriteria.getRight());
   }
 
-  private static Path resolveVizDir(String vizPath) {
-    Pair<String, String> underlayViz = parseTwoPartPath(vizPath);
+  private static Path resolveVizConfigDir(String vizPath) {
+    Pair<String, String> underlayVizConfig = parseTwoPartPath(vizPath);
     return Path.of(RESOURCES_CONFIG_PATH)
         .resolve(UI_CONFIG_SUBDIR)
-        .resolve(underlayViz.getLeft())
+        .resolve(underlayVizConfig.getLeft())
         .resolve(VIZ_CONFIG_SUBDIR)
-        .resolve(underlayViz.getRight());
+        .resolve(underlayVizConfig.getRight());
   }
 
   private static Pair<String, String> parseTwoPartPath(String path) {
