@@ -148,7 +148,7 @@ public final class ConfigReader {
     return szPrepackagedCriteriaCache.get(prepackagedCriteriaPath);
   }
 
-  public SZVisualizationConfig readViz(String vizPath) {
+  public SZVisualizationConfig readVizConfig(String vizPath) {
     if (!szVizConfigCache.containsKey(vizPath)) {
       szVizConfigCache.put(vizPath, deserializeViz(vizPath));
     }

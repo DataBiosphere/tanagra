@@ -303,7 +303,7 @@ public final class Underlay {
     if (szUnderlay.visualizations != null) {
       szUnderlay.visualizations.forEach(
           vizPath -> {
-            SZVisualizationConfig szVizConfig = configReader.readViz(vizPath);
+            SZVisualizationConfig szVizConfig = configReader.readVizConfig(vizPath);
 
             // Update the szViz with the contents of the plugin data files.
             if (StringUtils.isNotEmpty(szVizConfig.dataConfigFile)) {
