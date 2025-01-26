@@ -12,7 +12,7 @@ import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.underlay.serialization.SZVisualization;
+import bio.terra.tanagra.underlay.serialization.SZVisualizationConfig;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.collect.ImmutableMap;
@@ -58,7 +58,7 @@ public final class ConfigReader {
   private final Map<String, SZCriteriaOccurrence> szCriteriaOccurrenceCache = new HashMap<>();
   private final Map<String, SZCriteriaSelector> szCriteriaSelectorCache = new HashMap<>();
   private final Map<String, SZPrepackagedCriteria> szPrepackagedCriteriaCache = new HashMap<>();
-  private final Map<String, SZVisualization> szVizCache = new HashMap<>();
+  private final Map<String, SZVisualizationConfig> szVizConfigCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entitySqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> criteriaSelectorPluginConfigCache =
@@ -148,11 +148,11 @@ public final class ConfigReader {
     return szPrepackagedCriteriaCache.get(prepackagedCriteriaPath);
   }
 
-  public SZVisualization readViz(String vizPath) {
-    if (!szVizCache.containsKey(vizPath)) {
-      szVizCache.put(vizPath, deserializeViz(vizPath));
+  public SZVisualizationConfig readViz(String vizPath) {
+    if (!szVizConfigCache.containsKey(vizPath)) {
+      szVizConfigCache.put(vizPath, deserializeViz(vizPath));
     }
-    return szVizCache.get(vizPath);
+    return szVizConfigCache.get(vizPath);
   }
 
   public String readEntitySql(String entityPath, String fileName) {
@@ -371,11 +371,11 @@ public final class ConfigReader {
     }
   }
 
-  private SZVisualization deserializeViz(String vizPath) {
+  private SZVisualizationConfig deserializeViz(String vizPath) {
     try {
       return JacksonMapper.readFileIntoJavaObject(
           getStream(resolveVizDir(vizPath).resolve(VIZ_FILE_NAME + FILE_EXTENSION)),
-          SZVisualization.class);
+          SZVisualizationConfig.class);
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing visualization config file", ioEx);
     }

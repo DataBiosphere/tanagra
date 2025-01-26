@@ -18,7 +18,7 @@ export type Underlay = {
   entities: underlayConfig.SZEntity[];
   criteriaSelectors: underlayConfig.SZCriteriaSelector[];
   prepackagedDataFeatures: underlayConfig.SZPrepackagedCriteria[];
-  visualizations: underlayConfig.SZVisualization[];
+  visualizationConfigs: underlayConfig.SZVisualizationConfig[];
 };
 
 export type UIConfiguration = {

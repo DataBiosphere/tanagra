@@ -16,7 +16,7 @@ import bio.terra.tanagra.underlay.serialization.SZRollupCountsSql;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZTextSearch;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.underlay.serialization.SZVisualization;
+import bio.terra.tanagra.underlay.serialization.SZVisualizationConfig;
 import java.util.List;
 
 @SuppressWarnings("PMD.CouplingBetweenObjects")
@@ -56,7 +56,7 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZCriteriaSelector.Modifier.class,
           SZPrepackagedCriteria.class,
           SZRollupCountsSql.class,
-          SZVisualization.class,
+          SZVisualizationConfig.class,
           SZCorePlugin.class);
 
   @Override

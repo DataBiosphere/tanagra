@@ -63,10 +63,10 @@ export function DemographicCharts(props: DemographicChartsProps) {
               onChange={onSelect}
               sx={uncontainedSelectSx()}
             >
-              {underlay.visualizations.map((viz) => {
+              {underlay.visualizationConfigs.map((vizConfig) => {
                 return (
-                  <MenuItem key={viz.name} value={viz.name}>
-                    {viz.title ?? "Unknown"}
+                  <MenuItem key={vizConfig.name} value={vizConfig.name}>
+                    {vizConfig.title ?? "Unknown"}
                   </MenuItem>
                 );
               })}
@@ -85,7 +85,7 @@ export function DemographicCharts(props: DemographicChartsProps) {
           }}
         >
           {selectedVisualizations.length > 0 ? (
-            underlay.visualizations.map((v) =>
+            underlay.visualizationConfigs.map((v) =>
               selectedVisualizations.find((sv) => sv === v.name) &&
               props.cohort ? (
                 <VizContainer key={v.name} config={v} cohort={props.cohort} />
@@ -129,11 +129,11 @@ function getInitialVisualizations(underlay: Underlay) {
   if (!stored) {
     return (
       underlay.uiConfiguration.defaultVisualizations ??
-      underlay.visualizations.map((viz) => viz.name)
+      underlay.visualizationConfigs.map((vizConfig) => vizConfig.name)
     );
   }
 
   return stored.filter((v) =>
-    underlay.visualizations.find((viz) => viz.name === v)
+    underlay.visualizationConfigs.find((vizConfig) => vizConfig.name === v)
   );
 }

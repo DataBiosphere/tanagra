@@ -81,7 +81,7 @@ export function UnderlaySourceContextRoot() {
           apiUnderlay.serializedConfiguration.prepackagedDataFeatures?.map(
             (df) => JSON.parse(df)
           ) ?? [],
-        visualizations:
+        visualizationConfigs:
           apiUnderlay.serializedConfiguration.visualizations?.map((v) =>
             JSON.parse(v)
           ) ?? [],
