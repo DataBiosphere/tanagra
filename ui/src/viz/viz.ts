@@ -48,10 +48,10 @@ export type VizDataFormat = {
 };
 
 export function processFilterCountValues(
-  vizConfig: vizProto.VizDataConfig,
+  vizDataConfig: vizProto.VizDataConfig,
   fcvs: FilterCountValue[]
 ): VizData[] {
-  const vizSource = vizConfig.sources[0];
+  const vizSource = vizDataConfig.sources[0];
 
   const dataMap = new Map<string, VizData>();
   fcvs.forEach((d) => {

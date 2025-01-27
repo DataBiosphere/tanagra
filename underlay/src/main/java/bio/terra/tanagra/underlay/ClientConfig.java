@@ -7,7 +7,7 @@ import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.underlay.serialization.SZVisualizationConfig;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
@@ -24,7 +24,7 @@ public final class ClientConfig {
   private final ImmutableSet<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups;
   private final ImmutableList<SZCriteriaSelector> criteriaSelectors;
   private final ImmutableSet<SZPrepackagedCriteria> prepackagedDataFeatures;
-  private final ImmutableList<SZVisualizationConfig> visualizationConfigs;
+  private final ImmutableList<SZVisualization> visualizations;
 
   public ClientConfig(
       SZUnderlay underlay,
@@ -33,14 +33,14 @@ public final class ClientConfig {
       Set<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups,
       List<SZCriteriaSelector> criteriaSelectors,
       Set<SZPrepackagedCriteria> prepackagedDataFeatures,
-      List<SZVisualizationConfig> visualizationConfigs) {
+      List<SZVisualization> visualizations) {
     this.underlay = underlay;
     this.entities = ImmutableSet.copyOf(entities);
     this.groupItemsEntityGroups = ImmutableSet.copyOf(groupItemsEntityGroups);
     this.criteriaOccurrenceEntityGroups = ImmutableSet.copyOf(criteriaOccurrenceEntityGroups);
     this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
     this.prepackagedDataFeatures = ImmutableSet.copyOf(prepackagedDataFeatures);
-    this.visualizationConfigs = ImmutableList.copyOf(visualizationConfigs);
+    this.visualizations = ImmutableList.copyOf(visualizations);
   }
 
   public String serializeUnderlay() {
@@ -71,8 +71,8 @@ public final class ClientConfig {
     return serializeObjects(prepackagedDataFeatures);
   }
 
-  public List<String> serializeVisualizationConfigs() {
-    return serializeObjects(visualizationConfigs);
+  public List<String> serializeVisualizations() {
+    return serializeObjects(visualizations);
   }
 
   private static <T> List<String> serializeObjects(Collection<T> objects) {

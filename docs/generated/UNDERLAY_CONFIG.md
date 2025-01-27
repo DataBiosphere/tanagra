@@ -31,7 +31,7 @@ This documentation is generated from annotations in the configuration classes.
 * [SZTemporalQuery](#sztemporalquery)
 * [SZTextSearch](#sztextsearch)
 * [SZUnderlay](#szunderlay)
-* [SZVisualizationConfig](#szvisualizationconfig)
+* [SZVisualization](#szvisualization)
 
 ## SZAttribute
 Attribute or property of an entity.
@@ -1322,15 +1322,15 @@ Using the path here instead of just the visualization name allows us to share vi
 
 
 
-## SZVisualizationConfig
+## SZVisualization
 Configuration for a single visualization.
 
-### SZVisualizationConfig.dataConfig
+### SZVisualization.dataConfig
 **required** String
 
-Serialized configuration of the visualization. VizConfig protocol buffer as JSON.
+Serialized configuration of the visualization. VizDataConfig protocol buffer as JSON.
 
-### SZVisualizationConfig.dataConfigFile
+### SZVisualization.dataConfigFile
 **required** String
 
 Name of the file that contains the serialized configuration of the visualization.
@@ -1339,7 +1339,7 @@ This file should be in the same directory as the visualization (e.g. `gender.jso
 
 If this property is specified, the value of the `config` property is ignored.
 
-### SZVisualizationConfig.name
+### SZVisualization.name
 **required** String
 
 Name of the visualization.
@@ -1348,17 +1348,17 @@ This is the unique identifier for the vizualization. The vizualization names can
 
 Name may not include spaces or special characters, only letters and numbers.
 
-### SZVisualizationConfig.plugin
+### SZVisualization.plugin
 **required** String
 
 Name of the visualization UI plugin.
 
-### SZVisualizationConfig.pluginConfig
+### SZVisualization.pluginConfig
 **required** String
 
 Serialized configuration of the visualization UI plugin as JSON.
 
-### SZVisualizationConfig.pluginConfigFile
+### SZVisualization.pluginConfigFile
 **required** String
 
 Name of the file that contains the serialized configuration of the visualization UI plugin.
@@ -1367,7 +1367,7 @@ This file should be in the same directory as the visualization (e.g. `gender.jso
 
 If this property is specified, the value of the `pluginConfig` property is ignored.
 
-### SZVisualizationConfig.title
+### SZVisualization.title
 **required** String
 
 Visible title of the visualization.

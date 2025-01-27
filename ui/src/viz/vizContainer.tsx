@@ -134,16 +134,16 @@ const selectorToEntity: { [key: string]: string } = {
   measurements: "measurementOccurrence",
 };
 async function fetchVizData(
-  vizConfig: configProto.VizDataConfig,
+  vizDataConfig: configProto.VizDataConfig,
   studySource: StudySource,
   studyId: string,
   cohort: Cohort
 ): Promise<VizData[]> {
-  const vizSource = vizConfig.sources[0];
+  const vizSource = vizDataConfig.sources[0];
 
   // TODO(tjennison): Remove these limitations once the backend sufficiently
   // supports the query generation.
-  if (!vizSource || vizConfig.sources.length > 1) {
+  if (!vizSource || vizDataConfig.sources.length > 1) {
     throw new Error("Only 1 visualization source is supported.");
   }
   const entity = selectorToEntity[vizSource.criteriaSelector];
@@ -165,5 +165,5 @@ async function fetchVizData(
     countDistinctAttribute: vizSource.joins?.length ? "person_id" : undefined,
   });
 
-  return processFilterCountValues(vizConfig, fcvs);
+  return processFilterCountValues(vizDataConfig, fcvs);
 }

@@ -20,7 +20,7 @@ import bio.terra.tanagra.underlay.serialization.SZEntity;
 import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.underlay.serialization.SZVisualizationConfig;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
 import com.google.common.annotations.VisibleForTesting;
@@ -299,23 +299,22 @@ public final class Underlay {
     }
 
     // Build the visualizations.
-    List<SZVisualizationConfig> szVisualizationConfigs = new ArrayList<>();
+    List<SZVisualization> szVisualizations = new ArrayList<>();
     if (szUnderlay.visualizations != null) {
       szUnderlay.visualizations.forEach(
           vizPath -> {
-            SZVisualizationConfig szVizConfig = configReader.readVizConfig(vizPath);
+            SZVisualization szViz = configReader.readViz(vizPath);
 
             // Update the szViz with the contents of the plugin data files.
-            if (StringUtils.isNotEmpty(szVizConfig.dataConfigFile)) {
-              szVizConfig.dataConfig =
-                  configReader.readVizDataConfig(vizPath, szVizConfig.dataConfigFile);
+            if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
+              szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
             }
-            if (StringUtils.isNotEmpty(szVizConfig.pluginConfigFile)) {
-              szVizConfig.pluginConfig =
-                  configReader.readVizPluginConfig(vizPath, szVizConfig.pluginConfigFile);
+            if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
+              szViz.pluginConfig =
+                  configReader.readVizPluginConfig(vizPath, szViz.pluginConfigFile);
             }
 
-            szVisualizationConfigs.add(szVizConfig);
+            szVisualizations.add(szViz);
           });
     }
 
@@ -339,7 +338,7 @@ public final class Underlay {
             szCriteriaOccurrenceEntityGroups,
             szCriteriaSelectors,
             szPrepackagedDataFeatures,
-            szVisualizationConfigs),
+            szVisualizations),
         criteriaSelectors,
         prepackagedDataFeatures,
         uiConfig);

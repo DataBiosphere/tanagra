@@ -12,7 +12,7 @@ import bio.terra.tanagra.underlay.serialization.SZIndexer;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
-import bio.terra.tanagra.underlay.serialization.SZVisualizationConfig;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.collect.ImmutableMap;
@@ -58,7 +58,7 @@ public final class ConfigReader {
   private final Map<String, SZCriteriaOccurrence> szCriteriaOccurrenceCache = new HashMap<>();
   private final Map<String, SZCriteriaSelector> szCriteriaSelectorCache = new HashMap<>();
   private final Map<String, SZPrepackagedCriteria> szPrepackagedCriteriaCache = new HashMap<>();
-  private final Map<String, SZVisualizationConfig> szVizConfigCache = new HashMap<>();
+  private final Map<String, SZVisualization> szVizCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entitySqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> entityGroupSqlCache = new HashMap<>();
   private final Map<Pair<String, String>, String> criteriaSelectorPluginConfigCache =
@@ -148,11 +148,11 @@ public final class ConfigReader {
     return szPrepackagedCriteriaCache.get(prepackagedCriteriaPath);
   }
 
-  public SZVisualizationConfig readVizConfig(String vizPath) {
-    if (!szVizConfigCache.containsKey(vizPath)) {
-      szVizConfigCache.put(vizPath, deserializeVizConfig(vizPath));
+  public SZVisualization readViz(String vizPath) {
+    if (!szVizCache.containsKey(vizPath)) {
+      szVizCache.put(vizPath, deserializeViz(vizPath));
     }
-    return szVizConfigCache.get(vizPath);
+    return szVizCache.get(vizPath);
   }
 
   public String readEntitySql(String entityPath, String fileName) {
@@ -198,7 +198,7 @@ public final class ConfigReader {
 
   public String readVizDataConfig(String vizPath, String fileName) {
     if (!vizDataConfigCache.containsKey(Pair.of(vizPath, fileName))) {
-      Path dataConfigFile = resolveVizConfigDir(vizPath).resolve(fileName);
+      Path dataConfigFile = resolveVizDir(vizPath).resolve(fileName);
       String config = FileUtils.readStringFromFile(getStream(dataConfigFile));
       vizDataConfigCache.put(Pair.of(vizPath, fileName), config);
     }
@@ -207,7 +207,7 @@ public final class ConfigReader {
 
   public String readVizPluginConfig(String vizPath, String fileName) {
     if (!vizPluginConfigCache.containsKey(Pair.of(vizPath, fileName))) {
-      Path pluginConfigFile = resolveVizConfigDir(vizPath).resolve(fileName);
+      Path pluginConfigFile = resolveVizDir(vizPath).resolve(fileName);
       String config = FileUtils.readStringFromFile(getStream(pluginConfigFile));
       vizPluginConfigCache.put(Pair.of(vizPath, fileName), config);
     }
@@ -371,11 +371,11 @@ public final class ConfigReader {
     }
   }
 
-  private SZVisualizationConfig deserializeVizConfig(String vizPath) {
+  private SZVisualization deserializeViz(String vizPath) {
     try {
       return JacksonMapper.readFileIntoJavaObject(
-          getStream(resolveVizConfigDir(vizPath).resolve(VIZ_FILE_NAME + FILE_EXTENSION)),
-          SZVisualizationConfig.class);
+          getStream(resolveVizDir(vizPath).resolve(VIZ_FILE_NAME + FILE_EXTENSION)),
+          SZVisualization.class);
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing visualization config file", ioEx);
     }
@@ -432,13 +432,13 @@ public final class ConfigReader {
         .resolve(underlayPrepackagedCriteria.getRight());
   }
 
-  private static Path resolveVizConfigDir(String vizPath) {
-    Pair<String, String> underlayVizConfig = parseTwoPartPath(vizPath);
+  private static Path resolveVizDir(String vizPath) {
+    Pair<String, String> underlayViz = parseTwoPartPath(vizPath);
     return Path.of(RESOURCES_CONFIG_PATH)
         .resolve(UI_CONFIG_SUBDIR)
-        .resolve(underlayVizConfig.getLeft())
+        .resolve(underlayViz.getLeft())
         .resolve(VIZ_CONFIG_SUBDIR)
-        .resolve(underlayVizConfig.getRight());
+        .resolve(underlayViz.getRight());
   }
 
   private static Pair<String, String> parseTwoPartPath(String path) {

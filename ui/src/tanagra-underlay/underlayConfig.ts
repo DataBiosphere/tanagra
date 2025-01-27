@@ -235,7 +235,7 @@ export type SZUnderlay = {
   visualizations: string[];
 };
 
-export type SZVisualizationConfig = {
+export type SZVisualization = {
   dataConfig: string;
   dataConfigFile: string;
   name: string;
