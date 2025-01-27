@@ -20,7 +20,7 @@ public class SZVisualization {
   @AnnotatedField(
       name = "SZVisualization.dataConfig",
       markdown =
-          "Serialized configuration of the visualization. VizConfig protocol buffer as JSON.")
+          "Serialized configuration of the visualization. VizDataConfig protocol buffer as JSON.")
   public String dataConfig;
 
   @AnnotatedField(

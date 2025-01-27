@@ -1328,7 +1328,7 @@ Configuration for a single visualization.
 ### SZVisualization.dataConfig
 **required** String
 
-Serialized configuration of the visualization. VizConfig protocol buffer as JSON.
+Serialized configuration of the visualization. VizDataConfig protocol buffer as JSON.
 
 ### SZVisualization.dataConfigFile
 **required** String

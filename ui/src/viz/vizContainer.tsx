@@ -11,7 +11,7 @@ import { useCohort, useStudyId } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox, GridBoxPaper } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import * as configProto from "proto/viz/viz_config";
+import * as configProto from "proto/viz/viz_data_config";
 import { useMemo, useState } from "react";
 import useSWRImmutable from "swr/immutable";
 import { getVizPlugin, processFilterCountValues, VizData } from "viz/viz";
@@ -24,7 +24,7 @@ type UnparsedConfig = {
 };
 
 type ParsedConfig = {
-  dataConfig: configProto.VizConfig;
+  dataConfig: configProto.VizDataConfig;
   plugin: string;
   pluginConfig: object;
   title: string;
@@ -45,7 +45,7 @@ export function VizContainer(props: VizContainerProps) {
   const config = useMemo(
     (): ParsedConfig => ({
       ...props.config,
-      dataConfig: configProto.VizConfig.fromJSON(
+      dataConfig: configProto.VizDataConfig.fromJSON(
         JSON.parse(props.config.dataConfig)
       ),
       pluginConfig: JSON.parse(props.config.pluginConfig ?? "{}"),
@@ -134,16 +134,16 @@ const selectorToEntity: { [key: string]: string } = {
   measurements: "measurementOccurrence",
 };
 async function fetchVizData(
-  vizConfig: configProto.VizConfig,
+  vizDataConfig: configProto.VizDataConfig,
   studySource: StudySource,
   studyId: string,
   cohort: Cohort
 ): Promise<VizData[]> {
-  const vizSource = vizConfig.sources[0];
+  const vizSource = vizDataConfig.sources[0];
 
   // TODO(tjennison): Remove these limitations once the backend sufficiently
   // supports the query generation.
-  if (!vizSource || vizConfig.sources.length > 1) {
+  if (!vizSource || vizDataConfig.sources.length > 1) {
     throw new Error("Only 1 visualization source is supported.");
   }
   const entity = selectorToEntity[vizSource.criteriaSelector];
@@ -165,5 +165,5 @@ async function fetchVizData(
     countDistinctAttribute: vizSource.joins?.length ? "person_id" : undefined,
   });
 
-  return processFilterCountValues(vizConfig, fcvs);
+  return processFilterCountValues(vizDataConfig, fcvs);
 }

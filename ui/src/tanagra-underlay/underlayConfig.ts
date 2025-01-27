@@ -37,7 +37,7 @@ export enum SZCorePlugin {
   SURVEY = "SURVEY",
   TEXT_SEARCH = "TEXT_SEARCH",
   UNHINTED_VALUE = "UNHINTED_VALUE",
-};
+}
 
 export type SZCriteriaOccurrence = {
   criteriaEntity: string;
@@ -88,7 +88,7 @@ export enum SZDataType {
   INT64 = "INT64",
   STRING = "STRING",
   TIMESTAMP = "TIMESTAMP",
-};
+}
 
 export type SZDataflow = {
   dataflowLocation: string;
