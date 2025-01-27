@@ -1,5 +1,5 @@
 SELECT
-  ROW_NUMBER() OVER (ORDER BY xbp.person_id, xbp.measurement_datetime) AS id,
+  ROW_NUMBER() OVER (ORDER BY xbp.person_id, xbp.measurement_datetime) AS row_id,
   xbp.person_id,
   p.person_source_value,
   xbp.measurement_datetime,

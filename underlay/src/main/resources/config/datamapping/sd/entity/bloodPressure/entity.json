@@ -2,7 +2,7 @@
   "name": "bloodPressure",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "isSuppressedForExport": true },
+    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value", "isSuppressedForExport": true },
     { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_datetime" },
