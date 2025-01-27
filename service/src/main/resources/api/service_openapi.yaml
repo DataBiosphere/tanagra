@@ -1295,7 +1295,7 @@ components:
       description: ID of the activity log entry
       required: true
       schema:
-        type: string
+        $ref: "#/components/schemas/ActivityLogEntryId"
 
   responses:
     BadRequest:
@@ -1751,8 +1751,7 @@ components:
                 type: string
                 description: Name of the attribute
               annotation:
-                type: string
-                description: ID of the annotation
+                $ref: "#/components/schemas/AnnotationId"
               direction:
                 $ref: "#/components/schemas/OrderByDirection"
         limit:
@@ -2039,8 +2038,9 @@ components:
 
     Limit:
       type: integer
-      description: Maximum number of results to return. Defaults to 250.
-      default: 250
+      description: Maximum number of results to return. Defaults to 50.
+      minimum: 1
+      default: 50
 
     Instance:
       type: object
@@ -2681,8 +2681,7 @@ components:
       type: object
       properties:
         id:
-          description: ID of the annotation, immutable
-          type: string
+          $ref: "#/components/schemas/AnnotationId"
         displayName:
           $ref: "#/components/schemas/AnnotationDisplayName"
         description:
@@ -2760,6 +2759,10 @@ components:
         - value
         - isMostRecent
         - isPartOfSelectedReview
+
+    AnnotationId:
+      type: string
+      description: ID of the annotation, immutable
 
     ReviewInstance:
       type: object
@@ -3045,8 +3048,7 @@ components:
       type: object
       properties:
         id:
-          type: string
-          nullable: false
+          $ref: "#/components/schemas/ActivityLogEntryId"
         userEmail:
           type: string
           nullable: false
@@ -3081,6 +3083,10 @@ components:
         - logged
         - systemVersion
         - activityType
+
+    ActivityLogEntryId:
+      type: string
+      description: ID of the activity log entry, immutable
 
     ActivityLogEntryList:
       type: array
