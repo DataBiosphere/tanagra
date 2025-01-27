@@ -149,11 +149,13 @@ export function processFilterCountValues(
       if (!attrib.numericBucketing) {
         if (
           !attrib.sortType ||
-          attrib.sortType === vizProto.VizDataConfig_Source_Attribute_SortType.NAME
+          attrib.sortType ===
+            vizProto.VizDataConfig_Source_Attribute_SortType.NAME
         ) {
           sortValue = compareDataValues(a.keys[i].name, b.keys[i].name);
         } else if (
-          attrib.sortType === vizProto.VizDataConfig_Source_Attribute_SortType.VALUE
+          attrib.sortType ===
+          vizProto.VizDataConfig_Source_Attribute_SortType.VALUE
         ) {
           sortValue = compareDataValues(
             a.values[i].numeric,
