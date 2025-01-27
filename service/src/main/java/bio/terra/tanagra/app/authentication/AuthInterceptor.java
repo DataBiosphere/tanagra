@@ -51,7 +51,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     SpringAuthentication.clearCurrentUser();
 
     if (HttpMethods.OPTIONS.equals(request.getMethod())) {
-      LOGGER.info("Authorization not required for OPTIONS methods requests");
+      // Authorization not required for OPTIONS methods requests
       return true;
     }
 
@@ -65,13 +65,11 @@ public class AuthInterceptor implements HandlerInterceptor {
     if (apiOp != null) {
       for (String tag : apiOp.tags()) {
         if (OPENAPI_TAG_AUTH_NOT_REQUIRED.equals(tag)) {
-          LOGGER.info(
-              "Authorization not required by endpoint: {}", request.getRequestURL().toString());
+          // Authorization not required by endpoint
           return true;
         }
       }
     }
-    LOGGER.info("Authorization required by endpoint: {}", request.getRequestURL().toString());
 
     UserId userId;
     try {
@@ -123,7 +121,6 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     SpringAuthentication.setCurrentUser(userId);
-    LOGGER.info("User authenticated: subject={}, email={}", userId.getSubject(), userId.getEmail());
 
     // Any further checks on the user (e.g. check email domain name) should go here.
     // Return SC_FORBIDDEN, not SC_UNAUTHORIZED, if they fail.
