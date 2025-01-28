@@ -29,21 +29,21 @@
         "displayFieldTableJoinFieldName": "concept_id"
       }
     },
-    {"name":  "form", "dataType":  "STRING", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_form",
+    {"name":  "form", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_form",
       "sourceQuery": {
         "displayFieldName": "x_drug_form",
         "displayFieldTable": "${omopDataset}.x_drug_exposure",
         "displayFieldTableJoinFieldName": "drug_exposure_id"
       }
     },
-    {"name":  "strength", "dataType":  "STRING", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_strength",
+    {"name":  "strength", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_strength",
       "sourceQuery": {
         "displayFieldName": "x_strength",
         "displayFieldTable": "${omopDataset}.x_drug_exposure",
         "displayFieldTableJoinFieldName": "drug_exposure_id"
       }
     },
-    {"name":  "amount", "dataType":  "STRING", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "dose_amt",
+    {"name":  "amount", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "dose_amt",
       "sourceQuery": {
         "displayFieldName": "x_dose",
         "displayFieldTable": "${omopDataset}.x_drug_exposure",
@@ -51,14 +51,14 @@
       }
     },
     {"name":  "route", "dataType":  "STRING", "valueFieldName":  "route_source_value"},
-    {"name":  "frequency", "dataType":  "STRING", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_freq",
+    {"name":  "frequency", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_freq",
       "sourceQuery": {
         "displayFieldName": "x_frequency",
         "displayFieldTable": "${omopDataset}.x_drug_exposure",
         "displayFieldTableJoinFieldName": "drug_exposure_id"
       }
     },
-    {"name":  "source", "dataType":  "STRING", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "source_table",
+    {"name":  "source", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "source_table",
       "sourceQuery": {
         "displayFieldName": "x_doc_type",
         "displayFieldTable": "${omopDataset}.x_drug_exposure",
