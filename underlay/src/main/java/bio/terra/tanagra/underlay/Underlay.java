@@ -23,7 +23,6 @@ import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
-import bio.terra.tanagra.underlay.visualization.Visualization;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -35,7 +34,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,7 +57,6 @@ public final class Underlay {
   private final ClientConfig clientConfig;
   private final ImmutableList<CriteriaSelector> criteriaSelectors;
   private final ImmutableList<PrepackagedCriteria> prepackagedDataFeatures;
-  private final Map<String, Visualization> precomputedVisualizations;
   private final String uiConfig;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -89,7 +86,6 @@ public final class Underlay {
     this.clientConfig = clientConfig;
     this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
     this.prepackagedDataFeatures = ImmutableList.copyOf(prepackagedDataFeatures);
-    this.precomputedVisualizations = new HashMap<>();
     this.uiConfig = uiConfig;
   }
 
@@ -191,19 +187,6 @@ public final class Underlay {
         .filter(pdf -> name.equals(pdf.getName()))
         .findFirst()
         .orElseThrow(() -> new NotFoundException("Prepackaged data feature not found: " + name));
-  }
-
-  public void addPrecomputedVisualization(Visualization visualization) {
-    precomputedVisualizations.put(visualization.getName(), visualization);
-  }
-
-  public Map<String, Visualization> getPrecomputedVisualizations() {
-    return precomputedVisualizations.entrySet().stream()
-        .collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
-  }
-
-  public Visualization getPrecomputedVisualization(String vizName) {
-    return Optional.ofNullable(precomputedVisualizations.get(vizName)).orElseThrow();
   }
 
   public String getUiConfig() {
@@ -318,24 +301,22 @@ public final class Underlay {
     // fetch underlay-wide visualization data config
     List<SZVisualization> szVisualizations = new ArrayList<>();
     if (szUnderlay.visualizations != null) {
-      szUnderlay.visualizations.stream()
-          .parallel()
-          .forEach(
-              vizPath -> {
-                SZVisualization szViz = configReader.readViz(vizPath);
+      szUnderlay.visualizations.forEach(
+          vizPath -> {
+            SZVisualization szViz = configReader.readViz(vizPath);
 
-                // Update the szViz with the contents of the plugin data files.
-                if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
-                  szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
-                  szViz.dataConfigObj = configReader.deserializeVizDataConfig(szViz.dataConfig);
-                }
-                if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
-                  szViz.pluginConfig =
-                      configReader.readVizPluginConfig(vizPath, szViz.pluginConfigFile);
-                }
+            // Update the szViz with the contents of the plugin data files.
+            if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
+              szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
+              szViz.dataConfigObj = configReader.deserializeVizDataConfig(szViz.dataConfig);
+            }
+            if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
+              szViz.pluginConfig =
+                  configReader.readVizPluginConfig(vizPath, szViz.pluginConfigFile);
+            }
 
-                szVisualizations.add(szViz);
-              });
+            szVisualizations.add(szViz);
+          });
     }
 
     // Read the UI config.

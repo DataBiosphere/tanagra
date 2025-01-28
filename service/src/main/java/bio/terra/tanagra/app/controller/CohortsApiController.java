@@ -246,12 +246,13 @@ public class CohortsApiController implements CohortsApi {
           "visualizeCohortCounts not implemented yet for cohorts with filters");
     }
 
-    Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
     List<ApiVisualization> vizList =
-        body.getVisualizationNames().parallelStream()
-            .map(id -> ToApiUtils.toApiObject(underlay.getPrecomputedVisualization(id)))
+        body.getVisualizationNames().stream()
+            .map(
+                vizName ->
+                    ToApiUtils.toApiObject(
+                        underlayService.getVisualization(cohort.getUnderlay(), vizName)))
             .toList();
-
     return ResponseEntity.ok(new ApiVisualizationList().visualizations(vizList));
   }
 }
