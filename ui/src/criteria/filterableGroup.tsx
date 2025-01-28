@@ -123,10 +123,10 @@ interface Data {
   (
     underlaySource: UnderlaySource,
     c: CommonSelectorConfig,
-    dataEntry?: DataEntry
+    dataEntries?: DataEntry[]
   ) => {
-    if (dataEntry && dataEntry.encoded) {
-      return String(dataEntry.encoded);
+    if (dataEntries?.length && dataEntries[0].encoded) {
+      return String(dataEntries[0].encoded);
     }
 
     return encodeData({
@@ -956,17 +956,19 @@ function useSelectAllCohort(
     () =>
       newCohort(
         underlaySource.underlay.name,
-        createCriteria(underlaySource, selector, {
-          key: generateId(),
-          encoded: encodeData({
-            selected: [
-              {
-                id: generateId(),
-                all: selectAll,
-              },
-            ],
-          }),
-        })
+        createCriteria(underlaySource, selector, [
+          {
+            key: generateId(),
+            encoded: encodeData({
+              selected: [
+                {
+                  id: generateId(),
+                  all: selectAll,
+                },
+              ],
+            }),
+          },
+        ])
       ),
     [selectAll]
   );

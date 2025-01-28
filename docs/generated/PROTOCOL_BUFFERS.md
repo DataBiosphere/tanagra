@@ -246,6 +246,7 @@ which have condition_name of &#34;Diabetes&#34;).
 | default_sort | [tanagra.SortOrder](#tanagra-SortOrder) |  | The sort order to use in the list view, or in hierarchies where no sort order has been specified. |
 | limit | [int32](#int32) | optional | Number of values to display in the list view for each entity group. Otherwise, a default value is applied. |
 | nameAttribute | [string](#string) | optional | The attribute used to name selections if not the first column. This can be used to include extra context with the selected values that&#39;s not visible in the table view. |
+| codeAttributes | [string](#string) | repeated | Optional attributes to search when adding criteria by code. It&#39;s recommended to enable multi_select when using codeAttributes because multiple codes can be added at the same time which forces the criteria into multi_select mode regardless of the setting. |
 
 
 

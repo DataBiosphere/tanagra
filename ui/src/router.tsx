@@ -215,6 +215,10 @@ export function addCohortCriteriaURL() {
   return "tAddCohort";
 }
 
+export function addByCodeURL() {
+  return "tAddByCode";
+}
+
 export function absoluteExportURL(params: BaseParams) {
   return absolutePrefix(params) + "export";
 }

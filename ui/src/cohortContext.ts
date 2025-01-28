@@ -150,7 +150,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
 
         mutate(
           (key: { type: string; studyId: string; list: boolean }) =>
-            key.type === "cohort" && key.studyId === studyId && key.list,
+            key && key.type === "cohort" && key.studyId === studyId && key.list,
           undefined,
           { revalidate: true }
         );

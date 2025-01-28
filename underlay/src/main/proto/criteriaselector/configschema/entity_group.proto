@@ -67,4 +67,10 @@ message EntityGroup {
   // used to include extra context with the selected values that's not visible
   // in the table view.
   optional string nameAttribute = 10;
+
+  // Optional attributes to search when adding criteria by code. It's
+  // recommended to enable multi_select when using codeAttributes because
+  // multiple codes can be added at the same time which forces the criteria into
+  // multi_select mode regardless of the setting.
+  repeated string codeAttributes = 11;
 }

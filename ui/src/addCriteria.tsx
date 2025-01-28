@@ -47,6 +47,7 @@ import { useCallback, useMemo } from "react";
 import {
   addCohortCriteriaURL,
   addFeatureSetCriteriaURL,
+  addByCodeURL,
   cohortURL,
   featureSetURL,
   newCriteriaURL,
@@ -214,6 +215,20 @@ function AddCriteria(props: AddCriteriaProps) {
       },
     });
 
+    if (underlay.uiConfiguration.featureConfig?.enableAddByCode) {
+      options.push({
+        name: "tAddByCode",
+        title: "Add criteria by code",
+        category: "Other",
+        tags: [],
+        cohort: true,
+        showMore: false,
+        fn: () => {
+          navigate(addByCodeURL());
+        },
+      });
+    }
+
     return options;
   }, [props.onInsertPredefinedCriteria, selectors, predefinedCriteria]);
 
@@ -322,7 +337,7 @@ function AddCriteria(props: AddCriteriaProps) {
         const criteria = createCriteria(
           underlaySource,
           option.selector,
-          dataEntry
+          dataEntry ? [dataEntry] : undefined
         );
         if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
           navigate(newCriteriaURL(option.name));

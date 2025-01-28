@@ -11,7 +11,7 @@ import {
   GroupSectionReducingOperator,
   UnderlaySource,
 } from "data/source";
-import { DataEntry } from "data/types";
+import { DataEntry, DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useStudyId, useUnderlay } from "hooks";
 import { generate } from "randomstring";
@@ -164,6 +164,27 @@ export function searchCriteria(
   }));
 }
 
+export function lookupCriteria(
+  underlaySource: UnderlaySource,
+  configs: CommonSelectorConfig[],
+  codes: string[]
+): Promise<LookupResponse> {
+  const promises: Promise<LookupEntry[]>[] = configs
+    .map((config) => {
+      const entry = criteriaRegistry.get(config.plugin);
+      if (!entry?.lookup) {
+        return null;
+      }
+
+      return entry.lookup(underlaySource, config, codes);
+    })
+    .filter(isValid);
+
+  return Promise.all(promises).then((responses) => ({
+    data: responses.flat(),
+  }));
+}
+
 export type OccurrenceFilters = {
   id: string;
   name: string;
@@ -242,13 +263,15 @@ export function useOccurrenceList(
 export function registerCriteriaPlugin(
   type: string,
   initializeData: InitializeDataFn,
-  search?: SearchFn
+  search?: SearchFn,
+  lookup?: LookupFn
 ) {
   return <T extends CriteriaPluginConstructor>(constructor: T): void => {
     criteriaRegistry.set(type, {
       initializeData,
       constructor,
       search,
+      lookup,
     });
   };
 }
@@ -256,7 +279,7 @@ export function registerCriteriaPlugin(
 type InitializeDataFn = (
   underlaySource: UnderlaySource,
   config: CommonSelectorConfig,
-  dataEntry?: DataEntry
+  dataEntries?: DataEntry[]
 ) => string;
 
 type SearchFn = (
@@ -269,16 +292,33 @@ export type SearchResponse = {
   data: MergedItem<DataEntry>[];
 };
 
+type LookupFn = (
+  underlaySource: UnderlaySource,
+  config: CommonSelectorConfig,
+  codes: string[]
+) => Promise<LookupEntry[]>;
+
+export type LookupEntry = {
+  config: string;
+  code: DataKey;
+  name: string;
+  data: DataEntry;
+};
+
+export type LookupResponse = {
+  data: LookupEntry[];
+};
+
 export function createCriteria(
   underlaySource: UnderlaySource,
   config: CommonSelectorConfig,
-  dataEntry?: DataEntry
+  dataEntries?: DataEntry[]
 ): Criteria {
   const entry = getCriteriaEntry(config.plugin);
   return {
     id: generateId(),
     type: config.plugin,
-    data: entry.initializeData(underlaySource, config, dataEntry),
+    data: entry.initializeData(underlaySource, config, dataEntries),
     config: config,
   };
 }
@@ -316,6 +356,7 @@ type RegistryEntry = {
   initializeData: InitializeDataFn;
   constructor: CriteriaPluginConstructor;
   search?: SearchFn;
+  lookup?: LookupFn;
 };
 
 const criteriaRegistry = new Map<string, RegistryEntry>();
