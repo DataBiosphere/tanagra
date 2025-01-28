@@ -5,7 +5,6 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.proto.viz.Viz.VizDataConfig;
 import bio.terra.tanagra.query.QueryRunner;
 import bio.terra.tanagra.query.bigquery.BQExecutorInfrastructure;
 import bio.terra.tanagra.query.bigquery.BQQueryRunner;
@@ -24,6 +23,8 @@ import bio.terra.tanagra.underlay.serialization.SZGroupItems;
 import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.serialization.SZVisualization;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
 import bio.terra.tanagra.underlay.visualization.Visualization;
@@ -329,6 +330,7 @@ public final class Underlay {
                 // Update the szViz with the contents of the plugin data files.
                 if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
                   szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
+                  szViz.dataConfigObj = configReader.deserializeVizDataConfig(szViz.dataConfig);
                 }
                 if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
                   szViz.pluginConfig =
@@ -650,18 +652,18 @@ public final class Underlay {
   public static Visualization fromDataConfigVisualization(
       SZVisualization vizConfig, ConfigReader configReader) {
 
-    VizDataConfig vizDataConfig =
-        ConfigReader.deserializeStringToObj(vizConfig.dataConfig, VizDataConfig.class);
+    // TODO(dexamundsen): move config to openApi spec
+    SZVisualizationDataConfig vizDataConfig = vizConfig.dataConfigObj;
 
     // Remove these limitations once the backend sufficiently supports the query generation.
-    if (vizDataConfig.getSourcesCount() > 1) {
+    if (vizDataConfig.sources == null || vizDataConfig.sources.size() != 1) {
       throw new InvalidConfigException(
           "Only 1 visualization source is supported in viz: " + vizConfig.name);
     }
 
-    VizDataConfig.Source vizDCSource = vizDataConfig.getSources(0);
+    SZVisualizationDCSource vizDCSource = vizDataConfig.sources.get(0);
     String selectorEntityName =
-        switch (vizDCSource.getCriteriaSelector()) {
+        switch (vizDCSource.criteriaSelector) {
             // TODO(dexamundsen): copied from vizContainer.tsx:selectorToEntity
           case "demographics" -> "person";
           case "conditions" -> "conditionOccurrence";
@@ -672,17 +674,18 @@ public final class Underlay {
               throw new InvalidConfigException(
                   String.format(
                       "Visualizations of criteriaSelector: %s are not supported in viz: %s",
-                      vizDCSource.getCriteriaSelector(), vizConfig.name));
+                      vizDCSource.criteriaSelector, vizConfig.name));
         };
 
     // TODO(dexamundsen): copied from vizContainer.tsx:fetchVizData
-    if (vizDCSource.getJoinsList().stream()
-        .anyMatch(j -> !"person".equals(j.getEntity()) || j.hasAggregation())) {
+    if (vizDCSource.joins != null
+        && vizDCSource.joins.stream()
+            .anyMatch(j -> !"person".equals(j.entity) || (j.aggregation != null))) {
       throw new InvalidConfigException(
           "Only unique joins to person are supported in viz: " + vizConfig.name);
     }
 
-    int attrCount = vizDCSource.getAttributesCount();
+    int attrCount = vizDCSource.attributes == null ? 0 : vizDCSource.attributes.size();
     if (attrCount < 1 || attrCount > 2) {
       throw new InvalidConfigException(
           "Only 1 or 2 attributes are supported in viz: " + vizConfig.name);

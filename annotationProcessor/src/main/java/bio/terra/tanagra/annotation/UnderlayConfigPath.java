@@ -57,6 +57,15 @@ public class UnderlayConfigPath extends AnnotationPath {
           SZPrepackagedCriteria.class,
           SZRollupCountsSql.class,
           SZVisualization.class,
+          SZVisualization.SZVisualizationDataConfig.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.SZVisualizationDCSJoin.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.SZVisualizationDCSJoin.SZVisualizationDCSJAggregation.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.SZVisualizationDCSJoin.SZVisualizationDCSJAggregation.SZVisualizationDCSJAType.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.SZVisualizationDCSAttribute.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.SZVisualizationDCSAttribute.SZVisualizationDCSANumericBucketing.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.SZVisualizationDCSAttribute.SZVisualizationDCSANumericBucketing.SZVisualizationDCSANBIntervals.class,
+          SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource.SZVisualizationDCSAttribute.SZVisualizationDCSASortType.class,
           SZCorePlugin.class);
 
   @Override

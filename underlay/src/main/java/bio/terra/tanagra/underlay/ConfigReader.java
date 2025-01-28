@@ -13,15 +13,14 @@ import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.serialization.SZVisualization;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.annotation.Nullable;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -383,6 +382,14 @@ public final class ConfigReader {
     }
   }
 
+  public SZVisualizationDataConfig deserializeVizDataConfig(String vizDataConfig) {
+    try {
+      return JacksonMapper.deserializeJavaObject(vizDataConfig, SZVisualizationDataConfig.class);
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException("Error deserializing visualization data config file", ioEx);
+    }
+  }
+
   private InputStream getStream(Path resourcesPath) {
     try {
       return useResourcesInputStream
@@ -456,15 +463,5 @@ public final class ConfigReader {
 
   public static DataType deserializeDataType(@Nullable SZDataType szDataType) {
     return szDataType == null ? null : DataType.valueOf(szDataType.name());
-  }
-
-  public static <T> T deserializeStringToObj(String str, Class<T> clazz) {
-    try {
-      return JacksonMapper.readFileIntoJavaObject(
-          new ByteArrayInputStream(str.getBytes(StandardCharsets.UTF_8)), clazz);
-    } catch (IOException e) {
-      throw new InvalidConfigException(
-          "Error deserializing string to class: " + clazz.getSimpleName(), e);
-    }
   }
 }
