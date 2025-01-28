@@ -17,7 +17,7 @@ SELECT
   tc.concept_name AS drug_type_concept_name,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name,
-  de.route_source_value AS route,
+  de.route_source_value,
   x.x_drug_form AS drug_form,
   x.x_strength AS drug_strength,
   x.x_dose AS dose_amt,
