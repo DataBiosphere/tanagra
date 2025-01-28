@@ -43,6 +43,10 @@ public final class ClientConfig {
     this.visualizations = ImmutableList.copyOf(visualizations);
   }
 
+  public List<SZVisualization> getVisualizations() {
+    return visualizations;
+  }
+
   public String serializeUnderlay() {
     try {
       return JacksonMapper.serializeJavaObject(underlay);

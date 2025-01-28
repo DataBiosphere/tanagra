@@ -25,6 +25,7 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlParams;
@@ -37,6 +38,11 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource;
+import bio.terra.tanagra.underlay.visualization.Visualization;
+import bio.terra.tanagra.underlay.visualization.VisualizationData;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
@@ -82,8 +88,83 @@ public class UnderlayService {
 
       Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
       underlayCacheBuilder.put(underlay.getName(), new CachedUnderlay(underlay));
+
+      // pre-compute underlay-wide visualization data
+      underlay.getClientConfig().getVisualizations().stream()
+          .parallel()
+          .forEach(
+              szViz ->
+                  underlay.addPrecomputedVisualization(
+                      new Visualization(
+                          szViz.name, szViz.title, buildVisualization(underlay, szViz))));
     }
+
     this.underlayCache = ImmutableMap.copyOf(underlayCacheBuilder);
+  }
+
+  private List<VisualizationData> buildVisualization(Underlay underlay, SZVisualization szViz) {
+    // TODO(dexamundsen): move config to openApi spec
+    SZVisualizationDataConfig vizDataConfig = szViz.dataConfigObj;
+
+    // Remove these limitations once the backend sufficiently supports the query generation.
+    if (vizDataConfig.sources == null || vizDataConfig.sources.size() != 1) {
+      throw new InvalidConfigException(
+          "Only 1 visualization source is supported in viz: " + szViz.name);
+    }
+
+    SZVisualizationDCSource vizDCSource = vizDataConfig.sources.get(0);
+    String selectorEntityName =
+        switch (vizDCSource.criteriaSelector) {
+            // TODO(dexamundsen): copied from vizContainer.tsx:selectorToEntity
+          case "demographics" -> "person"; // default
+          case "conditions" -> "conditionOccurrence";
+          case "procedures" -> "procedureOccurrence";
+          case "ingredients" -> "ingredientOccurrence";
+          case "measurements" -> "measurementOccurrence";
+          default ->
+              throw new InvalidConfigException(
+                  String.format(
+                      "Visualizations of criteriaSelector: %s are not supported in viz: %s",
+                      vizDCSource.criteriaSelector, szViz.name));
+        };
+    Entity selectorEntity = underlay.getEntity(selectorEntityName);
+
+    // TODO(dexamundsen): copied from vizContainer.tsx:fetchVizData
+    Entity joinEntity = underlay.getPrimaryEntity();
+    if (vizDCSource.joins != null
+        && vizDCSource.joins.stream()
+            .anyMatch(j -> !joinEntity.getName().equals(j.entity) || (j.aggregation != null))) {
+      throw new InvalidConfigException(
+          String.format(
+              "Only unique joins to primaryEntity: %s are supported in viz: %s",
+              joinEntity.getName(), szViz.name));
+    }
+    String joinEntityAttribute = joinEntity.getIdAttribute().getSourceQuery().getValueFieldName();
+
+    int attrCount = vizDCSource.attributes == null ? 0 : vizDCSource.attributes.size();
+    if (attrCount < 1 || attrCount > 2) {
+      throw new InvalidConfigException(
+          "Only 1 or 2 attributes are supported in viz: " + szViz.name);
+    }
+    List<String> groupByAttributes = vizDCSource.attributes.stream().map(a -> a.attribute).toList();
+
+    // TODO-DEX: merge results from multiple calls
+    CountQueryResult countQueryResult =
+        runCountQuery(
+            underlay,
+            selectorEntity,
+            joinEntityAttribute,
+            groupByAttributes,
+            /* entityFilter= */ null,
+            OrderByDirection.DESCENDING,
+            /* limit= */ 1_000_000,
+            /* pageMarker= */ null,
+            /* pageSize= */ null);
+
+    LOGGER.error("DEX == sql " + countQueryResult.getSql());
+
+    List<VisualizationData> visualizationDataList = new ArrayList<>();
+    return visualizationDataList;
   }
 
   public List<Underlay> listUnderlays(ResourceCollection authorizedIds) {

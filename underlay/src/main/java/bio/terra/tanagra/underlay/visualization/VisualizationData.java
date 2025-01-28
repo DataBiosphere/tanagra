@@ -1,36 +1,24 @@
 package bio.terra.tanagra.underlay.visualization;
 
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VisualizationData {
-  private final List<VisualizationDataKey> keys = new ArrayList<>();
-  private final List<VisualizationDataValue> values = new ArrayList<>();
+  private final ImmutableList<VisualizationDataKey> keys;
+  private final ImmutableList<VisualizationDataValue> values;
 
   public VisualizationData(List<VisualizationDataKey> keys, List<VisualizationDataValue> values) {
-    if (keys != null) {
-      this.keys.addAll(keys);
-    }
-
-    if (values != null) {
-      this.values.addAll(values);
-    }
-  }
-
-  public void addKey(VisualizationDataKey dataKey) {
-    keys.add(dataKey);
-  }
-
-  public void addValue(VisualizationDataValue dataValue) {
-    values.add(dataValue);
+    this.keys = ImmutableList.copyOf(keys);
+    this.values = ImmutableList.copyOf(values);
   }
 
   public List<VisualizationDataKey> getKeys() {
-    return keys;
+    return keys.stream().collect(Collectors.toUnmodifiableList());
   }
 
   public List<VisualizationDataValue> getValues() {
-    return values;
+    return values.stream().collect(Collectors.toUnmodifiableList());
   }
 
   public boolean isForKey(String dataKey) {

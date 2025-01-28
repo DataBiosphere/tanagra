@@ -1,24 +1,18 @@
 package bio.terra.tanagra.underlay.visualization;
 
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Visualization {
   private final String name;
   private final String title;
-  private final List<VisualizationData> vizDataList = new ArrayList<>();
+  private final ImmutableList<VisualizationData> vizDataList;
 
   public Visualization(String name, String title, List<VisualizationData> vizDataList) {
     this.name = name;
     this.title = title;
-
-    if (vizDataList != null) {
-      this.vizDataList.addAll(vizDataList);
-    }
-  }
-
-  public void addVizData(VisualizationData vizData) {
-    vizDataList.add(vizData);
+    this.vizDataList = ImmutableList.copyOf(vizDataList);
   }
 
   public String getName() {
@@ -30,6 +24,6 @@ public class Visualization {
   }
 
   public List<VisualizationData> getVizDataList() {
-    return vizDataList;
+    return vizDataList.stream().collect(Collectors.toUnmodifiableList());
   }
 }
