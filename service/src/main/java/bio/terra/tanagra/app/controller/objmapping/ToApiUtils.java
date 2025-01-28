@@ -35,6 +35,10 @@ import bio.terra.tanagra.generated.model.ApiReducingOperator;
 import bio.terra.tanagra.generated.model.ApiStudy;
 import bio.terra.tanagra.generated.model.ApiUnderlaySummary;
 import bio.terra.tanagra.generated.model.ApiValueDisplay;
+import bio.terra.tanagra.generated.model.ApiVisualization;
+import bio.terra.tanagra.generated.model.ApiVisualizationData;
+import bio.terra.tanagra.generated.model.ApiVisualizationDataKey;
+import bio.terra.tanagra.generated.model.ApiVisualizationDataValue;
 import bio.terra.tanagra.service.artifact.model.AnnotationValue;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.CohortRevision;
@@ -42,6 +46,8 @@ import bio.terra.tanagra.service.artifact.model.Criteria;
 import bio.terra.tanagra.service.artifact.model.Study;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
+import bio.terra.tanagra.underlay.visualization.Visualization;
+import bio.terra.tanagra.underlay.visualization.VisualizationData;
 import bio.terra.tanagra.utils.SqlFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -321,5 +327,32 @@ public final class ToApiUtils {
         .displayName(underlay.getDisplayName())
         .description(underlay.getDescription())
         .primaryEntity(underlay.getPrimaryEntity().getName());
+  }
+
+  private static ApiVisualizationData toApiObject(VisualizationData vizData) {
+    return new ApiVisualizationData()
+        .keys(
+            vizData.getKeys().stream()
+                .map(
+                    k ->
+                        new ApiVisualizationDataKey()
+                            .name(k.name())
+                            .numericId(k.numericId())
+                            .stringId(k.stringId()))
+                .toList())
+        .values(
+            vizData.getValues().stream()
+                .map(
+                    v ->
+                        new ApiVisualizationDataValue()
+                            .numeric(v.numeric())
+                            .quartiles(v.quartiles()))
+                .toList());
+  }
+
+  public static ApiVisualization toApiObject(Visualization visualization) {
+    return new ApiVisualization()
+        .name(visualization.getName())
+        .vizDataList(visualization.getVizDataList().stream().map(ToApiUtils::toApiObject).toList());
   }
 }

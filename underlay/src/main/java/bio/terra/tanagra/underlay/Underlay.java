@@ -1,8 +1,11 @@
 package bio.terra.tanagra.underlay;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.NotFoundException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.proto.viz.Viz.VizDataConfig;
 import bio.terra.tanagra.query.QueryRunner;
 import bio.terra.tanagra.query.bigquery.BQExecutorInfrastructure;
 import bio.terra.tanagra.query.bigquery.BQQueryRunner;
@@ -23,6 +26,8 @@ import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.serialization.SZVisualization;
 import bio.terra.tanagra.underlay.uiplugin.CriteriaSelector;
 import bio.terra.tanagra.underlay.uiplugin.PrepackagedCriteria;
+import bio.terra.tanagra.underlay.visualization.Visualization;
+import bio.terra.tanagra.underlay.visualization.VisualizationData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -57,6 +62,7 @@ public final class Underlay {
   private final ClientConfig clientConfig;
   private final ImmutableList<CriteriaSelector> criteriaSelectors;
   private final ImmutableList<PrepackagedCriteria> prepackagedDataFeatures;
+  private final ImmutableMap<String, Visualization> precomputedVisualizations;
   private final String uiConfig;
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -73,6 +79,7 @@ public final class Underlay {
       ClientConfig clientConfig,
       List<CriteriaSelector> criteriaSelectors,
       List<PrepackagedCriteria> prepackagedDataFeatures,
+      Map<String, Visualization> precomputedVisualizations,
       String uiConfig) {
     this.name = name;
     this.displayName = displayName;
@@ -86,6 +93,9 @@ public final class Underlay {
     this.clientConfig = clientConfig;
     this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
     this.prepackagedDataFeatures = ImmutableList.copyOf(prepackagedDataFeatures);
+    this.precomputedVisualizations =
+        precomputedVisualizations.entrySet().stream()
+            .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
     this.uiConfig = uiConfig;
   }
 
@@ -187,6 +197,14 @@ public final class Underlay {
         .filter(pdf -> name.equals(pdf.getName()))
         .findFirst()
         .orElseThrow(() -> new NotFoundException("Prepackaged data feature not found: " + name));
+  }
+
+  public ImmutableMap<String, Visualization> getPrecomputedVisualizations() {
+    return precomputedVisualizations;
+  }
+
+  public Visualization getPrecomputedVisualization(String vizName) {
+    return Optional.ofNullable(precomputedVisualizations.get(vizName)).orElseThrow();
   }
 
   public String getUiConfig() {
@@ -298,24 +316,29 @@ public final class Underlay {
           });
     }
 
-    // Build the visualizations.
+    // pre-compute underlay-wide visualization data
     List<SZVisualization> szVisualizations = new ArrayList<>();
+    Map<String, Visualization> precomputedVisualizations = new HashMap<>();
     if (szUnderlay.visualizations != null) {
-      szUnderlay.visualizations.forEach(
-          vizPath -> {
-            SZVisualization szViz = configReader.readViz(vizPath);
+      szUnderlay.visualizations.stream()
+          .parallel()
+          .forEach(
+              vizPath -> {
+                SZVisualization szViz = configReader.readViz(vizPath);
 
-            // Update the szViz with the contents of the plugin data files.
-            if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
-              szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
-            }
-            if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
-              szViz.pluginConfig =
-                  configReader.readVizPluginConfig(vizPath, szViz.pluginConfigFile);
-            }
+                // Update the szViz with the contents of the plugin data files.
+                if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
+                  szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
+                }
+                if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
+                  szViz.pluginConfig =
+                      configReader.readVizPluginConfig(vizPath, szViz.pluginConfigFile);
+                }
 
-            szVisualizations.add(szViz);
-          });
+                szVisualizations.add(szViz);
+                precomputedVisualizations.put(
+                    szViz.name, fromDataConfigVisualization(szViz, configReader));
+              });
     }
 
     // Read the UI config.
@@ -341,6 +364,7 @@ public final class Underlay {
             szVisualizations),
         criteriaSelectors,
         prepackagedDataFeatures,
+        precomputedVisualizations,
         uiConfig);
   }
 
@@ -620,5 +644,53 @@ public final class Underlay {
         szPrepackagedCriteria.name,
         szPrepackagedCriteria.criteriaSelector,
         szPrepackagedCriteria.pluginData);
+  }
+
+  @VisibleForTesting
+  public static Visualization fromDataConfigVisualization(
+      SZVisualization vizConfig, ConfigReader configReader) {
+
+    VizDataConfig vizDataConfig =
+        ConfigReader.deserializeStringToObj(vizConfig.dataConfig, VizDataConfig.class);
+
+    // Remove these limitations once the backend sufficiently supports the query generation.
+    if (vizDataConfig.getSourcesCount() > 1) {
+      throw new InvalidConfigException(
+          "Only 1 visualization source is supported in viz: " + vizConfig.name);
+    }
+
+    VizDataConfig.Source vizDCSource = vizDataConfig.getSources(0);
+    String selectorEntityName =
+        switch (vizDCSource.getCriteriaSelector()) {
+            // TODO(dexamundsen): copied from vizContainer.tsx:selectorToEntity
+          case "demographics" -> "person";
+          case "conditions" -> "conditionOccurrence";
+          case "procedures" -> "procedureOccurrence";
+          case "ingredients" -> "ingredientOccurrence";
+          case "measurements" -> "measurementOccurrence";
+          default ->
+              throw new InvalidConfigException(
+                  String.format(
+                      "Visualizations of criteriaSelector: %s are not supported in viz: %s",
+                      vizDCSource.getCriteriaSelector(), vizConfig.name));
+        };
+
+    // TODO(dexamundsen): copied from vizContainer.tsx:fetchVizData
+    if (vizDCSource.getJoinsList().stream()
+        .anyMatch(j -> !"person".equals(j.getEntity()) || j.hasAggregation())) {
+      throw new InvalidConfigException(
+          "Only unique joins to person are supported in viz: " + vizConfig.name);
+    }
+
+    int attrCount = vizDCSource.getAttributesCount();
+    if (attrCount < 1 || attrCount > 2) {
+      throw new InvalidConfigException(
+          "Only 1 or 2 attributes are supported in viz: " + vizConfig.name);
+    }
+
+    // TODO(BENCH-4948): get viz
+
+    List<VisualizationData> vizDataList = new ArrayList<>();
+    return new Visualization(vizConfig.name, vizConfig.title, vizDataList);
   }
 }

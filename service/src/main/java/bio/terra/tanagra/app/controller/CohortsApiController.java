@@ -20,9 +20,12 @@ import bio.terra.tanagra.generated.model.ApiCohort;
 import bio.terra.tanagra.generated.model.ApiCohortCloneInfo;
 import bio.terra.tanagra.generated.model.ApiCohortCountQuery;
 import bio.terra.tanagra.generated.model.ApiCohortCreateInfo;
+import bio.terra.tanagra.generated.model.ApiCohortIdVisualizationsBody;
 import bio.terra.tanagra.generated.model.ApiCohortList;
 import bio.terra.tanagra.generated.model.ApiCohortUpdateInfo;
 import bio.terra.tanagra.generated.model.ApiInstanceCountList;
+import bio.terra.tanagra.generated.model.ApiVisualization;
+import bio.terra.tanagra.generated.model.ApiVisualizationList;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -37,6 +40,7 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -219,5 +223,35 @@ public class CohortsApiController implements CohortsApi {
             PageMarker.deserialize(body.getPageMarker()),
             body.getPageSize());
     return ResponseEntity.ok(ToApiUtils.toApiObject(countQueryResult));
+  }
+
+  @Override
+  public ResponseEntity<ApiVisualizationList> visualizeCohortCounts(
+      String studyId, String cohortId, ApiCohortIdVisualizationsBody body) {
+    accessControlService.checkReadAccess(studyId, List.of(cohortId), List.of());
+    Cohort cohort = cohortService.getCohort(studyId, cohortId);
+
+    accessControlService.throwIfUnauthorized(
+        SpringAuthentication.getCurrentUser(),
+        Permissions.forActions(UNDERLAY, READ),
+        ResourceId.forUnderlay(cohort.getUnderlay()));
+
+    EntityFilter cohortFilter =
+        filterBuilderService.buildFilterForCohortRevision(
+            cohort.getUnderlay(), cohort.getMostRecentRevision());
+
+    if (cohortFilter != null) {
+      // TODO(BENCH-4945): add support for charts
+      throw new NotImplementedException(
+          "visualizeCohortCounts not implemented yet for cohorts with filters");
+    }
+
+    Underlay underlay = underlayService.getUnderlay(cohort.getUnderlay());
+    List<ApiVisualization> vizList =
+        body.getVisualizationNames().parallelStream()
+            .map(id -> ToApiUtils.toApiObject(underlay.getPrecomputedVisualization(id)))
+            .toList();
+
+    return ResponseEntity.ok(new ApiVisualizationList().visualizations(vizList));
   }
 }
