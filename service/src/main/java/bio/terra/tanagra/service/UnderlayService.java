@@ -14,6 +14,7 @@ import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
+import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
@@ -35,6 +36,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
@@ -92,17 +94,19 @@ public class UnderlayService {
     this.underlayCache = ImmutableMap.copyOf(underlayCacheBuilder);
 
     // pre-compute underlay-wide visualizations (underlayCache must be initialized before this)
-    underlayCache.forEach(
-        (name, cache) -> {
-          Underlay underlay = cache.underlay;
+    underlayCache.entrySet().parallelStream()
+        .forEach(
+            cachedUnderlayEntry -> {
+              Underlay underlay = cachedUnderlayEntry.getValue().getUnderlay();
 
-          underlay.getClientConfig().getVisualizations().stream()
-              .parallel()
-              .forEach(
-                  szViz -> {
-                    cache.putUnderlayLevelVisualization(buildVisualization(underlay, szViz));
-                  });
-        });
+              underlay.getClientConfig().getVisualizations().parallelStream()
+                  .forEach(
+                      szViz -> {
+                        cachedUnderlayEntry
+                            .getValue()
+                            .putUnderlayLevelVisualization(buildVisualization(underlay, szViz));
+                      });
+            });
   }
 
   private Visualization buildVisualization(Underlay underlay, SZVisualization szViz) {
@@ -154,22 +158,97 @@ public class UnderlayService {
     List<String> groupByAttributeNames =
         vizDCSource.attributes.stream().map(a -> a.attribute).toList();
 
-    // TODO-DEX: merge results from multiple calls
-    CountQueryResult countQueryResult =
-        runCountQuery(
-            underlay,
-            selectorEntity,
-            countDistinctAttributeName,
-            groupByAttributeNames,
-            /* entityFilter= */ null,
-            OrderByDirection.DESCENDING,
-            /* limit= */ 1_000_000,
-            /* pageMarker= */ null,
-            /* pageSize= */ null);
+    List<CountInstance> countInstances = new ArrayList<>();
+    PageMarker pageMarker;
+    do {
+      CountQueryResult countQueryResult =
+          runCountQuery(
+              underlay,
+              selectorEntity,
+              countDistinctAttributeName,
+              groupByAttributeNames,
+              /* entityFilter= */ null,
+              OrderByDirection.DESCENDING,
+              /* limit= */ 1_000_000,
+              /* pageMarker= */ null,
+              /* pageSize= */ null);
+      pageMarker = countQueryResult.getPageMarker();
+      countInstances.addAll(countQueryResult.getCountInstances());
+    } while (pageMarker != null);
+
+    /*
+    countInstances.stream().map(
+      instance -> {
+
+        Map<String, ApiValueDisplay> attributes = new HashMap<>();
+        instance
+            .getEntityFieldValues()
+            .forEach(
+                (field, value) -> {
+                  if (field instanceof AttributeField) {
+                    attributes.put(
+                        ((AttributeField) field).getAttribute().getName(),
+                        ToApiUtils.toApiObject(value));
+                  }
+                });
+
+        attributes.forEach(
+            (k, v) -> {
+
+              DataValue value = null;
+              String display =  v.getDisplay();
+
+              if (v.isIsRepeatedValue()) {
+                if (v.getRepeatedValue() != null) {
+                  display = v.getRepeatedValue().stream().map(
+                      l -> l.
+
+                  )
+                }
+
+                display = v.getRepeatedValue()
+              } else {
+
+              }
+
+            }
+
+
+        );
+
+
+        FilterCountValue fc =
+            new FilterCountValue(Math.toIntExact(instance.getCount()),
+                null);
+
+
+
+      }
+
+
+    );  */
 
     List<VisualizationData> visualizationDataList = new ArrayList<>();
     return new Visualization(szViz.name, szViz.title, visualizationDataList);
   }
+
+  /*
+    public record DataValue(String key, Object val) {}
+    public record FilterCountValue(int count, Map<String, DataValue> value) {}
+
+    /*
+    export type FilterCountValue = {
+    count: number;
+    [x: string]: DataValue;
+  };
+
+       const value: FilterCountValue = {
+          count: count.count ?? 0,
+        };
+
+        processAttributes(value, count.attributes);
+
+     */
 
   public List<Underlay> listUnderlays(ResourceCollection authorizedIds) {
     if (authorizedIds.isAllResources()) {
@@ -325,11 +404,10 @@ public class UnderlayService {
     // For each attribute with a hint, calculate new hints with the filter
     StringBuilder allSql = new StringBuilder();
     List<HintInstance> allHintInstances = new ArrayList<>();
-    entityLevelHints.getHintInstances().stream()
-        .map(HintInstance::getAttribute)
-        .parallel()
+    entityLevelHints.getHintInstances().parallelStream()
         .map(
-            attribute -> {
+            hintInstance -> {
+              Attribute attribute = hintInstance.getAttribute();
               if (isRangeHint(attribute)) {
                 String sql =
                     WriteEntityLevelDisplayHints.buildRangeHintSql(
