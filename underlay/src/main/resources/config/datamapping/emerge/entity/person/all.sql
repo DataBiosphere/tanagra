@@ -8,10 +8,10 @@ SELECT
     CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP, s.dob, DAY) / 365.25) AS INT64) AS age,
     CAST(PARSE_NUMERIC(g.criteria_meta_seq) AS INT64) as gender_id,
     g.gender_code,
-    g.name as gender_name,
+    g.gender_name,
     CAST(PARSE_NUMERIC(r.criteria_meta_seq) AS INT64) as race_id,
     r.race_code,
-    r.name as race_name,
+    r.race_name,
     s.site_code,
     sc.site_name,
     CASE WHEN s.dataset_gwas = 1 THEN true ELSE false END AS dataset_gwas,
@@ -34,7 +34,15 @@ LEFT JOIN (
              WHEN name = 'Caucasian' THEN 'W'
              WHEN name = 'Pacific Islander' THEN 'P'
             END as race_code,
-        name
+        CASE WHEN name = 'Asian/Pacific' THEN 'Asian'
+             WHEN name = 'African American' THEN 'Black, African American'
+             WHEN name = 'Hispanic' THEN 'Hispanic'
+             WHEN name = 'Native American' THEN 'American Indian or Alaska Native'
+             WHEN name = 'Other' THEN 'Other'
+             WHEN name = 'Unknown' THEN 'Unkn/Prefer not to answer'
+             WHEN name = 'Caucasian' THEN 'White'
+             WHEN name = 'Pacific Islander' THEN 'Native Hawaiian or Pacific Islander'
+            END as race_name,
     FROM `${omopDataset}.demo_criteria`
     WHERE starts_with(label,'Race_Equals_')) r on s.race_epic = r.race_code
 LEFT JOIN (
@@ -44,7 +52,10 @@ LEFT JOIN (
              WHEN name = 'Female' THEN 'F'
              WHEN name = 'Unknown' THEN 'U'
             END as gender_code,
-        name
+        CASE WHEN name = 'Male' THEN 'Male'
+             WHEN name = 'Female' THEN 'Female'
+             WHEN name = 'Unknown' THEN 'Unknown or prefer not to answer'
+            END as gender_name
     FROM `${omopDataset}.demo_criteria`
     WHERE starts_with(label,'Gender_Equals_')) g on s.gender_epic = g.gender_code
 LEFT JOIN `${omopDataset}.sites` sc on s.site_code = cast(cast(sc.site as numeric) as int64)
