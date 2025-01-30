@@ -21,6 +21,7 @@ import bio.terra.tanagra.underlay.sourcetable.STRelationshipRollupCounts;
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import com.google.cloud.bigquery.BigQueryException;
 import com.google.cloud.bigquery.Table;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
@@ -161,7 +162,29 @@ public class WriteRollupCounts extends BigQueryJob {
 
     // Dataflow jobs can only write new rows to BigQuery, so in this second step, copy over the
     // count values to the corresponding column in the index entity main table.
-    copyFieldsToEntityTable(isDryRun);
+    //    copyFieldsToEntityTable(isDryRun);
+
+    final int maxRetries = 5;
+    var attempt = 0;
+
+    while (attempt < maxRetries) {
+      try {
+        copyFieldsToEntityTable(isDryRun);
+        return; // Exit if successful
+      } catch (BigQueryException e) {
+        if (e.getMessage().contains("due to concurrent update")) {
+          attempt++;
+          LOGGER.info("Attempt {} failed: {}", attempt, e.getMessage());
+
+          if (attempt == maxRetries) {
+            LOGGER.info("Max retries reached. Giving up.");
+            throw e; // Rethrow after max attempts
+          }
+        } else {
+          throw e; // Rethrow if it's a different exception
+        }
+      }
+    }
   }
 
   @Override
