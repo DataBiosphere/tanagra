@@ -271,6 +271,9 @@ public final class GoogleBigQuery {
       @Nullable Integer pageSize,
       @Nullable TableId destinationTable,
       @Nullable Clustering clustering) {
+    LOGGER.info("HEY WILLY");
+    LOGGER.info(sql);
+    LOGGER.info("BYE WILLY");
     Pair<QueryJobConfiguration, List<BigQuery.QueryResultsOption>> queryJobConfig =
         buildQueryJobConfig(
             sql, true, queryParams, pageToken, pageSize, destinationTable, clustering, null);

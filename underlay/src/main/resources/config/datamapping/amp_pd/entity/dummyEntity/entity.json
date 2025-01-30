@@ -5,5 +5,5 @@
     { "name": "id", "dataType": "STRING", "valueFieldName": "participant_id" }
   ],
   "idAttribute": "id",
-  "sourceQueryTableName": "${dataset}.Demographics"
+  "sourceQueryTableName": "${omopDataset}.Demographics"
 }

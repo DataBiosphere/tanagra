@@ -3,12 +3,12 @@
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "STRING", "valueFieldName": "participant_id" },
-    { "name": "age", "dataType": "INT64" },
+    { "name": "age", "dataType": "INT64", "valueFieldName": "age_at_baseline"},
     { "name": "sex", "dataType": "STRING" },
     { "name": "race", "dataType": "STRING" },
     { "name": "ethnicity", "dataType": "STRING" }
   ],
   "idAttribute": "id",
-  "sourceQueryTableName": "${dataset}.Demographics"
+  "optimizeGroupByAttributes": [ "sex", "race", "age" ],
+  "sourceQueryTableName": "${omopDataset}.Demographics"
 }
-

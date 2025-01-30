@@ -1,0 +1,15 @@
+{
+  "name": "amp-pd-age",
+  "displayName": "Age",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Demographics",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "age.json",
+  "modifiers": null
+}

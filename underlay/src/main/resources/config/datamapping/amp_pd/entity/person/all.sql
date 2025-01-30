@@ -1,6 +1,6 @@
 SELECT
     participant_id,
-    age_at_baseline as age,
+    age_at_baseline,
     sex,
     race,
     ethnicity

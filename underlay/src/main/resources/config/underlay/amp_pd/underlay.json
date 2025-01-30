@@ -9,7 +9,12 @@
     "amp_pd/dummyGroup"
   ],
   "criteriaOccurrenceEntityGroups": [],
-  "criteriaSelectors": [],
+  "criteriaSelectors": [
+    "amp_pd/ethnicity",
+    "amp_pd/sex",
+    "amp_pd/race",
+    "amp_pd/age"
+  ],
   "prepackagedDataFeatures": [],
   "visualizations": [
     "omop/sexAndAge",
