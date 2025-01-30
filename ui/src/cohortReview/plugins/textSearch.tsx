@@ -185,7 +185,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
       >
         <Stack spacing={1} alignItems="stretch">
           {entities.map((o) => (
-            <Paper key={o.key} sx={{ overflow: "hidden" }}>
+            <Paper key={String(o.key)} sx={{ overflow: "hidden" }}>
               <Stack
                 alignItems="flex-start"
                 sx={{

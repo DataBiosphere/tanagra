@@ -129,7 +129,7 @@ export class FakeUnderlaysApi {
               value: {
                 dataType: tanagra.DataType.Int64,
                 valueUnion: {
-                  int64Val: 1234,
+                  int64Val: "1234",
                 },
               },
             },
@@ -163,7 +163,7 @@ export class FakeUnderlaysApi {
                     value: {
                       dataType: tanagra.DataType.Int64,
                       valueUnion: {
-                        int64Val: 8515,
+                        int64Val: "8515",
                       },
                     },
                   },
@@ -175,7 +175,7 @@ export class FakeUnderlaysApi {
                     value: {
                       dataType: tanagra.DataType.Int64,
                       valueUnion: {
-                        int64Val: 8516,
+                        int64Val: "8516",
                       },
                     },
                   },

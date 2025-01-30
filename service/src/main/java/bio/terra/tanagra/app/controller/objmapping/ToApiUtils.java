@@ -90,7 +90,10 @@ public final class ToApiUtils {
         new ApiLiteral().dataType(ApiDataType.fromValue(literal.getDataType().name()));
     return switch (literal.getDataType()) {
       case INT64 ->
-          apiLiteral.valueUnion(new ApiLiteralValueUnion().int64Val(literal.getInt64Val()));
+          // JavaScript can't handle the full int64 range when parsing JSON, so send them as
+          // strings.
+          apiLiteral.valueUnion(
+              new ApiLiteralValueUnion().int64Val(literal.getInt64Val().toString()));
       case STRING ->
           apiLiteral.valueUnion(new ApiLiteralValueUnion().stringVal(literal.getStringVal()));
       case BOOLEAN ->

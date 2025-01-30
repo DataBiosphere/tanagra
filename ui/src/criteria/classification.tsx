@@ -198,13 +198,14 @@ class _ implements CriteriaPlugin<string> {
 function dataKey(key: DataKey, entityGroup: string): string {
   return JSON.stringify({
     entityGroup,
-    key,
+    stringVal: typeof key === "string" ? key : undefined,
+    bigIntVal: typeof key === "bigint" ? String(key) : undefined,
   });
 }
 
 function keyFromDataKey(key: string): DataKey {
   const parsed = JSON.parse(key);
-  return parsed.key;
+  return parsed.bigIntVal ? BigInt(parsed.bigIntVal) : parsed.stringVal;
 }
 
 type SearchState = {
@@ -215,7 +216,7 @@ type SearchState = {
   // The ancestor list of the item to view the hierarchy for.
   hierarchy?: string[];
   // The item to highlight and scroll to in the hierarchy.
-  highlightId?: DataKey;
+  highlightId?: TreeGridId;
 };
 
 type ClassificationEditProps = {
@@ -326,8 +327,8 @@ function ClassificationEdit(props: ClassificationEditProps) {
       hierarchy?: DataKey[],
       parent?: DataKey,
       prevData?: TreeGridData
-    ) => {
-      const data = prevData ?? {};
+    ): Map<TreeGridId, EntityNodeItem> => {
+      const data = prevData ?? new Map();
 
       const children: DataKey[] = [];
       nodes.forEach(({ source: entityGroup, data: node }) => {
@@ -349,7 +350,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
         // Copy over existing children in case they're being loaded in
         // parallel. Grouping children and non-grouping, non-hierarchy nodes
         // always have no children.
-        let childChildren = data[key]?.children;
+        let childChildren = data.get(key)?.children;
         if (!childChildren) {
           if (
             (!hierarchy && group && parent) ||
@@ -367,17 +368,17 @@ function ClassificationEdit(props: ClassificationEditProps) {
           entityGroup,
           groupingNode: !!group && !parent,
         };
-        data[key] = cItem;
+        data.set(key, cItem);
       });
 
       if (parent) {
         // Store children even if the data isn't loaded yet.
-        data[parent] = { ...data[parent], children };
+        data.set(parent, { ...data.get(parent), children });
       } else {
-        data.root = {
-          children: [...(data?.root?.children || []), ...children],
+        data.set("root", {
+          children: [...(data?.get("root")?.children || []), ...children],
           data: {},
-        };
+        });
       }
 
       return data;
@@ -531,7 +532,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   // Partially update the state when expanding rows in the hierarchy view.
   const updateData = useCallback(
-    (data: TreeGridData) => {
+    (data: Map<TreeGridId, EntityNodeItem>) => {
       instancesState.mutate(data, { revalidate: false });
     },
     [instancesState]
@@ -635,7 +636,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
             </GridBox>
           </GridBox>
           <Loading status={instancesState}>
-            {!instancesState.data?.root?.children?.length ? (
+            {!instancesState.data?.get("root")?.children?.length ? (
               <Empty
                 minHeight="300px"
                 image={emptyImage}
@@ -662,7 +663,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   // TODO(tjennison): Make TreeGridData's type generic so we can
                   // avoid this type assertion. Also consider passing the
                   // TreeGridItem to the callback instead of the TreeGridRowData.
-                  const item = instancesState.data[id] as EntityNodeItem;
+                  const item = instancesState.data.get(id) as EntityNodeItem;
                   if (!item || item.groupingNode) {
                     return undefined;
                   }
@@ -793,7 +794,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   }
 
                   const findEntityGroupConfig = () => {
-                    const item = data[id] as EntityNodeItem;
+                    const item = data.get(id) as EntityNodeItem;
                     if (item) {
                       const config = configEntityGroups(props.config).find(
                         (eg) => eg.id === item.entityGroup
@@ -871,7 +872,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                         <GridLayout rows sx={{ height: "fit-content" }}>
                           {localCriteria.selected.map((s, i) => (
                             <GridLayout
-                              key={s.key}
+                              key={String(s.key)}
                               cols
                               fillCol={0}
                               rowAlign="middle"
@@ -979,7 +980,7 @@ function HierarchySearchList(props: HierarchySearchListProps) {
             const title = String(n.data?.[nameAttribute(props.config)]);
             return (
               <Link
-                key={n.data.key}
+                key={String(n.data.key)}
                 component="button"
                 variant="body2"
                 color="inherit"
@@ -1034,7 +1035,7 @@ function ClassificationInline(props: ClassificationInlineProps) {
     <GridLayout rows height="auto">
       {decodedData.selected.map((s, i) => (
         <ValueDataEdit
-          key={s.key}
+          key={String(s.key)}
           hintEntity={entityGroup.occurrenceEntityIds[0]}
           relatedEntity={entityGroup.selectionEntity.name}
           hintKey={s.key}
@@ -1158,17 +1159,24 @@ function generateLookupFilters(
       throw new Error(`Unknown attribute "${ca}" in entity "${entity.name}".`);
     }
 
+    const values: tanagra.Literal[] = [];
+    codes.forEach((c) => {
+      try {
+        values.push(
+          literalFromDataValue(convertAttributeStringToDataValue(c, attribute))
+        );
+      } catch (e) {
+        // Don't attempt to match this attribute if conversion fails.
+      }
+    });
+
     operands.push({
       filterType: tanagra.FilterFilterTypeEnum.Attribute,
       filterUnion: {
         attributeFilter: {
           attribute: ca,
           operator: tanagra.AttributeFilterOperatorEnum.In,
-          values: codes.map((c) =>
-            literalFromDataValue(
-              convertAttributeStringToDataValue(c, attribute)
-            )
-          ),
+          values: values,
         },
       },
     });

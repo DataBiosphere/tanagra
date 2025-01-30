@@ -117,7 +117,7 @@ export function AddCohort() {
                   return undefined;
                 }
 
-                const cohortData = data[id].data as CohortData;
+                const cohortData = data.get(id)?.data as CohortData;
                 if (!cohortData) {
                   return undefined;
                 }

@@ -33,7 +33,7 @@ import {
   TreeGridId,
   useArrayAsTreeGridData,
 } from "components/treegrid";
-import { Annotation, AnnotationType, CohortReview } from "data/source";
+import { AnnotationType, CohortReview } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
@@ -692,7 +692,7 @@ function Annotations() {
                   return undefined;
                 }
 
-                const annotation = data[id].data as Annotation;
+                const annotation = data.get(id)?.data;
                 if (!annotation) {
                   return undefined;
                 }

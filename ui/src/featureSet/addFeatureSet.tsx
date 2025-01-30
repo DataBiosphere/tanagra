@@ -122,7 +122,7 @@ export function AddFeatureSet() {
                   return undefined;
                 }
 
-                const featureSetData = data[id].data as FeatureSetData;
+                const featureSetData = data.get(id)?.data as FeatureSetData;
                 if (!featureSetData) {
                   return undefined;
                 }

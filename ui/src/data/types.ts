@@ -1,8 +1,8 @@
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { standardDateString } from "util/date";
 
-export type DataKey = string | number;
-export type DataValue = null | string | number | boolean | Date;
+export type DataKey = string | number | bigint;
+export type DataValue = null | string | number | bigint | boolean | Date;
 
 export type DataEntry = {
   key: DataKey;
@@ -53,6 +53,7 @@ export function convertAttributeStringToDataValue(
 ): DataValue {
   switch (attribute.dataType) {
     case tanagraUnderlay.SZDataType.INT64:
+      return BigInt(value);
     case tanagraUnderlay.SZDataType.DOUBLE:
       return Number(value);
     case tanagraUnderlay.SZDataType.BOOLEAN:

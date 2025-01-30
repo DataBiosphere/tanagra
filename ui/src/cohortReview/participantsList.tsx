@@ -125,9 +125,7 @@ function ParticipantsList(props: ParticipantsListProps) {
   );
 
   const data = useMemo(() => {
-    const data: TreeGridData = {
-      root: { data: {}, children: [] },
-    };
+    const data: TreeGridData = new Map([["root", { data: {}, children: [] }]]);
 
     instancesState.data
       ?.slice(
@@ -136,13 +134,16 @@ function ParticipantsList(props: ParticipantsListProps) {
       )
       .forEach((instance) => {
         const key = instance.data.key;
-        data[key] = { data: { ...instance.data } };
-        data.root?.children?.push(key);
+        data.set(key, { data: { ...instance.data } });
+        data.get("root")?.children?.push(key);
 
         annotationsState.data?.forEach((a) => {
-          const values = instance.annotations[a.id];
+          const values = instance.annotations.get(a.id);
           if (values) {
-            data[key].data[`t_${a.id}`] = values[values.length - 1].value;
+            const valueData = data.get(key)?.data;
+            if (valueData) {
+              valueData[`t_${a.id}`] = values[values.length - 1].value;
+            }
           }
         });
       });

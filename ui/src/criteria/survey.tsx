@@ -278,7 +278,7 @@ function SurveyEdit(props: SurveyEditProps) {
 
   const processEntities = useCallback(
     (allEntityGroups: [string, EntityNode[]][]) => {
-      const data: EntityTreeGridData = {};
+      const data: EntityTreeGridData = new Map();
 
       allEntityGroups.forEach(([entityGroup, nodes]) => {
         nodes.forEach((node) => {
@@ -292,28 +292,29 @@ function SurveyEdit(props: SurveyEditProps) {
 
           const cItem: EntityNodeItem = {
             data: rowData,
-            children: data[key]?.children ?? [],
+            children: data.get(key)?.children ?? [],
             node: node,
             entityGroup,
             type:
-              data[key]?.type ??
+              data.get(key)?.type ??
               (node.childCount === 0
                 ? EntityNodeItemType.Answer
                 : EntityNodeItemType.Topic),
             parentKey: parentKey,
           };
-          data[key] = cItem;
+          data.set(key, cItem);
 
-          if (data[parentKey]) {
-            data[parentKey].children?.push(key);
+          const parent = data.get(parentKey);
+          if (parent) {
+            parent.children?.push(key);
             if (cItem.type === EntityNodeItemType.Answer) {
-              data[parentKey].type = EntityNodeItemType.Question;
+              parent.type = EntityNodeItemType.Question;
             }
           } else {
             const d = {
               key: parentKey,
             };
-            data[parentKey] = {
+            data.set(parentKey, {
               data: d,
               node: {
                 data: d,
@@ -325,7 +326,7 @@ function SurveyEdit(props: SurveyEditProps) {
                   ? EntityNodeItemType.Question
                   : EntityNodeItemType.Topic,
               children: [key],
-            };
+            });
           }
         });
       });
@@ -398,10 +399,10 @@ function SurveyEdit(props: SurveyEditProps) {
   const [filteredData, defaultExpanded] = useMemo(() => {
     const data = instancesState.data;
     if (!data) {
-      return [{}, []];
+      return [new Map(), []];
     }
     if (!searchState?.query) {
-      return [data, data["root"]?.children ?? []];
+      return [data, data.get("root")?.children ?? []];
     }
 
     // TODO(tjennison): Handle RegExp errors.
@@ -410,7 +411,11 @@ function SurveyEdit(props: SurveyEditProps) {
     const ancestors = new Set<TreeGridId>();
 
     const matchNode = (key: TreeGridId) => {
-      const node = data[key];
+      const node = data.get(key);
+      if (!node) {
+        throw new Error(`Tree node not found for ${key}.`);
+      }
+
       if (node.type != EntityNodeItemType.Topic) {
         for (const k in node.data) {
           if (re.test(String(node.data[k]))) {
@@ -429,8 +434,12 @@ function SurveyEdit(props: SurveyEditProps) {
 
     const filtered = produce(data, (data) => {
       for (const key in data) {
-        const node = data[key];
-        data[key].children =
+        const node = data.get(key);
+        if (!node) {
+          throw new Error(`Tree node not found for ${key}.`);
+        }
+
+        node.children =
           node.type === EntityNodeItemType.Question && matched.has(key)
             ? node.children
             : node.children?.filter((c) => ancestors.has(c) || matched.has(c));
@@ -475,7 +484,7 @@ function SurveyEdit(props: SurveyEditProps) {
             />
           </GridBox>
           <Loading status={instancesState}>
-            {!filteredData?.root?.children?.length ? (
+            {!filteredData?.get("root")?.children?.length ? (
               <Empty
                 minHeight="300px"
                 image={emptyImage}
@@ -499,7 +508,7 @@ function SurveyEdit(props: SurveyEditProps) {
                   // TODO(tjennison): Make TreeGridData's type generic so we can
                   // avoid this type assertion. Also consider passing the
                   // TreeGridItem to the callback instead of the TreeGridRowData.
-                  const item = instancesState.data[id];
+                  const item = instancesState.data.get(id);
                   if (!item) {
                     return undefined;
                   }
@@ -532,7 +541,7 @@ function SurveyEdit(props: SurveyEditProps) {
                                 const question =
                                   item.parentKey &&
                                   item.type === EntityNodeItemType.Answer
-                                    ? instancesState.data?.[item.parentKey]
+                                    ? instancesState.data?.get(item.parentKey)
                                     : undefined;
                                 const name =
                                   rowData[nameAttribute(props.config)];
@@ -582,7 +591,7 @@ function SurveyEdit(props: SurveyEditProps) {
                       <GridLayout rows sx={{ height: "fit-content" }}>
                         {groupedSelection.map((s, i) => (
                           <GridLayout
-                            key={s.key}
+                            key={String(s.key)}
                             rows
                             sx={{ height: "fit-content" }}
                           >
@@ -617,7 +626,7 @@ function SurveyEdit(props: SurveyEditProps) {
                             >
                               {s.children.map((child) => (
                                 <GridLayout
-                                  key={child.key}
+                                  key={String(child.key)}
                                   cols
                                   fillCol={0}
                                   rowAlign="middle"
@@ -707,7 +716,7 @@ function SurveyInline(props: SurveyInlineProps) {
     return (
       <GridBox sx={{ pb: 1, height: "auto" }}>
         <ValueDataEdit
-          key={sel.key}
+          key={String(sel.key)}
           hintEntity={entityGroup.occurrenceEntityIds[0]}
           relatedEntity={entityGroup.selectionEntity.name}
           hintKey={sel.key}
@@ -730,7 +739,7 @@ function SurveyInline(props: SurveyInlineProps) {
   return (
     <GridLayout rows height="auto">
       {groupedSelection.map((s, i) => (
-        <GridLayout key={s.key} rows height="auto">
+        <GridLayout key={String(s.key)} rows height="auto">
           <GridBox
             sx={{
               height: "auto",
