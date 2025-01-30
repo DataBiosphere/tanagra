@@ -62,11 +62,20 @@ export function processFilterCountValues(
         if (!isValid(value)) {
           value = "Unknown";
         }
+        if (typeof value === "bigint") {
+          value = Number(value);
+        }
 
         let name: string | undefined = undefined;
         let numericId: number | undefined = undefined;
         let stringId: string | undefined = undefined;
         if (a.numericBucketing) {
+          if (typeof value !== "number") {
+            throw new Error(
+              `Numeric bucketing cannot be applied to non-numeric ${value}.`
+            );
+          }
+
           const thresholds = a.numericBucketing.thresholds ?? [];
           if (!thresholds.length) {
             const intervals = a.numericBucketing.intervals;
@@ -76,7 +85,7 @@ export function processFilterCountValues(
               );
             }
 
-            for (let i = 0; i < intervals.count + 1; i++) {
+            for (let i = 0; i < intervals.count + 1n; i++) {
               thresholds.push(
                 intervals.min + i * (intervals.max - intervals.min)
               );
@@ -192,7 +201,7 @@ export function processFilterCountValues(
 
   const limit = vizSource.attributes[0].limit;
   if (limit) {
-    let count = 0;
+    let count = 0n;
     for (let i = 1; i < arr.length; i++) {
       const ka = arr[i].keys[0];
       const kb = arr[i - 1].keys[0];

@@ -315,7 +315,7 @@ function AnnotationComponent(props: {
 
   // TODO(tjennison): Expand handling of older and newer revisions and improve
   // their UI once the API is updated.
-  const values = props.instance?.annotations?.[props.annotation.id];
+  const values = props.instance?.annotations?.get(props.annotation.id);
   const currentValue = values?.find((v) => v.current)?.value;
   const latestValue = values?.[values?.length]?.value;
 
@@ -339,9 +339,12 @@ function AnnotationComponent(props: {
             props.instance.data.key
           ),
         (instance: ReviewInstance) => {
-          instance.annotations[props.annotation.id] = instance.annotations[
-            props.annotation.id
-          ]?.filter((v) => !v.current);
+          instance.annotations.set(
+            props.annotation.id,
+            (instance.annotations.get(props.annotation.id) ?? []).filter(
+              (v) => !v.current
+            )
+          );
         }
       );
     } else {
@@ -432,17 +435,17 @@ function createUpdateCurrentValue(
   value: DataValue
 ) {
   const annotations = instance.annotations;
-  const cur = annotations[annotationId]?.find((v) => v.current);
+  const cur = annotations.get(annotationId)?.find((v) => v.current);
   if (cur) {
     cur.value = value;
   } else {
-    annotations[annotationId] = [
-      ...(annotations[annotationId] ?? []),
+    annotations.set(annotationId, [
+      ...(annotations.get(annotationId) ?? []),
       {
         current: true,
         instanceId: instance.data.key,
         value: value,
       },
-    ];
+    ]);
   }
 }

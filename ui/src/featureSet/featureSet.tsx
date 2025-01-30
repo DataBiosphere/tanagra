@@ -340,13 +340,13 @@ function Preview() {
             true
           );
 
-          const data: TreeGridData = {
-            root: { data: {}, children: [] },
-          };
+          const data: TreeGridData = new Map([
+            ["root", { data: {}, children: [] }],
+          ]);
 
           res.data.forEach((entry, i) => {
-            data[i] = { data: entry };
-            data.root?.children?.push(i);
+            data.set(i, { data: entry });
+            data.get("root")?.children?.push(i);
           });
 
           return {
@@ -371,7 +371,7 @@ function Preview() {
                 id: data.name,
                 title: data.name,
                 render: () =>
-                  data.data.root?.children?.length ? (
+                  data.data.get("root")?.children?.length ? (
                     previewOccurrences[i] ? (
                       <PreviewTable
                         occurrence={previewOccurrences[i]}

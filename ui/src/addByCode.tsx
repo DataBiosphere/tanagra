@@ -204,7 +204,7 @@ export function AddByCode() {
                   return undefined;
                 }
 
-                const item = data[id]?.data as LookupEntryItem;
+                const item = data.get(id)?.data as LookupEntryItem;
                 if (!item) {
                   return undefined;
                 }

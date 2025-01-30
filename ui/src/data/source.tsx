@@ -109,9 +109,7 @@ export type AnnotationValue = {
   current: boolean;
 };
 
-export type AnnotationEntry = {
-  [x: DataKey]: AnnotationValue[];
-};
+export type AnnotationEntry = Map<DataKey, AnnotationValue[]>;
 
 export type ReviewInstance = {
   data: DataEntry;
@@ -1620,7 +1618,7 @@ export function literalFromDataValue(value: DataValue): tanagra.Literal {
   return {
     dataType,
     valueUnion: {
-      int64Val: typeof value === "number" ? value : undefined,
+      int64Val: typeof value === "bigint" ? String(value) : undefined,
       stringVal: typeof value === "string" ? value : undefined,
       boolVal: typeof value === "boolean" ? value : undefined,
       dateVal: value instanceof Date ? value.toISOString() : undefined,
@@ -1634,7 +1632,9 @@ function dataValueFromLiteral(value?: tanagra.Literal | null): DataValue {
   }
   switch (value.dataType) {
     case tanagra.DataType.Int64:
-      return value.valueUnion?.int64Val ?? null;
+      return value.valueUnion?.int64Val
+        ? BigInt(value.valueUnion?.int64Val)
+        : null;
     case tanagra.DataType.String:
       return value.valueUnion?.stringVal ?? null;
     case tanagra.DataType.Date:
@@ -1656,7 +1656,7 @@ function dataValueFromLiteral(value?: tanagra.Literal | null): DataValue {
 
 export function protoFromDataKey(key: DataKey): keyProto.Key {
   return {
-    int64Key: typeof key === "number" ? key : undefined,
+    int64Key: typeof key === "bigint" ? key : undefined,
     stringKey: typeof key === "string" ? key : undefined,
   };
 }
@@ -1675,7 +1675,7 @@ export function dataKeyFromProto(key?: keyProto.Key): DataKey {
 
 export function protoFromDataValue(value: DataValue): valueProto.Value {
   return {
-    int64Value: typeof value === "number" ? value : undefined,
+    int64Value: typeof value === "bigint" ? value : undefined,
     stringValue: typeof value === "string" ? value : undefined,
     boolValue: typeof value === "boolean" ? value : undefined,
     timestampValue: value instanceof Date ? value : undefined,
@@ -1729,7 +1729,7 @@ function processEntitiesResponse(
         } else {
           ancestors = path
             .split(".")
-            .map((id) => (typeof data.key === "number" ? +id : id));
+            .map((id) => (typeof data.key === "bigint" ? String(id) : id));
         }
       }
 
@@ -1762,15 +1762,17 @@ function makeDataEntry(
   attributes?: { [key: string]: tanagra.ValueDisplay }
 ): DataEntry {
   const data: DataEntry = {
-    key: 0,
+    key: 0n,
   };
 
   processAttributes(data, attributes);
 
   const key = dataValueFromLiteral(attributes?.[primaryKey]?.value ?? null);
-  if (typeof key !== "string" && typeof key !== "number") {
+  if (typeof key !== "string" && typeof key !== "bigint") {
     throw new Error(
-      `Key attribute "${primaryKey}" not found in entity instance ${data}`
+      `Key attribute "${primaryKey}" not found in entity instance ${JSON.stringify(
+        data
+      )}`
     );
   }
   data.key = key;
@@ -2166,10 +2168,11 @@ function fromAPIReviewInstance(
 ): ReviewInstance {
   const data = makeDataEntry(primaryKey, instance.attributes);
 
-  const annotations: AnnotationEntry = {};
+  const annotations = new Map();
   for (const key in instance.annotations) {
-    annotations[key] = instance.annotations[key].map((v) =>
-      fromAPIAnnotationValue(v)
+    annotations.set(
+      key,
+      instance.annotations[key].map((v) => fromAPIAnnotationValue(v))
     );
   }
 

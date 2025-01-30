@@ -110,9 +110,7 @@ export function StudyOverview() {
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
-    const data: TreeGridData = {
-      root: { data: {}, children },
-    };
+    const data: TreeGridData = new Map([["root", { data: {}, children }]]);
 
     artifactsState.data?.forEach((artifact) => {
       const key = `${artifact.type}~${artifact.id}`;
@@ -144,7 +142,7 @@ export function StudyOverview() {
           ),
         },
       };
-      data[key] = item;
+      data.set(key, item);
     });
 
     return data;
@@ -202,7 +200,7 @@ export function StudyOverview() {
           </GridLayout>
         </GridBox>
         <Loading status={artifactsState}>
-          {!!data?.root?.children?.length ? (
+          {!!data?.get("root")?.children?.length ? (
             <TreeGrid
               columns={columns}
               data={data}

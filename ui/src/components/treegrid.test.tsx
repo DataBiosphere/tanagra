@@ -3,7 +3,12 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import IconButton from "@mui/material/IconButton";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
+import {
+  TreeGrid,
+  TreeGridData,
+  TreeGridId,
+  TreeGridItem,
+} from "components/treegrid";
 import React from "react";
 
 test("Table renders correctly", async () => {
@@ -27,33 +32,45 @@ test("Table renders correctly", async () => {
     },
   ];
 
-  const data: TreeGridData = {
-    root: {
-      data: {},
-      children: [1, 3],
-    },
-    1: {
-      data: {
-        col1: "1-col1",
-        col2: "1-col2",
+  const data = new Map<TreeGridId, TreeGridItem>([
+    [
+      "root",
+      {
+        data: {},
+        children: [1, 3],
       },
-      children: [2],
-    },
-    2: {
-      data: {
-        col1: "2-col1",
-        col2: "2-col2",
-        col3: "2-col3",
+    ],
+    [
+      1,
+      {
+        data: {
+          col1: "1-col1",
+          col2: "1-col2",
+        },
+        children: [2],
       },
-    },
-    3: {
-      data: {
-        col1: "3-col1",
-        col2: "3-col2",
-        col3: <AccountTreeIcon />,
+    ],
+    [
+      2,
+      {
+        data: {
+          col1: "2-col1",
+          col2: "2-col2",
+          col3: "2-col3",
+        },
       },
-    },
-  };
+    ],
+    [
+      3,
+      {
+        data: {
+          col1: "3-col1",
+          col2: "3-col2",
+          col3: <AccountTreeIcon />,
+        },
+      },
+    ],
+  ]);
 
   const rowCustomization = (id: TreeGridId) => {
     // Add variety to the rows.
