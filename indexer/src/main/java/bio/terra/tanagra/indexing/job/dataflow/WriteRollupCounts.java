@@ -178,6 +178,13 @@ public class WriteRollupCounts extends BigQueryJob {
             LOGGER.info("Max retries reached. Giving up.");
             throw e; // Rethrow after max attempts
           }
+
+          try {
+            Thread.sleep(1000); // Sleep for 1 second
+          } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Retry interrupted", ie);
+          }
         } else {
           throw e; // Rethrow if it's a different exception
         }
