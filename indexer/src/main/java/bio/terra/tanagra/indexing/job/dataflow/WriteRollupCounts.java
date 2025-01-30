@@ -160,15 +160,13 @@ public class WriteRollupCounts extends BigQueryJob {
       LOGGER.info("Rollup counts source SQL is defined. Skipping Dataflow job.");
     }
 
-    // Dataflow jobs can only write new rows to BigQuery, so in this second step, copy over the
-    // count values to the corresponding column in the index entity main table.
-    //    copyFieldsToEntityTable(isDryRun);
-
     final int maxRetries = 5;
     var attempt = 0;
 
     while (attempt < maxRetries) {
       try {
+        // Dataflow jobs can only write new rows to BigQuery, so in this second step, copy over the
+        // count values to the corresponding column in the index entity main table.
         copyFieldsToEntityTable(isDryRun);
         return; // Exit if successful
       } catch (BigQueryException e) {
