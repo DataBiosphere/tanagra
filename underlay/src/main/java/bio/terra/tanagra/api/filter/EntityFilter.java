@@ -36,6 +36,10 @@ public abstract class EntityFilter {
     return List.of();
   }
 
+  public List<String> getFilterAttributeNames() {
+    return getFilterAttributes().stream().map(Attribute::getName).toList();
+  }
+
   // TODO: Add logic here to merge filters automatically to get a simpler filter overall.
   public boolean isMergeable(EntityFilter entityFilter) {
     return false;
@@ -47,8 +51,8 @@ public abstract class EntityFilter {
   }
 
   public static boolean areSameFilterType(List<EntityFilter> filters) {
-    String filterType = filters.get(0).getClass().getName();
-    return filters.stream().allMatch(filter -> filter.getClass().getName().equals(filterType));
+    Class<?> firstClazz = filters.get(0).getClass();
+    return filters.stream().skip(1).allMatch(filter -> filter.getClass().equals(firstClazz));
   }
 
   @Override

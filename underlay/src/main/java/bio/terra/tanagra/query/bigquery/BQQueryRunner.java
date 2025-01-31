@@ -438,9 +438,7 @@ public class BQQueryRunner implements QueryRunner {
 
     // get a list of attributes filtered on, if implemented for the filter
     List<String> filterAttributeNames =
-        singleEntityFilter != null
-            ? singleEntityFilter.getFilterAttributes().stream().map(Attribute::getName).toList()
-            : List.of();
+        singleEntityFilter != null ? singleEntityFilter.getFilterAttributeNames() : List.of();
 
     // default: use entityMain table
     // check if: entity is optimized for search on filterAttributes &

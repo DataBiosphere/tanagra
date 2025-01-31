@@ -32,6 +32,7 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.query.bigquery.translator.filter.BQAttributeFilterTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
@@ -312,11 +313,6 @@ public interface ApiTranslator {
   ApiFilterTranslator translator(
       AttributeFilter attributeFilter, Map<Attribute, SqlField> attributeSwapFields);
 
-  Optional<ApiFilterTranslator> mergedTranslator(
-      List<AttributeFilter> attributeFilter,
-      LogicalOperator logicalOperator,
-      Map<Attribute, SqlField> attributeSwapFields);
-
   default ApiFilterTranslator translator(
       BooleanAndOrFilter booleanAndOrFilter, Map<Attribute, SqlField> attributeSwapFields) {
     return new BooleanAndOrFilterTranslator(this, booleanAndOrFilter, attributeSwapFields);
@@ -416,22 +412,17 @@ public interface ApiTranslator {
     }
   }
 
-  default Optional<ApiFilterTranslator> optionalMergedTranslator(
-      List<EntityFilter> entityFilters,
+  default <T extends EntityFilter> Optional<ApiFilterTranslator> mergedTranslator(
+      List<T> entityFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
-    // A list of sub-filters can be merged (optimized) if they are of the same type
-    // Additional checks may be needed for individual sub-filter types
-    EntityFilter firstFilter = entityFilters.get(0);
-
-    // At this time only optimize attribute filters are supported
-    if (!(firstFilter instanceof AttributeFilter)
-        || !EntityFilter.areSameFilterType(entityFilters)) {
-      return Optional.empty();
+    if (entityFilters.get(0) instanceof AttributeFilter) {
+      return BQAttributeFilterTranslator.mergedTranslator(
+          this,
+          entityFilters.stream().map(f -> (AttributeFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
     }
-    return mergedTranslator(
-        entityFilters.stream().map(filter -> (AttributeFilter) filter).toList(),
-        logicalOperator,
-        attributeSwapFields);
+    return Optional.empty();
   }
 }

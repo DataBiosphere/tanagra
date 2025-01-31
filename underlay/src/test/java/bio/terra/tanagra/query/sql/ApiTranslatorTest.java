@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableMap;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,12 +26,7 @@ import org.junit.jupiter.api.Test;
  * bio.terra.tanagra.query.sql.translator.ApiTranslator}.
  */
 public class ApiTranslatorTest {
-  private ApiTranslator apiTranslator;
-
-  @BeforeEach
-  void createTranslator() {
-    apiTranslator = new BQApiTranslator();
-  }
+  private final ApiTranslator apiTranslator = new BQApiTranslator();
 
   @Test
   void unaryFilter() {
