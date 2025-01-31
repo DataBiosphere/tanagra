@@ -57,21 +57,23 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
 
     Attribute attribute = singleFilter.getFilterAttributes().get(0);
     SqlField valueField = fetchSelectField(entityTable, attribute);
-    boolean useSearchOptTable =
+    boolean isSearchOptimized =
         entity.containsOptimizeSearchByAttributes(List.of(attribute.getName()));
 
     // optimized for search on attribute (dataType is not repeated in searchOptimized tables)
-    if (attribute.isDataTypeRepeated() && !useSearchOptTable) {
+    if (!isSearchOptimized && attribute.isDataTypeRepeated()) {
       return buildSqlForRepeatedAttribute(sqlParams, tableAlias, singleFilter, valueField);
     }
 
     String whereClause = buildWhereSql(singleFilter, sqlParams, tableAlias, valueField);
-    return useSearchOptTable
+    return isSearchOptimized
         ? searchOptimizedSql(singleFilter, tableAlias, whereClause)
         : whereClause;
   }
 
   private String buildSqlForList(SqlParams sqlParams, String tableAlias) {
+    // List is used only when all attrs are optimized for search together (private constructor).
+    // Attributes are not repeated in searchOptimized tables
     AttributeFilter firstFilter = attributeFilters.get(0);
     ITEntityMain entityTable =
         firstFilter.getUnderlay().getIndexSchema().getEntityMain(firstFilter.getEntity().getName());
@@ -79,14 +81,12 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
     String[] subFilterClauses =
         attributeFilters.stream()
             .map(
-                filter -> {
-                  Attribute attribute = filter.getFilterAttributes().get(0);
-                  SqlField valueField = fetchSelectField(entityTable, attribute);
-
-                  return attribute.isDataTypeRepeated()
-                      ? buildSqlForRepeatedAttribute(sqlParams, tableAlias, filter, valueField)
-                      : buildWhereSql(filter, sqlParams, tableAlias, valueField);
-                })
+                filter ->
+                    buildWhereSql(
+                        filter,
+                        sqlParams,
+                        tableAlias,
+                        fetchSelectField(entityTable, filter.getFilterAttributes().get(0))))
             .toList()
             .toArray(new String[0]);
     String whereClause = apiTranslator.booleanAndOrFilterSql(logicalOperator, subFilterClauses);
