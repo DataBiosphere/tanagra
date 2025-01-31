@@ -8,7 +8,6 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsLeafFilter;
@@ -47,7 +46,6 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public final class BQApiTranslator implements ApiTranslator {
   @Override
@@ -89,18 +87,6 @@ public final class BQApiTranslator implements ApiTranslator {
   public ApiFilterTranslator translator(
       AttributeFilter attributeFilter, Map<Attribute, SqlField> attributeSwapFields) {
     return new BQAttributeFilterTranslator(this, attributeFilter, attributeSwapFields);
-  }
-
-  @Override
-  public Optional<ApiFilterTranslator> mergedTranslator(
-      List<AttributeFilter> attributeFilters,
-      LogicalOperator logicalOperator,
-      Map<Attribute, SqlField> attributeSwapFields) {
-    return BQAttributeFilterTranslator.canMergeTranslation(attributeFilters)
-        ? Optional.of(
-            new BQAttributeFilterTranslator(
-                this, attributeFilters, logicalOperator, attributeSwapFields))
-        : Optional.empty();
   }
 
   @Override

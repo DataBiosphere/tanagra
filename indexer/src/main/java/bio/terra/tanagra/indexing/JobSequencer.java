@@ -74,15 +74,13 @@ public final class JobSequencer {
       jobSet.startNewStage();
 
       entity
-          .getOptimizeSearchByAttributes()
+          .getOptimizeSearchByAttributeNames()
           .forEach(
-              searchTableAttributes -> {
+              searchTableAttributeNames -> {
                 ITEntitySearchByAttributes searchTable =
                     underlay
                         .getIndexSchema()
-                        .getEntitySearchByAttributes(
-                            entity,
-                            searchTableAttributes.stream().map(Attribute::getName).toList());
+                        .getEntitySearchByAttributes(entity, searchTableAttributeNames);
                 jobSet.addJob(
                     new WriteEntitySearchByAttributes(
                         indexerConfig, entity, indexEntityMain, searchTable));

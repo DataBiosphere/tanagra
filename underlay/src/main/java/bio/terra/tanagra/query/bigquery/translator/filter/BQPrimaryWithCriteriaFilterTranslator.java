@@ -81,7 +81,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
 
     List<String> selectSqls = new ArrayList<>();
     CriteriaOccurrence criteriaOccurrence = primaryWithCriteriaFilter.getCriteriaOccurrence();
-    primaryWithCriteriaFilter.getCriteriaOccurrence().getOccurrenceEntities().stream()
+    criteriaOccurrence.getOccurrenceEntities().stream()
         .sorted(
             Comparator.comparing(
                 Entity::getName)) // Sort by name so the generated SQL is deterministic.
