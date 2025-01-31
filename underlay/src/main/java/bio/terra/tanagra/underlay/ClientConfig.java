@@ -23,7 +23,7 @@ public final class ClientConfig {
   private final ImmutableSet<SZGroupItems> groupItemsEntityGroups;
   private final ImmutableSet<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups;
   private final ImmutableList<SZCriteriaSelector> criteriaSelectors;
-  private final ImmutableSet<SZPrepackagedCriteria> prepackagedDataFeatures;
+  private final ImmutableList<SZPrepackagedCriteria> prepackagedDataFeatures;
   private final ImmutableList<SZVisualization> visualizations;
 
   public ClientConfig(
@@ -32,14 +32,14 @@ public final class ClientConfig {
       Set<SZGroupItems> groupItemsEntityGroups,
       Set<SZCriteriaOccurrence> criteriaOccurrenceEntityGroups,
       List<SZCriteriaSelector> criteriaSelectors,
-      Set<SZPrepackagedCriteria> prepackagedDataFeatures,
+      List<SZPrepackagedCriteria> prepackagedDataFeatures,
       List<SZVisualization> visualizations) {
     this.underlay = underlay;
     this.entities = ImmutableSet.copyOf(entities);
     this.groupItemsEntityGroups = ImmutableSet.copyOf(groupItemsEntityGroups);
     this.criteriaOccurrenceEntityGroups = ImmutableSet.copyOf(criteriaOccurrenceEntityGroups);
     this.criteriaSelectors = ImmutableList.copyOf(criteriaSelectors);
-    this.prepackagedDataFeatures = ImmutableSet.copyOf(prepackagedDataFeatures);
+    this.prepackagedDataFeatures = ImmutableList.copyOf(prepackagedDataFeatures);
     this.visualizations = ImmutableList.copyOf(visualizations);
   }
 
