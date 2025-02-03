@@ -3,7 +3,12 @@ import Chip from "@mui/material/Chip";
 import { createCriteria, lookupCriteria, LookupEntry } from "cohort";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
-import { TreeGrid, TreeGridColumn, TreeGridId } from "components/treeGrid";
+import {
+  TreeGrid,
+  TreeGridColumn,
+  TreeGridId,
+  TreeGridItem,
+} from "components/treeGrid";
 import { useArrayAsTreeGridData } from "components/treeGridHelpers";
 import ActionBar from "actionBar";
 import { DataKey } from "data/types";
@@ -20,7 +25,7 @@ import { cohortURL, useIsSecondBlock } from "router";
 import { insertCohortCriteria, useCohortContext } from "cohortContext";
 import { isValid } from "util/valid";
 
-type LookupEntryItem = {
+type LookupEntryData = {
   config?: JSX.Element;
   code: DataKey;
   name?: string;
@@ -44,7 +49,7 @@ export function AddByCode() {
     [underlay.criteriaSelectors]
   );
 
-  const lookupEntriesState = useSWRMutation<LookupEntryItem[]>(
+  const lookupEntriesState = useSWRMutation<LookupEntryData[]>(
     {
       component: "AddByCode",
       query,
@@ -106,7 +111,7 @@ export function AddByCode() {
   const data = useArrayAsTreeGridData(lookupEntriesState?.data ?? [], "code");
 
   const onInsert = useCallback(() => {
-    const configMap = new Map<string, LookupEntryItem[]>();
+    const configMap = new Map<string, LookupEntryData[]>();
     lookupEntriesState.data?.forEach((e) => {
       if (!e.entry || !selected.has(e.code)) {
         return;
@@ -203,19 +208,13 @@ export function AddByCode() {
         </GridBox>
         <Loading immediate showProgressOnMutate status={lookupEntriesState}>
           {lookupEntriesState.data?.length ? (
-            <TreeGrid
+            <TreeGrid<TreeGridItem<LookupEntryData>>
               columns={columns}
               data={data}
-              rowCustomization={(id: TreeGridId) => {
-                if (!lookupEntriesState.data) {
-                  return undefined;
-                }
-
-                const item = data.get(id)?.data as LookupEntryItem;
-                if (!item) {
-                  return undefined;
-                }
-
+              rowCustomization={(
+                id: TreeGridId,
+                { data }: TreeGridItem<LookupEntryData>
+              ) => {
                 const sel = selected.has(id);
                 return [
                   {
@@ -225,7 +224,7 @@ export function AddByCode() {
                         size="small"
                         fontSize="inherit"
                         checked={sel}
-                        disabled={!item.entry}
+                        disabled={!data.entry}
                         onChange={() => {
                           updateSelected((selected) => {
                             if (sel) {

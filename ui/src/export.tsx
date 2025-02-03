@@ -27,7 +27,7 @@ import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { Tabs as TanagraTabs } from "components/tabs";
-import { TreeGrid, TreeGridData } from "components/treeGrid";
+import { TreeGrid, TreeGridData, TreeGridId } from "components/treeGrid";
 import { Cohort, ExportModel, ExportResultLink, FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -496,19 +496,21 @@ function PreviewTable(props: PreviewTableProps) {
             props.featureSets
           );
 
-          const data: TreeGridData = new Map([
-            ["root", { data: {}, children: [] }],
-          ]);
+          const children: TreeGridId[] = [];
+          const rows = new Map();
 
           res.data.forEach((entry, i) => {
-            data.set(i, { data: entry });
-            data.get("root")?.children?.push(i);
+            rows.set(i, { data: entry });
+            children.push(i);
           });
 
           return {
             name: filters.name,
             sql: filters.sql ?? res.sql,
-            data: data,
+            data: {
+              rows,
+              children,
+            },
           };
         })
       );
@@ -572,8 +574,7 @@ function PreviewTable(props: PreviewTableProps) {
                   </Typography>
                 </GridBox>
               ) : tabDataState.data?.[tab]?.data ? (
-                tabDataState.data?.[tab]?.data?.get("root")?.children
-                  ?.length ? (
+                tabDataState.data?.[tab]?.data?.children?.length ? (
                   <TreeGrid
                     data={tabDataState.data?.[tab]?.data}
                     columns={props.occurrenceFilters[tab]?.attributes.map(

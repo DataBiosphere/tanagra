@@ -7,14 +7,14 @@ describe("Basic tests", () => {
     cy.wait(2000);
 
     cy.iframe().find("a:Contains(Add a data feature)").first().click();
-    cy.iframe().find("[data-testid='tanagra-procedures']").click();
-    cy.iframe().find("input").type("Screening procedure");
-    cy.possiblyMultiSelect("Screening procedure");
-
-    cy.iframe().find("button:Contains(Add data feature)").click();
     cy.iframe().find("[data-testid='tanagra-conditions']").click();
     cy.iframe().find("input").type("Red color");
     cy.possiblyMultiSelect("Red color");
+
+    cy.iframe().find("button:Contains(Add data feature)").click();
+    cy.iframe().find("[data-testid='tanagra-procedures']").click();
+    cy.iframe().find("input").type("Screening procedure");
+    cy.possiblyMultiSelect("Screening procedure");
 
     cy.iframe().find("button:Contains(procedureOccurrence)").click();
     cy.iframe().find("[name='procedure']").click();
