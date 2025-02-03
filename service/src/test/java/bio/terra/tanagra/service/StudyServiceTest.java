@@ -40,7 +40,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class StudyServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(StudyServiceTest.class);
   private static final String USER_EMAIL_1 = "abc@123.com";
-
   @Autowired private ActivityLogService activityLogService;
   @Autowired private StudyService studyService;
 

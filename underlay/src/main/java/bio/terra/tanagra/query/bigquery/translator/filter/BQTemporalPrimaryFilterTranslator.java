@@ -30,7 +30,6 @@ public class BQTemporalPrimaryFilterTranslator extends ApiFilterTranslator {
   private static final String VISIT_DATE_ALIAS = "visitDate";
   private static final String VISIT_OCCURRENCE_ID_ALIAS = "visitOccurrenceId";
   private static final String ORDER_RANK_ALIAS = "orderRank";
-
   private final TemporalPrimaryFilter temporalPrimaryFilter;
 
   public BQTemporalPrimaryFilterTranslator(

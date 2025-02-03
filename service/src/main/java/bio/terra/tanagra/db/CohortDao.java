@@ -166,9 +166,7 @@ public class CohortDao {
             .addValue("study_id", studyId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<Cohort> cohorts = getCohortsHelper(sql, params);
-    LOGGER.debug("GET ALL cohorts numFound = {}", cohorts.size());
-    return cohorts;
+    return getCohortsHelper(sql, params);
   }
 
   @ReadTransaction
@@ -182,9 +180,7 @@ public class CohortDao {
             .addValue("ids", ids)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<Cohort> cohorts = getCohortsHelper(sql, params);
-    LOGGER.debug("GET MATCHING cohorts numFound = {}", cohorts.size());
-    return cohorts;
+    return getCohortsHelper(sql, params);
   }
 
   @ReadTransaction
@@ -194,7 +190,6 @@ public class CohortDao {
     LOGGER.debug("GET cohort: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<Cohort> cohorts = getCohortsHelper(sql, params);
-    LOGGER.debug("GET cohort numFound = {}", cohorts.size());
 
     // Make sure there's only one cohort returned for this id.
     if (cohorts.isEmpty()) {

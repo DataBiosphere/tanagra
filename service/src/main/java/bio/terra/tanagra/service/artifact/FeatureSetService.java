@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class FeatureSetService {
   private static final Logger LOGGER = LoggerFactory.getLogger(FeatureSetService.class);
-
   private final FeatureSetDao featureSetDao;
   private final UnderlayService underlayService;
   private final StudyService studyService;

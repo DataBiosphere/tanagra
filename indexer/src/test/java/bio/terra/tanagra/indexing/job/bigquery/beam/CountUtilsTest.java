@@ -16,11 +16,7 @@ import org.junit.Test;
 
 public class CountUtilsTest {
   @Rule public final transient TestPipeline pipeline = TestPipeline.create();
-
-  // list of (5) all nodes
   private static final List<Long> ALL_NODES_5 = List.of(10L, 11L, 12L, 13L, 14L);
-
-  // list of (10) all nodes
   private static final List<Long> ALL_NODES_10 =
       List.of(10L, 11L, 12L, 13L, 14L, 15L, 16L, 17L, 18L, 19L);
 

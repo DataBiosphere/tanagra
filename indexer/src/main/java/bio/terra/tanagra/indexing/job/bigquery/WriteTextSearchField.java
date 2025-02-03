@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 public class WriteTextSearchField extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteTextSearchField.class);
-
   private final Entity entity;
   private final @Nullable STTextSearchTerms sourceTable;
   private final ITEntityMain indexTable;

@@ -50,10 +50,8 @@ public class FeatureSetServiceTest {
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
   private static final List<String> PERSON_ATTRIBUTES = List.of("gender", "age");
-
   @Autowired private StudyService studyService;
   @Autowired private FeatureSetService featureSetService;
-
   private Study study1;
   private Study study2;
 

@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 public class WriteInstanceLevelDisplayHints extends BigQueryJob {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(WriteInstanceLevelDisplayHints.class);
-
   private final CriteriaOccurrence criteriaOccurrence;
   private final Entity occurrenceEntity;
   private final ITEntityMain criteriaEntityIndexTable;

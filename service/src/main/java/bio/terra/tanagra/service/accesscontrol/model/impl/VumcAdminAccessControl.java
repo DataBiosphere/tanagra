@@ -37,7 +37,6 @@ import org.vumc.vda.tanagra.admin.model.SystemVersion;
 public class VumcAdminAccessControl implements StudyAccessControl {
   private static final Logger LOGGER = LoggerFactory.getLogger(VumcAdminAccessControl.class);
   private static final String USE_ADC = "USE_ADC";
-
   private String basePath;
   private String oauthClientId;
   private boolean useAdc;

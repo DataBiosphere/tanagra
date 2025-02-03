@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  */
 public class WriteAncestorDescendant extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteAncestorDescendant.class);
-
   private static final String CHILD_COLUMN_NAME = "child";
   private static final String PARENT_COLUMN_NAME = "parent";
   private final Hierarchy hierarchy;

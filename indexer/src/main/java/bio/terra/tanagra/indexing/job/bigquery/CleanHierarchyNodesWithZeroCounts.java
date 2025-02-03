@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CleanHierarchyNodesWithZeroCounts extends BigQueryJob {
-
   private static final Logger LOGGER =
       LoggerFactory.getLogger(CleanHierarchyNodesWithZeroCounts.class);
   private final EntityGroup entityGroup;

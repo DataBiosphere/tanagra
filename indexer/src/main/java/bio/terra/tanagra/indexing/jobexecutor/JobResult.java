@@ -11,17 +11,14 @@ import org.slf4j.LoggerFactory;
 /** Output of a thread that runs a single indexing job. */
 public class JobResult {
   private static final Logger LOGGER = LoggerFactory.getLogger(JobResult.class);
-
   private final String jobName;
   private final String threadName;
   @Nullable private final String entity;
   @Nullable private final String entityGroup;
-
   private IndexingJob.JobStatus jobStatus;
   private boolean threadTerminatedOnTime;
   private boolean jobStatusAsExpected;
   private long elapsedTimeNS;
-
   private boolean exceptionWasThrown;
   private String exceptionStackTrace;
   private String exceptionMessage;
@@ -32,7 +29,6 @@ public class JobResult {
     this.threadName = threadName;
     this.entity = entity;
     this.entityGroup = entityGroup;
-
     this.threadTerminatedOnTime = false;
     this.jobStatusAsExpected = false;
     this.exceptionWasThrown = false;

@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CohortService {
   private static final Logger LOGGER = LoggerFactory.getLogger(CohortService.class);
-
   private final CohortDao cohortDao;
   private final UnderlayService underlayService;
   private final StudyService studyService;

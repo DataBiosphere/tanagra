@@ -20,19 +20,15 @@ public class TanagraDatabaseConfiguration {
   private final DataSource dataSource;
 
   public TanagraDatabaseConfiguration(TanagraDatabaseProperties databaseProperties) {
-    boolean useCloudSqlConnector = StringUtils.isNotEmpty(databaseProperties.getCloudSqlInstance());
-
-    if (useCloudSqlConnector) {
+    if (StringUtils.isNotEmpty(databaseProperties.getCloudSqlInstance())) {
       // Connect to application DB using CloudSQL connector (e.g. when deployed in AppEngine).
       HikariConfig config = new HikariConfig();
       config.setJdbcUrl(databaseProperties.getUri());
       config.setUsername(databaseProperties.getUsername());
       config.setPassword(databaseProperties.getPassword());
       config.setDriverClassName(databaseProperties.getDriverClassName());
-
       config.addDataSourceProperty("cloudSqlInstance", databaseProperties.getCloudSqlInstance());
       config.addDataSourceProperty("socketFactory", databaseProperties.getSocketFactory());
-
       if (StringUtils.isNotEmpty(databaseProperties.getIpTypes())) {
         config.addDataSourceProperty("ipTypes", databaseProperties.getIpTypes());
       }

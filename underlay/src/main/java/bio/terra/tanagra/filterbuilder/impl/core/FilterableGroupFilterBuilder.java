@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FilterableGroupFilterBuilder
     extends FilterBuilder<CFFilterableGroup.FilterableGroup, DTFilterableGroup.FilterableGroup> {
-
   public FilterableGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }

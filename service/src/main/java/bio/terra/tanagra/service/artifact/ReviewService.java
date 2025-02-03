@@ -57,7 +57,6 @@ import org.springframework.stereotype.Component;
 public class ReviewService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewService.class);
   public static final int MAX_REVIEW_SIZE = 10_000;
-
   private final CohortService cohortService;
   private final UnderlayService underlayService;
   private final AnnotationService annotationService;

@@ -27,7 +27,6 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class ActivityLogApiController implements ActivityLogApi {
-
   private final ActivityLogService activityLogService;
   private final AccessControlService accessControlService;
 

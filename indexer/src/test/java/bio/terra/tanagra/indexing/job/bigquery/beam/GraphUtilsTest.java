@@ -15,7 +15,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class GraphUtilsTest {
-
   @Rule public final transient TestPipeline pipeline = TestPipeline.create();
 
   /**

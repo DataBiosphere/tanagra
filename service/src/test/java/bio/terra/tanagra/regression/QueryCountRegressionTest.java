@@ -50,13 +50,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class QueryCountRegressionTest extends BaseSpringUnitTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryCountRegressionTest.class);
   private static final String USER_EMAIL_1 = "abc@123.com";
-
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private FeatureSetService featureSetService;
   @Autowired private CohortService cohortService;
   @Autowired private DataExportService dataExportService;
-
   private Study study1;
 
   @BeforeEach
