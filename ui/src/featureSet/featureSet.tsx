@@ -23,7 +23,7 @@ import { SaveStatus } from "components/saveStatus";
 import { useSimpleDialog } from "components/simpleDialog";
 import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
-import { TreeGrid, TreeGridData } from "components/treeGrid";
+import { TreeGrid, TreeGridData, TreeGridId } from "components/treeGrid";
 import { Criteria } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -344,19 +344,21 @@ function Preview() {
             true
           );
 
-          const data: TreeGridData = new Map([
-            ["root", { data: {}, children: [] }],
-          ]);
+          const children: TreeGridId[] = [];
+          const rows = new Map();
 
           res.data.forEach((entry, i) => {
-            data.set(i, { data: entry });
-            data.get("root")?.children?.push(i);
+            rows.set(i, { data: entry });
+            children?.push(i);
           });
 
           return {
             id: params.id,
             name: params.name,
-            data: data,
+            data: {
+              rows,
+              children,
+            },
             attributes: params.attributes,
           };
         })
@@ -375,7 +377,7 @@ function Preview() {
                 id: data.name,
                 title: data.name,
                 render: () =>
-                  data.data.get("root")?.children?.length ? (
+                  data.data.children?.length ? (
                     previewOccurrences[i] ? (
                       <PreviewTable
                         occurrence={previewOccurrences[i]}

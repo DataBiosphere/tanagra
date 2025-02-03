@@ -23,7 +23,7 @@ import {
   TreeGrid,
   TreeGridId,
   TreeGridItem,
-  TreeGridRowData,
+  TreeGridData,
 } from "components/treeGrid";
 import { MergedItem } from "data/mergeLists";
 import { Criteria, isTemporalSection } from "data/source";
@@ -366,9 +366,7 @@ function AddCriteria(props: AddCriteriaProps) {
 
   const search = useCallback(async () => {
     const children: DataKey[] = [];
-    const data = new Map<TreeGridId, CriteriaItem>([
-      ["root", { data: {}, children }],
-    ]);
+    const rows = new Map<TreeGridId, CriteriaItem>();
 
     if (query) {
       const res = await searchCriteria(
@@ -390,13 +388,16 @@ function AddCriteria(props: AddCriteriaProps) {
           },
           entry: entry,
         };
-        data.set(key, item);
+        rows.set(key, item);
       });
     }
 
-    return data;
+    return {
+      rows,
+      children,
+    };
   }, [underlaySource, query, selectedOptions, optionsMap]);
-  const searchState = useSWRImmutable<Map<TreeGridId, CriteriaItem>>(
+  const searchState = useSWRImmutable<TreeGridData<CriteriaItem>>(
     {
       component: "AddCriteria",
       underlayName: underlay.name,
@@ -540,7 +541,7 @@ function AddCriteria(props: AddCriteriaProps) {
         {query ? (
           <Paper>
             <Loading status={searchState}>
-              {!searchState.data?.get("root")?.children?.length ? (
+              {!searchState.data?.children?.length ? (
                 <Empty
                   minHeight="300px"
                   image={emptyImage}
@@ -549,17 +550,9 @@ function AddCriteria(props: AddCriteriaProps) {
               ) : (
                 <TreeGrid
                   columns={columns}
-                  data={searchState.data ?? new Map()}
-                  rowCustomization={(
-                    id: TreeGridId,
-                    rowData: TreeGridRowData
-                  ) => {
-                    if (!searchState.data) {
-                      return undefined;
-                    }
-
-                    const item = searchState.data.get(id);
-                    const option = optionsMap.get(item?.entry?.source ?? "");
+                  data={searchState.data}
+                  rowCustomization={(id, item) => {
+                    const option = optionsMap.get(item.entry?.source ?? "");
                     if (!option || !item?.entry?.source) {
                       throw new Error(
                         `Item source "${item?.entry?.source}" doesn't match any criteria config ID.`
@@ -572,7 +565,9 @@ function AddCriteria(props: AddCriteriaProps) {
                         content: (
                           <GridLayout colAlign="center">
                             <Button
-                              data-testid={rowData[searchConfig.columns[0].key]}
+                              data-testid={
+                                item.data[searchConfig.columns[0].key]
+                              }
                               onClick={() => onClick(option, item.entry?.data)}
                               variant="outlined"
                             >

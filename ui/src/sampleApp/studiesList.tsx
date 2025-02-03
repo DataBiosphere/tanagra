@@ -6,7 +6,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
 import { useTextInputDialog } from "components/textInputDialog";
-import { TreeGrid, TreeGridData } from "components/treeGrid";
+import { TreeGrid } from "components/treeGrid";
 import { useStudySource } from "data/studySourceContext";
 import { DataKey } from "data/types";
 import GridLayout from "layout/gridLayout";
@@ -71,7 +71,7 @@ export function StudiesList() {
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
-    const data: TreeGridData = new Map([["root", { data: {}, children }]]);
+    const rows = new Map();
 
     studiesState.data?.forEach((study) => {
       const key = study.id;
@@ -117,10 +117,13 @@ export function StudiesList() {
           ),
         },
       };
-      data.set(key, item);
+      rows.set(key, item);
     });
 
-    return data;
+    return {
+      children,
+      rows,
+    };
   }, [studiesState, showConfirmDialog, listStudies, studySource]);
 
   return (
@@ -131,7 +134,7 @@ export function StudiesList() {
       <Header />
       <Loading status={studiesState}>
         <GridLayout rows spacing={4}>
-          {data?.get("root")?.children?.length ? (
+          {data?.children?.length ? (
             <TreeGrid columns={columns} data={data} />
           ) : (
             <Empty

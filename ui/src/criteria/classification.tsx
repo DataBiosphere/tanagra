@@ -324,9 +324,9 @@ export function ClassificationEdit(props: ClassificationEditProps) {
       nodes: MergedItem<EntityNode>[],
       hierarchy?: DataKey[],
       parent?: DataKey,
-      prevData?: TreeGridData
-    ): Map<TreeGridId, EntityNodeItem> => {
-      const data = prevData ?? new Map();
+      prevData?: TreeGridData<EntityNodeItem>
+    ): TreeGridData<EntityNodeItem> => {
+      const data = prevData ?? { rows: new Map(), children: [] };
 
       const children: DataKey[] = [];
       nodes.forEach(({ source: entityGroup, data: node }) => {
@@ -348,7 +348,7 @@ export function ClassificationEdit(props: ClassificationEditProps) {
         // Copy over existing children in case they're being loaded in
         // parallel. Grouping children and non-grouping, non-hierarchy nodes
         // always have no children.
-        let childChildren = data.get(key)?.children;
+        let childChildren = data.rows.get(key)?.children;
         if (!childChildren) {
           if (
             (!hierarchy && group && parent) ||
@@ -366,17 +366,14 @@ export function ClassificationEdit(props: ClassificationEditProps) {
           entityGroup,
           groupingNode: !!group && !parent,
         };
-        data.set(key, cItem);
+        data.rows.set(key, cItem);
       });
 
       if (parent) {
         // Store children even if the data isn't loaded yet.
-        data.set(parent, { ...data.get(parent), children });
+        data.rows.set(parent, { ...data.rows.get(parent), children });
       } else {
-        data.set("root", {
-          children: [...(data?.get("root")?.children || []), ...children],
-          data: {},
-        });
+        data.children = [...(data.children ?? []), ...children];
       }
 
       return data;
@@ -538,7 +535,7 @@ export function ClassificationEdit(props: ClassificationEditProps) {
 
   // Partially update the state when expanding rows in the hierarchy view.
   const updateData = useCallback(
-    (data: Map<TreeGridId, EntityNodeItem>) => {
+    (data: TreeGridData<EntityNodeItem>) => {
       instancesState.mutate(data, { revalidate: false });
     },
     [instancesState]
@@ -642,7 +639,7 @@ export function ClassificationEdit(props: ClassificationEditProps) {
             </GridBox>
           </GridBox>
           <Loading status={instancesState}>
-            {!instancesState.data?.get("root")?.children?.length ? (
+            {!instancesState.data?.children?.length ? (
               <Empty
                 minHeight="300px"
                 image={emptyImage}
@@ -656,23 +653,12 @@ export function ClassificationEdit(props: ClassificationEditProps) {
                 highlightId={searchState?.highlightId}
                 expandable
                 reserveExpansionSpacing={!!searchState?.hierarchy}
-                rowCustomization={(
-                  id: TreeGridId,
-                  rowData: TreeGridRowData
-                ) => {
-                  if (!instancesState.data) {
+                rowCustomization={(id, item) => {
+                  if (item.groupingNode) {
                     return undefined;
                   }
 
-                  // TODO(tjennison): Make TreeGridData's type generic so we can
-                  // avoid this type assertion. Also consider passing the
-                  // TreeGridItem to the callback instead of the TreeGridRowData.
-                  const item = instancesState.data.get(id) as EntityNodeItem;
-                  if (!item || item.groupingNode) {
-                    return undefined;
-                  }
-
-                  const name = rowData[nameAttribute(props.config)];
+                  const name = item.data[nameAttribute(props.config)];
                   const newItem = {
                     key: item.node.data.key,
                     name: name ? String(name) : "",
@@ -689,9 +675,10 @@ export function ClassificationEdit(props: ClassificationEditProps) {
                       onClick={() => {
                         setHierarchyQuery(undefined);
                         updateSearchState((data: SearchState) => {
-                          if (rowData.view_hierarchy) {
+                          if (item.data.view_hierarchy) {
                             data.hierarchyEntityGroup = item.entityGroup;
-                            data.hierarchy = rowData.view_hierarchy as string[];
+                            data.hierarchy = item.data
+                              .view_hierarchy as string[];
                             data.highlightId = id;
                           }
                         });
@@ -791,14 +778,14 @@ export function ClassificationEdit(props: ClassificationEditProps) {
 
                   return [...listContent, ...hierarchyContent];
                 }}
-                loadChildren={(id: TreeGridId) => {
+                loadChildren={(id) => {
                   const data = instancesState.data;
                   if (!data) {
                     return Promise.resolve();
                   }
 
                   const findEntityGroupConfig = () => {
-                    const item = data.get(id) as EntityNodeItem;
+                    const item = data.rows.get(id);
                     if (item) {
                       const config = configEntityGroups(props.config).find(
                         (eg) => eg.id === item.entityGroup
