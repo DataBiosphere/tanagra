@@ -13,7 +13,6 @@ import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
 import bio.terra.tanagra.utils.threadpool.Job;
 import bio.terra.tanagra.utils.threadpool.JobResult;
@@ -42,7 +41,6 @@ public class DataExportHelper {
   private final ExportRequest exportRequest;
   private final ImmutableList<EntityOutput> entityOutputs;
   private final EntityFilter primaryEntityFilter;
-  private GoogleCloudStorage googleCloudStorage;
 
   public DataExportHelper(
       Integer maxChildThreads,

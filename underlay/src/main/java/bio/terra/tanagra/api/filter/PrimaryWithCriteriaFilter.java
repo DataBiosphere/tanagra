@@ -15,7 +15,6 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 public class PrimaryWithCriteriaFilter extends EntityFilter {
-
   private final CriteriaOccurrence criteriaOccurrence;
   private final EntityFilter criteriaSubFilter;
   private final ImmutableMap<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity;

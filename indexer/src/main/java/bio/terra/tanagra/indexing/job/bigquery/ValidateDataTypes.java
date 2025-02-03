@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 public class ValidateDataTypes extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(ValidateDataTypes.class);
-
   private final Entity entity;
   private final STEntityAttributes sourceTable;
   private final ITEntityMain indexTable;

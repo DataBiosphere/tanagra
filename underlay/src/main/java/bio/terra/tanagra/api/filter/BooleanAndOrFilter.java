@@ -9,7 +9,6 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 public class BooleanAndOrFilter extends EntityFilter {
-
   public enum LogicalOperator {
     AND,
     OR

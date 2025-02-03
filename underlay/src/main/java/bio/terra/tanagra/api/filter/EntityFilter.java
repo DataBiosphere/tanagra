@@ -8,7 +8,6 @@ import java.util.Objects;
 import org.slf4j.Logger;
 
 public abstract class EntityFilter {
-
   private final Logger logger;
   private final Underlay underlay;
   private final Entity entity;

@@ -55,7 +55,6 @@ import org.apache.commons.text.StringSubstitutor;
 public interface ApiTranslator {
   String FUNCTION_TEMPLATE_FIELD_VAR = "fieldSql";
   String FUNCTION_TEMPLATE_FIELD_VAR_BRACES = "${" + FUNCTION_TEMPLATE_FIELD_VAR + "}";
-
   String FUNCTION_TEMPLATE_VALUES_VAR = "values";
   String FUNCTION_TEMPLATE_VALUES_VAR_BRACES = "${" + FUNCTION_TEMPLATE_VALUES_VAR + "}";
 

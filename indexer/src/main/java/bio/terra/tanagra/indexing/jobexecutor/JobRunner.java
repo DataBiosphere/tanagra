@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutionException;
 public abstract class JobRunner {
   protected static final long MAX_TIME_PER_JOB_MIN = 60;
   protected static final long MAX_TIME_PER_JOB_DRY_RUN_MIN = 10;
-
   protected final List<SequencedJobSet> jobSets;
   protected final boolean isDryRun;
   protected final IndexingJob.RunType runType;

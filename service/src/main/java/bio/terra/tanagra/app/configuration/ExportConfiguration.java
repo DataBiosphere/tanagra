@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "tanagra.export")
 public class ExportConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportConfiguration.class);
-
   private Shared shared;
   private List<PerModel> models;
 

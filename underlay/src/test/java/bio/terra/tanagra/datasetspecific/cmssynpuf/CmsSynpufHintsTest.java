@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 @Tag("broad-underlays")
 public class CmsSynpufHintsTest extends BaseHintsTest {
-
   @Override
   protected String getServiceConfigName() {
     return CMSSYNPUF.fileName();

@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "tanagra.jdbc")
 public class JdbcConfiguration {
-
   /** The DataSources available for Tanagra to connect to. */
   private List<JdbcDataSourceConfiguration> dataSources = new ArrayList<>();
 

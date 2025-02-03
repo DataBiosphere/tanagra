@@ -89,9 +89,7 @@ public class ReviewDao {
             .addValue("cohort_id", cohortId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<Review> reviews = getReviewsHelper(sql, params);
-    LOGGER.debug("GET ALL reviews numFound = {}", reviews.size());
-    return reviews;
+    return getReviewsHelper(sql, params);
   }
 
   @ReadTransaction
@@ -105,9 +103,7 @@ public class ReviewDao {
             .addValue("ids", ids)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<Review> reviews = getReviewsHelper(sql, params);
-    LOGGER.debug("GET MATCHING reviews numFound = {}", reviews.size());
-    return reviews;
+    return getReviewsHelper(sql, params);
   }
 
   @ReadTransaction
@@ -117,7 +113,6 @@ public class ReviewDao {
     LOGGER.debug("GET review: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<Review> reviews = getReviewsHelper(sql, params);
-    LOGGER.debug("GET review numFound = {}", reviews.size());
 
     // Make sure there's only one review returned for this id.
     if (reviews.isEmpty()) {
