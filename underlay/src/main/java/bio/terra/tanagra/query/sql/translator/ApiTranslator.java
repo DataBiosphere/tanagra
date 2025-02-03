@@ -32,7 +32,6 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.exception.SystemException;
-import bio.terra.tanagra.query.bigquery.translator.filter.BQAttributeFilterTranslator;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.SqlQueryField;
@@ -407,17 +406,38 @@ public interface ApiTranslator {
     } else if (entityFilter instanceof TemporalPrimaryFilter) {
       return translator((TemporalPrimaryFilter) entityFilter, attributeSwapFields);
     } else {
-      throw new InvalidQueryException("No SQL translator defined for filter");
+      throw new InvalidQueryException(
+          "No SQL translator defined for filter type: " + entityFilter.getClass().getSimpleName());
     }
   }
 
-  default <T extends EntityFilter> Optional<ApiFilterTranslator> mergedTranslator(
-      List<T> entityFilters,
+  Optional<ApiFilterTranslator> mergedTranslatorAttributeFilter(
+      List<AttributeFilter> attributeFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  default Optional<ApiFilterTranslator> mergedTranslator(
+      List<EntityFilter> entityFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
-    if (entityFilters.get(0) instanceof AttributeFilter) {
-      return BQAttributeFilterTranslator.mergedTranslator(
-          this,
+    if (entityFilters.isEmpty()) {
+      return Optional.empty();
+    }
+
+    // 1) Common to ALL filter types: Must be of the same type & on same entity
+    if (!EntityFilter.areSameFilterTypeAndEntity(entityFilters)) {
+      return Optional.empty();
+    }
+
+    // 2) Filter-type specific: Check the filter fields that lead to sub-queries or nested-filters.
+    // Example (2a): Attribute, Test filters are terminal since they do not involve sub-filters
+    // during translation. Hence, it is sufficient to check attribute field for mergeability.
+    // Example (2b): BooleanNot, BooleanAndOr, PrimaryWithCriteria filter are NOT terminal since
+    // they always include sub filters during translation. Hence, it is necessary to check all
+    // other fields that lead to a sub-filter.
+    EntityFilter entityFilter = entityFilters.get(0);
+    if (entityFilter instanceof AttributeFilter) {
+      return mergedTranslatorAttributeFilter(
           entityFilters.stream().map(f -> (AttributeFilter) f).toList(),
           logicalOperator,
           attributeSwapFields);

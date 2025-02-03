@@ -14,7 +14,6 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttributes;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -162,26 +161,12 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
       List<AttributeFilter> attributeFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
-    if (attributeFilters.isEmpty()) {
-      return Optional.empty();
-    }
-
     Entity firstEntity = attributeFilters.get(0).getEntity();
-    String firstEntityName = firstEntity.getName();
-    List<String> allFilterAttributeNames = new ArrayList<>();
+    List<String> allFilterAttributeNames =
+        attributeFilters.stream().flatMap(l -> l.getFilterAttributeNames().stream()).toList();
 
-    // condition-1: all filters must be on the same entity
-    if (attributeFilters.stream()
-        .anyMatch(
-            filter -> {
-              allFilterAttributeNames.addAll(filter.getFilterAttributeNames());
-              return !filter.getEntity().getName().equals(firstEntityName);
-            })) {
-      return Optional.empty();
-    }
-
-    // condition-2: all attrs must be optimized for search together
-    // if only (1), the filters are already run on the same table, no change needed
+    // All attrs must be optimized for search together.
+    // Otherwise, the filters may already run on the same table, no change needed
     return firstEntity.containsOptimizeSearchByAttributes(allFilterAttributeNames)
         ? Optional.of(
             new BQAttributeFilterTranslator(

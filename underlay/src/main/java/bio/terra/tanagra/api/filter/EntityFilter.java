@@ -40,6 +40,7 @@ public abstract class EntityFilter {
   }
 
   // TODO: Add logic here to merge filters automatically to get a simpler filter overall.
+  // Current filter generation logic is in both UI and Underlay, hence only merge translation
   public boolean isMergeable(EntityFilter entityFilter) {
     return false;
   }
@@ -49,9 +50,15 @@ public abstract class EntityFilter {
     return null;
   }
 
-  public static boolean areSameFilterType(List<EntityFilter> filters) {
+  public static boolean areSameFilterTypeAndEntity(List<EntityFilter> filters) {
     Class<?> firstClazz = filters.get(0).getClass();
-    return filters.stream().skip(1).allMatch(filter -> filter.getClass().equals(firstClazz));
+    String firstEntityName = filters.get(0).getEntity().getName();
+    return filters.stream()
+        .skip(1)
+        .allMatch(
+            filter ->
+                filter.getClass().equals(firstClazz)
+                    && filter.getEntity().getName().equals(firstEntityName));
   }
 
   @Override
