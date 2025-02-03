@@ -136,9 +136,6 @@ FROM `${omopDataset}.observation` AS o
                    ON sv.survey_conduct_id = o.questionnaire_response_id
          LEFT JOIN `${omopDataset}.concept` AS svc
                    ON svc.concept_id = sv.survey_concept_id
-WHERE sv.survey_concept_id IN (
-    2100000002, 2100000003, 2100000004, 2100000005, 2100000006, 2100000007
-)
 
 UNION ALL
 -- Cope Minute Vaccine Surveys
@@ -149,7 +146,7 @@ SELECT distinct
     o.value_as_number,
     ps.id AS survey_item_id,
     ps_survey.concept_id AS survey_concept_id,
-    sc.concept_name AS survey_concept_name,
+    'COVID-19 Vaccine Survey' AS survey_concept_name,
     o.observation_source_concept_id AS question_concept_id,
     qc.name AS question_concept_name,
     o.value_source_concept_id AS answer_concept_id,
@@ -182,6 +179,3 @@ FROM `${omopDataset}.observation` AS o
                    ON sv.survey_conduct_id = o.questionnaire_response_id
          LEFT JOIN `${omopDataset}.concept` AS svc
                    ON svc.concept_id = sv.survey_concept_id
-WHERE sv.survey_concept_id IN (
-    905047, 905055, 765936, 1741006
-)
