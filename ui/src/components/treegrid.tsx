@@ -52,10 +52,10 @@ export type TreeGridItem<RowType extends TreeGridRowData = TreeGridRowData> = {
   data: RowType;
 };
 
-export type TreeGridData<ItemType extends TreeGridItem = TreeGridItem> = Map<
-  TreeGridId,
-  ItemType
->;
+export type TreeGridData<ItemType extends TreeGridItem = TreeGridItem> = {
+  rows: Map<TreeGridId, ItemType>;
+  children: TreeGridId[];
+};
 
 export type TreeGridColumn = {
   key: string;
@@ -95,7 +95,7 @@ export type TreeGridProps<ItemType extends TreeGridItem = TreeGridItem> = {
   highlightId?: TreeGridId;
   rowCustomization?: (
     id: TreeGridId,
-    data: TreeGridRowData
+    item: ItemType
   ) => ColumnCustomization[] | undefined;
   loadChildren?: (id: TreeGridId) => Promise<void>;
   minWidth?: boolean;
@@ -373,8 +373,6 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
             state,
             (id: TreeGridId) =>
               updateState((draft) => toggleExpanded(draft, id)),
-            "root",
-            "root",
             0,
             false, // collapse
             true, // first
@@ -393,19 +391,18 @@ export function useArrayAsTreeGridData<
 >(array: T[], key: K): TreeGridData<TreeGridItem<T>> {
   return useMemo(() => {
     const children: TreeGridId[] = [];
-    const data = new Map<TreeGridId, TreeGridItem<T>>([
-      // Force empty data here since it's never accessed but making it optional
-      // is a pain for "data" access everywhere.
-      ["root", { data: {} as T, children }],
-    ]);
+    const rows = new Map<TreeGridId, TreeGridItem<T>>();
 
     array?.forEach((a) => {
       const k = a[key] as TreeGridId;
-      data.set(k, { data: a });
+      rows.set(k, { data: a });
       children.push(k);
     });
 
-    return data;
+    return {
+      rows,
+      children,
+    };
   }, [array]);
 }
 
@@ -421,23 +418,24 @@ export function fromProtoColumns(
   }));
 }
 
-function renderChildren(
+function renderChildren<ItemType extends TreeGridItem = TreeGridItem>(
   theme: Theme,
-  props: TreeGridProps,
+  props: TreeGridProps<ItemType>,
   state: TreeGridState,
   toggleExpanded: (id: TreeGridId) => void,
-  id: TreeGridId,
-  key: string,
   indent: number,
   collapse: boolean,
   first: boolean,
   highlightRef: MutableRefObject<HTMLTableRowElement | null>,
-  highlightId?: TreeGridId
+  highlightId?: TreeGridId,
+  id?: TreeGridId,
+  key?: string
 ): JSX.Element[] {
   const results: JSX.Element[] = [];
 
-  props.data.get(id)?.children?.forEach((childId) => {
-    const child = props.data.get(childId);
+  const children = id ? props.data.rows.get(id)?.children : props.data.children;
+  children?.forEach((childId) => {
+    const child = props.data.rows.get(childId);
     if (!child) {
       return;
     }
@@ -447,7 +445,7 @@ function renderChildren(
     if (!child.data) {
       throw new Error(`'data' is undefined for ${JSON.stringify(child)}`);
     }
-    const rowCustomization = props.rowCustomization?.(childId, child.data);
+    const rowCustomization = props.rowCustomization?.(childId, child);
 
     const renderColumn = (
       column: number,
@@ -543,7 +541,7 @@ function renderChildren(
       );
     };
 
-    const childKey = `${key}~${childId}`;
+    const childKey = `${key ?? "root"}~${childId}`;
     results.push(
       <tr
         key={childKey}
@@ -631,13 +629,13 @@ function renderChildren(
         props,
         state,
         toggleExpanded,
-        childId,
-        childKey,
         indent + 1,
         collapse || childState?.status !== Status.Expanded,
         false,
         highlightRef,
-        highlightId
+        highlightId,
+        childId,
+        childKey
       )
     );
   });
