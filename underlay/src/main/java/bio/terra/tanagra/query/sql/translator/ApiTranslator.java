@@ -473,7 +473,7 @@ public interface ApiTranslator {
           logicalOperator,
           attributeSwapFields);
     } else if (entityFilter instanceof BooleanNotFilter) {
-      // TODO(BENCH-5122): to be implemented
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
       return Optional.empty();
     } else if (entityFilter instanceof HierarchyHasAncestorFilter) {
       return mergedTranslatorHierarchyHasAncestorFilter(
@@ -501,13 +501,13 @@ public interface ApiTranslator {
           logicalOperator,
           attributeSwapFields);
     } else if (entityFilter instanceof GroupHasItemsFilter) {
-      // TODO(BENCH-5122): to be implemented
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
       return Optional.empty();
     } else if (entityFilter instanceof ItemInGroupFilter) {
-      // TODO(BENCH-5122): to be implemented
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
       return Optional.empty();
     } else if (entityFilter instanceof OccurrenceForPrimaryFilter) {
-      // TODO(BENCH-5122): to be implemented
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
       return Optional.empty();
     } else if (entityFilter instanceof PrimaryWithCriteriaFilter) {
       return mergedTranslatorPrimaryWithCriteriaFilter(
@@ -515,16 +515,15 @@ public interface ApiTranslator {
           logicalOperator,
           attributeSwapFields);
     } else if (entityFilter instanceof RelationshipFilter) {
-      // TODO(BENCH-5122): to be implemented
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
       return Optional.empty();
     } else if (entityFilter instanceof TextSearchFilter) {
-      // TODO(BENCH-5122): to be implemented
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
       return Optional.empty();
     } else if (entityFilter instanceof TemporalPrimaryFilter) {
-      // TODO(BENCH-5122): to be implemented
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
       return Optional.empty();
     } else {
-      // BooleanAndOrFilter
       LoggerFactory.getLogger(ApiTranslator.class)
           .error(
               "No merged SQL translator defined for filter type: {}",
