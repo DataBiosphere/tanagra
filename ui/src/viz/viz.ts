@@ -69,13 +69,7 @@ export function processFilterCountValues(
         let name: string | undefined = undefined;
         let numericId: number | undefined = undefined;
         let stringId: string | undefined = undefined;
-        if (a.numericBucketing) {
-          if (typeof value !== "number") {
-            throw new Error(
-              `Numeric bucketing cannot be applied to non-numeric ${value}.`
-            );
-          }
-
+        if (a.numericBucketing && typeof value === "number") {
           const thresholds = a.numericBucketing.thresholds ?? [];
           if (!thresholds.length) {
             const intervals = a.numericBucketing.intervals;
