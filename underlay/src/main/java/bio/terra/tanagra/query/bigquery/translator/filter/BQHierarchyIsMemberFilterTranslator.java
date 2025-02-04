@@ -49,6 +49,11 @@ public class BQHierarchyIsMemberFilterTranslator extends ApiFilterTranslator {
       List<HierarchyIsMemberFilter> hierarchyIsMemberFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
+    // LogicalOperator.AND is not supported for hierarchy filters
+    if (logicalOperator == LogicalOperator.AND) {
+      return Optional.empty();
+    }
+
     // hierarchy must be the same
     return hierarchyIsMemberFilters.stream()
                 .map(HierarchyIsMemberFilter::getHierarchy)

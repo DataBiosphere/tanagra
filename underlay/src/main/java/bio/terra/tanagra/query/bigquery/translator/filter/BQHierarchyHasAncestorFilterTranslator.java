@@ -100,6 +100,11 @@ public class BQHierarchyHasAncestorFilterTranslator extends ApiFilterTranslator 
       List<HierarchyHasAncestorFilter> hierarchyHasAncestorFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
+    // LogicalOperator.AND is not supported for hierarchy filters
+    if (logicalOperator == LogicalOperator.AND) {
+      return Optional.empty();
+    }
+
     // hierarchy must be the same
     return hierarchyHasAncestorFilters.stream()
                 .map(HierarchyHasAncestorFilter::getHierarchy)
