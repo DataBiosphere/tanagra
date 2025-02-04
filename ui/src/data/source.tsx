@@ -1729,7 +1729,7 @@ function processEntitiesResponse(
         } else {
           ancestors = path
             .split(".")
-            .map((id) => (typeof data.key === "bigint" ? String(id) : id));
+            .map((id) => (typeof data.key === "bigint" ? BigInt(id) : id));
         }
       }
 
