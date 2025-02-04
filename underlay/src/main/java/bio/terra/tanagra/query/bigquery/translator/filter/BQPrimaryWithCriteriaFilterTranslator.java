@@ -259,10 +259,9 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
       List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
-    // Except criteriaSubFilter, all other properties of primaryWithCriteriaFilters must be the
-    // same to be mergeable. Hence, they list can be translated together (merged) by replacing
-    // the single sub-filter with a list of sub-filters from all primaryWithCriteriaFilters
-    // during translation
+    // When filters are mergeable all other properties except criteriaSubFilter are same.
+    // The list can be translated together (merged) by replacing the single sub-filter
+    // with a list of sub-filters from all primaryWithCriteriaFilters
     PrimaryWithCriteriaFilter firstFilter = primaryWithCriteriaFilters.get(0);
     boolean isMergeable =
         primaryWithCriteriaFilters.stream()
