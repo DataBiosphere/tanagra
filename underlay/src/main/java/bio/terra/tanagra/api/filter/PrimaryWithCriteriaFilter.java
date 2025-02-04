@@ -48,7 +48,7 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
     this.groupByCountValue = groupByCountValue;
 
     // one-time checks
-    int numSubFiltersPerOccEntity = getNumSubFiltersPerOccEntity();
+    int numSubFiltersPerOccEntity = getNumSubFiltersPerOccurrenceEntity();
     this.subFiltersPerOccurrenceEntity.forEach(
         (occurrenceEntity, subFilters) -> {
           if (subFilters.size() != numSubFiltersPerOccEntity) {
@@ -77,7 +77,7 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
     return criteriaSubFilter;
   }
 
-  public int getNumSubFiltersPerOccEntity() {
+  public int getNumSubFiltersPerOccurrenceEntity() {
     return getSubFilters(criteriaOccurrence.getOccurrenceEntities().get(0)).size();
   }
 

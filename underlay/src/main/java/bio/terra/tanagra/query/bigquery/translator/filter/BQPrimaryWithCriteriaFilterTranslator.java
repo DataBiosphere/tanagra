@@ -1,6 +1,7 @@
 package bio.terra.tanagra.query.bigquery.translator.filter;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.PrimaryWithCriteriaFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
@@ -19,17 +20,31 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
-  private final PrimaryWithCriteriaFilter primaryWithCriteriaFilter;
+  private final List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters;
+  private final LogicalOperator logicalOperator; // not null if List.size > 1
 
   public BQPrimaryWithCriteriaFilterTranslator(
       ApiTranslator apiTranslator,
       PrimaryWithCriteriaFilter primaryWithCriteriaFilter,
       Map<Attribute, SqlField> attributeSwapFields) {
     super(apiTranslator, attributeSwapFields);
-    this.primaryWithCriteriaFilter = primaryWithCriteriaFilter;
+    this.primaryWithCriteriaFilters = List.of(primaryWithCriteriaFilter);
+    this.logicalOperator = null;
+  }
+
+  private BQPrimaryWithCriteriaFilterTranslator(
+      ApiTranslator apiTranslator,
+      List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
+    this.primaryWithCriteriaFilters = primaryWithCriteriaFilters;
+    this.logicalOperator = logicalOperator;
   }
 
   @Override
@@ -79,8 +94,19 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     final String primaryIdFieldAlias = "primary_id";
     final String groupByFieldAliasPrefix = "group_by_";
 
+    // List is used only when they are mergeable (private constructor). See mergedTranslator
+    PrimaryWithCriteriaFilter singleFilter = primaryWithCriteriaFilters.get(0);
+    EntityFilter criteriaSubFilter =
+        primaryWithCriteriaFilters.size() == 1
+            ? singleFilter.getCriteriaSubFilter()
+            : new BooleanAndOrFilter(
+                logicalOperator,
+                primaryWithCriteriaFilters.stream()
+                    .map(PrimaryWithCriteriaFilter::getCriteriaSubFilter)
+                    .toList());
+
     List<String> selectSqls = new ArrayList<>();
-    CriteriaOccurrence criteriaOccurrence = primaryWithCriteriaFilter.getCriteriaOccurrence();
+    CriteriaOccurrence criteriaOccurrence = singleFilter.getCriteriaOccurrence();
     criteriaOccurrence.getOccurrenceEntities().stream()
         .sorted(
             Comparator.comparing(
@@ -94,7 +120,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
                     "Only criteria-occurrence entity groups that have the occurrence-primary relationship as a foreign key on the occurrence table are currently supported.");
               }
               ITEntityMain occurrenceEntityTable =
-                  primaryWithCriteriaFilter
+                  singleFilter
                       .getUnderlay()
                       .getIndexSchema()
                       .getEntityMain(occurrenceEntity.getName());
@@ -106,9 +132,9 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
               List<SqlQueryField> selectQueryFields = new ArrayList<>();
               selectQueryFields.add(SqlQueryField.of(fkPrimaryIdField, primaryIdFieldAlias));
 
-              if (primaryWithCriteriaFilter.hasGroupByModifier()) {
+              if (singleFilter.hasGroupByModifier()) {
                 List<Attribute> groupByAttributes =
-                    primaryWithCriteriaFilter.getGroupByAttributes(occurrenceEntity);
+                    singleFilter.getGroupByAttributes(occurrenceEntity);
                 for (int i = 0; i < groupByAttributes.size(); i++) {
                   SqlField groupByAttrField =
                       occurrenceEntityTable.getAttributeValueField(
@@ -121,23 +147,22 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
               // FILTER ON occurrence: WHERE FILTER ON criteria
               RelationshipFilter occurrenceCriteriaFilter =
                   new RelationshipFilter(
-                      primaryWithCriteriaFilter.getUnderlay(),
+                      singleFilter.getUnderlay(),
                       criteriaOccurrence,
                       occurrenceEntity,
                       criteriaOccurrence.getOccurrenceCriteriaRelationship(
                           occurrenceEntity.getName()),
-                      primaryWithCriteriaFilter.getCriteriaSubFilter(),
+                      criteriaSubFilter,
                       null,
                       null,
                       null);
 
               EntityFilter allOccurrenceFilters;
-              if (primaryWithCriteriaFilter.hasSubFilters(occurrenceEntity)) {
+              if (singleFilter.hasSubFilters(occurrenceEntity)) {
                 // ALL FILTERS ON occurrence: WHERE [FILTER ON criteria] AND [sub-filters]
                 List<EntityFilter> allOccurrenceSubFilters = new ArrayList<>();
                 allOccurrenceSubFilters.add(occurrenceCriteriaFilter);
-                allOccurrenceSubFilters.addAll(
-                    primaryWithCriteriaFilter.getSubFilters(occurrenceEntity));
+                allOccurrenceSubFilters.addAll(singleFilter.getSubFilters(occurrenceEntity));
                 allOccurrenceFilters =
                     new BooleanAndOrFilter(
                         BooleanAndOrFilter.LogicalOperator.AND, allOccurrenceSubFilters);
@@ -161,7 +186,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
             });
 
     ITEntityMain selectEntityTable =
-        primaryWithCriteriaFilter
+        singleFilter
             .getUnderlay()
             .getIndexSchema()
             .getEntityMain(criteriaOccurrence.getPrimaryEntity().getName());
@@ -171,14 +196,14 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
             ? attributeSwapFields.get(selectIdAttribute)
             : selectEntityTable.getAttributeValueField(selectIdAttribute.getName());
 
-    if (!primaryWithCriteriaFilter.hasGroupByModifier()) {
+    if (!singleFilter.hasGroupByModifier()) {
       return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
           + " IN ("
           + String.join(" UNION ALL ", selectSqls)
           + ')';
     }
 
-    if (!primaryWithCriteriaFilter.hasGroupByAttributes()) {
+    if (!singleFilter.hasGroupByAttributes()) {
       return SqlQueryField.of(selectIdField).renderForWhere(tableAlias)
           + " IN (SELECT "
           + primaryIdFieldAlias
@@ -187,16 +212,16 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
           + ") GROUP BY "
           + primaryIdFieldAlias
           + " HAVING COUNT(*) "
-          + apiTranslator.binaryOperatorSql(primaryWithCriteriaFilter.getGroupByCountOperator())
+          + apiTranslator.binaryOperatorSql(singleFilter.getGroupByCountOperator())
           + " @"
           + sqlParams.addParam(
               "groupByCountValue",
-              Literal.forInt64(Long.valueOf(primaryWithCriteriaFilter.getGroupByCountValue())))
+              Literal.forInt64(Long.valueOf(singleFilter.getGroupByCountValue())))
           + ')';
     }
 
     List<String> groupByFieldsSql = new ArrayList<>();
-    for (int i = 0; i < primaryWithCriteriaFilter.getNumGroupByAttributesPerOccEntity(); i++) {
+    for (int i = 0; i < singleFilter.getNumGroupByAttributesPerOccEntity(); i++) {
       groupByFieldsSql.add(groupByFieldAliasPrefix + i);
     }
     String groupByFieldsSqlJoined = String.join(", ", groupByFieldsSql);
@@ -216,16 +241,73 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
         + ") GROUP BY "
         + primaryIdFieldAlias
         + " HAVING COUNT(*) "
-        + apiTranslator.binaryOperatorSql(primaryWithCriteriaFilter.getGroupByCountOperator())
+        + apiTranslator.binaryOperatorSql(singleFilter.getGroupByCountOperator())
         + " @"
         + sqlParams.addParam(
             "groupByCountValue",
-            Literal.forInt64(Long.valueOf(primaryWithCriteriaFilter.getGroupByCountValue())))
+            Literal.forInt64(Long.valueOf(singleFilter.getGroupByCountValue())))
         + ')';
   }
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
     return attribute.isId();
+  }
+
+  public static Optional<ApiFilterTranslator> mergedTranslator(
+      ApiTranslator apiTranslator,
+      List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    // Not mergeable if any of the sub-filters contains a group-by operator.
+    // When filters are mergeable all other properties except criteriaSubFilter are same.
+    // The list can be translated together (merged) by replacing the single sub-filter
+    // with a list of sub-filters from all primaryWithCriteriaFilters
+    PrimaryWithCriteriaFilter firstFilter = primaryWithCriteriaFilters.get(0);
+    boolean isMergeable =
+        !firstFilter.hasGroupByModifier()
+            && primaryWithCriteriaFilters.stream()
+                .skip(1)
+                .allMatch(
+                    curFilter -> {
+                      // must not have: groupByModifier
+                      // must match: criteriaOccurrence
+                      boolean curFilterMergeable =
+                          !curFilter.hasGroupByModifier()
+                              && Objects.equals(
+                                  firstFilter.getCriteriaOccurrence(),
+                                  curFilter.getCriteriaOccurrence());
+
+                      // must match: subFiltersPerOccurrenceEntity,
+                      // groupByAttributesPerOccurrenceEntity
+                      return curFilterMergeable
+                          && curFilter.getCriteriaOccurrence().getOccurrenceEntities().stream()
+                              .allMatch(
+                                  entity ->
+                                      Objects.equals(
+                                              firstFilter.getSubFilters(entity),
+                                              curFilter.getSubFilters(entity))
+                                          && Objects.equals(
+                                              firstFilter.getGroupByAttributes(entity),
+                                              curFilter.getGroupByAttributes(entity)));
+                    });
+
+    // must be mergeable by itself: criteriaSubFilter
+    isMergeable =
+        isMergeable
+            && apiTranslator
+                .mergedTranslator(
+                    primaryWithCriteriaFilters.stream()
+                        .map(PrimaryWithCriteriaFilter::getCriteriaSubFilter)
+                        .toList(),
+                    logicalOperator,
+                    attributeSwapFields)
+                .isPresent();
+
+    return isMergeable
+        ? Optional.of(
+            new BQPrimaryWithCriteriaFilterTranslator(
+                apiTranslator, primaryWithCriteriaFilters, logicalOperator, attributeSwapFields))
+        : Optional.empty();
   }
 }
