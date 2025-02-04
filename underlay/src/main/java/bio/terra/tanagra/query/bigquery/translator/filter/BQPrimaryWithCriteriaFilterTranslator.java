@@ -196,7 +196,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     }
 
     List<String> groupByFieldsSql = new ArrayList<>();
-    for (int i = 0; i < primaryWithCriteriaFilter.getNumGroupByAttributes(); i++) {
+    for (int i = 0; i < primaryWithCriteriaFilter.getNumGroupByAttributesPerOccEntity(); i++) {
       groupByFieldsSql.add(groupByFieldAliasPrefix + i);
     }
     String groupByFieldsSqlJoined = String.join(", ", groupByFieldsSql);
