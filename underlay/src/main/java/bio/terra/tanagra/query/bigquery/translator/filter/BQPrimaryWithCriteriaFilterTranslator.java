@@ -259,44 +259,38 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
       List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
+    // Not mergeable if any of the sub-filters contains a group-by operator.
     // When filters are mergeable all other properties except criteriaSubFilter are same.
     // The list can be translated together (merged) by replacing the single sub-filter
     // with a list of sub-filters from all primaryWithCriteriaFilters
     PrimaryWithCriteriaFilter firstFilter = primaryWithCriteriaFilters.get(0);
     boolean isMergeable =
-        primaryWithCriteriaFilters.stream()
-            .skip(1)
-            .allMatch(
-                curFilter -> {
-                  // must match: groupByCountOperator, groupByCountValue, criteriaOccurrence
-                  boolean groupByCountOperator =
-                      Objects.equals(
-                          firstFilter.getGroupByCountOperator(),
-                          curFilter.getGroupByCountOperator());
-                  boolean groupByCountValue =
-                      Objects.equals(
-                          firstFilter.getGroupByCountValue(), curFilter.getGroupByCountValue());
-                  boolean criteriaOccurrence =
-                      Objects.equals(
-                          firstFilter.getCriteriaOccurrence(), curFilter.getCriteriaOccurrence());
+        !firstFilter.hasGroupByModifier()
+            && primaryWithCriteriaFilters.stream()
+                .skip(1)
+                .allMatch(
+                    curFilter -> {
+                      // must not have: groupByModifier
+                      // must match: criteriaOccurrence
+                      boolean curFilterMergeable =
+                          !curFilter.hasGroupByModifier()
+                              && Objects.equals(
+                                  firstFilter.getCriteriaOccurrence(),
+                                  curFilter.getCriteriaOccurrence());
 
-                  // must match: subFiltersPerOccurrenceEntity, groupByAttributesPerOccurrenceEntity
-                  boolean subFiltersAndGroupByAttributes =
-                      curFilter.getCriteriaOccurrence().getOccurrenceEntities().stream()
-                          .allMatch(
-                              entity ->
-                                  Objects.equals(
-                                          firstFilter.getSubFilters(entity),
-                                          curFilter.getSubFilters(entity))
-                                      && Objects.equals(
-                                          firstFilter.getGroupByAttributes(entity),
-                                          curFilter.getGroupByAttributes(entity)));
-
-                  return groupByCountOperator
-                      && groupByCountValue
-                      && criteriaOccurrence
-                      && subFiltersAndGroupByAttributes;
-                });
+                      // must match: subFiltersPerOccurrenceEntity,
+                      // groupByAttributesPerOccurrenceEntity
+                      return curFilterMergeable
+                          && curFilter.getCriteriaOccurrence().getOccurrenceEntities().stream()
+                              .allMatch(
+                                  entity ->
+                                      Objects.equals(
+                                              firstFilter.getSubFilters(entity),
+                                              curFilter.getSubFilters(entity))
+                                          && Objects.equals(
+                                              firstFilter.getGroupByAttributes(entity),
+                                              curFilter.getGroupByAttributes(entity)));
+                    });
 
     // must be mergeable by itself: criteriaSubFilter
     isMergeable =
