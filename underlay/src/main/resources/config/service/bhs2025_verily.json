@@ -3,17 +3,17 @@
     "bigQuery": {
       "sourceData": {
         "projectId": "wb-friendly-melon-8367",
-        "datasetId": "dummydata_ps_wbde",
+        "datasetId": "wb-friendly-melon-8367.dummydata_ps_wbde",
         "sqlSubstitutions": {
-          "dataset": "<REPLACE_ME>",
+          "dataset": "wb-friendly-melon-8367.dummydata_ps_wbde",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
-        "projectId": "<REPLACE_ME>",
-        "datasetId": "<REPLACE_ME>"
+        "projectId": "wb-friendly-melon-8367",
+        "datasetId": "wb-friendly-melon-8367.dummydata_ps_wbde_index"
       },
-      "queryProjectId": "<REPLACE_ME>",
+      "queryProjectId": "wb-friendly-melon-8367",
       "dataLocation": "us"
     },
     "uiConfigFile": "ui.json"
