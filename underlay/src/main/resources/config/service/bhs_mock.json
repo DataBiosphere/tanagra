@@ -2,18 +2,18 @@
     "underlay": "bhs_mock",
     "bigQuery": {
       "sourceData": {
-        "projectId": "wb-crisp-bean-3692",
-        "datasetId": "wb-crisp-bean-3692.bhs_mock_bq_dataset",
+        "projectId": "wb-radiant-cashew-3493",
+        "datasetId": "BF_20240610_Screener",
         "sqlSubstitutions": {
-          "omopDataset": "wb-crisp-bean-3692.bhs_mock_bq_dataset",
+          "omopDataset": "wb-radiant-cashew-3493.BF_20240610_Screener",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
-        "projectId": "wb-crisp-bean-3692",
-        "datasetId": "bhs_mock_index"
+        "projectId": "wb-astute-celery-2109",
+        "datasetId": "DE_INDEX_BF_20240610_Screener"
       },
-      "queryProjectId": "wb-crisp-bean-3692",
+      "queryProjectId": "wb-astute-celery-2109",
       "dataLocation": "us"
     },
     "uiConfigFile": "ui.json"
