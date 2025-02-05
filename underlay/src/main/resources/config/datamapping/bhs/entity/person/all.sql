@@ -1,8 +1,7 @@
 SELECT
-    participant_id,
-    age_at_baseline as age,
-    sex,
-    race,
-    ethnicity
+    SUBJID as participant_id,
+    CAST(age_at_enrollment as INT64) as age,
+    SEX,
+    RACE
 
-FROM `${omopDataset}.Demographics` d
+FROM `${omopDataset}.DM` d
