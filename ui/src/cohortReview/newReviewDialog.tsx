@@ -26,7 +26,11 @@ type FormData = {
   size: string;
 };
 
-const MAX = 10000;
+// BigQuery has a parameter limit of 10_000. Cohort reviews generate a query
+// that lists all the primaryEntityIds. The other cohort filter values are
+// also counted as parameters. Hence, limit the number of cohorts to
+// 9_900 (+ 100 for parameters = 10_000)
+const MAX = 9_900;
 
 export function useNewReviewDialog(
   props: UseNewReviewDialogProps

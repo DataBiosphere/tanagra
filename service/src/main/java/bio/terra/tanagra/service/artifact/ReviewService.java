@@ -56,7 +56,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReviewService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewService.class);
-  public static final int MAX_REVIEW_SIZE = 10_000;
+  // BigQuery has a parameter limit of 10_000. Cohort reviews generate a query
+  // that lists all the primaryEntityIds. The other cohort filter values are
+  // also counted as parameters. Hence, limit the number of cohorts to
+  // 9_900 (+ 100 for parameters = 10_000)
+  // same value in ui/src/cohortReview/newReviewDialog.tsx:MAX
+  public static final int MAX_REVIEW_SIZE = 9_900;
   private final CohortService cohortService;
   private final UnderlayService underlayService;
   private final AnnotationService annotationService;
