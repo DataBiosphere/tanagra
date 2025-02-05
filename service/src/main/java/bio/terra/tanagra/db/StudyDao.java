@@ -130,7 +130,6 @@ public class StudyDao {
         STUDY_SELECT_SQL
             + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
             + " ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET all studies: {}", sql);
     return getStudiesHelper(sql, params);
   }
 
@@ -160,7 +159,6 @@ public class StudyDao {
             + " WHERE id IN (:ids) "
             + (filterSql.isEmpty() ? "" : "AND " + filterSql + " ")
             + "ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET matching studies: {}", sql);
     return getStudiesHelper(sql, params);
   }
 
@@ -217,7 +215,6 @@ public class StudyDao {
   public Optional<Study> getStudyIfExists(String id) {
     // Fetch study.
     String sql = STUDY_SELECT_SQL + " WHERE id = :id";
-    LOGGER.debug("GET study: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<Study> studies = getStudiesHelper(sql, params);
 

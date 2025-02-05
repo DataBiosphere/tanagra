@@ -83,7 +83,6 @@ public class ReviewDao {
     String sql =
         REVIEW_SELECT_SQL
             + " WHERE cohort_id = :cohort_id AND NOT is_deleted ORDER BY created DESC LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET ALL reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("cohort_id", cohortId)
@@ -97,7 +96,6 @@ public class ReviewDao {
     String sql =
         REVIEW_SELECT_SQL
             + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY created DESC LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET MATCHING reviews: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("ids", ids)
@@ -110,7 +108,6 @@ public class ReviewDao {
   public Review getReview(String id) {
     // Fetch review.
     String sql = REVIEW_SELECT_SQL + " WHERE id = :id";
-    LOGGER.debug("GET review: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<Review> reviews = getReviewsHelper(sql, params);
 
@@ -196,7 +193,6 @@ public class ReviewDao {
     String sql =
         PRIMARY_ENTITY_INSTANCE_SELECT_SQL
             + " WHERE review_id = :review_id ORDER BY stable_index ASC";
-    LOGGER.debug("GET primary entity instance ids: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("review_id", reviewId);
     List<Pair<Literal, Integer>> idIndexPairs =
         jdbcTemplate.query(sql, params, PRIMARY_ENTITY_INSTANCE_ROW_MAPPER);

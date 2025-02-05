@@ -141,7 +141,6 @@ public class ActivityLogDao {
         ACTIVITY_LOG_SELECT_SQL
             + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
             + " ORDER BY logged DESC LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET all activity logs: {}", sql);
     return getActivityLogsHelper(sql, params);
   }
 
@@ -186,7 +185,6 @@ public class ActivityLogDao {
   @ReadTransaction
   public ActivityLog getActivityLog(String activityLogId) {
     String sql = ACTIVITY_LOG_SELECT_SQL + " WHERE id = :id";
-    LOGGER.debug("GET activity log: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", activityLogId);
     List<ActivityLog> activityLogs = getActivityLogsHelper(sql, params);
 
