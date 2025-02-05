@@ -1,0 +1,20 @@
+{
+    "underlay": "amp_pd",
+    "bigQuery": {
+      "sourceData": {
+        "projectId": "wb-friendly-melon-8367",
+        "datasetId": "dummydata_ps_wbde",
+        "sqlSubstitutions": {
+          "dataset": "<REPLACE_ME>",
+          "staticTablesDataset": ""
+        }
+      },
+      "indexData": {
+        "projectId": "<REPLACE_ME>",
+        "datasetId": "<REPLACE_ME>"
+      },
+      "queryProjectId": "<REPLACE_ME>",
+      "dataLocation": "us"
+    },
+    "uiConfigFile": "ui.json"
+  }
