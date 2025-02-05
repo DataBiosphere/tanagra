@@ -1,0 +1,20 @@
+{
+    "name": "bhs",
+    "primaryEntity": "person",
+    "entities": [
+        "bhs/person",
+        "bhs/dummyEntity"
+    ],
+    "groupItemsEntityGroups": [
+        "amp_pd/dummyGroup"
+      ],  
+      "criteriaOccurrenceEntityGroups": [],
+      "criteriaSelectors": [],
+      "prepackagedDataFeatures": [],
+      "visualizations": [],
+      "metadata": {
+        "displayName": "BHS metadata displayname",
+        "description": "BHS metadata description"
+      },
+      "uiConfigFile": "ui.json"
+    }
