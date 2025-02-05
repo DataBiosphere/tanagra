@@ -1,1 +1,1 @@
-SELECT participant_id FROM `${omopDataset}.Demographics` d
+SELECT participant_id FROM `${omopDataset}.DM` d
