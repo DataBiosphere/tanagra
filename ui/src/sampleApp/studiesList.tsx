@@ -78,9 +78,7 @@ export function StudiesList() {
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
-    const data: TreeGridData = {
-      root: { data: {}, children },
-    };
+    const data: TreeGridData = new Map([["root", { data: {}, children }]]);
 
     studiesState.data?.forEach((study) => {
       const key = study.id;
@@ -122,7 +120,7 @@ export function StudiesList() {
           ),
         },
       };
-      data[key] = item;
+      data.set(key, item);
     });
 
     return data;
@@ -136,7 +134,7 @@ export function StudiesList() {
       <Header />
       <Loading status={studiesState}>
         <GridLayout rows spacing={4}>
-          {!!data?.root?.children?.length ? (
+          {!!data?.get("root")?.children?.length ? (
             <TreeGrid columns={columns} data={data} />
           ) : (
             <Empty

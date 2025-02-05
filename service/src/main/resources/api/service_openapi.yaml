@@ -1522,8 +1522,8 @@ components:
             boolVal:
               type: boolean
             int64Val:
-              type: integer
-              format: int64
+              # Transfer int64s as strings to avoid overflowing JavaScript's number precision.
+              type: string
             stringVal:
               type: string
             dateVal:

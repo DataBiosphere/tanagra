@@ -56,7 +56,6 @@ import org.springframework.util.CollectionUtils;
 @Component
 public class UnderlayService {
   private static final Logger LOGGER = LoggerFactory.getLogger(UnderlayService.class);
-
   private final ImmutableMap<String, CachedUnderlay> underlayCache;
 
   @Autowired

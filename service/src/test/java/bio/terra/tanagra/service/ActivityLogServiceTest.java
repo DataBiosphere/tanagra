@@ -55,7 +55,6 @@ public class ActivityLogServiceTest {
   private static final String UNDERLAY_NAME = "cmssynpuf";
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
-
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private FeatureSetService featureSetService;
@@ -64,7 +63,6 @@ public class ActivityLogServiceTest {
   @Autowired private DataExportService dataExportService;
   @Autowired private ActivityLogService activityLogService;
   @Autowired private VersionConfiguration versionConfiguration;
-
   private Study study1;
 
   @BeforeEach

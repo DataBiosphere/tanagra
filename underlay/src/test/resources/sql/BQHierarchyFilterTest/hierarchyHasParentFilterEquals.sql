@@ -9,4 +9,7 @@
         FROM
             ${HCP_condition_default}          
         WHERE
-            parent = @val0)
+            parent = @val0          
+        UNION
+        ALL SELECT
+            @val1)

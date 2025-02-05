@@ -19,26 +19,11 @@ import org.junit.Test;
 
 public class PathUtilsTest {
   @Rule public final transient TestPipeline pipeline = TestPipeline.create();
-
-  // list of all nodes for a graph with only one child per parent
-  private static final List<Long> NO_SIBLINGS_ALLNODES = List.of(11L, 21L, 31L, 12L, 22L, 13L);
-
-  // list of parent-child relationships for a graph with only one child per parent
-  private static Multimap<Long, Long> noSiblingsParentChildRelationships() {
-    Multimap<Long, Long> parentChildRelationships =
-        MultimapBuilder.hashKeys().arrayListValues().build();
-    parentChildRelationships.putAll(11L, List.of(21L));
-    parentChildRelationships.putAll(21L, List.of(31L));
-    parentChildRelationships.putAll(12L, List.of(22L));
-    return parentChildRelationships;
-  }
-
-  // maximum path length for a graph with only one child per parent
+  private static final List<Long> ALL_NODES_NO_SIBLINGS = List.of(11L, 21L, 31L, 12L, 22L, 13L);
   private static final int NO_SIBLINGS_MAXPATHLENGTH = 4;
-
-  // list of all nodes for a graph with multiple children per parent
-  private static final List<Long> HAS_SIBLINGS_ALLNODES =
+  private static final List<Long> ALL_NODES_HAS_SIBLINGS =
       List.of(10L, 11L, 20L, 21L, 31L, 12L, 22L, 13L);
+  private static final int HAS_SIBLINGS_MAXPATHLENGTH = 4;
 
   // list of parent-child relationships for a graph with multiple children per parent
   private static Multimap<Long, Long> hasSiblingsParentChildRelationships() {
@@ -52,8 +37,15 @@ public class PathUtilsTest {
     return parentChildRelationships;
   }
 
-  // maximum path length for a graph with multiple children per parent
-  private static final int HAS_SIBLINGS_MAXPATHLENGTH = 4;
+  // list of parent-child relationships for a graph with only one child per parent
+  private static Multimap<Long, Long> noSiblingsParentChildRelationships() {
+    Multimap<Long, Long> parentChildRelationships =
+        MultimapBuilder.hashKeys().arrayListValues().build();
+    parentChildRelationships.putAll(11L, List.of(21L));
+    parentChildRelationships.putAll(21L, List.of(31L));
+    parentChildRelationships.putAll(12L, List.of(22L));
+    return parentChildRelationships;
+  }
 
   @Test
   public void noSiblingsPaths() {
@@ -66,7 +58,7 @@ public class PathUtilsTest {
     expectedPaths.put(13L, "");
 
     runComputePathsAndAssert(
-        NO_SIBLINGS_ALLNODES,
+        ALL_NODES_NO_SIBLINGS,
         noSiblingsParentChildRelationships(),
         expectedPaths,
         NO_SIBLINGS_MAXPATHLENGTH);
@@ -85,7 +77,7 @@ public class PathUtilsTest {
     expectedPaths.put(13L, "");
 
     runComputePathsAndAssert(
-        HAS_SIBLINGS_ALLNODES,
+        ALL_NODES_HAS_SIBLINGS,
         hasSiblingsParentChildRelationships(),
         expectedPaths,
         HAS_SIBLINGS_MAXPATHLENGTH);
@@ -125,7 +117,7 @@ public class PathUtilsTest {
     expectedNumChildren.put(13L, 0L);
 
     runCountChildrenAndAssert(
-        NO_SIBLINGS_ALLNODES, noSiblingsParentChildRelationships(), expectedNumChildren);
+        ALL_NODES_NO_SIBLINGS, noSiblingsParentChildRelationships(), expectedNumChildren);
   }
 
   @Test
@@ -141,7 +133,7 @@ public class PathUtilsTest {
     expectedNumChildren.put(13L, 0L);
 
     runCountChildrenAndAssert(
-        HAS_SIBLINGS_ALLNODES, hasSiblingsParentChildRelationships(), expectedNumChildren);
+        ALL_NODES_HAS_SIBLINGS, hasSiblingsParentChildRelationships(), expectedNumChildren);
   }
 
   /**
@@ -178,7 +170,7 @@ public class PathUtilsTest {
     expectedPrunedPaths.put(13L, null);
 
     runPruneOrphanPathsAndAssert(
-        NO_SIBLINGS_ALLNODES,
+        ALL_NODES_NO_SIBLINGS,
         noSiblingsParentChildRelationships(),
         NO_SIBLINGS_MAXPATHLENGTH,
         expectedPrunedPaths);
@@ -198,7 +190,7 @@ public class PathUtilsTest {
     expectedPrunedPaths.put(13L, null);
 
     runPruneOrphanPathsAndAssert(
-        HAS_SIBLINGS_ALLNODES,
+        ALL_NODES_HAS_SIBLINGS,
         hasSiblingsParentChildRelationships(),
         HAS_SIBLINGS_MAXPATHLENGTH,
         expectedPrunedPaths);

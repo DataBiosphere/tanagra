@@ -56,13 +56,11 @@ public class ReviewInstanceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewInstanceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
   private static final String USER_EMAIL_1 = "abc@123.com";
-
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private AnnotationService annotationService;
   @Autowired private ReviewService reviewService;
   @Autowired private UnderlayService underlayService;
-
   private Study study1;
   private Cohort cohort1;
   private Review review1;

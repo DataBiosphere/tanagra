@@ -402,9 +402,8 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                     <GridLayout rows>
                       <Typography variant="body1">Query examples:</Typography>
                       {[...props.config.searchConfigs]
-                        .sort(
-                          (a, b) =>
-                            (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
+                        .sort((a, b) =>
+                          Number((a.displayOrder ?? 0) - (b.displayOrder ?? 0))
                         )
                         .map((sc) => (
                           <Typography key={sc.name} variant="body2em">

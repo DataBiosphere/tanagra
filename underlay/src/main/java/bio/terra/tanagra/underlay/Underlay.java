@@ -276,7 +276,7 @@ public final class Underlay {
     }
 
     // Build the prepackaged data features.
-    Set<SZPrepackagedCriteria> szPrepackagedDataFeatures = new HashSet<>();
+    List<SZPrepackagedCriteria> szPrepackagedDataFeatures = new ArrayList<>();
     List<PrepackagedCriteria> prepackagedDataFeatures = new ArrayList<>();
     if (szUnderlay.prepackagedDataFeatures != null) {
       szUnderlay.prepackagedDataFeatures.forEach(

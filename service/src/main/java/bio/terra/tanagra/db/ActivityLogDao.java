@@ -142,9 +142,7 @@ public class ActivityLogDao {
             + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
             + " ORDER BY logged DESC LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET all activity logs: {}", sql);
-    List<ActivityLog> activityLogs = getActivityLogsHelper(sql, params);
-    LOGGER.debug("GET ALL activity logs numFound = {}", activityLogs.size());
-    return activityLogs;
+    return getActivityLogsHelper(sql, params);
   }
 
   /** Convert an activity log filter object into a SQL WHERE clause. */
@@ -191,7 +189,6 @@ public class ActivityLogDao {
     LOGGER.debug("GET activity log: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", activityLogId);
     List<ActivityLog> activityLogs = getActivityLogsHelper(sql, params);
-    LOGGER.debug("GET activity log numFound = {}", activityLogs.size());
 
     // Make sure there's only one activity log returned for this id.
     if (activityLogs.isEmpty()) {

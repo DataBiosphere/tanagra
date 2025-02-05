@@ -97,9 +97,7 @@ public class FeatureSetDao {
             .addValue("study_id", studyId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
-    LOGGER.debug("GET ALL feature sets numFound = {}", featureSets.size());
-    return featureSets;
+    return getFeatureSetsHelper(sql, params);
   }
 
   @ReadTransaction
@@ -113,9 +111,7 @@ public class FeatureSetDao {
             .addValue("ids", ids)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
-    LOGGER.debug("GET MATCHING feature sets numFound = {}", featureSets.size());
-    return featureSets;
+    return getFeatureSetsHelper(sql, params);
   }
 
   @ReadTransaction
@@ -125,7 +121,6 @@ public class FeatureSetDao {
     LOGGER.debug("GET feature set: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
-    LOGGER.debug("GET feature set numFound = {}", featureSets.size());
 
     // Make sure there's only one feature set returned for this id.
     if (featureSets.isEmpty()) {

@@ -62,12 +62,10 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
-    const data: TreeGridData = {
-      root: { data: {}, children },
-    };
+    const data: TreeGridData = new Map([["root", { data: {}, children }]]);
 
     context.rows[config.entity]?.forEach((o) => {
-      data[o.key] = { data: o };
+      data.set(o.key, { data: o });
       children.push(o.key);
     });
 
@@ -84,22 +82,25 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
 
   const sortedData = useMemo(() => {
     return produce(data, (data) => {
-      if (!data.root?.children) {
+      const root = data.get("root");
+      if (!root) {
         return;
       }
 
-      data.root.children = data.root.children.filter((child) =>
+      root.children = (root.children ?? []).filter((child) =>
         Object.entries(filterRegExps ?? {}).reduce(
           (cur: boolean, [col, re]) =>
             cur &&
-            re.test(stringifyDataValue(data[child].data[col] as DataValue)),
+            re.test(
+              stringifyDataValue(data.get(child)?.data?.[col] as DataValue)
+            ),
           true
         )
       );
-      data.root.children.sort((a, b) => {
+      root.children.sort((a, b) => {
         for (const o of searchState.sortOrders ?? []) {
-          const valA = data[a].data[o.column] as DataValue | undefined;
-          const valB = data[b].data[o.column] as DataValue | undefined;
+          const valA = data.get(a)?.data?.[o.column] as DataValue | undefined;
+          const valB = data.get(b)?.data?.[o.column] as DataValue | undefined;
           const c = compareDataValues(valA, valB);
           if (c !== 0) {
             return o.direction === TreeGridSortDirection.Asc ? c : -c;

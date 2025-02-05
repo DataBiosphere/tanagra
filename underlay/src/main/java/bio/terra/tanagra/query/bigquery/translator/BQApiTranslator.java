@@ -92,18 +92,6 @@ public final class BQApiTranslator implements ApiTranslator {
   }
 
   @Override
-  public Optional<ApiFilterTranslator> mergedTranslator(
-      List<AttributeFilter> attributeFilters,
-      LogicalOperator logicalOperator,
-      Map<Attribute, SqlField> attributeSwapFields) {
-    return BQAttributeFilterTranslator.canMergeTranslation(attributeFilters)
-        ? Optional.of(
-            new BQAttributeFilterTranslator(
-                this, attributeFilters, logicalOperator, attributeSwapFields))
-        : Optional.empty();
-  }
-
-  @Override
   public ApiFilterTranslator translator(
       HierarchyHasAncestorFilter hierarchyHasAncestorFilter,
       Map<Attribute, SqlField> attributeSwapFields) {
@@ -163,6 +151,69 @@ public final class BQApiTranslator implements ApiTranslator {
   public ApiFilterTranslator translator(
       TemporalPrimaryFilter temporalPrimaryFilter, Map<Attribute, SqlField> attributeSwapFields) {
     return new BQTemporalPrimaryFilterTranslator(this, temporalPrimaryFilter, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorAttributeFilter(
+      List<AttributeFilter> attributeFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQAttributeFilterTranslator.mergedTranslator(
+        this, attributeFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyHasAncestorFilter(
+      List<HierarchyHasAncestorFilter> hierarchyHasAncestorFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyHasAncestorFilterTranslator.mergedTranslator(
+        this, hierarchyHasAncestorFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyHasParentFilter(
+      List<HierarchyHasParentFilter> hierarchyHasParentFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyHasParentFilterTranslator.mergedTranslator(
+        this, hierarchyHasParentFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyIsLeafFilter(
+      List<HierarchyIsLeafFilter> hierarchyIsLeafFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyIsLeafFilterTranslator.mergedTranslator(
+        this, hierarchyIsLeafFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyIsMemberFilter(
+      List<HierarchyIsMemberFilter> hierarchyIsMemberFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyIsMemberFilterTranslator.mergedTranslator(
+        this, hierarchyIsMemberFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyRootFilter(
+      List<HierarchyIsRootFilter> hierarchyIsRootFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyIsRootFilterTranslator.mergedTranslator(
+        this, hierarchyIsRootFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorPrimaryWithCriteriaFilter(
+      List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQPrimaryWithCriteriaFilterTranslator.mergedTranslator(
+        this, primaryWithCriteriaFilters, logicalOperator, attributeSwapFields);
   }
 
   @Override

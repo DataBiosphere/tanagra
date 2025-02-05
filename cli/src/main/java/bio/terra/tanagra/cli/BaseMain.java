@@ -29,7 +29,6 @@ import picocli.CommandLine;
     })
 public abstract class BaseMain implements Runnable {
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BaseMain.class);
-
   // Color scheme used by all commands.
   private static final CommandLine.Help.ColorScheme COLOR_SCHEME =
       new CommandLine.Help.ColorScheme.Builder()

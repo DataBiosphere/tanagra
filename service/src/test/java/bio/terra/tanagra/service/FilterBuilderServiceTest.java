@@ -80,7 +80,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class FilterBuilderServiceTest {
   private static final String UNDERLAY_NAME = "sd";
-
   @Autowired private UnderlayService underlayService;
   @Autowired private FilterBuilderService filterBuilderService;
   private Underlay underlay;

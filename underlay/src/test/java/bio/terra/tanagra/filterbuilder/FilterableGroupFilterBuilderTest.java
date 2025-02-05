@@ -39,10 +39,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class FilterableGroupFilterBuilderTest {
-  private static Underlay underlay;
-  private static Entity entity_variant;
-  private static GroupItems groupItems_variant;
-
   // Double escaped for Java then for JSON.
   private static final String configJson =
       """
@@ -106,6 +102,9 @@ public class FilterableGroupFilterBuilderTest {
   ]
 }
       """;
+  private static Underlay underlay;
+  private static Entity entity_variant;
+  private static GroupItems groupItems_variant;
 
   @BeforeAll
   static void setup() {

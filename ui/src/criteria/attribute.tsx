@@ -382,7 +382,7 @@ async function search(
   hintData.enumHintOptions.forEach((hint) => {
     const key = hint.value;
     if (
-      (typeof key === "string" || typeof key === "number") &&
+      (typeof key === "string" || typeof key === "bigint") &&
       hint.name.search(re) >= 0
     ) {
       results.push({

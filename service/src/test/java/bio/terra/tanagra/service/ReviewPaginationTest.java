@@ -44,12 +44,10 @@ public class ReviewPaginationTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewPaginationTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
   private static final String USER_EMAIL_1 = "abc@123.com";
-
   @Autowired private UnderlayService underlayService;
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private ReviewService reviewService;
-
   private Study study1;
   private Cohort cohort1;
   private Review review1;

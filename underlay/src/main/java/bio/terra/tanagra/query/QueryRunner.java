@@ -12,7 +12,6 @@ import bio.terra.tanagra.query.sql.SqlQueryRequest;
 import bio.terra.tanagra.query.sql.SqlQueryResult;
 
 public interface QueryRunner {
-
   SqlQueryResult run(SqlQueryRequest sqlQueryRequest);
 
   ListQueryResult run(ListQueryRequest listQueryRequest);

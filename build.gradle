@@ -12,7 +12,7 @@ buildscript {
         vLogback = '1.5.15'
 
         // library versions
-        vPmd = '7.1.0'
+        vPmd = '7.10.0'
         vGoogleProtobufProtoc = '3.25.5'
         vTerraCommonLib = '1.1.22-SNAPSHOT'
         vApacheCommonsText = '1.12.0'

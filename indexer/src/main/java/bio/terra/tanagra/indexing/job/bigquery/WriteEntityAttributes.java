@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 public class WriteEntityAttributes extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteEntityAttributes.class);
-
   private final STEntityAttributes sourceTable;
   private final ITEntityMain indexTable;
 

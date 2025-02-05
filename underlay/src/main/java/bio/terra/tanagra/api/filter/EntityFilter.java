@@ -8,7 +8,6 @@ import java.util.Objects;
 import org.slf4j.Logger;
 
 public abstract class EntityFilter {
-
   private final Logger logger;
   private final Underlay underlay;
   private final Entity entity;
@@ -36,7 +35,12 @@ public abstract class EntityFilter {
     return List.of();
   }
 
+  public List<String> getFilterAttributeNames() {
+    return getFilterAttributes().stream().map(Attribute::getName).toList();
+  }
+
   // TODO: Add logic here to merge filters automatically to get a simpler filter overall.
+  // Current filter generation logic is in both UI and Underlay, hence only merge translation
   public boolean isMergeable(EntityFilter entityFilter) {
     return false;
   }
@@ -46,9 +50,15 @@ public abstract class EntityFilter {
     return null;
   }
 
-  public static boolean areSameFilterType(List<EntityFilter> filters) {
-    String filterType = filters.get(0).getClass().getName();
-    return filters.stream().allMatch(filter -> filter.getClass().getName().equals(filterType));
+  public static boolean areSameFilterTypeAndEntity(List<EntityFilter> filters) {
+    Class<?> firstClazz = filters.get(0).getClass();
+    String firstEntityName = filters.get(0).getEntity().getName();
+    return filters.stream()
+        .skip(1)
+        .allMatch(
+            filter ->
+                filter.getClass().equals(firstClazz)
+                    && filter.getEntity().getName().equals(firstEntityName));
   }
 
   @Override

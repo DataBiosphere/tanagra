@@ -11,7 +11,6 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 public class TemporalPrimaryFilter extends EntityFilter {
-
   private final @Nullable ReducingOperator firstConditionReducingOperator;
   private final ImmutableList<EntityOutput> firstCondition;
   private final JoinOperator joinOperator;

@@ -131,9 +131,7 @@ public class StudyDao {
             + (filterSql.isEmpty() ? "" : " WHERE " + filterSql)
             + " ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET all studies: {}", sql);
-    List<Study> studies = getStudiesHelper(sql, params);
-    LOGGER.debug("GET all studies numFound = {}", studies.size());
-    return studies;
+    return getStudiesHelper(sql, params);
   }
 
   /**
@@ -163,9 +161,7 @@ public class StudyDao {
             + (filterSql.isEmpty() ? "" : "AND " + filterSql + " ")
             + "ORDER BY display_name LIMIT :limit OFFSET :offset";
     LOGGER.debug("GET matching studies: {}", sql);
-    List<Study> studies = getStudiesHelper(sql, params);
-    LOGGER.debug("GET matching studies numFound = {}", studies.size());
-    return studies;
+    return getStudiesHelper(sql, params);
   }
 
   /** Convert a study filter object into a SQL WHERE clause. */
@@ -224,7 +220,6 @@ public class StudyDao {
     LOGGER.debug("GET study: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<Study> studies = getStudiesHelper(sql, params);
-    LOGGER.debug("GET study numFound = {}", studies.size());
 
     // Make sure there's only one study returned for this id.
     if (studies.isEmpty()) {

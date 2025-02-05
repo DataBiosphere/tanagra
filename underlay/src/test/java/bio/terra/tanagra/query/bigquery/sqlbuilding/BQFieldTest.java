@@ -27,7 +27,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class BQFieldTest extends BQRunnerTest {
-
   @Test
   void attributeField() throws IOException {
     Entity entity = underlay.getPrimaryEntity();

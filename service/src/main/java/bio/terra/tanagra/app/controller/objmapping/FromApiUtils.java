@@ -503,7 +503,12 @@ public final class FromApiUtils {
 
   public static Literal fromApiObject(ApiLiteral apiLiteral) {
     return switch (apiLiteral.getDataType()) {
-      case INT64 -> Literal.forInt64(apiLiteral.getValueUnion().getInt64Val());
+        // JavaScript can't handle the full int64 range when parsing JSON, so parse them as strings.
+      case INT64 ->
+          Literal.forInt64(
+              apiLiteral.getValueUnion().getInt64Val() != null
+                  ? Long.parseLong(apiLiteral.getValueUnion().getInt64Val())
+                  : null);
       case STRING -> Literal.forString(apiLiteral.getValueUnion().getStringVal());
       case BOOLEAN -> Literal.forBoolean(apiLiteral.getValueUnion().isBoolVal());
       case DATE -> Literal.forDate(apiLiteral.getValueUnion().getDateVal());

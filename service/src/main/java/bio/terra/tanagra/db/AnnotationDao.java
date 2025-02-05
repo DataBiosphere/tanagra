@@ -123,9 +123,7 @@ public class AnnotationDao {
             .addValue("cohort_id", cohortId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
-    LOGGER.debug("GET all annotation keys numFound = {}", annotationKeys.size());
-    return annotationKeys;
+    return getAnnotationKeysHelper(sql, params);
   }
 
   @ReadTransaction
@@ -146,9 +144,7 @@ public class AnnotationDao {
             .addValue("ids", annotationKeyIdList)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
-    LOGGER.debug("GET matching annotation keys numFound = {}", annotationKeys.size());
-    return annotationKeys;
+    return getAnnotationKeysHelper(sql, params);
   }
 
   @ReadTransaction
@@ -158,7 +154,6 @@ public class AnnotationDao {
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("cohort_id", cohortId).addValue("id", annotationKeyId);
     List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
-    LOGGER.debug("GET annotation key numFound = {}", annotationKeys.size());
 
     // Make sure there's only one annotation key returned for this id.
     if (annotationKeys.isEmpty()) {

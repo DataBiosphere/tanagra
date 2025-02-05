@@ -51,12 +51,10 @@ public class AnnotationServiceTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationServiceTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
   private static final String USER_EMAIL_1 = "abc@123.com";
-
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private AnnotationService annotationService;
   @Autowired private ReviewService reviewService;
-
   private Study study1;
   private Cohort cohort1;
   private Cohort cohort2;

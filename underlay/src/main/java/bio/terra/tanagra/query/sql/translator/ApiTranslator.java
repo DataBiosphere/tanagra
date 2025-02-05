@@ -50,11 +50,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.text.StringSubstitutor;
+import org.slf4j.LoggerFactory;
 
 public interface ApiTranslator {
   String FUNCTION_TEMPLATE_FIELD_VAR = "fieldSql";
   String FUNCTION_TEMPLATE_FIELD_VAR_BRACES = "${" + FUNCTION_TEMPLATE_FIELD_VAR + "}";
-
   String FUNCTION_TEMPLATE_VALUES_VAR = "values";
   String FUNCTION_TEMPLATE_VALUES_VAR_BRACES = "${" + FUNCTION_TEMPLATE_VALUES_VAR + "}";
 
@@ -312,11 +312,6 @@ public interface ApiTranslator {
   ApiFilterTranslator translator(
       AttributeFilter attributeFilter, Map<Attribute, SqlField> attributeSwapFields);
 
-  Optional<ApiFilterTranslator> mergedTranslator(
-      List<AttributeFilter> attributeFilter,
-      LogicalOperator logicalOperator,
-      Map<Attribute, SqlField> attributeSwapFields);
-
   default ApiFilterTranslator translator(
       BooleanAndOrFilter booleanAndOrFilter, Map<Attribute, SqlField> attributeSwapFields) {
     return new BooleanAndOrFilterTranslator(this, booleanAndOrFilter, attributeSwapFields);
@@ -412,26 +407,128 @@ public interface ApiTranslator {
     } else if (entityFilter instanceof TemporalPrimaryFilter) {
       return translator((TemporalPrimaryFilter) entityFilter, attributeSwapFields);
     } else {
-      throw new InvalidQueryException("No SQL translator defined for filter");
+      throw new InvalidQueryException(
+          "No SQL translator defined for filter type: " + entityFilter.getClass().getSimpleName());
     }
   }
 
-  default Optional<ApiFilterTranslator> optionalMergedTranslator(
+  Optional<ApiFilterTranslator> mergedTranslatorAttributeFilter(
+      List<AttributeFilter> attributeFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  Optional<ApiFilterTranslator> mergedTranslatorHierarchyHasAncestorFilter(
+      List<HierarchyHasAncestorFilter> hierarchyHasAncestorFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  Optional<ApiFilterTranslator> mergedTranslatorHierarchyHasParentFilter(
+      List<HierarchyHasParentFilter> hierarchyHasParentFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  Optional<ApiFilterTranslator> mergedTranslatorHierarchyIsLeafFilter(
+      List<HierarchyIsLeafFilter> hierarchyIsLeafFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  Optional<ApiFilterTranslator> mergedTranslatorHierarchyIsMemberFilter(
+      List<HierarchyIsMemberFilter> hierarchyIsMemberFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  Optional<ApiFilterTranslator> mergedTranslatorHierarchyRootFilter(
+      List<HierarchyIsRootFilter> hierarchyIsRootFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  Optional<ApiFilterTranslator> mergedTranslatorPrimaryWithCriteriaFilter(
+      List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields);
+
+  default Optional<ApiFilterTranslator> mergedTranslator(
       List<EntityFilter> entityFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
-    // A list of sub-filters can be merged (optimized) if they are of the same type
-    // Additional checks may be needed for individual sub-filter types
-    EntityFilter firstFilter = entityFilters.get(0);
-
-    // At this time only optimize attribute filters are supported
-    if (!(firstFilter instanceof AttributeFilter)
-        || !EntityFilter.areSameFilterType(entityFilters)) {
+    if (entityFilters.isEmpty()) {
       return Optional.empty();
     }
-    return mergedTranslator(
-        entityFilters.stream().map(filter -> (AttributeFilter) filter).toList(),
-        logicalOperator,
-        attributeSwapFields);
+
+    // 1) Common to ALL filter types: Must be of the same type & on same entity
+    if (!EntityFilter.areSameFilterTypeAndEntity(entityFilters)) {
+      return Optional.empty();
+    }
+
+    // 2) Filter-type specific: Check the filter fields that lead to sub-queries or nested-filters.
+    // Example (2a): Attribute, Test filters are terminal since they do not involve sub-filters
+    // during translation. Hence, it is sufficient to check attribute field for mergeability.
+    // Example (2b): BooleanNot, BooleanAndOr, PrimaryWithCriteria filter are NOT terminal since
+    // they always include sub filters during translation. Hence, it is necessary to check all
+    // other fields that lead to a sub-filter.
+    EntityFilter entityFilter = entityFilters.get(0);
+    if (entityFilter instanceof AttributeFilter) {
+      return mergedTranslatorAttributeFilter(
+          entityFilters.stream().map(f -> (AttributeFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
+    } else if (entityFilter instanceof BooleanNotFilter) {
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
+      return Optional.empty();
+    } else if (entityFilter instanceof HierarchyHasAncestorFilter) {
+      return mergedTranslatorHierarchyHasAncestorFilter(
+          entityFilters.stream().map(f -> (HierarchyHasAncestorFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
+    } else if (entityFilter instanceof HierarchyHasParentFilter) {
+      return mergedTranslatorHierarchyHasParentFilter(
+          entityFilters.stream().map(f -> (HierarchyHasParentFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
+    } else if (entityFilter instanceof HierarchyIsLeafFilter) {
+      return mergedTranslatorHierarchyIsLeafFilter(
+          entityFilters.stream().map(f -> (HierarchyIsLeafFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
+    } else if (entityFilter instanceof HierarchyIsMemberFilter) {
+      return mergedTranslatorHierarchyIsMemberFilter(
+          entityFilters.stream().map(f -> (HierarchyIsMemberFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
+    } else if (entityFilter instanceof HierarchyIsRootFilter) {
+      return mergedTranslatorHierarchyRootFilter(
+          entityFilters.stream().map(f -> (HierarchyIsRootFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
+    } else if (entityFilter instanceof GroupHasItemsFilter) {
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
+      return Optional.empty();
+    } else if (entityFilter instanceof ItemInGroupFilter) {
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
+      return Optional.empty();
+    } else if (entityFilter instanceof OccurrenceForPrimaryFilter) {
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
+      return Optional.empty();
+    } else if (entityFilter instanceof PrimaryWithCriteriaFilter) {
+      return mergedTranslatorPrimaryWithCriteriaFilter(
+          entityFilters.stream().map(f -> (PrimaryWithCriteriaFilter) f).toList(),
+          logicalOperator,
+          attributeSwapFields);
+    } else if (entityFilter instanceof RelationshipFilter) {
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
+      return Optional.empty();
+    } else if (entityFilter instanceof TextSearchFilter) {
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
+      return Optional.empty();
+    } else if (entityFilter instanceof TemporalPrimaryFilter) {
+      // TODO(BENCH-5122): to be implemented when needed / prioritized
+      return Optional.empty();
+    } else {
+      LoggerFactory.getLogger(ApiTranslator.class)
+          .error(
+              "No merged SQL translator defined for filter type: {}",
+              entityFilter.getClass().getSimpleName());
+    }
+    return Optional.empty();
   }
 }

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IndividualFileDownload implements DataExport {
-
   @Override
   public Type getType() {
     return Type.INDIVIDUAL_FILE_DOWNLOAD;

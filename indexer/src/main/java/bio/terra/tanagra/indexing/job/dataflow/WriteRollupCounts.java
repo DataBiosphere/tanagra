@@ -71,7 +71,6 @@ import org.slf4j.LoggerFactory;
  */
 public class WriteRollupCounts extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteRollupCounts.class);
-
   private static final String TEMP_TABLE_NAME = "RC";
   private static final String INDEX_ID_REGEX_BRACES = "{indexIdRegex}";
   private final EntityGroup entityGroup;

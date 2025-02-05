@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 public class WriteChildParent extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteChildParent.class);
-
   private final STHierarchyChildParent sourceTable;
   private final ITHierarchyChildParent indexTable;
 

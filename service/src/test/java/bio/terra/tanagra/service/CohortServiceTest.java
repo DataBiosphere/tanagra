@@ -58,12 +58,10 @@ public class CohortServiceTest {
   private static final String UNDERLAY_NAME = "cmssynpuf";
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
-
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private ReviewService reviewService;
   @Autowired private AnnotationService annotationService;
-
   private Study study1;
   private Study study2;
 

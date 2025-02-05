@@ -49,12 +49,10 @@ public class ReviewSampleSizeTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewSampleSizeTest.class);
   private static final String UNDERLAY_NAME = "cmssynpuf";
   private static final String USER_EMAIL_1 = "abc@123.com";
-
   @Autowired private StudyService studyService;
   @Autowired private CohortService cohortService;
   @Autowired private ReviewService reviewService;
   @Autowired private UnderlayService underlayService;
-
   private Study study1;
   private Cohort cohort1;
 

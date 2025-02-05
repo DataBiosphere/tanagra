@@ -6,7 +6,6 @@ import java.util.Set;
 
 @AnnotatedClass(name = "SZTextSearch", markdown = "Text search configuration for an entity.")
 public class SZTextSearch {
-
   @AnnotatedField(
       name = "SZTextSearch.attributes",
       markdown =

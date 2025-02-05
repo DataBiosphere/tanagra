@@ -31,12 +31,13 @@ import { useImmer } from "use-immer";
 import { standardDateString } from "util/date";
 import { spacing } from "util/spacing";
 
-export type TreeGridId = string | number;
+export type TreeGridId = string | number | bigint;
 export type TreeGridValue =
   | undefined
   | null
   | string
   | number
+  | bigint
   | boolean
   | object
   | JSX.Element
@@ -46,14 +47,15 @@ export type TreeGridRowData = {
   [key: string]: TreeGridValue;
 };
 
-export type TreeGridItem = {
+export type TreeGridItem<RowType extends TreeGridRowData = TreeGridRowData> = {
   children?: TreeGridId[];
-  data: TreeGridRowData;
+  data: RowType;
 };
 
-export type TreeGridData<ItemType extends TreeGridItem = TreeGridItem> = {
-  [key: TreeGridId]: ItemType;
-};
+export type TreeGridData<ItemType extends TreeGridItem = TreeGridItem> = Map<
+  TreeGridId,
+  ItemType
+>;
 
 export type TreeGridColumn = {
   key: string;
@@ -388,16 +390,18 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
 export function useArrayAsTreeGridData<
   T extends TreeGridRowData,
   K extends keyof T
->(array: T[], key: K) {
+>(array: T[], key: K): TreeGridData<TreeGridItem<T>> {
   return useMemo(() => {
     const children: TreeGridId[] = [];
-    const data: TreeGridData = {
-      root: { data: {}, children },
-    };
+    const data = new Map<TreeGridId, TreeGridItem<T>>([
+      // Force empty data here since it's never accessed but making it optional
+      // is a pain for "data" access everywhere.
+      ["root", { data: {} as T, children }],
+    ]);
 
     array?.forEach((a) => {
       const k = a[key] as TreeGridId;
-      data[k] = { data: a };
+      data.set(k, { data: a });
       children.push(k);
     });
 
@@ -432,13 +436,17 @@ function renderChildren(
 ): JSX.Element[] {
   const results: JSX.Element[] = [];
 
-  props.data[id]?.children?.forEach((childId) => {
-    const child = props.data[childId];
+  props.data.get(id)?.children?.forEach((childId) => {
+    const child = props.data.get(childId);
     if (!child) {
       return;
     }
 
     const childState = state.get(childId);
+
+    if (!child.data) {
+      throw new Error(`'data' is undefined for ${JSON.stringify(child)}`);
+    }
     const rowCustomization = props.rowCustomization?.(childId, child.data);
 
     const renderColumn = (
@@ -550,6 +558,9 @@ function renderChildren(
         }}
       >
         {props.columns.map((col, i) => {
+          if (!child.data) {
+            throw new Error(`'data' is undefined for ${JSON.stringify(child)}`);
+          }
           let value = child.data[col.key];
           const isNull = value === null;
           if (isNull) {

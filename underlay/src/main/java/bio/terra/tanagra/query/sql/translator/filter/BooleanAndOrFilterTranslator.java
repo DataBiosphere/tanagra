@@ -9,12 +9,10 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
   private final BooleanAndOrFilter booleanAndOrFilter;
   private final List<ApiFilterTranslator> subFilterTranslators;
-  private final Optional<ApiFilterTranslator> mergedSubFiltersTranslator;
 
   public BooleanAndOrFilterTranslator(
       ApiTranslator apiTranslator,
@@ -22,30 +20,28 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
       Map<Attribute, SqlField> attributeSwapFields) {
     super(apiTranslator, attributeSwapFields);
     this.booleanAndOrFilter = booleanAndOrFilter;
-    this.mergedSubFiltersTranslator =
-        apiTranslator.optionalMergedTranslator(
+
+    Optional<ApiFilterTranslator> mergedTranslator =
+        apiTranslator.mergedTranslator(
             booleanAndOrFilter.getSubFilters(),
             booleanAndOrFilter.getOperator(),
             attributeSwapFields);
     this.subFilterTranslators =
-        mergedSubFiltersTranslator.isEmpty()
-            ? booleanAndOrFilter.getSubFilters().stream()
-                .map(filter -> apiTranslator.translator(filter, attributeSwapFields))
-                .collect(Collectors.toList())
-            : List.of();
+        mergedTranslator
+            .map(List::of)
+            .orElseGet(
+                () ->
+                    booleanAndOrFilter.getSubFilters().stream()
+                        .map(filter -> apiTranslator.translator(filter, attributeSwapFields))
+                        .toList());
   }
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
-    List<String> subFilterSqls;
-    if (mergedSubFiltersTranslator.isPresent()) {
-      subFilterSqls = List.of(mergedSubFiltersTranslator.get().buildSql(sqlParams, tableAlias));
-    } else {
-      subFilterSqls =
-          subFilterTranslators.stream()
-              .map(subFilterTranslator -> subFilterTranslator.buildSql(sqlParams, tableAlias))
-              .toList();
-    }
+    List<String> subFilterSqls =
+        subFilterTranslators.stream()
+            .map(subFilterTranslator -> subFilterTranslator.buildSql(sqlParams, tableAlias))
+            .toList();
     return apiTranslator.booleanAndOrFilterSql(
         booleanAndOrFilter.getOperator(), subFilterSqls.toArray(new String[0]));
   }

@@ -496,13 +496,13 @@ function PreviewTable(props: PreviewTableProps) {
             props.featureSets
           );
 
-          const data: TreeGridData = {
-            root: { data: {}, children: [] },
-          };
+          const data: TreeGridData = new Map([
+            ["root", { data: {}, children: [] }],
+          ]);
 
           res.data.forEach((entry, i) => {
-            data[i] = { data: entry };
-            data.root?.children?.push(i);
+            data.set(i, { data: entry });
+            data.get("root")?.children?.push(i);
           });
 
           return {
@@ -572,7 +572,8 @@ function PreviewTable(props: PreviewTableProps) {
                   </Typography>
                 </GridBox>
               ) : tabDataState.data?.[tab]?.data ? (
-                tabDataState.data?.[tab]?.data?.root?.children?.length ? (
+                tabDataState.data?.[tab]?.data?.get("root")?.children
+                  ?.length ? (
                   <TreeGrid
                     data={tabDataState.data?.[tab]?.data}
                     columns={props.occurrenceFilters[tab]?.attributes.map(

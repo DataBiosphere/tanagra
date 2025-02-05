@@ -26,7 +26,13 @@ type FormData = {
   size: string;
 };
 
-const MAX = 10000;
+// BigQuery has a parameter limit of 10_000. Cohort review creations stores
+// review primaryEntityIds in table primary_entity_instance, and uses the Ids
+// from this table as params in a select against ENT_primary_entity.
+// `@currentTimestamp` is already a param in the select. Hence, limit the max
+// review size to 9_999 (10_000 - 1 for @currentTimestamp). Same value in
+// service/src/main/java/bio/terra/tanagra/service/artifact/ReviewService.java:MAX_REVIEW_SIZE
+const MAX_REVIEW_SIZE = 9_999;
 
 export function useNewReviewDialog(
   props: UseNewReviewDialogProps
@@ -60,7 +66,9 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
   );
 
   const cohortCount = countState.data;
-  const max = isValid(cohortCount) ? Math.min(MAX, cohortCount) : MAX;
+  const max = isValid(cohortCount)
+    ? Math.min(MAX_REVIEW_SIZE, cohortCount)
+    : MAX_REVIEW_SIZE;
 
   return (
     <Dialog
@@ -150,8 +158,8 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
 function maxDisplay(max: number, cohortCount?: number) {
   if (!cohortCount) {
     return formatNumber(max);
-  } else if (cohortCount > MAX) {
-    return `${formatNumber(MAX)} of ${formatNumber(cohortCount)}`;
+  } else if (cohortCount > MAX_REVIEW_SIZE) {
+    return `${formatNumber(MAX_REVIEW_SIZE)} of ${formatNumber(cohortCount)}`;
   }
   return max;
 }
