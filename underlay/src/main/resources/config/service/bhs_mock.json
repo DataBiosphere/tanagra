@@ -1,0 +1,20 @@
+{
+    "underlay": "bhs_mock",
+    "bigQuery": {
+      "sourceData": {
+        "projectId": "wb-crisp-bean-3692",
+        "datasetId": "wb-crisp-bean-3692.bhs_mock_bq_dataset",
+        "sqlSubstitutions": {
+          "omopDataset": "wb-crisp-bean-3692.bhs_mock_bq_dataset",
+          "staticTablesDataset": ""
+        }
+      },
+      "indexData": {
+        "projectId": "wb-crisp-bean-3692",
+        "datasetId": "bhs_mock_index"
+      },
+      "queryProjectId": "wb-crisp-bean-3692",
+      "dataLocation": "us"
+    },
+    "uiConfigFile": "ui.json"
+  }
