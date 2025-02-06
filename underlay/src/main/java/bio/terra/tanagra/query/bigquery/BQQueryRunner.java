@@ -208,7 +208,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
-    List<String> orderByColumns = new ArrayList<>();
+    List<String> orderByColumns;
 
     if (hintQueryRequest.isEntityLevel()) {
       ITEntityLevelDisplayHints eldhTable =
