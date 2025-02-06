@@ -1,6 +1,0 @@
-{
-    "name": "dummyGroup",
-    "groupEntity": "person",
-    "itemsEntity": "dummyEntity",
-    "foreignKeyAttributeItemsEntity": "id"
-}
