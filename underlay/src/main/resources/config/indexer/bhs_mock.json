@@ -2,19 +2,19 @@
     "underlay": "bhs_mock",
     "bigQuery": {
       "sourceData": {
-        "projectId": "wb-crisp-bean-3692",
-        "datasetId": "wb-crisp-bean-3692.bhs_mock_bq_dataset",
+        "projectId": "wb-steady-blueberry-8554",
+        "datasetId": "BF_20240610_Screener",
         "sqlSubstitutions": {
-          "omopDataset": "wb-crisp-bean-3692.bhs_mock_bq_dataset",
+          "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
-        "projectId": "wb-crisp-bean-3692",
-        "datasetId": "bhs_mock_index"
+        "projectId": "wb-steady-blueberry-8554",
+        "datasetId": "BF_20240610_Screener_DEINDEX"
       },
-      "queryProjectId": "wb-crisp-bean-3692",
-      "dataLocation": "us"
+      "queryProjectId": "wb-steady-blueberry-8554",
+      "dataLocation": "us-central1"
     },
     "dataflow": {
         "serviceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
