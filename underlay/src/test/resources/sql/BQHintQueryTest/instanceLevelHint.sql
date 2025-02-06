@@ -9,4 +9,4 @@
         attribute_name,
         enum_value,
         enum_display,
-        enum_count
+        enum_count DESC

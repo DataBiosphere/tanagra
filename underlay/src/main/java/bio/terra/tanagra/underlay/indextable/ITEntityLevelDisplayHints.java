@@ -12,7 +12,7 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
   public static final String TABLE_NAME = "ELDH";
   private final String entity;
   private final ImmutableList<ColumnSchema> columnSchemas;
-  private final ImmutableList<String> orderByColumnNames;
+  private final ImmutableList<String> orderBys;
 
   public ITEntityLevelDisplayHints(
       NameHelper namer, SZBigQuery.IndexData bigQueryConfig, String entity) {
@@ -21,12 +21,12 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
     this.columnSchemas =
         ImmutableList.copyOf(
             Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
-    this.orderByColumnNames =
+    this.orderBys =
         ImmutableList.of(
             Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
             Column.ENUM_VALUE.getSchema().getColumnName(),
             Column.ENUM_DISPLAY.getSchema().getColumnName(),
-            Column.ENUM_COUNT.getSchema().getColumnName());
+            Column.ENUM_COUNT.getSchema().getColumnName() + " DESC");
   }
 
   public String getEntity() {
@@ -43,8 +43,8 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
     return columnSchemas;
   }
 
-  public ImmutableList<String> getOrderByColumnNames() {
-    return orderByColumnNames;
+  public ImmutableList<String> getOrderBys() {
+    return orderBys;
   }
 
   public enum Column {
