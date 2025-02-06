@@ -7,6 +7,6 @@
         entity_id = @relatedEntityId0      
     ORDER BY
         attribute_name,
-        enum_value,
         enum_display,
+        enum_value,
         enum_count DESC
