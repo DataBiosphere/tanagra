@@ -3,6 +3,7 @@ package bio.terra.tanagra.underlay.indextable;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
+import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints.Column;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
@@ -13,6 +14,8 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
   private final String entityGroup;
   private final String hintedEntity;
   private final String relatedEntity;
+  private final ImmutableList<ColumnSchema> columnSchemas;
+  private final ImmutableList<String> orderByColumnNames;
 
   public ITInstanceLevelDisplayHints(
       NameHelper namer,
@@ -24,6 +27,15 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
     this.entityGroup = entityGroup;
     this.hintedEntity = hintedEntity;
     this.relatedEntity = relatedEntity;
+    this.columnSchemas =
+        ImmutableList.copyOf(
+            Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    this.orderByColumnNames =
+        ImmutableList.of(
+            ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.name(),
+            ITEntityLevelDisplayHints.Column.ENUM_VALUE.name(),
+            ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.name(),
+            ITEntityLevelDisplayHints.Column.ENUM_COUNT.name());
   }
 
   public String getEntityGroup() {
@@ -45,9 +57,11 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
 
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
-    // Columns are static and don't depend on the entity.
-    return ImmutableList.copyOf(
-        Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    return columnSchemas;
+  }
+
+  public ImmutableList<String> getOrderByColumnNames() {
+    return orderByColumnNames;
   }
 
   public enum Column {

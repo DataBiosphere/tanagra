@@ -10,13 +10,23 @@ import java.util.stream.Collectors;
 
 public final class ITEntityLevelDisplayHints extends IndexTable {
   public static final String TABLE_NAME = "ELDH";
-
   private final String entity;
+  private final ImmutableList<ColumnSchema> columnSchemas;
+  private final ImmutableList<String> orderByColumnNames;
 
   public ITEntityLevelDisplayHints(
       NameHelper namer, SZBigQuery.IndexData bigQueryConfig, String entity) {
     super(namer, bigQueryConfig);
     this.entity = entity;
+    this.columnSchemas =
+        ImmutableList.copyOf(
+            Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    this.orderByColumnNames =
+        ImmutableList.of(
+            Column.ATTRIBUTE_NAME.name(),
+            Column.ENUM_VALUE.name(),
+            Column.ENUM_DISPLAY.name(),
+            Column.ENUM_COUNT.name());
   }
 
   public String getEntity() {
@@ -30,9 +40,11 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
 
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
-    // Columns are static and don't depend on the entity.
-    return ImmutableList.copyOf(
-        Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    return columnSchemas;
+  }
+
+  public ImmutableList<String> getOrderByColumnNames() {
+    return orderByColumnNames;
   }
 
   public enum Column {

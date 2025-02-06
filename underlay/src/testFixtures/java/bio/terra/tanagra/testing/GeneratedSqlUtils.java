@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class GeneratedSqlUtils {
   private static final Logger LOG = LoggerFactory.getLogger(GeneratedSqlUtils.class);
-
   private static final Path GENERATED_SQL_FILES_PARENT_DIR =
       Path.of(System.getProperty("GRADLE_PROJECT_DIR")).resolve("src/test/resources/");
 

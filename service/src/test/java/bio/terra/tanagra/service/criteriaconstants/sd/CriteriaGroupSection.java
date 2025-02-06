@@ -15,16 +15,16 @@ import bio.terra.tanagra.service.artifact.model.CohortRevision;
 import java.util.List;
 
 public final class CriteriaGroupSection {
-  private CriteriaGroupSection() {}
-
   public static final CohortRevision.CriteriaGroupSection CGS_EMPTY =
       CohortRevision.CriteriaGroupSection.builder().id("cgs1").build();
+
   public static final CohortRevision.CriteriaGroupSection CGS_CONDITION_EXCLUDED =
       CohortRevision.CriteriaGroupSection.builder()
           .id("cgs2")
           .criteriaGroups(List.of(CG_CONDITION_WITH_MODIFIER))
           .setIsExcluded(true)
           .build();
+
   public static final CohortRevision.CriteriaGroupSection CGS_GENDER_AND_CONDITION =
       CohortRevision.CriteriaGroupSection.builder()
           .id("cgs3")
@@ -39,17 +39,20 @@ public final class CriteriaGroupSection {
           .setIsExcluded(true)
           .setIsDisabled(true)
           .build();
+
   public static final CohortRevision.CriteriaGroupSection CGS_CONDITION_AND_DISABLED_GENDER =
       CohortRevision.CriteriaGroupSection.builder()
           .id("cgs3d")
           .criteriaGroups(List.of(CG_CONDITION_WITH_MODIFIER, DISABLED_CG_GENDER))
           .operator(BooleanAndOrFilter.LogicalOperator.AND)
           .build();
+
   public static final CohortRevision.CriteriaGroupSection CGS_GENDER =
       CohortRevision.CriteriaGroupSection.builder()
           .id("cgs4")
           .criteriaGroups(List.of(CG_GENDER))
           .build();
+
   public static final CohortRevision.CriteriaGroupSection CGS_PROCEDURE =
       CohortRevision.CriteriaGroupSection.builder()
           .id("cgs5")
@@ -127,4 +130,6 @@ public final class CriteriaGroupSection {
               .secondConditionCriteriaGroups(List.of(CG_CONDITION_WITH_MODIFIER))
               .operator(BooleanAndOrFilter.LogicalOperator.AND)
               .build();
+
+  private CriteriaGroupSection() {}
 }
