@@ -8,8 +8,6 @@ import java.util.Map;
 public final class FeatureSet {
   private static final String UNDERLAY_NAME = "cmssynpuf";
 
-  private FeatureSet() {}
-
   public static final bio.terra.tanagra.service.artifact.model.FeatureSet CS_DEMOGRAPHICS =
       bio.terra.tanagra.service.artifact.model.FeatureSet.builder()
           .underlay(UNDERLAY_NAME)
@@ -23,4 +21,6 @@ public final class FeatureSet {
               .criteria(List.of(DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE.getRight()))
               .excludeOutputAttributesPerEntity(Map.of("person", List.of("id", "gender")))
               .build();
+
+  private FeatureSet() {}
 }

@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 public final class UserId implements Serializable {
   private static final String DISABLED_AUTHENTICATION_USER_ID = "authentication-disabled";
-
   private final String subject;
   private final String email;
   private final String token;

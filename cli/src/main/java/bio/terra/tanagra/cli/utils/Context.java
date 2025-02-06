@@ -9,12 +9,10 @@ public final class Context {
   private static final String LOG_FILENAME = "tanagra.log";
   public static final String IS_TEST = "IS_TEST";
   private static final String IS_TEST_TRUE_VALUE = "true";
-
   // Env var name to optionally override where the context is persisted on disk.
   private static final String CONTEXT_DIR_OVERRIDE_NAME = "TANAGRA_CONTEXT_PARENT_DIR";
   // File paths related to persisting the context on disk.
   private static final String CONTEXT_DIRNAME = ".tanagra";
-
   // Singleton object that defines the current context or state.
   private static Config currentConfig;
 

@@ -208,6 +208,7 @@ public class BQQueryRunner implements QueryRunner {
     // Build the SQL query.
     StringBuilder sql = new StringBuilder();
     SqlParams sqlParams = new SqlParams();
+    List<String> orderBys;
 
     if (hintQueryRequest.isEntityLevel()) {
       ITEntityLevelDisplayHints eldhTable =
@@ -218,6 +219,8 @@ public class BQQueryRunner implements QueryRunner {
 
       // SELECT * FROM [entity-level hint]
       sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().render());
+      orderBys = eldhTable.getOrderBys();
+
     } else {
       ITInstanceLevelDisplayHints ildhTable =
           hintQueryRequest
@@ -238,7 +241,11 @@ public class BQQueryRunner implements QueryRunner {
           .append(ITInstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName())
           .append(" = @")
           .append(relatedEntityIdParam);
+      orderBys = ildhTable.getOrderBys();
     }
+
+    // ORDER BY [order by fields]
+    sql.append(" ORDER BY ").append(String.join(", ", orderBys));
 
     // Execute the SQL query.
     SqlQueryRequest sqlQueryRequest =
