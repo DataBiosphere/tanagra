@@ -3,7 +3,6 @@ package bio.terra.tanagra.underlay.indextable;
 import bio.terra.tanagra.api.shared.DataType;
 import bio.terra.tanagra.underlay.ColumnSchema;
 import bio.terra.tanagra.underlay.NameHelper;
-import bio.terra.tanagra.underlay.indextable.ITEntityLevelDisplayHints.Column;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
@@ -32,10 +31,10 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
             Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
     this.orderByColumnNames =
         ImmutableList.of(
-            ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
-            ITEntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName(),
-            ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName(),
-            ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName());
+            Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
+            Column.ENUM_VALUE.getSchema().getColumnName(),
+            Column.ENUM_DISPLAY.getSchema().getColumnName(),
+            Column.ENUM_COUNT.getSchema().getColumnName());
   }
 
   public String getEntityGroup() {
