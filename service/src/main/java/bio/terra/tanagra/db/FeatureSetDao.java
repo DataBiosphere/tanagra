@@ -91,7 +91,6 @@ public class FeatureSetDao {
     String sql =
         FEATURE_SET_SELECT_SQL
             + " WHERE study_id = :study_id AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET ALL feature sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
@@ -105,7 +104,6 @@ public class FeatureSetDao {
     String sql =
         FEATURE_SET_SELECT_SQL
             + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET MATCHING feature sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("ids", ids)
@@ -118,7 +116,6 @@ public class FeatureSetDao {
   public FeatureSet getFeatureSet(String id) {
     // Fetch feature set.
     String sql = FEATURE_SET_SELECT_SQL + " WHERE id = :id";
-    LOGGER.debug("GET feature set: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
 
