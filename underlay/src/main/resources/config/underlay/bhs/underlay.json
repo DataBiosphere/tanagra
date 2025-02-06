@@ -5,9 +5,7 @@
         "bhs/person",
         "bhs/dummyEntity"
     ],
-    "groupItemsEntityGroups": [
-        "amp_pd/dummyGroup"
-      ],  
+    "groupItemsEntityGroups": [],  
       "criteriaOccurrenceEntityGroups": [],
       "criteriaSelectors": [],
       "prepackagedDataFeatures": [],
