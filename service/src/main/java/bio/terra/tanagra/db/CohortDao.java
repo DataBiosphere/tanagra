@@ -160,7 +160,6 @@ public class CohortDao {
     String sql =
         COHORT_SELECT_SQL
             + " WHERE study_id = :study_id AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET ALL cohorts: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
@@ -174,7 +173,6 @@ public class CohortDao {
     String sql =
         COHORT_SELECT_SQL
             + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET MATCHING cohorts: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("ids", ids)
@@ -187,7 +185,6 @@ public class CohortDao {
   public Cohort getCohort(String id) {
     // Fetch cohort.
     String sql = COHORT_SELECT_SQL + " WHERE id = :id";
-    LOGGER.debug("GET cohort: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<Cohort> cohorts = getCohortsHelper(sql, params);
 
