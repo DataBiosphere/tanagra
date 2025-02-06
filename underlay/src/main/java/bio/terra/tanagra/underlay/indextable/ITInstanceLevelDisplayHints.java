@@ -32,10 +32,10 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
             Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
     this.orderByColumnNames =
         ImmutableList.of(
-            ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.name(),
-            ITEntityLevelDisplayHints.Column.ENUM_VALUE.name(),
-            ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.name(),
-            ITEntityLevelDisplayHints.Column.ENUM_COUNT.name());
+            ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
+            ITEntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName(),
+            ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName(),
+            ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName());
   }
 
   public String getEntityGroup() {

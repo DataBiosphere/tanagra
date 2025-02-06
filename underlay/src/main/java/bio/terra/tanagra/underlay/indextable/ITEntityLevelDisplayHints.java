@@ -23,10 +23,10 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
             Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
     this.orderByColumnNames =
         ImmutableList.of(
-            Column.ATTRIBUTE_NAME.name(),
-            Column.ENUM_VALUE.name(),
-            Column.ENUM_DISPLAY.name(),
-            Column.ENUM_COUNT.name());
+            Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
+            Column.ENUM_VALUE.getSchema().getColumnName(),
+            Column.ENUM_DISPLAY.getSchema().getColumnName(),
+            Column.ENUM_COUNT.getSchema().getColumnName());
   }
 
   public String getEntity() {
