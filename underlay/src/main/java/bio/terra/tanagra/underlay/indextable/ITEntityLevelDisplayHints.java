@@ -21,11 +21,12 @@ public final class ITEntityLevelDisplayHints extends IndexTable {
     this.columnSchemas =
         ImmutableList.copyOf(
             Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    // TODO(dexamundsen): move orderBys to config
     this.orderBys =
         ImmutableList.of(
             Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
-            Column.ENUM_VALUE.getSchema().getColumnName(),
             Column.ENUM_DISPLAY.getSchema().getColumnName(),
+            Column.ENUM_VALUE.getSchema().getColumnName(),
             Column.ENUM_COUNT.getSchema().getColumnName() + " DESC");
   }
 
