@@ -2,8 +2,7 @@
     "name": "bhs",
     "primaryEntity": "person",
     "entities": [
-        "bhs/person",
-        "bhs/dummyEntity"
+        "bhs/person"
     ],
     "groupItemsEntityGroups": [],  
       "criteriaOccurrenceEntityGroups": [],
