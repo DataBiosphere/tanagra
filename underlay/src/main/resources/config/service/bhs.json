@@ -1,20 +1,20 @@
 {
-    "underlay": "bhs",
-    "bigQuery": {
-      "sourceData": {
-        "projectId": "wb-sparkly-pumpkin-4431",
-        "datasetId": "wb-sparkly-pumpkin-4431.ps_new_dummy_wbde_src",
-        "sqlSubstitutions": {
-          "dataset": "wb-sparkly-pumpkin-4431.ps_new_dummy_wbde_src",
-          "staticTablesDataset": ""
-        }
-      },
-      "indexData": {
-        "projectId": "wb-sparkly-pumpkin-4431",
-        "datasetId": "ps_new_dummy_wbde_idx"
-      },
-      "queryProjectId": "wb-sparkly-pumpkin-4431",
-      "dataLocation": "us"
+  "underlay": "bhs",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "wb-sparkly-pumpkin-4431",
+      "datasetId": "wb-sparkly-pumpkin-4431.ps_new_dummy_wbde_src",
+      "sqlSubstitutions": {
+        "omopDataset": "wb-sparkly-pumpkin-4431.ps_new_dummy_wbde_src",
+        "staticTablesDataset": ""
+      }
     },
-    "uiConfigFile": "ui.json"
-  }
+    "indexData": {
+      "projectId": "wb-sparkly-pumpkin-4431",
+      "datasetId": "ps_new_dummy_wbde_idx"
+    },
+    "queryProjectId": "wb-sparkly-pumpkin-4431",
+    "dataLocation": "us"
+  },
+  "uiConfigFile": "ui.json"
+}
