@@ -1,6 +1,7 @@
 package bio.terra.tanagra.filterbuilder;
 
 import static bio.terra.tanagra.UnderlayTestConfigs.AOUSR2019Q4R4;
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -185,7 +186,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             null,
             null);
     expectedCohortFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.OR,
             List.of(expectedCohortFilter1, expectedCohortFilter2));
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -589,7 +590,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             null);
 
     EntityFilter expectedCohortFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.OR,
             List.of(expectedCohortFilter1, expectedCohortFilter2));
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -1122,7 +1123,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
             NaryOperator.BETWEEN,
             List.of(Literal.forDouble(45.0), Literal.forDouble(65.0)));
     EntityFilter expectedDataFeatureFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new OccurrenceForPrimaryFilter(
@@ -1334,7 +1335,7 @@ public class EntityGroupFilterBuilderForCriteriaOccurrenceTest {
                 occurrenceEntity ->
                     EntityOutput.filtered(
                         occurrenceEntity,
-                        new BooleanAndOrFilter(
+                        newBooleanAndOrFilter(
                             BooleanAndOrFilter.LogicalOperator.AND,
                             List.of(
                                 new OccurrenceForPrimaryFilter(

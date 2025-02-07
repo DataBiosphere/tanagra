@@ -72,9 +72,8 @@ public final class AttributeSchemaUtils {
                 NaryOperator.BETWEEN,
                 List.of(Literal.forDouble(range.getMin()), Literal.forDouble(range.getMax()))));
       }
-      return rangeFilters.size() == 1
-          ? rangeFilters.get(0)
-          : new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, rangeFilters);
+      return BooleanAndOrFilter.newBooleanAndOrFilter(
+          BooleanAndOrFilter.LogicalOperator.OR, rangeFilters);
     }
   }
 

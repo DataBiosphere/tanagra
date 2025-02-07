@@ -155,7 +155,8 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
     return entityFilters.size() == 1
         ? entityFilters.get(0)
-        : new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, entityFilters);
+        : BooleanAndOrFilter.newBooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR, entityFilters);
   }
 
   @Override

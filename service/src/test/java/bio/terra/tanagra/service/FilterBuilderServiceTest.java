@@ -1,5 +1,6 @@
 package bio.terra.tanagra.service;
 
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.CR_CONDITION_EXCLUDED;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.CR_CONDITION_EXCLUDED_AND_GENDER;
 import static bio.terra.tanagra.service.criteriaconstants.sd.CohortRevision.CR_EMPTY;
@@ -525,7 +526,7 @@ public class FilterBuilderServiceTest {
   }
 
   private EntityFilter genderAndConditionWithModifierCohortFilter() {
-    return new BooleanAndOrFilter(
+    return newBooleanAndOrFilter(
         BooleanAndOrFilter.LogicalOperator.AND,
         List.of(genderEqWomanCohortFilter(), conditionWithModifierCohortFilter()));
   }
@@ -579,7 +580,7 @@ public class FilterBuilderServiceTest {
   }
 
   private EntityFilter conditionExcludedAndGenderCohortFilter() {
-    return new BooleanAndOrFilter(
+    return newBooleanAndOrFilter(
         BooleanAndOrFilter.LogicalOperator.AND,
         List.of(conditionExcludedCohortFilter(), genderEqWomanCohortFilter()));
   }
@@ -607,7 +608,7 @@ public class FilterBuilderServiceTest {
             underlay.getEntity("conditionOccurrence").getAttribute("age_at_occurrence"),
             BinaryOperator.EQUALS,
             Literal.forInt64(65L));
-    return new BooleanAndOrFilter(
+    return newBooleanAndOrFilter(
         BooleanAndOrFilter.LogicalOperator.AND,
         List.of(conditionEqType2DiabetesDataFeatureFilter(), expectedAgeAtOccurrenceSubFilter));
   }
@@ -635,7 +636,7 @@ public class FilterBuilderServiceTest {
             underlay.getEntity("procedureOccurrence").getAttribute("age_at_occurrence"),
             BinaryOperator.EQUALS,
             Literal.forInt64(45L));
-    return new BooleanAndOrFilter(
+    return newBooleanAndOrFilter(
         BooleanAndOrFilter.LogicalOperator.AND,
         List.of(procedureEqAmputationDataFeatureFilter(), expectedAgeAtOccurrenceSubFilter));
   }
@@ -656,7 +657,7 @@ public class FilterBuilderServiceTest {
             null,
             null,
             null);
-    return new BooleanAndOrFilter(
+    return newBooleanAndOrFilter(
         BooleanAndOrFilter.LogicalOperator.OR,
         List.of(procedureCohortFilter, conditionExcludedAndGenderCohortFilter()));
   }
