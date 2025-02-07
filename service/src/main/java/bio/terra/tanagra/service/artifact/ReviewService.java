@@ -270,7 +270,7 @@ public class ReviewService {
             new ArrayList<>(primaryEntityIdsToStableIndex.keySet()));
     if (reviewQueryRequest.getEntityFilter() != null) {
       entityFilter =
-          new BooleanAndOrFilter(
+          BooleanAndOrFilter.newBooleanAndOrFilter(
               BooleanAndOrFilter.LogicalOperator.AND,
               List.of(entityFilter, reviewQueryRequest.getEntityFilter()));
     }

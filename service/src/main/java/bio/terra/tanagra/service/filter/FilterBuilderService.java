@@ -1,9 +1,10 @@
 package bio.terra.tanagra.service.filter;
 
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
+
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -171,7 +172,7 @@ public class FilterBuilderService {
       includeFilter =
           criteriaGroupFilters.size() == 1
               ? criteriaGroupFilters.get(0)
-              : new BooleanAndOrFilter(criteriaGroupSection.getOperator(), criteriaGroupFilters);
+              : newBooleanAndOrFilter(criteriaGroupSection.getOperator(), criteriaGroupFilters);
     }
     return criteriaGroupSection.isExcluded() ? new BooleanNotFilter(includeFilter) : includeFilter;
   }
@@ -189,7 +190,7 @@ public class FilterBuilderService {
 
     return sectionFilters.size() == 1
         ? sectionFilters.get(0)
-        : new BooleanAndOrFilter(LogicalOperator.AND, sectionFilters);
+        : newBooleanAndOrFilter(LogicalOperator.AND, sectionFilters);
   }
 
   public EntityFilter buildFilterForCohortRevision(
@@ -209,7 +210,7 @@ public class FilterBuilderService {
     } else if (cohortRevisionFilters.size() == 1) {
       return cohortRevisionFilters.get(0);
     } else {
-      return new BooleanAndOrFilter(LogicalOperator.OR, cohortRevisionFilters);
+      return newBooleanAndOrFilter(LogicalOperator.OR, cohortRevisionFilters);
     }
   }
 
@@ -362,7 +363,7 @@ public class FilterBuilderService {
             entityOutput =
                 EntityOutput.filtered(
                     outputEntity,
-                    new BooleanAndOrFilter(LogicalOperator.OR, filters),
+                    newBooleanAndOrFilter(LogicalOperator.OR, filters),
                     includeAttributes);
           }
 
@@ -486,7 +487,7 @@ public class FilterBuilderService {
         // feature filters.
         return outputEntityFilter == null
             ? wrappedPrimaryEntityFilter
-            : new BooleanAndOrFilter(
+            : newBooleanAndOrFilter(
                 LogicalOperator.AND, List.of(outputEntityFilter, wrappedPrimaryEntityFilter));
       default:
         throw new SystemException(

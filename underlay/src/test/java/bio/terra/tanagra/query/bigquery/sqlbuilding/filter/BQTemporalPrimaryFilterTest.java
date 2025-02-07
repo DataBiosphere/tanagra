@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding.filter;
 
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
+
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
@@ -243,7 +245,7 @@ public class BQTemporalPrimaryFilterTest extends BQRunnerTest {
         List.of(
             EntityOutput.filtered(
                 conditionOccurrence,
-                new BooleanAndOrFilter(
+                newBooleanAndOrFilter(
                     BooleanAndOrFilter.LogicalOperator.AND,
                     List.of(occurrenceFilterCondition1, attrModifierFilterCondition1))));
 
@@ -270,7 +272,7 @@ public class BQTemporalPrimaryFilterTest extends BQRunnerTest {
         List.of(
             EntityOutput.filtered(
                 procedureOccurrence,
-                new BooleanAndOrFilter(
+                newBooleanAndOrFilter(
                     BooleanAndOrFilter.LogicalOperator.AND,
                     List.of(occurrenceFilterProcedure1, attrModifierFilterProcedure1))));
 

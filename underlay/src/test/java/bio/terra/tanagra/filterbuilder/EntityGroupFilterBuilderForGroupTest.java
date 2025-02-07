@@ -1,6 +1,7 @@
 package bio.terra.tanagra.filterbuilder;
 
 import static bio.terra.tanagra.UnderlayTestConfigs.SD20230831;
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -176,7 +177,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             null,
             null);
     expectedCohortFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.OR,
             List.of(expectedCohortFilter1, expectedCohortFilter2));
     assertEquals(expectedCohortFilter, cohortFilter);
@@ -243,7 +244,7 @@ public class EntityGroupFilterBuilderForGroupTest {
         new ItemInGroupFilter(
             underlay,
             (GroupItems) underlay.getEntityGroup("genotypingPerson"),
-            new BooleanAndOrFilter(
+            newBooleanAndOrFilter(
                 BooleanAndOrFilter.LogicalOperator.AND,
                 List.of(expectedCriteriaSubFilter, expectedNameSubFilter)),
             null,
@@ -401,7 +402,7 @@ public class EntityGroupFilterBuilderForGroupTest {
         new ItemInGroupFilter(
             underlay,
             (GroupItems) underlay.getEntityGroup("genotypingPerson"),
-            new BooleanAndOrFilter(
+            newBooleanAndOrFilter(
                 BooleanAndOrFilter.LogicalOperator.AND,
                 List.of(expectedCriteriaSubFilter, expectedNameSubFilter)),
             List.of(underlay.getEntity("genotyping").getAttribute("name")),
@@ -766,7 +767,7 @@ public class EntityGroupFilterBuilderForGroupTest {
             BinaryOperator.EQUALS,
             Literal.forString("Illumina OMNI-Quad"));
     EntityFilter expectedDataFeatureFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(expectedCriteriaSubFilter, expectedNameSubFilter));
     EntityOutput expectedDataFeatureOutput =

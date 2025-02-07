@@ -108,13 +108,8 @@ public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.Bio
                   Literal.forBoolean(true))));
     }
 
-    if (filtersOnPrimaryEntity.isEmpty()) {
-      return null;
-    } else if (filtersOnPrimaryEntity.size() == 1) {
-      return filtersOnPrimaryEntity.get(0);
-    } else {
-      return new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.AND, filtersOnPrimaryEntity);
-    }
+    return BooleanAndOrFilter.newBooleanAndOrFilter(
+        BooleanAndOrFilter.LogicalOperator.AND, filtersOnPrimaryEntity);
   }
 
   @Override

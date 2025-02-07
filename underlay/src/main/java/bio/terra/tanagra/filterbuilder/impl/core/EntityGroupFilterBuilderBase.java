@@ -90,7 +90,6 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
         return false;
       }
 
-      @SuppressWarnings("unchecked")
       SelectionGroup sg = (SelectionGroup) o;
       return entityGroupId.equals(sg.entityGroupId) && Objects.equals(valueData, sg.valueData);
     }
@@ -156,7 +155,8 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
     return entityFilters.size() == 1
         ? entityFilters.get(0)
-        : new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, entityFilters);
+        : BooleanAndOrFilter.newBooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR, entityFilters);
   }
 
   @Override
