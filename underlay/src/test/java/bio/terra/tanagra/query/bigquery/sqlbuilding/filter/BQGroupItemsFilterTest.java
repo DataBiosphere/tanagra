@@ -240,6 +240,6 @@ public class BQGroupItemsFilterTest extends BQRunnerTest {
             .getEntityMain(groupItems.getItemsEntity().getName())
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
-        "groupHasItemsFKItemsTable", sqlQueryRequest.getSql(), groupEntityTable, itemsEntityTable);
+        "groupHasItemsFKItemsTable", sqlQueryRequest.sql(), groupEntityTable, itemsEntityTable);
   }
 }

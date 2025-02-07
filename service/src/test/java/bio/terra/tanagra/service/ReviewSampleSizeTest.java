@@ -125,20 +125,20 @@ public class ReviewSampleSizeTest {
     ReviewQueryResult reviewQueryResult =
         reviewService.listReviewInstances(
             study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest);
-    List<ReviewInstance> reviewInstances = new ArrayList<>(reviewQueryResult.getReviewInstances());
+    List<ReviewInstance> reviewInstances = new ArrayList<>(reviewQueryResult.reviewInstances());
 
     // Paginate through results.
-    while (reviewQueryResult.getPageMarker() != null) {
+    while (reviewQueryResult.pageMarker() != null) {
       reviewQueryRequest =
           ReviewQueryRequest.builder()
               .attributes(List.of(underlay.getPrimaryEntity().getIdAttribute()))
-              .pageMarker(reviewQueryResult.getPageMarker())
+              .pageMarker(reviewQueryResult.pageMarker())
               .pageSize(ReviewService.MAX_REVIEW_SIZE)
               .build();
       reviewQueryResult =
           reviewService.listReviewInstances(
               study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest);
-      reviewInstances.addAll(reviewQueryResult.getReviewInstances());
+      reviewInstances.addAll(reviewQueryResult.reviewInstances());
     }
     assertEquals(ReviewService.MAX_REVIEW_SIZE, reviewInstances.size());
 

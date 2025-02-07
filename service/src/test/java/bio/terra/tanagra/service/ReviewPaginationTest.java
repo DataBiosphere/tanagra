@@ -108,9 +108,9 @@ public class ReviewPaginationTest {
     ReviewQueryResult reviewQueryResult =
         reviewService.listReviewInstances(
             study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest);
-    assertNotNull(reviewQueryResult.getSql());
-    assertEquals(10, reviewQueryResult.getReviewInstances().size());
-    assertNull(reviewQueryResult.getPageMarker());
+    assertNotNull(reviewQueryResult.sql());
+    assertEquals(10, reviewQueryResult.reviewInstances().size());
+    assertNull(reviewQueryResult.pageMarker());
   }
 
   @Test
@@ -131,10 +131,10 @@ public class ReviewPaginationTest {
         reviewService.listReviewInstances(
             study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest1);
 
-    assertNotNull(reviewQueryResult1.getSql());
-    assertEquals(4, reviewQueryResult1.getReviewInstances().size());
-    assertNotNull(reviewQueryResult1.getPageMarker());
-    assertNotNull(reviewQueryResult1.getPageMarker().getOffset());
+    assertNotNull(reviewQueryResult1.sql());
+    assertEquals(4, reviewQueryResult1.reviewInstances().size());
+    assertNotNull(reviewQueryResult1.pageMarker());
+    assertNotNull(reviewQueryResult1.pageMarker().getOffset());
 
     // Second query request gets the second and final page of results.
     ReviewQueryRequest reviewQueryRequest2 =
@@ -145,14 +145,14 @@ public class ReviewPaginationTest {
                     new ReviewQueryOrderBy(
                         primaryEntity.getIdAttribute(), OrderByDirection.DESCENDING)))
             .pageSize(8)
-            .pageMarker(reviewQueryResult1.getPageMarker())
+            .pageMarker(reviewQueryResult1.pageMarker())
             .build();
     ReviewQueryResult reviewQueryResult2 =
         reviewService.listReviewInstances(
             study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest2);
 
-    assertNotNull(reviewQueryResult2.getSql());
-    assertEquals(6, reviewQueryResult2.getReviewInstances().size());
-    assertNull(reviewQueryResult2.getPageMarker());
+    assertNotNull(reviewQueryResult2.sql());
+    assertEquals(6, reviewQueryResult2.reviewInstances().size());
+    assertNull(reviewQueryResult2.pageMarker());
   }
 }

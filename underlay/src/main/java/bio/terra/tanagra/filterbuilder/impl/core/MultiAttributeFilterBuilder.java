@@ -32,7 +32,7 @@ public class MultiAttributeFilterBuilder
   @Override
   public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
     DTMultiAttribute.MultiAttribute multiAttrSelectionData =
-        deserializeData(selectionData.get(0).getPluginData());
+        deserializeData(selectionData.get(0).pluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
     if (multiAttrSelectionData == null) {
       // Empty selection data = null filter for a cohort.
@@ -85,7 +85,7 @@ public class MultiAttributeFilterBuilder
     List<EntityFilter> subFiltersNonPrimaryEntity = new ArrayList<>();
     if (!selectionData.isEmpty()) {
       DTMultiAttribute.MultiAttribute multiAttrSelectionData =
-          deserializeData(selectionData.get(0).getPluginData());
+          deserializeData(selectionData.get(0).pluginData());
       if (multiAttrSelectionData != null) {
         // Build the attribute filters on the not-primary entity.
         multiAttrSelectionData

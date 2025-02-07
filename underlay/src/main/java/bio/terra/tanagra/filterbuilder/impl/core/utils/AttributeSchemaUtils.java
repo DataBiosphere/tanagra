@@ -87,16 +87,15 @@ public final class AttributeSchemaUtils {
                     .getIdInConfig()
                     .equals(
                         criteriaSelector
-                            .getModifier(modifierSelectionData.getModifierName())
-                            .getPlugin()))
+                            .getModifier(modifierSelectionData.modifierName())
+                            .plugin()))
         .map(
             modifierSelectionData -> {
               CriteriaSelector.Modifier modifierDefn =
-                  criteriaSelector.getModifier(modifierSelectionData.getModifierName());
-              CFAttribute.Attribute modifierConfig =
-                  deserializeConfig(modifierDefn.getPluginConfig());
+                  criteriaSelector.getModifier(modifierSelectionData.modifierName());
+              CFAttribute.Attribute modifierConfig = deserializeConfig(modifierDefn.pluginConfig());
               DTAttribute.Attribute modifierData =
-                  deserializeData(modifierSelectionData.getPluginData());
+                  deserializeData(modifierSelectionData.pluginData());
               return Pair.of(modifierConfig, modifierData);
             })
         .collect(Collectors.toList());

@@ -350,10 +350,10 @@ public class DataExportHelper {
             } else {
               exportFileResults.add(
                   ExportFileResult.forEntityData(
-                      jobResult.getJobOutput().getFileDisplayName(),
-                      jobResult.getJobOutput().getFilePath(),
+                      jobResult.getJobOutput().fileDisplayName(),
+                      jobResult.getJobOutput().filePath(),
                       exportQueryRequest.getListQueryRequest().getEntity(),
-                      jobResult.getJobOutput().getFilePath() == null
+                      jobResult.getJobOutput().filePath() == null
                           ? "Export query returned zero rows. No file generated."
                           : null,
                       null));
@@ -373,10 +373,10 @@ public class DataExportHelper {
                       .run(exportQueryRequest);
               exportFileResults.add(
                   ExportFileResult.forEntityData(
-                      exportQueryResult.getFileDisplayName(),
-                      exportQueryResult.getFilePath(),
+                      exportQueryResult.fileDisplayName(),
+                      exportQueryResult.filePath(),
                       exportQueryRequest.getListQueryRequest().getEntity(),
-                      exportQueryResult.getFilePath() == null
+                      exportQueryResult.filePath() == null
                           ? "Export query returned zero rows. No file generated."
                           : null,
                       null));
@@ -435,7 +435,7 @@ public class DataExportHelper {
                   ExportQueryResult exportQueryResult = exportRawData(fileContents, fileName, true);
                   exportFileResults.add(
                       ExportFileResult.forAnnotationData(
-                          fileName, exportQueryResult.getFilePath(), cohort, null, null));
+                          fileName, exportQueryResult.filePath(), cohort, null, null));
                 }
               } catch (Exception ex) {
                 exportFileResults.add(

@@ -52,7 +52,7 @@ public class CriteriaSelectorTest {
 
     CriteriaSelector.Modifier ageAtOccurrenceModifier = condition.getModifier("ageAtOccurrence");
     assertNotNull(ageAtOccurrenceModifier);
-    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), ageAtOccurrenceModifier.getPlugin());
+    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), ageAtOccurrenceModifier.plugin());
 
     FilterBuilder filterBuilder = condition.getFilterBuilder();
     assertNotNull(filterBuilder);

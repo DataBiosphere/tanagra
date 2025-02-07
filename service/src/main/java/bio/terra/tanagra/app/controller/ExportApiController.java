@@ -268,12 +268,12 @@ public class ExportApiController implements ExportApi {
 
   private static ApiExportModel toApiObject(DataExportModel exportModel) {
     return new ApiExportModel()
-        .name(exportModel.getName())
+        .name(exportModel.name())
         .displayName(exportModel.getDisplayName())
-        .description(exportModel.getImpl().getDescription())
-        .numPrimaryEntityCap(exportModel.getConfig().getNumPrimaryEntityCap())
-        .inputs(exportModel.getImpl().describeInputs())
-        .outputs(exportModel.getImpl().describeOutputs());
+        .description(exportModel.impl().getDescription())
+        .numPrimaryEntityCap(exportModel.config().getNumPrimaryEntityCap())
+        .inputs(exportModel.impl().describeInputs())
+        .outputs(exportModel.impl().describeOutputs());
   }
 
   private static ApiExportResult toApiObject(ExportResult exportResult) {

@@ -91,10 +91,10 @@ public class HtmlWriter extends JobResultWriter {
   public void run() {
     VersionInformation versionInformation = VersionInformation.fromResourceFile();
     Map<String, String> substitutionParams = new HashMap<>();
-    substitutionParams.put("version.gitTag", versionInformation.getGitTag());
-    substitutionParams.put("version.gitHash", versionInformation.getGitHash());
+    substitutionParams.put("version.gitTag", versionInformation.gitTag());
+    substitutionParams.put("version.gitHash", versionInformation.gitHash());
     substitutionParams.put("version.gitUrl", versionInformation.getGithubUrl());
-    substitutionParams.put("version.build", versionInformation.getBuild());
+    substitutionParams.put("version.build", versionInformation.build());
     substitutionParams.put("jobWriter.command", getCommand());
     substitutionParams.put("jobRunner.name", jobRunnerName);
     substitutionParams.put("jobRunner.workingDirectory", Path.of("").toAbsolutePath().toString());

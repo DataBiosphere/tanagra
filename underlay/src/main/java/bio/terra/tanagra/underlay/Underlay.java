@@ -268,7 +268,7 @@ public final class Underlay {
             szCriteriaSelector.modifiers.forEach(
                 modifier ->
                     modifier.pluginConfig =
-                        criteriaSelector.getModifier(modifier.name).getPluginConfig());
+                        criteriaSelector.getModifier(modifier.name).pluginConfig());
 
             szCriteriaSelectors.add(szCriteriaSelector);
             criteriaSelectors.add(criteriaSelector);
@@ -290,7 +290,7 @@ public final class Underlay {
             // Update the szPrepackagedCriteria with the contents of the plugin data files.
             if (prepackagedCriteria.hasSelectionData()) {
               szPrepackagedCriteria.pluginData =
-                  prepackagedCriteria.getSelectionData().getPluginData();
+                  prepackagedCriteria.getSelectionData().pluginData();
             }
 
             szPrepackagedDataFeatures.add(szPrepackagedCriteria);

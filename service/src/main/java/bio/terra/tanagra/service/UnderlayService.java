@@ -236,7 +236,7 @@ public class UnderlayService {
 
                 List<HintInstance> attrHintInstances = new ArrayList<>();
                 sqlQueryResult
-                    .getRowResults()
+                    .rowResults()
                     .iterator()
                     .forEachRemaining(
                         sqlRowResult -> {
@@ -263,7 +263,7 @@ public class UnderlayService {
 
                 Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
                 sqlQueryResult
-                    .getRowResults()
+                    .rowResults()
                     .iterator()
                     .forEachRemaining(
                         sqlRowResult -> {
@@ -290,7 +290,7 @@ public class UnderlayService {
 
                 Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
                 sqlQueryResult
-                    .getRowResults()
+                    .rowResults()
                     .iterator()
                     .forEachRemaining(
                         sqlRowResult -> {

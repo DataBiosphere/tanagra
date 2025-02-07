@@ -61,7 +61,7 @@ public class FilterableGroupFilterBuilder
 
     // We want to build one filter per selection item, not one filter per selected id.
     List<Literal> selectedIds = new ArrayList<>();
-    deserializeData(selectionData.get(0).getPluginData())
+    deserializeData(selectionData.get(0).pluginData())
         .getSelectedList()
         .forEach(
             selectionItem -> {
