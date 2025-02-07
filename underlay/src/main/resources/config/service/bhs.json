@@ -2,18 +2,18 @@
   "underlay": "bhs",
   "bigQuery": {
     "sourceData": {
-      "projectId": "wb-sparkly-pumpkin-4431",
-      "datasetId": "wb-sparkly-pumpkin-4431.ps_new_dummy_wbde_src",
+      "projectId": "wb-steady-blueberry-8554",
+      "datasetId": "wb-steady-blueberry-8554.BF_20240610_Screener",
       "sqlSubstitutions": {
-        "omopDataset": "wb-sparkly-pumpkin-4431.ps_new_dummy_wbde_src",
+        "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
         "staticTablesDataset": ""
       }
     },
     "indexData": {
-      "projectId": "wb-sparkly-pumpkin-4431",
-      "datasetId": "ps_new_dummy_wbde_idx"
+      "projectId": "wb-rapid-kiwi-3048",
+      "datasetId": "BF_20240610_Screener_idx"
     },
-    "queryProjectId": "wb-sparkly-pumpkin-4431",
+    "queryProjectId": "wb-rapid-kiwi-3048",
     "dataLocation": "us"
   },
   "uiConfigFile": "ui.json"
