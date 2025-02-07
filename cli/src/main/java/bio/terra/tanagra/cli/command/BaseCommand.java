@@ -56,7 +56,7 @@ public abstract class BaseCommand implements Callable<Integer> {
     ERR = UserIO.getErr();
 
     // Execute the command
-    LOGGER.debug("[COMMAND ARGS] " + String.join(" ", BaseMain.getArgList()));
+    LOGGER.debug("[COMMAND ARGS] {}", String.join(" ", BaseMain.getArgList()));
     execute();
 
     // Set the command exit code

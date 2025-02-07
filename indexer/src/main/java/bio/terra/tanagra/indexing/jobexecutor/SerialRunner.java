@@ -1,10 +1,8 @@
 package bio.terra.tanagra.indexing.jobexecutor;
 
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.indexing.job.IndexingJob;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /** Utility class that runs multiple job sets in serial. */
 public final class SerialRunner extends JobRunner {
@@ -21,20 +19,12 @@ public final class SerialRunner extends JobRunner {
   /** Run all job sets serially. */
   @Override
   public void runJobSetsWithoutTimer() {
-    jobSets.forEach(
-        jobSet -> {
-          try {
-            runSingleJobSet(jobSet);
-          } catch (InterruptedException | ExecutionException ex) {
-            throw new SystemException("Job set execution failed", ex);
-          }
-        });
+    jobSets.forEach(this::runSingleJobSet);
   }
 
   /** Run a single job set. Run the stages serially, and the jobs within each stage serially. */
   @Override
-  protected void runSingleJobSet(SequencedJobSet sequencedJobSet)
-      throws InterruptedException, ExecutionException {
+  protected void runSingleJobSet(SequencedJobSet sequencedJobSet) {
     // Iterate through the job stages, running all jobs in each stage.
     Iterator<List<IndexingJob>> jobStagesIterator = sequencedJobSet.iterator();
     while (jobStagesIterator.hasNext()) {

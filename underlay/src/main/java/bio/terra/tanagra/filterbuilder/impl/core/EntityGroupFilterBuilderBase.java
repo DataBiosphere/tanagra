@@ -47,8 +47,8 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
   // A SelectionGroup is the parameters that must be the same to be applied to a list of ids.
   protected static class SelectionGroup implements Comparable<SelectionGroup> {
-    public String entityGroupId;
-    public ValueDataOuterClass.ValueData valueData;
+    public final String entityGroupId;
+    public final ValueDataOuterClass.ValueData valueData;
 
     public SelectionGroup(String entityGroupId, ValueDataOuterClass.ValueData valueData) {
       this.entityGroupId = entityGroupId;
@@ -101,8 +101,8 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
   }
 
   protected static class SelectionItem {
-    public Literal id;
-    public SelectionGroup group;
+    public final Literal id;
+    public final SelectionGroup group;
 
     public SelectionItem(Literal id, SelectionGroup group) {
       this.id = id;

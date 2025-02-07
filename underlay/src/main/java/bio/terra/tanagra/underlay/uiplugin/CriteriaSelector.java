@@ -53,9 +53,9 @@ public class CriteriaSelector {
     return supportsTemporalQueries;
   }
 
-  public FilterBuilder getFilterBuilder() {
+  public FilterBuilder<?, ?> getFilterBuilder() {
     try {
-      return (FilterBuilder)
+      return (FilterBuilder<?, ?>)
           Class.forName(FILTER_BUILDER_PACKAGE + '.' + filterBuilder)
               .getDeclaredConstructor(CriteriaSelector.class)
               .newInstance(this);

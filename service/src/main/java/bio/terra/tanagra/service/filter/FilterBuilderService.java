@@ -61,7 +61,6 @@ public class FilterBuilderService {
     this.underlayService = underlayService;
   }
 
-  @SuppressWarnings("unchecked")
   public EntityFilter buildCohortFilterForCriteriaGroup(
       String underlayName, CohortRevision.CriteriaGroup criteriaGroup) {
     if (criteriaGroup.isDisabled() || criteriaGroup.getCriteria().isEmpty()) {
@@ -78,12 +77,11 @@ public class FilterBuilderService {
             .collect(Collectors.toList());
 
     Underlay underlay = underlayService.getUnderlay(underlayName);
-    FilterBuilder filterBuilder =
+    FilterBuilder<?, ?> filterBuilder =
         underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
     return filterBuilder.buildForCohort(underlay, selectionData);
   }
 
-  @SuppressWarnings("unchecked")
   private List<EntityOutput> buildDataFeatureOutputForTemporalCriteriaGroup(
       String underlayName, CohortRevision.CriteriaGroup criteriaGroup) {
     if (criteriaGroup.getCriteria().isEmpty()) {
@@ -214,7 +212,6 @@ public class FilterBuilderService {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public List<EntityOutputPreview> buildOutputPreviewsForFeatureSets(
       List<FeatureSet> featureSets, boolean includeAllAttributes) {
     // No feature sets = no entity outputs.
@@ -281,7 +278,7 @@ public class FilterBuilderService {
                     }
 
                     // Generate the entity outputs for each feature set criteria.
-                    FilterBuilder filterBuilder =
+                    FilterBuilder<?, ?> filterBuilder =
                         underlay.getCriteriaSelector(criteriaSelectorName).getFilterBuilder();
                     List<EntityOutput> entityOutputs =
                         filterBuilder.buildForDataFeature(underlay, selectionData);
