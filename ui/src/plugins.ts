@@ -12,6 +12,7 @@ import "criteria/filterableGroup";
 
 // Cohort review plugins
 import "cohortReview/plugins/occurrenceTable";
+import "cohortReview/plugins/occurrenceTabs";
 import "cohortReview/plugins/textSearch";
 
 // Custom plugins

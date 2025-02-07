@@ -309,6 +309,229 @@
         }
       },
       {
+        "type": "entityTabs",
+        "id": "vitals",
+        "title": "Vitals",
+        "plugin": {
+          "tabs": [
+            {
+              "type": "entityTable",
+              "id": "bloodPressure",
+              "title": "Blood Pressure",
+              "plugin": {
+                "entity": "bloodPressure",
+                "columns": [
+                  {
+                    "key": "date",
+                    "width": "100%",
+                    "title": "Measurement date",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "systolic",
+                    "width": 200,
+                    "title": "Systolic",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "diastolic",
+                    "width": 200,
+                    "title": "Diastolic",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "age_at_occurrence",
+                    "width": 200,
+                    "title": "Age at Event",
+                    "sortable": true,
+                    "filterable": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "entityTable",
+              "id": "bmi",
+              "title": "BMI",
+              "plugin": {
+                "entity": "bmi",
+                "columns": [
+                  {
+                    "key": "date",
+                    "width": "100%",
+                    "title": "Measurement date",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "value_numeric",
+                    "width": 200,
+                    "title": "Value",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "is_clean",
+                    "width": 200,
+                    "title": "Raw/Cleaned",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "age_at_occurrence",
+                    "width": 200,
+                    "title": "Age at Event",
+                    "sortable": true,
+                    "filterable": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "entityTable",
+              "id": "height",
+              "title": "Height",
+              "plugin": {
+                "entity": "height",
+                "columns": [
+                  {
+                    "key": "date",
+                    "width": "100%",
+                    "title": "Measurement date",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "value_numeric",
+                    "width": 200,
+                    "title": "Value",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "is_clean",
+                    "width": 200,
+                    "title": "Raw/Cleaned",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "age_at_occurrence",
+                    "width": 200,
+                    "title": "Age at Event",
+                    "sortable": true,
+                    "filterable": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "entityTable",
+              "id": "weight",
+              "title": "Weight",
+              "plugin": {
+                "entity": "weight",
+                "columns": [
+                  {
+                    "key": "date",
+                    "width": "100%",
+                    "title": "Measurement date",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "value_numeric",
+                    "width": 200,
+                    "title": "Value",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "is_clean",
+                    "width": 200,
+                    "title": "Raw/Cleaned",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "age_at_occurrence",
+                    "width": 200,
+                    "title": "Age at Event",
+                    "sortable": true,
+                    "filterable": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "entityTable",
+              "id": "pulse",
+              "title": "Pulse",
+              "plugin": {
+                "entity": "pulse",
+                "columns": [
+                  {
+                    "key": "date",
+                    "width": "100%",
+                    "title": "Measurement date",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "value_numeric",
+                    "width": 200,
+                    "title": "Value",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "age_at_occurrence",
+                    "width": 200,
+                    "title": "Age at Event",
+                    "sortable": true,
+                    "filterable": true
+                  }
+                ]
+              }
+            },
+            {
+              "type": "entityTable",
+              "id": "respiratoryRate",
+              "title": "Respiratory Rate",
+              "plugin": {
+                "entity": "respiratoryRate",
+                "columns": [
+                  {
+                    "key": "date",
+                    "width": "100%",
+                    "title": "Measurement date",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "value_numeric",
+                    "width": 200,
+                    "title": "Value",
+                    "sortable": true,
+                    "filterable": true
+                  },
+                  {
+                    "key": "age_at_occurrence",
+                    "width": 200,
+                    "title": "Age at Event",
+                    "sortable": true,
+                    "filterable": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
         "type": "textSearch",
         "id": "notes",
         "title": "Documents",
