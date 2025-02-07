@@ -27,10 +27,10 @@ class _ implements CohortReviewPlugin {
     config: CohortReviewPageConfig
   ) {
     this.config = config.plugin as Config;
-    this.entities = this.config.tabs.reduce((acc, t) => {
-      acc.push(getCohortReviewPlugin(t).entities[0]);
-      return acc;
-    }, [] as string[]);
+    this.entities = this.config.tabs.reduce(
+      (acc, t) => [...acc, getCohortReviewPlugin(t).entities[0]],
+      [] as string[]
+    );
   }
 
   render() {
