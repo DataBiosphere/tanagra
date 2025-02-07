@@ -1,12 +1,12 @@
 package bio.terra.tanagra.filterbuilder;
 
 import static bio.terra.tanagra.UnderlayTestConfigs.AOUSC2023Q3R2;
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
-import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.GroupHasItemsFilter;
@@ -139,7 +139,7 @@ public class FilterableGroupFilterBuilderTest {
     EntityFilter expectedSubFilter =
         new ItemInGroupFilter(underlay, groupItems_variant, null, List.of(), null, null);
     EntityFilter expectedCohortFilter =
-        new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+        newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     SelectionData selectionData = new SelectionData(null, serializeToJson(dataBuilder.build()));
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -158,7 +158,7 @@ public class FilterableGroupFilterBuilderTest {
     expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedIdsSubFilter, List.of(), null, null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectedIds.forEach(
         id ->
@@ -196,7 +196,7 @@ public class FilterableGroupFilterBuilderTest {
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedQuerySubFilter, List.of(), null, null);
     EntityFilter expectedCohortFilter =
-        new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+        newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     SelectionData selectionData = new SelectionData(null, serializeToJson(data));
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -220,7 +220,7 @@ public class FilterableGroupFilterBuilderTest {
     expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedQuerySubFilter, List.of(), null, null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectionData = new SelectionData(null, serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -244,7 +244,7 @@ public class FilterableGroupFilterBuilderTest {
     expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedQuerySubFilter, List.of(), null, null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectionData = new SelectionData(null, serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -259,7 +259,7 @@ public class FilterableGroupFilterBuilderTest {
             .build();
 
     expectedQuerySubFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -283,7 +283,7 @@ public class FilterableGroupFilterBuilderTest {
     expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedQuerySubFilter, List.of(), null, null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectionData = new SelectionData(null, serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -299,7 +299,7 @@ public class FilterableGroupFilterBuilderTest {
 
     expectedSubFilter =
         new ItemInGroupFilter(underlay, groupItems_variant, null, List.of(), null, null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectionData = new SelectionData(null, serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -330,7 +330,7 @@ public class FilterableGroupFilterBuilderTest {
             List.of(),
             null,
             null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectionData = new SelectionData(null, serializeToJson(data));
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -369,7 +369,7 @@ public class FilterableGroupFilterBuilderTest {
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedValueDataSubFilter, List.of(), null, null);
     EntityFilter expectedCohortFilter =
-        new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+        newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     SelectionData selectionData = new SelectionData(null, serializeToJson(data));
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
@@ -386,7 +386,7 @@ public class FilterableGroupFilterBuilderTest {
     EntityFilter expectedSubFilter =
         new ItemInGroupFilter(underlay, groupItems_variant, null, List.of(), null, null);
     EntityFilter expectedCohortFilter =
-        new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+        newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     FilterableGroup data =
         FilterableGroup.newBuilder()
@@ -410,7 +410,7 @@ public class FilterableGroupFilterBuilderTest {
     expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedIdsSubFilter, List.of(), null, null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectAllBuilder.addExclusions(
         SingleSelect.newBuilder()
@@ -438,7 +438,7 @@ public class FilterableGroupFilterBuilderTest {
     expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedIdsSubFilter, List.of(), null, null);
-    expectedCohortFilter = new BooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
 
     selectAllBuilder.clearExclusions();
     excludedIds.forEach(
@@ -501,7 +501,7 @@ public class FilterableGroupFilterBuilderTest {
         new ItemInGroupFilter(
             underlay,
             groupItems_variant,
-            new BooleanAndOrFilter(
+            newBooleanAndOrFilter(
                 LogicalOperator.AND, List.of(expectedQuerySubFilter, expectedValueDataSubFilter)),
             List.of(),
             null,
@@ -510,7 +510,7 @@ public class FilterableGroupFilterBuilderTest {
         new ItemInGroupFilter(
             underlay,
             groupItems_variant,
-            new BooleanAndOrFilter(
+            newBooleanAndOrFilter(
                 LogicalOperator.AND,
                 List.of(expectedValueDataSubFilter, expectedExclusionsSubFilter)),
             List.of(),
@@ -562,7 +562,7 @@ public class FilterableGroupFilterBuilderTest {
                     .build()));
 
     EntityFilter expectedCohortFilter =
-        new BooleanAndOrFilter(LogicalOperator.OR, expectedSubFilters);
+        newBooleanAndOrFilter(LogicalOperator.OR, expectedSubFilters);
 
     SelectionData selectionData = new SelectionData(null, serializeToJson(dataBuilder.build()));
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));

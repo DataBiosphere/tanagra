@@ -1,5 +1,7 @@
 package bio.terra.tanagra.query.bigquery.translator.filter;
 
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
+
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.EntityFilter;
@@ -99,7 +101,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
     EntityFilter criteriaSubFilter =
         primaryWithCriteriaFilters.size() == 1
             ? singleFilter.getCriteriaSubFilter()
-            : new BooleanAndOrFilter(
+            : newBooleanAndOrFilter(
                 logicalOperator,
                 primaryWithCriteriaFilters.stream()
                     .map(PrimaryWithCriteriaFilter::getCriteriaSubFilter)
@@ -164,7 +166,7 @@ public class BQPrimaryWithCriteriaFilterTranslator extends ApiFilterTranslator {
                 allOccurrenceSubFilters.add(occurrenceCriteriaFilter);
                 allOccurrenceSubFilters.addAll(singleFilter.getSubFilters(occurrenceEntity));
                 allOccurrenceFilters =
-                    new BooleanAndOrFilter(
+                    newBooleanAndOrFilter(
                         BooleanAndOrFilter.LogicalOperator.AND, allOccurrenceSubFilters);
 
               } else {

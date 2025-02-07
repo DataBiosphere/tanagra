@@ -94,7 +94,7 @@ public class FilterableGroupFilterBuilder
     }
 
     // Grouping is not needed since filtersToOr are not subFilters
-    return new BooleanAndOrFilter(
+    return BooleanAndOrFilter.newBooleanAndOrFilter(
         LogicalOperator.OR, filtersToOr.stream().filter(Objects::nonNull).toList());
   }
 

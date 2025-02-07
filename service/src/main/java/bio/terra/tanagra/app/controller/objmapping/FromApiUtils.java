@@ -224,7 +224,7 @@ public final class FromApiUtils {
               throw new InvalidQueryException(
                   "Boolean logic operators OR, AND must have more than one sub-filter specified");
             }
-            return new BooleanAndOrFilter(
+            return BooleanAndOrFilter.newBooleanAndOrFilter(
                 BooleanAndOrFilter.LogicalOperator.valueOf(
                     apiBooleanLogicFilter.getOperator().name()),
                 subFilters);
