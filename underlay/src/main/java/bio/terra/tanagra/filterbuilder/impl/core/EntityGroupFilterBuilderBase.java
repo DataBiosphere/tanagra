@@ -112,7 +112,7 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
   @Override
   public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
-    String criteriaSelectionData = selectionData.get(0).getPluginData();
+    String criteriaSelectionData = selectionData.get(0).pluginData();
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // We want to build one filter per selection group, not one filter per selected id.
@@ -162,7 +162,7 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
   @Override
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
-    String criteriaSelectionData = selectionData.get(0).getPluginData();
+    String criteriaSelectionData = selectionData.get(0).pluginData();
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // We want to build one filter per selection group, not one filter per selected id.

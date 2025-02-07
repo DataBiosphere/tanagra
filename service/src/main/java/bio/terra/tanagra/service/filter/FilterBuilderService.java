@@ -101,7 +101,7 @@ public class FilterBuilderService {
       if (i == 0
           || criteriaSelector
               .getModifier(criteria.getSelectorOrModifierName())
-              .isSupportsTemporalQueries()) {
+              .supportsTemporalQueries()) {
         selectionData.add(
             new SelectionData(criteria.getSelectorOrModifierName(), criteria.getSelectionData()));
       }

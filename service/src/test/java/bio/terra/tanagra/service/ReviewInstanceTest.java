@@ -320,7 +320,7 @@ public class ReviewInstanceTest {
                 ReviewQueryRequest.builder()
                     .attributes(List.of(primaryEntity.getAttribute("gender")))
                     .build())
-            .getReviewInstances();
+            .reviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L), idAttr, reviewInstances2);
 
@@ -352,7 +352,7 @@ public class ReviewInstanceTest {
                 cohort1.getId(),
                 review1.getId(),
                 ReviewQueryRequest.builder().build())
-            .getReviewInstances();
+            .reviewInstances();
     checkEntityInstances(
         List.of(2_014_950L, 1_858_841L, 2_180_409L), primaryEntityIdAttribute, reviewInstances1);
     checkAnnotationValues(
@@ -443,7 +443,7 @@ public class ReviewInstanceTest {
                 cohort1.getId(),
                 review2.getId(),
                 ReviewQueryRequest.builder().build())
-            .getReviewInstances();
+            .reviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 2_180_409L, 1_131_436L, 1_838_382L),
         primaryEntityIdAttribute,
@@ -557,7 +557,7 @@ public class ReviewInstanceTest {
                 cohort1.getId(),
                 review3.getId(),
                 ReviewQueryRequest.builder().build())
-            .getReviewInstances();
+            .reviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 2_180_409L, 1_838_382L), primaryEntityIdAttribute, reviewInstances3);
     checkAnnotationValues(
@@ -640,7 +640,7 @@ public class ReviewInstanceTest {
                 cohort1.getId(),
                 review4.getId(),
                 ReviewQueryRequest.builder().build())
-            .getReviewInstances();
+            .reviewInstances();
     checkEntityInstances(
         List.of(1_858_841L, 1_838_382L, 799_353L, 2_104_705L),
         primaryEntityIdAttribute,
@@ -717,7 +717,7 @@ public class ReviewInstanceTest {
                 cohort1.getId(),
                 review4.getId(),
                 ReviewQueryRequest.builder().build())
-            .getReviewInstances();
+            .reviewInstances();
     reviewInstancesDefault.forEach(rid -> LOGGER.info("si {}", rid.getStableIndex()));
 
     // Check the rows are returned in ascending stable index order.
@@ -753,7 +753,7 @@ public class ReviewInstanceTest {
                             new ReviewQueryOrderBy(
                                 primaryEntityIdAttribute, OrderByDirection.DESCENDING)))
                     .build())
-            .getReviewInstances();
+            .reviewInstances();
     assertEquals(
         List.of(2_104_705L, 1_858_841L, 1_838_382L, 799_353L),
         reviewInstancesByAttr.stream()
@@ -785,7 +785,7 @@ public class ReviewInstanceTest {
                         List.of(
                             new ReviewQueryOrderBy(annotationKey2, OrderByDirection.DESCENDING)))
                     .build())
-            .getReviewInstances();
+            .reviewInstances();
     assertEquals(
         List.of(2_104_705L, 1_838_382L, 1_858_841L, 799_353L),
         reviewInstancesByAnn.stream()
@@ -819,7 +819,7 @@ public class ReviewInstanceTest {
                             new ReviewQueryOrderBy(
                                 primaryEntityIdAttribute, OrderByDirection.ASCENDING)))
                     .build())
-            .getReviewInstances();
+            .reviewInstances();
     assertEquals(
         List.of(799_353L, 1_838_382L, 1_858_841L, 2_104_705L),
         reviewInstancesByBoth.stream()
@@ -861,7 +861,7 @@ public class ReviewInstanceTest {
                             BinaryOperator.EQUALS,
                             Literal.forInt64(8_532L)))
                     .build())
-            .getReviewInstances();
+            .reviewInstances();
     assertEquals(
         List.of(1_858_841L),
         reviewInstancesByAttr.stream()
@@ -885,7 +885,7 @@ public class ReviewInstanceTest {
                         new AnnotationFilter(
                             annotationKey2, BinaryOperator.EQUALS, Literal.forString("str128")))
                     .build())
-            .getReviewInstances();
+            .reviewInstances();
     assertEquals(
         List.of(2_104_705L),
         reviewInstancesByAnn.stream()
@@ -916,7 +916,7 @@ public class ReviewInstanceTest {
                         new AnnotationFilter(
                             annotationKey1, BinaryOperator.EQUALS, Literal.forInt64(115L)))
                     .build())
-            .getReviewInstances();
+            .reviewInstances();
     assertEquals(
         List.of(2_104_705L),
         reviewInstancesByBoth.stream()

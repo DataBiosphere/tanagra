@@ -36,7 +36,7 @@ public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.Bio
     if (selectionData.size() > 1) {
       throw new InvalidQueryException("Modifiers are not supported for the biovu plugin");
     }
-    DTBioVU.BioVU bioVuSelectionData = deserializeData(selectionData.get(0).getPluginData());
+    DTBioVU.BioVU bioVuSelectionData = deserializeData(selectionData.get(0).pluginData());
     if (bioVuSelectionData == null) {
       // Empty selection data = null filter for a cohort.
       return null;

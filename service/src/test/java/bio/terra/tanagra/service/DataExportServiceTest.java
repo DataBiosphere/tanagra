@@ -183,7 +183,7 @@ public class DataExportServiceTest {
             study1.getId(), cohort1.getId(), review1.getId(), reviewQueryRequest);
     Long instanceId =
         reviewQueryResult
-            .getReviewInstances()
+            .reviewInstances()
             .get(0)
             .getAttributeValues()
             .get(primaryEntity.getIdAttribute())
@@ -220,13 +220,13 @@ public class DataExportServiceTest {
         models.stream()
             .filter(
                 m ->
-                    DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.equals(m.getImpl().getType())
-                        && !m.getConfig().hasNumPrimaryEntityCap())
+                    DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.equals(m.impl().getType())
+                        && !m.config().hasNumPrimaryEntityCap())
             .findFirst();
     assertTrue(individualFileDownload.isPresent());
-    String modelName = individualFileDownload.get().getName();
+    String modelName = individualFileDownload.get().name();
     String displayName = individualFileDownload.get().getDisplayName();
-    DataExport impl = individualFileDownload.get().getImpl();
+    DataExport impl = individualFileDownload.get().impl();
     assertEquals(
         DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.name(),
         modelName); // Default model name is type enum value.
@@ -236,31 +236,31 @@ public class DataExportServiceTest {
     // Check the IPYNB_FILE_DOWNLOAD export option.
     Optional<DataExportModel> ipynbFileDownload =
         models.stream()
-            .filter(m -> DataExport.Type.IPYNB_FILE_DOWNLOAD.equals(m.getImpl().getType()))
+            .filter(m -> DataExport.Type.IPYNB_FILE_DOWNLOAD.equals(m.impl().getType()))
             .findFirst();
     assertTrue(ipynbFileDownload.isPresent());
-    modelName = ipynbFileDownload.get().getName();
+    modelName = ipynbFileDownload.get().name();
     displayName = ipynbFileDownload.get().getDisplayName();
-    impl = ipynbFileDownload.get().getImpl();
+    impl = ipynbFileDownload.get().impl();
     assertEquals(
         DataExport.Type.IPYNB_FILE_DOWNLOAD.name(),
         modelName); // Default model name is type enum value.
-    assertFalse(ipynbFileDownload.get().getConfig().hasNumPrimaryEntityCap());
+    assertFalse(ipynbFileDownload.get().config().hasNumPrimaryEntityCap());
     assertEquals(impl.getDefaultDisplayName(), displayName);
     assertNotNull(impl);
 
     // Check the VWB_FILE_EXPORT export option.
     Optional<DataExportModel> vwbFileImport =
         models.stream()
-            .filter(m -> DataExport.Type.VWB_FILE_EXPORT.equals(m.getImpl().getType()))
+            .filter(m -> DataExport.Type.VWB_FILE_EXPORT.equals(m.impl().getType()))
             .findFirst();
     assertTrue(vwbFileImport.isPresent());
-    modelName = vwbFileImport.get().getName();
+    modelName = vwbFileImport.get().name();
     displayName = vwbFileImport.get().getDisplayName();
-    impl = vwbFileImport.get().getImpl();
+    impl = vwbFileImport.get().impl();
     assertEquals("VWB_FILE_EXPORT_DEVEL", modelName); // Overridden model name.
     assertEquals("Export to VWB (devel)", displayName); // Overridden display name.
-    assertFalse(vwbFileImport.get().getConfig().hasNumPrimaryEntityCap());
+    assertFalse(vwbFileImport.get().config().hasNumPrimaryEntityCap());
     assertNotNull(impl);
 
     // Check the INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP export option.
@@ -268,16 +268,16 @@ public class DataExportServiceTest {
         models.stream()
             .filter(
                 m ->
-                    DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.equals(m.getImpl().getType())
-                        && m.getConfig().hasNumPrimaryEntityCap())
+                    DataExport.Type.INDIVIDUAL_FILE_DOWNLOAD.equals(m.impl().getType())
+                        && m.config().hasNumPrimaryEntityCap())
             .findFirst();
     assertTrue(individualFileDownloadWithCap.isPresent());
-    modelName = individualFileDownloadWithCap.get().getName();
+    modelName = individualFileDownloadWithCap.get().name();
     displayName = individualFileDownloadWithCap.get().getDisplayName();
-    impl = individualFileDownloadWithCap.get().getImpl();
+    impl = individualFileDownloadWithCap.get().impl();
     assertEquals("INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP", modelName); // Overridden model name.
     assertEquals("Individual file download with cap=5", displayName); // Overridden display name.
-    assertEquals(5, individualFileDownloadWithCap.get().getConfig().getNumPrimaryEntityCap());
+    assertEquals(5, individualFileDownloadWithCap.get().config().getNumPrimaryEntityCap());
     assertNotNull(impl);
   }
 

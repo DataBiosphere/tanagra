@@ -84,7 +84,7 @@ public class BQQueryRunner implements QueryRunner {
     BQApiTranslator bqTranslator = new BQApiTranslator();
     List<ListInstance> listInstances = new ArrayList<>();
     sqlQueryResult
-        .getRowResults()
+        .rowResults()
         .iterator()
         .forEachRemaining(
             sqlRowResult -> {
@@ -102,15 +102,15 @@ public class BQQueryRunner implements QueryRunner {
             });
 
     PageMarker nextPageMarker =
-        sqlQueryResult.getNextPageMarker() == null
+        sqlQueryResult.nextPageMarker() == null
             ? null
-            : sqlQueryResult.getNextPageMarker().instant(queryInstant);
+            : sqlQueryResult.nextPageMarker().instant(queryInstant);
     return new ListQueryResult(
-        sqlQueryRequest.getSql(),
-        sqlQueryResult.getSqlNoParams(),
+        sqlQueryRequest.sql(),
+        sqlQueryResult.sqlNoParams(),
         listInstances,
         nextPageMarker,
-        sqlQueryResult.getTotalNumRows());
+        sqlQueryResult.totalNumRows());
   }
 
   @Override
@@ -158,7 +158,7 @@ public class BQQueryRunner implements QueryRunner {
     BQApiTranslator bqTranslator = new BQApiTranslator();
     List<CountInstance> countInstances = new ArrayList<>();
     sqlQueryResult
-        .getRowResults()
+        .rowResults()
         .iterator()
         .forEachRemaining(
             sqlRowResult -> {
@@ -195,12 +195,12 @@ public class BQQueryRunner implements QueryRunner {
             });
 
     return new CountQueryResult(
-        sqlQueryRequest.getSql(),
+        sqlQueryRequest.sql(),
         countInstances,
-        sqlQueryResult.getNextPageMarker() == null
+        sqlQueryResult.nextPageMarker() == null
             ? null
-            : sqlQueryResult.getNextPageMarker().instant(queryInstant),
-        sqlQueryResult.getTotalNumRows());
+            : sqlQueryResult.nextPageMarker().instant(queryInstant),
+        sqlQueryResult.totalNumRows());
   }
 
   @Override
@@ -213,9 +213,9 @@ public class BQQueryRunner implements QueryRunner {
     if (hintQueryRequest.isEntityLevel()) {
       ITEntityLevelDisplayHints eldhTable =
           hintQueryRequest
-              .getUnderlay()
+              .underlay()
               .getIndexSchema()
-              .getEntityLevelDisplayHints(hintQueryRequest.getHintedEntity().getName());
+              .getEntityLevelDisplayHints(hintQueryRequest.hintedEntity().getName());
 
       // SELECT * FROM [entity-level hint]
       sql.append("SELECT * FROM ").append(eldhTable.getTablePointer().render());
@@ -224,19 +224,19 @@ public class BQQueryRunner implements QueryRunner {
     } else {
       ITInstanceLevelDisplayHints ildhTable =
           hintQueryRequest
-              .getUnderlay()
+              .underlay()
               .getIndexSchema()
               .getInstanceLevelDisplayHints(
-                  hintQueryRequest.getEntityGroup().getName(),
-                  hintQueryRequest.getHintedEntity().getName(),
-                  hintQueryRequest.getRelatedEntity().getName());
+                  hintQueryRequest.entityGroup().getName(),
+                  hintQueryRequest.hintedEntity().getName(),
+                  hintQueryRequest.relatedEntity().getName());
 
       // SELECT * FROM [instance-level hint]
       sql.append("SELECT * FROM ").append(ildhTable.getTablePointer().render());
 
       // WHERE [filter on related entity id]
       String relatedEntityIdParam =
-          sqlParams.addParam("relatedEntityId", hintQueryRequest.getRelatedEntityId());
+          sqlParams.addParam("relatedEntityId", hintQueryRequest.relatedEntityId());
       sql.append(" WHERE ")
           .append(ITInstanceLevelDisplayHints.Column.ENTITY_ID.getSchema().getColumnName())
           .append(" = @")
@@ -256,7 +256,7 @@ public class BQQueryRunner implements QueryRunner {
     List<HintInstance> hintInstances = new ArrayList<>();
     Map<Attribute, Map<ValueDisplay, Long>> enumValues = new HashMap<>();
     sqlQueryResult
-        .getRowResults()
+        .rowResults()
         .iterator()
         .forEachRemaining(
             sqlRowResult -> {
@@ -292,7 +292,7 @@ public class BQQueryRunner implements QueryRunner {
 
               Attribute attribute =
                   hintQueryRequest
-                      .getHintedEntity()
+                      .hintedEntity()
                       .getAttribute(
                           sqlRowResult.get(attributeColName, DataType.STRING).getStringVal());
               if (attribute.isValueDisplay()) {
@@ -577,7 +577,7 @@ public class BQQueryRunner implements QueryRunner {
             : listQueryRequest.getPageMarker().getInstant();
     SqlQueryRequest indexDataSqlRequest =
         buildListQuerySqlAgainstIndexData(indexDataQueryRequest, queryInstant);
-    SqlParams sqlParams = indexDataSqlRequest.getSqlParams();
+    SqlParams sqlParams = indexDataSqlRequest.sqlParams();
 
     // Now build the outer SQL query against the source data.
     final String sourceTableAlias = "st";
@@ -673,7 +673,7 @@ public class BQQueryRunner implements QueryRunner {
         .append(" WHERE ")
         .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
         .append(" IN (")
-        .append(indexDataSqlRequest.getSql())
+        .append(indexDataSqlRequest.sql())
         .append(')');
     return new SqlQueryRequest(
         sql.toString(),

@@ -115,19 +115,19 @@ public class DataExportService {
 
     // Enforce the maximum primary entity cap, if defined.
     DataExportModel model = nameToModel.get(request.getModel());
-    if (model.getConfig().hasNumPrimaryEntityCap()
-        && numPrimaryEntityInstances > model.getConfig().getNumPrimaryEntityCap()) {
+    if (model.config().hasNumPrimaryEntityCap()
+        && numPrimaryEntityInstances > model.config().getNumPrimaryEntityCap()) {
       return ExportResult.forError(
           ExportError.forMessage(
               "Maximum number of primary entity instances ("
-                  + model.getConfig().getNumPrimaryEntityCap()
+                  + model.config().getNumPrimaryEntityCap()
                   + ") allowed for this model exceeded: "
                   + numPrimaryEntityInstances,
               false));
     }
 
     // Get the implementation class instance for the requested data export model.
-    DataExport impl = model.getImpl();
+    DataExport impl = model.impl();
     ExportResult exportResult;
     try {
       exportResult = impl.run(request, helper);
