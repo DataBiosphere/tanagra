@@ -6,7 +6,10 @@
     ],
     "groupItemsEntityGroups": [],
     "criteriaOccurrenceEntityGroups": [],
-    "criteriaSelectors": [],
+    "criteriaSelectors": [
+      "bhs_mock/race",
+      "bhs_mock/age"
+    ],
     "prepackagedDataFeatures": [],
     "visualizations": [
       "omop/sexAndAge",

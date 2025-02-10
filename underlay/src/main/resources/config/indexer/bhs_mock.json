@@ -2,22 +2,22 @@
     "underlay": "bhs_mock",
     "bigQuery": {
       "sourceData": {
-        "projectId": "wb-steady-blueberry-8554",
-        "datasetId": "BF_20240610_Screener",
+        "projectId": "wb-caring-avocado-9055",
+        "datasetId": "TRANSFER_BF_20240610_Screener",
         "sqlSubstitutions": {
-          "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
+          "omopDataset": "wb-caring-avocado-9055.TRANSFER_BF_20240610_Screener",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
-        "projectId": "wb-steady-blueberry-8554",
-        "datasetId": "BF_20240610_Screener_DEINDEX"
+        "projectId": "wb-caring-avocado-9055",
+        "datasetId": "DEINDEX_BF_20240610_Screener"
       },
-      "queryProjectId": "wb-steady-blueberry-8554",
+      "queryProjectId": "wb-caring-avocado-9055",
       "dataLocation": "us-central1"
     },
     "dataflow": {
-        "serviceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
+        "serviceAccountEmail": "pet-27368078866605e6729ee@wb-caring-avocado-9055.iam.gserviceaccount.com",
         "dataflowLocation": "us-central1",
         "gcsTempDirectory": "gs://dataflow-staging-us-central1-694046000181/temp/",
         "workerMachineType": "n1-standard-4",
