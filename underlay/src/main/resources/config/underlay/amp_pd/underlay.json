@@ -1,0 +1,23 @@
+{
+    "name": "amp_pd",
+    "primaryEntity": "person",
+    "entities": [
+        "amp-pd/person"
+    ],
+    "groupItemsEntityGroups": [],  
+      "criteriaOccurrenceEntityGroups": [],
+      "criteriaSelectors": [],
+      "prepackagedDataFeatures": [],
+      "visualizations": [
+        "omop/sexAndAge",
+        "omop/raceAndAge",
+        "omop/age",
+        "omop/race",
+        "omop/sex"
+      ],
+      "metadata": {
+        "displayName": "AMP-PD metadata displayname",
+        "description": "AMP-PD metadata description"
+      },
+      "uiConfigFile": "ui.json"
+    }
