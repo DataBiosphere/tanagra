@@ -2,18 +2,18 @@
     "underlay": "bhs_mock",
     "bigQuery": {
       "sourceData": {
-        "projectId": "wb-steady-blueberry-8554",
-        "datasetId": "BF_20240610_Screener",
+        "projectId": "wb-caring-avocado-9055",
+        "datasetId": "TRANSFER_BF_20240610_Screener",
         "sqlSubstitutions": {
-          "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
+          "omopDataset": "wb-caring-avocado-9055.TRANSFER_BF_20240610_Screener",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
-        "projectId": "wb-steady-blueberry-8554",
-        "datasetId": "BF_20240610_Screener_DEINDEX"
+        "projectId": "wb-caring-avocado-9055",
+        "datasetId": "DEINDEX_BF_20240610_Screener"
       },
-      "queryProjectId": "wb-steady-blueberry-8554",
+      "queryProjectId": "wb-caring-avocado-9055",
       "dataLocation": "us-central1"
     },
     "uiConfigFile": "ui.json"
