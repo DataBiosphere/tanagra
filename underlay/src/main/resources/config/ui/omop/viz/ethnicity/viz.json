@@ -1,0 +1,6 @@
+{
+  "name": "ethnicity",
+  "title": "Ethnicity",
+  "dataConfigFile": "ethnicity.json",
+  "plugin": "core/bar"
+}
