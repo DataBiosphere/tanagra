@@ -2,19 +2,19 @@
   "underlay": "bhs",
   "bigQuery": {
     "sourceData": {
-      "projectId": "wb-steady-blueberry-8554",
-      "datasetId": "wb-steady-blueberry-8554.BF_20240610_Screener",
+      "projectId": "amp-pd-research",
+      "datasetId": "amp-pd-research.2023_v4release_1027",
       "sqlSubstitutions": {
-        "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
+        "omopDataset": "amp-pd-research.2023_v4release_1027",
         "staticTablesDataset": ""
       }
     },
     "indexData": {
-      "projectId": "wb-rapid-kiwi-3048",
+      "projectId": "prj-e-psu-6ai",
       "datasetId": "BF_20240610_Screener_idx"
     },
-    "queryProjectId": "wb-rapid-kiwi-3048",
-    "dataLocation": "us-central1"
+    "queryProjectId": "prj-e-psu-6ai",
+    "dataLocation": "us"
   },
   "dataflow": {
     "serviceAccountEmail": "backend-default@verily-tanagra-dev.iam.gserviceaccount.com",
