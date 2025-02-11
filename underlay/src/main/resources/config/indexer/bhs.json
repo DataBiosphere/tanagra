@@ -2,10 +2,10 @@
   "underlay": "bhs",
   "bigQuery": {
     "sourceData": {
-      "projectId": "amp-pd-research",
-      "datasetId": "amp-pd-research.2023_v4release_1027",
+      "projectId": "wb-steady-blueberry-8554",
+      "datasetId": "wb-steady-blueberry-8554.BF_20240610_Screener",
       "sqlSubstitutions": {
-        "omopDataset": "amp-pd-research.2023_v4release_1027",
+        "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
         "staticTablesDataset": ""
       }
     },
