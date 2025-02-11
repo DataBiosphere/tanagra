@@ -2,7 +2,7 @@
     "name": "amp_pd",
     "primaryEntity": "person",
     "entities": [
-        "amp-pd/person"
+        "amp_pd/person"
     ],
     "groupItemsEntityGroups": [],  
       "criteriaOccurrenceEntityGroups": [],
