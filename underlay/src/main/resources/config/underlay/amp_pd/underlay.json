@@ -9,11 +9,12 @@
       "criteriaSelectors": [],
       "prepackagedDataFeatures": [],
       "visualizations": [
-        "omop/sexAndAge",
-        "omop/raceAndAge",
         "omop/age",
         "omop/race",
-        "omop/sex"
+        "omop/sex",
+        "omop/ethnicity",
+        "omop/sexAndAge",
+        "omop/raceAndAge"
       ],
       "metadata": {
         "displayName": "AMP-PD metadata displayname",
