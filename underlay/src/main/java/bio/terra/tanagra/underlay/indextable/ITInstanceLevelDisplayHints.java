@@ -14,7 +14,6 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
   private final String hintedEntity;
   private final String relatedEntity;
   private final ImmutableList<ColumnSchema> columnSchemas;
-  private final ImmutableList<String> orderBys;
 
   public ITInstanceLevelDisplayHints(
       NameHelper namer,
@@ -29,13 +28,6 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
     this.columnSchemas =
         ImmutableList.copyOf(
             Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
-    // TODO(dexamundsen): move orderBys to config
-    this.orderBys =
-        ImmutableList.of(
-            Column.ATTRIBUTE_NAME.getSchema().getColumnName(),
-            Column.ENUM_DISPLAY.getSchema().getColumnName(),
-            Column.ENUM_VALUE.getSchema().getColumnName(),
-            Column.ENUM_COUNT.getSchema().getColumnName() + " DESC");
   }
 
   public String getEntityGroup() {
@@ -58,10 +50,6 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
     return columnSchemas;
-  }
-
-  public ImmutableList<String> getOrderBys() {
-    return orderBys;
   }
 
   public enum Column {
