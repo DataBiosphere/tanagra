@@ -3,15 +3,15 @@
     "bigQuery": {
       "sourceData": {
         "projectId": "wb-caring-avocado-9055",
-        "datasetId": "TRANSFER_BF_20240610_Screener",
+        "datasetId": "BF_20240610_Screener",
         "sqlSubstitutions": {
-          "omopDataset": "wb-caring-avocado-9055.TRANSFER_BF_20240610_Screener",
+          "omopDataset": "wb-caring-avocado-9055.BF_20240610_Screener",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
         "projectId": "wb-caring-avocado-9055",
-        "datasetId": "DEINDEX_BF_20240610_Screener"
+        "datasetId": "BF_20240610_Screener_INDEX"
       },
       "queryProjectId": "wb-caring-avocado-9055",
       "dataLocation": "us-central1"
