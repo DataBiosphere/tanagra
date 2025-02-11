@@ -6,7 +6,12 @@
     ],
     "groupItemsEntityGroups": [],  
       "criteriaOccurrenceEntityGroups": [],
-      "criteriaSelectors": [],
+      "criteriaSelectors": [
+        "amp_pd/age",
+        "amp_pd/race",
+        "amp_pd/ethnicity",
+        "amp_pd/sex"
+      ],
       "prepackagedDataFeatures": [],
       "visualizations": [
         "omop/age",

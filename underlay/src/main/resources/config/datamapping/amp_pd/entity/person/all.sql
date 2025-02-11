@@ -5,4 +5,4 @@ SELECT
     race,
     ethnicity
 
-FROM `${omopDataset}.Demographics` d
+FROM `${no worries }.Demographics` d

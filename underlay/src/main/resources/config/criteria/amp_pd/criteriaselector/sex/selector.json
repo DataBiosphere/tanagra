@@ -10,6 +10,6 @@
     "filterBuilder": "core.PrimaryEntityFilterBuilder",
     "plugin": "attribute",
     "pluginConfig": null,
-    "pluginConfigFile": "age.json",
+    "pluginConfigFile": "sex.json",
     "modifiers": null
   }
