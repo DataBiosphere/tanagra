@@ -18,7 +18,6 @@ import bio.terra.tanagra.api.query.list.ListQueryRequest;
 import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.exception.InvalidQueryException;
@@ -48,6 +47,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.NotImplementedException;
@@ -253,84 +253,83 @@ public class BQQueryRunner implements QueryRunner {
     SqlQueryResult sqlQueryResult = bigQueryExecutor.run(sqlQueryRequest);
 
     // Process the rows returned.
-    List<HintInstance> hintInstances = new ArrayList<>();
-    Map<Attribute, Map<ValueDisplay, Long>> enumValues = new HashMap<>();
+    String attributeColName;
+    String minColName;
+    String maxColName;
+    String enumValColName;
+    String enumDisplayColName;
+    String enumCountColName;
+    if (hintQueryRequest.isEntityLevel()) {
+      attributeColName =
+          ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName();
+      minColName = ITEntityLevelDisplayHints.Column.MIN.getSchema().getColumnName();
+      maxColName = ITEntityLevelDisplayHints.Column.MAX.getSchema().getColumnName();
+      enumValColName = ITEntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName();
+      enumDisplayColName =
+          ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName();
+      enumCountColName = ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName();
+    } else {
+      attributeColName =
+          ITInstanceLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName();
+      minColName = ITInstanceLevelDisplayHints.Column.MIN.getSchema().getColumnName();
+      maxColName = ITInstanceLevelDisplayHints.Column.MAX.getSchema().getColumnName();
+      enumValColName = ITInstanceLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName();
+      enumDisplayColName =
+          ITInstanceLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName();
+      enumCountColName = ITInstanceLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName();
+    }
+
+    List<HintInstance> allHintInstances = new ArrayList<>();
+    Map<Attribute, HintInstance> attrHintInstanceMap = new HashMap<>();
     sqlQueryResult
         .rowResults()
         .iterator()
         .forEachRemaining(
             sqlRowResult -> {
-              String attributeColName;
-              String minColName;
-              String maxColName;
-              String enumValColName;
-              String enumDisplayColName;
-              String enumCountColName;
-              if (hintQueryRequest.isEntityLevel()) {
-                attributeColName =
-                    ITEntityLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName();
-                minColName = ITEntityLevelDisplayHints.Column.MIN.getSchema().getColumnName();
-                maxColName = ITEntityLevelDisplayHints.Column.MAX.getSchema().getColumnName();
-                enumValColName =
-                    ITEntityLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName();
-                enumDisplayColName =
-                    ITEntityLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName();
-                enumCountColName =
-                    ITEntityLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName();
-              } else {
-                attributeColName =
-                    ITInstanceLevelDisplayHints.Column.ATTRIBUTE_NAME.getSchema().getColumnName();
-                minColName = ITInstanceLevelDisplayHints.Column.MIN.getSchema().getColumnName();
-                maxColName = ITInstanceLevelDisplayHints.Column.MAX.getSchema().getColumnName();
-                enumValColName =
-                    ITInstanceLevelDisplayHints.Column.ENUM_VALUE.getSchema().getColumnName();
-                enumDisplayColName =
-                    ITInstanceLevelDisplayHints.Column.ENUM_DISPLAY.getSchema().getColumnName();
-                enumCountColName =
-                    ITInstanceLevelDisplayHints.Column.ENUM_COUNT.getSchema().getColumnName();
-              }
-
               Attribute attribute =
                   hintQueryRequest
                       .hintedEntity()
                       .getAttribute(
                           sqlRowResult.get(attributeColName, DataType.STRING).getStringVal());
+
               if (attribute.isValueDisplay()) {
                 // This is one (value,count) pair of an enum values hint.
-                Literal enumVal = sqlRowResult.get(enumValColName, DataType.INT64);
-                String enumDisplay =
-                    sqlRowResult.get(enumDisplayColName, DataType.STRING).getStringVal();
-                Long enumCount = sqlRowResult.get(enumCountColName, DataType.INT64).getInt64Val();
-                Map<ValueDisplay, Long> enumValuesForAttr =
-                    enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
-                enumValuesForAttr.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
-                enumValues.put(attribute, enumValuesForAttr);
+                HintInstance hintInstance = attrHintInstanceMap.get(attribute);
+                if (hintInstance == null) {
+                  hintInstance = new HintInstance(attribute, new HashMap<>());
+                  allHintInstances.add(hintInstance);
+                  attrHintInstanceMap.put(attribute, hintInstance);
+                }
+                Entry<ValueDisplay, Long> entry =
+                    HintInstance.newValueDisplayInstance(
+                        sqlRowResult,
+                        attribute,
+                        enumValColName,
+                        enumDisplayColName,
+                        enumCountColName);
+                hintInstance.addEnumValueCount(entry.getKey(), entry.getValue());
 
               } else if (attribute.getRuntimeDataType().equals(DataType.STRING)) {
                 // repeated attribute
-                Literal enumVal = sqlRowResult.get(enumDisplayColName, DataType.STRING);
-                Long enumCount = sqlRowResult.get(enumCountColName, DataType.INT64).getInt64Val();
-                Map<ValueDisplay, Long> enumValuesForAttr =
-                    enumValues.containsKey(attribute) ? enumValues.get(attribute) : new HashMap<>();
-                enumValuesForAttr.put(new ValueDisplay(enumVal), enumCount);
-                enumValues.put(attribute, enumValuesForAttr);
+                HintInstance hintInstance = attrHintInstanceMap.get(attribute);
+                if (hintInstance == null) {
+                  hintInstance = new HintInstance(attribute, new HashMap<>());
+                  allHintInstances.add(hintInstance);
+                  attrHintInstanceMap.put(attribute, hintInstance);
+                }
+                Entry<ValueDisplay, Long> entry =
+                    HintInstance.newRepeatedStringEntry(
+                        sqlRowResult, attribute, enumDisplayColName, enumCountColName);
+                hintInstance.addEnumValueCount(entry.getKey(), entry.getValue());
 
               } else {
                 // This is a range hint.
-                Double min = sqlRowResult.get(minColName, DataType.DOUBLE).getDoubleVal();
-                Double max = sqlRowResult.get(maxColName, DataType.DOUBLE).getDoubleVal();
-                if (min != null && max != null) {
-                  hintInstances.add(new HintInstance(attribute, min, max));
-                }
+                HintInstance.newRangeInstance(sqlRowResult, attribute, minColName, maxColName)
+                    .ifPresent(allHintInstances::add);
               }
             });
 
-    // Assemble the value/count pairs into a single enum values hint for each attribute.
-    enumValues.forEach(
-        (attribute, enumValuesForAttr) ->
-            hintInstances.add(new HintInstance(attribute, enumValuesForAttr)));
-
-    return new HintQueryResult(sql.toString(), hintInstances);
+    return new HintQueryResult(sql.toString(), allHintInstances);
   }
 
   @Override
@@ -555,8 +554,6 @@ public class BQQueryRunner implements QueryRunner {
     // Build the inner SQL query against the index data first.
     // Select only the id attribute, which we need to JOIN to the source table.
     // SELECT id FROM [index table] WHERE [filter]
-    StringBuilder sql = new StringBuilder(50);
-    BQApiTranslator bqTranslator = new BQApiTranslator();
     AttributeField indexIdAttributeField =
         new AttributeField(
             listQueryRequest.getUnderlay(),
@@ -595,6 +592,7 @@ public class BQQueryRunner implements QueryRunner {
     // e.g. tableJoinAliases: sourceQuery.valueFieldName, sourceQuery.displayFieldTable ->
     // joinTableAlias
     Table<String, String, String> tableJoinAliases = HashBasedTable.create();
+    BQApiTranslator bqTranslator = new BQApiTranslator();
     listQueryRequest
         .getSelectFields()
         .forEach(
@@ -625,20 +623,17 @@ public class BQQueryRunner implements QueryRunner {
                           .getDisplayFieldTable();
                   if (displayTableJoins.get(valueFieldName, displayFieldTable) == null) {
                     // Add new table joins and aliases
-                    StringBuilder joinSql =
-                        new StringBuilder()
-                            .append(" LEFT JOIN ")
-                            .append(
-                                fromFullTablePath(attrSourcePointer.getDisplayFieldTable())
-                                    .render())
-                            .append(" AS ")
-                            .append(joinTableAlias)
-                            .append(" ON ")
-                            .append(displayTableJoinField.renderForSelect(joinTableAlias))
-                            .append(" = ")
-                            .append(valueSqlField.renderForSelect(sourceTableAlias));
+                    String joinSql =
+                        " LEFT JOIN "
+                            + fromFullTablePath(attrSourcePointer.getDisplayFieldTable()).render()
+                            + " AS "
+                            + joinTableAlias
+                            + " ON "
+                            + displayTableJoinField.renderForSelect(joinTableAlias)
+                            + " = "
+                            + valueSqlField.renderForSelect(sourceTableAlias);
 
-                    displayTableJoins.put(valueFieldName, displayFieldTable, joinSql.toString());
+                    displayTableJoins.put(valueFieldName, displayFieldTable, joinSql);
                     tableJoinAliases.put(valueFieldName, displayFieldTable, joinTableAlias);
                     selectFields.add(displaySqlField.renderForSelect(joinTableAlias));
                   } else {
@@ -663,20 +658,21 @@ public class BQQueryRunner implements QueryRunner {
     // SELECT [select fields] FROM [source table]
     // JOIN [display table] ON [display join field]
     // WHERE [source id field] IN [inner query against index data]
-    sql.append("SELECT ")
-        .append(String.join(", ", selectFields))
-        .append(" FROM ")
-        .append(fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render())
-        .append(" AS ")
-        .append(sourceTableAlias)
-        .append(String.join("", displayTableJoins.values().stream().toList()))
-        .append(" WHERE ")
-        .append(sourceIdAttrSqlField.renderForSelect(sourceTableAlias))
-        .append(" IN (")
-        .append(indexDataSqlRequest.sql())
-        .append(')');
+    String sql =
+        "SELECT "
+            + String.join(", ", selectFields)
+            + " FROM "
+            + fromFullTablePath(listQueryRequest.getEntity().getSourceQueryTableName()).render()
+            + " AS "
+            + sourceTableAlias
+            + String.join("", displayTableJoins.values().stream().toList())
+            + " WHERE "
+            + sourceIdAttrSqlField.renderForSelect(sourceTableAlias)
+            + " IN ("
+            + indexDataSqlRequest.sql()
+            + ')';
     return new SqlQueryRequest(
-        sql.toString(),
+        sql,
         sqlParams,
         listQueryRequest.getPageMarker(),
         listQueryRequest.getPageSize(),
