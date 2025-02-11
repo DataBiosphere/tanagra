@@ -378,6 +378,8 @@ public final class Underlay {
                       szAttribute.runtimeSqlFunctionWrapper,
                       ConfigReader.deserializeDataType(szAttribute.runtimeDataType),
                       szAttribute.isComputeDisplayHint,
+                      Optional.ofNullable(szAttribute.emptyValueDisplay)
+                          .orElse(Attribute.DEFAULT_EMPTY_VALUE_DISPLAY),
                       szAttribute.isSuppressedForExport,
                       szEntity.temporalQuery != null
                           && szAttribute.name.equals(szEntity.temporalQuery.visitDateAttribute),

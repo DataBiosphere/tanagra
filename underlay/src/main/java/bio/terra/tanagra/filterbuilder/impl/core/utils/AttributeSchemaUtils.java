@@ -1,16 +1,20 @@
 package bio.terra.tanagra.filterbuilder.impl.core.utils;
 
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
 import static bio.terra.tanagra.filterbuilder.SchemaUtils.toLiteral;
 import static bio.terra.tanagra.utils.ProtobufUtils.deserializeFromJsonOrProtoBytes;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
+import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.Underlay;
@@ -45,21 +49,30 @@ public final class AttributeSchemaUtils {
     }
     if (!data.getSelectedList().isEmpty()) {
       // Enum value filter.
-      return data.getSelectedCount() == 1
-          ? new AttributeFilter(
-              underlay,
-              entity,
-              attribute,
-              BinaryOperator.EQUALS,
-              toLiteral(data.getSelected(0).getValue(), attribute.getDataType()))
-          : new AttributeFilter(
-              underlay,
-              entity,
-              attribute,
-              NaryOperator.IN,
-              data.getSelectedList().stream()
-                  .map(selected -> toLiteral(selected.getValue(), attribute.getDataType()))
-                  .collect(Collectors.toList()));
+      List<EntityFilter> filtersToOr = new ArrayList<>();
+      List<Literal> enumLiterals = new ArrayList<>();
+      data.getSelectedList()
+          .forEach(
+              selected -> {
+                Value selectedValue = selected.getValue();
+                if (attribute.getEmptyValueDisplay().equals(selectedValue.getStringValue())) {
+                  // empty value is selected: entries with no value for this attribute
+                  filtersToOr.add(
+                      new AttributeFilter(underlay, entity, attribute, UnaryOperator.IS_NULL));
+                } else {
+                  enumLiterals.add(toLiteral(selectedValue, attribute.getDataType()));
+                }
+              });
+
+      if (!enumLiterals.isEmpty()) {
+        filtersToOr.add(
+            enumLiterals.size() == 1
+                ? new AttributeFilter(
+                    underlay, entity, attribute, BinaryOperator.EQUALS, enumLiterals.get(0))
+                : new AttributeFilter(underlay, entity, attribute, NaryOperator.IN, enumLiterals));
+      }
+      return newBooleanAndOrFilter(LogicalOperator.OR, filtersToOr);
+
     } else {
       // Numeric range filter.
       List<EntityFilter> rangeFilters = new ArrayList<>();
@@ -72,8 +85,7 @@ public final class AttributeSchemaUtils {
                 NaryOperator.BETWEEN,
                 List.of(Literal.forDouble(range.getMin()), Literal.forDouble(range.getMax()))));
       }
-      return BooleanAndOrFilter.newBooleanAndOrFilter(
-          BooleanAndOrFilter.LogicalOperator.OR, rangeFilters);
+      return newBooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, rangeFilters);
     }
   }
 

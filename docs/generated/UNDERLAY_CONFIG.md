@@ -126,6 +126,15 @@ If unspecified and exporting queries against the source data is supported for th
 
 Field or column name in the [all instances SQL file](#szentityallinstancessqlfile) that maps to the value of this attribute. If unset, we assume the field name is the same as the attribute name.
 
+### SZSourceQuery.emptyValueDisplay
+**optional** String
+
+String to display for empty values. Defaults to "n/a".
+
+This is the string displayed for fields that do not have values, such as null value fields or empty repeated datatype fields. This is for consistent UI display only and does not impact the actual value of the field.
+
+*Default value:* `n/a`
+
 
 
 ## SZAttributeSearch

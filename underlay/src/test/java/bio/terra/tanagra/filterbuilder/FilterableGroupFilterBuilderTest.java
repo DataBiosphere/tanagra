@@ -14,6 +14,7 @@ import bio.terra.tanagra.api.filter.ItemInGroupFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.exception.InvalidQueryException;
 import bio.terra.tanagra.filterbuilder.impl.core.FilterableGroupFilterBuilder;
 import bio.terra.tanagra.proto.criteriaselector.KeyOuterClass;
@@ -26,6 +27,7 @@ import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.Fil
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTFilterableGroup.FilterableGroup.SingleSelect;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.GroupItems;
 import bio.terra.tanagra.underlay.serialization.SZCorePlugin;
@@ -340,17 +342,15 @@ public class FilterableGroupFilterBuilderTest {
   @Test
   void selectAllValueDataFilter() {
     FilterableGroupFilterBuilder filterBuilder = newFilterBuilder();
+    Attribute attribute = entity_variant.getAttribute("consequence");
 
-    String attr = "consequence";
-    String attrVal = "abcdef";
-    ValueData valueData =
-        ValueData.newBuilder()
-            .setAttribute(attr)
-            .addSelected(
-                ValueData.Selection.newBuilder()
-                    .setValue(Value.newBuilder().setStringValue(attrVal).build())
-                    .build())
+    // single attribute value in filter
+    ValueData.Selection selection1 =
+        ValueData.Selection.newBuilder()
+            .setValue(Value.newBuilder().setStringValue("abcdef").build())
             .build();
+    ValueData valueData =
+        ValueData.newBuilder().setAttribute(attribute.getName()).addSelected(selection1).build();
     FilterableGroup data =
         FilterableGroup.newBuilder()
             .addSelected(
@@ -362,9 +362,9 @@ public class FilterableGroupFilterBuilderTest {
         new AttributeFilter(
             underlay,
             entity_variant,
-            entity_variant.getAttribute(attr),
+            attribute,
             BinaryOperator.EQUALS,
-            Literal.forString(attrVal));
+            Literal.forString(selection1.getValue().getStringValue()));
     EntityFilter expectedSubFilter =
         new ItemInGroupFilter(
             underlay, groupItems_variant, expectedValueDataSubFilter, List.of(), null, null);
@@ -373,6 +373,52 @@ public class FilterableGroupFilterBuilderTest {
 
     SelectionData selectionData = new SelectionData(null, serializeToJson(data));
     EntityFilter cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
+    assertEquals(expectedCohortFilter, cohortFilter);
+
+    // Multiple attribute values including n/a in filter
+    ValueData.Selection selection2 =
+        ValueData.Selection.newBuilder()
+            .setValue(Value.newBuilder().setStringValue("ghijkl").build())
+            .build();
+    ValueData.Selection selectionNA =
+        ValueData.Selection.newBuilder()
+            .setValue(
+                Value.newBuilder().setStringValue(Attribute.DEFAULT_EMPTY_VALUE_DISPLAY).build())
+            .build();
+    valueData =
+        ValueData.newBuilder()
+            .setAttribute(attribute.getName())
+            .addSelected(selection1)
+            .addSelected(selectionNA)
+            .addSelected(selection2)
+            .build();
+    data =
+        FilterableGroup.newBuilder()
+            .addSelected(
+                Selection.newBuilder()
+                    .setAll(SelectAll.newBuilder().addValueData(valueData).build()))
+            .build();
+
+    expectedValueDataSubFilter =
+        newBooleanAndOrFilter(
+            LogicalOperator.OR,
+            List.of(
+                new AttributeFilter(underlay, entity_variant, attribute, UnaryOperator.IS_NULL),
+                new AttributeFilter(
+                    underlay,
+                    entity_variant,
+                    attribute,
+                    NaryOperator.IN,
+                    List.of(
+                        Literal.forString(selection1.getValue().getStringValue()),
+                        Literal.forString(selection2.getValue().getStringValue())))));
+    expectedSubFilter =
+        new ItemInGroupFilter(
+            underlay, groupItems_variant, expectedValueDataSubFilter, List.of(), null, null);
+    expectedCohortFilter = newBooleanAndOrFilter(LogicalOperator.OR, List.of(expectedSubFilter));
+
+    selectionData = new SelectionData(null, serializeToJson(data));
+    cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertEquals(expectedCohortFilter, cohortFilter);
   }
 
