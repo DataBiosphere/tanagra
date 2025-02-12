@@ -21,17 +21,12 @@ dependencyManagement {
     imports {
         mavenBom SpringBootPlugin.BOM_COORDINATES
     }
-    dependencies {
-        dependency "io.swagger.core.v3:swagger-annotations:${vSwaggerAnnotations}"
-        dependency "io.swagger.codegen.v3:swagger-codegen-cli:${vSwaggerCodegen}"
-
-        // added to address snyk vulnerability
-        dependency "org.apache.tomcat.embed:tomcat-embed-core:${vApacheTomcat}"
-    }
 }
 
 dependencies {
-    implementation project(':indexer')
+    implementation(project(':indexer')) {
+        exclude group: 'io.netty'
+    }
     implementation project(':underlay')
     testImplementation(testFixtures(project(":underlay")))
 
