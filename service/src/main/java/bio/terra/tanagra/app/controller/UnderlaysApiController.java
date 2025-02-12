@@ -17,7 +17,6 @@ import bio.terra.tanagra.api.query.list.ListQueryResult;
 import bio.terra.tanagra.api.query.list.OrderBy;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
-import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
@@ -40,6 +39,7 @@ import bio.terra.tanagra.generated.model.ApiQueryFilterOnPrimaryEntity;
 import bio.terra.tanagra.generated.model.ApiUnderlay;
 import bio.terra.tanagra.generated.model.ApiUnderlaySerializedConfiguration;
 import bio.terra.tanagra.generated.model.ApiUnderlaySummaryList;
+import bio.terra.tanagra.generated.model.ApiValueDisplay;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
 import bio.terra.tanagra.service.accesscontrol.Permissions;
@@ -52,9 +52,12 @@ import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.utils.SqlFormatter;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -65,6 +68,9 @@ public class UnderlaysApiController implements UnderlaysApi {
   private final UnderlayService underlayService;
   private final FilterBuilderService filterBuilderService;
   private final AccessControlService accessControlService;
+  private final ApiDisplayHintComparator apiDisplayHintComparator = new ApiDisplayHintComparator();
+  private final ApiDisplayHintEnumValuesComparator apiDisplayHintEnumValuesComparator =
+      new ApiDisplayHintEnumValuesComparator();
 
   @Autowired
   public UnderlaysApiController(
@@ -251,7 +257,10 @@ public class UnderlaysApiController implements UnderlaysApi {
         new ApiDisplayHintList()
             .sql(SqlFormatter.format(hintQueryResult.getSql()))
             .displayHints(
-                hintQueryResult.getHintInstances().stream().map(this::toApiObject).toList());
+                hintQueryResult.getHintInstances().stream()
+                    .map(this::toApiObject)
+                    .sorted(apiDisplayHintComparator)
+                    .toList());
     return ResponseEntity.ok(displayHintList);
   }
 
@@ -315,33 +324,53 @@ public class UnderlaysApiController implements UnderlaysApi {
   }
 
   private ApiDisplayHint toApiObject(HintInstance hintInstance) {
-    ApiDisplayHintDisplayHint apiHint = null;
+    ApiDisplayHintDisplayHint apiHint = new ApiDisplayHintDisplayHint();
     if (hintInstance.isEnumHint()) {
-      apiHint =
-          new ApiDisplayHintDisplayHint()
-              .enumHint(
-                  new ApiDisplayHintEnum()
-                      .enumHintValues(
-                          hintInstance.getEnumValueCounts().entrySet().stream()
-                              .map(
-                                  entry -> {
-                                    ValueDisplay attributeValueDisplay = entry.getKey();
-                                    Long count = entry.getValue();
-                                    return new ApiDisplayHintEnumEnumHintValues()
-                                        .enumVal(ToApiUtils.toApiObject(attributeValueDisplay))
-                                        .count(Math.toIntExact(count));
-                                  })
-                              .collect(Collectors.toList())));
+      apiHint.setEnumHint(
+          new ApiDisplayHintEnum()
+              .enumHintValues(
+                  hintInstance.getEnumValueCounts().entrySet().stream()
+                      .map(
+                          entry ->
+                              new ApiDisplayHintEnumEnumHintValues()
+                                  .enumVal(ToApiUtils.toApiObject(entry.getKey()))
+                                  .count(Math.toIntExact(entry.getValue())))
+                      .sorted(apiDisplayHintEnumValuesComparator)
+                      .collect(Collectors.toList())));
     } else if (hintInstance.isRangeHint()) {
-      apiHint =
-          new ApiDisplayHintDisplayHint()
-              .numericRangeHint(
-                  new ApiDisplayHintNumericRange()
-                      .min(hintInstance.getMin())
-                      .max(hintInstance.getMax()));
+      apiHint.setNumericRangeHint(
+          new ApiDisplayHintNumericRange().min(hintInstance.getMin()).max(hintInstance.getMax()));
     }
     return new ApiDisplayHint()
         .attribute(ToApiUtils.toApiObject(hintInstance.getAttribute()))
         .displayHint(apiHint);
+  }
+
+  private static class ApiDisplayHintComparator
+      implements Comparator<ApiDisplayHint>, Serializable {
+    @Override
+    public int compare(ApiDisplayHint o1, ApiDisplayHint o2) {
+      // order by: attribute ASC
+      return StringUtils.compare(o1.getAttribute().getName(), o2.getAttribute().getName());
+    }
+  }
+
+  private static class ApiDisplayHintEnumValuesComparator
+      implements Comparator<ApiDisplayHintEnumEnumHintValues>, Serializable {
+    @Override
+    public int compare(ApiDisplayHintEnumEnumHintValues o1, ApiDisplayHintEnumEnumHintValues o2) {
+      // order by: display ASC, value ASC, count DESC
+      ApiValueDisplay vd1 = o1.getEnumVal();
+      ApiValueDisplay vd2 = o2.getEnumVal();
+      int result = StringUtils.compare(vd1.getDisplay(), vd2.getDisplay(), false);
+      result =
+          (result != 0)
+              ? result
+              : StringUtils.compare(
+                  vd1.getValue().getValueUnion().getStringVal(),
+                  vd2.getValue().getValueUnion().getStringVal(),
+                  false);
+      return (result != 0) ? result : Integer.compare(o2.getCount(), o1.getCount());
+    }
   }
 }

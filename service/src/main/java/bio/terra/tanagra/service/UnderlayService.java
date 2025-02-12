@@ -19,10 +19,7 @@ import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
 import bio.terra.tanagra.api.query.hint.HintQueryRequest;
 import bio.terra.tanagra.api.query.hint.HintQueryResult;
-import bio.terra.tanagra.api.shared.DataType;
-import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.OrderByDirection;
-import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
@@ -34,6 +31,7 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
@@ -44,6 +42,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -216,13 +215,12 @@ public class UnderlayService {
     String bqFilterSql = bqTranslator.translator(entityFilter).buildSql(sqlParams, null);
 
     // For each attribute with a hint, calculate new hints with the filter
-    StringBuilder allSql = new StringBuilder();
-    List<HintInstance> allHintInstances = new ArrayList<>();
-    entityLevelHints.getHintInstances().stream()
-        .map(HintInstance::getAttribute)
-        .parallel()
+    StringBuffer allSql = new StringBuffer();
+    List<HintInstance> allHintInstances = Collections.synchronizedList(new ArrayList<>());
+    entityLevelHints.getHintInstances().parallelStream()
         .map(
-            attribute -> {
+            hintInstance -> {
+              Attribute attribute = hintInstance.getAttribute();
               if (isRangeHint(attribute)) {
                 String sql =
                     WriteEntityLevelDisplayHints.buildRangeHintSql(
@@ -233,22 +231,10 @@ public class UnderlayService {
                     underlay
                         .getQueryRunner()
                         .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
-
-                List<HintInstance> attrHintInstances = new ArrayList<>();
-                sqlQueryResult
-                    .rowResults()
-                    .iterator()
-                    .forEachRemaining(
-                        sqlRowResult -> {
-                          Double min =
-                              sqlRowResult.get(MIN_VAL_ALIAS, DataType.DOUBLE).getDoubleVal();
-                          Double max =
-                              sqlRowResult.get(MAX_VAL_ALIAS, DataType.DOUBLE).getDoubleVal();
-                          if (min != null && max != null) {
-                            attrHintInstances.add(new HintInstance(attribute, min, max));
-                          }
-                        });
-                return new HintQueryResult(sql, attrHintInstances);
+                return new HintQueryResult(
+                    sql,
+                    HintInstance.rangeInstances(
+                        sqlQueryResult, attribute, MIN_VAL_ALIAS, MAX_VAL_ALIAS));
 
               } else if (isEnumHintForValueDisplay(attribute)) {
                 String sql =
@@ -260,22 +246,14 @@ public class UnderlayService {
                     underlay
                         .getQueryRunner()
                         .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
-
-                Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
-                sqlQueryResult
-                    .rowResults()
-                    .iterator()
-                    .forEachRemaining(
-                        sqlRowResult -> {
-                          Literal enumVal = sqlRowResult.get(ENUM_VAL_ALIAS, DataType.INT64);
-                          String enumDisplay =
-                              sqlRowResult.get(ENUM_DISP_ALIAS, DataType.STRING).getStringVal();
-                          Long enumCount =
-                              sqlRowResult.get(ENUM_COUNT_ALIAS, DataType.INT64).getInt64Val();
-                          attrEnumValues.put(new ValueDisplay(enumVal, enumDisplay), enumCount);
-                        });
                 return new HintQueryResult(
-                    sql, List.of(new HintInstance(attribute, attrEnumValues)));
+                    sql,
+                    HintInstance.valueDisplayInstance(
+                        sqlQueryResult,
+                        attribute,
+                        ENUM_VAL_ALIAS,
+                        ENUM_DISP_ALIAS,
+                        ENUM_COUNT_ALIAS));
 
               } else if (isEnumHintForRepeatedStringValue(attribute)) {
                 String sql =
@@ -287,20 +265,10 @@ public class UnderlayService {
                     underlay
                         .getQueryRunner()
                         .run(new SqlQueryRequest(sql, sqlParams, null, null, false));
-
-                Map<ValueDisplay, Long> attrEnumValues = new HashMap<>();
-                sqlQueryResult
-                    .rowResults()
-                    .iterator()
-                    .forEachRemaining(
-                        sqlRowResult -> {
-                          Literal enumVal = sqlRowResult.get(ENUM_VAL_ALIAS, DataType.STRING);
-                          Long enumCount =
-                              sqlRowResult.get(ENUM_COUNT_ALIAS, DataType.INT64).getInt64Val();
-                          attrEnumValues.put(new ValueDisplay(enumVal), enumCount);
-                        });
                 return new HintQueryResult(
-                    sql, List.of(new HintInstance(attribute, attrEnumValues)));
+                    sql,
+                    HintInstance.repeatedStringInstance(
+                        sqlQueryResult, attribute, ENUM_VAL_ALIAS, ENUM_COUNT_ALIAS));
 
               } else {
                 LOGGER.info(
@@ -310,7 +278,7 @@ public class UnderlayService {
                 return null;
               }
             })
-        .toList()
+        .filter(Objects::nonNull)
         .forEach(
             hqr -> {
               allSql.append(hqr.getSql()).append(';');
