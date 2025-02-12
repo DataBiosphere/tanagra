@@ -556,6 +556,40 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/studies/{studyId}/cohorts/{cohortId}/visualizations":
+    parameters:
+    - $ref: "#/components/parameters/ParamStudyId"
+    - $ref: "#/components/parameters/ParamCohortId"
+    post:
+      summary: Return visualizations for a cohort
+      operationId: visualizeCohortCounts
+      tags: [Cohorts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                visualizationNames:
+                  type: array
+                  description: Names (IDs) of requested visualizations
+                  items:
+                    $ref: "#/components/schemas/VisualizationName"
+              required:
+              - visualizationNames
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisualizationList"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   # --------------- Studies: Reviews ---------------
 
   "/v2/studies/{studyId}/cohorts/{cohortId}/reviews":
@@ -2122,6 +2156,16 @@ components:
         numRowsAcrossAllPages:
           $ref: "#/components/schemas/NumRowsAcrossAllPages"
 
+
+    VisualizationList:
+      type: object
+      description: List of cohort visualizations
+      properties:
+        visualizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Visualization"
+
     DisplayHint:
       type: object
       description: Display hint for entity attribute
@@ -2363,6 +2407,68 @@ components:
     CohortDescription:
       type: string
       description: Description of the cohort
+
+    Visualization:
+      type: object
+      description: Description of the Visualization
+      properties:
+        name:
+          $ref: "#/components/schemas/VisualizationName"
+        title:
+          type: string
+          description: Visualization title
+        vizDataList:
+          type: array
+          items:
+            $ref: "#/components/schemas/VisualizationData"
+      required:
+      - name
+      - title
+      - vizDataList
+
+    VisualizationName:
+      type: string
+      description: Name (ID) of the visualization, immutable
+
+    VisualizationData:
+      type: object
+      description: Visualization data for a cohort
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: "#/components/schemas/VisualizationDataKey"
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/VisualizationDataValue"
+      required:
+      - keys
+      - values
+
+    VisualizationDataKey:
+      type: object
+      description: Visualization data key
+      properties:
+        name:
+          type: string
+        numericId:
+          type: integer
+        stringId:
+          type: string
+      required:
+      - name
+
+    VisualizationDataValue:
+      type: object
+      description: Visualization data value
+      properties:
+        numeric:
+          type: integer
+        quartiles:
+          type: array
+          items:
+            type: integer
 
     FeatureSet:
       type: object

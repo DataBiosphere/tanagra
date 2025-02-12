@@ -13,6 +13,7 @@ import bio.terra.tanagra.underlay.serialization.SZPrepackagedCriteria;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
 import bio.terra.tanagra.underlay.serialization.SZVisualization;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig;
 import bio.terra.tanagra.utils.FileUtils;
 import bio.terra.tanagra.utils.JacksonMapper;
 import com.google.common.collect.ImmutableMap;
@@ -378,6 +379,14 @@ public final class ConfigReader {
           SZVisualization.class);
     } catch (IOException ioEx) {
       throw new InvalidConfigException("Error deserializing visualization config file", ioEx);
+    }
+  }
+
+  public SZVisualizationDataConfig deserializeVizDataConfig(String vizDataConfig) {
+    try {
+      return JacksonMapper.deserializeJavaObject(vizDataConfig, SZVisualizationDataConfig.class);
+    } catch (IOException ioEx) {
+      throw new InvalidConfigException("Error deserializing visualization data config file", ioEx);
     }
   }
 

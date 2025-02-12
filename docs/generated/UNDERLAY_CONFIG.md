@@ -32,6 +32,15 @@ This documentation is generated from annotations in the configuration classes.
 * [SZTextSearch](#sztextsearch)
 * [SZUnderlay](#szunderlay)
 * [SZVisualization](#szvisualization)
+* [SZVisualizationDCSANBIntervals](#szvisualizationdcsanbintervals)
+* [SZVisualizationDCSANumericBucketing](#szvisualizationdcsanumericbucketing)
+* [SZVisualizationDCSASortType](#szvisualizationdcsasorttype)
+* [SZVisualizationDCSAttribute](#szvisualizationdcsattribute)
+* [SZVisualizationDCSJAType](#szvisualizationdcsjatype)
+* [SZVisualizationDCSJAggregation](#szvisualizationdcsjaggregation)
+* [SZVisualizationDCSJoin](#szvisualizationdcsjoin)
+* [SZVisualizationDCSource](#szvisualizationdcsource)
+* [SZVisualizationDataConfig](#szvisualizationdataconfig)
 
 ## SZAttribute
 Attribute or property of an entity.
@@ -1339,6 +1348,11 @@ This file should be in the same directory as the visualization (e.g. `gender.jso
 
 If this property is specified, the value of the `config` property is ignored.
 
+### SZVisualization.dataConfigObj
+**required** [SZVisualizationDataConfig](#szvisualizationdataconfig)
+
+Deserialized configuration of the visualization. VizDataConfig protocol buffer as Java object.
+
 ### SZVisualization.name
 **required** String
 
@@ -1371,6 +1385,198 @@ If this property is specified, the value of the `pluginConfig` property is ignor
 **required** String
 
 Visible title of the visualization.
+
+
+
+## SZVisualizationDCSANBIntervals
+Intervals {min:1, max:5, count: 2}, creates buckets [1, 3) and [3, 5).
+
+### SZVisualizationDCSANBIntervals.count
+**required** int
+
+Count
+
+### SZVisualizationDCSANBIntervals.max
+**required** double
+
+Maximum
+
+### SZVisualizationDCSANBIntervals.min
+**required** double
+
+Minimum
+
+
+
+## SZVisualizationDCSANumericBucketing
+Converts a continuous numeric range into ids with count as the value.
+
+### SZVisualizationDCSANumericBucketing.includeLesser
+**optional** boolean
+
+Whether to create buckets for values lesser than the explicitly specified ones or ignore them
+
+### SZVisualizationDCSANumericBucketing.includeLesser
+**optional** boolean
+
+Whether to create buckets for values greater than the explicitly specified ones or ignore them
+
+### SZVisualizationDCSANumericBucketing.intervals
+**optional** [SZVisualizationDCSANBIntervals](#szvisualizationdcsanbintervals)
+
+Intervals
+
+### SZVisualizationDCSANumericBucketing.thresholds
+**required** List [ Double ]
+
+Buckets can be specified as either a list of thresholds or a range and number of buckets. For thresholds [18, 45, 65], results in two buckets [18, 45), and [45, 65). Lesser and greater buckets can be added if desired.
+
+
+
+## SZVisualizationDCSASortType
+Sort type.
+
+### SZVisualizationDCSASortType.NAME
+**required** [SZVisualizationDCSASortType](#szvisualizationdcsasorttype)
+
+Name.
+
+### SZVisualizationDCSASortType.UNKNOWN
+**required** [SZVisualizationDCSASortType](#szvisualizationdcsasorttype)
+
+Unknown.
+
+### SZVisualizationDCSASortType.VALUE
+**required** [SZVisualizationDCSASortType](#szvisualizationdcsasorttype)
+
+Value.
+
+
+
+## SZVisualizationDCSAttribute
+Attribute configuration.
+
+### SZVisualizationDCSAttribute.attribute
+**required** String
+
+The attribute to read.
+
+### SZVisualizationDCSAttribute.limit
+**optional** int
+
+Whether a limited amount of data should be returned (e.g. 10 most common conditions).
+
+### SZVisualizationDCSAttribute.numericBucketing
+**required** [SZVisualizationDCSANumericBucketing](#szvisualizationdcsanumericbucketing)
+
+Numeric Bucketing.
+
+### SZVisualizationDCSAttribute.sortDescending
+**optional** boolean
+
+Whether to sort in descending order.
+
+### SZVisualizationDCSAttribute.sortType
+**optional** [SZVisualizationDCSASortType](#szvisualizationdcsasorttype)
+
+How to sort this attribute for display. Defaults to NAME.
+
+*Default value:* `NAME`
+
+
+
+## SZVisualizationDCSJAType
+Aggregation type.
+
+### SZVisualizationDCSJAType.AVERAGE
+**required** [SZVisualizationDCSJAType](#szvisualizationdcsjatype)
+
+Average.
+
+### SZVisualizationDCSJAType.MAX
+**required** [SZVisualizationDCSJAType](#szvisualizationdcsjatype)
+
+Maximum.
+
+### SZVisualizationDCSJAType.MIN
+**required** [SZVisualizationDCSJAType](#szvisualizationdcsjatype)
+
+Minimum.
+
+### SZVisualizationDCSJAType.UNIQUE
+**required** [SZVisualizationDCSJAType](#szvisualizationdcsjatype)
+
+Unique.
+
+
+
+## SZVisualizationDCSJAggregation
+Aggregation configuration.
+
+### SZVisualizationDCSJAggregation.attribute
+**optional** String
+
+The output is always ids and values but aggregation may occur over another field (e.g. date to find the most recent value).
+
+### SZVisualizationDCSJAggregation.type
+**optional** [SZVisualizationDCSJAType](#szvisualizationdcsjatype)
+
+The type of aggregation being performed.
+
+
+
+## SZVisualizationDCSJoin
+Join configuration.
+
+### SZVisualizationDCSJoin.aggregation
+**required** [SZVisualizationDCSJAggregation](#szvisualizationdcsjaggregation)
+
+When joining an entity with an N:1 relationship (e.g. multiple weight values to a person), an aggregation is often required to make the data visualizable. For example to visualize weight vs. race, each person needs to have a single weight value associated with them, such as the average or most recent. For simple cases, simply counting unique instances of a related entity  may be sufficient (e.g. to count people with related condition occurrences).
+
+### SZVisualizationDCSJoin.entity
+**required** String
+
+The next entity to join to in order to eventually get to the entity the visualization is displaying (e.g. person when joining condition_occurences to age). 
+
+
+
+## SZVisualizationDCSource
+Configuration for a single visualization data config source.
+
+### SZVisualizationDCSource.attributes
+**required** List [ SZVisualization$SZVisualizationDataConfig$SZVisualizationDCSource$SZVisualizationDCSAttribute ]
+
+Attributes to be returned from the selected data source (e.g. condition_name from condition_occurrence or age from person). 
+
+### SZVisualizationDCSource.criteriaSelector
+**required** String
+
+Name of the criteriaSelector.
+
+### SZVisualizationDCSource.entity
+**optional** String
+
+Name of the entity (for criteria selectors that return more than one entity).
+
+### SZVisualizationDCSource.joins
+**required** List [ SZVisualization$SZVisualizationDataConfig$SZVisualizationDCSource$SZVisualizationDCSJoin ]
+
+To visualize data from different entities, the data must be joined to a common entity. Each source must specify a series of joins that ends up atthe same entity if it does not already come from that entity.
+
+### SZVisualizationDCSource.selectionData
+**optional** String
+
+Specified criteria selection. (e.g. to select conditions under diabetes)
+
+
+
+## SZVisualizationDataConfig
+Configuration for a single visualization data config.
+
+### SZVisualizationDataConfig.sources
+**required** List [ SZVisualization$SZVisualizationDataConfig$SZVisualizationDCSource ]
+
+List of data config sources for a single visualization.
 
 
 

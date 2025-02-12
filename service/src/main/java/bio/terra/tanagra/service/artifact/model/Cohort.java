@@ -65,10 +65,12 @@ public final class Cohort {
     return lastModifiedBy;
   }
 
+  @Nullable
   public String getDisplayName() {
     return displayName;
   }
 
+  @Nullable
   public String getDescription() {
     return description;
   }

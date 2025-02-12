@@ -37,7 +37,7 @@ export enum SZCorePlugin {
   SURVEY = "SURVEY",
   TEXT_SEARCH = "TEXT_SEARCH",
   UNHINTED_VALUE = "UNHINTED_VALUE",
-}
+};
 
 export type SZCriteriaOccurrence = {
   criteriaEntity: string;
@@ -79,7 +79,7 @@ export type SZCriteriaSelectorModifier = {
   pluginConfig: string;
   pluginConfigFile: string;
   supportsTemporalQueries: boolean;
-};
+}
 
 export enum SZDataType {
   BOOLEAN = "BOOLEAN",
@@ -238,10 +238,67 @@ export type SZUnderlay = {
 export type SZVisualization = {
   dataConfig: string;
   dataConfigFile: string;
+  dataConfigObj: SZVisualizationDataConfig;
   name: string;
   plugin: string;
   pluginConfig: string;
   pluginConfigFile: string;
   title: string;
+};
+
+export type SZVisualizationDCSANBIntervals = {
+  count: number;
+  max: number;
+  min: number;
+};
+
+export type SZVisualizationDCSANumericBucketing = {
+  includeLesser?: boolean;
+  includeGreater?: boolean;
+  intervals?: SZVisualizationDCSANBIntervals;
+  thresholds: number[];
+};
+
+export enum SZVisualizationDCSASortType {
+  NAME = "NAME",
+  UNKNOWN = "UNKNOWN",
+  VALUE = "VALUE",
+};
+
+export type SZVisualizationDCSAttribute = {
+  attribute: string;
+  limit?: number;
+  numericBucketing: SZVisualizationDCSANumericBucketing;
+  sortDescending?: boolean;
+  sortType?: SZVisualizationDCSASortType;
+};
+
+export enum SZVisualizationDCSJAType {
+  AVERAGE = "AVERAGE",
+  MAX = "MAX",
+  MIN = "MIN",
+  UNIQUE = "UNIQUE",
+};
+
+export type SZVisualizationDCSJAggregation = {
+  attribute?: string;
+  type?: SZVisualizationDCSJAType;
+};
+
+export type SZVisualizationDCSJoin = {
+  aggregation: SZVisualizationDCSJAggregation;
+  entity: string;
+};
+
+export type SZVisualizationDCSource = {
+  attributes: SZVisualizationDCSAttribute[];
+  criteriaSelector: string;
+  entity?: string;
+  joins: SZVisualizationDCSJoin[];
+  selectionData?: string;
+};
+
+export type SZVisualizationDataConfig = {
+  sources: SZVisualizationDCSource[];
 };
 

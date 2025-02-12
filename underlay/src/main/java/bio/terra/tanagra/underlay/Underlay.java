@@ -298,7 +298,7 @@ public final class Underlay {
           });
     }
 
-    // Build the visualizations.
+    // fetch underlay-wide visualization data config
     List<SZVisualization> szVisualizations = new ArrayList<>();
     if (szUnderlay.visualizations != null) {
       szUnderlay.visualizations.forEach(
@@ -308,6 +308,7 @@ public final class Underlay {
             // Update the szViz with the contents of the plugin data files.
             if (StringUtils.isNotEmpty(szViz.dataConfigFile)) {
               szViz.dataConfig = configReader.readVizDataConfig(vizPath, szViz.dataConfigFile);
+              szViz.dataConfigObj = configReader.deserializeVizDataConfig(szViz.dataConfig);
             }
             if (StringUtils.isNotEmpty(szViz.pluginConfigFile)) {
               szViz.pluginConfig =

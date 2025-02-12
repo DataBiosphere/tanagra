@@ -14,6 +14,7 @@ import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.field.ValueDisplayField;
 import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.query.PageMarker;
+import bio.terra.tanagra.api.query.count.CountInstance;
 import bio.terra.tanagra.api.query.count.CountQueryRequest;
 import bio.terra.tanagra.api.query.count.CountQueryResult;
 import bio.terra.tanagra.api.query.hint.HintInstance;
@@ -25,6 +26,7 @@ import bio.terra.tanagra.api.shared.OrderByDirection;
 import bio.terra.tanagra.api.shared.ValueDisplay;
 import bio.terra.tanagra.app.configuration.ExportConfiguration;
 import bio.terra.tanagra.app.configuration.UnderlayConfiguration;
+import bio.terra.tanagra.exception.InvalidConfigException;
 import bio.terra.tanagra.indexing.job.bigquery.WriteEntityLevelDisplayHints;
 import bio.terra.tanagra.query.bigquery.translator.BQApiTranslator;
 import bio.terra.tanagra.query.sql.SqlParams;
@@ -34,9 +36,15 @@ import bio.terra.tanagra.service.accesscontrol.ResourceCollection;
 import bio.terra.tanagra.service.accesscontrol.ResourceId;
 import bio.terra.tanagra.underlay.ConfigReader;
 import bio.terra.tanagra.underlay.Underlay;
+import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.serialization.SZService;
 import bio.terra.tanagra.underlay.serialization.SZUnderlay;
+import bio.terra.tanagra.underlay.serialization.SZVisualization;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig;
+import bio.terra.tanagra.underlay.serialization.SZVisualization.SZVisualizationDataConfig.SZVisualizationDCSource;
+import bio.terra.tanagra.underlay.visualization.Visualization;
+import bio.terra.tanagra.underlay.visualization.VisualizationData;
 import com.google.common.collect.ImmutableMap;
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
@@ -66,7 +74,6 @@ public class UnderlayService {
     for (String serviceConfig : underlayConfiguration.getFiles()) {
       ConfigReader configReader = ConfigReader.fromJarResources();
       SZService szService = configReader.readService(serviceConfig);
-      SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
 
       // Default the export infrastructure pointers to those set by the application properties.
       if (szService.bigQuery.queryProjectId == null) {
@@ -79,11 +86,168 @@ public class UnderlayService {
         szService.bigQuery.exportBucketNames = exportConfiguration.getShared().getGcsBucketNames();
       }
 
+      SZUnderlay szUnderlay = configReader.readUnderlay(szService.underlay);
       Underlay underlay = Underlay.fromConfig(szService.bigQuery, szUnderlay, configReader);
       underlayCacheBuilder.put(underlay.getName(), new CachedUnderlay(underlay));
     }
     this.underlayCache = ImmutableMap.copyOf(underlayCacheBuilder);
+
+    // pre-compute underlay-wide visualizations (underlayCache must be initialized before this)
+    underlayCache.entrySet().parallelStream()
+        .forEach(
+            cachedUnderlayEntry -> {
+              Underlay underlay = cachedUnderlayEntry.getValue().getUnderlay();
+
+              underlay.getClientConfig().getVisualizations().parallelStream()
+                  .forEach(
+                      szViz -> {
+                        cachedUnderlayEntry
+                            .getValue()
+                            .putUnderlayLevelVisualization(buildVisualization(underlay, szViz));
+                      });
+            });
   }
+
+  private Visualization buildVisualization(Underlay underlay, SZVisualization szViz) {
+    // TODO(dexamundsen): move config to openApi spec
+    SZVisualizationDataConfig vizDataConfig = szViz.dataConfigObj;
+
+    // Remove these limitations once the backend sufficiently supports the query generation.
+    if (vizDataConfig.sources == null || vizDataConfig.sources.size() != 1) {
+      throw new InvalidConfigException(
+          "Only 1 visualization source is supported in viz: " + szViz.name);
+    }
+
+    SZVisualizationDCSource vizDCSource = vizDataConfig.sources.get(0);
+    String selectorEntityName =
+        switch (vizDCSource.criteriaSelector) {
+            // TODO(dexamundsen): copied from vizContainer.tsx:selectorToEntity
+          case "demographics" -> "person"; // default
+          case "conditions" -> "conditionOccurrence";
+          case "procedures" -> "procedureOccurrence";
+          case "ingredients" -> "ingredientOccurrence";
+          case "measurements" -> "measurementOccurrence";
+          default ->
+              throw new InvalidConfigException(
+                  String.format(
+                      "Visualizations of criteriaSelector: %s are not supported in viz: %s",
+                      vizDCSource.criteriaSelector, szViz.name));
+        };
+    Entity selectorEntity = underlay.getEntity(selectorEntityName);
+
+    // TODO(dexamundsen): copied from vizContainer.tsx:fetchVizData
+    String countDistinctAttributeName = null;
+    if (vizDCSource.joins != null && !vizDCSource.joins.isEmpty()) {
+      Entity joinEntity = underlay.getPrimaryEntity();
+      if (vizDCSource.joins.stream()
+          .anyMatch(j -> !joinEntity.getName().equals(j.entity) || (j.aggregation != null))) {
+        throw new InvalidConfigException(
+            String.format(
+                "Only unique joins to primaryEntity: %s are supported in viz: %s",
+                joinEntity.getName(), szViz.name));
+      }
+      countDistinctAttributeName = joinEntity.getIdAttribute().getSourceQuery().getValueFieldName();
+    }
+
+    int attrCount = vizDCSource.attributes == null ? 0 : vizDCSource.attributes.size();
+    if (attrCount < 1 || attrCount > 2) {
+      throw new InvalidConfigException(
+          "Only 1 or 2 attributes are supported in viz: " + szViz.name);
+    }
+    List<String> groupByAttributeNames =
+        vizDCSource.attributes.stream().map(a -> a.attribute).toList();
+
+    List<CountInstance> countInstances = new ArrayList<>();
+    PageMarker pageMarker;
+    do {
+      CountQueryResult countQueryResult =
+          runCountQuery(
+              underlay,
+              selectorEntity,
+              countDistinctAttributeName,
+              groupByAttributeNames,
+              /* entityFilter= */ null,
+              OrderByDirection.DESCENDING,
+              /* limit= */ 1_000_000,
+              /* pageMarker= */ null,
+              /* pageSize= */ null);
+      pageMarker = countQueryResult.getPageMarker();
+      countInstances.addAll(countQueryResult.getCountInstances());
+    } while (pageMarker != null);
+
+    /*
+    countInstances.stream().map(
+      instance -> {
+
+        Map<String, ApiValueDisplay> attributes = new HashMap<>();
+        instance
+            .getEntityFieldValues()
+            .forEach(
+                (field, value) -> {
+                  if (field instanceof AttributeField) {
+                    attributes.put(
+                        ((AttributeField) field).getAttribute().getName(),
+                        ToApiUtils.toApiObject(value));
+                  }
+                });
+
+        attributes.forEach(
+            (k, v) -> {
+
+              DataValue value = null;
+              String display =  v.getDisplay();
+
+              if (v.isIsRepeatedValue()) {
+                if (v.getRepeatedValue() != null) {
+                  display = v.getRepeatedValue().stream().map(
+                      l -> l.
+
+                  )
+                }
+
+                display = v.getRepeatedValue()
+              } else {
+
+              }
+
+            }
+
+
+        );
+
+
+        FilterCountValue fc =
+            new FilterCountValue(Math.toIntExact(instance.getCount()),
+                null);
+
+
+
+      }
+
+
+    );  */
+
+    List<VisualizationData> visualizationDataList = new ArrayList<>();
+    return new Visualization(szViz.name, szViz.title, visualizationDataList);
+  }
+
+  /*
+    public record DataValue(String key, Object val) {}
+    public record FilterCountValue(int count, Map<String, DataValue> value) {}
+
+    /*
+    export type FilterCountValue = {
+    count: number;
+    [x: string]: DataValue;
+  };
+
+       const value: FilterCountValue = {
+          count: count.count ?? 0,
+        };
+
+        processAttributes(value, count.attributes);
+
+     */
 
   public List<Underlay> listUnderlays(ResourceCollection authorizedIds) {
     if (authorizedIds.isAllResources()) {
@@ -112,13 +276,22 @@ public class UnderlayService {
     return underlayCache.get(underlayName).getUnderlay();
   }
 
+  public Visualization getVisualization(String underlayName, String visualizationName) {
+    if (!underlayCache.containsKey(underlayName)) {
+      throw new NotFoundException("Underlay not found: " + underlayName);
+    }
+    return underlayCache.get(underlayName).getUnderlayLevelVisualization(visualizationName);
+  }
+
   private static class CachedUnderlay {
     private final Underlay underlay;
     private final Map<String, HintQueryResult> entityLevelHints;
+    private final Map<String, Visualization> underlayLevelVisualizations;
 
     CachedUnderlay(Underlay underlay) {
       this.underlay = underlay;
       this.entityLevelHints = new HashMap<>();
+      this.underlayLevelVisualizations = new HashMap<>();
     }
 
     Underlay getUnderlay() {
@@ -129,8 +302,16 @@ public class UnderlayService {
       return Optional.ofNullable(entityLevelHints.get(entityName));
     }
 
+    public Visualization getUnderlayLevelVisualization(String vizName) {
+      return Optional.ofNullable(underlayLevelVisualizations.get(vizName)).orElseThrow();
+    }
+
     void putEntityLevelHints(String entityName, HintQueryResult hintQueryResult) {
       entityLevelHints.put(entityName, hintQueryResult);
+    }
+
+    public void putUnderlayLevelVisualization(Visualization visualization) {
+      underlayLevelVisualizations.put(visualization.getName(), visualization);
     }
   }
 
@@ -141,6 +322,10 @@ public class UnderlayService {
   private void cacheEntityLevelHints(
       String underlayName, String entityName, HintQueryResult hintQueryResult) {
     underlayCache.get(underlayName).putEntityLevelHints(entityName, hintQueryResult);
+  }
+
+  private void cacheUnderlayLevelVisualizations(String underlayName, Visualization visualization) {
+    underlayCache.get(underlayName).putUnderlayLevelVisualization(visualization);
   }
 
   @SuppressWarnings("checkstyle:ParameterNumber")
@@ -218,11 +403,10 @@ public class UnderlayService {
     // For each attribute with a hint, calculate new hints with the filter
     StringBuilder allSql = new StringBuilder();
     List<HintInstance> allHintInstances = new ArrayList<>();
-    entityLevelHints.getHintInstances().stream()
-        .map(HintInstance::getAttribute)
-        .parallel()
+    entityLevelHints.getHintInstances().parallelStream()
         .map(
-            attribute -> {
+            hintInstance -> {
+              Attribute attribute = hintInstance.getAttribute();
               if (isRangeHint(attribute)) {
                 String sql =
                     WriteEntityLevelDisplayHints.buildRangeHintSql(
