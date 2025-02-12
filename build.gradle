@@ -7,7 +7,7 @@ buildscript {
         vGoogleProtobuf = '0.9.4'
 
         // library versions - constraints to address vulns
-        vIoNetty = '4.1.115.Final'
+        vIoNetty = '4.1.118.Final'
         vIoNettyNative = '2.0.69.Final'
         vLogback = '1.5.15'
 
