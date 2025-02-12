@@ -94,12 +94,47 @@
           "columns": [
             {
               "key": "observation",
-              "width": "100%",
+              "width": "30%",
               "title": "Observation name",
               "sortable": true,
               "filterable": true
             },
-            { "key": "date", "width": 200, "title": "Date", "sortable": true }
+            {
+              "key": "observation_concept_code",
+              "width": "10%",
+              "title": "Code",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "observation_concept_id",
+              "width": "10%",
+              "title": "Concept ID",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "standard_concept",
+              "width": "10%",
+              "title": "Standard/source",
+              "sortable": true,
+              "filterable": true
+            },
+            { "key": "start_date", "width": "10%", "title": "Date", "sortable": true },
+            {
+              "key": "age_at_occurrence",
+              "width": "10%",
+              "title": "Age at event",
+              "sortable": true,
+              "filterable": true
+            },
+            {
+              "key": "visit_type",
+              "width": "10%",
+              "title": "Visit type",
+              "sortable": true,
+              "filterable": true
+            }
           ]
         }
       },

@@ -4,6 +4,7 @@ SELECT DISTINCT
   p.person_source_value,
   o.observation_concept_id,
   oc.concept_name AS observation_concept_name,
+  oc.concept_code AS observation_concept_code,
   o.observation_date,
   o.value_as_string,
   o.value_as_concept_id,
