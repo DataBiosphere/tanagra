@@ -4,9 +4,11 @@ SELECT DISTINCT
   p.person_source_value,
   co.condition_concept_id,
   cc.concept_name AS condition_concept_name,
+  cc.concept_code AS condition_concept_code,
   co.condition_start_date,
   co.condition_end_date,
   co.stop_reason,
+  (CASE WHEN cc.standard_concept IS NULL THEN 'Source' WHEN cc.standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept
   co.condition_source_value,
   co.condition_source_concept_id,
   CAST(FLOOR(TIMESTAMP_DIFF(co.condition_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
