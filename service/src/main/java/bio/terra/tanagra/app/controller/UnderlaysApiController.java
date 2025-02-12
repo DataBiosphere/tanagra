@@ -359,15 +359,17 @@ public class UnderlaysApiController implements UnderlaysApi {
       implements Comparator<ApiDisplayHintEnumEnumHintValues>, Serializable {
     @Override
     public int compare(ApiDisplayHintEnumEnumHintValues o1, ApiDisplayHintEnumEnumHintValues o2) {
-      // order by: value ASC, display ASC, count DESC
+      // order by: display ASC, value ASC, count DESC
       ApiValueDisplay vd1 = o1.getEnumVal();
       ApiValueDisplay vd2 = o2.getEnumVal();
-      int result =
-          StringUtils.compare(
-              vd1.getValue().getValueUnion().getStringVal(),
-              vd2.getValue().getValueUnion().getStringVal(),
-              false);
-      result = (result != 0) ? result : StringUtils.compare(vd1.getDisplay(), vd2.getDisplay());
+      int result = StringUtils.compare(vd1.getDisplay(), vd2.getDisplay(), false);
+      result =
+          (result != 0)
+              ? result
+              : StringUtils.compare(
+                  vd1.getValue().getValueUnion().getStringVal(),
+                  vd2.getValue().getValueUnion().getStringVal(),
+                  false);
       return (result != 0) ? result : Integer.compare(o2.getCount(), o1.getCount());
     }
   }
