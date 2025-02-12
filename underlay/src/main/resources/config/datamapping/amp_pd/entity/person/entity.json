@@ -3,10 +3,10 @@
 "allInstancesSqlFile": "all.sql",
 "attributes": [
     { "name": "id", "dataType": "STRING", "valueFieldName": "participant_id" },
-    { "name": "age", "dataType": "INT64" },
-    { "name": "sex", "dataType": "STRING" },
-    { "name": "race", "dataType": "STRING" },
-    { "name": "ethnicity", "dataType": "STRING" }
+    { "name": "age", "dataType": "INT64","isComputeDisplayHint": true},
+    { "name": "sex", "dataType": "STRING" ,"isComputeDisplayHint": true},
+    { "name": "race", "dataType": "STRING" ,"isComputeDisplayHint": true},
+    { "name": "ethnicity", "dataType": "STRING" ,"isComputeDisplayHint": true}
 ],
 "idAttribute": "id",
 "sourceQueryTableName": "${dataset}.Demographics"
