@@ -382,8 +382,8 @@ public class FilterableGroupFilterBuilderTest {
             .build();
     ValueData.Selection selectionNA =
         ValueData.Selection.newBuilder()
-            .setValue(
-                Value.newBuilder().setStringValue(Attribute.DEFAULT_EMPTY_VALUE_DISPLAY).build())
+            .setValue(Value.newBuilder().build())
+            .setName(Attribute.DEFAULT_EMPTY_VALUE_DISPLAY)
             .build();
     valueData =
         ValueData.newBuilder()
