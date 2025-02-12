@@ -244,7 +244,6 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                   attribute.isValueDisplay()
                       ? Literal.forString(enumCount.getKey().getDisplay())
                       : enumCount.getKey().getValue();
-
               List<Literal> rowOfLiterals = new ArrayList<>();
               rowOfLiterals.add(Literal.forString(attribute.getName()));
               rowOfLiterals.add(Literal.forDouble(null));
@@ -268,18 +267,19 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     return enumCounts.stream()
         .map(
             enumCount -> {
+              Literal stringField = enumCount.getKey();
               List<Literal> rowOfLiterals = new ArrayList<>();
               rowOfLiterals.add(Literal.forString(attribute.getName()));
               rowOfLiterals.add(Literal.forDouble(null));
               rowOfLiterals.add(Literal.forDouble(null));
               rowOfLiterals.add(Literal.forInt64(null));
-              rowOfLiterals.add(enumCount.getKey());
+              rowOfLiterals.add(stringField);
               rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
               LOGGER.info(
                   "Enum repeated-string hint: {}, {}, {}, {}",
                   attribute.getName(),
                   null,
-                  enumCount.getKey(),
+                  stringField,
                   enumCount.getValue());
               return rowOfLiterals;
             })
@@ -519,7 +519,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             + ENUM_COUNT_ALIAS
             + " FROM "
             + indexAttributesTable.getTablePointer().render()
-            + " CROSS JOIN UNNEST("
+            + " LEFT JOIN UNNEST("
             + SqlQueryField.of(attrValField).renderForSelect()
             + ") AS "
             + FLATTENED_ATTR_VAL_ALIAS

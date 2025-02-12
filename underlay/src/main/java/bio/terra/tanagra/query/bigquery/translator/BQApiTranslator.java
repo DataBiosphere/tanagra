@@ -21,6 +21,8 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.UnaryOperator;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQCountDistinctFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyIsMemberFieldTranslator;
@@ -217,9 +219,23 @@ public final class BQApiTranslator implements ApiTranslator {
   }
 
   @Override
+  public String unaryFilterOnRepeatedFieldSql(
+      SqlField field, UnaryOperator operator, @Nullable String tableAlias, SqlParams sqlParams) {
+    String functionTemplate =
+        "EXISTS (SELECT * FROM UNNEST(" + FUNCTION_TEMPLATE_FIELD_VAR_BRACES + "))";
+    if (UnaryOperator.IS_NULL.equals(operator)) {
+      functionTemplate = "NOT " + functionTemplate;
+    } else if (!UnaryOperator.IS_NOT_NULL.equals(operator)) {
+      throw new SystemException("Unknown unary operator: " + operator);
+    }
+    return functionWithCommaSeparatedArgsFilterSql(
+        field, functionTemplate, List.of(), tableAlias, sqlParams);
+  }
+
+  @Override
   public String naryFilterOnRepeatedFieldSql(
       SqlField field,
-      NaryOperator naryOperator,
+      NaryOperator operator,
       List<Literal> values,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
@@ -227,7 +243,7 @@ public final class BQApiTranslator implements ApiTranslator {
         "EXISTS (SELECT * FROM UNNEST("
             + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
             + ") AS flattened WHERE flattened "
-            + (NaryOperator.IN.equals(naryOperator) ? "IN" : "NOT IN")
+            + (NaryOperator.IN.equals(operator) ? "IN" : "NOT IN")
             + " ("
             + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
             + "))";

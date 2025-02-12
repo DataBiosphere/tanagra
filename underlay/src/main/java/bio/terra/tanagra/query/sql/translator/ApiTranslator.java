@@ -76,6 +76,9 @@ public interface ApiTranslator {
         field, unaryOperatorTemplateSql(operator), List.of(), tableAlias, sqlParams);
   }
 
+  String unaryFilterOnRepeatedFieldSql(
+      SqlField field, UnaryOperator operator, @Nullable String tableAlias, SqlParams sqlParams);
+
   default String binaryFilterSql(
       SqlField field,
       BinaryOperator operator,
@@ -115,12 +118,12 @@ public interface ApiTranslator {
   @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
   default String naryFilterSql(
       SqlField field,
-      NaryOperator naryOperator,
+      NaryOperator operator,
       List<Literal> values,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
     String operatorSql;
-    switch (naryOperator) {
+    switch (operator) {
       case IN:
         operatorSql =
             FUNCTION_TEMPLATE_FIELD_VAR_BRACES
@@ -149,13 +152,13 @@ public interface ApiTranslator {
             + " AND @"
             + paramName2;
       default:
-        throw new SystemException("Unknown function template: " + naryOperator);
+        throw new SystemException("Unknown function template: " + operator);
     }
   }
 
   String naryFilterOnRepeatedFieldSql(
       SqlField field,
-      NaryOperator naryOperator,
+      NaryOperator operator,
       List<Literal> values,
       @Nullable String tableAlias,
       SqlParams sqlParams);
