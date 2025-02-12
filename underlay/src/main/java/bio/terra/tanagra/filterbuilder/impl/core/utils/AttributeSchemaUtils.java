@@ -14,7 +14,6 @@ import bio.terra.tanagra.api.shared.NaryOperator;
 import bio.terra.tanagra.api.shared.UnaryOperator;
 import bio.terra.tanagra.proto.criteriaselector.DataRangeOuterClass.DataRange;
 import bio.terra.tanagra.proto.criteriaselector.ValueDataOuterClass;
-import bio.terra.tanagra.proto.criteriaselector.ValueOuterClass.Value;
 import bio.terra.tanagra.proto.criteriaselector.configschema.CFAttribute;
 import bio.terra.tanagra.proto.criteriaselector.dataschema.DTAttribute;
 import bio.terra.tanagra.underlay.Underlay;
@@ -54,13 +53,12 @@ public final class AttributeSchemaUtils {
       data.getSelectedList()
           .forEach(
               selected -> {
-                Value selectedValue = selected.getValue();
-                if (attribute.getEmptyValueDisplay().equals(selectedValue.getStringValue())) {
+                if (attribute.getEmptyValueDisplay().equals(selected.getName())) {
                   // empty value is selected: entries with no value for this attribute
                   filtersToOr.add(
                       new AttributeFilter(underlay, entity, attribute, UnaryOperator.IS_NULL));
                 } else {
-                  enumLiterals.add(toLiteral(selectedValue, attribute.getDataType()));
+                  enumLiterals.add(toLiteral(selected.getValue(), attribute.getDataType()));
                 }
               });
 
