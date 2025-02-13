@@ -14,6 +14,7 @@ import * as tanagra from "tanagra-api";
 import * as tanagraUnderlay from "tanagra-underlay/underlayConfig";
 import { Underlay } from "underlaysSlice";
 import { isValid } from "util/valid";
+import { DataType } from "tanagra-api";
 
 export type EntityNode = {
   data: DataEntry;
@@ -1036,7 +1037,7 @@ export class BackendUnderlaySource implements UnderlaySource {
     }
 
     const limit = options?.fetchAll ? 100000 : options?.limit;
-    const req = {
+    return {
       entityName: entity.name,
       underlayName: this.underlay.name,
       query: {
@@ -1074,7 +1075,6 @@ export class BackendUnderlaySource implements UnderlaySource {
         pageMarker: options?.pageMarker,
       },
     };
-    return req;
   }
 
   private async queryHints(
@@ -1606,19 +1606,28 @@ function isInternalAttribute(attribute: string): boolean {
 }
 
 export function literalFromDataValue(value: DataValue): tanagra.Literal {
-  let dataType = tanagra.DataType.Int64;
-  if (typeof value === "string") {
+  let dataType: DataType;
+  if (typeof value === "bigint") {
+    dataType = tanagra.DataType.Int64;
+  } else if (typeof value == "number") {
+    dataType = Number.isInteger(value)
+      ? tanagra.DataType.Int64
+      : tanagra.DataType.Double;
+  } else if (typeof value === "string") {
     dataType = tanagra.DataType.String;
   } else if (typeof value === "boolean") {
     dataType = tanagra.DataType.Boolean;
   } else if (value instanceof Date) {
     dataType = tanagra.DataType.Date;
+  } else {
+    throw new Error(`Unsupported type of ${JSON.stringify(value)}.`);
   }
 
   return {
     dataType,
     valueUnion: {
       int64Val: typeof value === "bigint" ? String(value) : undefined,
+      doubleVal: typeof value === "number" ? value : undefined,
       stringVal: typeof value === "string" ? value : undefined,
       boolVal: typeof value === "boolean" ? value : undefined,
       dateVal: value instanceof Date ? value.toISOString() : undefined,
@@ -2106,7 +2115,7 @@ function fromAPIFeatureSetInternal(
 function toAPICriteriaGroupSections(
   groupSections: GroupSection[]
 ): tanagra.CriteriaGroupSection[] {
-  const sections = groupSections.map((section) => ({
+  return groupSections.map((section) => ({
     id: section.id,
     displayName: section.name ?? "",
     operator: toAPICriteriaGroupSectionOperator(section.filter.kind),
@@ -2122,7 +2131,6 @@ function toAPICriteriaGroupSections(
     ),
     disabled: !!section.disabled,
   }));
-  return sections;
 }
 
 function toAPICriteriaGroups(groups: Group[]): tanagra.CriteriaGroup[] {
@@ -2252,7 +2260,7 @@ function parseAPIError<T>(p: Promise<T>) {
     }
 
     const text = await response.text();
-    let message = "";
+    let message;
     try {
       message = JSON.parse(text).message;
     } catch (e) {
