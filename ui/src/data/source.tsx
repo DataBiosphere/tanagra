@@ -1610,9 +1610,7 @@ export function literalFromDataValue(value: DataValue): tanagra.Literal {
   if (typeof value === "bigint") {
     dataType = tanagra.DataType.Int64;
   } else if (typeof value == "number") {
-    dataType = Number.isInteger(value)
-      ? tanagra.DataType.Int64
-      : tanagra.DataType.Double;
+    dataType = tanagra.DataType.Double;
   } else if (typeof value === "string") {
     dataType = tanagra.DataType.String;
   } else if (typeof value === "boolean") {
