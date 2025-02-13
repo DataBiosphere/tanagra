@@ -509,6 +509,7 @@ public final class FromApiUtils {
               apiLiteral.getValueUnion().getInt64Val() != null
                   ? Long.parseLong(apiLiteral.getValueUnion().getInt64Val())
                   : null);
+      case DOUBLE -> Literal.forDouble(apiLiteral.getValueUnion().getDoubleVal());
       case STRING -> Literal.forString(apiLiteral.getValueUnion().getStringVal());
       case BOOLEAN -> Literal.forBoolean(apiLiteral.getValueUnion().isBoolVal());
       case DATE -> Literal.forDate(apiLiteral.getValueUnion().getDateVal());
