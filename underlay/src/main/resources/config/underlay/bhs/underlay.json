@@ -1,14 +1,14 @@
 {
-    "name": "bhs_mock",
+    "name": "bhs",
     "primaryEntity": "person",
     "entities": [
-      "bhs_mock/person"
+      "bhs/person"
     ],
     "groupItemsEntityGroups": [],
     "criteriaOccurrenceEntityGroups": [],
     "criteriaSelectors": [
-      "bhs_mock/race",
-      "bhs_mock/age"
+      "bhs/race",
+      "bhs/age"
     ],
     "prepackagedDataFeatures": [],
     "visualizations": [

@@ -1,6 +1,6 @@
 {
-    "name": "bhs_mock-race",
-    "displayName": "Race",
+    "name": "bhs-age",
+    "displayName": "Age",
     "isEnabledForCohorts": true,
     "isEnabledForDataFeatureSets": true,
     "display": {
@@ -10,6 +10,6 @@
     "filterBuilder": "core.PrimaryEntityFilterBuilder",
     "plugin": "attribute",
     "pluginConfig": null,
-    "pluginConfigFile": "race.json",
+    "pluginConfigFile": "age.json",
     "modifiers": null
-}
+  }
