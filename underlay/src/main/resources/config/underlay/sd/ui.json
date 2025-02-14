@@ -45,28 +45,28 @@
           "columns": [
             {
               "key": "condition",
-              "width": "30%",
+              "width": "20%",
               "title": "Condition name",
               "sortable": true,
               "filterable": true
             },
             {
               "key": "condition_concept_code",
-              "width": "10%",
+              "width": "11%",
               "title": "Code",
               "sortable": true,
               "filterable": true
             },
             {
               "key": "condition_concept_id",
-              "width": "10%",
+              "width": "12%",
               "title": "Concept ID",
               "sortable": true,
               "filterable": true
             },
             {
               "key": "standard_concept",
-              "width": "10%",
+              "width": "15%",
               "title": "Standard/source",
               "sortable": true,
               "filterable": true
@@ -94,7 +94,7 @@
             },
             {
               "key": "visit_type",
-              "width": "10%",
+              "width": "12%",
               "title": "Visit type",
               "sortable": true,
               "filterable": true
