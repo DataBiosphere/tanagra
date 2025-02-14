@@ -2,7 +2,7 @@
     "name": "amp_pd-age",
     "displayName": "Age",
     "isEnabledForCohorts": true,
-    "isEnabledForDataFeatureSets": true,
+    "isEnabledForDataFeatureSets": false,
     "display": {
       "category": "Demographics",
       "tags": null
