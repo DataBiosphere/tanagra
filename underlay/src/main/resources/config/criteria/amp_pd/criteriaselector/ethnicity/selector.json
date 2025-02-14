@@ -2,7 +2,7 @@
     "name": "amp_pd-ethnicity",
     "displayName": "Ethnicity",
     "isEnabledForCohorts": true,
-    "isEnabledForDataFeatureSets": false,
+    "isEnabledForDataFeatureSets": true,
     "display": {
       "category": "Demographics",
       "tags": null

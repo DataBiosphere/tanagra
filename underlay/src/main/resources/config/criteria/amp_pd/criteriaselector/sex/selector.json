@@ -2,7 +2,7 @@
     "name": "amp_pd-sex",
     "displayName": "Sex",
     "isEnabledForCohorts": true,
-    "isEnabledForDataFeatureSets": false,
+    "isEnabledForDataFeatureSets": true,
     "display": {
       "category": "Demographics",
       "tags": null
