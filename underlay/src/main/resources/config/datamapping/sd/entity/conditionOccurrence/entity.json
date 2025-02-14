@@ -18,6 +18,14 @@
         "displayFieldTableJoinFieldName": "concept_id"
       }
     },
+    { "name": "condition_concept_code", "dataType": "INT64", "valueFieldName": "condition_concept_id", "displayFieldName": "condition_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "standard_concept", "dataType": "STRING",  "isSuppressedForExport": true },
     { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "condition_start_date" },
     { "name": "end_date", "dataType": "TIMESTAMP", "valueFieldName": "condition_end_date" },
     { "name": "stop_reason", "dataType": "STRING" },
