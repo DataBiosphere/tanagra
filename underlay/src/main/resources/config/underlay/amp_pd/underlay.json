@@ -10,9 +10,12 @@
         "amp_pd/age",
         "amp_pd/race",
         "amp_pd/ethnicity",
-        "amp_pd/sex"
+        "amp_pd/sex",
+        "amp_pd/outputUnfiltered"
       ],
-      "prepackagedDataFeatures": [],
+      "prepackagedDataFeatures": [
+        "amp_pd/_demographics"
+      ],
       "visualizations": [
         "omop/age",
         "omop/race",
