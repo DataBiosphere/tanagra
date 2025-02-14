@@ -3,11 +3,11 @@
 "allInstancesSqlFile": "all.sql",
 "attributes": [
     { "name": "id", "dataType": "STRING", "valueFieldName": "participant_id" },
-    { "name": "age", "dataType": "INT64","isComputeDisplayHint": true},
+    { "name": "age", "dataType": "INT64","valueFieldName": "age_at_baseline" ,"isComputeDisplayHint": true},
     { "name": "sex", "dataType": "STRING" ,"isComputeDisplayHint": true},
     { "name": "race", "dataType": "STRING" ,"isComputeDisplayHint": true},
     { "name": "ethnicity", "dataType": "STRING" ,"isComputeDisplayHint": true}
 ],
 "idAttribute": "id",
-"sourceQueryTableName": "${dataset}.Demographics"
+"sourceQueryTableName": "${omopDataset}.Demographics"
 }
