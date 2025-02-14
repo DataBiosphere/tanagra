@@ -8,7 +8,7 @@ SELECT DISTINCT
   co.condition_start_date,
   co.condition_end_date,
   co.stop_reason,
-  (CASE WHEN cc.standard_concept IS NULL THEN 'Source' WHEN cc.standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept
+  (CASE WHEN cc.standard_concept IS NULL THEN 'Source' WHEN cc.standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept,
   co.condition_source_value,
   co.condition_source_concept_id,
   CAST(FLOOR(TIMESTAMP_DIFF(co.condition_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
