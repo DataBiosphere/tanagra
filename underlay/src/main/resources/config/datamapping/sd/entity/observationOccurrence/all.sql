@@ -11,7 +11,7 @@ SELECT DISTINCT
   ovc.concept_name AS value_as_concept_name,
   o.unit_concept_id,
   ouc.concept_name AS unit_concept_name,
-  (CASE WHEN oc.standard_concept IS NULL THEN 'Source' WHEN oc.standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept
+  (CASE WHEN oc.standard_concept IS NULL THEN 'Source' WHEN oc.standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept,
   o.observation_source_value,
   o.observation_source_concept_id,
   CAST(FLOOR(TIMESTAMP_DIFF(o.observation_date, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
