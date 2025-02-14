@@ -155,7 +155,13 @@
               "sortable": true,
               "filterable": true
             },
-            { "key": "start_date", "width": "10%", "title": "Date", "sortable": true },
+            {
+              "key": "start_date",
+              "width": "10%",
+              "title": "Date",
+              "sortable": true,
+              "filterable": true
+            },
             {
               "key": "age_at_occurrence",
               "width": "10%",
