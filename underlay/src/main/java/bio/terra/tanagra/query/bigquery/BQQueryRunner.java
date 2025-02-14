@@ -52,6 +52,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.LoggerFactory;
 
 public class BQQueryRunner implements QueryRunner {
   private final BQExecutor bigQueryExecutor;
@@ -675,7 +676,9 @@ public class BQQueryRunner implements QueryRunner {
 
   @VisibleForTesting
   public static BQTable fromFullTablePath(String fullTablePath) {
+    LoggerFactory.getLogger(BQQueryRunner.class).error("Peter 1 - {} ", fullTablePath);
     String[] bqDatasetParsed = fullTablePath.split("\\.");
+    LoggerFactory.getLogger(BQQueryRunner.class).error("Peter 2 - {} ", bqDatasetParsed);
     return new BQTable(bqDatasetParsed[0], bqDatasetParsed[1], bqDatasetParsed[2]);
   }
 }
