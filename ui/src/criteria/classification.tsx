@@ -43,6 +43,8 @@ import {
 } from "data/source";
 import {
   convertAttributeStringToDataValue,
+  dataKeyToKey,
+  keyFromDataKey,
   DataEntry,
   DataKey,
 } from "data/types";
@@ -195,19 +197,6 @@ class _ implements CriteriaPlugin<string> {
   }
 }
 
-function dataKey(key: DataKey, entityGroup: string): string {
-  return JSON.stringify({
-    entityGroup,
-    stringVal: typeof key === "string" ? key : undefined,
-    bigIntVal: typeof key === "bigint" ? String(key) : undefined,
-  });
-}
-
-function keyFromDataKey(key: string): DataKey {
-  const parsed = JSON.parse(key);
-  return parsed.bigIntVal ? BigInt(parsed.bigIntVal) : parsed.stringVal;
-}
-
 type SearchState = {
   // The query entered in the search box.
   query?: string;
@@ -335,11 +324,11 @@ function ClassificationEdit(props: ClassificationEditProps) {
         const rowData: TreeGridRowData = { ...node.data };
         if (node.ancestors) {
           rowData.view_hierarchy = node.ancestors.map((a) =>
-            dataKey(a, entityGroup)
+            dataKeyToKey(a, entityGroup)
           );
         }
 
-        const key = dataKey(node.data.key, entityGroup);
+        const key = dataKeyToKey(node.data.key, entityGroup);
         children.push(key);
 
         const group = lookupEntityGroupData(
@@ -990,8 +979,8 @@ function HierarchySearchList(props: HierarchySearchListProps) {
                   const entityGroup = props.hierarchyEntityConfig?.id;
                   if (entityGroup) {
                     props.onClick(
-                      n.ancestors?.map((a) => dataKey(a, entityGroup)) ?? [],
-                      dataKey(n.data.key, entityGroup)
+                      n.ancestors?.map((a) => dataKeyToKey(a, entityGroup)) ?? [],
+                      dataKeyToKey(n.data.key, entityGroup)
                     );
                   }
                 }}
