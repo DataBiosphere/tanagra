@@ -24,7 +24,7 @@ public class PrimaryEntityFilterBuilder
       throw new InvalidConfigException("Primary entity filter builder does not support modifiers.");
     }
     CFAttribute.Attribute config = deserializeConfig();
-    DTAttribute.Attribute data = deserializeData(selectionData.get(0).getPluginData());
+    DTAttribute.Attribute data = deserializeData(selectionData.get(0).pluginData());
     return AttributeSchemaUtils.buildForEntity(
         underlay,
         underlay.getPrimaryEntity(),

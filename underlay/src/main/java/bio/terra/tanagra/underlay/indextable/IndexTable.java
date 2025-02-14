@@ -8,7 +8,6 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain.ColumnTemplate;
 import bio.terra.tanagra.underlay.serialization.SZBigQuery;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 
 public abstract class IndexTable {
   private final NameHelper namer;
@@ -40,8 +39,9 @@ public abstract class IndexTable {
 
   public abstract ImmutableList<ColumnSchema> getColumnSchemas();
 
-  public List<String> getColumnNames() {
-    return getColumnSchemas().stream().map(ColumnSchema::getColumnName).toList();
+  public ImmutableList<String> getColumnNames() {
+    return ImmutableList.copyOf(
+        getColumnSchemas().stream().map(ColumnSchema::getColumnName).toList());
   }
 
   public boolean isGeneratedIndexTable() {

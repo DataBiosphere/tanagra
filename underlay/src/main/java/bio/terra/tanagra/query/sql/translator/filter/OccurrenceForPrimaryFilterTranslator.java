@@ -57,7 +57,7 @@ public class OccurrenceForPrimaryFilterTranslator extends ApiFilterTranslator {
         && occurrenceForPrimaryFilter.hasCriteriaSubFilter()) {
       return apiTranslator
           .translator(
-              new BooleanAndOrFilter(
+              BooleanAndOrFilter.newBooleanAndOrFilter(
                   BooleanAndOrFilter.LogicalOperator.AND,
                   List.of(primaryRelationshipFilter, criteriaRelationshipFilter)),
               attributeSwapFields)

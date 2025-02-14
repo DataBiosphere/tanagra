@@ -13,7 +13,6 @@ import bio.terra.tanagra.filterbuilder.EntityOutput;
 import bio.terra.tanagra.service.artifact.ReviewService;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
 import bio.terra.tanagra.utils.threadpool.Job;
 import bio.terra.tanagra.utils.threadpool.JobResult;
@@ -42,7 +41,6 @@ public class DataExportHelper {
   private final ExportRequest exportRequest;
   private final ImmutableList<EntityOutput> entityOutputs;
   private final EntityFilter primaryEntityFilter;
-  private GoogleCloudStorage googleCloudStorage;
 
   public DataExportHelper(
       Integer maxChildThreads,
@@ -352,10 +350,10 @@ public class DataExportHelper {
             } else {
               exportFileResults.add(
                   ExportFileResult.forEntityData(
-                      jobResult.getJobOutput().getFileDisplayName(),
-                      jobResult.getJobOutput().getFilePath(),
+                      jobResult.getJobOutput().fileDisplayName(),
+                      jobResult.getJobOutput().filePath(),
                       exportQueryRequest.getListQueryRequest().getEntity(),
-                      jobResult.getJobOutput().getFilePath() == null
+                      jobResult.getJobOutput().filePath() == null
                           ? "Export query returned zero rows. No file generated."
                           : null,
                       null));
@@ -375,10 +373,10 @@ public class DataExportHelper {
                       .run(exportQueryRequest);
               exportFileResults.add(
                   ExportFileResult.forEntityData(
-                      exportQueryResult.getFileDisplayName(),
-                      exportQueryResult.getFilePath(),
+                      exportQueryResult.fileDisplayName(),
+                      exportQueryResult.filePath(),
                       exportQueryRequest.getListQueryRequest().getEntity(),
-                      exportQueryResult.getFilePath() == null
+                      exportQueryResult.filePath() == null
                           ? "Export query returned zero rows. No file generated."
                           : null,
                       null));
@@ -437,7 +435,7 @@ public class DataExportHelper {
                   ExportQueryResult exportQueryResult = exportRawData(fileContents, fileName, true);
                   exportFileResults.add(
                       ExportFileResult.forAnnotationData(
-                          fileName, exportQueryResult.getFilePath(), cohort, null, null));
+                          fileName, exportQueryResult.filePath(), cohort, null, null));
                 }
               } catch (Exception ex) {
                 exportFileResults.add(

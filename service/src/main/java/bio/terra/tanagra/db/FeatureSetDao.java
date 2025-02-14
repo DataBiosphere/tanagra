@@ -91,15 +91,12 @@ public class FeatureSetDao {
     String sql =
         FEATURE_SET_SELECT_SQL
             + " WHERE study_id = :study_id AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET ALL feature sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("study_id", studyId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
-    LOGGER.debug("GET ALL feature sets numFound = {}", featureSets.size());
-    return featureSets;
+    return getFeatureSetsHelper(sql, params);
   }
 
   @ReadTransaction
@@ -107,25 +104,20 @@ public class FeatureSetDao {
     String sql =
         FEATURE_SET_SELECT_SQL
             + " WHERE id IN (:ids) AND NOT is_deleted ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET MATCHING feature sets: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("ids", ids)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
-    LOGGER.debug("GET MATCHING feature sets numFound = {}", featureSets.size());
-    return featureSets;
+    return getFeatureSetsHelper(sql, params);
   }
 
   @ReadTransaction
   public FeatureSet getFeatureSet(String id) {
     // Fetch feature set.
     String sql = FEATURE_SET_SELECT_SQL + " WHERE id = :id";
-    LOGGER.debug("GET feature set: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
     List<FeatureSet> featureSets = getFeatureSetsHelper(sql, params);
-    LOGGER.debug("GET feature set numFound = {}", featureSets.size());
 
     // Make sure there's only one feature set returned for this id.
     if (featureSets.isEmpty()) {

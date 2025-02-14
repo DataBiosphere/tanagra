@@ -36,7 +36,7 @@ public class CriteriaSelectorTest {
     assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), gender.getPlugin());
     assertTrue(gender.getModifiers().isEmpty());
 
-    FilterBuilder filterBuilder = gender.getFilterBuilder();
+    FilterBuilder<?, ?> filterBuilder = gender.getFilterBuilder();
     assertNotNull(filterBuilder);
     assertEquals(PrimaryEntityFilterBuilder.class, filterBuilder.getClass());
   }
@@ -52,9 +52,9 @@ public class CriteriaSelectorTest {
 
     CriteriaSelector.Modifier ageAtOccurrenceModifier = condition.getModifier("ageAtOccurrence");
     assertNotNull(ageAtOccurrenceModifier);
-    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), ageAtOccurrenceModifier.getPlugin());
+    assertEquals(SZCorePlugin.ATTRIBUTE.getIdInConfig(), ageAtOccurrenceModifier.plugin());
 
-    FilterBuilder filterBuilder = condition.getFilterBuilder();
+    FilterBuilder<?, ?> filterBuilder = condition.getFilterBuilder();
     assertNotNull(filterBuilder);
     assertEquals(EntityGroupFilterBuilder.class, filterBuilder.getClass());
   }

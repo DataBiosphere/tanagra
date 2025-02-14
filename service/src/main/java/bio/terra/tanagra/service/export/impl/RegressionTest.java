@@ -77,7 +77,7 @@ public class RegressionTest implements DataExport {
     ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName, true);
 
     ExportFileResult exportFileResult =
-        ExportFileResult.forFile(fileName, exportQueryResult.getFilePath(), null, null);
+        ExportFileResult.forFile(fileName, exportQueryResult.filePath(), null, null);
     exportFileResult.addTags(List.of("Regression Test File"));
     return ExportResult.forFileResults(List.of(exportFileResult));
   }

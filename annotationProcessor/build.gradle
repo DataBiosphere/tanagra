@@ -8,13 +8,6 @@ plugins {
 
 sourceCompatibility = JavaVersion.VERSION_17
 
-
-dependencyManagement {
-    dependencies {
-        dependency "org.apache.tomcat.embed:tomcat-embed-core:${vApacheTomcat}"
-    }
-}
-
 dependencies {
     implementation project(':underlay')
     implementation project(':service')

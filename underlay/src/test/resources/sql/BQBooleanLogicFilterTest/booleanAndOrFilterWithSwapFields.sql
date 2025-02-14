@@ -10,18 +10,10 @@
             FROM
                 ${HAD_condition_default}              
             WHERE
-                ancestor = @val0              
+                ancestor IN (@val0, @val1)              
             UNION
             ALL SELECT
-                @val1)         
-        )          
-        OR (
-            condition IN (SELECT
-                descendant              
-            FROM
-                ${HAD_condition_default}              
-            WHERE
-                ancestor = @val2              
+                @val2              
             UNION
             ALL SELECT
                 @val3)         

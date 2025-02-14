@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("deprecation")
 public final class JacksonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JacksonMapper.class);
-
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().findAndRegisterModules();
 
   private JacksonMapper() {}

@@ -8,6 +8,7 @@ import bio.terra.tanagra.api.field.HierarchyNumChildrenField;
 import bio.terra.tanagra.api.field.HierarchyPathField;
 import bio.terra.tanagra.api.field.RelatedEntityIdCountField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasParentFilter;
 import bio.terra.tanagra.api.filter.HierarchyIsLeafFilter;
@@ -20,6 +21,8 @@ import bio.terra.tanagra.api.filter.TextSearchFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter.TextSearchOperator;
 import bio.terra.tanagra.api.shared.Literal;
 import bio.terra.tanagra.api.shared.NaryOperator;
+import bio.terra.tanagra.api.shared.UnaryOperator;
+import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.query.bigquery.translator.field.BQAttributeFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQCountDistinctFieldTranslator;
 import bio.terra.tanagra.query.bigquery.translator.field.BQHierarchyIsMemberFieldTranslator;
@@ -46,6 +49,7 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public final class BQApiTranslator implements ApiTranslator {
   @Override
@@ -152,9 +156,86 @@ public final class BQApiTranslator implements ApiTranslator {
   }
 
   @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorAttributeFilter(
+      List<AttributeFilter> attributeFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQAttributeFilterTranslator.mergedTranslator(
+        this, attributeFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyHasAncestorFilter(
+      List<HierarchyHasAncestorFilter> hierarchyHasAncestorFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyHasAncestorFilterTranslator.mergedTranslator(
+        this, hierarchyHasAncestorFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyHasParentFilter(
+      List<HierarchyHasParentFilter> hierarchyHasParentFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyHasParentFilterTranslator.mergedTranslator(
+        this, hierarchyHasParentFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyIsLeafFilter(
+      List<HierarchyIsLeafFilter> hierarchyIsLeafFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyIsLeafFilterTranslator.mergedTranslator(
+        this, hierarchyIsLeafFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyIsMemberFilter(
+      List<HierarchyIsMemberFilter> hierarchyIsMemberFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyIsMemberFilterTranslator.mergedTranslator(
+        this, hierarchyIsMemberFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorHierarchyRootFilter(
+      List<HierarchyIsRootFilter> hierarchyIsRootFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQHierarchyIsRootFilterTranslator.mergedTranslator(
+        this, hierarchyIsRootFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public Optional<ApiFilterTranslator> mergedTranslatorPrimaryWithCriteriaFilter(
+      List<PrimaryWithCriteriaFilter> primaryWithCriteriaFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    return BQPrimaryWithCriteriaFilterTranslator.mergedTranslator(
+        this, primaryWithCriteriaFilters, logicalOperator, attributeSwapFields);
+  }
+
+  @Override
+  public String unaryFilterOnRepeatedFieldSql(
+      SqlField field, UnaryOperator operator, @Nullable String tableAlias, SqlParams sqlParams) {
+    String functionTemplate =
+        "EXISTS (SELECT * FROM UNNEST(" + FUNCTION_TEMPLATE_FIELD_VAR_BRACES + "))";
+    if (UnaryOperator.IS_NULL.equals(operator)) {
+      functionTemplate = "NOT " + functionTemplate;
+    } else if (!UnaryOperator.IS_NOT_NULL.equals(operator)) {
+      throw new SystemException("Unknown unary operator: " + operator);
+    }
+    return functionWithCommaSeparatedArgsFilterSql(
+        field, functionTemplate, List.of(), tableAlias, sqlParams);
+  }
+
+  @Override
   public String naryFilterOnRepeatedFieldSql(
       SqlField field,
-      NaryOperator naryOperator,
+      NaryOperator operator,
       List<Literal> values,
       @Nullable String tableAlias,
       SqlParams sqlParams) {
@@ -162,7 +243,7 @@ public final class BQApiTranslator implements ApiTranslator {
         "EXISTS (SELECT * FROM UNNEST("
             + FUNCTION_TEMPLATE_FIELD_VAR_BRACES
             + ") AS flattened WHERE flattened "
-            + (NaryOperator.IN.equals(naryOperator) ? "IN" : "NOT IN")
+            + (NaryOperator.IN.equals(operator) ? "IN" : "NOT IN")
             + " ("
             + FUNCTION_TEMPLATE_VALUES_VAR_BRACES
             + "))";

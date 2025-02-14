@@ -1,5 +1,6 @@
 package bio.terra.tanagra.filterbuilder.impl.core.utils;
 
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
 import static bio.terra.tanagra.filterbuilder.impl.core.utils.AttributeSchemaUtils.IGNORED_ATTRIBUTE_NAME_UI_USE_ONLY;
 
 import bio.terra.tanagra.api.filter.AttributeFilter;
@@ -158,8 +159,7 @@ public final class EntityGroupFilterUtils {
       notPrimarySubFilter = allFiltersNonPrimaryEntity.get(0);
     } else {
       notPrimarySubFilter =
-          new BooleanAndOrFilter(
-              BooleanAndOrFilter.LogicalOperator.AND, allFiltersNonPrimaryEntity);
+          newBooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.AND, allFiltersNonPrimaryEntity);
     }
 
     Optional<Pair<CFUnhintedValue.UnhintedValue, DTUnhintedValue.UnhintedValue>>
@@ -288,7 +288,7 @@ public final class EntityGroupFilterUtils {
                 return EntityOutput.filtered(entity, entityFilters.get(0));
               } else {
                 return EntityOutput.filtered(
-                    entity, new BooleanAndOrFilter(logicalOperator, entityFilters));
+                    entity, newBooleanAndOrFilter(logicalOperator, entityFilters));
               }
             })
         .collect(Collectors.toList());

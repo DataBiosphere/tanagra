@@ -53,9 +53,9 @@ public class CriteriaSelector {
     return supportsTemporalQueries;
   }
 
-  public FilterBuilder getFilterBuilder() {
+  public FilterBuilder<?, ?> getFilterBuilder() {
     try {
-      return (FilterBuilder)
+      return (FilterBuilder<?, ?>)
           Class.forName(FILTER_BUILDER_PACKAGE + '.' + filterBuilder)
               .getDeclaredConstructor(CriteriaSelector.class)
               .newInstance(this);
@@ -83,39 +83,11 @@ public class CriteriaSelector {
 
   public Modifier getModifier(String name) {
     return modifiers.stream()
-        .filter(m -> m.getName().equals(name))
+        .filter(m -> m.name().equals(name))
         .findAny()
         .orElseThrow(() -> new NotFoundException("Modifier not found: " + name));
   }
 
-  public static class Modifier {
-    private final String name;
-    private final boolean supportsTemporalQueries;
-    private final String plugin;
-    private final String pluginConfig;
-
-    public Modifier(
-        String name, boolean supportsTemporalQueries, String plugin, String pluginConfig) {
-      this.name = name;
-      this.supportsTemporalQueries = supportsTemporalQueries;
-      this.plugin = plugin;
-      this.pluginConfig = pluginConfig;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public boolean isSupportsTemporalQueries() {
-      return supportsTemporalQueries;
-    }
-
-    public String getPlugin() {
-      return plugin;
-    }
-
-    public String getPluginConfig() {
-      return pluginConfig;
-    }
-  }
+  public record Modifier(
+      String name, boolean supportsTemporalQueries, String plugin, String pluginConfig) {}
 }

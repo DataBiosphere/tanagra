@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 public class WriteNumChildrenAndPaths extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteNumChildrenAndPaths.class);
   private static final String TEMP_TABLE_NAME = "PNC";
-
   private final Entity entity;
   private final Hierarchy hierarchy;
   private final ITHierarchyChildParent indexChildParentTable;

@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FilterableGroupFilterBuilder
     extends FilterBuilder<CFFilterableGroup.FilterableGroup, DTFilterableGroup.FilterableGroup> {
-
   public FilterableGroupFilterBuilder(CriteriaSelector criteriaSelector) {
     super(criteriaSelector);
   }
@@ -62,7 +61,7 @@ public class FilterableGroupFilterBuilder
 
     // We want to build one filter per selection item, not one filter per selected id.
     List<Literal> selectedIds = new ArrayList<>();
-    deserializeData(selectionData.get(0).getPluginData())
+    deserializeData(selectionData.get(0).pluginData())
         .getSelectedList()
         .forEach(
             selectionItem -> {
@@ -95,7 +94,7 @@ public class FilterableGroupFilterBuilder
     }
 
     // Grouping is not needed since filtersToOr are not subFilters
-    return new BooleanAndOrFilter(
+    return BooleanAndOrFilter.newBooleanAndOrFilter(
         LogicalOperator.OR, filtersToOr.stream().filter(Objects::nonNull).toList());
   }
 

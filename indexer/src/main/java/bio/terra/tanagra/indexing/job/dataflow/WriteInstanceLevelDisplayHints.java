@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 public class WriteInstanceLevelDisplayHints extends BigQueryJob {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(WriteInstanceLevelDisplayHints.class);
-
   private final CriteriaOccurrence criteriaOccurrence;
   private final Entity occurrenceEntity;
   private final ITEntityMain criteriaEntityIndexTable;
@@ -338,7 +337,7 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                                 ITInstanceLevelDisplayHints.Column.ENTITY_ID
                                     .getSchema()
                                     .getColumnName(),
-                                idNumericRange.getId())
+                                idNumericRange.id())
                             .set(
                                 ITInstanceLevelDisplayHints.Column.ATTRIBUTE_NAME
                                     .getSchema()
@@ -346,10 +345,10 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                                 numValColName)
                             .set(
                                 ITInstanceLevelDisplayHints.Column.MIN.getSchema().getColumnName(),
-                                idNumericRange.getMin())
+                                idNumericRange.min())
                             .set(
                                 ITInstanceLevelDisplayHints.Column.MAX.getSchema().getColumnName(),
-                                idNumericRange.getMax())))
+                                idNumericRange.max())))
         .apply(
             BigQueryIO.writeTableRows()
                 .to(
@@ -556,29 +555,7 @@ public class WriteInstanceLevelDisplayHints extends BigQueryJob {
                     }));
   }
 
-  public static class IdNumericRange implements Serializable {
-    private final Long id;
-    private final double min;
-    private final double max;
-
-    public IdNumericRange(Long id, double min, double max) {
-      this.id = id;
-      this.min = min;
-      this.max = max;
-    }
-
-    public Long getId() {
-      return id;
-    }
-
-    public double getMax() {
-      return max;
-    }
-
-    public double getMin() {
-      return min;
-    }
-  }
+  public record IdNumericRange(Long id, double min, double max) implements Serializable {}
 
   public static class IdEnumValue implements Serializable {
     private final Long id;

@@ -1105,7 +1105,7 @@ function generateFilters(
   filters?: ValueData[]
 ): tanagra.Filter[] {
   const [entity] = underlaySource.lookupRelatedEntity(config.entityGroup);
-  const operands: tanagra.Filter[] = [];
+  const operands: (tanagra.Filter | null)[] = [];
 
   if (query !== "") {
     if (config.searchConfigs.length > 0) {
@@ -1190,18 +1190,56 @@ function generateFilters(
         },
       });
     } else {
-      operands.push({
-        filterType: tanagra.FilterFilterTypeEnum.Attribute,
-        filterUnion: {
-          attributeFilter: {
-            attribute: vd.attribute,
-            operator: tanagra.AttributeFilterOperatorEnum.In,
-            values: vd.selected.map((s) => literalFromDataValue(s.value)),
-          },
-        },
+      const attribute = entity.attributes.find((a) => a.name === vd.attribute);
+      if (!attribute) {
+        throw new Error(
+          `Unknown attribute "${vd.attribute}" in entity "${entity.name}".`
+        );
+      }
+
+      const filtersToOr: tanagra.Filter[] = [];
+      const enumLiterals: tanagra.Literal[] = [];
+      vd.selected.forEach((s) => {
+        if (s.value === attribute.emptyValueDisplay) {
+          // empty value is selected: entries with no value for this attribute
+          filtersToOr.push({
+            filterType: tanagra.FilterFilterTypeEnum.Attribute,
+            filterUnion: {
+              attributeFilter: {
+                attribute: vd.attribute,
+                operator: tanagra.AttributeFilterOperatorEnum.IsNull,
+              },
+            },
+          });
+        } else {
+          enumLiterals.push(literalFromDataValue(s.value));
+        }
       });
+
+      if (enumLiterals.length > 0) {
+        filtersToOr.push({
+          filterType: tanagra.FilterFilterTypeEnum.Attribute,
+          filterUnion: {
+            attributeFilter: {
+              attribute: vd.attribute,
+              operator:
+                enumLiterals.length == 1
+                  ? tanagra.AttributeFilterOperatorEnum.Equals
+                  : tanagra.AttributeFilterOperatorEnum.In,
+              values: enumLiterals,
+            },
+          },
+        });
+      }
+
+      operands.push(
+        makeBooleanLogicFilter(
+          tanagra.BooleanLogicFilterOperatorEnum.Or,
+          filtersToOr
+        )
+      );
     }
   });
 
-  return operands;
+  return operands.filter(isValid);
 }

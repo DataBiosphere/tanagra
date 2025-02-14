@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 
 public final class ITRelationshipIdPairs extends IndexTable {
   private static final String TABLE_NAME = "RIDS";
-
   private final String entityGroup;
   private final String entityA;
   private final String entityB;
   private final STRelationshipIdPairs sourceTable;
+  private final ImmutableList<ColumnSchema> columnSchemas;
 
   public ITRelationshipIdPairs(
       NameHelper namer,
@@ -30,6 +30,9 @@ public final class ITRelationshipIdPairs extends IndexTable {
     this.entityA = entityA;
     this.entityB = entityB;
     this.sourceTable = null;
+    this.columnSchemas =
+        ImmutableList.copyOf(
+            Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
   }
 
   public ITRelationshipIdPairs(
@@ -43,6 +46,7 @@ public final class ITRelationshipIdPairs extends IndexTable {
     this.entityA = entityA;
     this.entityB = entityB;
     this.sourceTable = sourceSchema.getRelationshipIdPairs(entityGroup, entityA, entityB);
+    this.columnSchemas = sourceTable.getColumnSchemas();
   }
 
   public String getEntityGroup() {
@@ -64,10 +68,7 @@ public final class ITRelationshipIdPairs extends IndexTable {
 
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
-    return sourceTable == null
-        ? ImmutableList.copyOf(
-            Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()))
-        : sourceTable.getColumnSchemas();
+    return columnSchemas;
   }
 
   public SqlField getEntityAIdField() {

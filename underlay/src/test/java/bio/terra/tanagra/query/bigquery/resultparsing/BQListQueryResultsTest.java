@@ -57,6 +57,7 @@ public class BQListQueryResultsTest extends BQRunnerTest {
                 "['foo', 'bar', 'baz', ${fieldSql}]",
                 DataType.STRING,
                 entity.getIdAttribute().isComputeDisplayHint(),
+                entity.getIdAttribute().getEmptyValueDisplay(),
                 entity.getIdAttribute().isSuppressedForExport(),
                 entity.getIdAttribute().isVisitDateForTemporalQuery(),
                 entity.getIdAttribute().isVisitIdForTemporalQuery(),

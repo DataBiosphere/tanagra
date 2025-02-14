@@ -13,12 +13,16 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
   public static final String TABLE_NAME = "HAD";
   private final String entity;
   private final String hierarchy;
+  private final ImmutableList<ColumnSchema> columnSchemas;
 
   public ITHierarchyAncestorDescendant(
       NameHelper namer, SZBigQuery.IndexData bigQueryConfig, String entity, String hierarchy) {
     super(namer, bigQueryConfig);
     this.entity = entity;
     this.hierarchy = hierarchy;
+    this.columnSchemas =
+        ImmutableList.copyOf(
+            Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
   }
 
   public String getEntity() {
@@ -36,9 +40,7 @@ public final class ITHierarchyAncestorDescendant extends IndexTable {
 
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
-    // Columns are static and don't depend on the entity or hierarchy.
-    return ImmutableList.copyOf(
-        Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    return columnSchemas;
   }
 
   public SqlField getAncestorField() {

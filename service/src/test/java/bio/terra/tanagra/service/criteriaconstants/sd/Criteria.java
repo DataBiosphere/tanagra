@@ -10,8 +10,6 @@ import bio.terra.tanagra.proto.criteriaselector.dataschema.DTUnhintedValue;
 import java.util.Map;
 
 public final class Criteria {
-  private Criteria() {}
-
   public static final bio.terra.tanagra.service.artifact.model.Criteria GENDER_EQ_WOMAN =
       bio.terra.tanagra.service.artifact.model.Criteria.builder()
           .selectorOrModifierName("tanagra-gender")
@@ -99,6 +97,7 @@ public final class Criteria {
                               .build())
                       .build()))
           .build();
+
   public static final bio.terra.tanagra.service.artifact.model.Criteria
       PROCEDURE_AGE_AT_OCCURRENCE_EQ_45 =
           bio.terra.tanagra.service.artifact.model.Criteria.builder()
@@ -126,4 +125,6 @@ public final class Criteria {
               .selectionData("")
               .uiConfig("")
               .build();
+
+  private Criteria() {}
 }

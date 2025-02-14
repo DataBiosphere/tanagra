@@ -86,7 +86,7 @@ public class IpynbFileDownload implements DataExport {
     ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName, true);
 
     ExportFileResult exportFileResult =
-        ExportFileResult.forFile(fileName, exportQueryResult.getFilePath(), null, null);
+        ExportFileResult.forFile(fileName, exportQueryResult.filePath(), null, null);
     exportFileResult.addTags(List.of("Notebook File"));
     return ExportResult.forFileResults(List.of(exportFileResult));
   }

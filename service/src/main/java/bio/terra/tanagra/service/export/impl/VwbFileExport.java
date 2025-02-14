@@ -94,14 +94,14 @@ public class VwbFileExport implements DataExport {
         helper.exportRawData(fileContents.toString(), fileName, true);
 
     ExportFileResult tsvExportFileResult =
-        ExportFileResult.forFile(fileName, exportQueryResult.getFilePath(), null, null);
+        ExportFileResult.forFile(fileName, exportQueryResult.filePath(), null, null);
     tsvExportFileResult.addTags(List.of("URL List"));
     allExportFileResults.add(tsvExportFileResult);
 
     // Generate the redirect URL to VWB.
     Map<String, String> urlParams =
         ImmutableMap.<String, String>builder()
-            .put("tsvFileUrl", urlEncode(exportQueryResult.getFilePath()))
+            .put("tsvFileUrl", urlEncode(exportQueryResult.filePath()))
             .put("redirectBackUrl", urlEncode(request.getRedirectBackUrl()))
             .put("sourceApp", urlEncode("Data Explorer"))
             .build();

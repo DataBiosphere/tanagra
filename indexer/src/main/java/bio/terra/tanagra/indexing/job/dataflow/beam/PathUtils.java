@@ -22,11 +22,11 @@ import org.apache.beam.sdk.values.TypeDescriptors;
     value = {"NP_NULL_PARAM_DEREF", "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"},
     justification = "PCollection is using a Nullable coder")
 public final class PathUtils {
-  private PathUtils() {}
-
   // the path of nodes is currently encoded as a string. use this as the delimiter between nodes.
   private static final String PATH_DELIMITER = ".";
   private static final String PATH_DELIMITER_REGEX = "\\.";
+
+  private PathUtils() {}
 
   /**
    * Compute one path from each node in a hierarchy to a root node. If there are multiple paths from

@@ -41,7 +41,7 @@ public class TextSearchFilterBuilder
   @Override
   public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
     DTTextSearch.TextSearch textSearchSelectionData =
-        deserializeData(selectionData.get(0).getPluginData());
+        deserializeData(selectionData.get(0).pluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
     if (textSearchSelectionData == null) {
       // Empty selection data = null filter for a cohort.
@@ -151,7 +151,7 @@ public class TextSearchFilterBuilder
 
     // Pull text search filter from the plugin data.
     DTTextSearch.TextSearch textSearchSelectionData =
-        selectionData.isEmpty() ? null : deserializeData(selectionData.get(0).getPluginData());
+        selectionData.isEmpty() ? null : deserializeData(selectionData.get(0).pluginData());
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // Create an output for each of the occurrence entities.

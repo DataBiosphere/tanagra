@@ -41,17 +41,16 @@ import org.slf4j.LoggerFactory;
 public class WriteEntityLevelDisplayHints extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteEntityLevelDisplayHints.class);
   private static final int MAX_ENUM_VALS_FOR_DISPLAY_HINT = 100;
-
-  private final Entity entity;
-  private final ITEntityMain indexAttributesTable;
-  private final ITEntityLevelDisplayHints indexHintsTable;
+  private static final String FLATTENED_ATTR_VAL_ALIAS = "flattenedAttrVal";
+  private static final SqlField FLATTENED_ATTR_VAL_FIELD = SqlField.of(FLATTENED_ATTR_VAL_ALIAS);
   public static final String MIN_VAL_ALIAS = "minVal";
   public static final String MAX_VAL_ALIAS = "maxVal";
   public static final String ENUM_VAL_ALIAS = "enumVal";
   public static final String ENUM_DISP_ALIAS = "enumDisp";
   public static final String ENUM_COUNT_ALIAS = "enumCount";
-  private static final String FLATTENED_ATTR_VAL_ALIAS = "flattenedAttrVal";
-  private static final SqlField FLATTENED_ATTR_VAL_FIELD = SqlField.of(FLATTENED_ATTR_VAL_ALIAS);
+  private final Entity entity;
+  private final ITEntityMain indexAttributesTable;
+  private final ITEntityLevelDisplayHints indexHintsTable;
 
   public WriteEntityLevelDisplayHints(
       SZIndexer indexerConfig,
@@ -245,7 +244,6 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
                   attribute.isValueDisplay()
                       ? Literal.forString(enumCount.getKey().getDisplay())
                       : enumCount.getKey().getValue();
-
               List<Literal> rowOfLiterals = new ArrayList<>();
               rowOfLiterals.add(Literal.forString(attribute.getName()));
               rowOfLiterals.add(Literal.forDouble(null));
@@ -269,18 +267,19 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
     return enumCounts.stream()
         .map(
             enumCount -> {
+              Literal stringField = enumCount.getKey();
               List<Literal> rowOfLiterals = new ArrayList<>();
               rowOfLiterals.add(Literal.forString(attribute.getName()));
               rowOfLiterals.add(Literal.forDouble(null));
               rowOfLiterals.add(Literal.forDouble(null));
               rowOfLiterals.add(Literal.forInt64(null));
-              rowOfLiterals.add(enumCount.getKey());
+              rowOfLiterals.add(stringField);
               rowOfLiterals.add(Literal.forInt64(enumCount.getValue()));
               LOGGER.info(
                   "Enum repeated-string hint: {}, {}, {}, {}",
                   attribute.getName(),
                   null,
-                  enumCount.getKey(),
+                  stringField,
                   enumCount.getValue());
               return rowOfLiterals;
             })
@@ -520,7 +519,7 @@ public class WriteEntityLevelDisplayHints extends BigQueryJob {
             + ENUM_COUNT_ALIAS
             + " FROM "
             + indexAttributesTable.getTablePointer().render()
-            + " CROSS JOIN UNNEST("
+            + " LEFT JOIN UNNEST("
             + SqlQueryField.of(attrValField).renderForSelect()
             + ") AS "
             + FLATTENED_ATTR_VAL_ALIAS

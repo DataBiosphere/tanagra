@@ -36,7 +36,7 @@ public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.Bio
     if (selectionData.size() > 1) {
       throw new InvalidQueryException("Modifiers are not supported for the biovu plugin");
     }
-    DTBioVU.BioVU bioVuSelectionData = deserializeData(selectionData.get(0).getPluginData());
+    DTBioVU.BioVU bioVuSelectionData = deserializeData(selectionData.get(0).pluginData());
     if (bioVuSelectionData == null) {
       // Empty selection data = null filter for a cohort.
       return null;
@@ -108,13 +108,8 @@ public class BioVUFilterBuilder extends FilterBuilder<CFBioVU.BioVU, DTBioVU.Bio
                   Literal.forBoolean(true))));
     }
 
-    if (filtersOnPrimaryEntity.isEmpty()) {
-      return null;
-    } else if (filtersOnPrimaryEntity.size() == 1) {
-      return filtersOnPrimaryEntity.get(0);
-    } else {
-      return new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.AND, filtersOnPrimaryEntity);
-    }
+    return BooleanAndOrFilter.newBooleanAndOrFilter(
+        BooleanAndOrFilter.LogicalOperator.AND, filtersOnPrimaryEntity);
   }
 
   @Override

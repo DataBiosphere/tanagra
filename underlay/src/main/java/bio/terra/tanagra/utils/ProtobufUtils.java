@@ -7,7 +7,6 @@ import com.google.protobuf.util.JsonFormat;
 import java.util.Base64;
 
 public final class ProtobufUtils {
-
   private ProtobufUtils() {}
 
   @SuppressWarnings({"checkstyle:EmptyCatchBlock", "PMD.EmptyCatchBlock"})

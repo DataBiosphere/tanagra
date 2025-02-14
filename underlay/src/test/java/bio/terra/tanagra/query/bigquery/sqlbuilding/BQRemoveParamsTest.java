@@ -161,8 +161,9 @@ public class BQRemoveParamsTest extends BQRunnerTest {
               BinaryOperator.EQUALS,
               Literal.forInt64(25L + i)));
     }
-    BooleanAndOrFilter booleanAndOrFilter =
-        new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, attributeFilters);
+    EntityFilter booleanAndOrFilter =
+        BooleanAndOrFilter.newBooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR, attributeFilters);
     ListQueryResult listQueryResult =
         bqQueryRunner.run(
             ListQueryRequest.dryRunAgainstIndexData(

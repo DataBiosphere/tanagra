@@ -291,9 +291,7 @@ public class BQRelationshipFilterTest extends BQRunnerTest {
             .getEntityMain(underlay.getPrimaryEntity().getName())
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
-        "relationshipFilterFKFilterNullFilterWithRollupCount",
-        sqlQueryRequest.getSql(),
-        primaryTable);
+        "relationshipFilterFKFilterNullFilterWithRollupCount", sqlQueryRequest.sql(), primaryTable);
   }
 
   @Test
@@ -871,7 +869,7 @@ public class BQRelationshipFilterTest extends BQRunnerTest {
             .getTablePointer();
     assertSqlMatchesWithTableNameOnly(
         "relationshipFilterNestedNullFilterFKFilter",
-        sqlQueryRequest.getSql(),
+        sqlQueryRequest.sql(),
         occurrenceTable,
         itemsTable);
   }

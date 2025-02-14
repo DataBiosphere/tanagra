@@ -37,7 +37,6 @@ import org.threeten.bp.Duration;
  */
 public final class BigQueryStorageWriter {
   private static final Logger LOGGER = LoggerFactory.getLogger(BigQueryStorageWriter.class);
-
   private static final int BATCH_SIZE = 1000;
   private static final int MAX_BATCHES = 100;
 

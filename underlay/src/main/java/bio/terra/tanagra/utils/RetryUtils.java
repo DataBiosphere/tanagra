@@ -198,6 +198,6 @@ public final class RetryUtils {
    */
   @FunctionalInterface
   public interface RunnableWithCheckedException<E extends Exception> {
-    void run() throws E, InterruptedException;
+    void run() throws E;
   }
 }

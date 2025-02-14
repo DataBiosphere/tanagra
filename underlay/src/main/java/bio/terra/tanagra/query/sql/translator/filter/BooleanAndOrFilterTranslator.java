@@ -1,7 +1,6 @@
 package bio.terra.tanagra.query.sql.translator.filter;
 
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
-import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.query.sql.SqlField;
 import bio.terra.tanagra.query.sql.SqlParams;
 import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
@@ -22,16 +21,11 @@ public class BooleanAndOrFilterTranslator extends ApiFilterTranslator {
     super(apiTranslator, attributeSwapFields);
     this.booleanAndOrFilter = booleanAndOrFilter;
 
-    // Get a single merged translator if the sub-filters are mergeable: must be of the same type
-    // Additional checks may be needed for individual sub-filter types
     Optional<ApiFilterTranslator> mergedTranslator =
-        EntityFilter.areSameFilterType(booleanAndOrFilter.getSubFilters())
-            ? apiTranslator.mergedTranslator(
-                booleanAndOrFilter.getSubFilters(),
-                booleanAndOrFilter.getOperator(),
-                attributeSwapFields)
-            : Optional.empty();
-
+        apiTranslator.mergedTranslator(
+            booleanAndOrFilter.getSubFilters(),
+            booleanAndOrFilter.getOperator(),
+            attributeSwapFields);
     this.subFilterTranslators =
         mergedTranslator
             .map(List::of)

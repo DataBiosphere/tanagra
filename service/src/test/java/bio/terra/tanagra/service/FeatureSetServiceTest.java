@@ -50,10 +50,8 @@ public class FeatureSetServiceTest {
   private static final String USER_EMAIL_1 = "abc@123.com";
   private static final String USER_EMAIL_2 = "def@123.com";
   private static final List<String> PERSON_ATTRIBUTES = List.of("gender", "age");
-
   @Autowired private StudyService studyService;
   @Autowired private FeatureSetService featureSetService;
-
   private Study study1;
   private Study study2;
 
@@ -112,7 +110,7 @@ public class FeatureSetServiceTest {
     assertEquals(createdFeatureSet.getCreated(), createdFeatureSet.getLastModified());
     assertEquals(1, createdFeatureSet.getCriteria().size());
     assertTrue(createdFeatureSet.getCriteria().contains(GENDER_EQ_WOMAN.getValue()));
-    assertEquals(1, createdFeatureSet.getExcludeOutputAttributesPerEntity().keySet().size());
+    assertEquals(1, createdFeatureSet.getExcludeOutputAttributesPerEntity().size());
     assertEquals(
         PERSON_ATTRIBUTES.stream().sorted().toList(),
         createdFeatureSet
@@ -159,7 +157,7 @@ public class FeatureSetServiceTest {
     assertTrue(updatedFeatureSet.getLastModified().isAfter(updatedFeatureSet.getCreated()));
     assertEquals(1, updatedFeatureSet.getCriteria().size());
     assertTrue(updatedFeatureSet.getCriteria().contains(CONDITION_EQ_TYPE_2_DIABETES.getValue()));
-    assertEquals(1, updatedFeatureSet.getExcludeOutputAttributesPerEntity().keySet().size());
+    assertEquals(1, updatedFeatureSet.getExcludeOutputAttributesPerEntity().size());
     assertEquals(
         outputAttributes.stream().sorted().toList(),
         updatedFeatureSet.getExcludeOutputAttributesPerEntity().get(outputEntity).stream()

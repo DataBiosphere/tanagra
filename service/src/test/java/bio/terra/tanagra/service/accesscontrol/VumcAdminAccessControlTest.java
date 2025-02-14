@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.vumc.vda.tanagra.admin.model.ResourceAction;
 
 public class VumcAdminAccessControlTest extends BaseAccessControlTest {
-
   @BeforeEach
   void createArtifactsAndDefinePermissionsInMock() {
     createArtifacts();

@@ -9,7 +9,6 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 public class BooleanAndOrFilter extends EntityFilter {
-
   public enum LogicalOperator {
     AND,
     OR
@@ -18,13 +17,22 @@ public class BooleanAndOrFilter extends EntityFilter {
   private final LogicalOperator operator;
   private final List<EntityFilter> subFilters;
 
-  public BooleanAndOrFilter(LogicalOperator operator, List<EntityFilter> subFilters) {
+  private BooleanAndOrFilter(LogicalOperator operator, List<EntityFilter> subFilters) {
     super(
         LoggerFactory.getLogger(BooleanAndOrFilter.class),
         /* underlay= */ null,
         getSubFiltersEntity(subFilters));
     this.operator = operator;
     this.subFilters = subFilters;
+  }
+
+  public static EntityFilter newBooleanAndOrFilter(
+      LogicalOperator operator, List<EntityFilter> subFilters) {
+    return subFilters.isEmpty()
+        ? null
+        : (subFilters.size() == 1
+            ? subFilters.get(0)
+            : new BooleanAndOrFilter(operator, subFilters));
   }
 
   public LogicalOperator getOperator() {

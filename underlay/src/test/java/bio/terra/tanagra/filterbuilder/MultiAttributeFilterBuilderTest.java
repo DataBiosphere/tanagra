@@ -1,6 +1,7 @@
 package bio.terra.tanagra.filterbuilder;
 
 import static bio.terra.tanagra.UnderlayTestConfigs.SD20230831;
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -112,7 +113,7 @@ public class MultiAttributeFilterBuilderTest {
     cohortFilter = filterBuilder.buildForCohort(underlay, List.of(selectionData));
     assertNotNull(cohortFilter);
     itemsSubFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -191,7 +192,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay, List.of(selectionData, ageAtOccurrenceSelectionData));
     assertNotNull(cohortFilter);
     EntityFilter itemsSubFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -248,7 +249,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay, List.of(selectionData, ageAtOccurrenceSelectionData, visitTypeSelectionData));
     assertNotNull(cohortFilter);
     itemsSubFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -375,7 +376,7 @@ public class MultiAttributeFilterBuilderTest {
         filterBuilder.buildForCohort(underlay, List.of(selectionData, groupBySelectionData));
     assertNotNull(cohortFilter);
     itemsSubFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -475,7 +476,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay, List.of(selectionData, ageAtOccurrenceSelectionData, groupBySelectionData));
     assertNotNull(cohortFilter);
     EntityFilter itemsSubFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -537,7 +538,7 @@ public class MultiAttributeFilterBuilderTest {
                 groupBySelectionData));
     assertNotNull(cohortFilter);
     itemsSubFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -809,7 +810,7 @@ public class MultiAttributeFilterBuilderTest {
     dataFeatureOutputs = filterBuilder.buildForDataFeature(underlay, List.of(selectionData));
     assertEquals(1, dataFeatureOutputs.size());
     expectedDataFeatureFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(
@@ -899,7 +900,7 @@ public class MultiAttributeFilterBuilderTest {
             underlay, List.of(selectionData, ageAtOccurrenceSelectionData, visitTypeSelectionData));
     assertEquals(1, dataFeatureOutputs.size());
     EntityFilter expectedDataFeatureFilter =
-        new BooleanAndOrFilter(
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(
                 new AttributeFilter(

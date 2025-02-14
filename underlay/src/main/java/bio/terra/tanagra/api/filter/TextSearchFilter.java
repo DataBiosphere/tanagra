@@ -9,7 +9,6 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 public class TextSearchFilter extends EntityFilter {
-
   public enum TextSearchOperator {
     EXACT_MATCH,
     FUZZY_MATCH

@@ -117,15 +117,12 @@ public class AnnotationDao {
     String sql =
         ANNOTATION_KEY_SELECT_SQL
             + " WHERE cohort_id = :cohort_id ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET all annotation keys: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("cohort_id", cohortId)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
-    LOGGER.debug("GET all annotation keys numFound = {}", annotationKeys.size());
-    return annotationKeys;
+    return getAnnotationKeysHelper(sql, params);
   }
 
   @ReadTransaction
@@ -139,26 +136,21 @@ public class AnnotationDao {
     String sql =
         ANNOTATION_KEY_SELECT_SQL
             + " WHERE cohort_id = :cohort_id AND id IN (:ids) ORDER BY display_name LIMIT :limit OFFSET :offset";
-    LOGGER.debug("GET matching annotation keys: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("cohort_id", cohortId)
             .addValue("ids", annotationKeyIdList)
             .addValue("offset", offset)
             .addValue("limit", limit);
-    List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
-    LOGGER.debug("GET matching annotation keys numFound = {}", annotationKeys.size());
-    return annotationKeys;
+    return getAnnotationKeysHelper(sql, params);
   }
 
   @ReadTransaction
   public AnnotationKey getAnnotationKey(String cohortId, String annotationKeyId) {
     String sql = ANNOTATION_KEY_SELECT_SQL + " WHERE cohort_id = :cohort_id AND id = :id";
-    LOGGER.debug("GET annotation key: {}", sql);
     MapSqlParameterSource params =
         new MapSqlParameterSource().addValue("cohort_id", cohortId).addValue("id", annotationKeyId);
     List<AnnotationKey> annotationKeys = getAnnotationKeysHelper(sql, params);
-    LOGGER.debug("GET annotation key numFound = {}", annotationKeys.size());
 
     // Make sure there's only one annotation key returned for this id.
     if (annotationKeys.isEmpty()) {
@@ -274,7 +266,6 @@ public class AnnotationDao {
   @ReadTransaction
   public List<AnnotationValue.Builder> getAllAnnotationValues(String cohortId) {
     String sql = ANNOTATION_VALUE_SELECT_SQL + " WHERE av.cohort_id = :cohort_id";
-    LOGGER.debug("GET annotation values: {}", sql);
     MapSqlParameterSource params = new MapSqlParameterSource().addValue("cohort_id", cohortId);
     return jdbcTemplate.query(sql, params, ANNOTATION_VALUE_ROW_MAPPER);
   }

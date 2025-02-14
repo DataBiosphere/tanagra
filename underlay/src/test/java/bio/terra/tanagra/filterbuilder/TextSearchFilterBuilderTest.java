@@ -929,7 +929,7 @@ public class TextSearchFilterBuilderTest {
             "ambulance",
             null);
     expectedDataFeatureFilter =
-        new BooleanAndOrFilter(
+        BooleanAndOrFilter.newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND,
             List.of(expectedCriteriaFilter, expectedTextSearchFilter));
     assertEquals(
@@ -1021,7 +1021,7 @@ public class TextSearchFilterBuilderTest {
         List.of(
             EntityOutput.filtered(
                 occurrenceEntity,
-                new BooleanAndOrFilter(
+                BooleanAndOrFilter.newBooleanAndOrFilter(
                     BooleanAndOrFilter.LogicalOperator.AND,
                     List.of(
                         expectedTextSearchSubFilter,

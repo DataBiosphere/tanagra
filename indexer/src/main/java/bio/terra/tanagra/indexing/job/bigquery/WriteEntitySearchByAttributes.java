@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 public class WriteEntitySearchByAttributes extends BigQueryJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(WriteEntitySearchByAttributes.class);
-
   private final Entity entity;
   private final ITEntityMain entityTable;
   private final ITEntitySearchByAttributes searchTable;

@@ -49,10 +49,6 @@ public class SequencedJobSet {
     return stages.size();
   }
 
-  public long getNumJobs() {
-    return stages.stream().map(List::size).count();
-  }
-
   public String getDescription() {
     return description;
   }

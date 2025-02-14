@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for talking to Google BigQuery. */
 public final class GoogleBigQuery {
   private static final Logger LOGGER = LoggerFactory.getLogger(GoogleBigQuery.class);
-
   // Default value for the maximum number of times to retry HTTP requests.
   public static final int BQ_MAXIMUM_RETRIES = 5;
   public static final Duration LONG_QUERY_TIMEOUT = Duration.ofHours(3);
@@ -48,7 +47,6 @@ public final class GoogleBigQuery {
       org.threeten.bp.Duration.ofHours(3);
   private static final org.threeten.bp.Duration DEFAULT_BQ_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(10);
-
   private final BigQuery bigQuery;
 
   private GoogleBigQuery(

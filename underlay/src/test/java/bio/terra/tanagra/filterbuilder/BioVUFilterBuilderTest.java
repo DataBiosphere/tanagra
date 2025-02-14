@@ -3,6 +3,7 @@ package bio.terra.tanagra.filterbuilder;
 import static bio.terra.tanagra.UnderlayTestConfigs.SD20230831;
 import static bio.terra.tanagra.utils.ProtobufUtils.serializeToJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -220,7 +221,7 @@ public class BioVUFilterBuilderTest {
     assertNotNull(cohortFilter);
 
     // Order of sub-filters doesn't matter, but check that they're all there.
-    assertTrue(cohortFilter instanceof BooleanAndOrFilter);
+    assertInstanceOf(BooleanAndOrFilter.class, cohortFilter);
     BooleanAndOrFilter combinedFilter = (BooleanAndOrFilter) cohortFilter;
     assertEquals(BooleanAndOrFilter.LogicalOperator.AND, combinedFilter.getOperator());
     assertEquals(4, combinedFilter.getSubFilters().size());

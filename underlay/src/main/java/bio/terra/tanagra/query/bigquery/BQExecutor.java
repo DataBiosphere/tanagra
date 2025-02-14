@@ -44,42 +44,36 @@ public class BQExecutor {
 
   public SqlQueryResult run(SqlQueryRequest queryRequest) {
     // Log the SQL statement with parameters substituted locally (i.e. not by BQ) for debugging.
-    String sqlNoParams = queryRequest.getSql();
-    for (String paramName : queryRequest.getSqlParams().getParamNamesLongestFirst()) {
+    String sqlNoParams = queryRequest.sql();
+    for (String paramName : queryRequest.sqlParams().getParamNamesLongestFirst()) {
       sqlNoParams =
           sqlNoParams.replaceAll(
               '@' + paramName,
-              toSql(toQueryParameterValue(queryRequest.getSqlParams().getParamValue(paramName))));
+              toSql(toQueryParameterValue(queryRequest.sqlParams().getParamValue(paramName))));
     }
 
     // Build a BQ parameter value object for each SQL query parameter.
-    Map<String, QueryParameterValue> bqQueryParams =
-        toQueryParameterMap(queryRequest.getSqlParams());
+    Map<String, QueryParameterValue> bqQueryParams = toQueryParameterMap(queryRequest.sqlParams());
 
     // Pull the page token from the request, if we're paging.
     String pageToken =
-        queryRequest.getPageMarker() == null ? null : queryRequest.getPageMarker().getPageToken();
+        queryRequest.pageMarker() == null ? null : queryRequest.pageMarker().getPageToken();
 
     if (queryRequest.isDryRun()) {
       // For a dry run, validate the query and log some statistics.
       getBigQueryService()
           .dryRunQuery(
-              queryRequest.getSql(),
-              bqQueryParams,
-              pageToken,
-              queryRequest.getPageSize(),
-              null,
-              null);
+              queryRequest.sql(), bqQueryParams, pageToken, queryRequest.pageSize(), null, null);
       return new SqlQueryResult(List.of(), null, 0, sqlNoParams);
     } else {
       // For a regular run, convert the BQ query results to our internal result objects.
       TableResult tableResult =
           getBigQueryService()
               .runQuery(
-                  queryRequest.getSql(),
+                  queryRequest.sql(),
                   bqQueryParams,
                   pageToken,
-                  queryRequest.getPageSize(),
+                  queryRequest.pageSize(),
                   null,
                   null,
                   null);
@@ -98,7 +92,7 @@ public class BQExecutor {
    */
   public Pair<String, String> exportQuery(
       SqlQueryRequest queryRequest, String fileNamePrefix, boolean generateSignedUrl) {
-    LOGGER.info("Exporting BQ query: {}", queryRequest.getSql());
+    LOGGER.info("Exporting BQ query: {}", queryRequest.sql());
 
     // Create a temporary table with the results of the query.
     final int bqMaxTableNameLength = 1024;
@@ -121,10 +115,9 @@ public class BQExecutor {
         TableId.of(queryInfrastructure.getQueryProjectId(), exportDatasetId, tempTableName);
 
     // Build a BQ parameter value object for each SQL query parameter.
-    Map<String, QueryParameterValue> bqQueryParams =
-        toQueryParameterMap(queryRequest.getSqlParams());
+    Map<String, QueryParameterValue> bqQueryParams = toQueryParameterMap(queryRequest.sqlParams());
     getBigQueryService()
-        .runQuery(queryRequest.getSql(), bqQueryParams, null, null, tempTableId, null, null);
+        .runQuery(queryRequest.sql(), bqQueryParams, null, null, tempTableId, null, null);
     Table tempTable =
         getBigQueryService()
             .pollForTableExistenceOrThrow(

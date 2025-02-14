@@ -11,8 +11,6 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 
 public final class Criteria {
-  private Criteria() {}
-
   public static final Pair<String, bio.terra.tanagra.service.artifact.model.Criteria>
       DEMOGRAPHICS_PREPACKAGED_DATA_FEATURE =
           Pair.of(
@@ -67,6 +65,7 @@ public final class Criteria {
                           .build()))
               .uiConfig("")
               .build());
+
   public static final Pair<String, bio.terra.tanagra.service.artifact.model.Criteria>
       ETHNICITY_EQ_HISPANIC_OR_LATINO =
           Pair.of(
@@ -115,6 +114,7 @@ public final class Criteria {
                   .uiConfig("")
                   .tags(Map.of())
                   .build());
+
   public static final Pair<String, bio.terra.tanagra.service.artifact.model.Criteria>
       PROCEDURE_EQ_AMPUTATION =
           Pair.of(
@@ -163,4 +163,6 @@ public final class Criteria {
                               .build()))
                   .uiConfig("")
                   .build());
+
+  private Criteria() {}
 }

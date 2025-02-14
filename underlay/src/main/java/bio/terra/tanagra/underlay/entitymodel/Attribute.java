@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 public final class Attribute {
+  public static final String DEFAULT_EMPTY_VALUE_DISPLAY = "n/a";
   private final String name;
   private final DataType dataType;
   private final boolean isDataTypeRepeated;
@@ -13,6 +14,7 @@ public final class Attribute {
   private final String runtimeSqlFunctionWrapper;
   private final DataType runtimeDataType;
   private final boolean isComputeDisplayHint;
+  private final String emptyValueDisplay;
   private final boolean isSuppressedForExport;
   private final boolean isVisitDateForTemporalQuery;
   private final boolean isVisitIdForTemporalQuery;
@@ -28,6 +30,7 @@ public final class Attribute {
       String runtimeSqlFunctionWrapper,
       DataType runtimeDataType,
       boolean isComputeDisplayHint,
+      String emptyValueDisplay,
       boolean isSuppressedForExport,
       boolean isVisitDateForTemporalQuery,
       boolean isVisitIdForTemporalQuery,
@@ -42,6 +45,7 @@ public final class Attribute {
     this.isVisitDateForTemporalQuery = isVisitDateForTemporalQuery;
     this.isVisitIdForTemporalQuery = isVisitIdForTemporalQuery;
     this.isComputeDisplayHint = isComputeDisplayHint && !isId;
+    this.emptyValueDisplay = emptyValueDisplay;
     this.isSuppressedForExport = isSuppressedForExport;
     this.sourceQuery = sourceQuery;
   }
@@ -86,6 +90,10 @@ public final class Attribute {
     return isComputeDisplayHint;
   }
 
+  public String getEmptyValueDisplay() {
+    return emptyValueDisplay;
+  }
+
   public boolean isSuppressedForExport() {
     return isSuppressedForExport;
   }
@@ -114,6 +122,7 @@ public final class Attribute {
     return isValueDisplay == attribute.isValueDisplay
         && isId == attribute.isId
         && isComputeDisplayHint == attribute.isComputeDisplayHint
+        && emptyValueDisplay.equals(attribute.emptyValueDisplay)
         && isSuppressedForExport == attribute.isSuppressedForExport
         && isVisitDateForTemporalQuery == attribute.isVisitDateForTemporalQuery
         && isVisitIdForTemporalQuery == attribute.isVisitIdForTemporalQuery
@@ -136,6 +145,7 @@ public final class Attribute {
         runtimeSqlFunctionWrapper,
         runtimeDataType,
         isComputeDisplayHint,
+        emptyValueDisplay,
         isSuppressedForExport,
         isVisitDateForTemporalQuery,
         isVisitIdForTemporalQuery,

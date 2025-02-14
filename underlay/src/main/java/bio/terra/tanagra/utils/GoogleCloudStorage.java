@@ -29,12 +29,10 @@ import org.slf4j.LoggerFactory;
 /** Utility methods for talking to Google Cloud Storage. */
 public final class GoogleCloudStorage {
   private static final Logger LOGGER = LoggerFactory.getLogger(GoogleCloudStorage.class);
-
   // default value for the maximum number of times to retry HTTP requests to GCS
   public static final int GCS_MAXIMUM_RETRIES = 5;
   private static final org.threeten.bp.Duration MAX_GCS_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(5);
-
   private static final long DEFAULT_SIGNED_URL_DURATION = 30;
   private static final TimeUnit DEFAULT_SIGNED_URL_UNIT = TimeUnit.MINUTES;
   private final Storage storage;

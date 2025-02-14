@@ -47,8 +47,8 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
   // A SelectionGroup is the parameters that must be the same to be applied to a list of ids.
   protected static class SelectionGroup implements Comparable<SelectionGroup> {
-    public String entityGroupId;
-    public ValueDataOuterClass.ValueData valueData;
+    public final String entityGroupId;
+    public final ValueDataOuterClass.ValueData valueData;
 
     public SelectionGroup(String entityGroupId, ValueDataOuterClass.ValueData valueData) {
       this.entityGroupId = entityGroupId;
@@ -90,7 +90,6 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
         return false;
       }
 
-      @SuppressWarnings("unchecked")
       SelectionGroup sg = (SelectionGroup) o;
       return entityGroupId.equals(sg.entityGroupId) && Objects.equals(valueData, sg.valueData);
     }
@@ -102,8 +101,8 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
   }
 
   protected static class SelectionItem {
-    public Literal id;
-    public SelectionGroup group;
+    public final Literal id;
+    public final SelectionGroup group;
 
     public SelectionItem(Literal id, SelectionGroup group) {
       this.id = id;
@@ -113,7 +112,7 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
   @Override
   public EntityFilter buildForCohort(Underlay underlay, List<SelectionData> selectionData) {
-    String criteriaSelectionData = selectionData.get(0).getPluginData();
+    String criteriaSelectionData = selectionData.get(0).pluginData();
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // We want to build one filter per selection group, not one filter per selected id.
@@ -156,13 +155,14 @@ public abstract class EntityGroupFilterBuilderBase<CF, DT> extends FilterBuilder
 
     return entityFilters.size() == 1
         ? entityFilters.get(0)
-        : new BooleanAndOrFilter(BooleanAndOrFilter.LogicalOperator.OR, entityFilters);
+        : BooleanAndOrFilter.newBooleanAndOrFilter(
+            BooleanAndOrFilter.LogicalOperator.OR, entityFilters);
   }
 
   @Override
   public List<EntityOutput> buildForDataFeature(
       Underlay underlay, List<SelectionData> selectionData) {
-    String criteriaSelectionData = selectionData.get(0).getPluginData();
+    String criteriaSelectionData = selectionData.get(0).pluginData();
     List<SelectionData> modifiersSelectionData = selectionData.subList(1, selectionData.size());
 
     // We want to build one filter per selection group, not one filter per selected id.

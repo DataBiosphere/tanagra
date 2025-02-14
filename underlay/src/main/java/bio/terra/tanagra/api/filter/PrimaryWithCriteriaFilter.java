@@ -15,7 +15,6 @@ import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 public class PrimaryWithCriteriaFilter extends EntityFilter {
-
   private final CriteriaOccurrence criteriaOccurrence;
   private final EntityFilter criteriaSubFilter;
   private final ImmutableMap<Entity, List<EntityFilter>> subFiltersPerOccurrenceEntity;
@@ -47,6 +46,27 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
             : ImmutableMap.copyOf(groupByAttributesPerOccurrenceEntity);
     this.groupByCountOperator = groupByCountOperator;
     this.groupByCountValue = groupByCountValue;
+
+    // one-time checks
+    int numSubFiltersPerOccEntity = getNumSubFiltersPerOccurrenceEntity();
+    this.subFiltersPerOccurrenceEntity.forEach(
+        (occurrenceEntity, subFilters) -> {
+          if (subFilters.size() != numSubFiltersPerOccEntity) {
+            throw new InvalidQueryException(
+                "There must be the same number of sub filters for each occurrence entity: "
+                    + occurrenceEntity.getName());
+          }
+        });
+
+    int numGroupByAttributesPerOccEntity = getNumGroupByAttributesPerOccEntity();
+    this.groupByAttributesPerOccurrenceEntity.forEach(
+        (occurrenceEntity, groupByAttributes) -> {
+          if (groupByAttributes.size() != numGroupByAttributesPerOccEntity) {
+            throw new InvalidQueryException(
+                "There must be the same number of group by attributes for each occurrence entity: "
+                    + occurrenceEntity.getName());
+          }
+        });
   }
 
   public CriteriaOccurrence getCriteriaOccurrence() {
@@ -55,6 +75,10 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
 
   public EntityFilter getCriteriaSubFilter() {
     return criteriaSubFilter;
+  }
+
+  public int getNumSubFiltersPerOccurrenceEntity() {
+    return getSubFilters(criteriaOccurrence.getOccurrenceEntities().get(0)).size();
   }
 
   public boolean hasSubFilters(Entity occurrenceEntity) {
@@ -77,22 +101,12 @@ public class PrimaryWithCriteriaFilter extends EntityFilter {
         : ImmutableList.of();
   }
 
-  public int getNumGroupByAttributes() {
-    int numGroupByAttributes =
-        getGroupByAttributes(criteriaOccurrence.getOccurrenceEntities().get(0)).size();
-    groupByAttributesPerOccurrenceEntity.forEach(
-        (occurrenceEntity, groupByAttributes) -> {
-          if (groupByAttributes.size() != numGroupByAttributes) {
-            throw new InvalidQueryException(
-                "There must be the same number of group by attributes for each occurrence entity: "
-                    + occurrenceEntity.getName());
-          }
-        });
-    return numGroupByAttributes;
+  public int getNumGroupByAttributesPerOccEntity() {
+    return getGroupByAttributes(criteriaOccurrence.getOccurrenceEntities().get(0)).size();
   }
 
   public boolean hasGroupByAttributes() {
-    return getNumGroupByAttributes() > 0;
+    return getNumGroupByAttributesPerOccEntity() > 0;
   }
 
   @Nullable

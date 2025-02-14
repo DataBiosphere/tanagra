@@ -123,6 +123,17 @@ public class SZAttribute {
   public Double displayHintRangeMax;
 
   @AnnotatedField(
+      name = "SZSourceQuery.emptyValueDisplay",
+      markdown =
+          "String to display for empty values. Defaults to \"n/a\".\n\n"
+              + "This is the string displayed for fields that do not have values, such as "
+              + "null value fields or empty repeated datatype fields. This is for consistent "
+              + "UI display only and does not impact the actual value of the field.",
+      defaultValue = "n/a",
+      optional = true)
+  public String emptyValueDisplay;
+
+  @AnnotatedField(
       name = "SZAttribute.isSuppressedForExport",
       markdown =
           "True if this attribute is suppressed for export "

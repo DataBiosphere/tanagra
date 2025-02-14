@@ -35,7 +35,7 @@ public class OutputUnfilteredFilterBuilder
           "Modifiers are not supported for the unfiltered filter builder");
     }
     DTOutputUnfiltered.OutputUnfiltered outputUnfilteredSelectionData =
-        deserializeData(selectionData.get(0).getPluginData());
+        deserializeData(selectionData.get(0).pluginData());
     if (outputUnfilteredSelectionData == null) {
       // Empty selection data = no entity outputs.
       return List.of();

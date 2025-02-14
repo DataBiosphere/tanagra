@@ -60,6 +60,20 @@ dependencyManagement {
         // addresses security vulnerabilities
         dependency "ch.qos.logback:logback-classic:${vLogback}"
         dependency "ch.qos.logback:logback-core:${vLogback}"
+        dependency "org.apache.tomcat.embed:tomcat-embed-core:${vApacheTomcat}"
+        dependency "io.swagger.core.v3:swagger-annotations:${vSwaggerAnnotations}"
+        dependency "io.swagger.codegen.v3:swagger-codegen-cli:${vSwaggerCodegen}"
+        dependency "io.netty:netty-buffer:${vIoNetty}"
+        dependency "io.netty:netty-common:${vIoNetty}"
+        dependency "io.netty:netty-codec-http2:${vIoNetty}"
+        dependency "io.netty:netty-codec-socks:${vIoNetty}"
+        dependency "io.netty:netty-handler-proxy:${vIoNetty}"
+        dependency "io.netty:netty-tcnative-boringssl-static:${vIoNettyNative}"
+        dependency "io.netty:netty-tcnative-classes:${vIoNettyNative}"
+
+        dependency 'org.apache.commons:commons-compress:1.26.2'
+        dependency 'org.apache.avro:avro:1.11.4'
+        dependency 'com.charleskorn.kaml:kaml:0.60.0'
         dependency 'org.jetbrains.kotlin:kotlin-stdlib:2.1.0'
     }
 }

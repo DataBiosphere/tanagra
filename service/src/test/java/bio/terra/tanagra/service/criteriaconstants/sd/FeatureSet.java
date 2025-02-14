@@ -10,8 +10,6 @@ import java.util.Map;
 public final class FeatureSet {
   private static final String UNDERLAY_NAME = "sd";
 
-  private FeatureSet() {}
-
   public static final bio.terra.tanagra.service.artifact.model.FeatureSet CS_EMPTY =
       bio.terra.tanagra.service.artifact.model.FeatureSet.builder()
           .underlay(UNDERLAY_NAME)
@@ -46,4 +44,6 @@ public final class FeatureSet {
               .underlay(UNDERLAY_NAME)
               .criteria(List.of(CONDITION_EQ_TYPE_2_DIABETES, PROCEDURE_EQ_AMPUTATION))
               .build();
+
+  private FeatureSet() {}
 }

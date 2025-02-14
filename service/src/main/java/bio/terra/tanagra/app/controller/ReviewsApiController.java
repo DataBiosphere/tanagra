@@ -186,14 +186,14 @@ public class ReviewsApiController implements ReviewsApi {
     return ResponseEntity.ok(
         new ApiReviewInstanceListResult()
             .instances(
-                reviewQueryResult.getReviewInstances().stream()
+                reviewQueryResult.reviewInstances().stream()
                     .map(this::toApiObject)
                     .collect(Collectors.toList()))
-            .sql(SqlFormatter.format(reviewQueryResult.getSql()))
+            .sql(SqlFormatter.format(reviewQueryResult.sql()))
             .pageMarker(
-                reviewQueryResult.getPageMarker() == null
+                reviewQueryResult.pageMarker() == null
                     ? null
-                    : reviewQueryResult.getPageMarker().serialize()));
+                    : reviewQueryResult.pageMarker().serialize()));
   }
 
   @Override

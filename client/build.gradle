@@ -1,11 +1,8 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 plugins {
     id 'java-library'
     id 'maven-publish'
 
     id 'com.jfrog.artifactory' version '5.2.2'
-    id 'io.spring.dependency-management'
     id 'org.springframework.boot' version "${vSpringBoot}"
     id 'org.hidetake.swagger.generator' version "${vHidetakeSwagger}"
 }
@@ -28,16 +25,6 @@ java {
 
 javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
-}
-
-dependencyManagement {
-    imports {
-        mavenBom SpringBootPlugin.BOM_COORDINATES
-    }
-    dependencies {
-        dependency "io.swagger.core.v3:swagger-annotations:${vSwaggerAnnotations}"
-        dependency "io.swagger.codegen.v3:swagger-codegen-cli:${vSwaggerCodegen}"
-    }
 }
 
 dependencies {

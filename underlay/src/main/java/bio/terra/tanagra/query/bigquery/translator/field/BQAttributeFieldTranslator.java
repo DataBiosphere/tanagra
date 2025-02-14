@@ -170,8 +170,8 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
         Literal displayField = sqlRowResult.get(getDisplayFieldAlias(), DataType.STRING);
         if (displayField.isNull()) {
           LOGGER.warn(
-              "Entity-level hint not found for attribute: "
-                  + attributeField.getAttribute().getName());
+              "Entity-level hint not found for attribute: {}",
+              attributeField.getAttribute().getName());
           return new ValueDisplay(valueField);
         }
         return new ValueDisplay(valueField, displayField.getStringVal());
@@ -179,8 +179,8 @@ public class BQAttributeFieldTranslator implements ApiFieldTranslator {
       Optional<String> displayField = entityLevelHint.get().getEnumDisplay(valueField);
       if (displayField.isEmpty()) {
         LOGGER.warn(
-            "Entity-level hint enum display not found for attribute: "
-                + attributeField.getAttribute().getName());
+            "Entity-level hint enum display not found for attribute: {}",
+            attributeField.getAttribute().getName());
         return new ValueDisplay(valueField);
       }
       return new ValueDisplay(valueField, displayField.get());

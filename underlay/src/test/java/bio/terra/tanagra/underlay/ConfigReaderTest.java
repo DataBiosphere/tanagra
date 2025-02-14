@@ -64,8 +64,8 @@ public class ConfigReaderTest {
     assertEquals("type2Diabetes", type2diabetes.getName());
     assertEquals("condition", type2diabetes.getCriteriaSelector());
     assertTrue(type2diabetes.hasSelectionData());
-    assertNull(type2diabetes.getSelectionData().getModifierName());
-    assertTrue(type2diabetes.getSelectionData().getPluginData().contains("\"keys\": [ 201826 ]"));
+    assertNull(type2diabetes.getSelectionData().modifierName());
+    assertTrue(type2diabetes.getSelectionData().pluginData().contains("\"keys\": [ 201826 ]"));
   }
 
   @Test

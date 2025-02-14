@@ -93,6 +93,7 @@ public class BQAttributeFilterTest extends BQRunnerTest {
             "['foo', 'bar', 'baz', ${fieldSql}]",
             DataType.STRING,
             entity.getAttribute("vocabulary").isComputeDisplayHint(),
+            entity.getAttribute("vocabulary").getEmptyValueDisplay(),
             entity.getAttribute("vocabulary").isSuppressedForExport(),
             entity.getAttribute("vocabulary").isVisitDateForTemporalQuery(),
             entity.getAttribute("vocabulary").isVisitIdForTemporalQuery(),
@@ -129,5 +130,23 @@ public class BQAttributeFilterTest extends BQRunnerTest {
                 underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
     assertSqlMatchesWithTableNameOnly(
         "repeatedAttributeFilterNaryIn", listQueryResult.getSql(), table);
+
+    // Filter with unary operator IS_NULL
+    attributeFilter = new AttributeFilter(underlay, entity, attribute, UnaryOperator.IS_NULL);
+    listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
+    assertSqlMatchesWithTableNameOnly(
+        "repeatedAttributeFilterUnaryIsNull", listQueryResult.getSql(), table);
+
+    // Filter with unary operator IS_NOT_NULL
+    attributeFilter = new AttributeFilter(underlay, entity, attribute, UnaryOperator.IS_NOT_NULL);
+    listQueryResult =
+        bqQueryRunner.run(
+            ListQueryRequest.dryRunAgainstIndexData(
+                underlay, entity, List.of(simpleAttribute), attributeFilter, null, null));
+    assertSqlMatchesWithTableNameOnly(
+        "repeatedAttributeFilterUnaryIsNotNull", listQueryResult.getSql(), table);
   }
 }

@@ -14,7 +14,6 @@ import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.indextable.ITEntityMain;
 import bio.terra.tanagra.underlay.indextable.ITEntitySearchByAttributes;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,25 +94,25 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
 
   private String buildSqlForRepeatedAttribute(
       SqlParams sqlParams, String tableAlias, AttributeFilter filter, SqlField valueField) {
-    boolean naryOperatorIn =
-        (filter.hasBinaryOperator() && BinaryOperator.EQUALS.equals(filter.getBinaryOperator()))
-            || (filter.hasNaryOperator() && NaryOperator.IN.equals(filter.getNaryOperator()));
-    boolean naryOperatorNotIn =
-        (filter.hasBinaryOperator() && BinaryOperator.NOT_EQUALS.equals(filter.getBinaryOperator()))
-            || (filter.hasNaryOperator() && NaryOperator.NOT_IN.equals(filter.getNaryOperator()));
-    if (!naryOperatorIn && !naryOperatorNotIn) {
-      throw new InvalidQueryException(
-          "Operator not supported for repeated data type attributes: "
-              + filter.getOperatorName()
-              + ", "
-              + filter.getFilterAttributeNames().get(0));
+    if (filter.hasUnaryOperator()) {
+      return apiTranslator.unaryFilterOnRepeatedFieldSql(
+          valueField, filter.getUnaryOperator(), tableAlias, sqlParams);
+    } else if ((filter.hasBinaryOperator()
+            && BinaryOperator.EQUALS.equals(filter.getBinaryOperator()))
+        || (filter.hasNaryOperator() && NaryOperator.IN.equals(filter.getNaryOperator()))) {
+      return apiTranslator.naryFilterOnRepeatedFieldSql(
+          valueField, NaryOperator.IN, filter.getValues(), tableAlias, sqlParams);
+    } else if ((filter.hasBinaryOperator()
+            && BinaryOperator.NOT_EQUALS.equals(filter.getBinaryOperator()))
+        || (filter.hasNaryOperator() && NaryOperator.NOT_IN.equals(filter.getNaryOperator()))) {
+      return apiTranslator.naryFilterOnRepeatedFieldSql(
+          valueField, NaryOperator.NOT_IN, filter.getValues(), tableAlias, sqlParams);
     }
-    return apiTranslator.naryFilterOnRepeatedFieldSql(
-        valueField,
-        naryOperatorIn ? NaryOperator.IN : NaryOperator.NOT_IN,
-        filter.getValues(),
-        tableAlias,
-        sqlParams);
+    throw new InvalidQueryException(
+        "Operator not supported for repeated data type attributes: "
+            + filter.getOperatorName()
+            + ", "
+            + filter.getFilterAttributeNames().get(0));
   }
 
   private String searchOptimizedSql(AttributeFilter filter, String tableAlias, String whereClause) {
@@ -162,26 +161,12 @@ public class BQAttributeFilterTranslator extends ApiFilterTranslator {
       List<AttributeFilter> attributeFilters,
       LogicalOperator logicalOperator,
       Map<Attribute, SqlField> attributeSwapFields) {
-    if (attributeFilters.isEmpty()) {
-      return Optional.empty();
-    }
-
     Entity firstEntity = attributeFilters.get(0).getEntity();
-    String firstEntityName = firstEntity.getName();
-    List<String> allFilterAttributeNames = new ArrayList<>();
+    List<String> allFilterAttributeNames =
+        attributeFilters.stream().flatMap(l -> l.getFilterAttributeNames().stream()).toList();
 
-    // condition-1: all filters must be on the same entity
-    if (attributeFilters.stream()
-        .anyMatch(
-            filter -> {
-              allFilterAttributeNames.addAll(filter.getFilterAttributeNames());
-              return !filter.getEntity().getName().equals(firstEntityName);
-            })) {
-      return Optional.empty();
-    }
-
-    // condition-2: all attrs must be optimized for search together
-    // if only (1), the filters are already run on the same table, no change needed
+    // All attrs must be optimized for search together.
+    // Otherwise, the filters may already run on the same table, no change needed
     return firstEntity.containsOptimizeSearchByAttributes(allFilterAttributeNames)
         ? Optional.of(
             new BQAttributeFilterTranslator(

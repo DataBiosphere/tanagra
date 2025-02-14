@@ -27,7 +27,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class BQFieldTest extends BQRunnerTest {
-
   @Test
   void attributeField() throws IOException {
     Entity entity = underlay.getPrimaryEntity();
@@ -94,6 +93,7 @@ public class BQFieldTest extends BQRunnerTest {
                 ethnicityAttribute.getRuntimeSqlFunctionWrapper(),
                 ethnicityAttribute.getRuntimeDataType(),
                 ethnicityAttribute.isComputeDisplayHint(),
+                ethnicityAttribute.getEmptyValueDisplay(),
                 ethnicityAttribute.isSuppressedForExport(),
                 ethnicityAttribute.isVisitDateForTemporalQuery(),
                 ethnicityAttribute.isVisitIdForTemporalQuery(),
@@ -117,6 +117,7 @@ public class BQFieldTest extends BQRunnerTest {
                 genderAttribute.getRuntimeSqlFunctionWrapper(),
                 genderAttribute.getRuntimeDataType(),
                 genderAttribute.isComputeDisplayHint(),
+                ethnicityAttribute.getEmptyValueDisplay(),
                 true,
                 genderAttribute.isVisitDateForTemporalQuery(),
                 genderAttribute.isVisitIdForTemporalQuery(),

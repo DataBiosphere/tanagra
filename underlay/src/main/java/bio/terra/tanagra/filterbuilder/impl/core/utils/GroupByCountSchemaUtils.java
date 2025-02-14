@@ -47,8 +47,8 @@ public final class GroupByCountSchemaUtils {
                         .getIdInConfig()
                         .equals(
                             criteriaSelector
-                                .getModifier(modifierSelectionData.getModifierName())
-                                .getPlugin()))
+                                .getModifier(modifierSelectionData.modifierName())
+                                .plugin()))
             .findFirst();
     if (groupByCountSelectionData.isEmpty()) {
       return Optional.empty();
@@ -56,10 +56,10 @@ public final class GroupByCountSchemaUtils {
     CFUnhintedValue.UnhintedValue groupByModifierConfig =
         deserializeConfig(
             criteriaSelector
-                .getModifier(groupByCountSelectionData.get().getModifierName())
-                .getPluginConfig());
+                .getModifier(groupByCountSelectionData.get().modifierName())
+                .pluginConfig());
     DTUnhintedValue.UnhintedValue groupByModifierData =
-        GroupByCountSchemaUtils.deserializeData(groupByCountSelectionData.get().getPluginData());
+        GroupByCountSchemaUtils.deserializeData(groupByCountSelectionData.get().pluginData());
     return Optional.of(Pair.of(groupByModifierConfig, groupByModifierData));
   }
 

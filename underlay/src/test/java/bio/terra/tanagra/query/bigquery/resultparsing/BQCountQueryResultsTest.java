@@ -137,6 +137,7 @@ public class BQCountQueryResultsTest extends BQRunnerTest {
                 "['foo', 'bar', 'baz', ${fieldSql}]",
                 DataType.STRING,
                 entity.getAttribute("vocabulary").isComputeDisplayHint(),
+                entity.getAttribute("vocabulary").getEmptyValueDisplay(),
                 entity.getAttribute("vocabulary").isSuppressedForExport(),
                 entity.getAttribute("vocabulary").isVisitDateForTemporalQuery(),
                 entity.getAttribute("vocabulary").isVisitIdForTemporalQuery(),

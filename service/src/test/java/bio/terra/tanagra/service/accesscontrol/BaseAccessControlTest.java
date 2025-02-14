@@ -48,17 +48,16 @@ public class BaseAccessControlTest {
       new Action[] {
         Action.READ, Action.UPDATE, Action.DELETE, Action.CREATE_COHORT, Action.CREATE_FEATURE_SET,
       };
+  protected static final String CMS_SYNPUF = "cmssynpuf";
+  protected static final String AOU_SYNTHETIC = "aouSR2019q4r4";
+  protected static final String SDD = "sd";
   @Autowired protected UnderlayService underlayService;
   @Autowired protected StudyService studyService;
   @Autowired protected CohortService cohortService;
   @Autowired protected FeatureSetService featureSetService;
   @Autowired protected ReviewService reviewService;
   @Autowired protected AnnotationService annotationService;
-
   protected AccessControlService accessControlService;
-  protected static final String CMS_SYNPUF = "cmssynpuf";
-  protected static final String AOU_SYNTHETIC = "aouSR2019q4r4";
-  protected static final String SDD = "sd";
 
   protected static final UserId USER_1 = UserId.fromToken("subject1", "user1@gmail.com", "token1");
   protected static final UserId USER_2 = UserId.fromToken("subject2", "user2@gmail.com", "token2");

@@ -1,5 +1,6 @@
 package bio.terra.tanagra.query.bigquery.translator.filter;
 
+import bio.terra.tanagra.api.filter.BooleanAndOrFilter.LogicalOperator;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.shared.BinaryOperator;
 import bio.terra.tanagra.api.shared.Literal;
@@ -10,53 +11,70 @@ import bio.terra.tanagra.query.sql.translator.ApiFilterTranslator;
 import bio.terra.tanagra.query.sql.translator.ApiTranslator;
 import bio.terra.tanagra.underlay.entitymodel.Attribute;
 import bio.terra.tanagra.underlay.indextable.ITHierarchyAncestorDescendant;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class BQHierarchyHasAncestorFilterTranslator extends ApiFilterTranslator {
-  private final HierarchyHasAncestorFilter hierarchyHasAncestorFilter;
+  private final List<HierarchyHasAncestorFilter> hierarchyHasAncestorFilters;
 
   public BQHierarchyHasAncestorFilterTranslator(
       ApiTranslator apiTranslator,
       HierarchyHasAncestorFilter hierarchyHasAncestorFilter,
       Map<Attribute, SqlField> attributeSwapFields) {
     super(apiTranslator, attributeSwapFields);
-    this.hierarchyHasAncestorFilter = hierarchyHasAncestorFilter;
+    this.hierarchyHasAncestorFilters = List.of(hierarchyHasAncestorFilter);
+  }
+
+  public BQHierarchyHasAncestorFilterTranslator(
+      ApiTranslator apiTranslator,
+      List<HierarchyHasAncestorFilter> hierarchyHasAncestorFilters,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    super(apiTranslator, attributeSwapFields);
+    this.hierarchyHasAncestorFilters = hierarchyHasAncestorFilters;
   }
 
   @Override
   public String buildSql(SqlParams sqlParams, String tableAlias) {
     //  entity.id IN (SELECT ancestorId UNION ALL SELECT descendant FROM ancestorDescendantTable
     // FILTER ON ancestorId)
+
+    // List is used only when they are mergeable (private constructor). See mergedTranslator
+    HierarchyHasAncestorFilter singleFilter = hierarchyHasAncestorFilters.get(0);
+    List<Literal> ancestorIds =
+        hierarchyHasAncestorFilters.stream()
+            .flatMap(filter -> filter.getAncestorIds().stream())
+            .toList();
+
     ITHierarchyAncestorDescendant ancestorDescendantTable =
-        hierarchyHasAncestorFilter
+        singleFilter
             .getUnderlay()
             .getIndexSchema()
             .getHierarchyAncestorDescendant(
-                hierarchyHasAncestorFilter.getEntity().getName(),
-                hierarchyHasAncestorFilter.getHierarchy().getName());
-    Attribute idAttribute = hierarchyHasAncestorFilter.getEntity().getIdAttribute();
+                singleFilter.getEntity().getName(), singleFilter.getHierarchy().getName());
+    Attribute idAttribute = singleFilter.getEntity().getIdAttribute();
     SqlField idField =
         attributeSwapFields.containsKey(idAttribute)
             ? attributeSwapFields.get(idAttribute)
-            : hierarchyHasAncestorFilter
+            : singleFilter
                 .getUnderlay()
                 .getIndexSchema()
-                .getEntityMain(hierarchyHasAncestorFilter.getEntity().getName())
+                .getEntityMain(singleFilter.getEntity().getName())
                 .getAttributeValueField(idAttribute.getName());
 
     // FILTER ON ancestorId = [WHERE ancestor IN (ancestorIds)] or [WHERE ancestor = ancestorId]
     String ancestorIdFilterSql =
-        hierarchyHasAncestorFilter.getAncestorIds().size() > 1
+        ancestorIds.size() > 1
             ? apiTranslator.naryFilterSql(
                 ancestorDescendantTable.getAncestorField(),
                 NaryOperator.IN,
-                hierarchyHasAncestorFilter.getAncestorIds(),
+                ancestorIds,
                 null,
                 sqlParams)
             : apiTranslator.binaryFilterSql(
                 ancestorDescendantTable.getAncestorField(),
                 BinaryOperator.EQUALS,
-                hierarchyHasAncestorFilter.getAncestorIds().get(0),
+                ancestorIds.get(0),
                 null,
                 sqlParams);
 
@@ -69,11 +87,33 @@ public class BQHierarchyHasAncestorFilterTranslator extends ApiFilterTranslator 
         null,
         false,
         sqlParams,
-        hierarchyHasAncestorFilter.getAncestorIds().toArray(new Literal[0]));
+        ancestorIds.toArray(new Literal[0]));
   }
 
   @Override
   public boolean isFilterOnAttribute(Attribute attribute) {
     return attribute.isId();
+  }
+
+  public static Optional<ApiFilterTranslator> mergedTranslator(
+      ApiTranslator apiTranslator,
+      List<HierarchyHasAncestorFilter> hierarchyHasAncestorFilters,
+      LogicalOperator logicalOperator,
+      Map<Attribute, SqlField> attributeSwapFields) {
+    // LogicalOperator.AND is not supported for hierarchy filters
+    if (logicalOperator == LogicalOperator.AND) {
+      return Optional.empty();
+    }
+
+    // hierarchy must be the same
+    return hierarchyHasAncestorFilters.stream()
+                .map(HierarchyHasAncestorFilter::getHierarchy)
+                .distinct()
+                .count()
+            == 1
+        ? Optional.of(
+            new BQHierarchyHasAncestorFilterTranslator(
+                apiTranslator, hierarchyHasAncestorFilters, attributeSwapFields))
+        : Optional.empty();
   }
 }

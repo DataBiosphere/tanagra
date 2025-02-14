@@ -1,9 +1,12 @@
 package bio.terra.tanagra.query.bigquery.sqlbuilding.filter;
 
+import static bio.terra.tanagra.api.filter.BooleanAndOrFilter.newBooleanAndOrFilter;
+
 import bio.terra.tanagra.api.field.AttributeField;
 import bio.terra.tanagra.api.filter.AttributeFilter;
 import bio.terra.tanagra.api.filter.BooleanAndOrFilter;
 import bio.terra.tanagra.api.filter.BooleanNotFilter;
+import bio.terra.tanagra.api.filter.EntityFilter;
 import bio.terra.tanagra.api.filter.HierarchyHasAncestorFilter;
 import bio.terra.tanagra.api.filter.RelationshipFilter;
 import bio.terra.tanagra.api.filter.TextSearchFilter;
@@ -32,8 +35,8 @@ public class BQBooleanLogicFilterTest extends BQRunnerTest {
     TextSearchFilter textSearchFilter =
         new TextSearchFilter(
             underlay, entity, TextSearchFilter.TextSearchOperator.EXACT_MATCH, "44054006", null);
-    BooleanAndOrFilter booleanAndOrFilter =
-        new BooleanAndOrFilter(
+    EntityFilter booleanAndOrFilter =
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.AND, List.of(attributeFilter, textSearchFilter));
     AttributeField simpleAttribute =
         new AttributeField(underlay, entity, entity.getAttribute("name"), false);
@@ -82,7 +85,7 @@ public class BQBooleanLogicFilterTest extends BQRunnerTest {
             Literal.forInt64(8_532L));
     BooleanNotFilter booleanNotFilter =
         new BooleanNotFilter(
-            new BooleanAndOrFilter(
+            newBooleanAndOrFilter(
                 BooleanAndOrFilter.LogicalOperator.AND,
                 List.of(attributeFilter1, attributeFilter2)));
     AttributeField simpleAttribute =
@@ -116,8 +119,8 @@ public class BQBooleanLogicFilterTest extends BQRunnerTest {
             criteriaOccurrence.getCriteriaEntity(),
             criteriaOccurrence.getCriteriaEntity().getHierarchy(Hierarchy.DEFAULT_NAME),
             Literal.forInt64(456L));
-    BooleanAndOrFilter hasAncestorFilter1or2 =
-        new BooleanAndOrFilter(
+    EntityFilter hasAncestorFilter1or2 =
+        newBooleanAndOrFilter(
             BooleanAndOrFilter.LogicalOperator.OR, List.of(hasAncestorFilter1, hasAncestorFilter2));
     RelationshipFilter relationshipFilter =
         new RelationshipFilter(

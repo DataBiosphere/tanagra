@@ -518,9 +518,10 @@ public class BQCriteriaOccurrenceFilterTest extends BQRunnerTest {
             BinaryOperator.EQUALS,
             Literal.forInt64(8_532L));
     BooleanAndOrFilter personFilter =
-        new BooleanAndOrFilter(
-            BooleanAndOrFilter.LogicalOperator.AND,
-            List.of(primaryWithCriteriaFilter, attributeFilter));
+        (BooleanAndOrFilter)
+            BooleanAndOrFilter.newBooleanAndOrFilter(
+                BooleanAndOrFilter.LogicalOperator.AND,
+                List.of(primaryWithCriteriaFilter, attributeFilter));
     OccurrenceForPrimaryFilter occurrenceForPrimaryFilter =
         new OccurrenceForPrimaryFilter(
             underlay, criteriaOccurrence, conditionOccurrence, personFilter, null);

@@ -6,55 +6,14 @@ import bio.terra.tanagra.underlay.entitymodel.Entity;
 import bio.terra.tanagra.underlay.entitymodel.entitygroup.EntityGroup;
 import jakarta.annotation.Nullable;
 
-public class HintQueryRequest {
-  private final Underlay underlay;
-  private final Entity hintedEntity;
-  private final Entity relatedEntity;
-  private final Literal relatedEntityId;
-  private final EntityGroup entityGroup;
-  private final boolean isDryRun;
-
-  public HintQueryRequest(
-      Underlay underlay,
-      Entity hintedEntity,
-      @Nullable Entity relatedEntity,
-      @Nullable Literal relatedEntityId,
-      @Nullable EntityGroup entityGroup,
-      boolean isDryRun) {
-    this.underlay = underlay;
-    this.hintedEntity = hintedEntity;
-    this.relatedEntity = relatedEntity;
-    this.relatedEntityId = relatedEntityId;
-    this.entityGroup = entityGroup;
-    this.isDryRun = isDryRun;
-  }
-
+public record HintQueryRequest(
+    Underlay underlay,
+    Entity hintedEntity,
+    @Nullable Entity relatedEntity,
+    @Nullable Literal relatedEntityId,
+    @Nullable EntityGroup entityGroup,
+    boolean isDryRun) {
   public boolean isEntityLevel() {
     return relatedEntity == null || relatedEntityId == null || entityGroup == null;
-  }
-
-  public Underlay getUnderlay() {
-    return underlay;
-  }
-
-  public Entity getHintedEntity() {
-    return hintedEntity;
-  }
-
-  @Nullable
-  public Entity getRelatedEntity() {
-    return relatedEntity;
-  }
-
-  public @Nullable Literal getRelatedEntityId() {
-    return relatedEntityId;
-  }
-
-  public @Nullable EntityGroup getEntityGroup() {
-    return entityGroup;
-  }
-
-  public boolean isDryRun() {
-    return isDryRun;
   }
 }

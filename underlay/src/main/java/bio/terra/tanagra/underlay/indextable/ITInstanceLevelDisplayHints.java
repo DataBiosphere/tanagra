@@ -13,6 +13,7 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
   private final String entityGroup;
   private final String hintedEntity;
   private final String relatedEntity;
+  private final ImmutableList<ColumnSchema> columnSchemas;
 
   public ITInstanceLevelDisplayHints(
       NameHelper namer,
@@ -24,6 +25,9 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
     this.entityGroup = entityGroup;
     this.hintedEntity = hintedEntity;
     this.relatedEntity = relatedEntity;
+    this.columnSchemas =
+        ImmutableList.copyOf(
+            Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
   }
 
   public String getEntityGroup() {
@@ -45,9 +49,7 @@ public final class ITInstanceLevelDisplayHints extends IndexTable {
 
   @Override
   public ImmutableList<ColumnSchema> getColumnSchemas() {
-    // Columns are static and don't depend on the entity.
-    return ImmutableList.copyOf(
-        Arrays.stream(Column.values()).map(Column::getSchema).collect(Collectors.toList()));
+    return columnSchemas;
   }
 
   public enum Column {
