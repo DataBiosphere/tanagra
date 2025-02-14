@@ -33,7 +33,12 @@ import {
   protoFromDataKey,
   UnderlaySource,
 } from "data/source";
-import { compareDataValues, dataKeyToKey, DataEntry, DataKey } from "data/types";
+import {
+  compareDataValues,
+  dataKeyToKey,
+  DataEntry,
+  DataKey,
+} from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";

@@ -979,7 +979,8 @@ function HierarchySearchList(props: HierarchySearchListProps) {
                   const entityGroup = props.hierarchyEntityConfig?.id;
                   if (entityGroup) {
                     props.onClick(
-                      n.ancestors?.map((a) => dataKeyToKey(a, entityGroup)) ?? [],
+                      n.ancestors?.map((a) => dataKeyToKey(a, entityGroup)) ??
+                        [],
                       dataKeyToKey(n.data.key, entityGroup)
                     );
                   }
