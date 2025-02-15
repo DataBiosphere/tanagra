@@ -5,15 +5,15 @@
       "projectId": "vumc-sd-dev",
       "datasetId": "sd_20240831",
       "sqlSubstitutions": {
-        "omopDataset": "vumc-sd-test.sd_20240831",
-        "staticTablesDataset": "vumc-sd-test.sd_20240831"
+        "omopDataset": "vumc-sd-dev.sd_20240831",
+        "staticTablesDataset": "vumc-sd-dev.sd_20240831"
       }
     },
     "indexData": {
       "projectId": "vumc-sd-dev",
-      "datasetId": "indexed_sd_20240831_2"
+      "datasetId": "indexed_sd_20240831_1"
     },
-    "queryProjectId": "vumc-sd-test",
+    "queryProjectId": "vumc-sd-dev",
     "dataLocation": "us-central1"
   },
   "uiConfigFile": "ui.json"

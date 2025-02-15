@@ -3,13 +3,23 @@ SELECT c.ind_seq as person_id,
 FROM `${omopDataset}.icd10_codes` AS c
 JOIN (
     SELECT
-        pc.criteria_meta_seq as concept_id,
-        regexp_extract(pc.name, '(.*)-.*') as concept_code,
-        pc.is_leaf
-    FROM `${omopDataset}.icd10_criteria` pc
-    WHERE pc.parent_seq < (
-        select criteria_meta_seq from `${omopDataset}.icd10_criteria`
-        where starts_with(label, 'ICD10PCS')
-        )
-    ) cc ON c.code = cc.concept_code
-    and cc.is_leaf = true
+        concept_id,
+        vocabulary_id,
+        concept_code,
+    FROM `${omopDataset}.concept`
+    WHERE
+        vocabulary_id = 'ICD10CM'
+        AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
+
+    UNION ALL
+
+    SELECT
+        concept_id,
+        vocabulary_id,
+        concept_code,
+    FROM `${staticTablesDataset}.prep_concept`
+    WHERE
+        vocabulary_id = 'ICD10CM'
+        AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
+) cc ON c.code = cc.concept_code
+WHERE cc.concept_id NOT IN (SELECT parent FROM `vumc-emerge-dev.indexed_chase_emerge_test.HCP_icd10cm_default`)
