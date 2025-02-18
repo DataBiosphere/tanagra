@@ -201,10 +201,11 @@ export function CohortReview() {
                         state.instanceIndex = instanceIndex - 1;
                       })
                     }
+                    size="small"
                   >
                     <KeyboardArrowLeftIcon />
                   </IconButton>
-                  <IconButton disabled={count === 0}>
+                  <IconButton disabled={count === 0} size="small">
                     <MenuIcon onClick={() => showParticipantsListDialog()} />
                   </IconButton>
                   <IconButton
@@ -214,6 +215,7 @@ export function CohortReview() {
                         state.instanceIndex = instanceIndex + 1;
                       })
                     }
+                    size="small"
                   >
                     <KeyboardArrowRightIcon />
                   </IconButton>
@@ -382,11 +384,12 @@ function AnnotationComponent(props: {
         };
 
         return (
-          <FormControl fullWidth>
+          <FormControl variant="outlined" fullWidth>
             <InputLabel id={`label-${props.annotation.id}`}>
               {props.annotation.displayName}
             </InputLabel>
             <Select
+              variant="outlined"
               labelId={`label-${props.annotation.id}`}
               defaultValue={String(latestIndex)}
               value={String(currentIndex)}

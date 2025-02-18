@@ -136,6 +136,7 @@ export function RangeSlider(props: RangeSliderProps) {
             aria-label="delete"
             onClick={() => props.onDelete?.(range, index)}
             style={{ marginLeft: 25 }}
+            size="small"
           >
             <DeleteIcon fontSize="medium" />
           </IconButton>

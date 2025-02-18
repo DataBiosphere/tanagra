@@ -882,7 +882,7 @@ function ExportDialog(
       <DialogContent>
         {stage === ExportDialogStage.MODEL_SELECT ? (
           <Loading status={exportModelsState}>
-            <FormControl sx={{ width: "100%" }}>
+            <FormControl variant="outlined" sx={{ width: "100%" }}>
               <RadioGroup
                 value={model?.id ?? ""}
                 onChange={onSelectModel}

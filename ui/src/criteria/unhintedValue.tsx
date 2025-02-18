@@ -168,8 +168,9 @@ function UnhintedValueInline(props: UnhintedValueInlineProps) {
 
   return (
     <GridLayout rows height="auto">
-      <FormControl>
+      <FormControl variant="outlined">
         <Select
+          variant="outlined"
           value={decodedData.operator}
           input={<OutlinedInput />}
           onChange={onSelectOperator}
