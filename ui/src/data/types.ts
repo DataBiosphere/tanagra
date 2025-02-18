@@ -71,3 +71,16 @@ export function convertAttributeStringToDataValue(
     `Unknown data type "${attribute.dataType}" in ${JSON.stringify(attribute)}.`
   );
 }
+
+export function dataKeyToKey(key: DataKey, entityGroup: string): string {
+  return JSON.stringify({
+    entityGroup,
+    stringVal: typeof key === "string" ? key : undefined,
+    bigIntVal: typeof key === "bigint" ? String(key) : undefined,
+  });
+}
+
+export function keyFromDataKey(key: string): DataKey {
+  const parsed = JSON.parse(key);
+  return parsed.bigIntVal ? BigInt(parsed.bigIntVal) : parsed.stringVal;
+}
