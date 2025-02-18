@@ -563,6 +563,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                                     data.selected.splice(i, 1);
                                   })
                                 }
+                                size="small"
                               >
                                 <DeleteIcon />
                               </IconButton>
@@ -676,6 +677,7 @@ function ResultsPage(props: ResultsPageProps) {
                     }
                   });
                 }}
+                size="small"
               >
                 <ClearIcon fontSize="small" />
               </IconButton>
@@ -897,6 +899,7 @@ function SelectAllStats(props: SelectAllStatsProps) {
                 props.setSelected(!props.selected);
               }
             }}
+            size="small"
           >
             <EditIcon fontSize="small" />
           </IconButton>

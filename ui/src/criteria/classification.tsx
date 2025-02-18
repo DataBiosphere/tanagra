@@ -880,6 +880,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                                     data.selected.splice(i, 1);
                                   })
                                 }
+                                size="small"
                               >
                                 <DeleteIcon />
                               </IconButton>

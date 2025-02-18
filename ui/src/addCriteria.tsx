@@ -406,8 +406,9 @@ function AddCriteria(props: AddCriteriaProps) {
           {tagList.length > 0 ? (
             <GridLayout cols spacing={1} rowAlign="baseline">
               <Typography variant="body1">Showing criteria in:</Typography>
-              <FormControl>
+              <FormControl variant="outlined">
                 <Select
+                  variant="outlined"
                   multiple
                   displayEmpty
                   value={tagList.filter((t) => selectedTags.has(t))}
@@ -429,6 +430,9 @@ function AddCriteria(props: AddCriteriaProps) {
                   }}
                   sx={{
                     color: (theme) => theme.palette.primary.main,
+                    "& .MuiOutlinedInput-input": {
+                      py: "2px",
+                    },
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: (theme) => theme.palette.primary.main,
                     },

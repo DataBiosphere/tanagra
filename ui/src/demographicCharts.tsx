@@ -50,8 +50,9 @@ export function DemographicCharts(props: DemographicChartsProps) {
       <GridLayout rows spacing={2}>
         <GridLayout cols fillCol={0} spacing={1} rowAlign="middle">
           <Typography variant="h6">Cohort visualizations</Typography>
-          <FormControl>
+          <FormControl variant="outlined">
             <Select
+              variant="outlined"
               fullWidth
               multiple
               displayEmpty

@@ -193,9 +193,10 @@ function TextSearchInline(props: TextSearchInlineProps) {
   return (
     <Loading status={hintDataState}>
       {!!hintDataState.data?.hintData?.enumHintOptions ? (
-        <FormControl sx={{ maxWidth: 500 }}>
+        <FormControl variant="outlined" sx={{ maxWidth: 500 }}>
           <GridLayout rows spacing={1} height="auto">
             <TextField
+              variant="outlined"
               label="Search text"
               defaultValue={decodedData.query}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -203,6 +204,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
               }}
             />
             <Select
+              variant="outlined"
               fullWidth
               multiple
               displayEmpty

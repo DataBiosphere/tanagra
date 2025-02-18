@@ -334,7 +334,7 @@ function AttributeInline(props: AttributeInlineProps) {
         {props.config.multiRange && (
           <Button
             variant="contained"
-            size="large"
+            size="small"
             sx={{ mt: 2 }}
             onClick={() =>
               hintDataState.data?.integerHint &&

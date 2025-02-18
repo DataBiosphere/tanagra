@@ -63,6 +63,7 @@ export default function ActionBar(props: ActionBarProps) {
               backgroundColor: (theme) => theme.palette.primary.dark,
             },
           }}
+          size="small"
         >
           <ArrowBackIcon />
         </IconButton>

@@ -113,6 +113,7 @@ export function StudiesList() {
                     },
                   })
                 }
+                size="small"
               >
                 <DeleteIcon />
               </IconButton>

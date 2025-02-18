@@ -267,6 +267,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
                         props.valueData ? undefined : [ANY_VALUE_DATA]
                       )
                     }
+                    size="small"
                   >
                     <TuneIcon fontSize="inherit" />
                   </IconButton>
@@ -281,8 +282,9 @@ export function ValueDataEdit(props: ValueDataEditProps) {
         {hasHints && (!props.title || isValid(props.valueData)) ? (
           <GridLayout rows height="auto">
             {!!valueDataList.length && props.singleValue ? (
-              <FormControl>
+              <FormControl variant="outlined">
                 <Select
+                  variant="outlined"
                   value={valueDataList[0].attribute}
                   input={<OutlinedInput />}
                   disabled={!hintDataState.data?.hintData?.length}

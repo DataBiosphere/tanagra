@@ -1,5 +1,5 @@
 import CssBaseline from "@mui/material/CssBaseline";
-import { ThemeProvider } from "@mui/material/styles";
+import { StyledEngineProvider, ThemeProvider } from "@mui/material/styles";
 import { Router } from "@remix-run/router";
 import { AuthProviderProps } from "auth/provider";
 import { enableMapSet } from "immer";
@@ -17,11 +17,13 @@ export function App() {
 
 export function AppWithRouter(appRouter?: Router) {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RouterProvider
-        router={appRouter ?? createAppRouter({} as AuthProviderProps)}
-      />
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <RouterProvider
+          router={appRouter ?? createAppRouter({} as AuthProviderProps)}
+        />
+      </ThemeProvider>
+    </StyledEngineProvider>
   );
 }

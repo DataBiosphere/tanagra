@@ -404,6 +404,7 @@ function Reviews() {
                         onConfirm: onRenameReview,
                       })
                     }
+                    size="small"
                   >
                     <EditIcon />
                   </IconButton>
@@ -421,6 +422,7 @@ function Reviews() {
                         },
                       })
                     }
+                    size="small"
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -721,6 +723,7 @@ function Annotations() {
                               },
                             })
                           }
+                          size="small"
                         >
                           <EditIcon />
                         </IconButton>
@@ -743,6 +746,7 @@ function Annotations() {
                               },
                             })
                           }
+                          size="small"
                         >
                           <DeleteIcon />
                         </IconButton>

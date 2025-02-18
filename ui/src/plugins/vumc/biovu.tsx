@@ -152,8 +152,9 @@ function BioVUInline(props: BioVUInlineProps) {
 
   return !props.config.plasmaFilter ? (
     <GridLayout rows spacing={1} height="auto">
-      <FormControl>
+      <FormControl variant="outlined">
         <Select
+          variant="outlined"
           value={decodedData.sampleFilter}
           input={<OutlinedInput />}
           onChange={onSelectOperator}

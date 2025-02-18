@@ -163,6 +163,7 @@ export function AddByCode() {
         >
           <GridLayout cols fillCol={0} spacing={1}>
             <TextField
+              variant="outlined"
               multiline
               fullWidth
               autoFocus
