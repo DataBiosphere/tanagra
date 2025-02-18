@@ -33,7 +33,12 @@ import {
   protoFromDataKey,
   UnderlaySource,
 } from "data/source";
-import { compareDataValues, DataEntry, DataKey } from "data/types";
+import {
+  compareDataValues,
+  dataKeyToKey,
+  DataEntry,
+  DataKey,
+} from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";
@@ -195,13 +200,6 @@ class _ implements CriteriaPlugin<string> {
   }
 }
 
-function dataKey(key: DataKey, entityGroup: string): string {
-  return JSON.stringify({
-    entityGroup,
-    key,
-  });
-}
-
 type SearchState = {
   // The query entered in the search box.
   query?: string;
@@ -283,11 +281,11 @@ function SurveyEdit(props: SurveyEditProps) {
       allEntityGroups.forEach(([entityGroup, nodes]) => {
         nodes.forEach((node) => {
           const rowData: TreeGridRowData = { ...node.data };
-          const key = dataKey(node.data.key, entityGroup);
+          const key = dataKeyToKey(node.data.key, entityGroup);
 
           let parentKey = "root";
           if (node.ancestors?.length) {
-            parentKey = dataKey(node.ancestors[0], entityGroup);
+            parentKey = dataKeyToKey(node.ancestors[0], entityGroup);
           }
 
           const cItem: EntityNodeItem = {
@@ -421,7 +419,7 @@ function SurveyEdit(props: SurveyEditProps) {
           if (re.test(String(node.data[k]))) {
             matched.add(key);
             node.node.ancestors?.forEach((a) =>
-              ancestors.add(dataKey(a, node.entityGroup))
+              ancestors.add(dataKeyToKey(a, node.entityGroup))
             );
             break;
           }
