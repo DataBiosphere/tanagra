@@ -58,8 +58,9 @@ export function HintDataSelect(props: HintDataSelectProps) {
   };
 
   return (
-    <FormControl>
+    <FormControl variant="outlined">
       <Select
+        variant="outlined"
         multiple
         displayEmpty
         disabled={!props.hintData}

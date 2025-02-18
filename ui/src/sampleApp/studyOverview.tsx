@@ -135,6 +135,7 @@ export function StudyOverview() {
                     },
                   })
                 }
+                size="small"
               >
                 <DeleteIcon />
               </IconButton>

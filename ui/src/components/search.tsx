@@ -96,6 +96,7 @@ export function Search(props: SearchProps) {
                         }}
                         onMouseDown={(event) => event.preventDefault()}
                         edge="end"
+                        size="small"
                       >
                         <ClearIcon />
                       </IconButton>
@@ -107,7 +108,7 @@ export function Search(props: SearchProps) {
                 {(query: string) => onChange(query)}
               </OnChange>
               {props.showSearchButton ? (
-                <IconButton type="submit">
+                <IconButton type="submit" size="small">
                   <SearchIcon />
                 </IconButton>
               ) : null}

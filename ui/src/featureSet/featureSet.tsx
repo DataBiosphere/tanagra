@@ -99,6 +99,7 @@ export function FeatureSet() {
                   },
                 })
               }
+              size="small"
             >
               <EditIcon />
             </IconButton>
@@ -119,6 +120,7 @@ export function FeatureSet() {
                   },
                 })
               }
+              size="small"
             >
               <DeleteIcon />
             </IconButton>
@@ -266,6 +268,7 @@ function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
       <IconButton
         disabled={!plugin?.renderEdit}
         onClick={() => navigate(featureSetCriteriaURL(props.criteria.id))}
+        size="small"
       >
         <EditIcon />
       </IconButton>
@@ -275,6 +278,7 @@ function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
             ? deleteFeatureSetCriteria(context, props.criteria.id)
             : deletePredefinedFeatureSetCriteria(context, props.criteria.id)
         }
+        size="small"
       >
         <DeleteIcon />
       </IconButton>
@@ -479,6 +483,7 @@ function PreviewTable(props: PreviewTableProps) {
         <GridLayout rows>
           <GridBox sx={{ p: 1 }}>
             <TextField
+              variant="outlined"
               size="small"
               fullWidth
               label="Find column"

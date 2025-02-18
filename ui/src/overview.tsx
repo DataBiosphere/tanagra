@@ -114,6 +114,7 @@ export function Overview() {
                   },
                 })
               }
+              size="small"
             >
               <EditIcon />
             </IconButton>
@@ -131,6 +132,7 @@ export function Overview() {
                   },
                 })
               }
+              size="small"
             >
               <DeleteIcon />
             </IconButton>
@@ -354,6 +356,7 @@ function ParticipantsGroupSection(props: {
                 },
               });
             }}
+            size="small"
           >
             <EditIcon fontSize="small" />
           </IconButton>
@@ -364,8 +367,9 @@ function ParticipantsGroupSection(props: {
           rowAlign="baseline"
           sx={{ p: 2, backgroundColor: (theme) => theme.palette.info.main }}
         >
-          <FormControl>
+          <FormControl variant="outlined">
             <Select
+              variant="outlined"
               value={props.groupSection.filter.excluded ? 1 : 0}
               onChange={(event: SelectChangeEvent<number>) => {
                 updateCohortGroupSection(context, props.groupSection.id, {
@@ -390,8 +394,9 @@ function ParticipantsGroupSection(props: {
             </Select>
           </FormControl>
           <GridBox sx={{ width: (theme) => theme.spacing(1) }} />
-          <FormControl>
+          <FormControl variant="outlined">
             <Select
+              variant="outlined"
               value={props.groupSection.filter.kind}
               onChange={(event: SelectChangeEvent<string>) => {
                 updateCohortGroupSection(context, props.groupSection.id, {
@@ -720,8 +725,9 @@ function ReducingOperatorSelect(props: {
 }) {
   const context = useCohortContext();
   return (
-    <FormControl>
+    <FormControl variant="outlined">
       <Select
+        variant="outlined"
         value={
           props.second
             ? props.groupSection.secondBlockReducingOperator
@@ -942,6 +948,7 @@ function ParticipantsGroup(props: {
                 <IconButton
                   data-testid={title}
                   onClick={() => navigate(criteriaURL())}
+                  size="small"
                 >
                   <EditIcon fontSize="small" />
                 </IconButton>
@@ -974,6 +981,7 @@ function ParticipantsGroup(props: {
                         }
                       );
                     }}
+                    size="small"
                   >
                     <FilterListOffIcon fontSize="small" />
                   </IconButton>
@@ -988,6 +996,7 @@ function ParticipantsGroup(props: {
                       props.group.id
                     );
                   }}
+                  size="small"
                 >
                   <DeleteIcon fontSize="small" />
                 </IconButton>
@@ -1065,6 +1074,7 @@ function ParticipantsGroup(props: {
                               p.id
                             )
                           }
+                          size="small"
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>

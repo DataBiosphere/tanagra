@@ -613,6 +613,7 @@ function SurveyEdit(props: SurveyEditProps) {
                                       data.selected.splice(s.index, 1);
                                     })
                                   }
+                                  size="small"
                                 >
                                   <DeleteIcon />
                                 </IconButton>
@@ -639,6 +640,7 @@ function SurveyEdit(props: SurveyEditProps) {
                                           data.selected.splice(child.index, 1);
                                         })
                                       }
+                                      size="small"
                                     >
                                       <DeleteIcon />
                                     </IconButton>
