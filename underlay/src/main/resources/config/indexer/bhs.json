@@ -2,16 +2,16 @@
     "underlay": "bhs",
     "bigQuery": {
       "sourceData": {
-        "projectId": "wb-steady-blueberry-8554",
-        "datasetId": "BF_20240610_Screener",
+        "projectId": "bl001-srd-prod",
+        "datasetId": "20250219_Datavant_Aggregated",
         "sqlSubstitutions": {
-          "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
+          "omopDataset": "bl001-srd-prod.20250219_Datavant_Aggregated",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
         "projectId": "prj-e-mspector-0rh",
-        "datasetId": "BF_20240610_Screener_INDEX"
+        "datasetId": "BHS_aggregated_INDEX"
       },
       "queryProjectId": "prj-e-mspector-0rh",
       "dataLocation": "us-central1"
