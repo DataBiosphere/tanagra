@@ -135,7 +135,7 @@ export function StudiesList() {
       <Header />
       <Loading status={studiesState}>
         <GridLayout rows spacing={4}>
-          {!!data?.get("root")?.children?.length ? (
+          {data?.get("root")?.children?.length ? (
             <TreeGrid columns={columns} data={data} />
           ) : (
             <Empty

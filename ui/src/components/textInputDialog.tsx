@@ -44,8 +44,8 @@ export function useTextInputDialog(): [
   };
 
   return [
-    // eslint-disable-next-line react/jsx-key
-    !!config ? (
+     
+    config ? (
       <Dialog
         open={!!config}
         onClose={() => {

@@ -11,7 +11,7 @@ import {
   insertFeatureSetCriteria,
   updateFeatureSetCriteria,
 } from "featureSet/featureSetContext";
-import { useContext, useEffect } from "react";
+import { createContext, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { useIsSecondBlock } from "router";
 
@@ -91,47 +91,25 @@ function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
   return { section, sectionIndex, group };
 }
 
-let newCriteria: Criteria | undefined;
-let newCriteriaRefCount = 0;
+export const NewCriteriaContext = createContext<Criteria | null>(
+  null
+);
 
-function useOptionalNewCriteria(throwOnUnknown: boolean) {
+export function useNewCriteria() {
   const underlaySource = useUnderlaySource();
   const underlay = useUnderlay();
   const { configId } = useParams<{ configId: string }>();
 
-  if (!newCriteria) {
-    for (const selector of underlay.criteriaSelectors) {
-      if (selector.name !== configId) {
-        continue;
-      }
-
-      newCriteria = createCriteria(underlaySource, selector);
-    }
+  const selector = underlay.criteriaSelectors.find((s) => s.name === configId);
+  if (!selector) {
+    throw new Error(`Unknown selector config ${configId}.`);
   }
 
-  useEffect(() => {
-    newCriteriaRefCount++;
-
-    return () => {
-      newCriteriaRefCount--;
-      if (newCriteriaRefCount === 0) {
-        newCriteria = undefined;
-      }
-    };
-  }, [underlay, configId]);
-
-  if (throwOnUnknown && !newCriteria) {
-    throw new PathError("Unknown new criteria config.");
-  }
-  return newCriteria;
-}
-
-export function useNewCriteria() {
-  return useOptionalNewCriteria(true) as NonNullable<Criteria>;
+  return createCriteria(underlaySource, selector);
 }
 
 export function useIsNewCriteria() {
-  return !!useOptionalNewCriteria(false);
+  return !!useContext(NewCriteriaContext);
 }
 
 export function useGroupSectionAndGroup() {
@@ -178,6 +156,7 @@ export function useUpdateCriteria(groupId?: string, criteriaId?: string) {
   const { section, group } = useOptionalGroupSectionAndGroup(false);
   const { featureSet, criteria: featureSetCriteria } =
     useOptionalFeatureSetAndCriteria(false);
+  const newCriteria = useContext(NewCriteriaContext);
 
   const cohortContext = useContext(CohortContext);
   const featureSetContext = useContext(FeatureSetContext);

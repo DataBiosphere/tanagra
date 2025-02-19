@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verily Data Explorer</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Hack for randombytes because it relies on global existing.
+      var global = global || window
+    </script>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>

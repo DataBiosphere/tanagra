@@ -9,7 +9,7 @@ import {
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
-import produce from "immer";
+import { produce } from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { absoluteCohortURL, BaseParams } from "router";

@@ -29,7 +29,7 @@ class _ implements CriteriaPlugin<string> {
     this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
-    } catch (e) {
+    } catch (_e) {
       this.data = data;
     }
   }

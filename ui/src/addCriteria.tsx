@@ -521,9 +521,9 @@ function AddCriteria(props: AddCriteriaProps) {
               </GridBox>
             </GridLayout>
           ))}
-          {!!query ? <Divider /> : null}
+          {query ? <Divider /> : null}
         </GridLayout>
-        {!!query ? (
+        {query ? (
           <Paper>
             <Loading status={searchState}>
               {!searchState.data?.get("root")?.children?.length ? (

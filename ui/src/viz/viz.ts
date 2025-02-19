@@ -113,7 +113,7 @@ export function processFilterCountValues(
           if (typeof id === "number") {
             numericId = id;
           } else {
-            stringId = String(id) ?? name;
+            stringId = id ? String(id) : name;
           }
         }
 

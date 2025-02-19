@@ -12,12 +12,13 @@ import { SxProps, Theme, useTheme } from "@mui/material/styles";
 import TableCell from "@mui/material/TableCell";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as columnProto from "proto/column";
 import {
   ChangeEvent,
+  isValidElement,
   MutableRefObject,
   ReactNode,
   useCallback,
@@ -471,50 +472,65 @@ function renderChildren(
         (props.expandable && !!child.children?.length) ||
         (props.loadChildren && !child.children);
       let content: ReactNode = null;
-      if (columnCustomization?.onClick) {
-        content = (
-          <Link
-            component="button"
-            variant={childId === highlightId ? "body2em" : "body2"}
-            color="inherit"
-            underline="hover"
-            title={title}
-            onClick={columnCustomization.onClick}
-            sx={textSx}
-          >
-            {value}
-          </Link>
-        );
-      } else if (columnCustomization?.content) {
+      if (columnCustomization?.content) {
         content = columnCustomization?.content;
-      } else if (expandable && column === 0) {
-        content = (
-          <Link
-            component="button"
-            variant={childId === highlightId ? "body2em" : "body2"}
-            color="inherit"
-            underline="none"
-            title={title}
-            sx={textSx}
-            onClick={() => {
-              toggleExpanded(childId);
-            }}
-          >
-            {value}
-          </Link>
-        );
-      } else if (typeof value === "object" && !(value instanceof Date)) {
-        content = value;
       } else {
-        content = (
-          <Typography
-            variant={childId === highlightId ? "body2em" : "body2"}
-            title={title}
-            sx={textSx}
-          >
-            {value}
-          </Typography>
-        );
+        let displayableValue: ReactNode;
+        if (isValidElement(value)) {
+          displayableValue = value;
+        } else if (value instanceof Date) {
+          displayableValue = value.toLocaleString();
+        } else if (typeof value == "object") {
+          displayableValue = JSON.stringify(value);
+        } else if (typeof value === "bigint") {
+          displayableValue = String(value);
+        } else {
+          displayableValue = value;
+        }
+
+        if (columnCustomization?.onClick) {
+          content = (
+            <Link
+              component="button"
+              variant={childId === highlightId ? "body2em" : "body2"}
+              color="inherit"
+              underline="hover"
+              title={title}
+              onClick={columnCustomization.onClick}
+              sx={textSx}
+            >
+              {displayableValue}
+            </Link>
+          );
+        } else if (expandable && column === 0) {
+          content = (
+            <Link
+              component="button"
+              variant={childId === highlightId ? "body2em" : "body2"}
+              color="inherit"
+              underline="none"
+              title={title}
+              sx={textSx}
+              onClick={() => {
+                toggleExpanded(childId);
+              }}
+            >
+              {displayableValue}
+            </Link>
+          );
+        } else if (typeof value === "object" && !(value instanceof Date)) {
+          content = displayableValue;
+        } else {
+          content = (
+            <Typography
+              variant={childId === highlightId ? "body2em" : "body2"}
+              title={title}
+              sx={textSx}
+            >
+              {displayableValue}
+            </Typography>
+          );
+        }
       }
 
       return (

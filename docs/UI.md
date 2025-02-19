@@ -51,3 +51,10 @@ To run the UI integration tests, first start the service and UI, then open Cypre
 [terminal 3] npx cypress open
 ```
 In the Cypress window, click on "Electron Testing" and then you can run the tests one at a time.
+
+### Linting
+To run linting manually, use:
+```
+npm run lint
+npm run lint -- --fix
+```

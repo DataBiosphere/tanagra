@@ -256,7 +256,7 @@ function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
   const context = useFeatureSetContext();
   const navigate = useNavigate();
 
-  const plugin = !!props.criteria.criteria
+  const plugin = props.criteria.criteria
     ? getCriteriaPlugin(props.criteria.criteria)
     : undefined;
 
@@ -274,7 +274,7 @@ function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
       </IconButton>
       <IconButton
         onClick={() =>
-          !!props.criteria.criteria
+          props.criteria.criteria
             ? deleteFeatureSetCriteria(context, props.criteria.id)
             : deletePredefinedFeatureSetCriteria(context, props.criteria.id)
         }

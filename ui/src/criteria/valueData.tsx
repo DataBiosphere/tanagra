@@ -14,7 +14,7 @@ import { DataRange, RangeSlider } from "components/rangeSlider";
 import { dataValueFromProto, HintData, protoFromDataValue } from "data/source";
 import { DataKey, DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as dataProto from "proto/criteriaselector/value_data";
@@ -344,7 +344,7 @@ export function ValueDataEdit(props: ValueDataEditProps) {
                     </Divider>
                   ) : null}
                   <GridLayout cols rowAlign="middle" spacing={3} height="auto">
-                    {!!c.valueConfig.title ? (
+                    {c.valueConfig.title ? (
                       <Typography variant="body1">
                         {c.valueConfig.title}
                       </Typography>

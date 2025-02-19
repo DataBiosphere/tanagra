@@ -16,7 +16,7 @@ import { FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useCohortGroupSectionAndGroup, useStudyId, useUnderlay } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback } from "react";

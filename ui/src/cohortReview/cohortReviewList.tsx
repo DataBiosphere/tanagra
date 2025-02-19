@@ -39,7 +39,7 @@ import { useUnderlaySource } from "data/underlaySourceContext";
 import deepEqual from "deep-equal";
 import { DemographicCharts } from "demographicCharts";
 import { useCohort, useStudyId } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useParams } from "react-router-dom";
@@ -146,12 +146,6 @@ function Reviews() {
           cohort.id
         )
       );
-      if (!reviewId) {
-        const first = firstReview(res);
-        if (first) {
-          navigate(first.id, { replace: true });
-        }
-      }
       return res;
     }
   );
@@ -188,12 +182,6 @@ function Reviews() {
             cohort.id
           )
         );
-        if (!reviewId) {
-          const first = firstReview(res);
-          if (first) {
-            navigate(first.id, { replace: true });
-          }
-        }
         return res;
       },
       {
@@ -322,7 +310,7 @@ function Reviews() {
             backgroundColor: (theme) => theme.palette.background.default,
           }}
         >
-          {!!reviewsState.data?.length ? (
+          {reviewsState.data?.length ? (
             <GridLayout
               rows
               spacing={2}
@@ -348,7 +336,7 @@ function Reviews() {
                     <GridLayout rows sx={{ p: 1 }}>
                       <GridLayout cols fillCol={0}>
                         <ReviewChip item={item} />
-                        {!!item.pending ? (
+                        {item.pending ? (
                           <CircularProgress
                             sx={{ maxWidth: "1em", maxHeight: "1em" }}
                           />
@@ -378,7 +366,7 @@ function Reviews() {
         </GridBox>
       </GridLayout>
       <GridBox>
-        {!!selectedReview ? (
+        {selectedReview ? (
           <GridLayout rows>
             <GridLayout
               cols
@@ -432,7 +420,7 @@ function Reviews() {
               <Button
                 variant="contained"
                 size="large"
-                onClick={() => navigate("review")}
+                onClick={() => navigate(absoluteCohortReviewListURL(params, cohort.id, selectedReview?.id) + "/review")}
               >
                 Review individual participants
               </Button>

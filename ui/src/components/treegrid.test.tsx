@@ -5,11 +5,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   TreeGrid,
-  TreeGridData,
   TreeGridId,
   TreeGridItem,
 } from "components/treegrid";
-import React from "react";
 
 test("Table renders correctly", async () => {
   const columns = [
@@ -89,7 +87,7 @@ test("Table renders correctly", async () => {
     ];
   };
 
-  const onSort = jest.fn();
+  const onSort = vitest.fn();
   const { asFragment } = render(
     <TreeGrid
       columns={columns}
@@ -104,7 +102,7 @@ test("Table renders correctly", async () => {
   const sortIcons = await screen.findAllByTestId("SwapVertIcon");
   expect(sortIcons.length).toBe(2);
 
-  userEvent.click(sortIcons[0]);
+  await userEvent.click(sortIcons[0]);
   expect(asFragment()).toMatchSnapshot();
   expect(onSort).toHaveBeenCalled();
 });

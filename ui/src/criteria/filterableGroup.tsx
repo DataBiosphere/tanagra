@@ -64,7 +64,7 @@ import {
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/filterable_group";
@@ -806,7 +806,7 @@ function SelectAllStats(props: SelectAllStatsProps) {
   };
 
   const cohort = props.selector
-    ? useSelectAllCohort(props.selectAll, props.selector)
+    ? selectAllCohort(underlaySource, props.selectAll, props.selector)
     : undefined;
 
   const statsState = useSWRImmutable(
@@ -948,12 +948,11 @@ function SelectAllStats(props: SelectAllStatsProps) {
   );
 }
 
-function useSelectAllCohort(
+function selectAllCohort(
+  underlaySource: UnderlaySource,
   selectAll: SelectAll,
   selector: CommonSelectorConfig
 ): Cohort {
-  const underlaySource = useUnderlaySource();
-
   return useMemo(
     () =>
       newCohort(

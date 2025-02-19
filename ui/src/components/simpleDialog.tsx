@@ -30,8 +30,8 @@ export function useSimpleDialog(): [
   const show = (config: SimpleDialogConfig) => setConfig(config);
 
   return [
-    // eslint-disable-next-line react/jsx-key
-    !!config ? (
+     
+    config ? (
       <Dialog
         open={!!config}
         onClose={() => {
