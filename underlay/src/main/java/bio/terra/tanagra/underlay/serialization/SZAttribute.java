@@ -148,7 +148,7 @@ public class SZAttribute {
           "How to generate a query against the source data that includes this attribute.\n\n"
               + "If unspecified and exporting queries against the source data is supported for this entity is enabled "
               + "(i.e. ${SZEntity.sourceQueryTableName} is specified), we assume the field name in the source table "
-              + "(${SZEntity.sourceQueryTableName}) corresponding to this attribute is the same as the "
+              + "${SZEntity.sourceQueryTableName} corresponding to this attribute is the same as the "
               + "${SZAttribute.valueFieldName}.",
       optional = true)
   public SourceQuery sourceQuery;
@@ -164,8 +164,8 @@ public class SZAttribute {
         name = "SZSourceQuery.valueFieldName",
         markdown =
             "Name of the field to use for the attribute value in the source dataset table "
-                + "(${SZEntity.sourceQueryTableName}).\n\n"
-                + "If unspecified, we assume the field name in the source table (${SZEntity.sourceQueryTableName}) "
+                + "${SZEntity.sourceQueryTableName}.\n\n"
+                + "If unspecified, we assume the field name in the source table ${SZEntity.sourceQueryTableName} "
                 + "corresponding to this attribute is the same as the ${SZAttribute.valueFieldName}.",
         exampleValue = "condition_concept_id",
         optional = true)
@@ -185,7 +185,7 @@ public class SZAttribute {
     @AnnotatedField(
         name = "SZSourceQuery.displayFieldTable",
         markdown =
-            "Full name of the table to JOIN with the main table (${SZEntity.sourceQueryTableName}) to get the attribute "
+            "Full name of the table to JOIN with the main table ${SZEntity.sourceQueryTableName} to get the attribute "
                 + "display field in the source dataset.\n\n"
                 + "SQL substitutions are supported in this table name.\n\n"
                 + "If unspecified, and ${SZSourceQuery.displayFieldName} is specified, then we assume that the source "
@@ -199,7 +199,7 @@ public class SZAttribute {
         name = "SZSourceQuery.displayFieldTableJoinFieldName",
         markdown =
             "Name of the field in the display table (${SZSourceQuery.displayFieldTable}) that is used to "
-                + "JOIN to the main table (${SZEntity.sourceQueryTableName}) using the source value field "
+                + "JOIN to the main table ${SZEntity.sourceQueryTableName} using the source value field "
                 + "(${SZSourceQuery.valueFieldName}).\n\n"
                 + "This is required if the ${SZSourceQuery.displayFieldTable} is specified.",
         exampleValue = "concept_id",
