@@ -2,18 +2,18 @@
     "underlay": "bhs",
     "bigQuery": {
       "sourceData": {
-        "projectId": "wb-caring-avocado-9055",
+        "projectId": "wb-steady-blueberry-8554",
         "datasetId": "BF_20240610_Screener",
         "sqlSubstitutions": {
-          "omopDataset": "wb-caring-avocado-9055.BF_20240610_Screener",
+          "omopDataset": "wb-steady-blueberry-8554.BF_20240610_Screener",
           "staticTablesDataset": ""
         }
       },
       "indexData": {
-        "projectId": "wb-caring-avocado-9055",
+        "projectId": "prj-e-mspector-0rh",
         "datasetId": "BF_20240610_Screener_INDEX"
       },
-      "queryProjectId": "wb-caring-avocado-9055",
+      "queryProjectId": "prj-e-mspector-0rh",
       "dataLocation": "us-central1"
     },
     "uiConfigFile": "ui.json"
