@@ -7,11 +7,7 @@ import { generateId, getCriteriaTitle, sectionName } from "cohort";
 import { insertCohortCriteria, useCohortContext } from "cohortContext";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import {
-  TreeGrid,
-  TreeGridId,
-  useArrayAsTreeGridData,
-} from "components/treegrid";
+import { TreeGrid, useArrayAsTreeGridData } from "components/treegrid";
 import { FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -49,7 +45,7 @@ export function AddFeatureSet() {
   const params = useBaseParams();
   const secondBlock = useIsSecondBlock();
 
-  const featureSetsState = useSWR(
+  const featureSetsState = useSWR<FeatureSetData[]>(
     {
       type: "featureSets",
       studyId,
@@ -117,16 +113,7 @@ export function AddFeatureSet() {
             <TreeGrid
               data={data}
               columns={columns}
-              rowCustomization={(id: TreeGridId) => {
-                if (!featureSetsState.data) {
-                  return undefined;
-                }
-
-                const featureSetData = data.get(id)?.data as FeatureSetData;
-                if (!featureSetData) {
-                  return undefined;
-                }
-
+              rowCustomization={(id, { data: featureSetData }) => {
                 return [
                   {
                     column: columns.length - 2,

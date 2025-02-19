@@ -689,16 +689,7 @@ function Annotations() {
             <TreeGrid
               data={data}
               columns={columns}
-              rowCustomization={(id: TreeGridId) => {
-                if (!annotationsState.data) {
-                  return undefined;
-                }
-
-                const annotation = data.get(id)?.data;
-                if (!annotation) {
-                  return undefined;
-                }
-
+              rowCustomization={(id: TreeGridId, { data: annotation }) => {
                 return [
                   {
                     column: columns.length - 1,
