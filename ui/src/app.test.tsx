@@ -5,7 +5,6 @@ import { App, AppWithRouter } from "app";
 import { AuthProviderProps, logInText } from "auth/provider";
 import { AuthContextType as FakeAuthContextType } from "auth/provider";
 import { getEnvironment } from "environment";
-import React from "react";
 import { FakeProfile, makeFakeAuth } from "auth/fakeProvider";
 import { RouterProvider } from "react-router-dom";
 import { createAppRouter } from "router";
@@ -79,7 +78,6 @@ test("with-auth: signed out with bad url redirects to login screen", () => {
     })
   );
   appRouter.navigate({ pathname: "/badurl" });
-  render(<RouterProvider router={appRouter} />);
   expect(screen.getByText(logInText)).toBeInTheDocument();
   expect(
     screen.getByRole("button", { name: logInText, hidden: true })

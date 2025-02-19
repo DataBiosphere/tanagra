@@ -42,15 +42,15 @@ describe("Basic tests", () => {
     cy.iframe().find("button:Contains(Reviews)").click();
     cy.iframe().find("button:Contains(Review individual participants)").click();
 
-    cy.iframe().find("button:Contains(Procedures)", { timeout: 30000 }).click();
-    cy.iframe().contains("Retrograde pyelogram"), { timeout: 30000 };
+    cy.iframe().find("button:Contains(Procedures)", { timeout: 40000 }).click();
+    cy.iframe().contains("Retrograde pyelogram"), { timeout: 40000 };
     cy.iframe().contains("1/5");
 
     cy.iframe().find("button:Contains(Conditions)").click();
     cy.iframe().contains("Condition name");
 
     cy.iframe().find("[data-testid='KeyboardArrowRightIcon']").click();
-    cy.iframe().find("button:Contains(Condition)", { timeout: 20000 }).click();
+    cy.iframe().find("button:Contains(Condition)").click();
     cy.iframe().contains("Condition name");
     cy.iframe().contains("2/5");
 

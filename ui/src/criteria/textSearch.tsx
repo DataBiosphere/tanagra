@@ -16,7 +16,7 @@ import {
 import { DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/text_search";
 import * as dataProto from "proto/criteriaselector/dataschema/text_search";
@@ -192,7 +192,7 @@ function TextSearchInline(props: TextSearchInlineProps) {
 
   return (
     <Loading status={hintDataState}>
-      {!!hintDataState.data?.hintData?.enumHintOptions ? (
+      {hintDataState.data?.hintData?.enumHintOptions ? (
         <FormControl variant="outlined" sx={{ maxWidth: 500 }}>
           <GridLayout rows spacing={1} height="auto">
             <TextField

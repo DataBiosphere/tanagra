@@ -8,7 +8,7 @@ import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import { CommonSelectorConfig } from "data/source";
 import { ComparisonOperator } from "data/types";
 import { useUpdateCriteria } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/unhinted_value";
 import * as dataProto from "proto/criteriaselector/dataschema/unhinted_value";

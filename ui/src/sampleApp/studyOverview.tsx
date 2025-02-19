@@ -201,7 +201,7 @@ export function StudyOverview() {
           </GridLayout>
         </GridBox>
         <Loading status={artifactsState}>
-          {!!data?.get("root")?.children?.length ? (
+          {data?.get("root")?.children?.length ? (
             <TreeGrid
               columns={columns}
               data={data}

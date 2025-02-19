@@ -73,15 +73,13 @@ Cypress.Commands.add(
 
     cy.iframe().find("[data-testid='ArrowBackIcon']").first().click();
     cy.iframe().find("[data-testid='ArrowBackIcon']").first().click();
-    cy.iframe().find("button[aria-label=back]", { timeout: 20000 }).click();
+    cy.iframe().find("button[aria-label=back]").click();
   }
 );
 
 Cypress.Commands.add("multiSelect", (search) => {
   cy.iframe()
-    .find(`p:Contains(${search}), button:Contains(${search})`, {
-      timeout: 20000,
-    })
+    .find(`p:Contains(${search}), button:Contains(${search})`)
     .first()
     .prev("button")
     .click();
@@ -94,7 +92,7 @@ Cypress.Commands.add("possiblyMultiSelect", (search) => {
       cy.iframe().find("button:Contains(Save criteria)").click();
     } else {
       cy.iframe()
-        .find(`[data-testid='${search}']`, { timeout: 20000 })
+        .find(`[data-testid='${search}']`)
         .first()
         .click();
     }

@@ -1,2 +1,2 @@
-import "viz/plugins/core/bar.tsx";
-import "viz/plugins/core/table.tsx";
+import "viz/plugins/core/bar";
+import "viz/plugins/core/table";

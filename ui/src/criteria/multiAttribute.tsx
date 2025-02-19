@@ -10,7 +10,7 @@ import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
 import { CommonSelectorConfig, UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import * as configProto from "proto/criteriaselector/configschema/multi_attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/multi_attribute";
 import { useCallback, useMemo } from "react";

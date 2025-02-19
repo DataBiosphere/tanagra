@@ -50,7 +50,7 @@ describe("Basic tests", () => {
     cy.iframe().find("span:Contains(Download CSV)").click();
     cy.iframe().find("button:Contains(Export)").last().click();
 
-    cy.iframe().find(`a:Contains(${cohort1})`, { timeout: 20000 });
+    cy.iframe().find(`a:Contains(${cohort1})`);
     cy.iframe().find(`a:Contains(${cohort2})`);
     cy.iframe().find("a:Contains(person)");
     cy.iframe().find("a:Contains(conditionOccurrence)");

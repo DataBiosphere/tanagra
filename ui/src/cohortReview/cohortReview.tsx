@@ -26,7 +26,7 @@ import { useStudySource } from "data/studySourceContext";
 import { DataEntry, DataValue, stringifyDataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useMemo, useState } from "react";
@@ -187,8 +187,8 @@ export function CohortReview() {
               <GridLayout rows colAlign="center">
                 <Typography variant="body1em">Participant</Typography>
                 <Typography variant="body1em">
-                  {instance?.data?.[participantIdAttribute] ??
-                    instance?.data?.[primaryKey]}
+                  {String(instance?.data?.[participantIdAttribute] ??
+                    instance?.data?.[primaryKey])}
                 </Typography>
                 <Typography variant="body1">
                   {instanceIndex + 1}/{count}
@@ -322,7 +322,7 @@ function AnnotationComponent(props: {
   const latestValue = values?.[values?.length]?.value;
 
   const [text, setText] = useState<string>(
-    !!currentValue ? String(currentValue) : ""
+    currentValue ? String(currentValue) : ""
   );
 
   const updateValue = (value: DataValue) => {
@@ -379,7 +379,7 @@ function AnnotationComponent(props: {
             target: { value: sel },
           } = event;
           updateValue(
-            !!sel ? props.annotation.enumVals?.[Number(sel) - 1] ?? null : null
+            sel ? props.annotation.enumVals?.[Number(sel) - 1] ?? null : null
           );
         };
 

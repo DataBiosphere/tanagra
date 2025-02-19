@@ -13,6 +13,7 @@ import {
   generatePath,
   useLocation,
   useParams,
+  Outlet,
 } from "react-router-dom";
 import { useNavigate } from "util/searchState";
 
@@ -30,6 +31,10 @@ export function createAppRouter(authProps: AuthProviderProps) {
             ...(authEnabled ? authRoutes() : []),
             ...coreRoutes(),
             ...additionalRoutes(),
+            {
+              path: "*",
+              element: <Outlet />,
+            }
           ],
         },
       ],
@@ -94,9 +99,13 @@ export function useActivityListener() {
   }, [listener]);
 }
 
-function useMessageListener<T>(message: string, callback: (event: T) => void) {
+type MessageData = {
+  message?: string;
+};
+
+function useMessageListener<T extends MessageData>(message: string, callback: (event: T) => void) {
   const listener = useCallback(
-    (event) => {
+    (event: MessageEvent<T>) => {
       if (
         event.origin != window.window.location.origin ||
         typeof event.data !== "object" ||
@@ -123,7 +132,7 @@ export function useExitActionListener(callback: () => void) {
 
 export const RETURN_URL_PLACEHOLDER = "T_RETURN_URL";
 
-export type RedirectEvent = {
+export type RedirectEvent = MessageData & {
   redirectURL: string;
   returnPath: string;
 };
@@ -146,9 +155,9 @@ export function redirect(redirectURL: string, returnPath: string) {
 export function exitURL(params: BaseParams) {
   const url = getEnvironment().REACT_APP_EXIT_URL;
   if (url) {
-    return generatePath(url, params);
+    return generatePath(url, params) + "/";
   }
-  return generatePath("/underlays/:underlayName/studies/:studyId", params);
+  return generatePath("/underlays/:underlayName/studies/:studyId", params) + "/";
 }
 
 export type BaseParams = {
@@ -168,9 +177,9 @@ export function useBaseParams(): BaseParams {
 // this up or perhaps alternative libraries.
 function absolutePrefix(params: BaseParams) {
   return generatePath(
-    "/tanagra/underlays/:underlayName/studies/:studyId/",
+    "/tanagra/underlays/:underlayName/studies/:studyId",
     params
-  );
+  ) + "/";
 }
 
 export function underlayURL(underlayName: string) {
@@ -244,7 +253,7 @@ export function absoluteCohortReviewListURL(
   cohortId: string,
   reviewId?: string
 ) {
-  return `${absolutePrefix(params)}reviews/${cohortId}/${reviewId ?? ""}`;
+  return `${absolutePrefix(params)}reviews/${cohortId}${reviewId ? "/" + reviewId : ""}`;
 }
 
 export function getCurrentUrl(): string {

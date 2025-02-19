@@ -51,7 +51,7 @@ import {
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useIsNewCriteria, useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/entity_group";
@@ -89,7 +89,7 @@ export interface Data {
 @registerCriteriaPlugin(
   "entityGroup",
   (
-    underlaySource: UnderlaySource,
+    _underlaySource: UnderlaySource,
     c: CommonSelectorConfig,
     dataEntries?: DataEntry[]
   ) => {
@@ -126,11 +126,9 @@ export interface Data {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
-  private selector: CommonSelectorConfig;
   private config: configProto.EntityGroup;
 
   constructor(public id: string, selector: CommonSelectorConfig, data: string) {
-    this.selector = selector;
     this.config = decodeConfig(selector);
     this.data = data;
   }
@@ -485,13 +483,13 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
     const sortOrder = fromProtoSortOrder(calcSortOrder());
     const classifications = mergeLists(
-      raw.filter((r, i) => !entityGroupConfigs[i].grouping),
+      raw.filter((_r, i) => !entityGroupConfigs[i].grouping),
       props.config.limit ?? DEFAULT_LIMIT,
       sortOrder.direction,
       (n) => n.data[sortOrder.attribute]
     );
     const groups = raw
-      .filter((r, i) => entityGroupConfigs[i].grouping)
+      .filter((_r, i) => entityGroupConfigs[i].grouping)
       .map(([eg, nodes]) => nodes.map((n) => ({ source: eg, data: n })));
 
     const merged = [classifications, ...groups].flat();
@@ -634,7 +632,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
             ) : (
               <TreeGrid
                 columns={
-                  !!searchState?.hierarchy ? hierarchyColumns : allColumns
+                  searchState?.hierarchy ? hierarchyColumns : allColumns
                 }
                 data={instancesState?.data ?? {}}
                 defaultExpanded={searchState?.hierarchy}
@@ -660,7 +658,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
                   const name = rowData[nameAttribute(props.config)];
                   const newItem = {
                     key: item.node.data.key,
-                    name: !!name ? String(name) : "",
+                    name: name ? String(name) : "",
                     entityGroup: item.entityGroup,
                   };
 
@@ -1156,7 +1154,7 @@ function generateLookupFilters(
         values.push(
           literalFromDataValue(convertAttributeStringToDataValue(c, attribute))
         );
-      } catch (e) {
+      } catch (_e) {
         // Don't attempt to match this attribute if conversion fails.
       }
     });

@@ -42,7 +42,7 @@ import {
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
 import emptyImage from "images/empty.svg";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/survey";
@@ -109,7 +109,7 @@ export interface Data {
       // there so this isn't an issue, but if we were, that information would
       // need to be made available at index time.
       data.selected.push(
-        ...dataEntries?.map((e) => {
+        ...dataEntries.map((e) => {
           const name = String(e[nameAttribute(config)]);
           const entityGroup = String(e.entityGroup);
           if (!name || !entityGroup) {
@@ -549,10 +549,10 @@ function SurveyEdit(props: SurveyEditProps) {
                                   ];
                                 data.selected.push({
                                   key: item.node.data.key,
-                                  name: !!name ? String(name) : "",
+                                  name: name ? String(name) : "",
                                   entityGroup: item.entityGroup,
                                   questionKey: question?.node?.data?.key,
-                                  questionName: !!questionName
+                                  questionName: questionName
                                     ? String(questionName)
                                     : "",
                                 });

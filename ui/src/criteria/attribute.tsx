@@ -17,7 +17,7 @@ import {
 import { DataEntry, DataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUpdateCriteria } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import * as configProto from "proto/criteriaselector/configschema/attribute";
 import * as dataProto from "proto/criteriaselector/dataschema/attribute";
 import React, { useCallback, useMemo } from "react";

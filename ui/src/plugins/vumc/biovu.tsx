@@ -10,7 +10,7 @@ import Checkbox from "components/checkbox";
 import { CommonSelectorConfig, UnderlaySource } from "data/source";
 import { DataEntry } from "data/types";
 import { useUpdateCriteria } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import * as configProto from "proto/criteriaselector/configschema/biovu";

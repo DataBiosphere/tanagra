@@ -1,7 +1,8 @@
-import produce from "immer";
-import { forwardRef, Ref, useCallback, useMemo } from "react";
+import { produce } from "immer";
+import { forwardRef, useCallback, useMemo } from "react";
 import {
   Link as BaseLink,
+  LinkProps as BaseLinkProps,
   useNavigate as useRouterNavigate,
   useSearchParams,
 } from "react-router-dom";
@@ -76,12 +77,11 @@ export function useNavigate() {
   };
 }
 
-type RouterLinkProps = { to: string } & { [key: string]: unknown };
-
-export const RouterLink = forwardRef(function RouterLink(
-  props: RouterLinkProps,
-  ref: Ref<HTMLAnchorElement>
-) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const RouterLink = forwardRef<any, Omit<BaseLinkProps, 'to'> & {to?: string}>((
+  props,
+  ref
+) => {
   const searchStr = useGlobalSearchDataString();
   return (
     <BaseLink
@@ -103,7 +103,7 @@ function useSearchData(): [
 
   const searchData = useMemo(() => {
     const param = searchParams.get("q");
-    return JSON.parse(!!param ? atob(param) : "{}") as SearchData;
+    return JSON.parse(param ? atob(param) : "{}") as SearchData;
   }, [searchParams]);
 
   const updateSearchData = useCallback(

@@ -19,7 +19,7 @@ import {
   useFeatureSetContext,
 } from "featureSet/featureSetContext";
 import { useFeatureSet, useStudyId, useUnderlay } from "hooks";
-import produce from "immer";
+import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useCallback } from "react";

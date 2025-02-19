@@ -30,7 +30,7 @@ export function Header() {
         </Link>
       </GridBox>
       <GridLayout rows>
-        {!!params.underlayName ? (
+        {params.underlayName ? (
           <Link
             variant="body1"
             color="inherit"
@@ -41,7 +41,7 @@ export function Header() {
             Underlay: {params.underlayName}
           </Link>
         ) : null}
-        {!!params.studyId ? (
+        {params.studyId ? (
           <Link
             variant="body1"
             color="inherit"

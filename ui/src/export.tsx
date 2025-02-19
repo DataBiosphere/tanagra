@@ -515,12 +515,12 @@ function PreviewTable(props: PreviewTableProps) {
     }
   );
 
-  const onTabChange = (event: SyntheticEvent, newValue: number) => {
+  const onTabChange = (_event: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 
   const onQueriesModeChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     value: boolean | null
   ) => {
     if (isValid(value)) {
@@ -867,7 +867,7 @@ function ExportDialog(
       maxWidth="md"
       aria-labelledby="export-dialog-title"
       open={props.open}
-      onClose={(event: object, reason: string) => {
+      onClose={(_event: object, reason: string) => {
         if (reason !== "backdropClick") {
           props.hide();
           setStage(ExportDialogStage.MODEL_SELECT);

@@ -6,8 +6,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Stack from "@mui/material/Stack";
 import { TextField } from "mui-rff";
 import { useEffect, useRef } from "react";
-import { Form } from "react-final-form";
-import { OnChange } from "react-final-form-listeners";
+import { Form, FormSpy } from "react-final-form";
 import { useLocalSearchState } from "util/searchState";
 
 type SearchState = Record<string, unknown>;
@@ -104,9 +103,11 @@ export function Search(props: SearchProps) {
                   ) : undefined,
                 }}
               />
-              <OnChange name="query">
-                {(query: string) => onChange(query)}
-              </OnChange>
+              <FormSpy
+                onChange={(state) => {
+                  onChange(state.values.query);
+                }}
+              />
               {props.showSearchButton ? (
                 <IconButton type="submit" size="small">
                   <SearchIcon />
