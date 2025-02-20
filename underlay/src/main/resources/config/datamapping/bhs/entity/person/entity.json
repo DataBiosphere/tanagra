@@ -9,5 +9,5 @@
       { "name": "race", "dataType": "STRING" }
     ],
     "idAttribute": "id",
-    "sourceQueryTableName": "$omopDataset}.DM"
+    "sourceQueryTableName": "${omopDataset}.DM"
   }
