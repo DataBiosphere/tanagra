@@ -51,7 +51,7 @@ export function AddCohort() {
   const navigate = useNavigate();
   const params = useBaseParams();
 
-  const cohortsState = useSWR(
+  const cohortsState = useSWR<CohortData[]>(
     {
       type: "cohorts",
       studyId,
@@ -112,16 +112,7 @@ export function AddCohort() {
             <TreeGrid
               data={data}
               columns={columns}
-              rowCustomization={(id: TreeGridId) => {
-                if (!cohortsState.data) {
-                  return undefined;
-                }
-
-                const cohortData = data.get(id)?.data as CohortData;
-                if (!cohortData) {
-                  return undefined;
-                }
-
+              rowCustomization={(id: TreeGridId, { data: cohortData }) => {
                 return [
                   {
                     column: columns.length - 2,

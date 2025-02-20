@@ -6,7 +6,6 @@ import {
 import {
   TreeGrid,
   TreeGridColumn,
-  TreeGridData,
   TreeGridSortDirection,
   TreeGridSortOrder,
 } from "components/treegrid";
@@ -62,14 +61,17 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
-    const data: TreeGridData = new Map([["root", { data: {}, children }]]);
+    const rows = new Map();
 
     context.rows[config.entity]?.forEach((o) => {
-      data.set(o.key, { data: o });
+      rows.set(o.key, { data: o });
       children.push(o.key);
     });
 
-    return data;
+    return {
+      rows,
+      children,
+    };
   }, [context]);
 
   const filterRegExps = useMemo(() => {
@@ -82,25 +84,24 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
 
   const sortedData = useMemo(() => {
     return produce(data, (data) => {
-      const root = data.get("root");
-      if (!root) {
-        return;
-      }
-
-      root.children = (root.children ?? []).filter((child) =>
+      data.children = (data.children ?? []).filter((child) =>
         Object.entries(filterRegExps ?? {}).reduce(
           (cur: boolean, [col, re]) =>
             cur &&
             re.test(
-              stringifyDataValue(data.get(child)?.data?.[col] as DataValue)
+              stringifyDataValue(data.rows.get(child)?.data?.[col] as DataValue)
             ),
           true
         )
       );
-      root.children.sort((a, b) => {
+      data.children.sort((a, b) => {
         for (const o of searchState.sortOrders ?? []) {
-          const valA = data.get(a)?.data?.[o.column] as DataValue | undefined;
-          const valB = data.get(b)?.data?.[o.column] as DataValue | undefined;
+          const valA = data.rows.get(a)?.data?.[o.column] as
+            | DataValue
+            | undefined;
+          const valB = data.rows.get(b)?.data?.[o.column] as
+            | DataValue
+            | undefined;
           const c = compareDataValues(valA, valB);
           if (c !== 0) {
             return o.direction === TreeGridSortDirection.Asc ? c : -c;

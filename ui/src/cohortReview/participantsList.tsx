@@ -11,7 +11,7 @@ import {
   useReviewSearchState,
 } from "cohortReview/reviewHooks";
 import Loading from "components/loading";
-import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
+import { TreeGrid, TreeGridId } from "components/treegrid";
 import GridLayout from "layout/gridLayout";
 import React, { ReactNode, useMemo, useState } from "react";
 
@@ -125,7 +125,8 @@ function ParticipantsList(props: ParticipantsListProps) {
   );
 
   const data = useMemo(() => {
-    const data: TreeGridData = new Map([["root", { data: {}, children: [] }]]);
+    const children: TreeGridId[] = [];
+    const rows = new Map();
 
     instancesState.data
       ?.slice(
@@ -134,13 +135,13 @@ function ParticipantsList(props: ParticipantsListProps) {
       )
       .forEach((instance) => {
         const key = instance.data.key;
-        data.set(key, { data: { ...instance.data } });
-        data.get("root")?.children?.push(key);
+        rows.set(key, { data: { ...instance.data } });
+        children.push(key);
 
         annotationsState.data?.forEach((a) => {
           const values = instance.annotations.get(a.id);
           if (values) {
-            const valueData = data.get(key)?.data;
+            const valueData = rows.get(key)?.data;
             if (valueData) {
               valueData[`t_${a.id}`] = values[values.length - 1].value;
             }
@@ -148,7 +149,10 @@ function ParticipantsList(props: ParticipantsListProps) {
         });
       });
 
-    return data;
+    return {
+      rows,
+      children,
+    };
   }, [instancesState, annotationsState, props.page, props.rowsPerPage]);
 
   return (
