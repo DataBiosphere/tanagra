@@ -385,7 +385,7 @@ The plugin can either be one of the core plugins (e.g. core/attribute, all possi
 
 Serialized configuration of the primary UI display plugin e.g. "{"attribute":"gender"}".
 
-### SZCriteriaSelector.pluginConfig
+### SZCriteriaSelector.pluginConfigFile
 **required** String
 
 Name of the file that contains the serialized configuration of the primary UI display plugin.
@@ -455,7 +455,7 @@ The plugin can either be one of the core plugins (e.g. core/attribute, all possi
 
 Serialized configuration of the modifier UI display plugin e.g. "{"attribute":"visitType"}".
 
-### SZCriteriaSelectorModifier.pluginConfig
+### SZCriteriaSelectorModifier.pluginConfigFile
 **required** String
 
 Name of the file that contains the serialized configuration of the modifier UI display plugin.

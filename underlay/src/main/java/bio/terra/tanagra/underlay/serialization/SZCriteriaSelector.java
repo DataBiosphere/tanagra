@@ -62,7 +62,7 @@ public class SZCriteriaSelector {
   public String pluginConfig;
 
   @AnnotatedField(
-      name = "SZCriteriaSelector.pluginConfig",
+      name = "SZCriteriaSelector.pluginConfigFile",
       markdown =
           "Name of the file that contains the serialized configuration of the primary UI display plugin.\n\n"
               + "This file should be in the same directory as the criteria selector (e.g. `gender.json`).\n\n"
@@ -131,7 +131,7 @@ public class SZCriteriaSelector {
     public String pluginConfig;
 
     @AnnotatedField(
-        name = "SZCriteriaSelectorModifier.pluginConfig",
+        name = "SZCriteriaSelectorModifier.pluginConfigFile",
         markdown =
             "Name of the file that contains the serialized configuration of the modifier UI display plugin.\n\n"
                 + "This file should be in the same directory as the criteria selector (e.g. `visitType.json`).\n\n"
