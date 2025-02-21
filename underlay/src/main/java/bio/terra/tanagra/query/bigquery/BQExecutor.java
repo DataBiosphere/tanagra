@@ -159,7 +159,8 @@ public class BQExecutor {
     LOGGER.info("Export of temporary table completed: {}", exportJob.getStatus().getState());
 
     if (!generateSignedUrl) {
-      return Pair.of(gcsUrl, fileName);
+      String gcsUrlHttps = String.format("https://storage.cloud.google.com/%s/%s", bucketName, fileName);
+      return Pair.of(gcsUrlHttps, fileName);
     }
 
     // Generate a signed URL to the file.

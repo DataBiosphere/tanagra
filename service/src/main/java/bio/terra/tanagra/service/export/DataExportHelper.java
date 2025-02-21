@@ -41,6 +41,7 @@ public class DataExportHelper {
   private final ExportRequest exportRequest;
   private final ImmutableList<EntityOutput> entityOutputs;
   private final EntityFilter primaryEntityFilter;
+  private final boolean generateSignedUrl;
 
   public DataExportHelper(
       Integer maxChildThreads,
@@ -49,13 +50,15 @@ public class DataExportHelper {
       ReviewService reviewService,
       ExportRequest exportRequest,
       List<EntityOutput> entityOutputs,
-      EntityFilter primaryEntityFilter) {
+      EntityFilter primaryEntityFilter,
+      boolean generateSignedUrl) {
     this.maxChildThreads = maxChildThreads;
     this.randomNumberGenerator = randomNumberGenerator;
     this.reviewService = reviewService;
     this.exportRequest = exportRequest;
     this.entityOutputs = ImmutableList.copyOf(entityOutputs);
     this.primaryEntityFilter = primaryEntityFilter;
+    this.generateSignedUrl = generateSignedUrl;
   }
 
   /**
@@ -295,7 +298,7 @@ public class DataExportHelper {
                       listQueryRequest,
                       entityOutput.getEntity().getName(),
                       substitutedFilename,
-                      true);
+                      this.generateSignedUrl);
                 })
             .toList();
 
@@ -432,7 +435,7 @@ public class DataExportHelper {
                     fileName += ".csv";
                   }
 
-                  ExportQueryResult exportQueryResult = exportRawData(fileContents, fileName, true);
+                  ExportQueryResult exportQueryResult = exportRawData(fileContents, fileName, this.generateSignedUrl);
                   exportFileResults.add(
                       ExportFileResult.forAnnotationData(
                           fileName, exportQueryResult.filePath(), cohort, null, null));
