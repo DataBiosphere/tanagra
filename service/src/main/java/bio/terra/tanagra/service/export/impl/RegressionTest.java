@@ -74,7 +74,7 @@ public class RegressionTest implements DataExport {
                     : "");
     String fileName = "cohort" + cohortRef + "_datafeatureset" + dataFeatureSetRef + ".json";
     String fileContents = ProtobufUtils.serializeToPrettyJson(exportCounts.build());
-    ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName, true);
+    ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName);
 
     ExportFileResult exportFileResult =
         ExportFileResult.forFile(fileName, exportQueryResult.filePath(), null, null);

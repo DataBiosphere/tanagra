@@ -435,7 +435,7 @@ public class DataExportHelper {
                     fileName += ".csv";
                   }
 
-                  ExportQueryResult exportQueryResult = exportRawData(fileContents, fileName, this.generateSignedUrl);
+                  ExportQueryResult exportQueryResult = exportRawData(fileContents, fileName);
                   exportFileResults.add(
                       ExportFileResult.forAnnotationData(
                           fileName, exportQueryResult.filePath(), cohort, null, null));
@@ -450,9 +450,9 @@ public class DataExportHelper {
   }
 
   public ExportQueryResult exportRawData(
-      String fileContents, String fileName, boolean generateSignedUrl) {
+      String fileContents, String fileName) {
     ExportQueryRequest exportQueryRequest =
-        ExportQueryRequest.forRawData(fileContents, fileName, generateSignedUrl);
+        ExportQueryRequest.forRawData(fileContents, fileName, this.generateSignedUrl);
     return exportRequest.getUnderlay().getQueryRunner().run(exportQueryRequest);
   }
 

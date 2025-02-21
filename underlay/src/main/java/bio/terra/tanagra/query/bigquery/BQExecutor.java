@@ -183,7 +183,8 @@ public class BQExecutor {
     LOGGER.info("Exported raw data to GCS: {}", gcsUrl);
 
     if (!generateSignedUrl) {
-      return Pair.of(gcsUrl, fileName);
+      String gcsUrlHttps = String.format("https://storage.cloud.google.com/%s/%s", bucketName, fileName);
+      return Pair.of(gcsUrlHttps, fileName);
     }
 
     // Generate a signed URL to the file.

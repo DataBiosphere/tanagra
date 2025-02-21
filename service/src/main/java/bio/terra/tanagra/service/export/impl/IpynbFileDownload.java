@@ -83,7 +83,7 @@ public class IpynbFileDownload implements DataExport {
 
     // Write the ipynb file to GCS and generate a signed URL.
     String fileName = "tanagra_export_" + Instant.now() + ".ipynb";
-    ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName, true);
+    ExportQueryResult exportQueryResult = helper.exportRawData(fileContents, fileName);
 
     ExportFileResult exportFileResult =
         ExportFileResult.forFile(fileName, exportQueryResult.filePath(), null, null);
