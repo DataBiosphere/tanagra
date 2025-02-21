@@ -30,6 +30,7 @@ tanagra:
       gcp-project-id: broad-tanagra-dev
       bq-dataset-ids: service_export_us, service_export_uscentral1
       gcs-bucket-names: broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
+      generate-signed-urls: true
     models:
       -
         type: INDIVIDUAL_FILE_DOWNLOAD

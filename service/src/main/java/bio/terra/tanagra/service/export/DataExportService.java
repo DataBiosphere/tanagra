@@ -167,6 +167,6 @@ public class DataExportService {
         request,
         entityOutputs,
         primaryEntityFilter,
-        false);
+        this.shared.getGenerateSignedUrls());
   }
 }
