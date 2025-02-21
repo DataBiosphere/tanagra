@@ -14,7 +14,7 @@
         "datasetId": "20250219_Datavant_Aggregated_INDEX"
       },
       "queryProjectId": "prj-e-mspector-0rh",
-      "dataLocation": "us-central1"
+      "dataLocation": "us"
     },
     "uiConfigFile": "ui.json"
   }

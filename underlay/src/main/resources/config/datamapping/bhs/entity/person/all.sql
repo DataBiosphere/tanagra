@@ -1,6 +1,6 @@
 SELECT
-    SUBJID as participant_id,
-    CAST(age_at_enrollment as INT64) as age,
+    SUBJID,
+    CAST(age_at_enrollment as INT64) as age_at_enrollment,
     SEX as sex,
     RACE as race
 

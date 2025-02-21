@@ -2,8 +2,8 @@
     "name": "person",
     "allInstancesSqlFile": "all.sql",
     "attributes": [
-      { "name": "id", "dataType": "STRING", "valueFieldName": "participant_id" },
-      { "name": "age", "dataType": "INT64",
+      { "name": "id", "dataType": "STRING", "valueFieldName": "SUBJID" },
+      { "name": "age", "dataType": "INT64", "valueFieldName": "age_at_enrollment",
         "runtimeDataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89 },
       { "name": "sex", "dataType": "STRING" },
       { "name": "race", "dataType": "STRING" }
