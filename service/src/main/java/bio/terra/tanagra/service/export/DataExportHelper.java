@@ -449,8 +449,7 @@ public class DataExportHelper {
     return exportFileResults;
   }
 
-  public ExportQueryResult exportRawData(
-      String fileContents, String fileName) {
+  public ExportQueryResult exportRawData(String fileContents, String fileName) {
     ExportQueryRequest exportQueryRequest =
         ExportQueryRequest.forRawData(fileContents, fileName, this.generateSignedUrl);
     return exportRequest.getUnderlay().getQueryRunner().run(exportQueryRequest);
