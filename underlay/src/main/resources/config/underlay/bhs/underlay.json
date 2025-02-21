@@ -1,0 +1,29 @@
+{
+    "name": "bhs",
+    "primaryEntity": "person",
+    "entities": [
+      "bhs/person"
+    ],
+    "groupItemsEntityGroups": [],
+    "criteriaOccurrenceEntityGroups": [],
+    "criteriaSelectors": [
+      "bhs/race",
+      "bhs/age"
+    ],
+    "prepackagedDataFeatures": [],
+    "visualizations": [
+      "omop/sexAndAge",
+      "omop/raceAndAge",
+      "omop/age",
+      "omop/race",
+      "omop/sex"
+    ],
+    "metadata": {
+      "displayName": "BHS metadata displayname",
+      "description": "BHS metadata description",
+      "properties": {
+        "lastUpdated": ""
+      }
+    },
+    "uiConfigFile": "ui.json"
+  }

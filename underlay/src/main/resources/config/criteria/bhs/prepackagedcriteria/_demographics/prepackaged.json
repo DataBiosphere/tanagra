@@ -1,0 +1,6 @@
+{
+  "name": "_demographics",
+  "displayName": "Demographics",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "demographics.json"
+}
