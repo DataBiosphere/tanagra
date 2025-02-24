@@ -7,19 +7,15 @@ JOIN (
         vocabulary_id,
         concept_code,
     FROM `${omopDataset}.concept`
-    WHERE
-        vocabulary_id = 'ICD10CM'
-        AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
+    WHERE vocabulary_id = 'ICD10CM'
 
     UNION ALL
 
     SELECT
         concept_id,
         vocabulary_id,
-        concept_code,
+        concept_code
     FROM `${staticTablesDataset}.prep_concept`
     WHERE
         vocabulary_id = 'ICD10CM'
-        AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
 ) cc ON c.code = cc.concept_code
-WHERE cc.concept_id NOT IN (SELECT parent FROM `vumc-emerge-dev.indexed_chase_emerge_test.HCP_icd10cm_default`)

@@ -15,7 +15,6 @@ JOIN (
         CASE WHEN concept_code IS NULL THEN concept_name ELSE CONCAT(concept_code, ' ', concept_name) END AS label
     FROM `${omopDataset}.concept`
     WHERE vocabulary_id = 'ICD10PCS'
-      AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
 
     UNION ALL
 
@@ -26,8 +25,5 @@ JOIN (
         concept_code,
         CASE WHEN concept_code IS NULL THEN concept_name ELSE CONCAT(concept_code, ' ', concept_name) END AS label
     FROM `${staticTablesDataset}.prep_concept`
-    WHERE
-            vocabulary_id = 'ICD10PCS'
-      AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
+    WHERE vocabulary_id = 'ICD10PCS'
 ) cc ON c.code = cc.concept_code
-WHERE cc.concept_id NOT IN (SELECT parent FROM `vumc-emerge-dev.indexed_chase_emerge_test.HCP_icd10pcs_default`)

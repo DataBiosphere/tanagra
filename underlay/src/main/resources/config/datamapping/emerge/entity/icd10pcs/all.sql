@@ -8,7 +8,6 @@ SELECT
 FROM `${omopDataset}.concept`
 WHERE
   vocabulary_id = 'ICD10PCS'
-  AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
 
 UNION ALL
 
@@ -22,4 +21,3 @@ SELECT
 FROM `${staticTablesDataset}.prep_concept`
 WHERE
   vocabulary_id = 'ICD10PCS'
-  AND DATE_DIFF(CAST(valid_end_date AS DATE), CURRENT_DATE(), DAY) > 0
