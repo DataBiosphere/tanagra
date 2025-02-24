@@ -41,7 +41,7 @@ public class DataExportHelper {
   private final ExportRequest exportRequest;
   private final ImmutableList<EntityOutput> entityOutputs;
   private final EntityFilter primaryEntityFilter;
-  private final boolean generateSignedUrl;
+  private final boolean generateUnsignedUrl;
 
   public DataExportHelper(
       Integer maxChildThreads,
@@ -51,14 +51,14 @@ public class DataExportHelper {
       ExportRequest exportRequest,
       List<EntityOutput> entityOutputs,
       EntityFilter primaryEntityFilter,
-      boolean generateSignedUrl) {
+      boolean generateUnsignedUrl) {
     this.maxChildThreads = maxChildThreads;
     this.randomNumberGenerator = randomNumberGenerator;
     this.reviewService = reviewService;
     this.exportRequest = exportRequest;
     this.entityOutputs = ImmutableList.copyOf(entityOutputs);
     this.primaryEntityFilter = primaryEntityFilter;
-    this.generateSignedUrl = generateSignedUrl;
+    this.generateUnsignedUrl = generateUnsignedUrl;
   }
 
   /**
@@ -298,7 +298,7 @@ public class DataExportHelper {
                       listQueryRequest,
                       entityOutput.getEntity().getName(),
                       substitutedFilename,
-                      this.generateSignedUrl);
+                      this.generateUnsignedUrl);
                 })
             .toList();
 
@@ -451,7 +451,7 @@ public class DataExportHelper {
 
   public ExportQueryResult exportRawData(String fileContents, String fileName) {
     ExportQueryRequest exportQueryRequest =
-        ExportQueryRequest.forRawData(fileContents, fileName, this.generateSignedUrl);
+        ExportQueryRequest.forRawData(fileContents, fileName, this.generateUnsignedUrl);
     return exportRequest.getUnderlay().getQueryRunner().run(exportQueryRequest);
   }
 

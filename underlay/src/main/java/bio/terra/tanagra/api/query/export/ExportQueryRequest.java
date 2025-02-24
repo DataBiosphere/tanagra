@@ -7,33 +7,33 @@ public class ExportQueryRequest {
   private final String fileContents;
   private final String fileDisplayName;
   private final String fileNamePrefix;
-  private final boolean generateSignedUrl;
+  private final boolean generateUnsignedUrl;
 
   private ExportQueryRequest(
       ListQueryRequest listQueryRequest,
       String fileContents,
       String fileDisplayName,
       String fileNamePrefix,
-      boolean generateSignedUrl) {
+      boolean generateUnsignedUrl) {
     this.listQueryRequest = listQueryRequest;
     this.fileContents = fileContents;
     this.fileDisplayName = fileDisplayName;
     this.fileNamePrefix = fileNamePrefix;
-    this.generateSignedUrl = generateSignedUrl;
+    this.generateUnsignedUrl = generateUnsignedUrl;
   }
 
   public static ExportQueryRequest forListQuery(
       ListQueryRequest listQueryRequest,
       String fileDisplayName,
       String fileNamePrefix,
-      boolean generateSignedUrl) {
+      boolean generateUnsignedUrl) {
     return new ExportQueryRequest(
-        listQueryRequest, null, fileDisplayName, fileNamePrefix, generateSignedUrl);
+        listQueryRequest, null, fileDisplayName, fileNamePrefix, generateUnsignedUrl);
   }
 
   public static ExportQueryRequest forRawData(
-      String fileContents, String fileDisplayName, boolean generateSignedUrl) {
-    return new ExportQueryRequest(null, fileContents, fileDisplayName, null, generateSignedUrl);
+      String fileContents, String fileDisplayName, boolean generateUnsignedUrl) {
+    return new ExportQueryRequest(null, fileContents, fileDisplayName, null, generateUnsignedUrl);
   }
 
   public ListQueryRequest getListQueryRequest() {
@@ -56,7 +56,7 @@ public class ExportQueryRequest {
     return fileNamePrefix;
   }
 
-  public boolean isGenerateSignedUrl() {
-    return generateSignedUrl;
+  public boolean isGenerateUnsignedUrl() {
+    return generateUnsignedUrl;
   }
 }

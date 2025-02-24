@@ -121,10 +121,10 @@ else
 fi
 
 # Signed URLs in export
-export TANAGRA_EXPORT_SHARED_GENERATE_SIGNED_URLS=true
+export TANAGRA_EXPORT_SHARED_GENERATE_UNSIGNED_URLS=false
 if [[ ${disableSignedUrls} ]]; then
   echo "Disabling signed URLs in export."
-  export TANAGRA_EXPORT_SHARED_GENERATE_SIGNED_URLS=false
+  export TANAGRA_EXPORT_SHARED_GENERATE_UNSIGNED_URLS=true
 fi
 
 echo

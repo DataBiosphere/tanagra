@@ -87,14 +87,14 @@ public class ExportConfiguration {
     private List<String> gcsBucketNames;
 
     @AnnotatedField(
-        name = "tanagra.export.shared.generateSignedUrls",
+        name = "tanagra.export.shared.generateUnsignedUrls",
         markdown =
-            "When true, export models will sign GCS urls. Setting this to false can be helpful during testing, especially "
+            "When true, export models will generate unsigned GCS urls. Setting this to true can be helpful during testing, especially "
                 + "testing a locally deployed service. It should never be used for a production service.",
-        environmentVariable = "TANAGRA_EXPORT_SHARED_GENERATE_SIGNED_URLS",
+        environmentVariable = "TANAGRA_EXPORT_SHARED_GENERATE_UNSIGNED_URLS",
         optional = true,
-        exampleValue = "true")
-    private boolean generateSignedUrls;
+        exampleValue = "false")
+    private boolean generateUnsignedUrls;
 
     public String getGcpProjectId() {
       return gcpProjectId;
@@ -120,12 +120,12 @@ public class ExportConfiguration {
       this.gcsBucketNames = gcsBucketNames;
     }
 
-    public boolean getGenerateSignedUrls() {
-      return this.generateSignedUrls;
+    public boolean getGenerateUnsignedUrls() {
+      return this.generateUnsignedUrls;
     }
 
-    public void setGenerateSignedUrls(boolean generateSignedUrls) {
-      this.generateSignedUrls = generateSignedUrls;
+    public void setGenerateUnsignedUrls(boolean generateUnsignedUrls) {
+      this.generateUnsignedUrls = generateUnsignedUrls;
     }
   }
 

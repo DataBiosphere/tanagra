@@ -335,7 +335,7 @@ public class BQQueryRunner implements QueryRunner {
           bigQueryExecutor.exportRawData(
               exportQueryRequest.getFileContents(),
               exportQueryRequest.getFileDisplayName(),
-              exportQueryRequest.isGenerateSignedUrl());
+              exportQueryRequest.isGenerateUnsignedUrl());
     } else {
       // Build the SQL query.
       SqlQueryRequest sqlQueryRequest =
@@ -346,7 +346,7 @@ public class BQQueryRunner implements QueryRunner {
           bigQueryExecutor.exportQuery(
               sqlQueryRequest,
               exportQueryRequest.getFileNamePrefix(),
-              exportQueryRequest.isGenerateSignedUrl());
+              exportQueryRequest.isGenerateUnsignedUrl());
     }
     return new ExportQueryResult(
         exportFileUrlAndFileName.getRight(), exportFileUrlAndFileName.getLeft());

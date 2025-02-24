@@ -30,7 +30,7 @@ tanagra:
       gcp-project-id: broad-tanagra-dev
       bq-dataset-ids: service_export_us, service_export_uscentral1
       gcs-bucket-names: broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
-      generate-signed-urls: true
+      generate-unsigned-urls: false
     models:
       -
         type: INDIVIDUAL_FILE_DOWNLOAD
@@ -38,7 +38,7 @@ tanagra:
         type: IPYNB_FILE_DOWNLOAD
       -
         type: VWB_FILE_EXPORT
-        redirect-away-url: https://terra-devel-ui-terra.api.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
+        redirect-away-url: https://workbench.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
       -
         type: INDIVIDUAL_FILE_DOWNLOAD
         name: INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP
