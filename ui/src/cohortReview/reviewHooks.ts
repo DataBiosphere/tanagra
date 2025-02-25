@@ -110,6 +110,7 @@ export type PluginSearchState = {
 export type SearchState = {
   instanceIndex?: number;
   pageId?: string;
+  subTabPageId?: string;
 
   plugins?: PluginSearchState;
 };
