@@ -166,6 +166,7 @@ public class DataExportService {
         reviewService,
         request,
         entityOutputs,
-        primaryEntityFilter);
+        primaryEntityFilter,
+        this.shared.getGenerateUnsignedUrls());
   }
 }

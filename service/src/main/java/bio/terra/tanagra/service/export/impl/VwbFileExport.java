@@ -90,8 +90,7 @@ public class VwbFileExport implements DataExport {
 
     // Write the TSV file to GCS and generate a signed URL.
     String fileName = "tanagra_vwb_export_" + Instant.now() + ".tsv";
-    ExportQueryResult exportQueryResult =
-        helper.exportRawData(fileContents.toString(), fileName, true);
+    ExportQueryResult exportQueryResult = helper.exportRawData(fileContents.toString(), fileName);
 
     ExportFileResult tsvExportFileResult =
         ExportFileResult.forFile(fileName, exportQueryResult.filePath(), null, null);

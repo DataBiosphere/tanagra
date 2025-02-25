@@ -5,10 +5,13 @@ usage() { echo "$0 usage flags:" && grep " .)\ #" $0; }
 usage
 echo
 
-while getopts ":ajvstemdh" arg; do
+while getopts ":aujvstemdh" arg; do
   case $arg in
     a) # Disable authentication.
       disableAuthChecks=1
+      ;;
+    u) # Disable signed URLs.
+      disableSignedUrls=1
       ;;
     j) # Generic JWT
       jwt=1
@@ -115,6 +118,13 @@ elif [[ ${jwt} ]]; then
 else
   echo "Enabling auth checks: gcp-access-token"
   export TANAGRA_AUTH_GCP_ACCESS_TOKEN=true
+fi
+
+# Signed URLs in export
+export TANAGRA_EXPORT_SHARED_GENERATE_UNSIGNED_URLS=false
+if [[ ${disableSignedUrls} ]]; then
+  echo "Disabling signed URLs in export."
+  export TANAGRA_EXPORT_SHARED_GENERATE_UNSIGNED_URLS=true
 fi
 
 echo

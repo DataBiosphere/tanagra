@@ -323,6 +323,15 @@ Comma separated list of all GCS bucket names that all export models can use. Onl
 
 *Example value:* `bq-export-uscentral1,bq-export-useast1`
 
+### tanagra.export.shared.generateUnsignedUrls
+**optional** boolean
+
+When true, export models will generate unsigned GCS urls. Setting this to true can be helpful during testing, especially testing a locally deployed service. It should never be used for a production service.
+
+*Environment variable:* `TANAGRA_EXPORT_SHARED_GENERATE_UNSIGNED_URLS`
+
+*Example value:* `false`
+
 
 
 ## Feature Flags

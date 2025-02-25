@@ -91,7 +91,7 @@ public class BQExecutor {
    * @return pair of strings: GCS URL, file name
    */
   public Pair<String, String> exportQuery(
-      SqlQueryRequest queryRequest, String fileNamePrefix, boolean generateSignedUrl) {
+      SqlQueryRequest queryRequest, String fileNamePrefix, boolean generateUnsignedUrl) {
     LOGGER.info("Exporting BQ query: {}", queryRequest.sql());
 
     // Create a temporary table with the results of the query.
@@ -158,7 +158,7 @@ public class BQExecutor {
     }
     LOGGER.info("Export of temporary table completed: {}", exportJob.getStatus().getState());
 
-    if (!generateSignedUrl) {
+    if (generateUnsignedUrl) {
       return Pair.of(gcsUrl, fileName);
     }
 
@@ -170,7 +170,7 @@ public class BQExecutor {
    * @return pair of strings: GCS URL, file name
    */
   public Pair<String, String> exportRawData(
-      String fileContents, String fileName, boolean generateSignedUrl) {
+      String fileContents, String fileName, boolean generateUnsignedUrl) {
     LOGGER.info("Exporting raw data: {}", fileName);
 
     // Just pick the first GCS bucket name.
@@ -181,7 +181,7 @@ public class BQExecutor {
     String gcsUrl = blobId.toGsUtilUri();
     LOGGER.info("Exported raw data to GCS: {}", gcsUrl);
 
-    if (!generateSignedUrl) {
+    if (generateUnsignedUrl) {
       return Pair.of(gcsUrl, fileName);
     }
 
