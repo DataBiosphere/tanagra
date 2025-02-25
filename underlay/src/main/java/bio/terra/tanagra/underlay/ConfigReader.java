@@ -244,10 +244,12 @@ public final class ConfigReader {
   }
 
   public SZUnderlay readUnderlay(String underlay) {
+    Path configFilePath = resolveUnderlayDir(underlay).resolve(UNDERLAY_FILE_NAME + FILE_EXTENSION);
+
     try {
       SZUnderlay szUnderlay =
           JacksonMapper.readFileIntoJavaObject(
-              getStream(resolveUnderlayDir(underlay).resolve(UNDERLAY_FILE_NAME + FILE_EXTENSION)),
+              getStream(configFilePath),
               SZUnderlay.class);
 
       // Initialize null collections to empty collections.
@@ -264,7 +266,7 @@ public final class ConfigReader {
           szUnderlay.metadata.properties == null ? new HashMap<>() : szUnderlay.metadata.properties;
       return szUnderlay;
     } catch (IOException ioEx) {
-      throw new InvalidConfigException("Error deserializing underlay config file", ioEx);
+      throw new InvalidConfigException("Error deserializing underlay config file: " + configFilePath, ioEx);
     }
   }
 
