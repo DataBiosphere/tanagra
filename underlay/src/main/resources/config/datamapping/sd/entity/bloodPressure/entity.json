@@ -2,10 +2,16 @@
   "name": "bloodPressure",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
-    { "name": "id", "dataType": "INT64", "valueFieldName": "row_id", "isSuppressedForExport": true },
+    { "name": "id", "dataType": "INT64", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value", "isSuppressedForExport": true },
-    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "measurement_datetime" },
+    { "name": "date", "dataType": "TIMESTAMP", "valueFieldName": "person_id",
+      "sourceQuery": {
+        "displayFieldName": "measurement_datetime",
+        "displayFieldTable": "${omopDataset}.x_blood_pressure",
+        "displayFieldTableJoinFieldName": "person_id"
+      }
+    },
     { "name": "systolic", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "diastolic", "dataType": "INT64", "isComputeDisplayHint": true },
     { "name": "bp", "dataType": "STRING" },
@@ -15,5 +21,5 @@
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
-  "sourceQueryTableName": "${omopDataset}.x_blood_pressure"
+  "sourceQueryTableName": "${indexedDataset}.ENT_bloodPressure"
 }

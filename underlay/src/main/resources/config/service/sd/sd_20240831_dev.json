@@ -5,6 +5,7 @@
       "projectId": "vumc-sd-dev",
       "datasetId": "sd_20240831",
       "sqlSubstitutions": {
+        "indexedDataset": "vumc-sd-dev.indexed_sd_20240831",
         "omopDataset": "vumc-sd-dev.sd_20240831",
         "staticTablesDataset": "vumc-sd-dev.sd_20240831"
       }
