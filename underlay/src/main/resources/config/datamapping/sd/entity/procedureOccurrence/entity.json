@@ -12,6 +12,15 @@
         "displayFieldTableJoinFieldName": "concept_id"
       }
     },
+    { "name": "procedure_concept_code", "dataType": "INT64", "valueFieldName": "procedure_concept_id", "displayFieldName": "procedure_concept_code",
+      "sourceQuery": {
+        "displayFieldName": "concept_code",
+        "displayFieldTable": "${omopDataset}.concept",
+        "displayFieldTableJoinFieldName": "concept_id"
+      }
+    },
+    { "name": "procedure_concept_id", "dataType": "INT64" },
+    { "name": "standard_concept", "dataType": "STRING",  "isSuppressedForExport": true },
     { "name": "start_date", "dataType": "TIMESTAMP", "valueFieldName": "procedure_date" },
     { "name": "source_value", "dataType": "STRING", "valueFieldName": "procedure_source_value" },
     { "name": "source_criteria_id", "dataType": "INT64", "valueFieldName": "procedure_source_concept_id" },
