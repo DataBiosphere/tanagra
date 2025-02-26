@@ -6,7 +6,7 @@
       "datasetId": "emerge_20240603",
       "sqlSubstitutions": {
         "omopDataset": "vumc-emerge-dev.emerge_20240603",
-        "staticTablesDataset": "vumc-emerge-dev.static_prep_tables_dataset"
+        "staticTablesDataset": "vumc-emerge-dev.emerge_20240603"
       }
     },
     "indexData": {
