@@ -15,7 +15,6 @@ import Typography from "@mui/material/Typography";
 import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import * as columnProto from "proto/column";
 import {
   ChangeEvent,
   isValidElement,
@@ -24,13 +23,13 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { useImmer } from "use-immer";
 import { standardDateString } from "util/date";
 import { spacing } from "util/spacing";
+import { TreeGridSortDirection } from "./treeGridHelpers";
 
 export type TreeGridId = string | number | bigint;
 export type TreeGridValue =
@@ -74,11 +73,6 @@ export type ColumnCustomization = {
   content?: ReactNode;
   backgroundSx?: SxProps<Theme>;
 };
-
-export enum TreeGridSortDirection {
-  Asc = "ASC",
-  Desc = "DESC",
-}
 
 export type TreeGridSortOrder = {
   column: string;
@@ -137,61 +131,66 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
   const scrolledToHighlightId = useRef<TreeGridId>();
   const highlightRef = useRef<HTMLTableRowElement>(null);
 
-  const toggleExpanded = (draft: TreeGridState, id: TreeGridId) => {
-    const itemState = draft.get(id) || {
-      status: Status.Collapsed,
-    };
-    switch (itemState.status) {
-      case Status.Loading:
-        return;
-      case Status.Expanded:
-        itemState.status = Status.Collapsed;
-        break;
-      default:
-        if (!props.loadChildren || !!itemState.loaded) {
-          itemState.status = Status.Expanded;
-        } else {
-          itemState.status = Status.Loading;
-          props
-            .loadChildren(id)
-            .then(() => {
-              if (!cancel.current) {
-                updateState((draft) => {
-                  draft.set(id, {
-                    status: Status.Expanded,
-                    loaded: true,
+  const toggleExpanded = useCallback(
+    (draft: TreeGridState, id: TreeGridId) => {
+      const loadChildren = props.loadChildren;
+      const highlightId = props.highlightId;
+
+      const itemState = draft.get(id) || {
+        status: Status.Collapsed,
+      };
+      switch (itemState.status) {
+        case Status.Loading:
+          return;
+        case Status.Expanded:
+          itemState.status = Status.Collapsed;
+          break;
+        default:
+          if (!loadChildren || !!itemState.loaded) {
+            itemState.status = Status.Expanded;
+          } else {
+            itemState.status = Status.Loading;
+            loadChildren(id)
+              .then(() => {
+                if (!cancel.current) {
+                  updateState((draft) => {
+                    draft.set(id, {
+                      status: Status.Expanded,
+                      loaded: true,
+                    });
                   });
-                });
-              }
-            })
-            .then(() => {
-              if (
-                scrolledToHighlightId.current !== props.highlightId &&
-                highlightRef.current
-              ) {
-                // Delay scroll to allow time for rendering.
-                setTimeout(() => {
-                  if (highlightRef.current) {
-                    highlightRef.current.scrollIntoView({ block: "center" });
-                  }
-                }, 0);
-                scrolledToHighlightId.current = props.highlightId;
-              }
-            })
-            .catch((error) => {
-              if (!cancel.current) {
-                updateState((draft) => {
-                  draft.set(id, {
-                    status: Status.Failed,
-                    errorMessage: error,
+                }
+              })
+              .then(() => {
+                if (
+                  scrolledToHighlightId.current !== props.highlightId &&
+                  highlightRef.current
+                ) {
+                  // Delay scroll to allow time for rendering.
+                  setTimeout(() => {
+                    if (highlightRef.current) {
+                      highlightRef.current.scrollIntoView({ block: "center" });
+                    }
+                  }, 0);
+                  scrolledToHighlightId.current = highlightId;
+                }
+              })
+              .catch((error) => {
+                if (!cancel.current) {
+                  updateState((draft) => {
+                    draft.set(id, {
+                      status: Status.Failed,
+                      errorMessage: error,
+                    });
                   });
-                });
-              }
-            });
-        }
-    }
-    draft.set(id, itemState);
-  };
+                }
+              });
+          }
+      }
+      draft.set(id, itemState);
+    },
+    [props.loadChildren, props.highlightId, updateState]
+  );
 
   // Ensure default expansions take effect before rendering.
   useLayoutEffect(() => {
@@ -202,10 +201,12 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
         de.forEach((id) => toggleExpanded(draft, id));
       });
     }
-  }, [props.defaultExpanded]);
+  }, [props.defaultExpanded, toggleExpanded, updateState]);
 
   const onSort = useCallback(
     (col: TreeGridColumn, orders?: TreeGridSortOrder[]) => {
+      const onSort = props.onSort;
+      const sortLevels = props.sortLevels;
       if (!orders) {
         return;
       }
@@ -222,19 +223,20 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
             column: col.key,
             direction: dir,
           });
-          o.splice(props.sortLevels ?? 2);
+          o.splice(sortLevels ?? 2);
         }
       });
 
-      props.onSort?.(newOrders);
+      onSort?.(newOrders);
     },
     [props.onSort, props.sortLevels]
   );
 
   const onFilter = useCallback(
     (filters: TreeGridFilters) => {
+      const onFilter = props.onFilter;
       setPendingFilters({});
-      props.onFilter?.(filters);
+      onFilter?.(filters);
     },
     [props.onFilter]
   );
@@ -386,40 +388,6 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
       </table>
     </GridBox>
   );
-}
-
-export function useArrayAsTreeGridData<
-  T extends TreeGridRowData,
-  K extends keyof T
->(array: T[], key: K): TreeGridData<TreeGridItem<T>> {
-  return useMemo(() => {
-    const children: TreeGridId[] = [];
-    const data = new Map<TreeGridId, TreeGridItem<T>>([
-      // Force empty data here since it's never accessed but making it optional
-      // is a pain for "data" access everywhere.
-      ["root", { data: {} as T, children }],
-    ]);
-
-    array?.forEach((a) => {
-      const k = a[key] as TreeGridId;
-      data.set(k, { data: a });
-      children.push(k);
-    });
-
-    return data;
-  }, [array]);
-}
-
-export function fromProtoColumns(
-  columns: columnProto.Column[]
-): TreeGridColumn[] {
-  return columns.map((c) => ({
-    key: c.key,
-    width: c.widthString ?? c.widthDouble ?? 100,
-    title: c.title,
-    sortable: c.sortable,
-    filterable: c.filterable,
-  }));
 }
 
 function renderChildren(

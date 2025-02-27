@@ -32,7 +32,7 @@ export default function CriteriaHolder(props: CriteriaHolderProps) {
           subtitle="There are no editable properties for this criteria."
         />
       ),
-    []
+    [navigate, props.plugin, props.exitAction]
   );
 
   return (

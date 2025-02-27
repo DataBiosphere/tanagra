@@ -3,12 +3,8 @@ import Chip from "@mui/material/Chip";
 import { createCriteria, lookupCriteria, LookupEntry } from "cohort";
 import Checkbox from "components/checkbox";
 import Loading from "components/loading";
-import {
-  TreeGrid,
-  TreeGridColumn,
-  TreeGridId,
-  useArrayAsTreeGridData,
-} from "components/treegrid";
+import { TreeGrid, TreeGridColumn, TreeGridId } from "components/treeGrid";
+import { useArrayAsTreeGridData } from "components/treeGridHelpers";
 import ActionBar from "actionBar";
 import { DataKey } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -143,7 +139,17 @@ export function AddByCode() {
       secondBlock
     );
     navigate("../../../" + cohortURL(cohort.id, section.id, group.id));
-  }, [context, cohort.id, section.id, navigate]);
+  }, [
+    context,
+    cohort.id,
+    section.id,
+    navigate,
+    lookupEntriesState.data,
+    secondBlock,
+    selected,
+    underlay.criteriaSelectors,
+    underlaySource,
+  ]);
 
   return (
     <GridLayout rows fillRow={1}>

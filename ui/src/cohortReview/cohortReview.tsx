@@ -10,7 +10,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { CohortReviewContext } from "cohortReview/cohortReviewContext";
-import { useParticipantsListDialog } from "cohortReview/participantsList";
+import { useParticipantsListDialog } from "cohortReview/useParticipantsListDialog";
 import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
 import {
   SearchState,
@@ -187,8 +187,10 @@ export function CohortReview() {
               <GridLayout rows colAlign="center">
                 <Typography variant="body1em">Participant</Typography>
                 <Typography variant="body1em">
-                  {String(instance?.data?.[participantIdAttribute] ??
-                    instance?.data?.[primaryKey])}
+                  {String(
+                    instance?.data?.[participantIdAttribute] ??
+                      instance?.data?.[primaryKey]
+                  )}
                 </Typography>
                 <Typography variant="body1">
                   {instanceIndex + 1}/{count}
@@ -379,7 +381,7 @@ function AnnotationComponent(props: {
             target: { value: sel },
           } = event;
           updateValue(
-            sel ? props.annotation.enumVals?.[Number(sel) - 1] ?? null : null
+            sel ? (props.annotation.enumVals?.[Number(sel) - 1] ?? null) : null
           );
         };
 

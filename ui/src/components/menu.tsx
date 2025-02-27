@@ -14,7 +14,7 @@ export function useMenu({
   ...props
 }: MenuProps): [
   ReactElement,
-  (e: MouseEvent<HTMLElement | undefined>) => void
+  (e: MouseEvent<HTMLElement | undefined>) => void,
 ] {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>();
   const show = (e: MouseEvent<HTMLElement | undefined>) =>

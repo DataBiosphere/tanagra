@@ -7,11 +7,8 @@ import { generateId, getCriteriaTitle, sectionName } from "cohort";
 import { insertCohortCriteria, useCohortContext } from "cohortContext";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import {
-  TreeGrid,
-  TreeGridId,
-  useArrayAsTreeGridData,
-} from "components/treegrid";
+import { TreeGrid, TreeGridId } from "components/treeGrid";
+import { useArrayAsTreeGridData } from "components/treeGridHelpers";
 import { FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -96,7 +93,7 @@ export function AddFeatureSet() {
       );
       navigate("../../../" + cohortURL(cohort.id, section.id, group.id));
     },
-    [context, cohort.id, section.id, navigate]
+    [context, cohort.id, section.id, navigate, secondBlock]
   );
 
   const title = `Adding criteria from a feature set to ${sectionName(

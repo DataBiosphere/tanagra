@@ -91,10 +91,7 @@ Cypress.Commands.add("possiblyMultiSelect", (search) => {
       cy.multiSelect(search);
       cy.iframe().find("button:Contains(Save criteria)").click();
     } else {
-      cy.iframe()
-        .find(`[data-testid='${search}']`)
-        .first()
-        .click();
+      cy.iframe().find(`[data-testid='${search}']`).first().click();
     }
   });
 });

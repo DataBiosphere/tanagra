@@ -2261,7 +2261,7 @@ function parseAPIError<T>(p: Promise<T>) {
     let message;
     try {
       message = JSON.parse(text).message;
-    } catch (e) {
+    } catch (_e) {
       message = getReasonPhrase(response.status) + ": " + text;
     }
     throw new Error(message);

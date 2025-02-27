@@ -5,7 +5,7 @@ import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { useBaseParams } from "router";
 import { StudyName } from "studyName";
-import { RouterLink } from "util/searchState";
+import { RouterLink } from "components/routerLink";
 
 export function Header() {
   const params = useBaseParams();

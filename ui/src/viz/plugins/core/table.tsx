@@ -1,4 +1,5 @@
-import { TreeGrid, useArrayAsTreeGridData } from "components/treegrid";
+import { TreeGrid } from "components/treeGrid";
+import { useArrayAsTreeGridData } from "components/treeGridHelpers";
 import { GridBox } from "layout/gridBox";
 import { useMemo } from "react";
 import {
@@ -27,7 +28,6 @@ interface Config {
     valueTypes: [VizValueType.Numeric],
   },
 ])
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements VizPlugin {
   config: Config;
 
@@ -45,7 +45,7 @@ type TableVizProps = {
   data: VizData[];
 };
 
-function TableViz(props: TableVizProps) {
+export function TableViz(props: TableVizProps) {
   const data = useMemo(
     () =>
       props.data.map((d) => {
@@ -78,7 +78,7 @@ function TableViz(props: TableVizProps) {
         title: props.config.valueTitles?.[i] ?? "Count",
       })),
     ];
-  }, [props.data]);
+  }, [props.data, props.config]);
 
   return (
     <GridBox sx={{ pb: 1, overflowY: "auto", maxHeight: "300px" }}>

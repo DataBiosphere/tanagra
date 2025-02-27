@@ -29,7 +29,7 @@ type TextInputDialogConfigInternal = TextInputDialogConfig & {
 // Return a dialog and the callback function to show the dialog.
 export function useTextInputDialog(): [
   ReactNode,
-  (config: TextInputDialogConfig) => void
+  (config: TextInputDialogConfig) => void,
 ] {
   const [config, setConfig] = useState<TextInputDialogConfigInternal | null>(
     null
@@ -44,7 +44,6 @@ export function useTextInputDialog(): [
   };
 
   return [
-     
     config ? (
       <Dialog
         open={!!config}
