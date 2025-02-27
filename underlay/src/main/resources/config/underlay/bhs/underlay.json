@@ -8,7 +8,8 @@
     "criteriaOccurrenceEntityGroups": [],
     "criteriaSelectors": [
       "bhs/race",
-      "bhs/age"
+      "bhs/age",
+      "bhs/visit"
     ],
     "prepackagedDataFeatures": [],
     "visualizations": [
@@ -16,7 +17,8 @@
       "omop/raceAndAge",
       "omop/age",
       "omop/race",
-      "omop/sex"
+      "omop/sex",
+      "bhs/visit"
     ],
     "metadata": {
       "displayName": "BHS metadata displayname",

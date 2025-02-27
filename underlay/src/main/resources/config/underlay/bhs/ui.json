@@ -28,7 +28,8 @@
                   "displayName": "65+"
                 }
               ]
-            }
+            },
+            { "key": "visit" }
           ],
           "stackedProperty": { "key": "race" }
         }
@@ -48,7 +49,8 @@
         { "key": "id", "width": 100, "title": "Id" },
         { "key": "sex", "width": 100, "title": "Sex" },
         { "key": "race", "width": 100, "title": "Race" },
-        { "key": "age", "width": 60, "title": "Age" }
+        { "key": "age", "width": 60, "title": "Age" },
+        { "key": "visit", "width": 60, "title": "Visit" }
       ],
       "attributes": [
         {
@@ -62,6 +64,10 @@
         {
           "title": "Race",
           "key": "race"
+        },
+        {
+          "title": "Visit",
+          "key": "visit"
         }
       ],
       "pages": []

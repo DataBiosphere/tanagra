@@ -1,0 +1,7 @@
+{
+    "name": "visit",
+    "title": "Visit",
+    "dataConfigFile": "visit.json",
+    "plugin": "core/bar"
+  }
+  
