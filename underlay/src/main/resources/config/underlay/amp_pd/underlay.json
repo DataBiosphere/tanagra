@@ -10,7 +10,8 @@
         "amp_pd/age",
         "amp_pd/race",
         "amp_pd/ethnicity",
-        "amp_pd/sex"
+        "amp_pd/sex",
+        "amp_pd/diagnosis_at_baseline"
       ],
       "prepackagedDataFeatures": [],
       "visualizations": [
