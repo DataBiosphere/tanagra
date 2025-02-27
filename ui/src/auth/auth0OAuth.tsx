@@ -1,13 +1,9 @@
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
-import { AuthContext } from "auth/provider";
+import { AuthContext, hasExpired } from "auth/provider";
 import { getEnvironment } from "environment";
 import React, { useEffect, useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useNavigate } from "util/searchState";
-
-export function isAuth0Enabled(): boolean {
-  return !!getEnvironment().REACT_APP_AUTH0_DOMAIN;
-}
 
 export function Auth0AuthProvider() {
   const env = getEnvironment();
@@ -90,6 +86,7 @@ function Auth0ProviderWithClient() {
       error,
       loginWithRedirect,
       logout,
+      getIdTokenClaims,
     ]
   );
 
@@ -98,9 +95,4 @@ function Auth0ProviderWithClient() {
       <Outlet />
     </AuthContext.Provider>
   );
-}
-
-export function hasExpired(expAt: number | undefined): boolean {
-  // Consider the token expired within 60 seconds of expiry.
-  return expAt ? expAt - 60 * 1000 - Date.now() <= 0 : false;
 }

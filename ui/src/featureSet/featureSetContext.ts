@@ -85,7 +85,7 @@ export function useNewFeatureSetContext(
             }
           : null
       ),
-    [status.data]
+    [status.data, showSnackbar, state?.past, state?.future]
   );
 
   const updateFeatureSet = async (newState: FeatureSetState | null) => {

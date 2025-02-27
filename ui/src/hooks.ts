@@ -91,9 +91,7 @@ function useOptionalGroupSectionAndGroup(throwOnUnknown: boolean) {
   return { section, sectionIndex, group };
 }
 
-export const NewCriteriaContext = createContext<Criteria | null>(
-  null
-);
+export const NewCriteriaContext = createContext<Criteria | null>(null);
 
 export function useNewCriteria() {
   const underlaySource = useUnderlaySource();

@@ -2,17 +2,9 @@ import RedoIcon from "@mui/icons-material/Redo";
 import UndoIcon from "@mui/icons-material/Undo";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import { createContext, useContext } from "react";
-import { RouterLink } from "util/searchState";
-
-export type UndoRedoData = {
-  undoURL: string;
-  redoURL: string;
-  undoAction?: () => void;
-  redoAction?: () => void;
-};
-
-export const UndoRedoContext = createContext<UndoRedoData | null>(null);
+import { useContext } from "react";
+import { RouterLink } from "components/routerLink";
+import { UndoRedoContext } from "undoRedoContext";
 
 export default function UndoRedoToolbar() {
   const data = useContext(UndoRedoContext);

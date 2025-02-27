@@ -48,7 +48,10 @@ export type MergedItem<T> = {
 };
 
 class MergeSource<T> {
-  constructor(public source: string, private data: T[]) {
+  constructor(
+    public source: string,
+    private data: T[]
+  ) {
     this.source = source;
     this.data = data;
     this.current = 0;

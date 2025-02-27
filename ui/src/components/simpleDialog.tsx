@@ -24,13 +24,12 @@ export type SimpleDialogConfig = {
 // Return a dialog and the callback function to show the dialog.
 export function useSimpleDialog(): [
   ReactNode | null,
-  (config: SimpleDialogConfig) => void
+  (config: SimpleDialogConfig) => void,
 ] {
   const [config, setConfig] = useState<SimpleDialogConfig | null>(null);
   const show = (config: SimpleDialogConfig) => setConfig(config);
 
   return [
-     
     config ? (
       <Dialog
         open={!!config}

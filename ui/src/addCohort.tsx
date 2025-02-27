@@ -6,11 +6,8 @@ import ActionBar from "actionBar";
 import { generateId, getCriteriaTitle } from "cohort";
 import Empty from "components/empty";
 import Loading from "components/loading";
-import {
-  TreeGrid,
-  TreeGridId,
-  useArrayAsTreeGridData,
-} from "components/treegrid";
+import { TreeGrid, TreeGridId } from "components/treeGrid";
+import { useArrayAsTreeGridData } from "components/treeGridHelpers";
 import { Cohort } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";

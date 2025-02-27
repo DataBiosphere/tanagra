@@ -63,7 +63,6 @@ const defaultColors = [
     valueTypes: [VizValueType.Numeric],
   },
 ])
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements VizPlugin {
   config: Config;
 
@@ -81,7 +80,7 @@ type BarVizProps = {
   data: VizData[];
 };
 
-function BarViz(props: BarVizProps) {
+export function BarViz(props: BarVizProps) {
   const theme = useTheme();
 
   const stackedProperties = useMemo(

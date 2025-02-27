@@ -7,9 +7,9 @@ import {
   TreeGrid,
   TreeGridColumn,
   TreeGridData,
-  TreeGridSortDirection,
   TreeGridSortOrder,
-} from "components/treegrid";
+} from "components/treeGrid";
+import { TreeGridSortDirection } from "components/treeGridHelpers";
 import {
   compareDataValues,
   DataKey,
@@ -28,7 +28,6 @@ interface Config {
 }
 
 @registerCohortReviewPlugin("entityTable")
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CohortReviewPlugin {
   public entities: string[];
   private config: Config;
@@ -52,13 +51,15 @@ type SearchState = {
   columnFilters?: { [key: string]: string };
 };
 
-function OccurrenceTable({ id, config }: { id: string; config: Config }) {
+export function OccurrenceTable({
+  id,
+  config,
+}: {
+  id: string;
+  config: Config;
+}) {
   const context = useCohortReviewContext();
-  if (!context) {
-    return null;
-  }
-
-  const searchState = context.searchState<SearchState>(id);
+  const searchState = context?.searchState<SearchState>(id);
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
@@ -70,12 +71,12 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
     });
 
     return data;
-  }, [context]);
+  }, [context, config]);
 
   const filterRegExps = useMemo(() => {
     const regexps: { [key: string]: RegExp } = {};
-    for (const key in searchState.columnFilters) {
-      regexps[key] = safeRegExp(searchState.columnFilters[key])[0];
+    for (const key in searchState?.columnFilters) {
+      regexps[key] = safeRegExp(searchState?.columnFilters[key])[0];
     }
     return regexps;
   }, [searchState.columnFilters]);
@@ -110,7 +111,11 @@ function OccurrenceTable({ id, config }: { id: string; config: Config }) {
         return 0;
       });
     });
-  }, [data, searchState]);
+  }, [data, searchState, filterRegExps]);
+
+  if (!context) {
+    return null;
+  }
 
   return (
     <GridBox

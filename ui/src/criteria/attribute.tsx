@@ -57,8 +57,8 @@ interface Data {
       selected: dataEntries
         ? dataEntries.map((e) => ({ value: e.key, name: e.name as string }))
         : attribute?.dataType === tanagraUnderlay.SZDataType.BOOLEAN
-        ? [{ value: true, name: attribute.name }]
-        : [],
+          ? [{ value: true, name: attribute.name }]
+          : [],
       dataRanges:
         isValid(attribute) &&
         isValid(attribute.displayHintRangeMin) &&
@@ -75,7 +75,6 @@ interface Data {
   },
   search
 )
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;
@@ -156,7 +155,7 @@ type SliderProps = {
   unit?: string;
 };
 
-function AttributeSlider(props: SliderProps) {
+export function AttributeSlider(props: SliderProps) {
   const updateEncodedCriteria = useUpdateCriteria(
     props.groupId,
     props.criteriaId
@@ -216,7 +215,7 @@ type AttributeInlineProps = {
   entity?: string;
 };
 
-function AttributeInline(props: AttributeInlineProps) {
+export function AttributeInline(props: AttributeInlineProps) {
   const underlaySource = useUnderlaySource();
   const updateEncodedCriteria = useUpdateCriteria(
     props.groupId,
@@ -241,7 +240,7 @@ function AttributeInline(props: AttributeInlineProps) {
 
   const fetchHintData = useCallback(() => {
     return underlaySource.getHintData(entity.name, props.config.attribute);
-  }, [props.config.attribute]);
+  }, [props.config.attribute, entity.name, underlaySource]);
   const hintDataState = useSWRImmutable(
     { component: "Attribute", attribute: props.config.attribute },
     fetchHintData
@@ -258,7 +257,7 @@ function AttributeInline(props: AttributeInlineProps) {
         })
       );
     },
-    [decodedData]
+    [decodedData, updateCriteria]
   );
 
   const emptyRange = useMemo(
@@ -267,7 +266,7 @@ function AttributeInline(props: AttributeInlineProps) {
       min: Number.MIN_SAFE_INTEGER,
       max: Number.MAX_SAFE_INTEGER,
     }),
-    [props.criteriaId]
+    []
   );
 
   const listRanges = () => {

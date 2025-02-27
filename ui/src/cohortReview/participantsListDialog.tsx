@@ -11,30 +11,13 @@ import {
   useReviewSearchState,
 } from "cohortReview/reviewHooks";
 import Loading from "components/loading";
-import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
+import { TreeGrid, TreeGridData, TreeGridId } from "components/treeGrid";
 import GridLayout from "layout/gridLayout";
-import React, { ReactNode, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
-type ParticipantsListDialogProps = {
+export type ParticipantsListDialogProps = {
   count: number;
 };
-
-export function useParticipantsListDialog(
-  props: ParticipantsListDialogProps
-): [ReactNode, () => void] {
-  const [open, setOpen] = useState(false);
-  const show = () => setOpen(true);
-
-  return [
-    // eslint-disable-next-line react/jsx-key
-    <ParticipantsListDialog
-      {...props}
-      open={open}
-      hide={() => setOpen(false)}
-    />,
-    show,
-  ];
-}
 
 export function ParticipantsListDialog(
   props: ParticipantsListDialogProps & { open: boolean; hide: () => void }
@@ -121,7 +104,7 @@ function ParticipantsList(props: ParticipantsListProps) {
           }))
         : []),
     ],
-    [annotationsState]
+    [annotationsState, params.uiConfig]
   );
 
   const data = useMemo(() => {
