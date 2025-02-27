@@ -14,21 +14,21 @@ import Loading from "components/loading";
 import { Search } from "components/search";
 import { useSimpleDialog } from "components/simpleDialog";
 import {
-  fromProtoColumns,
   TreeGrid,
   TreeGridColumn,
   TreeGridData,
   TreeGridId,
   TreeGridItem,
   TreeGridRowData,
-} from "components/treegrid";
+} from "components/treeGrid";
+import { fromProtoColumns } from "components/treeGridHelpers";
 import {
   ANY_VALUE_DATA,
   decodeValueDataOptional,
   encodeValueDataOptional,
   ValueData,
-  ValueDataEdit,
 } from "criteria/valueData";
+import { ValueDataEdit } from "criteria/valueDataEdit";
 import { DEFAULT_SORT_ORDER, fromProtoSortOrder } from "data/configuration";
 import { MergedItem, mergeLists } from "data/mergeLists";
 import {
@@ -123,12 +123,15 @@ export interface Data {
   search,
   lookup
 )
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private config: configProto.EntityGroup;
 
-  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+  constructor(
+    public id: string,
+    selector: CommonSelectorConfig,
+    data: string
+  ) {
     this.config = decodeConfig(selector);
     this.data = data;
   }
@@ -215,7 +218,7 @@ type ClassificationEditProps = {
 
 const DEFAULT_LIMIT = 100;
 
-function ClassificationEdit(props: ClassificationEditProps) {
+export function ClassificationEdit(props: ClassificationEditProps) {
   const underlaySource = useUnderlaySource();
   const updateEncodedCriteria = useUpdateCriteria();
   const updateCriteria = useCallback(
@@ -251,7 +254,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
   const updateCriteriaFromLocal = useCallback(() => {
     updateCriteria(produce(decodedData, () => localCriteria));
-  }, [updateCriteria, localCriteria]);
+  }, [updateCriteria, localCriteria, decodedData]);
 
   const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
   const searchRef = useRef<HTMLDivElement | null>(null);
@@ -277,7 +280,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           }
         },
       }),
-    [updateCriteriaFromLocal]
+    [updateCriteriaFromLocal, props, showUnconfirmedChangesDialog]
   );
 
   useEffect(() => {
@@ -300,7 +303,15 @@ function ClassificationEdit(props: ClassificationEditProps) {
         return unconfirmedChangesCallback;
       }
     });
-  }, [searchState, localCriteria]);
+  }, [
+    searchState,
+    localCriteria,
+    decodedData,
+    multiSelect,
+    props,
+    unconfirmedChangesCallback,
+    updateSearchState,
+  ]);
 
   const [
     hasHierarchies,
@@ -370,7 +381,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
       return data;
     },
-    []
+    [groupingEntityGroupData]
   );
 
   const attributes = useMemo(
@@ -385,7 +396,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           .filter(isValid)
       ),
     ],
-    [props.config.columns]
+    [props.config]
   );
 
   const allEntityGroupConfigs = useMemo(() => {
@@ -447,7 +458,12 @@ function ClassificationEdit(props: ClassificationEditProps) {
 
       return props.config.defaultSort ?? DEFAULT_SORT_ORDER;
     },
-    [searchState.hierarchyEntityGroup, underlaySource]
+    [
+      searchState.hierarchyEntityGroup,
+      underlaySource,
+      props.config,
+      allEntityGroupConfigs,
+    ]
   );
 
   const fetchInstances = useCallback(async () => {
@@ -469,10 +485,10 @@ function ClassificationEdit(props: ClassificationEditProps) {
             ),
             {
               query: !searchState?.hierarchy
-                ? searchState?.query ?? ""
+                ? (searchState?.query ?? "")
                 : undefined,
               limit: !searchState.hierarchy
-                ? props.config.limit ?? DEFAULT_LIMIT
+                ? (props.config.limit ?? DEFAULT_LIMIT)
                 : undefined,
               hierarchy: !!searchState.hierarchyEntityGroup,
             }
@@ -501,6 +517,9 @@ function ClassificationEdit(props: ClassificationEditProps) {
     searchState.query,
     searchState.hierarchy,
     searchState.hierarchyEntityGroup,
+    allEntityGroupConfigs,
+    calcSortOrder,
+    props.config,
   ]);
   const instancesState = useSWRImmutable(
     {
@@ -530,7 +549,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
       ...(fromProtoColumns(props.config.hierarchyColumns) ?? []),
       ...(!multiSelect ? [{ key: "t_add_button", width: 60 }] : []),
     ],
-    [props.config.hierarchyColumns]
+    [props.config.hierarchyColumns, multiSelect]
   );
 
   const allColumns: TreeGridColumn[] = useMemo(
@@ -545,7 +564,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
           ]
         : []),
     ],
-    [props.config.columns]
+    [props.config.columns, hasHierarchies, multiSelect]
   );
 
   return (
@@ -631,9 +650,7 @@ function ClassificationEdit(props: ClassificationEditProps) {
               />
             ) : (
               <TreeGrid
-                columns={
-                  searchState?.hierarchy ? hierarchyColumns : allColumns
-                }
+                columns={searchState?.hierarchy ? hierarchyColumns : allColumns}
                 data={instancesState?.data ?? {}}
                 defaultExpanded={searchState?.hierarchy}
                 highlightId={searchState?.highlightId}
@@ -920,7 +937,7 @@ type HierarchySearchListProps = {
   onClick: (ancestors: string[], highlightId: DataKey) => void;
 };
 
-function HierarchySearchList(props: HierarchySearchListProps) {
+export function HierarchySearchList(props: HierarchySearchListProps) {
   const underlaySource = useUnderlaySource();
 
   const [searchState] = useLocalSearchState<SearchState>();
@@ -945,8 +962,8 @@ function HierarchySearchList(props: HierarchySearchListProps) {
   }, [
     underlaySource,
     props.hierarchyQuery,
-    searchState?.hierarchy,
-    searchState?.hierarchyEntityGroup,
+    props.config,
+    props.hierarchyEntityConfig,
   ]);
   const hierarchySearchState = useSWRImmutable(
     {
@@ -1002,7 +1019,7 @@ type ClassificationInlineProps = {
   config: configProto.EntityGroup;
 };
 
-function ClassificationInline(props: ClassificationInlineProps) {
+export function ClassificationInline(props: ClassificationInlineProps) {
   const underlaySource = useUnderlaySource();
   const updateEncodedCriteria = useUpdateCriteria();
   const updateCriteria = useCallback(
@@ -1203,7 +1220,11 @@ function useEntityData(
       classificationEntityGroupData,
       groupingEntityGroupData,
     ];
-  }, [config.classificationEntityGroups, config.groupingEntityGroups]);
+  }, [
+    config.classificationEntityGroups,
+    config.groupingEntityGroups,
+    underlaySource,
+  ]);
 }
 
 function lookupEntityGroupData(list: EntityGroupData[], id: string) {

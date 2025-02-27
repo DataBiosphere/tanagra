@@ -18,7 +18,7 @@ import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
 import { generateId } from "cohort";
 import { useNewAnnotationDialog } from "cohortReview/newAnnotationDialog";
-import { useNewReviewDialog } from "cohortReview/newReviewDialog";
+import { useNewReviewDialog } from "cohortReview/useNewReviewDialog";
 import { useReviewAnnotations } from "cohortReview/reviewHooks";
 import { CohortSummary } from "cohortSummary";
 import Empty from "components/empty";
@@ -28,11 +28,8 @@ import SelectablePaper from "components/selectablePaper";
 import { useSimpleDialog } from "components/simpleDialog";
 import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
-import {
-  TreeGrid,
-  TreeGridId,
-  useArrayAsTreeGridData,
-} from "components/treegrid";
+import { TreeGrid, TreeGridId } from "components/treeGrid";
+import { useArrayAsTreeGridData } from "components/treeGridHelpers";
 import { AnnotationType, CohortReview } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -49,7 +46,8 @@ import {
   useBaseParams,
 } from "router";
 import useSWR from "swr";
-import { RouterLink, useNavigate } from "util/searchState";
+import { useNavigate } from "util/searchState";
+import { RouterLink } from "components/routerLink";
 
 type PendingItem = {
   id: string;
@@ -59,7 +57,10 @@ type PendingItem = {
 };
 
 class ReviewListItem {
-  constructor(public review?: CohortReview, public pending?: PendingItem) {}
+  constructor(
+    public review?: CohortReview,
+    public pending?: PendingItem
+  ) {}
 
   isPending() {
     return !!this.pending;
@@ -84,13 +85,6 @@ class ReviewListItem {
 
 function wrapResults(results: CohortReview[]): ReviewListItem[] {
   return results.map((r) => new ReviewListItem(r));
-}
-
-function firstReview(list: ReviewListItem[]) {
-  return list.reduce<CohortReview | undefined>(
-    (cur, next) => cur ?? next.review,
-    undefined
-  );
 }
 
 export function CohortReviewList() {
@@ -420,7 +414,15 @@ function Reviews() {
               <Button
                 variant="contained"
                 size="large"
-                onClick={() => navigate(absoluteCohortReviewListURL(params, cohort.id, selectedReview?.id) + "/review")}
+                onClick={() =>
+                  navigate(
+                    absoluteCohortReviewListURL(
+                      params,
+                      cohort.id,
+                      selectedReview?.id
+                    ) + "/review"
+                  )
+                }
               >
                 Review individual participants
               </Button>

@@ -1,4 +1,5 @@
 import DeleteIcon from "@mui/icons-material/Delete";
+import { ValueDataEdit } from "criteria/valueDataEdit";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
@@ -10,20 +11,19 @@ import Loading from "components/loading";
 import { Search } from "components/search";
 import { useSimpleDialog } from "components/simpleDialog";
 import {
-  fromProtoColumns,
   TreeGrid,
   TreeGridColumn,
   TreeGridData,
   TreeGridId,
   TreeGridItem,
   TreeGridRowData,
-} from "components/treegrid";
+} from "components/treeGrid";
+import { fromProtoColumns } from "components/treeGridHelpers";
 import {
   ANY_VALUE_DATA,
   decodeValueDataOptional,
   encodeValueDataOptional,
   ValueData,
-  ValueDataEdit,
 } from "criteria/valueData";
 import { DEFAULT_SORT_ORDER, fromProtoSortOrder } from "data/configuration";
 import {
@@ -132,13 +132,16 @@ export interface Data {
   },
   search
 )
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;
   private config: configProto.Survey;
 
-  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+  constructor(
+    public id: string,
+    selector: CommonSelectorConfig,
+    data: string
+  ) {
     this.selector = selector;
     this.config = decodeConfig(selector);
     this.data = data;
@@ -212,7 +215,7 @@ type SurveyEditProps = {
   setBackAction: (action?: () => void) => void;
 };
 
-function SurveyEdit(props: SurveyEditProps) {
+export function SurveyEdit(props: SurveyEditProps) {
   const underlaySource = useUnderlaySource();
   const updateEncodedCriteria = useUpdateCriteria();
   const updateCriteria = useCallback(
@@ -237,7 +240,7 @@ function SurveyEdit(props: SurveyEditProps) {
 
   const updateCriteriaFromLocal = useCallback(() => {
     updateCriteria(produce(decodedData, () => localCriteria));
-  }, [updateCriteria, localCriteria]);
+  }, [updateCriteria, localCriteria, decodedData]);
 
   const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
 
@@ -259,7 +262,7 @@ function SurveyEdit(props: SurveyEditProps) {
           }
         },
       }),
-    [updateCriteriaFromLocal]
+    [updateCriteriaFromLocal, props, showUnconfirmedChangesDialog]
   );
 
   useEffect(() => {
@@ -272,7 +275,13 @@ function SurveyEdit(props: SurveyEditProps) {
         return unconfirmedChangesCallback;
       }
     });
-  }, [searchState, localCriteria]);
+  }, [
+    searchState,
+    localCriteria,
+    decodedData,
+    props,
+    unconfirmedChangesCallback,
+  ]);
 
   const processEntities = useCallback(
     (allEntityGroups: [string, EntityNode[]][]) => {
@@ -345,7 +354,7 @@ function SurveyEdit(props: SurveyEditProps) {
           .filter(isValid)
       ),
     ],
-    [props.config.columns]
+    [props.config]
   );
 
   const calcSortOrder = useCallback(
@@ -361,7 +370,7 @@ function SurveyEdit(props: SurveyEditProps) {
 
       return props.config.defaultSort ?? DEFAULT_SORT_ORDER;
     },
-    [underlaySource]
+    [props.config]
   );
 
   const fetchInstances = useCallback(async () => {
@@ -383,7 +392,13 @@ function SurveyEdit(props: SurveyEditProps) {
     );
 
     return processEntities(raw);
-  }, [underlaySource, attributes, processEntities]);
+  }, [
+    underlaySource,
+    attributes,
+    processEntities,
+    calcSortOrder,
+    props.config,
+  ]);
 
   const instancesState = useSWRImmutable(
     {
@@ -685,7 +700,7 @@ type SurveyInlineProps = {
   config: configProto.Survey;
 };
 
-function SurveyInline(props: SurveyInlineProps) {
+export function SurveyInline(props: SurveyInlineProps) {
   const underlaySource = useUnderlaySource();
   const updateEncodedCriteria = useUpdateCriteria();
   const updateCriteria = useCallback(

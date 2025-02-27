@@ -5,7 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
-import { TreeGrid, TreeGridData, TreeGridId } from "components/treegrid";
+import { TreeGrid, TreeGridData, TreeGridId } from "components/treeGrid";
 import { useStudySource } from "data/studySourceContext";
 import { DataKey } from "data/types";
 import { useStudyId, useUnderlay } from "hooks";
@@ -55,6 +55,10 @@ const columns = [
 export function StudyOverview() {
   const studySource = useStudySource();
   const studyId = useStudyId();
+  const navigate = useNavigate();
+
+  const underlay = useUnderlay();
+  const params = useBaseParams();
 
   const listArtifacts = useCallback(async () => {
     return await Promise.all([
@@ -77,7 +81,7 @@ export function StudyOverview() {
           }))
       ),
     ]).then((res) => res.flat());
-  }, [studySource, studyId]);
+  }, [studySource, studyId, underlay.name]);
 
   const artifactsState = useSWR(
     { type: "studyOverview", studyId },
@@ -103,7 +107,7 @@ export function StudyOverview() {
         return await listArtifacts();
       });
     },
-    [studySource, artifactsState.data]
+    [studySource, artifactsState, listArtifacts, studyId]
   );
 
   const [confirmDialog, showConfirmDialog] = useSimpleDialog();
@@ -147,12 +151,7 @@ export function StudyOverview() {
     });
 
     return data;
-  }, [studySource, artifactsState.data]);
-
-  const navigate = useNavigate();
-
-  const underlay = useUnderlay();
-  const params = useBaseParams();
+  }, [artifactsState.data, deleteArtifact, showConfirmDialog]);
 
   const newCohort = async () => {
     const cohort = await studySource.createCohort(underlay.name, studyId);

@@ -10,7 +10,7 @@ import { useCallback } from "react";
 import { underlayURL } from "router";
 import { Header } from "sampleApp/header";
 import useSWRImmutable from "swr/immutable";
-import { RouterLink } from "util/searchState";
+import { RouterLink } from "components/routerLink";
 
 export function UnderlaySelect() {
   const underlaysApi = useUnderlaysApi();
@@ -24,7 +24,7 @@ export function UnderlaySelect() {
       }
 
       return res.underlays;
-    }, [])
+    }, [underlaysApi])
   );
 
   return (

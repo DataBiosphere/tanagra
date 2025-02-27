@@ -90,7 +90,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
           }
         : null
     );
-  }, [status.data]);
+  }, [status.data, showSnackbar, state?.past, state?.present, state?.future]);
 
   const updateCohort = async (newState: CohortState | null) => {
     if (!newState) {

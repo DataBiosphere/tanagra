@@ -35,7 +35,6 @@ const operatorTitles = {
     max: 10,
   });
 })
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;
@@ -51,7 +50,7 @@ class _ implements CriteriaPlugin<string> {
     this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
-    } catch (e) {
+    } catch (_e) {
       this.data = data;
     }
   }
@@ -96,7 +95,7 @@ type UnhintedValueInlineProps = {
   entity?: string;
 };
 
-function UnhintedValueInline(props: UnhintedValueInlineProps) {
+export function UnhintedValueInline(props: UnhintedValueInlineProps) {
   const updateEncodedCriteria = useUpdateCriteria(
     props.groupId,
     props.criteriaId

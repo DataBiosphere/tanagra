@@ -23,7 +23,7 @@ import { SaveStatus } from "components/saveStatus";
 import { useSimpleDialog } from "components/simpleDialog";
 import { Tabs } from "components/tabs";
 import { useTextInputDialog } from "components/textInputDialog";
-import { TreeGrid, TreeGridData } from "components/treegrid";
+import { TreeGrid, TreeGridData } from "components/treeGrid";
 import { Criteria } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -205,7 +205,7 @@ function FeatureList() {
     });
 
     return criteria.sort((a, b) => a.title.localeCompare(b.title));
-  }, [predefinedCriteria, featureSet.criteria]);
+  }, [predefinedCriteria, featureSet.criteria, featureSet.predefinedCriteria]);
 
   return (
     <GridBox sx={{ px: 2, py: 1 }}>
@@ -320,7 +320,7 @@ function Preview() {
     if (!deepEqual(newPreviewOccurrences, previewOccurrences)) {
       setPreviewOccurrences(newPreviewOccurrences);
     }
-  }, [occurrenceFiltersState.data]);
+  }, [occurrenceFiltersState.data, previewOccurrences]);
 
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
     () => {
@@ -435,8 +435,9 @@ function PreviewTable(props: PreviewTableProps) {
   const featureSet = useFeatureSet();
   const [globalSearchState, updateGlobalSearchState] = useGlobalSearchState();
 
-  const output = featureSet.output.find(
-    (o) => o.occurrence === props.occurrence.id
+  const output = useMemo(
+    () => featureSet.output.find((o) => o.occurrence === props.occurrence.id),
+    [featureSet.output, props.occurrence.id]
   );
 
   const columns = useMemo(() => {
@@ -466,8 +467,9 @@ function PreviewTable(props: PreviewTableProps) {
       });
   }, [
     props.occurrence,
-    featureSet.output,
+    output,
     globalSearchState.showSelectedColumnsOnly,
+    context,
   ]);
 
   const [columnSearch, setColumnSearch] = useState("");

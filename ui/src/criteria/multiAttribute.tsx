@@ -1,10 +1,10 @@
+import { ValueDataEdit } from "criteria/valueDataEdit";
 import { CriteriaPlugin, registerCriteriaPlugin } from "cohort";
 import {
   ANY_VALUE_DATA,
   decodeValueData,
   encodeValueData,
   ValueData,
-  ValueDataEdit,
 } from "criteria/valueData";
 import { ROLLUP_COUNT_ATTRIBUTE } from "data/configuration";
 import { CommonSelectorConfig, UnderlaySource } from "data/source";
@@ -58,13 +58,16 @@ export interface Data {
   },
   search
 )
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;
   private config: configProto.MultiAttribute;
 
-  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+  constructor(
+    public id: string,
+    selector: CommonSelectorConfig,
+    data: string
+  ) {
     this.selector = selector;
     this.config = decodeConfig(selector);
     this.data = data;
@@ -162,7 +165,7 @@ type MultiAttributeInlineProps = {
   config: configProto.MultiAttribute;
 };
 
-function MultiAttributeInline(props: MultiAttributeInlineProps) {
+export function MultiAttributeInline(props: MultiAttributeInlineProps) {
   const updateEncodedCriteria = useUpdateCriteria(
     props.groupId,
     props.criteriaId

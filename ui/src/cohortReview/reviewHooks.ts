@@ -35,7 +35,7 @@ export function useReviewParams(): ReviewParams {
       participantIdAttribute,
       ...uiConfig.attributes.map((a) => a.key),
     ],
-    [uiConfig]
+    [uiConfig, participantIdAttribute, primaryKey]
   );
 
   const { reviewId } = useParams<{ reviewId: string }>();
