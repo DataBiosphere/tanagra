@@ -4,6 +4,8 @@ SELECT
   p.person_source_value,
   po.procedure_concept_id,
   pc.concept_name AS procedure_concept_name,
+  pc.concept_code AS procedure_concept_code,
+  (CASE WHEN pc.standard_concept IS NULL THEN 'Source' WHEN pc.standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept,
   po.procedure_date,
   po.procedure_source_value,
   po.procedure_source_concept_id,
