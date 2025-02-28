@@ -43,13 +43,16 @@ interface Data {
     categories: [],
   });
 })
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;
   private config: configProto.TextSearch;
 
-  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+  constructor(
+    public id: string,
+    selector: CommonSelectorConfig,
+    data: string
+  ) {
     this.selector = selector;
     this.config = decodeConfig(selector);
     this.data = data;
@@ -105,7 +108,7 @@ type TextSearchInlineProps = {
   data: string;
 };
 
-function TextSearchInline(props: TextSearchInlineProps) {
+export function TextSearchInline(props: TextSearchInlineProps) {
   const underlaySource = useUnderlaySource();
   const updateEncodedCriteria = useUpdateCriteria(props.groupId);
   const updateCriteria = useCallback(

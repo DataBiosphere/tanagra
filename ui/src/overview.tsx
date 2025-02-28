@@ -71,7 +71,8 @@ import {
 import { StudyName } from "studyName";
 import useSWRImmutable from "swr/immutable";
 import UndoRedoToolbar from "undoRedoToolbar";
-import { RouterLink, useNavigate } from "util/searchState";
+import { useNavigate } from "util/searchState";
+import { RouterLink } from "components/routerLink";
 import { isValid } from "util/valid";
 
 export function Overview() {
@@ -203,7 +204,7 @@ function GroupList() {
 
   const fetchCount = useCallback(async () => {
     return (await studySource.cohortCount(studyId, cohort.id))?.[0]?.count ?? 0;
-  }, [studyId, cohort]);
+  }, [studyId, cohort, studySource]);
 
   const countState = useSWRImmutable(
     {
@@ -299,7 +300,7 @@ function ParticipantsGroupSection(props: {
         groupSectionId: backendGroupSection.id,
       })
     )[0].count;
-  }, [studyId, cohort.id, cohort.underlayName, backendGroupSection]);
+  }, [studyId, cohort.id, backendGroupSection, studySource]);
 
   const sectionCountState = useSWRImmutable(
     {
@@ -784,7 +785,7 @@ function ParticipantsGroup(props: {
       backendGroupSection?.secondBlockGroups?.find(
         (g) => g.id === props.group.id
       ),
-    [backendCohort, backendGroupSection, props.group]
+    [backendGroupSection, props.group]
   );
 
   const fetchGroupCount = useCallback(async () => {
@@ -798,13 +799,7 @@ function ParticipantsGroup(props: {
         groupId: backendGroup.id,
       })
     )[0].count;
-  }, [
-    studyId,
-    cohort.id,
-    cohort.underlayName,
-    backendGroupSection,
-    backendGroup,
-  ]);
+  }, [studyId, cohort.id, backendGroupSection, backendGroup, studySource]);
 
   const groupCountState = useSWRImmutable(
     {
@@ -834,7 +829,7 @@ function ParticipantsGroup(props: {
         );
         return { title: getCriteriaTitle(c, p), plugin: p };
       }),
-    [modifierCriteria, props.group.entity]
+    [modifierCriteria, plugin, underlaySource]
   );
 
   const selector = underlaySource.lookupCriteriaSelector(

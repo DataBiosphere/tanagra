@@ -13,7 +13,6 @@ interface Data {
     entities: [],
   });
 })
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;

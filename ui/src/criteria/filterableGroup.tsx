@@ -1,3 +1,4 @@
+import { ValueDataEdit } from "criteria/valueDataEdit";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,18 +26,17 @@ import Loading from "components/loading";
 import { Search } from "components/search";
 import { useSimpleDialog } from "components/simpleDialog";
 import {
-  fromProtoColumns,
   TreeGrid,
   TreeGridColumn,
   TreeGridId,
   TreeGridRowData,
-  useArrayAsTreeGridData,
-} from "components/treegrid";
+} from "components/treeGrid";
+import { fromProtoColumns } from "components/treeGridHelpers";
+import { useArrayAsTreeGridData } from "components/treeGridHelpers";
 import {
   decodeValueData,
   encodeValueData,
   ValueData,
-  ValueDataEdit,
 } from "criteria/valueData";
 import {
   DEFAULT_SORT_ORDER,
@@ -134,13 +134,16 @@ interface Data {
     });
   }
 )
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;
   private config: configProto.FilterableGroup;
 
-  constructor(public id: string, selector: CommonSelectorConfig, data: string) {
+  constructor(
+    public id: string,
+    selector: CommonSelectorConfig,
+    data: string
+  ) {
     this.selector = selector;
     this.config = decodeConfig(selector);
     this.data = data;
@@ -205,7 +208,7 @@ type FilterableGroupEditProps = {
   selector: CommonSelectorConfig;
 };
 
-function FilterableGroupEdit(props: FilterableGroupEditProps) {
+export function FilterableGroupEdit(props: FilterableGroupEditProps) {
   const underlaySource = useUnderlaySource();
   const updateEncodedCriteria = useUpdateCriteria();
   const updateCriteria = useCallback(
@@ -219,7 +222,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
 
   const updateCriteriaFromLocal = useCallback(() => {
     updateCriteria(produce(decodedData, () => localCriteria));
-  }, [updateCriteria, localCriteria]);
+  }, [updateCriteria, localCriteria, decodedData]);
 
   const [searchState, updateSearchState] = useLocalSearchState<SearchState>();
   const [currentPage, setCurrentPage] = useState(0);
@@ -248,7 +251,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
           }
         },
       }),
-    [updateCriteriaFromLocal]
+    [updateCriteriaFromLocal, props, showUnconfirmedChangesDialog]
   );
 
   const selectedSet = useMemo(
@@ -269,7 +272,7 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
         return unconfirmedChangesCallback;
       }
     });
-  }, [searchState, localCriteria]);
+  }, [searchState, localCriteria, props, unconfirmedChangesCallback]);
 
   const attributes = useMemo(
     () => props.config.columns.map(({ key }) => key),
@@ -515,8 +518,8 @@ function FilterableGroupEdit(props: FilterableGroupEditProps) {
                   instancesState.data?.[0]?.invalidQuery
                     ? "Invalid query format"
                     : searchState?.query?.length
-                    ? "No matches found"
-                    : "Enter a search query to start"
+                      ? "No matches found"
+                      : "Enter a search query to start"
                 }
               />
             )}
@@ -629,7 +632,7 @@ type ResultsPageProps = {
   updateLocalCriteria: (fn: (data: Data) => void) => void;
 };
 
-function ResultsPage(props: ResultsPageProps) {
+export function ResultsPage(props: ResultsPageProps) {
   const data = useArrayAsTreeGridData(
     props.nodes.map((n) => n.data) ?? [],
     "key"
@@ -717,7 +720,7 @@ type FilterButtonProps = {
   setFilters: (valueData: ValueData[]) => void;
 };
 
-function FilterButton(props: FilterButtonProps) {
+export function FilterButton(props: FilterButtonProps) {
   const [filters, setFilters] = useState<ValueData[] | undefined>();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -783,7 +786,7 @@ type SelectAllStatsProps = {
   setSelected?: (selected: boolean) => void;
 };
 
-function SelectAllStats(props: SelectAllStatsProps) {
+export function SelectAllStats(props: SelectAllStatsProps) {
   const underlaySource = useUnderlaySource();
 
   const vizDataConfig = {
@@ -805,9 +808,11 @@ function SelectAllStats(props: SelectAllStatsProps) {
     ],
   };
 
-  const cohort = props.selector
-    ? selectAllCohort(underlaySource, props.selectAll, props.selector)
-    : undefined;
+  const cohort = useSelectAllCohort(
+    underlaySource,
+    props.selectAll,
+    props.selector
+  );
 
   const statsState = useSWRImmutable(
     { type: "variantsVizData", cohort, selectAll: props.selectAll },
@@ -948,31 +953,33 @@ function SelectAllStats(props: SelectAllStatsProps) {
   );
 }
 
-function selectAllCohort(
+function useSelectAllCohort(
   underlaySource: UnderlaySource,
   selectAll: SelectAll,
-  selector: CommonSelectorConfig
-): Cohort {
-  return useMemo(
-    () =>
-      newCohort(
-        underlaySource.underlay.name,
-        createCriteria(underlaySource, selector, [
-          {
-            key: generateId(),
-            encoded: encodeData({
-              selected: [
-                {
-                  id: generateId(),
-                  all: selectAll,
-                },
-              ],
-            }),
-          },
-        ])
-      ),
-    [selectAll]
-  );
+  selector?: CommonSelectorConfig
+): Cohort | undefined {
+  return useMemo(() => {
+    if (!selector) {
+      return undefined;
+    }
+
+    return newCohort(
+      underlaySource.underlay.name,
+      createCriteria(underlaySource, selector, [
+        {
+          key: generateId(),
+          encoded: encodeData({
+            selected: [
+              {
+                id: generateId(),
+                all: selectAll,
+              },
+            ],
+          }),
+        },
+      ])
+    );
+  }, [selectAll, selector, underlaySource]);
 }
 
 type FilterableGroupInlineProps = {
@@ -980,7 +987,7 @@ type FilterableGroupInlineProps = {
   config: configProto.FilterableGroup;
 };
 
-function FilterableGroupInline(props: FilterableGroupInlineProps) {
+export function FilterableGroupInline(props: FilterableGroupInlineProps) {
   const decodedData = useMemo(() => decodeData(props.data), [props.data]);
   if (!decodedData.selected.length) {
     return null;

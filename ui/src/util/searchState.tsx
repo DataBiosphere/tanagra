@@ -1,8 +1,6 @@
 import { produce } from "immer";
-import { forwardRef, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import {
-  Link as BaseLink,
-  LinkProps as BaseLinkProps,
   useNavigate as useRouterNavigate,
   useSearchParams,
 } from "react-router-dom";
@@ -24,7 +22,7 @@ type SearchData = {
 
 export function useGlobalSearchState(): [
   GlobalSearchState,
-  (update: (state: GlobalSearchState) => void) => void
+  (update: (state: GlobalSearchState) => void) => void,
 ] {
   const [searchData, updateSearchData] = useSearchData();
   const storedData = useMemo(
@@ -48,7 +46,7 @@ export function useGlobalSearchState(): [
 
 export function useLocalSearchState<T>(): [
   T,
-  (update: (data: T) => void) => void
+  (update: (data: T) => void) => void,
 ] {
   const [searchData, updateSearchData] = useSearchData();
 
@@ -72,32 +70,17 @@ export function useNavigate() {
   const searchStr = useGlobalSearchDataString();
   const navigate = useRouterNavigate();
 
-  return (path: string, options?: NavigateOptions) => {
-    navigate({ pathname: path, search: searchStr }, options);
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const RouterLink = forwardRef<any, Omit<BaseLinkProps, 'to'> & {to?: string}>((
-  props,
-  ref
-) => {
-  const searchStr = useGlobalSearchDataString();
-  return (
-    <BaseLink
-      {...props}
-      ref={ref}
-      to={{
-        pathname: props.to,
-        search: searchStr,
-      }}
-    />
+  return useCallback(
+    (path: string, options?: NavigateOptions) => {
+      navigate({ pathname: path, search: searchStr }, options);
+    },
+    [searchStr, navigate]
   );
-});
+}
 
 function useSearchData(): [
   SearchData,
-  (update: (data: SearchData) => void) => void
+  (update: (data: SearchData) => void) => void,
 ] {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -116,7 +99,7 @@ function useSearchData(): [
   return [searchData, updateSearchData];
 }
 
-function useGlobalSearchDataString() {
+export function useGlobalSearchDataString() {
   const [searchData] = useSearchData();
   searchData.local = undefined;
   return searchParamsFromData(searchData).toString();

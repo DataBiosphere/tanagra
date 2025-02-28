@@ -24,7 +24,7 @@ import {
   TreeGridId,
   TreeGridItem,
   TreeGridRowData,
-} from "components/treegrid";
+} from "components/treeGrid";
 import { MergedItem } from "data/mergeLists";
 import { Criteria, isTemporalSection } from "data/source";
 import { DataEntry, DataKey } from "data/types";
@@ -82,7 +82,7 @@ export function AddCohortCriteria() {
       );
       navigate("../../" + cohortURL(cohort.id, section.id, group.id));
     },
-    [context, cohort.id, section.id, navigate]
+    [context, cohort.id, section.id, navigate, secondBlock]
   );
 
   const name = sectionName(section, sectionIndex);
@@ -229,7 +229,14 @@ function AddCriteria(props: AddCriteriaProps) {
     }
 
     return options;
-  }, [props.onInsertPredefinedCriteria, selectors, predefinedCriteria]);
+  }, [
+    props.onInsertPredefinedCriteria,
+    selectors,
+    predefinedCriteria,
+    navigate,
+    underlay.uiConfiguration,
+    underlaySource,
+  ]);
 
   const tagList = useMemo(
     () =>
@@ -254,32 +261,32 @@ function AddCriteria(props: AddCriteriaProps) {
     [globalSearchState.addCriteriaTags, tagList]
   );
 
-  const selectedOptions = useMemo(
-    () =>
-      options.filter((option) => {
-        if (
-          (props.featureSet && !option.featureSet) ||
-          (!props.featureSet && !option.cohort)
-        ) {
-          return false;
-        }
+  const selectedOptions = useMemo(() => {
+    const featureSet = props.featureSet;
+    const temporal = props.temporal;
+    return options.filter((option) => {
+      if (
+        (featureSet && !option.featureSet) ||
+        (!featureSet && !option.cohort)
+      ) {
+        return false;
+      }
 
-        if (props.temporal && !option.selector?.supportsTemporalQueries) {
-          return false;
-        }
+      if (temporal && !option.selector?.supportsTemporalQueries) {
+        return false;
+      }
 
-        if (
-          selectedTags.size &&
-          option.tags?.length &&
-          !option.tags?.reduce((out, t) => out || selectedTags.has(t), false)
-        ) {
-          return false;
-        }
+      if (
+        selectedTags.size &&
+        option.tags?.length &&
+        !option.tags?.reduce((out, t) => out || selectedTags.has(t), false)
+      ) {
+        return false;
+      }
 
-        return true;
-      }),
-    [selectedTags, options]
-  );
+      return true;
+    });
+  }, [selectedTags, options, props.featureSet, props.temporal]);
 
   const categories = useMemo(() => {
     const categories: AddCriteriaOption[][] = [];
@@ -325,11 +332,13 @@ function AddCriteria(props: AddCriteriaProps) {
         width: 80,
       },
     ],
-    [underlay]
+    [searchConfig]
   );
 
   const onClick = useCallback(
     (option: AddCriteriaOption, dataEntry?: DataEntry) => {
+      const onInsertCriteria = props.onInsertCriteria;
+      const onInsertPredefinedCriteria = props.onInsertPredefinedCriteria;
       if (option.fn) {
         option.fn();
       } else if (option.selector) {
@@ -341,13 +350,18 @@ function AddCriteria(props: AddCriteriaProps) {
         if (!!getCriteriaPlugin(criteria).renderEdit && !dataEntry) {
           navigate(newCriteriaURL(option.name));
         } else {
-          props.onInsertCriteria(criteria);
+          onInsertCriteria(criteria);
         }
       } else {
-        props.onInsertPredefinedCriteria?.(option.name, option.title);
+        onInsertPredefinedCriteria?.(option.name, option.title);
       }
     },
-    [underlaySource, navigate]
+    [
+      underlaySource,
+      navigate,
+      props.onInsertCriteria,
+      props.onInsertPredefinedCriteria,
+    ]
   );
 
   const search = useCallback(async () => {

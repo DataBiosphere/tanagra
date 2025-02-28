@@ -6,7 +6,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
 import { useTextInputDialog } from "components/textInputDialog";
-import { TreeGrid, TreeGridData } from "components/treegrid";
+import { TreeGrid, TreeGridData } from "components/treeGrid";
 import { useStudySource } from "data/studySourceContext";
 import { DataKey } from "data/types";
 import GridLayout from "layout/gridLayout";
@@ -14,7 +14,7 @@ import { useCallback, useMemo } from "react";
 import { Header } from "sampleApp/header";
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
-import { RouterLink } from "util/searchState";
+import { RouterLink } from "components/routerLink";
 
 const columns = [
   {
@@ -65,13 +65,6 @@ export function StudiesList() {
     });
   };
 
-  const onDeleteStudy = (studyId: string) => {
-    studiesState.mutate(async () => {
-      await studySource.deleteStudy(studyId);
-      return listStudies();
-    });
-  };
-
   const [newStudyDialog, showNewStudyDialog] = useTextInputDialog();
 
   const [confirmDialog, showConfirmDialog] = useSimpleDialog();
@@ -108,7 +101,10 @@ export function StudiesList() {
                     buttons: ["Cancel", "Delete"],
                     onButton: (button) => {
                       if (button === 1) {
-                        onDeleteStudy(study.id);
+                        studiesState.mutate(async () => {
+                          await studySource.deleteStudy(study.id);
+                          return listStudies();
+                        });
                       }
                     },
                   })
@@ -125,7 +121,7 @@ export function StudiesList() {
     });
 
     return data;
-  }, [studySource, studiesState.data]);
+  }, [studiesState, showConfirmDialog, listStudies, studySource]);
 
   return (
     <GridLayout

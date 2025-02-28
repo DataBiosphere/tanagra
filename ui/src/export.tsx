@@ -27,7 +27,7 @@ import Checkbox from "components/checkbox";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { Tabs as TanagraTabs } from "components/tabs";
-import { TreeGrid, TreeGridData } from "components/treegrid";
+import { TreeGrid, TreeGridData } from "components/treeGrid";
 import { Cohort, ExportModel, ExportResultLink, FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
@@ -73,7 +73,7 @@ export function Export() {
       (cohortsState.data ?? []).filter(
         (cohort) => cohort.underlayName === underlay.name
       ),
-    [cohortsState.data]
+    [cohortsState.data, underlay.name]
   );
 
   const featureSetsState = useSWR(
@@ -86,7 +86,7 @@ export function Export() {
       (featureSetsState.data ?? []).filter(
         (fs) => fs.underlayName === underlay.name
       ),
-    [featureSetsState.data]
+    [featureSetsState.data, underlay.name]
   );
 
   const [selectedCohorts, updateSelectedCohorts] = useImmer(new Set<string>());

@@ -30,7 +30,8 @@ function useApiForEnvironment<Real, Fake>(
   const env = getEnvironment();
 
   if (isTestEnvironment()) {
-    getAuthToken ?? getAccessToken();
+    const _ = getAuthToken ?? getAccessToken();
+
     return new fake();
   }
 

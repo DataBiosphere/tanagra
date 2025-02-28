@@ -32,7 +32,6 @@ type Config = {
 };
 
 @registerCohortReviewPlugin("textSearch")
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CohortReviewPlugin {
   public entities: string[];
   private config: Config;
@@ -57,21 +56,17 @@ type SearchState = {
   context?: boolean;
 };
 
-function TextSearch({ id, config }: { id: string; config: Config }) {
+export function TextSearch({ id, config }: { id: string; config: Config }) {
   const underlaySource = useUnderlaySource();
-
   const context = useCohortReviewContext();
-  if (!context) {
-    return null;
-  }
 
-  const searchState = context.searchState<SearchState>(id);
+  const searchState = context?.searchState<SearchState>(id);
   const query = searchState?.query ?? "";
-  const [regExp] = safeRegExp(query);
+  const [regExp] = useMemo(() => safeRegExp(query), [query]);
 
   const entities = useMemo(
     () =>
-      context.rows[config.entity]
+      context?.rows[config.entity]
         .filter((o) => regExp.test(o[config.text] as string))
         .filter((o) => {
           const ca = config.categoryAttribute;
@@ -102,7 +97,7 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
           }
           return config.sortOrder?.direction != SortDirection.Desc ? ret : -ret;
         }),
-    [context.rows, searchState]
+    [context.rows, searchState, config, regExp]
   );
 
   const hintDataState = useSWRImmutable(
@@ -122,6 +117,10 @@ function TextSearch({ id, config }: { id: string; config: Config }) {
       };
     }
   );
+
+  if (!context) {
+    return null;
+  }
 
   const onSearch = (query: string) =>
     context.updateSearchState(id, (state: SearchState) => {
@@ -229,7 +228,7 @@ type TextBlockProps = {
 
 const CONTEXT_LENGTH = 40;
 
-function TextBlock(props: TextBlockProps) {
+export function TextBlock(props: TextBlockProps) {
   const chunks = useMemo(() => {
     return findAll({
       searchWords: [props.query],

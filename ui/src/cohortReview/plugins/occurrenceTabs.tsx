@@ -16,7 +16,6 @@ interface Config {
 }
 
 @registerCohortReviewPlugin("entityTabs")
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CohortReviewPlugin {
   public entities: string[];
   private config: Config;
@@ -37,11 +36,8 @@ class _ implements CohortReviewPlugin {
   }
 }
 
-function OccurrenceTabs({ config }: { config: Config }) {
+export function OccurrenceTabs({ config }: { config: Config }) {
   const context = useCohortReviewContext();
-  if (!context) {
-    return null;
-  }
 
   const pagePlugins = useMemo(
     () => config.tabs.map((p) => getCohortReviewPlugin(p)),
@@ -51,6 +47,10 @@ function OccurrenceTabs({ config }: { config: Config }) {
   const [searchState, updateSearchState] = useReviewSearchState();
 
   const subTabPageId = searchState.subTabPageId ?? config.tabs[0].id;
+
+  if (!context) {
+    return null;
+  }
 
   const changePage = (newValue: string) => {
     updateSearchState((state) => {
