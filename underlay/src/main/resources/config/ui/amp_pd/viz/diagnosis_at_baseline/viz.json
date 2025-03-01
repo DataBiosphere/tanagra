@@ -1,0 +1,6 @@
+{
+    "name": "diagnosis_at_baseline",
+    "title": "Diagnosis at baseline",
+    "dataConfigFile": "diagnosis_at_baseline.json",
+    "plugin": "core/bar"
+  }

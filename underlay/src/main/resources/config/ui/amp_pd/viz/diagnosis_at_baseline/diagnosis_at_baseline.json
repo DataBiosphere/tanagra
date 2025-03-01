@@ -1,0 +1,14 @@
+{
+    "sources": [
+      {
+        "criteriaSelector": "demographics",
+        "joins": [],
+        "attributes": [
+          {
+            "attribute": "diagnosis_at_baseline"
+          }
+        ]
+      }
+    ]
+  }
+  
