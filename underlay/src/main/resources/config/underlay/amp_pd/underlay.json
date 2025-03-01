@@ -20,7 +20,8 @@
         "omop/sex",
         "omop/ethnicity",
         "omop/sexAndAge",
-        "omop/raceAndAge"
+        "omop/raceAndAge",
+        "amp_pd/diagnosis_at_baseline"
       ],
       "metadata": {
         "displayName": "AMP-PD metadata displayname",
