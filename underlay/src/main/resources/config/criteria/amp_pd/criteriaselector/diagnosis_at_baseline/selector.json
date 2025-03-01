@@ -1,0 +1,15 @@
+{
+    "name": "amp_pd-diagnosis_at_baseline",
+    "displayName": "Baseline Diagnosis",
+    "isEnabledForCohorts": true,
+    "isEnabledForDataFeatureSets": true,
+    "display": {
+      "category": "Demographics",
+      "tags": null
+    },
+    "filterBuilder": "core.PrimaryEntityFilterBuilder",
+    "plugin": "attribute",
+    "pluginConfig": null,
+    "pluginConfigFile": "diagnosis_at_baseline.json",
+    "modifiers": null
+  }
