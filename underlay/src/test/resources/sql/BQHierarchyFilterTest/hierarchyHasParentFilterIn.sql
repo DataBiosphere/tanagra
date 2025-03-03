@@ -9,10 +9,4 @@
         FROM
             ${HCP_condition_default}          
         WHERE
-            parent IN (@val0, @val1)          
-        UNION
-        ALL SELECT
-            @val2          
-        UNION
-        ALL SELECT
-            @val3)
+            parent IN (@val0, @val1))
