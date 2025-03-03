@@ -14,19 +14,18 @@ export function useArrayAsTreeGridData<
 >(array: T[], key: K): TreeGridData<TreeGridItem<T>> {
   return useMemo(() => {
     const children: TreeGridId[] = [];
-    const data = new Map<TreeGridId, TreeGridItem<T>>([
-      // Force empty data here since it's never accessed but making it optional
-      // is a pain for "data" access everywhere.
-      ["root", { data: {} as T, children }],
-    ]);
+    const rows = new Map<TreeGridId, TreeGridItem<T>>();
 
     array?.forEach((a) => {
       const k = a[key] as TreeGridId;
-      data.set(k, { data: a });
+      rows.set(k, { data: a });
       children.push(k);
     });
 
-    return data;
+    return {
+      rows,
+      children,
+    };
   }, [array, key]);
 }
 export function fromProtoColumns(

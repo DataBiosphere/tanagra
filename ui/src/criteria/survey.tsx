@@ -13,7 +13,6 @@ import { useSimpleDialog } from "components/simpleDialog";
 import {
   TreeGrid,
   TreeGridColumn,
-  TreeGridData,
   TreeGridId,
   TreeGridItem,
   TreeGridRowData,
@@ -78,8 +77,6 @@ type EntityNodeItem = TreeGridItem & {
   type: EntityNodeItemType;
   parentKey?: DataKey;
 };
-
-type EntityTreeGridData = TreeGridData<EntityNodeItem>;
 
 // Exported for testing purposes.
 export interface Data {
@@ -285,60 +282,68 @@ export function SurveyEdit(props: SurveyEditProps) {
 
   const processEntities = useCallback(
     (allEntityGroups: [string, EntityNode[]][]) => {
-      const data: EntityTreeGridData = new Map();
+      const children: TreeGridId[] = [];
+      const rows = new Map<TreeGridId, EntityNodeItem>();
 
       allEntityGroups.forEach(([entityGroup, nodes]) => {
         nodes.forEach((node) => {
           const rowData: TreeGridRowData = { ...node.data };
           const key = dataKeyToKey(node.data.key, entityGroup);
 
-          let parentKey = "root";
+          let parentKey: string | undefined;
           if (node.ancestors?.length) {
             parentKey = dataKeyToKey(node.ancestors[0], entityGroup);
           }
 
           const cItem: EntityNodeItem = {
             data: rowData,
-            children: data.get(key)?.children ?? [],
+            children: rows.get(key)?.children ?? [],
             node: node,
             entityGroup,
             type:
-              data.get(key)?.type ??
+              rows.get(key)?.type ??
               (node.childCount === 0
                 ? EntityNodeItemType.Answer
                 : EntityNodeItemType.Topic),
             parentKey: parentKey,
           };
-          data.set(key, cItem);
+          rows.set(key, cItem);
 
-          const parent = data.get(parentKey);
-          if (parent) {
-            parent.children?.push(key);
-            if (cItem.type === EntityNodeItemType.Answer) {
-              parent.type = EntityNodeItemType.Question;
+          if (parentKey) {
+            const parent = rows.get(parentKey);
+            if (parent) {
+              parent.children?.push(key);
+              if (cItem.type === EntityNodeItemType.Answer) {
+                parent.type = EntityNodeItemType.Question;
+              }
+            } else {
+              const d = {
+                key: parentKey,
+              };
+              rows.set(parentKey, {
+                data: d,
+                node: {
+                  data: d,
+                  entity: "loading",
+                },
+                entityGroup,
+                type:
+                  cItem.type === EntityNodeItemType.Answer
+                    ? EntityNodeItemType.Question
+                    : EntityNodeItemType.Topic,
+                children: [key],
+              });
             }
           } else {
-            const d = {
-              key: parentKey,
-            };
-            data.set(parentKey, {
-              data: d,
-              node: {
-                data: d,
-                entity: "loading",
-              },
-              entityGroup,
-              type:
-                cItem.type === EntityNodeItemType.Answer
-                  ? EntityNodeItemType.Question
-                  : EntityNodeItemType.Topic,
-              children: [key],
-            });
+            children.push(key);
           }
         });
       });
 
-      return data;
+      return {
+        rows,
+        children,
+      };
     },
     []
   );
@@ -412,10 +417,10 @@ export function SurveyEdit(props: SurveyEditProps) {
   const [filteredData, defaultExpanded] = useMemo(() => {
     const data = instancesState.data;
     if (!data) {
-      return [new Map(), []];
+      return [{ rows: new Map(), children: [] }, []];
     }
     if (!searchState?.query) {
-      return [data, data.get("root")?.children ?? []];
+      return [data, data.children];
     }
 
     // TODO(tjennison): Handle RegExp errors.
@@ -424,7 +429,7 @@ export function SurveyEdit(props: SurveyEditProps) {
     const ancestors = new Set<TreeGridId>();
 
     const matchNode = (key: TreeGridId) => {
-      const node = data.get(key);
+      const node = data.rows.get(key);
       if (!node) {
         throw new Error(`Tree node not found for ${key}.`);
       }
@@ -447,7 +452,7 @@ export function SurveyEdit(props: SurveyEditProps) {
 
     const filtered = produce(data, (data) => {
       for (const key in data) {
-        const node = data.get(key);
+        const node = data.rows.get(key);
         if (!node) {
           throw new Error(`Tree node not found for ${key}.`);
         }
@@ -497,7 +502,7 @@ export function SurveyEdit(props: SurveyEditProps) {
             />
           </GridBox>
           <Loading status={instancesState}>
-            {!filteredData?.get("root")?.children?.length ? (
+            {!filteredData?.children?.length ? (
               <Empty
                 minHeight="300px"
                 image={emptyImage}
@@ -510,22 +515,7 @@ export function SurveyEdit(props: SurveyEditProps) {
                 expandable
                 defaultExpanded={defaultExpanded}
                 reserveExpansionSpacing
-                rowCustomization={(
-                  id: TreeGridId,
-                  rowData: TreeGridRowData
-                ) => {
-                  if (!instancesState.data) {
-                    return undefined;
-                  }
-
-                  // TODO(tjennison): Make TreeGridData's type generic so we can
-                  // avoid this type assertion. Also consider passing the
-                  // TreeGridItem to the callback instead of the TreeGridRowData.
-                  const item = instancesState.data.get(id);
-                  if (!item) {
-                    return undefined;
-                  }
-
+                rowCustomization={(id: TreeGridId, item) => {
                   const entityGroupSet = selectedSets.get(item.entityGroup);
                   const found = !!entityGroupSet?.has(item.node.data.key);
                   const foundAncestor = !!item.node.ancestors?.reduce(
@@ -554,10 +544,12 @@ export function SurveyEdit(props: SurveyEditProps) {
                                 const question =
                                   item.parentKey &&
                                   item.type === EntityNodeItemType.Answer
-                                    ? instancesState.data?.get(item.parentKey)
+                                    ? instancesState.data?.rows?.get(
+                                        item.parentKey
+                                      )
                                     : undefined;
                                 const name =
-                                  rowData[nameAttribute(props.config)];
+                                  item.data[nameAttribute(props.config)];
                                 const questionName =
                                   question?.node?.data?.[
                                     nameAttribute(props.config)

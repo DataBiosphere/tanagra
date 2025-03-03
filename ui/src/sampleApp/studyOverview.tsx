@@ -5,7 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import Empty from "components/empty";
 import Loading from "components/loading";
 import { useSimpleDialog } from "components/simpleDialog";
-import { TreeGrid, TreeGridData, TreeGridId } from "components/treeGrid";
+import { TreeGrid, TreeGridId } from "components/treeGrid";
 import { useStudySource } from "data/studySourceContext";
 import { DataKey } from "data/types";
 import { useStudyId, useUnderlay } from "hooks";
@@ -114,7 +114,7 @@ export function StudyOverview() {
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
-    const data: TreeGridData = new Map([["root", { data: {}, children }]]);
+    const rows = new Map();
 
     artifactsState.data?.forEach((artifact) => {
       const key = `${artifact.type}~${artifact.id}`;
@@ -147,10 +147,13 @@ export function StudyOverview() {
           ),
         },
       };
-      data.set(key, item);
+      rows.set(key, item);
     });
 
-    return data;
+    return {
+      children,
+      rows,
+    };
   }, [artifactsState.data, deleteArtifact, showConfirmDialog]);
 
   const newCohort = async () => {
@@ -200,7 +203,7 @@ export function StudyOverview() {
           </GridLayout>
         </GridBox>
         <Loading status={artifactsState}>
-          {data?.get("root")?.children?.length ? (
+          {data?.children?.length ? (
             <TreeGrid
               columns={columns}
               data={data}
