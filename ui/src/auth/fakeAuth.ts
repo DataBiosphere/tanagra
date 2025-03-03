@@ -1,10 +1,4 @@
-import {
-  AuthContext,
-  AuthContextType,
-  AuthProviderProps,
-  Profile,
-} from "auth/provider";
-import { Outlet } from "react-router-dom";
+import { AuthContextType, Profile } from "auth/provider";
 
 export const FakeProfile = {
   sub: "fakesub",
@@ -45,12 +39,4 @@ export function makeFakeAuth({
       }),
     getAuthToken: getAuthToken ?? (() => Promise.resolve("fake-auth-token")),
   } as AuthContextType;
-}
-
-export function FakeAuthProvider(authProps?: AuthProviderProps) {
-  return (
-    <AuthContext.Provider value={authProps?.authCtx ?? makeFakeAuth({})}>
-      <Outlet />
-    </AuthContext.Provider>
-  );
 }

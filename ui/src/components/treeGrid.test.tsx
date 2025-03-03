@@ -3,11 +3,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import IconButton from "@mui/material/IconButton";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  TreeGrid,
-  TreeGridId,
-  TreeGridItem,
-} from "components/treegrid";
+import { TreeGrid, TreeGridId, TreeGridItem } from "components/treeGrid";
 
 test("Table renders correctly", async () => {
   const columns = [

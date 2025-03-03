@@ -69,7 +69,6 @@ interface Data {
   },
   search
 )
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class _ implements CriteriaPlugin<string> {
   public data: string;
   private selector: CommonSelectorConfig;
@@ -85,7 +84,7 @@ class _ implements CriteriaPlugin<string> {
     this.config = decodeConfig(selector);
     try {
       this.data = encodeData(JSON.parse(data));
-    } catch (e) {
+    } catch (_e) {
       this.data = data;
     }
   }
@@ -127,7 +126,7 @@ type BioVUInlineProps = {
   data: string;
 };
 
-function BioVUInline(props: BioVUInlineProps) {
+export function BioVUInline(props: BioVUInlineProps) {
   const updateEncodedCriteria = useUpdateCriteria(
     props.groupId,
     props.criteriaId

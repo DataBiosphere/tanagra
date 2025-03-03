@@ -2,10 +2,11 @@ import { Router } from "@remix-run/router";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App, AppWithRouter } from "app";
-import { AuthProviderProps, logInText } from "auth/provider";
+import { AuthProviderProps } from "auth/provider";
+import { logInText } from "auth/loginPage";
 import { AuthContextType as FakeAuthContextType } from "auth/provider";
 import { getEnvironment } from "environment";
-import { FakeProfile, makeFakeAuth } from "auth/fakeProvider";
+import { FakeProfile, makeFakeAuth } from "auth/fakeAuth";
 import { RouterProvider } from "react-router-dom";
 import { createAppRouter } from "router";
 

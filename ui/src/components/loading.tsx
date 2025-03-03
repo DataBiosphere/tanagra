@@ -60,7 +60,7 @@ export default function Loading(props: Props) {
       setVisible(false);
       clearTimeout(timerRef.current);
     };
-  }, [isLoading]);
+  }, [isLoading, props]);
 
   if (props.status && !isLoading && !props.status.error) {
     return <>{props.children}</>;

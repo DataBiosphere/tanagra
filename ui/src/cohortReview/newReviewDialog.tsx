@@ -11,7 +11,6 @@ import { useStudyId } from "hooks";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { TextField } from "mui-rff";
-import { useState } from "react";
 import { Form } from "react-final-form";
 import useSWRImmutable from "swr/immutable";
 import { isValid } from "util/valid";
@@ -33,19 +32,6 @@ type FormData = {
 // review size to 9_999 (10_000 - 1 for @currentTimestamp). Same value in
 // service/src/main/java/bio/terra/tanagra/service/artifact/ReviewService.java:MAX_REVIEW_SIZE
 const MAX_REVIEW_SIZE = 9_999;
-
-export function useNewReviewDialog(
-  props: UseNewReviewDialogProps
-): [JSX.Element, () => void] {
-  const [open, setOpen] = useState(false);
-  const show = () => setOpen(true);
-
-  return [
-    // eslint-disable-next-line react/jsx-key
-    <NewReviewDialog open={open} setOpen={setOpen} {...props} />,
-    show,
-  ];
-}
 
 export type NewReviewDialogProps = {
   open: boolean;

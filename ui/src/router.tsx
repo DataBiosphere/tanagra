@@ -1,10 +1,7 @@
 import { additionalRoutes, authRoutes, coreRoutes } from "appRoutes";
-import {
-  AuthProvider,
-  AuthProviderProps,
-  CheckAuthorization,
-  isAuthEnabled,
-} from "auth/provider";
+import { AuthProviderProps, isAuthEnabled } from "auth/provider";
+import { CheckAuthorization } from "auth/checkAuthorization";
+import { AuthProvider } from "auth/authProvider";
 import { ErrorPage } from "components/errorPage";
 import { getEnvironment } from "environment";
 import { useCallback, useEffect } from "react";
@@ -34,7 +31,7 @@ export function createAppRouter(authProps: AuthProviderProps) {
             {
               path: "*",
               element: <Outlet />,
-            }
+            },
           ],
         },
       ],
@@ -63,7 +60,7 @@ export function useExitAction() {
         );
       }
     }
-  }, [location, params, navigate]);
+  }, [location, params, navigate, env]);
 }
 
 export function useIsSecondBlock() {
@@ -90,8 +87,8 @@ export function useActivityListener() {
     1000
   );
 
-  const activityEvents = ["mousedown", "keypress", "scroll", "click"];
   useEffect(() => {
+    const activityEvents = ["mousedown", "keypress", "scroll", "click"];
     activityEvents.forEach((e) => window.addEventListener(e, listener));
     return () => {
       activityEvents.forEach((e) => window.removeEventListener(e, listener));
@@ -103,7 +100,10 @@ type MessageData = {
   message?: string;
 };
 
-function useMessageListener<T extends MessageData>(message: string, callback: (event: T) => void) {
+function useMessageListener<T extends MessageData>(
+  message: string,
+  callback: (event: T) => void
+) {
   const listener = useCallback(
     (event: MessageEvent<T>) => {
       if (
@@ -157,7 +157,9 @@ export function exitURL(params: BaseParams) {
   if (url) {
     return generatePath(url, params) + "/";
   }
-  return generatePath("/underlays/:underlayName/studies/:studyId", params) + "/";
+  return (
+    generatePath("/underlays/:underlayName/studies/:studyId", params) + "/"
+  );
 }
 
 export type BaseParams = {
@@ -176,10 +178,10 @@ export function useBaseParams(): BaseParams {
 // TODO(tjennison): This is becoming spaghetti. Consider alternative ways to set
 // this up or perhaps alternative libraries.
 function absolutePrefix(params: BaseParams) {
-  return generatePath(
-    "/tanagra/underlays/:underlayName/studies/:studyId",
-    params
-  ) + "/";
+  return (
+    generatePath("/tanagra/underlays/:underlayName/studies/:studyId", params) +
+    "/"
+  );
 }
 
 export function underlayURL(underlayName: string) {

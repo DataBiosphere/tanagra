@@ -26,16 +26,12 @@ describe("Basic tests", () => {
 
     cy.iframe().find("button:Contains(Add criteria)").first().click();
     cy.iframe().find("[data-testid='tanagra-race']").click();
-    cy.iframe()
-      .find(".MuiSelect-select:Contains(Any value)")
-      .click();
+    cy.iframe().find(".MuiSelect-select:Contains(Any value)").click();
     cy.iframe().find("li:Contains(Asian)").click();
     cy.iframe().find(".MuiBackdrop-root").click();
 
     cy.iframe().find("button:Contains(Add criteria)").first().click();
-    cy.iframe()
-      .find("[data-testid='tanagra-year_of_birth']")
-      .click();
+    cy.iframe().find("[data-testid='tanagra-year_of_birth']").click();
     cy.iframe().find(".MuiInput-input").first().type("{selectall}1940");
 
     cy.iframe().find("button:Contains(Add criteria)").last().click();

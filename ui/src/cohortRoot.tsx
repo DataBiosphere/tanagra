@@ -8,7 +8,7 @@ import Loading from "components/loading";
 import { SyntheticEvent, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useBaseParams } from "router";
-import { UndoRedoContext } from "undoRedoToolbar";
+import { UndoRedoContext } from "undoRedoContext";
 
 export default function CohortRoot() {
   const params = useBaseParams();
