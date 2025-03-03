@@ -81,8 +81,7 @@ public class BQHierarchyHasParentFilterTranslator extends ApiFilterTranslator {
         parentIdFilterSql,
         null,
         false,
-        sqlParams,
-        parentIds.toArray(new Literal[0]));
+        sqlParams);
   }
 
   @Override
