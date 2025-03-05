@@ -58,6 +58,8 @@
     "aouRT/surveySocialDeterminantsOfHealth",
     "aouRT/surveyCovidVaccine",
     "aouRT/surveyCope",
+    "aouRT/surveyEmotionalHealth",
+    "aouRT/surveyBehavioralHealth",
     "aouRT/surveyOccurrence"
   ],
   "groupItemsEntityGroups": [
@@ -110,7 +112,9 @@
     "aouRT/surveyHealthCareAccessPerson",
     "aouRT/surveySocialDeterminantsOfHealthPerson",
     "aouRT/surveyCovidVaccinePerson",
-    "aouRT/surveyCopePerson"
+    "aouRT/surveyCopePerson",
+    "aouRT/surveyEmotionalHealthPerson",
+    "aouRT/surveyBehavioralHealthPerson"
   ],
   "criteriaSelectors": [
     "aouRT/conditions",
@@ -161,7 +165,9 @@
     "aouRT/surveyHealthCareAccess",
     "aouRT/surveySocialDeterminantsOfHealth",
     "aouRT/surveyCovidVaccine",
-    "aouRT/surveyCope"
+    "aouRT/surveyCope",
+    "aouRT/surveyEmotionalHealth",
+    "aouRT/surveyBehavioralHealth"
   ],
   "prepackagedDataFeatures": [
     "aouRT/_demographics",
