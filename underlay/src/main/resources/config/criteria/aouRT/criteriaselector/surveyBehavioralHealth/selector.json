@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyBehavioralHealth",
+  "displayName": "Behavioral Health And Personality",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.SurveyFilterBuilder",
+  "plugin": "survey",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyBehavioralHealth.json",
+  "modifiers": []
+}

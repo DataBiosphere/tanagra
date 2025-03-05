@@ -1,0 +1,17 @@
+{
+  "name": "tanagra-surveyEmotionalHealth",
+  "displayName": "Emotional Health History And Well-Being",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Surveys",
+    "tags": [
+      "Standard Codes"
+    ]
+  },
+  "filterBuilder": "core.SurveyFilterBuilder",
+  "plugin": "survey",
+  "pluginConfig": null,
+  "pluginConfigFile": "surveyEmotionalHealth.json",
+  "modifiers": []
+}
