@@ -73,7 +73,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
   });
 
   useEffect(() => {
-    setState(
+    setState((state) =>
       status.data
         ? {
             past: state?.past ?? [],
@@ -90,7 +90,7 @@ export function useNewCohortContext(showSnackbar: (message: string) => void) {
           }
         : null
     );
-  }, [status.data, showSnackbar, state?.past, state?.present, state?.future]);
+  }, [status.data, showSnackbar]);
 
   const updateCohort = async (newState: CohortState | null) => {
     if (!newState) {
