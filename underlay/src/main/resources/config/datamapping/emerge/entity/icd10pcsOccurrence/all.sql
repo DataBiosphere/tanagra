@@ -8,14 +8,22 @@ SELECT
 FROM `${omopDataset}.icd10_codes` c
 JOIN (
     SELECT
-        pc.criteria_meta_seq as concept_id,
-        regexp_extract(pc.name, '.*-(.*)') as name,
-        regexp_extract(pc.name, '(.*)-.*') as concept_code,
-        pc.is_leaf
-    FROM `${omopDataset}.icd10_criteria` pc
-    WHERE pc.parent_seq >= (
-        select criteria_meta_seq from `${omopDataset}.icd10_criteria`
-        where starts_with(label, 'ICD10PCS')
-        )
-    ) cc ON c.code = cc.concept_code
-    and cc.is_leaf = true
+        concept_id,
+        concept_name as name,
+        vocabulary_id,
+        concept_code,
+        CASE WHEN concept_code IS NULL THEN concept_name ELSE CONCAT(concept_code, ' ', concept_name) END AS label
+    FROM `${omopDataset}.concept`
+    WHERE vocabulary_id = 'ICD10PCS'
+
+    UNION ALL
+
+    SELECT
+        concept_id,
+        concept_name as name,
+        vocabulary_id,
+        concept_code,
+        CASE WHEN concept_code IS NULL THEN concept_name ELSE CONCAT(concept_code, ' ', concept_name) END AS label
+    FROM `${staticTablesDataset}.prep_concept`
+    WHERE vocabulary_id = 'ICD10PCS'
+) cc ON c.code = cc.concept_code
