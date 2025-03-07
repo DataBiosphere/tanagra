@@ -1,15 +1,23 @@
 SELECT
-    pc.criteria_meta_seq as id,
-    case when starts_with(pc.label,'Root ICD10' ) then regexp_extract(pc.name, '^[A-Z0-9-]* (.*)')
-         else regexp_extract(pc.name, '.*-(.*)') end as name,
-    'ICD10CM' as type,
-    case when starts_with(pc.label,'Root ICD10' ) then regexp_extract(pc.name, '^([A-Z0-9-]*) .*')
-         else regexp_extract(pc.name, '(.*)-.*') end as concept_code,
-    case when starts_with(pc.label,'Root ICD10' ) then
-              concat(regexp_extract(pc.name, '^([A-Z0-9-]*) .*'),' ',regexp_extract(pc.name, '^[A-Z0-9-]* (.*)'))
-         else concat(regexp_extract(pc.name, '(.*)-.*'),' ',regexp_extract(pc.name, '.*-(.*)')) end as label
-FROM `${omopDataset}.icd10_criteria` pc
-WHERE pc.parent_seq >= (
-        select criteria_meta_seq from `${omopDataset}.icd10_criteria`
-        where starts_with(label, 'ICD10PCS')
-    )
+    concept_id,
+    concept_name,
+    vocabulary_id,
+    (CASE WHEN standard_concept IS NULL THEN 'Source' WHEN standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept,
+    concept_code,
+    CASE WHEN concept_code IS NULL THEN concept_name ELSE CONCAT(concept_code, ' ', concept_name) END AS label
+FROM `${omopDataset}.concept`
+WHERE
+        vocabulary_id = 'ICD10PCS'
+
+UNION ALL
+
+SELECT
+    concept_id,
+    concept_name,
+    vocabulary_id,
+    (CASE WHEN standard_concept IS NULL THEN 'Source' WHEN standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept,
+    concept_code,
+    CASE WHEN concept_code IS NULL THEN concept_name ELSE CONCAT(concept_code, ' ', concept_name) END AS label
+FROM `${staticTablesDataset}.prep_concept`
+WHERE
+        vocabulary_id = 'ICD10PCS'
