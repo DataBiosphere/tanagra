@@ -11,13 +11,17 @@ on:
         description: 'Last release tag (e.g. 0.0.370)'
         required: true
         default: 0.0.370
+
 jobs:
-  test:
+  diff-releases:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout current code
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
     - name: Generate git log diff file between two releases
       run: |
         .github/tools/diffReleases.sh $FIRST_RELEASE_TAG $LAST_RELEASE_TAG
@@ -25,6 +29,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         FIRST_RELEASE_TAG: ${{ github.event.inputs.first-release-tag }}
         LAST_RELEASE_TAG: ${{ github.event.inputs.last-release-tag }}
+
     - name: Save diff file
       uses: actions/upload-artifact@v4
       with:

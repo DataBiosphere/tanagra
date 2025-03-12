@@ -1,7 +1,6 @@
 name: Run UI Integration Tests
 
 on:
-  workflow_dispatch:
   # 'broad-tanagra-dev' backing the PR checks is deleted, disable runs
   # push:
   #  branches: [ main ]
@@ -12,9 +11,10 @@ on:
   #  branches: [ '**' ]
   #  - 'README.md'
   #  - 'docs/**'
+  workflow_dispatch:
 
 jobs:
-  build:
+  ui-integration-test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -36,7 +36,8 @@ jobs:
 
     if: "!contains( github.event.sender.login, 'broadbot')"
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout current code
+      uses: actions/checkout@v4
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
