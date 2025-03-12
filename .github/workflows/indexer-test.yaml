@@ -4,6 +4,7 @@
 name: Run Indexer Tests
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
     paths-ignore:
@@ -14,7 +15,7 @@ on:
     paths-ignore:
     - 'README.md'
     - 'docs/**'
-  workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest

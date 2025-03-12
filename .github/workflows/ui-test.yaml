@@ -1,6 +1,7 @@
 name: Run UI Unit Tests
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
     paths-ignore:
@@ -11,7 +12,6 @@ on:
     paths-ignore:
     - 'README.md'
     - 'docs/**'
-  workflow_dispatch:
 
 jobs:
   build:

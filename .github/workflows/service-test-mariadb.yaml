@@ -4,17 +4,19 @@
 name: Run Service Tests (MariaDB)
 
 on:
-  push:
-    branches: [ main ]
-    paths-ignore:
-    - 'README.md'
-    - 'docs/**'
-  pull_request:
-    branches: [ '**' ]
-    paths-ignore:
-    - 'README.md'
-    - 'docs/**'
   workflow_dispatch:
+  # 'broad-tanagra-dev' backing the PR checks is deleted, disable runs
+  # push:
+  #  branches: [ main ]
+  #  paths-ignore:
+  #  - 'README.md'
+  #  - 'docs/**'
+  # pull_request:
+  #  branches: [ '**' ]
+  #  paths-ignore:
+  #  - 'README.md'
+  #  - 'docs/**'
+
 jobs:
   test:
     runs-on: ubuntu-latest
