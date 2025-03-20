@@ -130,7 +130,7 @@ export function useRouteListener() {
   const location = useLocation();
   useEffect(() => {
     window.parent.postMessage(
-      { message: "ROUTE_CHANGED", path: location },
+      { message: "ROUTE_CHANGED", path: location.pathname },
       getEnvironment().REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
     );
   }, [location]);
