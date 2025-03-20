@@ -3,7 +3,7 @@ import Loading from "components/loading";
 import { BackendUnderlaySource } from "data/source";
 import { useCallback } from "react";
 import { Outlet, useParams } from "react-router-dom";
-import { useActivityListener } from "router";
+import { useActivityListener, useRouteListener } from "router";
 import useSWRImmutable from "swr/immutable";
 import * as tanagra from "tanagra-api";
 import { UnderlaySourceContext } from "data/underlaySourceContext";
@@ -15,6 +15,7 @@ export function UnderlaySourceContextRoot() {
   }
 
   useActivityListener();
+  useRouteListener();
 
   // TODO(tjennison): Move "fake" logic into a separate source instead of APIs.
   const underlaysApi = useUnderlaysApi() as tanagra.UnderlaysApi;

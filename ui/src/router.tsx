@@ -126,6 +126,16 @@ function useMessageListener<T extends MessageData>(
   }, [listener]);
 }
 
+export function useRouteListener() {
+  const location = useLocation();
+  useEffect(() => {
+    window.parent.postMessage(
+      { message: "ROUTE_CHANGED", path: location.pathname },
+      getEnvironment().REACT_APP_POST_MESSAGE_ORIGIN ?? window.location.origin
+    );
+  }, [location]);
+}
+
 export function useExitActionListener(callback: () => void) {
   useMessageListener("CLOSE", () => callback());
 }
