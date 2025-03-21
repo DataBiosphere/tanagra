@@ -462,7 +462,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CohortList"
+                $ref: "#/components/schemas/AllCohortList"
         500:
           $ref: "#/components/responses/ServerError"
 
@@ -2328,10 +2328,25 @@ components:
         - createdBy
         - lastModified
 
+    CohortWithStudy:
+      allOf:
+        - $ref: "#/components/schemas/Cohort"
+        - type: object
+          required:
+            - studyId
+          properties:
+            studyId:
+              type: string
+
     CohortList:
       type: array
       items:
         $ref: "#/components/schemas/Cohort"
+
+    AllCohortList:
+      type: array
+      items:
+        $ref: "#/components/schemas/CohortWithStudy"
 
     CohortId:
       type: string
