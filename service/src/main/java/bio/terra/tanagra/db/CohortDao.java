@@ -35,12 +35,13 @@ public class CohortDao {
 
   // SQL query and row mapper for reading a cohort.
   private static final String COHORT_SELECT_SQL =
-      "SELECT id, underlay, created, created_by, last_modified, last_modified_by, display_name, description, is_deleted FROM cohort";
+      "SELECT id, underlay, study_id, created, created_by, last_modified, last_modified_by, display_name, description, is_deleted FROM cohort";
   private static final RowMapper<Cohort.Builder> COHORT_ROW_MAPPER =
       (rs, rowNum) ->
           Cohort.builder()
               .id(rs.getString("id"))
               .underlay(rs.getString("underlay"))
+              .studyId(rs.getString("study_id"))
               .created(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("created")))
               .createdBy(rs.getString("created_by"))
               .lastModified(JdbcUtils.timestampToOffsetDateTime(rs.getTimestamp("last_modified")))

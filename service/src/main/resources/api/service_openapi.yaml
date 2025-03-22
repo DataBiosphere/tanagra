@@ -462,7 +462,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AllCohortList"
+                $ref: "#/components/schemas/CohortList"
         500:
           $ref: "#/components/responses/ServerError"
 
@@ -2297,6 +2297,8 @@ components:
           $ref: "#/components/schemas/CohortRevisionId"
         underlayName:
           $ref: "#/components/schemas/UnderlayName"
+        studyId:
+          $ref: "#/components/schemas/studyId"
         displayName:
           $ref: "#/components/schemas/CohortDisplayName"
         description:
@@ -2322,31 +2324,17 @@ components:
       required:
         - id
         - underlayName
+        - studyId
         - displayName
         - criteriaGroups
         - created
         - createdBy
         - lastModified
 
-    CohortWithStudy:
-      allOf:
-        - $ref: "#/components/schemas/Cohort"
-        - type: object
-          required:
-            - studyId
-          properties:
-            studyId:
-              type: string
-
     CohortList:
       type: array
       items:
         $ref: "#/components/schemas/Cohort"
-
-    AllCohortList:
-      type: array
-      items:
-        $ref: "#/components/schemas/CohortWithStudy"
 
     CohortId:
       type: string
@@ -2513,6 +2501,10 @@ components:
     UnderlayName:
       type: string
       description: Name of the underlay, immutable
+
+    studyId:
+      type: string
+      description: Name of the study
 
     CriteriaGroupSection:
       type: object

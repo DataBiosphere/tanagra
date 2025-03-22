@@ -16,14 +16,12 @@ import bio.terra.tanagra.app.authentication.SpringAuthentication;
 import bio.terra.tanagra.app.controller.objmapping.FromApiUtils;
 import bio.terra.tanagra.app.controller.objmapping.ToApiUtils;
 import bio.terra.tanagra.generated.controller.CohortsApi;
-import bio.terra.tanagra.generated.model.ApiAllCohortList;
 import bio.terra.tanagra.generated.model.ApiCohort;
 import bio.terra.tanagra.generated.model.ApiCohortCloneInfo;
 import bio.terra.tanagra.generated.model.ApiCohortCountQuery;
 import bio.terra.tanagra.generated.model.ApiCohortCreateInfo;
 import bio.terra.tanagra.generated.model.ApiCohortList;
 import bio.terra.tanagra.generated.model.ApiCohortUpdateInfo;
-import bio.terra.tanagra.generated.model.ApiCohortWithStudy;
 import bio.terra.tanagra.generated.model.ApiInstanceCountList;
 import bio.terra.tanagra.service.UnderlayService;
 import bio.terra.tanagra.service.accesscontrol.AccessControlService;
@@ -39,7 +37,6 @@ import bio.terra.tanagra.service.authentication.UserId;
 import bio.terra.tanagra.service.filter.FilterBuilderService;
 import bio.terra.tanagra.underlay.Underlay;
 import bio.terra.tanagra.underlay.entitymodel.Entity;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +118,7 @@ public class CohortsApiController implements CohortsApi {
   }
 
   @Override
-  public ResponseEntity<ApiAllCohortList> listAllCohorts(
+  public ResponseEntity<ApiCohortList> listAllCohorts(
       String userAccessGroup, Integer offset, Integer limit) {
     ResourceCollection authorizedStudyIds =
         accessControlService.listAuthorizedResources(
@@ -133,7 +130,7 @@ public class CohortsApiController implements CohortsApi {
 
     List<Study> authorizedStudies =
         studyService.listStudies(authorizedStudyIds, offset, limit, false, null);
-    ApiAllCohortList apiAllCohorts = new ApiAllCohortList();
+    ApiCohortList apiCohorts = new ApiCohortList();
     authorizedStudies.forEach(
         study -> {
           ResourceCollection authorizedCohortIds =
@@ -145,21 +142,9 @@ public class CohortsApiController implements CohortsApi {
                   limit);
           cohortService
               .listCohorts(authorizedCohortIds, offset, limit)
-              .forEach(
-                  cohort -> {
-                    ApiCohortWithStudy cohortWithStudy = new ApiCohortWithStudy();
-                    cohortWithStudy.setId(cohort.getId());
-                    cohortWithStudy.setUnderlayName(cohort.getUnderlay());
-                    cohortWithStudy.setDisplayName(cohort.getDisplayName());
-                    cohortWithStudy.setCriteriaGroupSections(Collections.emptyList());
-                    cohortWithStudy.setCreated(cohort.getCreated());
-                    cohortWithStudy.setCreatedBy(cohort.getCreatedBy());
-                    cohortWithStudy.setLastModified(cohort.getLastModified());
-                    cohortWithStudy.setStudyId(study.getId());
-                    apiAllCohorts.add(cohortWithStudy);
-                  });
+              .forEach(cohort -> apiCohorts.add(ToApiUtils.toApiObject(cohort)));
         });
-    return ResponseEntity.ok(apiAllCohorts);
+    return ResponseEntity.ok(apiCohorts);
   }
 
   @Override
