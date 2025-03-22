@@ -225,6 +225,7 @@ export class FakeCohortsAPI {
         displayName: "Test Cohort",
         lastModified: new Date(),
         underlayName: "test_underlay",
+        studyId: "test_study",
         criteriaGroupSections: [],
       },
     ];

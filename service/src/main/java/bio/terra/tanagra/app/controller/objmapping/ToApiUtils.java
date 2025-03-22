@@ -119,6 +119,7 @@ public final class ToApiUtils {
     return new ApiCohort()
         .id(cohort.getId())
         .underlayName(cohort.getUnderlay())
+        .studyId(cohort.getStudyId())
         .displayName(cohort.getDisplayName())
         .description(cohort.getDescription())
         .created(cohort.getCreated())

@@ -447,6 +447,25 @@ paths:
         500:
           $ref: "#/components/responses/ServerError"
 
+  "/v2/studies/allCohorts":
+    get:
+      parameters:
+        - $ref: "#/components/parameters/ParamUserAccessGroup"
+        - $ref: "#/components/parameters/ParamOffset"
+        - $ref: "#/components/parameters/ParamLimit"
+      summary: List all cohorts
+      operationId: listAllCohorts
+      tags: [ Cohorts ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CohortList"
+        500:
+          $ref: "#/components/responses/ServerError"
+
   "/v2/studies/{studyId}/cohorts/{cohortId}":
     parameters:
       - $ref: "#/components/parameters/ParamStudyId"
@@ -2278,6 +2297,8 @@ components:
           $ref: "#/components/schemas/CohortRevisionId"
         underlayName:
           $ref: "#/components/schemas/UnderlayName"
+        studyId:
+          $ref: "#/components/schemas/studyId"
         displayName:
           $ref: "#/components/schemas/CohortDisplayName"
         description:
@@ -2303,6 +2324,7 @@ components:
       required:
         - id
         - underlayName
+        - studyId
         - displayName
         - criteriaGroups
         - created
@@ -2479,6 +2501,10 @@ components:
     UnderlayName:
       type: string
       description: Name of the underlay, immutable
+
+    studyId:
+      type: string
+      description: Name of the study
 
     CriteriaGroupSection:
       type: object
