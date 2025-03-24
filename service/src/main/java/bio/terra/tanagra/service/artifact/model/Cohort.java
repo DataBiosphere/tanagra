@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public final class Cohort {
   private final String id;
+  private final String studyId;
   private final String underlay;
   private final OffsetDateTime created;
   private final String createdBy;
@@ -26,6 +27,7 @@ public final class Cohort {
 
   private Cohort(Builder builder) {
     this.id = builder.id;
+    this.studyId = builder.studyId;
     this.underlay = builder.underlay;
     this.created = builder.created;
     this.createdBy = builder.createdBy;
@@ -45,6 +47,9 @@ public final class Cohort {
     return id;
   }
 
+  public String getStudyId(){
+    return studyId;
+  }
   public String getUnderlay() {
     return underlay;
   }
@@ -92,6 +97,7 @@ public final class Cohort {
 
   public static class Builder {
     private String id;
+    private String studyId;
     private String underlay;
     private OffsetDateTime created;
     private String createdBy;
@@ -104,6 +110,11 @@ public final class Cohort {
 
     public Builder id(String id) {
       this.id = id;
+      return this;
+    }
+
+    public Builder studyId(String studyId) {
+      this.studyId = studyId;
       return this;
     }
 
@@ -170,6 +181,10 @@ public final class Cohort {
 
     public String getId() {
       return id;
+    }
+
+    public String getStudyId() {
+      return studyId;
     }
 
     public String getUnderlay() {

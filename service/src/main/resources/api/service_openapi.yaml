@@ -2274,6 +2274,8 @@ components:
       properties:
         id:
           $ref: "#/components/schemas/CohortId"
+        studyId:
+          $ref: "#/components/schemas/StudyId"
         revisionId:
           $ref: "#/components/schemas/CohortRevisionId"
         underlayName:
@@ -2302,6 +2304,7 @@ components:
           type: boolean
       required:
         - id
+        - studyId
         - underlayName
         - displayName
         - criteriaGroups
