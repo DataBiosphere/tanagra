@@ -1,18 +1,16 @@
 {
-  "name": "tanagra-icd9proc",
-  "displayName": "ICD-9-Proc",
+  "name": "tanagra-icd9cm",
+  "displayName": "ICD-9CM",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
   "display": {
     "category": "Source Codes",
-    "tags": [
-      "Source Codes"
-    ]
+    "tags": null
   },
   "filterBuilder": "core.EntityGroupFilterBuilder",
   "plugin": "entityGroup",
   "pluginConfig": null,
-  "pluginConfigFile": "icd9proc.json",
+  "pluginConfigFile": "icd9cm.json",
   "modifiers": [
     {
       "name": "ageAtOccurrence",
@@ -21,16 +19,10 @@
       "pluginConfigFile": "ageAtOccurrence.json"
     },
     {
-      "name": "visitType",
-      "displayName": "Visit type",
-      "plugin": "attribute",
-      "pluginConfigFile": "visitType.json"
-    },
-    {
-      "name": "startDateGroupByCount",
+      "name": "idSeqGroupByCount",
       "displayName": "Occurrence count",
       "plugin": "unhinted-value",
-      "pluginConfigFile": "startDateGroupByCount.json"
+      "pluginConfigFile": "idSeqGroupByCount.json"
     }
   ]
 }
