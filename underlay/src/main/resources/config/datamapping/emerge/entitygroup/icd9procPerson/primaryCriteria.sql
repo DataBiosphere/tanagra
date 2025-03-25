@@ -7,12 +7,4 @@ JOIN (
         concept_code
     FROM `${omopDataset}.concept`
     WHERE vocabulary_id = 'ICD9Proc'
-
-    UNION ALL
-
-    SELECT
-        concept_id,
-        concept_code
-    FROM `${staticTablesDataset}.prep_concept`
-    WHERE vocabulary_id = 'ICD9Proc'
 ) cc ON c.code = cc.concept_code

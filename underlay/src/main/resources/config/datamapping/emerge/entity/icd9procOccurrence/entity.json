@@ -1,5 +1,5 @@
 {
-  "name": "icd9Occurrence",
+  "name": "icd9procOccurrence",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "icd9_occurrence_id" },

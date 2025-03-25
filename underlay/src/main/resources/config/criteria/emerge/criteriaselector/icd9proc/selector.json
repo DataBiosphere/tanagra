@@ -1,6 +1,6 @@
 {
-  "name": "tanagra-icd9cm",
-  "displayName": "ICD-9CM",
+  "name": "tanagra-icd9proc",
+  "displayName": "ICD-9PROC",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": true,
   "display": {
