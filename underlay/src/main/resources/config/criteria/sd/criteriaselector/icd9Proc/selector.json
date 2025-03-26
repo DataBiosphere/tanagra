@@ -12,7 +12,7 @@
   "filterBuilder": "core.EntityGroupFilterBuilder",
   "plugin": "entityGroup",
   "pluginConfig": null,
-  "pluginConfigFile": "icd9proc.json",
+  "pluginConfigFile": "icd9Proc.json",
   "modifiers": [
     {
       "name": "ageAtOccurrence",

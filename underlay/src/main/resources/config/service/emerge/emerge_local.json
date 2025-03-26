@@ -11,7 +11,7 @@
     },
     "indexData": {
       "projectId": "vumc-emerge-dev",
-      "datasetId": "indexed_emerge_20240603_1886"
+      "datasetId": "indexed_emerge_20240603"
     },
     "queryProjectId": "vumc-emerge-dev",
     "dataLocation": "us-central1"

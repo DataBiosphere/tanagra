@@ -3,7 +3,18 @@
   "criteriaEntity": "phewas",
   "occurrenceEntities": [
     {
-      "occurrenceEntity": "icd9Occurrence",
+      "occurrenceEntity": "icd9cmOccurrence",
+      "criteriaRelationship": {
+        "idPairsSqlFile": "occurrenceCriteria_icd9.sql",
+        "occurrenceEntityIdFieldName": "icd9_occurrence_id",
+        "criteriaEntityIdFieldName": "phewas_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    },
+    {
+      "occurrenceEntity": "icd9procOccurrence",
       "criteriaRelationship": {
         "idPairsSqlFile": "occurrenceCriteria_icd9.sql",
         "occurrenceEntityIdFieldName": "icd9_occurrence_id",
