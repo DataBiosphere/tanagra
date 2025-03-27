@@ -1,3 +1,18 @@
+SELECT ROW_NUMBER() OVER() AS observation_id,
+       person_id,
+       survey_datetime,
+       value_as_number,
+       survey_item_id,
+       survey_concept_id,
+       survey_concept_name,
+       question_concept_id,
+       question_concept_name,
+       answer_concept_id,
+       answer_concept_name,
+       survey_version_concept_id,
+       survey_version_name
+FROM (
+
 SELECT distinct
   o.observation_id,
   o.person_id,
@@ -178,4 +193,4 @@ FROM `${omopDataset}.observation` AS o
          LEFT JOIN `${omopDataset}.survey_conduct` AS sv
                    ON sv.survey_conduct_id = o.questionnaire_response_id
          LEFT JOIN `${omopDataset}.concept` AS svc
-                   ON svc.concept_id = sv.survey_concept_id
+                   ON svc.concept_id = sv.survey_concept_id) x
