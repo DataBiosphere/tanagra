@@ -2,7 +2,7 @@
 buildscript {
     ext {
         // plugin versions
-        vSpringBoot = '3.3.7'
+        vSpringBoot = '3.3.10'
         vHidetakeSwagger = '2.19.2'
         vGoogleProtobuf = '0.9.4'
 
