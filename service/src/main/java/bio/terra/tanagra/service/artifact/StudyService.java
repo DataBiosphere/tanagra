@@ -85,11 +85,12 @@ public class StudyService {
       String id,
       String lastModifiedBy,
       @Nullable String displayName,
-      @Nullable String description) {
+      @Nullable String description,
+      @Nullable Map<String, String> properties) {
     if (displayName == null && description == null) {
       throw new MissingRequiredFieldException("Study name or description must be not null.");
     }
-    studyDao.updateStudy(id, lastModifiedBy, displayName, description);
+    studyDao.updateStudy(id, lastModifiedBy, displayName, description, properties);
     return studyDao.getStudy(id);
   }
 

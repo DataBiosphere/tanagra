@@ -242,7 +242,11 @@ public class StudyDao {
 
   @WriteTransaction
   public boolean updateStudy(
-      String id, String lastModifiedBy, @Nullable String name, @Nullable String description) {
+      String id,
+      String lastModifiedBy,
+      @Nullable String name,
+      @Nullable String description,
+      @Nullable Map<String, String> properties) {
     // Check to make sure the study isn't deleted.
     getStudyNotDeleted(id);
 
@@ -253,6 +257,9 @@ public class StudyDao {
     }
     if (description != null) {
       params.addValue("description", description);
+    }
+    if (properties != null) {
+      updatePropertiesHelper(id, properties);
     }
 
     String sql =
@@ -283,7 +290,7 @@ public class StudyDao {
     updatePropertiesHelper(id, updatedProperties);
 
     // Update the study timestamps.
-    updateStudy(id, lastModifiedBy, null, null);
+    updateStudy(id, lastModifiedBy, null, null, null);
   }
 
   @WriteTransaction
@@ -301,7 +308,7 @@ public class StudyDao {
     updatePropertiesHelper(id, updatedProperties);
 
     // Update the study timestamps.
-    updateStudy(id, lastModifiedBy, null, null);
+    updateStudy(id, lastModifiedBy, null, null, null);
   }
 
   @WriteTransaction
