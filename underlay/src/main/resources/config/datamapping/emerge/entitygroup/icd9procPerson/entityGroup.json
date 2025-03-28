@@ -1,9 +1,9 @@
 {
-  "name": "icd9Person",
-  "criteriaEntity": "icd9",
+  "name": "icd9procPerson",
+  "criteriaEntity": "icd9proc",
   "occurrenceEntities": [
     {
-      "occurrenceEntity": "icd9Occurrence",
+      "occurrenceEntity": "icd9procOccurrence",
       "criteriaRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "icd9"
       },

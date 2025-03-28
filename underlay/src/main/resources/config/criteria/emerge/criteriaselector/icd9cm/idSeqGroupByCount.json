@@ -1,7 +1,7 @@
 {
   "groupByCount": true,
   "attributes": {
-    "icd9Occurrence": {
+    "icd9cmOccurrence": {
       "values": [
         "id",
         "icd9"

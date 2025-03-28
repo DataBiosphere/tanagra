@@ -35,7 +35,7 @@
   ],
   "classificationEntityGroups": [
     {
-      "id": "icd9Person",
+      "id": "icd9procPerson",
       "sortOrder": {
         "attribute": "label",
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
