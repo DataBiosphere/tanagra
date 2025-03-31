@@ -118,7 +118,8 @@ public class StudiesApiController implements StudiesApi {
             studyId,
             SpringAuthentication.getCurrentUser().getEmail(),
             body.getDisplayName(),
-            body.getDescription());
+            body.getDescription(),
+            fromApiObject(body.getProperties()));
     return ResponseEntity.ok(ToApiUtils.toApiObject(updatedStudy));
   }
 
