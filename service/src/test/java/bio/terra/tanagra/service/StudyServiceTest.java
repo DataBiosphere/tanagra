@@ -72,7 +72,7 @@ public class StudyServiceTest {
     String displayName2 = "study 1 updated";
     String description2 = "first study updated";
     Study updatedStudy =
-        studyService.updateStudy(createdStudy.getId(), "efg@123.com", displayName2, description2,null);
+        studyService.updateStudy(createdStudy.getId(), "efg@123.com", displayName2, description2, null);
     assertNotNull(updatedStudy);
     LOGGER.info("Updated study {} at {}", updatedStudy.getId(), updatedStudy.getLastModified());
     assertEquals(displayName2, updatedStudy.getDisplayName());
