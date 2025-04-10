@@ -6,33 +6,33 @@
 
     "sd/condition",
     "sd/conditionOccurrence",
-    "omop/procedure",
+    "sd/procedure",
     "sd/procedureOccurrence",
 
-    "omop/brand",
-    "omop/ingredient",
+    "sd/brand",
+    "sd/ingredient",
     "sd/ingredientOccurrence",
 
-    "omop/measurementLoinc",
-    "omop/measurementSnomed",
+    "sd/measurementLoinc",
+    "sd/measurementSnomed",
     "sd/measurementOccurrence",
 
-    "omop/observation",
+    "sd/observation",
     "sd/observationOccurrence",
-    "omop/device",
+    "sd/device",
     "sd/deviceOccurrence",
-    "omop/visit",
+    "sd/visit",
     "sd/visitOccurrence",
 
-    "omop/note",
+    "sd/note",
     "sd/noteOccurrence",
     "sd/familyHistory",
 
     "sd/cpt4",
-    "omop/icd9cm",
-    "omop/icd9proc",
-    "omop/icd10cm",
-    "omop/icd10pcs",
+    "sd/icd9cm",
+    "sd/icd9proc",
+    "sd/icd10cm",
+    "sd/icd10pcs",
     "sd/phewas",
 
     "sd/genotyping",
@@ -46,7 +46,7 @@
     "sd/respiratoryRate"
   ],
   "groupItemsEntityGroups": [
-    "omop/brandIngredient",
+    "sd/brandIngredient",
 
     "sd/familyHistoryPerson",
 
@@ -61,25 +61,25 @@
     "sd/respiratoryRatePerson"
   ],
   "criteriaOccurrenceEntityGroups": [
-    "omop/conditionPerson",
-    "omop/procedurePerson",
+    "sd/conditionPerson",
+    "sd/procedurePerson",
 
-    "omop/ingredientPerson",
+    "sd/ingredientPerson",
 
-    "omop/measurementLoincPerson",
-    "omop/measurementSnomedPerson",
+    "sd/measurementLoincPerson",
+    "sd/measurementSnomedPerson",
 
-    "omop/observationPerson",
-    "omop/devicePerson",
-    "omop/visitPerson",
+    "sd/observationPerson",
+    "sd/devicePerson",
+    "sd/visitPerson",
 
-    "omop/notePerson",
+    "sd/notePerson",
 
     "sd/cpt4Person",
-    "omop/icd9cmPerson",
-    "omop/icd9procPerson",
-    "omop/icd10cmPerson",
-    "omop/icd10pcsPerson",
+    "sd/icd9cmPerson",
+    "sd/icd9procPerson",
+    "sd/icd10cmPerson",
+    "sd/icd10pcsPerson",
     "sd/phewasPerson"
   ],
   "criteriaSelectors": [
