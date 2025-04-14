@@ -27,5 +27,3 @@ LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
 
-WHERE n.note_concept_id IS NOT null
-  AND n.note_concept_id != 0
