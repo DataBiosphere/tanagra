@@ -39,4 +39,3 @@ LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
 LEFT JOIN `${omopDataset}.concept` AS tc
     ON tc.concept_id = de.drug_type_concept_id
-

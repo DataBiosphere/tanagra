@@ -5,16 +5,20 @@
     "sd/person",
 
     "sd/condition",
+    "sd/conditionNonHierarchy",
     "sd/conditionOccurrence",
     "sd/procedure",
+    "sd/conditionNonHierarchy",
     "sd/procedureOccurrence",
 
     "sd/brand",
     "sd/ingredient",
+    "sd/ingredientNonHierarchy",
     "sd/ingredientOccurrence",
 
     "sd/measurementLoinc",
     "sd/measurementSnomed",
+    "sd/measurementNonHierarchy",
     "sd/measurementOccurrence",
 
     "sd/observation",
@@ -62,12 +66,16 @@
   ],
   "criteriaOccurrenceEntityGroups": [
     "sd/conditionPerson",
+    "sd/conditionNonHierarchyPerson",
     "sd/procedurePerson",
+    "sd/procedureNonHierarchyPerson",
 
     "sd/ingredientPerson",
+    "sd/ingredientNonHierarchyPerson",
 
     "sd/measurementLoincPerson",
     "sd/measurementSnomedPerson",
+    "sd/measurementNonHierarchyPerson",
 
     "sd/observationPerson",
     "sd/devicePerson",

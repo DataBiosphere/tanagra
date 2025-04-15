@@ -1,5 +1,5 @@
 {
-  "name": "ingredient",
+  "name": "procedureNonHierarchy",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "concept_id" },
@@ -11,17 +11,5 @@
   "idAttribute": "id",
   "textSearch": {
     "attributes": [ "id", "name", "concept_code" ]
-  },
-  "hierarchies": [
-    {
-      "childParentIdPairsSqlFile": "childParent.sql",
-      "childIdFieldName": "child",
-      "parentIdFieldName": "parent",
-      "rootNodeIdsSqlFile": "rootNode.sql",
-      "rootIdFieldName": "concept_id",
-      "maxDepth": 8,
-      "keepOrphanNodes": false,
-      "cleanHierarchyNodesWithZeroCounts": true
-    }
-  ]
+  }
 }
