@@ -32,7 +32,7 @@ public class JobSequencerTest {
   @Test
   public void person() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
+    SZIndexer szIndexer = configReader.readIndexer("sd/sd_indexer_test");
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
@@ -57,7 +57,7 @@ public class JobSequencerTest {
   @Test
   public void condition() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
+    SZIndexer szIndexer = configReader.readIndexer("sd/sd_indexer_test");
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
@@ -118,7 +118,7 @@ public class JobSequencerTest {
   @Test
   public void brandIngredient() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
+    SZIndexer szIndexer = configReader.readIndexer("sd/sd_indexer_test");
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
@@ -137,25 +137,37 @@ public class JobSequencerTest {
   @Test
   public void conditionPerson() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
+    SZIndexer szIndexer = configReader.readIndexer("sd/sd_indexer_test");
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
         JobSequencer.getJobSetForCriteriaOccurrence(
             szIndexer, underlay, (CriteriaOccurrence) underlay.getEntityGroup("conditionPerson"));
 
-    assertEquals(2, jobs.getNumStages());
+    assertEquals(3, jobs.getNumStages());
     Iterator<List<IndexingJob>> jobStageItr = jobs.iterator();
-    IndexingJob job = jobStageItr.next().get(0);
-    assertEquals(WriteRelationshipIntermediateTable.class, job.getClass());
 
-    assertEquals(2, jobStageItr.next().size());
+    // Assert stage 1 job is WriteRelationshipIntermediateTable
+    List<IndexingJob> stage1Jobs = jobStageItr.next();
+    assertEquals(1, stage1Jobs.size());
+    assertEquals(WriteRelationshipIntermediateTable.class, stage1Jobs.get(0).getClass());
+
+    // Assert stage 2 job is WriteRollupCounts
+    List<IndexingJob> stage2Jobs = jobStageItr.next();
+    assertEquals(2, stage2Jobs.size());
+    assertEquals(WriteRollupCounts.class, stage2Jobs.get(0).getClass());
+    assertEquals(WriteRollupCounts.class, stage2Jobs.get(1).getClass());
+
+    // Assert stage 3 job is CleanHierarchyNodesWithZeroCounts
+    List<IndexingJob> stage3Jobs = jobStageItr.next();
+    assertEquals(1, stage3Jobs.size());
+    assertEquals(CleanHierarchyNodesWithZeroCounts.class, stage3Jobs.get(0).getClass());
   }
 
   @Test
   public void conditionPersonCleanHierarchyNodesWithZeroCounts() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZIndexer szIndexer = configReader.readIndexer("aou/SC2023Q3R2");
+    SZIndexer szIndexer = configReader.readIndexer("sd/sd_indexer_test");
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
@@ -185,7 +197,7 @@ public class JobSequencerTest {
   @Test
   public void filtered() {
     ConfigReader configReader = ConfigReader.fromJarResources();
-    SZIndexer szIndexer = configReader.readIndexer("sd20230331_verily");
+    SZIndexer szIndexer = configReader.readIndexer("sd/sd_indexer_test");
     SZUnderlay szUnderlay = configReader.readUnderlay(szIndexer.underlay);
     Underlay underlay = Underlay.fromConfig(szIndexer.bigQuery, szUnderlay, configReader);
     SequencedJobSet jobs =
