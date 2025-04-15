@@ -1,8 +1,8 @@
-SELECT DISTINCT
+SELECT
   mo.measurement_id,
   mo.person_id,
   p.person_source_value,
-  (CASE WHEN mo.measurement_concept_id IS NULL THEN 0 ELSE mo.measurement_concept_id END) AS measurement_concept_id,
+  measurement_concept_id,
   mc.concept_name AS measurement_concept_name,
   mo.measurement_date,
   mo.value_as_number,
@@ -18,27 +18,21 @@ SELECT DISTINCT
   vc.concept_name AS visit_concept_name,
   mo.measurement_type_concept_id,
   tc.concept_name AS measurement_type_concept_name
-
-
 FROM `${omopDataset}.measurement` AS mo
-
 JOIN `${omopDataset}.person` AS p
-ON p.person_id = mo.person_id
-
+    ON p.person_id = mo.person_id
 LEFT JOIN `${omopDataset}.concept` AS mc
     ON mc.concept_id = mo.measurement_concept_id
-
+    AND mc.domain_id = 'Measurement'
 LEFT JOIN `${omopDataset}.concept` AS evc
     ON evc.concept_id = mo.value_as_concept_id
-
 LEFT JOIN `${omopDataset}.concept` AS uc
     ON uc.concept_id = mo.unit_concept_id
-
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
 ON vo.visit_occurrence_id = mo.visit_occurrence_id
-
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
-
 LEFT JOIN `${omopDataset}.concept` AS tc
     ON tc.concept_id = mo.measurement_type_concept_id
+WHERE mo.measurement_concept_id IS NOT null
+  AND mo.measurement_concept_id != 0

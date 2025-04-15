@@ -26,3 +26,4 @@ LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
 
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
+

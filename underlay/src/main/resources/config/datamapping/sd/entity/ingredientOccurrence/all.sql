@@ -25,21 +25,18 @@ SELECT
   x.x_doc_type AS source_table
 
 FROM `${omopDataset}.drug_exposure` AS de
-
 JOIN `${omopDataset}.person` AS p
     ON p.person_id = de.person_id
-
 JOIN `${omopDataset}.x_drug_exposure` AS x
     ON de.drug_exposure_id = x.drug_exposure_id
-
 JOIN `${omopDataset}.concept` AS ic
     ON ic.concept_id = de.drug_concept_id
-
+        AND de.drug_concept_id IS NOT null
+        AND de.drug_concept_id != 0
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
     ON vo.visit_occurrence_id = de.visit_occurrence_id
-
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
-
 LEFT JOIN `${omopDataset}.concept` AS tc
     ON tc.concept_id = de.drug_type_concept_id
+

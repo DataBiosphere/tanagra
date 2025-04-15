@@ -41,12 +41,14 @@ public final class GoogleBigQuery {
   private static final Logger LOGGER = LoggerFactory.getLogger(GoogleBigQuery.class);
   // Default value for the maximum number of times to retry HTTP requests.
   public static final int BQ_MAXIMUM_RETRIES = 5;
-  public static final Duration LONG_QUERY_TIMEOUT = Duration.ofHours(3);
-  private static final Duration DEFAULT_QUERY_TIMEOUT = Duration.ofMinutes(10);
+  // max allowed: 6h: measurementOccurrence fails at 3hr
+  public static final Duration LONG_QUERY_TIMEOUT = Duration.ofHours(6);
+  // measurement occurrence takes 29+ minutes to write 2T rows
+  private static final Duration DEFAULT_QUERY_TIMEOUT = Duration.ofMinutes(60);
   private static final org.threeten.bp.Duration LONG_BQ_CLIENT_TIMEOUT =
-      org.threeten.bp.Duration.ofHours(3);
+      org.threeten.bp.Duration.ofHours(6);
   private static final org.threeten.bp.Duration DEFAULT_BQ_CLIENT_TIMEOUT =
-      org.threeten.bp.Duration.ofMinutes(10);
+      org.threeten.bp.Duration.ofMinutes(60);
   private final BigQuery bigQuery;
 
   private GoogleBigQuery(
