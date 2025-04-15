@@ -10,9 +10,6 @@
   ],
   "idAttribute": "id",
   "textSearch": {
-    "attributes": [ "id", "name", "concept_code" ],
-    "idTextPairsSqlFile": "textSearch.sql",
-    "idFieldName": "concept_id",
-    "textFieldName": "concept_synonym_name"
+    "attributes": [ "id", "name", "concept_code" ]
   }
 }
