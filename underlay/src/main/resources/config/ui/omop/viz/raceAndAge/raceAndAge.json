@@ -11,6 +11,7 @@
           "attribute": "age",
           "numericBucketing": {
             "thresholds": [18, 45, 65],
+            "includeLesser": true,
             "includeGreater": true
           }
         }
