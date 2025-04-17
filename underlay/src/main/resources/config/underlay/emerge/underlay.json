@@ -68,7 +68,8 @@
   ],
   "visualizations": [
     "omop/gender",
-    "omop/raceAndAge"
+    "omop/raceAndAge",
+    "emerge/sitesAndAge"
   ],
   "metadata": {
     "displayName": "eMerge Record Counter Dataset",
