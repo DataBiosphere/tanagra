@@ -92,7 +92,7 @@ export function processFilterCountValues(
           } else {
             for (let i = 1; i < thresholds.length; i++) {
               if (value >= thresholds[i - 1] && value < thresholds[i]) {
-                name = `${thresholds[i - 1]}-${thresholds[i]}`;
+                name = `${thresholds[i - 1]}-${thresholds[i] - 1}`;
                 numericId = i;
                 break;
               }
