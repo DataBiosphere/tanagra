@@ -32,20 +32,23 @@ tanagra:
       gcs-bucket-names: broad-tanagra-dev-bq-export,broad-tanagra-dev-bq-export-uscentral1
       generate-unsigned-urls: false
     models:
-      -
-        type: INDIVIDUAL_FILE_DOWNLOAD
+#
+#      Commenting out all export options except IPYNB_FILE_DOWNLOAD since it's the only one currently used
+#
+#      -
+#        type: INDIVIDUAL_FILE_DOWNLOAD
       -
         type: IPYNB_FILE_DOWNLOAD
-      -
-        type: VWB_FILE_EXPORT
-        redirect-away-url: https://workbench.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
-      -
-        type: INDIVIDUAL_FILE_DOWNLOAD
-        name: INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP
-        display-name: Individual file download with cap=10k
-        num-primary-entity-cap: 10000
-      -
-        type: REGRESSION_TEST
+#      -
+#        type: VWB_FILE_EXPORT
+#        redirect-away-url: https://workbench.verily.com/import?urlList=${tsvFileUrl}&returnUrl=${redirectBackUrl}&returnApp=${sourceApp}
+#      -
+#        type: INDIVIDUAL_FILE_DOWNLOAD
+#        name: INDIVIDUAL_FILE_DOWNLOAD_WITH_CAP
+#        display-name: Individual file download with cap=10k
+#        num-primary-entity-cap: 10000
+#      -
+#        type: REGRESSION_TEST
 
 logging.pattern.level: '%X{requestId} %5p'
 logging.level.bio.terra.tanagra: DEBUG
