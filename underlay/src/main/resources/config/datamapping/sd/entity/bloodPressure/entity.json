@@ -5,7 +5,7 @@
     { "name": "id", "dataType": "INT64", "isSuppressedForExport": true },
     { "name": "person_id", "dataType": "INT64" },
     { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value", "isSuppressedForExport": true },
-    { "name": "date", "dataType": "INT64", "valueFieldName": "person_id",
+    { "name": "date", "dataType": "INT64", "valueFieldName": "person_id", "displayFieldName": "measurement_datetime",
       "sourceQuery": {
         "displayFieldName": "measurement_datetime",
         "displayFieldTable": "${omopDataset}.x_blood_pressure",
