@@ -3,7 +3,7 @@ SELECT
   xbp.person_id,
   p.person_source_value,
   xbp.measurement_datetime,
-  CONVERT(varchar(25), xbp.measurement_datetime, 120) as date_display,
+  CAST(xbp.measurement_datetime AS STRING) as date_display,
   xbp.systolic,
   xbp.diastolic,
   xbp.bp,
