@@ -65,10 +65,21 @@
   ],
   "classificationEntityGroups": [
     {
-      "id": "measurementLoincPerson"
+      "id": "measurementLoincPerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
     },
     {
-      "id": "measurementSnomedPerson"
+      "id": "measurementSnomedPerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    },
+    {
+      "id": "measurementNonHierarchyPerson"
     }
   ],
   "valueConfigs": [
