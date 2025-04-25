@@ -13,6 +13,8 @@
 
     "sd/brand",
     "sd/ingredient",
+    "sd/ingredientNonHierarchy",
+
     "sd/ingredientOccurrence",
 
     "sd/measurementLoinc",
@@ -69,6 +71,7 @@
     "sd/procedureNonHierarchyPerson",
 
     "sd/ingredientPerson",
+    "sd/ingredientNonHierarchyPerson",
 
     "sd/measurementLoincPerson",
     "sd/measurementSnomedPerson",
