@@ -65,12 +65,19 @@
   ],
   "classificationEntityGroups": [
     {
-      "id": "ingredientPerson"
+      "id": "ingredientPerson",
+      "sortOrder": {
+        "attribute": "concept_code",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    },
+    {
+      "id": "ingredientNonHierarchyPerson"
     }
   ],
   "groupingEntityGroups": [
     {
-      "id": "brandIngredient",
+      "id": "brandIngredientConcept",
       "sortOrder": {
         "attribute": "name",
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
