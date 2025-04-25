@@ -3,6 +3,7 @@ SELECT
   xbp.person_id,
   p.person_source_value,
   xbp.measurement_datetime,
+  FORMAT_DATETIME('%Y-%m-%d', xbp.measurement_datetime) as date_display,
   xbp.systolic,
   xbp.diastolic,
   xbp.bp,
