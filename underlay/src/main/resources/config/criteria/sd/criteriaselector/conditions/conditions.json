@@ -65,7 +65,18 @@
   ],
   "classificationEntityGroups": [
     {
-      "id": "conditionPerson"
+      "id": "conditionPerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    },
+    {
+      "id": "conditionNonHierarchyPerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
     }
   ],
   "multiSelect": true

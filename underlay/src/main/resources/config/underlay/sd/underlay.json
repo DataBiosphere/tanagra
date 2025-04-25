@@ -5,8 +5,10 @@
     "sd/person",
 
     "sd/condition",
+    "sd/conditionNonHierarchy",
     "sd/conditionOccurrence",
     "sd/procedure",
+    "sd/procedureNonHierarchy",
     "sd/procedureOccurrence",
 
     "sd/brand",
@@ -62,7 +64,9 @@
   ],
   "criteriaOccurrenceEntityGroups": [
     "sd/conditionPerson",
+    "sd/conditionNonHierarchyPerson",
     "sd/procedurePerson",
+    "sd/procedureNonHierarchyPerson",
 
     "sd/ingredientPerson",
 
