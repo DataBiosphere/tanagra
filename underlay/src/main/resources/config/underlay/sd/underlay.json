@@ -19,6 +19,7 @@
 
     "sd/measurementLoinc",
     "sd/measurementSnomed",
+    "sd/measurementNonHierarchy",
     "sd/measurementOccurrence",
 
     "sd/observation",
@@ -75,6 +76,7 @@
 
     "sd/measurementLoincPerson",
     "sd/measurementSnomedPerson",
+    "sd/measurementNonHierarchyPerson",
 
     "sd/observationPerson",
     "sd/devicePerson",
