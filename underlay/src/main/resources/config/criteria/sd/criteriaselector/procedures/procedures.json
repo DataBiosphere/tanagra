@@ -65,7 +65,18 @@
   ],
   "classificationEntityGroups": [
     {
-      "id": "procedurePerson"
+      "id": "procedurePerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    },
+    {
+      "id": "procedureNonHierarchyPerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
     }
   ],
   "multiSelect": true
