@@ -5,7 +5,7 @@
     {
       "occurrenceEntity": "procedureOccurrence",
       "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "procedure_concept_id"
+        "foreignKeyAttributeOccurrenceEntity": "procedure"
       },
       "primaryRelationship": {
         "foreignKeyAttributeOccurrenceEntity": "person_id"
