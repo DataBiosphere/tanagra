@@ -2,18 +2,18 @@
   "columns": [
     {
       "key": "name",
-      "widthString": "100%",
+      "widthString": "70%",
       "title": "Name"
     },
     {
       "key": "id",
       "widthDouble": 120,
-      "title": "Concept Id"
+      "title": "Concept ID"
     },
     {
-      "key": "is_standard",
-      "widthDouble": 180,
-      "title": "Source/Standard"
+      "key": "standard_concept",
+      "widthDouble": 120,
+      "title": "Source/standard"
     },
     {
       "key": "vocabulary_t_value",
@@ -22,13 +22,18 @@
     },
     {
       "key": "concept_code",
-      "widthDouble": 120,
+      "widthDouble": 150,
       "title": "Code"
     },
     {
       "key": "t_rollup_count",
       "widthDouble": 150,
       "title": "Roll-up count"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 150,
+      "title": "Item count"
     }
   ],
   "hierarchyColumns": [
