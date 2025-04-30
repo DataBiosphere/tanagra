@@ -27,7 +27,7 @@ dependencies {
 
     // Apache Beam libraries
     // https://cloud.google.com/dataflow/docs/support/sdk-version-support-status
-    String vApacheBeam = '2.64.0'
+    String vApacheBeam = '2.56.0'
     implementation "org.apache.beam:beam-sdks-java-core:${vApacheBeam}"
     implementation "org.apache.beam:beam-sdks-java-io-google-cloud-platform:${vApacheBeam}"
     implementation "org.apache.beam:beam-sdks-java-io-jdbc:${vApacheBeam}"
