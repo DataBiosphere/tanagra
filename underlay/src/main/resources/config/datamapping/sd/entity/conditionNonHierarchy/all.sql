@@ -1,8 +1,8 @@
 SELECT
-    concept_id,
-    concept_name,
-    vocabulary_id,
-    concept_code,
+    c.concept_id,
+    c.concept_name,
+    c.vocabulary_id,
+    c.concept_code,
     'Standard' AS standard_concept
 FROM (SELECT DISTINCT condition_concept_id FROM `${omopDataset}.condition_occurrence`) co
 JOIN `${omopDataset}.concept` c on co.condition_concept_id = c.concept_id
