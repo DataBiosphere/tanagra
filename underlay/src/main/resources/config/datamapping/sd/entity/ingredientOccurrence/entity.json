@@ -68,5 +68,8 @@
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "ingredient" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "sourceQueryTableName": "${omopDataset}.drug_exposure"
 }

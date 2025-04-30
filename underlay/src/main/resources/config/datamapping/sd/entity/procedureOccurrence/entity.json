@@ -34,5 +34,8 @@
     "visitIdAttribute": "visit_occurrence_id"
   },
   "optimizeGroupByAttributes": [ "procedure" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "sourceQueryTableName": "${omopDataset}.procedure_occurrence"
 }
