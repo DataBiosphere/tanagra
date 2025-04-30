@@ -37,5 +37,8 @@
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "measurement" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "sourceQueryTableName": "${omopDataset}.measurement"
 }
