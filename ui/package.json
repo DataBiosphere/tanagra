@@ -20,7 +20,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^5.16.14",
     "@mui/lab": "^5.0.0-alpha.173",
-    "@mui/material": "^5.16.14",
+    "@mui/material": "^7.0.0",
     "deep-equal": "^2.2.3",
     "final-form": "^4.20.10",
     "highlight-words-core": "^1.2.3",
