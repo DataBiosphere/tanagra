@@ -1,12 +1,29 @@
 {
   "groupByCount": true,
   "attributes": {
-    "icd9Occurrence": {
+    "icd9cmOccurrence": {
       "values": [
         "id",
         "icd9"
       ]
+    },
+    "icd9procOccurrence": {
+      "values": [
+        "id",
+        "icd9"
+      ]
+    },
+    "icd10cmOccurrence": {
+      "values": [
+        "id",
+        "icd10"
+      ]
+    },
+    "icd10pcsOccurrence": {
+      "values": [
+        "id",
+        "icd10"
+      ]
     }
   }
 }
-
