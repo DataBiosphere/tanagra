@@ -3,15 +3,16 @@
   "bigQuery": {
     "sourceData": {
       "projectId": "vumc-sd-prod",
-      "datasetId": "sd_20230831",
+      "datasetId": "sd_20250228",
       "sqlSubstitutions": {
-        "omopDataset": "vumc-sd-prod.sd_20230831",
-        "staticTablesDataset": "vumc-sd-prod.sd_20230831"
+        "indexedDataset": "vumc-sd-prod.indexed_sd_20250228",
+        "omopDataset": "vumc-sd-prod.sd_20250228",
+        "staticTablesDataset": "vumc-sd-prod.sd_20250228"
       }
     },
     "indexData": {
       "projectId": "vumc-sd-prod",
-      "datasetId": "indexed_sd_20230831"
+      "datasetId": "indexed_sd_20250228"
     },
     "queryProjectId": "vumc-sd-prod",
     "dataLocation": "us-central1"

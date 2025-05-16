@@ -362,7 +362,7 @@ public class WriteNumChildrenAndPaths extends BigQueryJob {
                 }));
 
     idPathAndNumChildrenBQRows.apply(
-        "insert the (id, path, numChildren) rows into BQ",
+        "insert the (id, path, numChildren) rows into BQ table - " + tempBQTable.getTableName(),
         BigQueryIO.writeTableRows()
             .to(
                 BigQueryBeamUtils.getTableSqlPath(
