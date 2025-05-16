@@ -11,7 +11,7 @@
     },
     "indexData": {
       "projectId": "vumc-sd-dev",
-      "datasetId": "indexed_sd_20250228"
+      "datasetId": "indexed_sd_20250228_chenchal"
     },
     "queryProjectId": "vumc-sd-dev",
     "dataLocation": "us-central1"
