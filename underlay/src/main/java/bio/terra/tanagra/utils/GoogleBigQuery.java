@@ -44,11 +44,11 @@ public final class GoogleBigQuery {
   // max allowed: 6h: measurementOccurrence fails at 3hr
   public static final Duration LONG_QUERY_TIMEOUT = Duration.ofHours(6);
   // measurement occurrence takes 29+ minutes to write 2T rows
-  private static final Duration DEFAULT_QUERY_TIMEOUT = Duration.ofMinutes(60);
+  private static final Duration DEFAULT_QUERY_TIMEOUT = Duration.ofHours(6);
   private static final org.threeten.bp.Duration LONG_BQ_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofHours(6);
   private static final org.threeten.bp.Duration DEFAULT_BQ_CLIENT_TIMEOUT =
-      org.threeten.bp.Duration.ofMinutes(60);
+      org.threeten.bp.Duration.ofHours(6);
   private final BigQuery bigQuery;
 
   private GoogleBigQuery(
