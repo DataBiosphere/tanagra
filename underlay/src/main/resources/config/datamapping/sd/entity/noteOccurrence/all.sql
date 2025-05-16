@@ -12,18 +12,14 @@ SELECT
   n.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
-
 FROM `${omopDataset}.note` AS n
-
 JOIN `${omopDataset}.person` AS p
     ON p.person_id = n.person_id
-
 JOIN `${omopDataset}.concept` AS nc
     ON nc.concept_id = n.note_type_concept_id
-
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
     ON vo.visit_occurrence_id = n.visit_occurrence_id
-
 LEFT JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id
-
+WHERE n.note_type_concept_id IS NOT null
+    AND n.note_type_concept_id != 0
