@@ -41,21 +41,21 @@ FROM (
          'Unmapped' AS concept_code,
          'Standard' AS standard_concept
 
-     UNION ALL
-     -- non hierarchy ingredients
-     SELECT
-         concept_id,
-         concept_name,
-         vocabulary_id,
-         concept_code,
-         'Standard' AS standard_concept,
-     FROM `${omopDataset}.concept`
-     WHERE domain_id = 'Drug'
-         AND vocabulary_id IN ('CVX','HCPCS')
-         AND standard_concept = 'S'
-         AND concept_id IN (
-             SELECT DISTINCT drug_concept_id FROM `${omopDataset}.drug_exposure`
-         )
+--      UNION ALL
+--      -- non hierarchy ingredients
+--      SELECT
+--          concept_id,
+--          concept_name,
+--          vocabulary_id,
+--          concept_code,
+--          'Standard' AS standard_concept,
+--      FROM `${omopDataset}.concept`
+--      WHERE domain_id = 'Drug'
+--          AND vocabulary_id IN ('CVX','HCPCS')
+--          AND standard_concept = 'S'
+--          AND concept_id IN (
+--              SELECT DISTINCT drug_concept_id FROM `${omopDataset}.drug_exposure`
+--          )
      ) c
 WHERE c.concept_id is not null
    AND c.concept_id != 0
