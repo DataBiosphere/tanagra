@@ -2,11 +2,10 @@ SELECT
   cr.concept_id_1 AS parent,
   cr.concept_id_2 AS child,
 FROM `${omopDataset}.concept_relationship` cr
-JOIN `${omopDataset}.concept` c1  ON c1.concept_id = cr.concept_id_1
-JOIN `${omopDataset}.concept` c2  ON c2.concept_id = cr.concept_id_2
-WHERE
-  cr.relationship_id = 'Subsumes'
-  AND c1.vocabulary_id = c2.vocabulary_id
-  AND c1.vocabulary_id = 'LOINC'
-  AND c1.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')
-  AND c2.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')
+JOIN `${omopDataset}.relationship` r ON cr.relationship_id = r.relationship_id
+JOIN `${omopDataset}.concept` chld  ON cr.concept_id_2 = chld.concept_id
+WHERE cr.relationship_id = 'Subsumes'
+  AND r.is_hierarchical = 1
+  AND r.defines_ancestry = 1
+  AND chld.concept_class_id IN ('LOINC Hierarchy', 'LOINC Component', 'Lab Test')
+  AND chld.vocabulary_id = 'LOINC'
