@@ -33,7 +33,7 @@ public final class GoogleCloudStorage {
   public static final int GCS_MAXIMUM_RETRIES = 5;
   private static final org.threeten.bp.Duration MAX_GCS_CLIENT_TIMEOUT =
       org.threeten.bp.Duration.ofMinutes(5);
-  private static final long DEFAULT_SIGNED_URL_DURATION = 30;
+  private static final long DEFAULT_SIGNED_URL_DURATION = 180;
   private static final TimeUnit DEFAULT_SIGNED_URL_UNIT = TimeUnit.MINUTES;
   private final Storage storage;
 

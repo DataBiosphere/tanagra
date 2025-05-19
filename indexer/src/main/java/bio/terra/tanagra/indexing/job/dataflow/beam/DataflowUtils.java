@@ -30,6 +30,7 @@ public final class DataflowUtils {
     dataflowOptions.setUsePublicIps(indexerConfig.dataflow.usePublicIps);
     dataflowOptions.setWorkerMachineType(indexerConfig.dataflow.workerMachineType);
     dataflowOptions.setTempLocation(indexerConfig.dataflow.gcsTempDirectory);
+    dataflowOptions.setNumWorkers(5);
     if (indexerConfig.dataflow.vpcSubnetworkName != null
         && !indexerConfig.dataflow.vpcSubnetworkName.isEmpty()) {
       dataflowOptions.setSubnetwork(
