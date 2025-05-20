@@ -8,7 +8,8 @@
     "columns": [
       { "key": "name", "width": "100%", "title": "Name" },
       { "key": "concept_code", "width": 120, "title": "Code" },
-      { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" }
+      { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" },
+      { "key": "t_item_count", "width": 150, "title": "Item Count" }
     ]
   }
 }
