@@ -364,7 +364,8 @@ public class WriteRollupCounts extends BigQueryJob {
                 }));
 
     nodeCountBQRows.apply(
-        "insert the (id, rollup_count, rollup_displayHints) rows into BQ table - " + tempBQTable.getTableName(),
+        "insert the (id, rollup_count, rollup_displayHints) rows into BQ table - "
+            + tempBQTable.getTableName(),
         BigQueryIO.writeTableRows()
             .to(
                 BigQueryBeamUtils.getTableSqlPath(
