@@ -1,7 +1,6 @@
 package bio.terra.tanagra.indexing.job.dataflow.beam;
 
 import org.apache.beam.sdk.extensions.joinlibrary.Join;
-import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.Distinct;
 import org.apache.beam.sdk.transforms.Flatten;
