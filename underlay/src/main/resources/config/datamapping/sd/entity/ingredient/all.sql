@@ -1,13 +1,46 @@
-SELECT
-    concept_id,
-    concept_name,
-    vocabulary_id,
-    concept_code,
-    (CASE WHEN standard_concept IS NULL THEN 'Source' WHEN standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept
-FROM `${omopDataset}.concept`
-WHERE domain_id = 'Drug'
-AND (
-    (vocabulary_id = 'ATC' AND standard_concept = 'C')
-    OR (vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND standard_concept = 'S')
-)
+SELECT DISTINCT
+    c.concept_id,
+    c.concept_name,
+    c.vocabulary_id,
+    c.concept_code,
+    c.standard_concept
+FROM (
+     SELECT
+         concept_id,
+         concept_name,
+         vocabulary_id,
+         concept_code,
+         'Standard' AS standard_concept
+     FROM `${omopDataset}.concept`
+     WHERE
+         (vocabulary_id = 'ATC' AND standard_concept = 'C')
+        OR (vocabulary_id IN ('RxNorm', 'RxNorm Extension') AND standard_concept = 'S')
 
+     UNION ALL
+
+     SELECT
+         c2.concept_id,
+         c2.concept_name,
+         c2.vocabulary_id,
+         c2.concept_code,
+         'Standard' AS standard_concept
+     FROM `${omopDataset}.concept_ancestor` ca
+     JOIN `${omopDataset}.concept` c1
+         ON c1.concept_id = ca.ancestor_concept_id
+                AND c1.vocabulary_id = 'RxNorm'
+                AND c1.concept_class_id = 'Ingredient'
+     JOIN `${omopDataset}.concept` c2
+         ON c2.concept_id = ca.descendant_concept_id
+
+     UNION ALL
+
+     SELECT
+         1 AS concept_id,
+         'Unmapped' AS concept_name,
+         'RxNorm' AS vocabulary_id,
+         'Unmapped' AS concept_code,
+         'Standard' AS standard_concept
+
+     ) c
+WHERE c.concept_id is not null
+   AND c.concept_id != 0
