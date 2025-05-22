@@ -1,0 +1,16 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "demographics",
+      "joins": [],
+      "attributes": [
+        {
+          "attribute": "site"
+        },
+        {
+          "attribute": "gender"
+        }
+      ]
+    }
+  ]
+}

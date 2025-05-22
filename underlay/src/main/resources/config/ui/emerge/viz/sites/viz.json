@@ -1,0 +1,6 @@
+{
+  "name": "sites",
+  "title": "Sites",
+  "dataConfigFile": "sites.json",
+  "plugin": "core/bar"
+}

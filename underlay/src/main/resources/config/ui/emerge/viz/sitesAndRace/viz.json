@@ -1,0 +1,6 @@
+{
+  "name": "sitesAndRace",
+  "title": "Sites and race",
+  "dataConfigFile": "sitesAndRace.json",
+  "plugin": "core/bar"
+}
