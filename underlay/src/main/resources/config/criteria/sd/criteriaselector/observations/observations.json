@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "name",
-      "widthString": "70%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -12,7 +12,7 @@
     },
     {
       "key": "standard_concept",
-      "widthDouble": 120,
+      "widthDouble": 150,
       "title": "Source/standard"
     },
     {
@@ -39,7 +39,7 @@
   "hierarchyColumns": [
     {
       "key": "name",
-      "widthString": "70%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "key": "standard_concept",
-      "widthDouble": 120,
+      "widthDouble": 150,
       "title": "Source/standard"
     },
     {
@@ -73,5 +73,5 @@
       "id": "observationPerson"
     }
   ],
-  "limit": 1000
+  "limit": 200
 }

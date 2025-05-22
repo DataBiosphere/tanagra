@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "name",
-      "widthString": "70%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -12,7 +12,7 @@
     },
     {
       "key": "is_standard",
-      "widthDouble": 180,
+      "widthDouble": 150,
       "title": "Source/Standard"
     },
     {
@@ -39,7 +39,7 @@
   "hierarchyColumns": [
     {
       "key": "name",
-      "widthString": "100%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -49,7 +49,7 @@
     },
     {
       "key": "is_standard",
-      "widthDouble": 180,
+      "widthDouble": 150,
       "title": "Source/Standard"
     },
     {
@@ -78,5 +78,5 @@
     }
   ],
   "multiSelect": true,
-  "limit": 1000
+  "limit": 200
 }

@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "name",
-      "widthString": "100%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
