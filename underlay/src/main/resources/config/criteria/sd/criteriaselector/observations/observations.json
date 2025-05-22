@@ -72,5 +72,6 @@
     {
       "id": "observationPerson"
     }
-  ]
+  ],
+  "limit": 1000
 }

@@ -88,6 +88,7 @@
     }
   ],
   "multiSelect": true,
+  "limit": 1000,
   "valueConfigs": [
     {
       "attribute": "value_enum",

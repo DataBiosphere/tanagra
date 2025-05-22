@@ -89,5 +89,6 @@
       }
     }
   ],
-  "multiSelect": true
+  "multiSelect": true,
+  "limit": 1000
 }

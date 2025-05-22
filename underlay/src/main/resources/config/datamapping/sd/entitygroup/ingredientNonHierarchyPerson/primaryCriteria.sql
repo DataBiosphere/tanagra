@@ -10,4 +10,4 @@ WHERE de.drug_concept_id
         AND c.standard_concept = 'S'
       )
 AND de.drug_concept_id IS NOT NULL
-AND de.druh_concept_id != 0
+AND de.drug_concept_id != 0
