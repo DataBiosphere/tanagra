@@ -8,12 +8,12 @@
     {
       "key": "id",
       "widthDouble": 120,
-      "title": "Concept ID"
+      "title": "Concept Id"
     },
     {
-      "key": "standard_concept",
-      "widthDouble": 120,
-      "title": "Source/standard"
+      "key": "is_standard",
+      "widthDouble": 180,
+      "title": "Source/Standard"
     },
     {
       "key": "vocabulary_t_value",
@@ -22,7 +22,7 @@
     },
     {
       "key": "concept_code",
-      "widthDouble": 150,
+      "widthDouble": 120,
       "title": "Code"
     },
     {

@@ -1,7 +1,6 @@
 {
   "columns": [
     {
-    {
       "key": "name",
       "widthString": "70%",
       "title": "Name"
@@ -23,7 +22,7 @@
     },
     {
       "key": "concept_code",
-      "widthDouble": 150,
+      "widthDouble": 120,
       "title": "Code"
     },
     {
@@ -50,7 +49,7 @@
     },
     {
       "key": "standard_concept",
-      "widthDouble": 180,
+      "widthDouble": 120,
       "title": "Source/standard"
     },
     {
