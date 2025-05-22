@@ -87,6 +87,7 @@
       "id": "measurementNonHierarchyPerson"
     }
   ],
+  "multiSelect": true,
   "valueConfigs": [
     {
       "attribute": "value_enum",
@@ -96,9 +97,5 @@
       "attribute": "value_numeric",
       "title": "Numeric value"
     }
-  ],
-  "defaultSort": {
-    "attribute": "t_item_count",
-    "direction": "SORT_ORDER_DIRECTION_DESCENDING"
-  }
+  ]
 }
