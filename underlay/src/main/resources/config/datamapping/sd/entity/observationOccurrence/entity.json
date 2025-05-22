@@ -45,5 +45,8 @@
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "observation" ],
+  "optimizeSearchByAttributes": [
+    { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
+  ],
   "sourceQueryTableName": "${omopDataset}.observation"
 }
