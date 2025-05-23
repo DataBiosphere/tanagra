@@ -5,16 +5,21 @@
     "sd/person",
 
     "sd/condition",
+    "sd/conditionNonHierarchy",
     "sd/conditionOccurrence",
     "sd/procedure",
+    "sd/procedureNonHierarchy",
     "sd/procedureOccurrence",
 
     "sd/brand",
     "sd/ingredient",
+    "sd/ingredientNonHierarchy",
+
     "sd/ingredientOccurrence",
 
     "sd/measurementLoinc",
     "sd/measurementSnomed",
+    "sd/measurementNonHierarchy",
     "sd/measurementOccurrence",
 
     "sd/observation",
@@ -62,12 +67,16 @@
   ],
   "criteriaOccurrenceEntityGroups": [
     "sd/conditionPerson",
+    "sd/conditionNonHierarchyPerson",
     "sd/procedurePerson",
+    "sd/procedureNonHierarchyPerson",
 
     "sd/ingredientPerson",
+    "sd/ingredientNonHierarchyPerson",
 
     "sd/measurementLoincPerson",
     "sd/measurementSnomedPerson",
+    "sd/measurementNonHierarchyPerson",
 
     "sd/observationPerson",
     "sd/devicePerson",
@@ -129,9 +138,9 @@
   ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",
-    "description": "Dataset Updated August 31, 2023",
+    "description": "Dataset Updated February 28, 2025",
     "properties": {
-      "lastUpdated": "08/31/23"
+      "lastUpdated": "02/28/25"
     }
   },
   "uiConfigFile": "ui.json"

@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "name",
-      "widthString": "100%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -12,7 +12,7 @@
     },
     {
       "key": "standard_concept",
-      "widthDouble": 180,
+      "widthDouble": 150,
       "title": "Source/standard"
     },
     {
@@ -22,19 +22,24 @@
     },
     {
       "key": "concept_code",
-      "widthDouble": 180,
+      "widthDouble": 120,
       "title": "Code"
     },
     {
       "key": "t_rollup_count",
       "widthDouble": 150,
       "title": "Roll-up count"
+    },
+    {
+      "key": "t_item_count",
+      "widthDouble": 150,
+      "title": "Item count"
     }
   ],
   "hierarchyColumns": [
     {
       "key": "name",
-      "widthString": "100%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -44,7 +49,7 @@
     },
     {
       "key": "standard_concept",
-      "widthDouble": 180,
+      "widthDouble": 150,
       "title": "Source/standard"
     },
     {
@@ -54,7 +59,7 @@
     },
     {
       "key": "concept_code",
-      "widthDouble": 180,
+      "widthDouble": 120,
       "title": "Code"
     },
     {
@@ -72,5 +77,6 @@
       }
     }
   ],
-  "multiSelect": true
+  "multiSelect": true,
+  "limit": 200
 }

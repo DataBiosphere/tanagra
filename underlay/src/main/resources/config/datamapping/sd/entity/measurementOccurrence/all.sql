@@ -2,7 +2,7 @@ SELECT
   mo.measurement_id,
   mo.person_id,
   p.person_source_value,
-  measurement_concept_id,
+  mo.measurement_concept_id,
   mc.concept_name AS measurement_concept_name,
   mo.measurement_date,
   mo.value_as_number,

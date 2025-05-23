@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "name",
-      "widthString": "100%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -12,7 +12,7 @@
     },
     {
       "key": "standard_concept",
-      "widthDouble": 180,
+      "widthDouble": 150,
       "title": "Source/standard"
     },
     {
@@ -26,15 +26,20 @@
       "title": "Code"
     },
     {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up count"
+    },
+    {
       "key": "t_item_count",
-      "widthDouble": 120,
-      "title": "Count"
+      "widthDouble": 150,
+      "title": "Item count"
     }
   ],
   "hierarchyColumns": [
     {
       "key": "name",
-      "widthString": "100%",
+      "widthString": "50%",
       "title": "Name"
     },
     {
@@ -44,7 +49,7 @@
     },
     {
       "key": "standard_concept",
-      "widthDouble": 180,
+      "widthDouble": 150,
       "title": "Source/standard"
     },
     {
@@ -59,18 +64,31 @@
     },
     {
       "key": "t_item_count",
-      "widthDouble": 120,
+      "widthDouble": 150,
       "title": "Count"
     }
   ],
   "classificationEntityGroups": [
     {
-      "id": "measurementLoincPerson"
+      "id": "measurementLoincPerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
     },
     {
-      "id": "measurementSnomedPerson"
+      "id": "measurementSnomedPerson",
+      "sortOrder": {
+        "attribute": "name",
+        "direction": "SORT_ORDER_DIRECTION_ASCENDING"
+      }
+    },
+    {
+      "id": "measurementNonHierarchyPerson"
     }
   ],
+  "multiSelect": true,
+  "limit": 200,
   "valueConfigs": [
     {
       "attribute": "value_enum",
@@ -80,9 +98,5 @@
       "attribute": "value_numeric",
       "title": "Numeric value"
     }
-  ],
-  "defaultSort": {
-    "attribute": "t_item_count",
-    "direction": "SORT_ORDER_DIRECTION_DESCENDING"
-  }
+  ]
 }

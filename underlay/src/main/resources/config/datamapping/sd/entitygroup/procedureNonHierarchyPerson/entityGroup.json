@@ -1,0 +1,20 @@
+{
+  "name": "procedureNonHierarchyPerson",
+  "criteriaEntity": "procedureNonHierarchy",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "procedureOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "procedure"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "procedure_concept_id"
+  }
+}
