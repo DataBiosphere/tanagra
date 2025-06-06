@@ -202,7 +202,7 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
         de.forEach((id) => toggleExpanded(draft, id));
       });
     }
-  }, [props.defaultExpanded, toggleExpanded, updateState]);
+  }, [props.defaultExpanded, updateState]);
 
   const onSort = useCallback(
     (col: TreeGridColumn, orders?: TreeGridSortOrder[]) => {
