@@ -105,7 +105,10 @@ export function Search(props: SearchProps) {
               />
               <FormSpy
                 onChange={(state) => {
-                  onChange(state.values.query);
+                  // Check if the value actually changed to prevent unneeded re-renders
+                  if (state.values.query !== state.initialValues.query) {
+                    onChange(state.values.query);
+                  }
                 }}
               />
               {props.showSearchButton ? (
