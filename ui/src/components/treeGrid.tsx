@@ -202,7 +202,9 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
         de.forEach((id) => toggleExpanded(draft, id));
       });
     }
-  }, [props.defaultExpanded, toggleExpanded, updateState]);
+    // Removed toggleExpanded from the deps array to prevent the hierarchy from reloading on each criteria selection/deletion
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.defaultExpanded, updateState]);
 
   const onSort = useCallback(
     (col: TreeGridColumn, orders?: TreeGridSortOrder[]) => {
