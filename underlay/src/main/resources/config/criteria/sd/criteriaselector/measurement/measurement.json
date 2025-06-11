@@ -63,9 +63,14 @@
       "title": "Code"
     },
     {
+      "key": "t_rollup_count",
+      "widthDouble": 150,
+      "title": "Roll-up Count"
+    },
+    {
       "key": "t_item_count",
       "widthDouble": 150,
-      "title": "Count"
+      "title": "Item count"
     }
   ],
   "classificationEntityGroups": [
