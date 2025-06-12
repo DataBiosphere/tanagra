@@ -33,11 +33,9 @@ export function HintDataSelect(props: HintDataSelectProps) {
           if (value === undefined) {
             return undefined;
           }
-          //Sometimes, the value will be a bigInt, which is not able to be used in JSON.stringify, hence needing value.toString
-          value = value.toString();
           return {
             name,
-            value
+            value: typeof value === "bigint" ? value.toString() : value,
           };
         })
         .filter(isValid)
