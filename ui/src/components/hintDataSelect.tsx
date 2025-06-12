@@ -11,7 +11,7 @@ import React from "react";
 import { isValid } from "util/valid";
 
 export type Selection = {
-  value: DataValue | string;
+  value: DataValue;
   name: string;
 };
 
