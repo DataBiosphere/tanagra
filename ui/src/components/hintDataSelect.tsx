@@ -27,7 +27,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
     props.onSelect?.(
       sel
         .map((name) => {
-          const value = props.hintData?.enumHintOptions?.find(
+          let value = props.hintData?.enumHintOptions?.find(
             (hint: EnumHintOption) => hint.name === name
           )?.value;
           if (value === undefined) {
@@ -35,7 +35,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
           }
           return {
             name,
-            value,
+            value: typeof value === "bigint" ? value.toString() : value,
           };
         })
         .filter(isValid)
