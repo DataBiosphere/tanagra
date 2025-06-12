@@ -11,7 +11,7 @@ import React from "react";
 import { isValid } from "util/valid";
 
 export type Selection = {
-  value: DataValue;
+  value: DataValue | string;
   name: string;
 };
 
@@ -27,15 +27,17 @@ export function HintDataSelect(props: HintDataSelectProps) {
     props.onSelect?.(
       sel
         .map((name) => {
-          const value = props.hintData?.enumHintOptions?.find(
+          let value = props.hintData?.enumHintOptions?.find(
             (hint: EnumHintOption) => hint.name === name
           )?.value;
           if (value === undefined) {
             return undefined;
           }
+          //Sometimes, the value will be a bigInt, which is not able to be used in JSON.stringify, hence needing value.toString
+          value = value.toString();
           return {
             name,
-            value,
+            value
           };
         })
         .filter(isValid)
