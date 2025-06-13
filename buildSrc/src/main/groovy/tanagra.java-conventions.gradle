@@ -85,8 +85,17 @@ dependencies {
 
 // Javadoc
 java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17)) // Specify the Java version (e.g., 11)
+    }
     // Builds Javadoc into the published package as part of the 'assemble' task.
     withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    allprojects {
+        options.release.set(17)
+    }
 }
 
 // Use the approach described in the link below to turn off console output

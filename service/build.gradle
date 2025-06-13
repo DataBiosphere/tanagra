@@ -2,7 +2,6 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     id 'tanagra.java-conventions'
-
     id 'com.google.cloud.tools.jib' version '3.4.4'
     id 'org.springframework.boot' version "${vSpringBoot}"
     id 'org.hidetake.swagger.generator' version "${vHidetakeSwagger}"
@@ -12,6 +11,7 @@ plugins {
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 ext {
     resourceDir = "${projectDir}/src/main/resources"
