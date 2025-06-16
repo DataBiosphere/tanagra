@@ -27,7 +27,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
     props.onSelect?.(
       sel
         .map((name) => {
-          let value = props.hintData?.enumHintOptions?.find(
+          const value = props.hintData?.enumHintOptions?.find(
             (hint: EnumHintOption) => hint.name === name
           )?.value;
           if (value === undefined) {
