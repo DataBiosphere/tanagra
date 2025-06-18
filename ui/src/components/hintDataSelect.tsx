@@ -33,7 +33,6 @@ export function HintDataSelect(props: HintDataSelectProps) {
           if (value === undefined) {
             return undefined;
           }
-          console.log(name);
           return {
             name,
             value,
