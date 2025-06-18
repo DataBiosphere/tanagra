@@ -33,9 +33,10 @@ export function HintDataSelect(props: HintDataSelectProps) {
           if (value === undefined) {
             return undefined;
           }
+          console.log(name);
           return {
             name,
-            value: typeof value === "bigint" ? value.toString() : value,
+            value,
           };
         })
         .filter(isValid)
