@@ -11,5 +11,6 @@
       { "key": "t_rollup_count", "width": 150, "title": "Roll-up Count" },
       { "key": "t_item_count", "width": 150, "title": "Item Count" }
     ]
-  }
+  },
+  "defaultVisualizations": ["gender", "raceAndAge"]
 }
