@@ -106,11 +106,5 @@ export function useGlobalSearchDataString() {
 }
 
 function searchParamsFromData(data: SearchData) {
-  return new URLSearchParams({
-    q: btoa(
-      JSON.stringify(data ?? {}, (key, value) => {
-        return typeof value === "bigint" ? value.toString() : value;
-      })
-    ),
-  });
+  return new URLSearchParams({ q: btoa(JSON.stringify(data ?? {})) });
 }

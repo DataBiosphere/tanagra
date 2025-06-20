@@ -35,7 +35,7 @@ export function HintDataSelect(props: HintDataSelectProps) {
           }
           return {
             name,
-            value: typeof value === "bigint" ? value.toString() : value,
+            value,
           };
         })
         .filter(isValid)
