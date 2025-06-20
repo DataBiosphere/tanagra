@@ -11,7 +11,7 @@ import Checkbox from "components/checkbox";
 import { HintDataSelect, Selection } from "components/hintDataSelect";
 import { Search } from "components/search";
 import { SortDirection, SortOrder } from "data/configuration";
-import {DataValue, stringifyDataValue} from "data/types";
+import { DataValue, stringifyDataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { findAll } from "highlight-words-core";
 import { GridBox } from "layout/gridBox";
@@ -129,9 +129,9 @@ export function TextSearch({ id, config }: { id: string; config: Config }) {
 
   const onSelect = (sel: Selection[]) =>
     context.updateSearchState(id, (state: SearchState) => {
-      state.categories = sel.map(({name, value}) => ({
-          name,
-          value: stringifyDataValue(value),
+      state.categories = sel.map(({ name, value }) => ({
+        name,
+        value: stringifyDataValue(value),
       }));
     });
 
