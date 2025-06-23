@@ -67,7 +67,7 @@ export function TextSearch({ id, config }: { id: string; config: Config }) {
   const entities = useMemo(
     () =>
       context?.rows[config.entity]
-        .filter((o) => regExp.test(o[config.text] as string))
+        ?.filter((o) => regExp.test(o[config.text] as string))
         .filter((o) => {
           const ca = config.categoryAttribute;
           if (!ca || !searchState?.categories?.length) {
@@ -96,7 +96,7 @@ export function TextSearch({ id, config }: { id: string; config: Config }) {
             ret = 1;
           }
           return config.sortOrder?.direction != SortDirection.Desc ? ret : -ret;
-        }),
+        }) ?? [],
     [context.rows, searchState, config, regExp]
   );
 
