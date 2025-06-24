@@ -24,7 +24,7 @@ export function DemographicCharts(props: DemographicChartsProps) {
   const underlay = useUnderlay();
 
   const [selectedVisualizations, setSelectedVisualizations] = useState(
-    getInitialVisualizations(underlay)
+    getInitialVisualizations(underlay, props.cohort?.id ?? "")
   );
 
   const onSelect = (event: SelectChangeEvent<string[]>) => {
@@ -37,7 +37,7 @@ export function DemographicCharts(props: DemographicChartsProps) {
     }
 
     setSelectedVisualizations(sel);
-    storeSelectedVisualizations(underlay.name, sel);
+    storeSelectedVisualizations(underlay.name, props.cohort?.id ?? "", sel);
   };
 
   return (
@@ -106,27 +106,34 @@ export function DemographicCharts(props: DemographicChartsProps) {
 }
 
 // TODO(tjennison): Store the selected visualizations in local storage per
-// underlay for now.  Longer term, these should be stored on the backend but
+// underlay and cohort for now.  Longer term, these should be stored on the backend but
 // there a few options about whether they should be stored attached to the
 // cohort, study, user, etc. as part of the visualiation changes.
-function storageKey(underlay: string) {
-  return `tanagra-selected-visualizations-${underlay}`;
+function storageKey(underlay: string, cohortId: string) {
+  return `tanagra-selected-visualizations-${underlay}-${cohortId}`;
 }
 
-function loadSelectedVisualizations(underlay: string): string[] | undefined {
-  const stored = localStorage.getItem(storageKey(underlay));
+function loadSelectedVisualizations(
+  underlay: string,
+  cohortId: string
+): string[] | undefined {
+  const stored = localStorage.getItem(storageKey(underlay, cohortId));
   if (!stored) {
     return undefined;
   }
   return JSON.parse(stored);
 }
 
-function storeSelectedVisualizations(underlay: string, sel: string[]) {
-  localStorage.setItem(storageKey(underlay), JSON.stringify(sel));
+function storeSelectedVisualizations(
+  underlay: string,
+  cohortId: string,
+  sel: string[]
+) {
+  localStorage.setItem(storageKey(underlay, cohortId), JSON.stringify(sel));
 }
 
-function getInitialVisualizations(underlay: Underlay) {
-  const stored = loadSelectedVisualizations(underlay.name);
+function getInitialVisualizations(underlay: Underlay, cohortId: string) {
+  const stored = loadSelectedVisualizations(underlay.name, cohortId);
   if (!stored) {
     return (
       underlay.uiConfiguration.defaultVisualizations ??
