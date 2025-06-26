@@ -1,0 +1,21 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "demographics",
+      "joins": [],
+      "attributes": [
+        {
+          "attribute": "gender"
+        },
+        {
+          "attribute": "age",
+          "numericBucketing": {
+            "thresholds": [18, 45, 65],
+            "includeLesser": true,
+            "includeGreater": true
+          }
+        }
+      ]
+    }
+  ]
+}

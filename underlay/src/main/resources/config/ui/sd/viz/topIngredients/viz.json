@@ -1,0 +1,6 @@
+{
+  "name": "topIngredients",
+  "title": "Top 10 drugs",
+  "dataConfigFile": "topIngredients.json",
+  "plugin": "core/bar"
+}

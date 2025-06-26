@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "conditions",
+      "joins": [
+        {
+          "entity": "person"
+        }
+      ],
+      "attributes": [
+        {
+          "attribute": "condition",
+          "sortType": "VALUE",
+          "sortDescending": true,
+          "limit": 10
+        }
+      ]
+    }
+  ]
+}

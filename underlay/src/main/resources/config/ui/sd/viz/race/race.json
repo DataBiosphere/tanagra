@@ -1,0 +1,13 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "demographics",
+      "joins": [],
+      "attributes": [
+        {
+          "attribute": "race"
+        }
+      ]
+    }
+  ]
+}
