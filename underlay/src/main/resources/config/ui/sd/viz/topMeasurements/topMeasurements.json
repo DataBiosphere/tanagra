@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "measurements",
+      "joins": [
+        {
+          "entity": "person"
+        }
+      ],
+      "attributes": [
+        {
+          "attribute": "measurement",
+          "sortType": "VALUE",
+          "sortDescending": true,
+          "limit": 10
+        }
+      ]
+    }
+  ]
+}

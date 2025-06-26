@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "ingredients",
+      "joins": [
+        {
+          "entity": "person"
+        }
+      ],
+      "attributes": [
+        {
+          "attribute": "ingredient",
+          "sortType": "VALUE",
+          "sortDescending": true,
+          "limit": 10
+        }
+      ]
+    }
+  ]
+}

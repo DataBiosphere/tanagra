@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "criteriaSelector": "procedures",
+      "joins": [
+        {
+          "entity": "person"
+        }
+      ],
+      "attributes": [
+        {
+          "attribute": "procedure",
+          "sortType": "VALUE",
+          "sortDescending": true,
+          "limit": 10
+        }
+      ]
+    }
+  ]
+}

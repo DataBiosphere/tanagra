@@ -67,8 +67,8 @@
     "emerge/outputUnfiltered"
   ],
   "visualizations": [
-    "omop/gender",
-    "omop/raceAndAge",
+    "emerge/gender",
+    "emerge/raceAndAge",
     "emerge/sites",
     "emerge/sitesAndAge",
     "emerge/sitesAndGender",
