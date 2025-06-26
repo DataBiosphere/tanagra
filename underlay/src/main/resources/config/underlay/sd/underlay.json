@@ -126,15 +126,15 @@
     "sd/_demographics"
   ],
   "visualizations": [
-    "omop/genderAndAge",
-    "omop/raceAndAge",
-    "omop/age",
-    "omop/race",
-    "omop/gender",
-    "omop/topConditions",
-    "omop/topProcedures",
-    "omop/topIngredients",
-    "omop/topMeasurements"
+    "sd/genderAndAge",
+    "sd/raceAndAge",
+    "sd/age",
+    "sd/race",
+    "sd/gender",
+    "sd/topConditions",
+    "sd/topProcedures",
+    "sd/topIngredients",
+    "sd/topMeasurements"
   ],
   "metadata": {
     "displayName": "Synthetic Derivative Discover Dataset",
