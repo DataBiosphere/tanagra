@@ -720,7 +720,7 @@ export class BackendUnderlaySource implements UnderlaySource {
     let pageMarker: string | undefined;
     let sql: string | undefined;
     const data: DataEntry[] = [];
-    while (true) {
+    //while (true) {
       const res = await parseAPIError(
         this.underlaysApi.listInstancesForPrimaryEntity({
           entityName: entity.name,
@@ -742,10 +742,10 @@ export class BackendUnderlaySource implements UnderlaySource {
 
       sql = res.sql;
       pageMarker = res.pageMarker;
-      if (!pageMarker?.length || !res.instances?.length) {
-        break;
-      }
-    }
+      // if (!pageMarker?.length || !res.instances?.length) {
+      //   break;
+      // }
+    //}
     return {
       data: data,
       sql: sql ?? "",

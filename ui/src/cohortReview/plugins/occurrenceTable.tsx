@@ -17,9 +17,10 @@ import {
 } from "data/types";
 import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
-import { useMemo } from "react";
+import {useMemo, useState} from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
 import { safeRegExp } from "util/safeRegExp";
+import {Pagination, TablePagination} from "@mui/material";
 
 interface Config {
   entity: string;
@@ -59,6 +60,27 @@ export function OccurrenceTable({
 }) {
   const context = useCohortReviewContext();
   const searchState = context?.searchState<SearchState>(id);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+
+  //TODO: Remove handlePageChange. HandleChangePage used instead. (clean up)
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setCurrentPage(value - 1);
+  };
+
+  const handleChangePage = (
+      event: React.MouseEvent<HTMLButtonElement> | null,
+      newPage: number,
+  ) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+      event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setCurrentPage(0);
+  };
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
@@ -111,8 +133,10 @@ export function OccurrenceTable({
 
         return 0;
       });
+      data.children = data.children.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage > data.rows.size ? data.rows.size : (currentPage + 1) * rowsPerPage );
+      //Filter based on the current page. (data.children = data.children.filter(?)[slice page based on current index(currentPage) and rows per page]
     });
-  }, [data, searchState, filterRegExps]);
+  }, [data, searchState, filterRegExps, currentPage]);
 
   if (!context) {
     return null;
@@ -140,6 +164,16 @@ export function OccurrenceTable({
           });
         }}
       />
+      {/*Add pagination component here. Will need to implement state for tracking currentpage, total records, etc.*/}
+      {/*<Pagination color="primary" count={Math.ceil(data.rows.size/rowsPerPage)} onChange={handlePageChange}/>*/}
+      <TablePagination
+          component="div"
+          count={data.rows.size}
+          page={currentPage}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          />
     </GridBox>
   );
 }
