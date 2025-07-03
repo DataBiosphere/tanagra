@@ -61,7 +61,7 @@ export function OccurrenceTable({
   const context = useCohortReviewContext();
   const searchState = context?.searchState<SearchState>(id);
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(25);
 
   //TODO: Remove handlePageChange. HandleChangePage used instead. (clean up)
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
