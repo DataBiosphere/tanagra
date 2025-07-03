@@ -717,8 +717,8 @@ export class BackendUnderlaySource implements UnderlaySource {
       entity.idAttribute
     );
 
-    const pageMarker: string | undefined;
-    const sql: string | undefined;
+    // let pageMarker: string | undefined;
+    // let sql: string | undefined;
     const data: DataEntry[] = [];
     //while (true) {
     const res = await parseAPIError(
@@ -729,7 +729,7 @@ export class BackendUnderlaySource implements UnderlaySource {
           includeAttributes: ra,
           orderBys: [],
           primaryEntityId: literalFromDataValue(primaryEntityId),
-          pageMarker,
+          // pageMarker,
         },
       })
     );
@@ -740,8 +740,8 @@ export class BackendUnderlaySource implements UnderlaySource {
       ) ?? [])
     );
 
-    sql = res.sql;
-    pageMarker = res.pageMarker;
+    const sql = res.sql;
+    // const pageMarker = res.pageMarker;
     // if (!pageMarker?.length || !res.instances?.length) {
     //   break;
     // }
