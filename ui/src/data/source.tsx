@@ -721,30 +721,30 @@ export class BackendUnderlaySource implements UnderlaySource {
     let sql: string | undefined;
     const data: DataEntry[] = [];
     //while (true) {
-      const res = await parseAPIError(
-        this.underlaysApi.listInstancesForPrimaryEntity({
-          entityName: entity.name,
-          underlayName: this.underlay.name,
-          queryFilterOnPrimaryEntity: {
-            includeAttributes: ra,
-            orderBys: [],
-            primaryEntityId: literalFromDataValue(primaryEntityId),
-            pageMarker,
-          },
-        })
-      );
+    const res = await parseAPIError(
+      this.underlaysApi.listInstancesForPrimaryEntity({
+        entityName: entity.name,
+        underlayName: this.underlay.name,
+        queryFilterOnPrimaryEntity: {
+          includeAttributes: ra,
+          orderBys: [],
+          primaryEntityId: literalFromDataValue(primaryEntityId),
+          pageMarker,
+        },
+      })
+    );
 
-      data.push(
-        ...(res.instances?.map((instance) =>
-          makeDataEntry(entity.idAttribute, instance.attributes)
-        ) ?? [])
-      );
+    data.push(
+      ...(res.instances?.map((instance) =>
+        makeDataEntry(entity.idAttribute, instance.attributes)
+      ) ?? [])
+    );
 
-      sql = res.sql;
-      pageMarker = res.pageMarker;
-      // if (!pageMarker?.length || !res.instances?.length) {
-      //   break;
-      // }
+    sql = res.sql;
+    pageMarker = res.pageMarker;
+    // if (!pageMarker?.length || !res.instances?.length) {
+    //   break;
+    // }
     //}
     return {
       data: data,
