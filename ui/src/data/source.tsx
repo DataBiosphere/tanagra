@@ -717,8 +717,8 @@ export class BackendUnderlaySource implements UnderlaySource {
       entity.idAttribute
     );
 
-    let pageMarker: string | undefined;
-    let sql: string | undefined;
+    const pageMarker: string | undefined;
+    const sql: string | undefined;
     const data: DataEntry[] = [];
     //while (true) {
     const res = await parseAPIError(
