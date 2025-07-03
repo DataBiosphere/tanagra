@@ -64,12 +64,12 @@ export function OccurrenceTable({
   const [rowsPerPage, setRowsPerPage] = useState<number>(25);
 
   //TODO: Remove handlePageChange. HandleChangePage used instead. (clean up)
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setCurrentPage(value - 1);
-  };
+  // const handlePageChange = (
+  //   event: React.ChangeEvent<unknown>,
+  //   value: number
+  // ) => {
+  //   setCurrentPage(value - 1);
+  // };
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -144,7 +144,7 @@ export function OccurrenceTable({
       );
       //Filter based on the current page. (data.children = data.children.filter(?)[slice page based on current index(currentPage) and rows per page]
     });
-  }, [data, searchState, filterRegExps, currentPage]);
+  }, [data, searchState, filterRegExps, currentPage, rowsPerPage]);
 
   if (!context) {
     return null;
