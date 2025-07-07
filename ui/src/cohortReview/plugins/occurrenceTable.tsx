@@ -63,14 +63,6 @@ export function OccurrenceTable({
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(25);
 
-  //TODO: Remove handlePageChange. HandleChangePage used instead. (clean up)
-  // const handlePageChange = (
-  //   event: React.ChangeEvent<unknown>,
-  //   value: number
-  // ) => {
-  //   setCurrentPage(value - 1);
-  // };
-
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -142,7 +134,6 @@ export function OccurrenceTable({
           ? data.rows.size
           : (currentPage + 1) * rowsPerPage
       );
-      //Filter based on the current page. (data.children = data.children.filter(?)[slice page based on current index(currentPage) and rows per page]
     });
   }, [data, searchState, filterRegExps, currentPage, rowsPerPage]);
 
@@ -172,8 +163,6 @@ export function OccurrenceTable({
           });
         }}
       />
-      {/*Add pagination component here. Will need to implement state for tracking currentpage, total records, etc.*/}
-      {/*<Pagination color="primary" count={Math.ceil(data.rows.size/rowsPerPage)} onChange={handlePageChange}/>*/}
       <TablePagination
         component="div"
         count={data.rows.size}
