@@ -63,20 +63,6 @@ export function OccurrenceTable({
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(25);
 
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setCurrentPage(0);
-  };
-
   const data = useMemo(() => {
     const children: DataKey[] = [];
     const rows = new Map();
@@ -130,9 +116,7 @@ export function OccurrenceTable({
       });
       data.children = data.children.slice(
         currentPage * rowsPerPage,
-        (currentPage + 1) * rowsPerPage > data.rows.size
-          ? data.rows.size
-          : (currentPage + 1) * rowsPerPage
+        (currentPage + 1) * rowsPerPage
       );
     });
   }, [data, searchState, filterRegExps, currentPage, rowsPerPage]);
@@ -168,8 +152,11 @@ export function OccurrenceTable({
         count={data.rows.size}
         page={currentPage}
         rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        onPageChange={(e, newPage) => setCurrentPage(newPage)}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setCurrentPage(0);
+        }}
       />
     </GridBox>
   );

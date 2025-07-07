@@ -717,6 +717,8 @@ export class BackendUnderlaySource implements UnderlaySource {
       entity.idAttribute
     );
 
+    //TODO: Update state with additional pages as needed, instead of using commented out code to return everything (currently only returns one API call)
+
     // let pageMarker: string | undefined;
     // let sql: string | undefined;
     const data: DataEntry[] = [];
