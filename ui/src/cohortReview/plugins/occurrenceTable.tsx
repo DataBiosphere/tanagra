@@ -17,9 +17,10 @@ import {
 } from "data/types";
 import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
 import { safeRegExp } from "util/safeRegExp";
+import { TablePagination } from "@mui/material";
 
 interface Config {
   entity: string;
@@ -59,6 +60,8 @@ export function OccurrenceTable({
 }) {
   const context = useCohortReviewContext();
   const searchState = context?.searchState<SearchState>(id);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(25);
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
@@ -111,8 +114,12 @@ export function OccurrenceTable({
 
         return 0;
       });
+      data.children = data.children.slice(
+        currentPage * rowsPerPage,
+        (currentPage + 1) * rowsPerPage
+      );
     });
-  }, [data, searchState, filterRegExps]);
+  }, [data, searchState, filterRegExps, currentPage, rowsPerPage]);
 
   if (!context) {
     return null;
@@ -138,6 +145,17 @@ export function OccurrenceTable({
           context.updateSearchState(id, (state: SearchState) => {
             state.columnFilters = filters;
           });
+        }}
+      />
+      <TablePagination
+        component="div"
+        count={data.rows.size}
+        page={currentPage}
+        rowsPerPage={rowsPerPage}
+        onPageChange={(e, newPage) => setCurrentPage(newPage)}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setCurrentPage(0);
         }}
       />
     </GridBox>

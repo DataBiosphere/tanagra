@@ -717,35 +717,37 @@ export class BackendUnderlaySource implements UnderlaySource {
       entity.idAttribute
     );
 
-    let pageMarker: string | undefined;
-    let sql: string | undefined;
+    //TODO: Update state with additional pages as needed, instead of using commented out code to return everything (currently only returns one API call)
+
+    // let pageMarker: string | undefined;
+    // let sql: string | undefined;
     const data: DataEntry[] = [];
-    while (true) {
-      const res = await parseAPIError(
-        this.underlaysApi.listInstancesForPrimaryEntity({
-          entityName: entity.name,
-          underlayName: this.underlay.name,
-          queryFilterOnPrimaryEntity: {
-            includeAttributes: ra,
-            orderBys: [],
-            primaryEntityId: literalFromDataValue(primaryEntityId),
-            pageMarker,
-          },
-        })
-      );
+    //while (true) {
+    const res = await parseAPIError(
+      this.underlaysApi.listInstancesForPrimaryEntity({
+        entityName: entity.name,
+        underlayName: this.underlay.name,
+        queryFilterOnPrimaryEntity: {
+          includeAttributes: ra,
+          orderBys: [],
+          primaryEntityId: literalFromDataValue(primaryEntityId),
+          // pageMarker,
+        },
+      })
+    );
 
-      data.push(
-        ...(res.instances?.map((instance) =>
-          makeDataEntry(entity.idAttribute, instance.attributes)
-        ) ?? [])
-      );
+    data.push(
+      ...(res.instances?.map((instance) =>
+        makeDataEntry(entity.idAttribute, instance.attributes)
+      ) ?? [])
+    );
 
-      sql = res.sql;
-      pageMarker = res.pageMarker;
-      if (!pageMarker?.length || !res.instances?.length) {
-        break;
-      }
-    }
+    const sql = res.sql;
+    // const pageMarker = res.pageMarker;
+    // if (!pageMarker?.length || !res.instances?.length) {
+    //   break;
+    // }
+    //}
     return {
       data: data,
       sql: sql ?? "",
