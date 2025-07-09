@@ -35,7 +35,6 @@
     { "name": "biovu_sample_is_compromised", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "biovu_sample_is_nonshippable", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "biovu_sample_has_plasma", "dataType": "BOOLEAN", "isSuppressedForExport": true },
-    { "name": "has_agd_queue", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "has_agd_genotype_result", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "is_deceased", "dataType": "BOOLEAN", "isSuppressedForExport": true }
   ],
