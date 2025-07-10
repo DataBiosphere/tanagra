@@ -15,8 +15,6 @@ SELECT
     CASE WHEN x.nonshippable_ind = '1' THEN true WHEN x.nonshippable_ind = '0' THEN false ELSE null END AS biovu_sample_is_nonshippable,
     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma,
     EXISTS
-        (SELECT 1 FROM `${omopDataset}.x_agd_queue` aq WHERE p.person_id = aq.person_id) AS has_agd_queue,
-    EXISTS
         (SELECT 1 FROM `${omopDataset}.genotype_result` gr WHERE p.person_id = gr.person_id
                   AND gr.assay_name = 'agd whole genome sequencing'  ) AS has_agd_genotype_result,
     CASE WHEN d.death_date is null THEN false ELSE true END AS is_deceased
