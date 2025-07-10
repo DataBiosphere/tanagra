@@ -111,51 +111,13 @@ export function CohortReview() {
 
   const pageId = searchState.pageId ?? pagePlugins[0].id;
 
-  const fetchRows = async (pagePluginId: string) => {
-    const entityIds: string[] =
-      [...pagePlugins.find((p) => pagePluginId === p.id)?.entities] ?? [];
-    const res =  await Promise.all(
-      entityIds.map((id) =>
-        underlaySource.listDataForPrimaryEntity(
-          underlaySource.listAttributes(id),
-          id,
-          instance?.data?.[primaryKey]
-        )
-      )
-    );
-    const rows: { [x: string]: DataEntry[] } = {};
-    res.forEach(
-      (r, i) =>
-        (rows[entityIds[i]] = r.data.map((o) => ({
-          ...o,
-          timestamp: o["start_date"] as Date,
-        })))
-    );
-    return rows;
-  }
-
-  const changePage = async (newValue: string) => {
-    // console.log(pagePlugins.find((p) => newValue === p.id)?.entities);
-    // console.log(instanceDataState.data?.rows);
+  const changePage = (newValue: string) => {
     updateSearchState((state) => {
       state.pageId = newValue;
     });
-    const entityId = pagePlugins.find((p) => newValue === p.id)?.entities[0];
-    if (entityId && !instanceDataState.data?.rows[entityId]) {
-      const newRows = await fetchRows(newValue);
-      const updatedData = {
-        rows: {
-          ...instanceDataState.data?.rows,
-          ...newRows
-        },
-      }
-      console.log(updatedData.rows);
-      // await instanceDataState.mutate(updatedData);
-    }
-
   };
 
-  const instanceDataState = useSWR(
+  const instanceDataState = useSWRImmutable(
     {
       type: "reviewInstanceData",
       studyId: params.studyId,
@@ -163,16 +125,34 @@ export function CohortReview() {
       reviewId: params.reviewId,
       instanceIndex,
       instanceKey: instance?.data?.key,
+      pageId,
     },
     async () => {
-      console.log('new instanceDataState');
-      console.log(instanceIndex);
-      console.log(instance?.data?.key);
       if (!instance?.data) {
         return null;
       }
 
-      const rows = await fetchRows(pageId);
+      const entityIds: string[] = [
+        ...pagePlugins.find((p) => pageId === p.id)?.entities,
+      ];
+      const res = await Promise.all(
+        entityIds.map((id) =>
+          underlaySource.listDataForPrimaryEntity(
+            underlaySource.listAttributes(id),
+            id,
+            instance?.data?.[primaryKey]
+          )
+        )
+      );
+
+      const rows: { [x: string]: DataEntry[] } = {};
+      res.forEach(
+        (r, i) =>
+          (rows[entityIds[i]] = r.data.map((o) => ({
+            ...o,
+            timestamp: o["start_date"] as Date,
+          })))
+      );
       return {
         rows,
       };
