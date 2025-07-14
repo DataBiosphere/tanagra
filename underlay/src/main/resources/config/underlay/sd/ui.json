@@ -238,61 +238,71 @@
               "key": "start_date",
               "width": 150,
               "title": "Start date",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "end_date",
               "width": 150,
               "title": "End date",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "exposure_type",
               "width": 250,
               "title": "Exposure type",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "form",
               "width": 130,
               "title": "Form",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "strength",
               "width": 150,
               "title": "Strength",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "amount",
               "width": 130,
               "title": "Amount",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "route",
               "width": 150,
               "title": "Route",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "frequency",
               "width": 150,
               "title": "Frequency",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "source",
               "width": 150,
               "title": "Source",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             },
             {
               "key": "age_at_occurrence",
               "width": 200,
               "title": "Age At Event",
-              "sortable": true
+              "sortable": true,
+              "filterable": true
             }
           ]
         }
