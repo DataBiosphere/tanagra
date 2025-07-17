@@ -47,12 +47,13 @@ export function OccurrenceTabs({ config }: { config: Config }) {
   const [searchState, updateSearchState] = useReviewSearchState();
 
   useEffect(() => {
+    // Make sure subTabPageId is set and available in state for pagination
     if (!searchState.subTabPageId) {
       updateSearchState((state) => {
         state.subTabPageId = config.tabs[0].id;
       });
     }
-  }, []);
+  }, [config.tabs, searchState.subTabPageId, updateSearchState]);
 
   if (!context) {
     return null;

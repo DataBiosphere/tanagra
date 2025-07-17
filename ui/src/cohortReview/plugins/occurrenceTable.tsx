@@ -155,6 +155,7 @@ export function OccurrenceTable({
         page={searchState?.currentPage ?? 0}
         rowsPerPage={searchState?.rowsPerPage ?? 25}
         onPageChange={(e, newPage) => {
+          // If the next data has not been loaded, call setSize to trigger useSWRInfinite to get the next page
           if (
             (newPage + 1) * (searchState?.rowsPerPage ?? 25) >
             sortedData.rows.size

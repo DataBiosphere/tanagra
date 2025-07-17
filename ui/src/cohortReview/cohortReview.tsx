@@ -23,7 +23,7 @@ import Loading from "components/loading";
 import { Tabs } from "components/tabs";
 import { Annotation, AnnotationType, ReviewInstance } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { DataEntry, DataValue, stringifyDataValue } from "data/types";
+import { DataValue, stringifyDataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
 import { produce } from "immer";
@@ -122,10 +122,12 @@ export function CohortReview() {
     // If entities array has more than one element, it's a list of subtabs, so we check searchState for the active subTabPageId
     const entityId: string =
       (entities?.length > 1 ? searchState.subTabPageId : entities?.[0]) ?? "";
-    if (previousPageData && !previousPageData.pageMarkers[entityId]) {
+    if (
+      !entityId ||
+      (previousPageData && !previousPageData.pageMarkers[entityId])
+    ) {
       return null;
     }
-    console.log(previousPageData);
     return {
       type: "reviewInstanceData",
       studyId: params.studyId,
@@ -290,7 +292,7 @@ export function CohortReview() {
                     instanceDataState?.data?.reduce((acc, page) => {
                       if (page?.rows) {
                         Object.keys(page?.rows).forEach((entity) => {
-                          acc[entity] = !!acc[entity]
+                          acc[entity] = acc[entity]
                             ? [...acc[entity], ...page.rows[entity]]
                             : page.rows[entity];
                         });
