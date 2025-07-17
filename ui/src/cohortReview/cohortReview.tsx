@@ -9,7 +9,10 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { CohortReviewContext } from "cohortReview/cohortReviewContext";
+import {
+  CohortReviewContext,
+  EntityData,
+} from "cohortReview/cohortReviewContext";
 import { useParticipantsListDialog } from "cohortReview/useParticipantsListDialog";
 import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
 import {
@@ -23,7 +26,7 @@ import Loading from "components/loading";
 import { Tabs } from "components/tabs";
 import { Annotation, AnnotationType, ReviewInstance } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { DataEntry, DataValue, stringifyDataValue } from "data/types";
+import { DataValue, stringifyDataValue } from "data/types";
 import { useUnderlaySource } from "data/underlaySourceContext";
 import { useUnderlay } from "hooks";
 import { produce } from "immer";
@@ -32,7 +35,13 @@ import GridLayout from "layout/gridLayout";
 import { useMemo, useState } from "react";
 import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
-import useSWRImmutable from "swr/immutable";
+import useSWRInfinite from "swr/infinite";
+
+type PageData = {
+  rows: EntityData;
+  totalCount: number;
+  pageMarker: string;
+};
 
 export function CohortReview() {
   const studySource = useStudySource();
@@ -117,44 +126,58 @@ export function CohortReview() {
     });
   };
 
-  const instanceDataState = useSWRImmutable(
-    {
+  const getKey = (pageIndex: number, previousPageData: PageData) => {
+    const entities = pagePlugins.find((p) => pageId === p.id)?.entities;
+    // If entities array has more than one element, it's a list of subtabs, so we check searchState for the active subTabPageId
+    const entityId: string =
+      ((entities ?? []).length > 1
+        ? searchState.subTabPageId
+        : entities?.[0]) ?? "";
+    if (!entityId || (previousPageData && !previousPageData.pageMarker)) {
+      return null;
+    }
+    return {
       type: "reviewInstanceData",
       studyId: params.studyId,
       cohortId: params.cohort.id,
       reviewId: params.reviewId,
       instanceIndex,
       instanceKey: instance?.data?.key,
-    },
-    async () => {
+      pageId,
+      entityId,
+      pageMarker: previousPageData?.pageMarker,
+    };
+  };
+
+  const instanceDataState = useSWRInfinite(
+    getKey,
+    async (key) => {
       if (!instance?.data) {
         return null;
       }
-
-      const entityIds: string[] = [];
-      pagePlugins.forEach((p) => entityIds.push(...p.entities));
-
-      const res = await Promise.all(
-        entityIds.map((id) =>
-          underlaySource.listDataForPrimaryEntity(
-            underlaySource.listAttributes(id),
-            id,
-            instance?.data?.[primaryKey]
-          )
-        )
+      const { entityId, pageMarker } = key;
+      const res = await underlaySource.listDataForPrimaryEntity(
+        underlaySource.listAttributes(entityId),
+        entityId,
+        instance?.data?.[primaryKey],
+        pageMarker
       );
 
-      const rows: { [x: string]: DataEntry[] } = {};
-      res.forEach(
-        (r, i) =>
-          (rows[entityIds[i]] = r.data.map((o) => ({
+      return {
+        rows: {
+          [entityId]: res.data.map((o) => ({
             ...o,
             timestamp: o["start_date"] as Date,
-          })))
-      );
-      return {
-        rows,
+          })),
+        },
+        pageMarker: res.pageMarker,
+        totalCount: res.numRowsAcrossAllPages ?? res.data.length,
       };
+    },
+    {
+      revalidateFirstPage: false,
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
     }
   );
 
@@ -271,7 +294,20 @@ export function CohortReview() {
             <Loading status={instanceDataState}>
               <CohortReviewContext.Provider
                 value={{
-                  rows: instanceDataState?.data?.rows ?? {},
+                  rows:
+                    instanceDataState?.data?.reduce((acc, page) => {
+                      if (page?.rows) {
+                        Object.keys(page?.rows).forEach((entity) => {
+                          acc[entity] = acc[entity]
+                            ? [...acc[entity], ...page.rows[entity]]
+                            : page.rows[entity];
+                        });
+                      }
+                      return acc;
+                    }, {} as EntityData) ?? {},
+                  totalCount: instanceDataState?.data?.[0]?.totalCount ?? 0,
+                  size: instanceDataState.size,
+                  setSize: instanceDataState.setSize,
                   searchState: <T extends object>(plugin: string) =>
                     (searchState?.plugins?.[plugin] ?? {}) as T,
                   updateSearchState: <T extends object>(

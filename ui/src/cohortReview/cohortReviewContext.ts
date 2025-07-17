@@ -7,6 +7,13 @@ export type EntityData = {
 
 export type CohortReviewContextData = {
   rows: EntityData;
+  totalCount: number;
+
+  size: number;
+  setSize: (
+    size: number | ((_size: number) => number)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ) => Promise<any[] | undefined>;
 
   searchState: <T extends object>(plugin: string) => T;
   updateSearchState: <T extends object>(
