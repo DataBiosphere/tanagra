@@ -6,7 +6,7 @@ import {
 } from "cohortReview/pluginRegistry";
 import { useReviewSearchState } from "cohortReview/reviewHooks";
 import { GridBox } from "layout/gridBox";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
 import { Tabs } from "components/tabs";
 
@@ -46,7 +46,13 @@ export function OccurrenceTabs({ config }: { config: Config }) {
 
   const [searchState, updateSearchState] = useReviewSearchState();
 
-  const subTabPageId = searchState.subTabPageId ?? config.tabs[0].id;
+  useEffect(() => {
+    if (!searchState.subTabPageId) {
+      updateSearchState((state) => {
+        state.subTabPageId = config.tabs[0].id;
+      });
+    }
+  }, []);
 
   if (!context) {
     return null;
@@ -66,7 +72,7 @@ export function OccurrenceTabs({ config }: { config: Config }) {
     >
       <Tabs
         configs={pagePlugins}
-        currentTab={subTabPageId}
+        currentTab={searchState.subTabPageId}
         setCurrentTab={changePage}
       />
     </GridBox>

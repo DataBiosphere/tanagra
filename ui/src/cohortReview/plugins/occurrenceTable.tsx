@@ -17,7 +17,7 @@ import {
 } from "data/types";
 import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
 import { safeRegExp } from "util/safeRegExp";
 import { TablePagination } from "@mui/material";
@@ -49,6 +49,8 @@ class _ implements CohortReviewPlugin {
 type SearchState = {
   sortOrders?: TreeGridSortOrder[];
   columnFilters?: { [key: string]: string };
+  currentPage?: number;
+  rowsPerPage?: number;
 };
 
 export function OccurrenceTable({
@@ -60,8 +62,6 @@ export function OccurrenceTable({
 }) {
   const context = useCohortReviewContext();
   const searchState = context?.searchState<SearchState>(id);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(25);
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
@@ -114,12 +114,14 @@ export function OccurrenceTable({
 
         return 0;
       });
+      const currentPage = searchState?.currentPage ?? 0;
+      const rowsPerPage = searchState?.rowsPerPage ?? 25;
       data.children = data.children.slice(
         currentPage * rowsPerPage,
         (currentPage + 1) * rowsPerPage
       );
     });
-  }, [data, searchState, filterRegExps, currentPage, rowsPerPage]);
+  }, [data, searchState, filterRegExps]);
 
   if (!context) {
     return null;
@@ -149,14 +151,26 @@ export function OccurrenceTable({
       />
       <TablePagination
         component="div"
-        count={data.rows.size}
-        page={currentPage}
-        rowsPerPage={rowsPerPage}
-        onPageChange={(e, newPage) => setCurrentPage(newPage)}
-        onRowsPerPageChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value, 10));
-          setCurrentPage(0);
+        count={context.totalCounts?.[config.entity] ?? data.rows.size}
+        page={searchState?.currentPage ?? 0}
+        rowsPerPage={searchState?.rowsPerPage ?? 25}
+        onPageChange={(e, newPage) => {
+          if (
+            (newPage + 1) * (searchState?.rowsPerPage ?? 25) >
+            sortedData.rows.size
+          ) {
+            context.setSize(context.size + 1);
+          }
+          context.updateSearchState(id, (state: SearchState) => {
+            state.currentPage = newPage;
+          });
         }}
+        onRowsPerPageChange={(e) =>
+          context.updateSearchState(id, (state: SearchState) => {
+            state.currentPage = 0;
+            state.rowsPerPage = parseInt(e.target.value, 10);
+          })
+        }
       />
     </GridBox>
   );

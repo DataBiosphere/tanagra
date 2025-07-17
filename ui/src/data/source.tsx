@@ -51,6 +51,8 @@ export type SearchGroupingOptions = {
 export type ListDataResponse = {
   data: DataEntry[];
   sql: string;
+  numRowsAcrossAllPages?: number;
+  pageMarker?: string;
 };
 
 export type GetHintDataOptions = {
@@ -308,7 +310,8 @@ export interface UnderlaySource {
   listDataForPrimaryEntity(
     requestedAttributes: string[],
     entityId: string,
-    primaryEntityId: DataValue
+    primaryEntityId: DataValue,
+    pageMarker?: string
   ): Promise<ListDataResponse>;
 
   getHintData(
@@ -709,7 +712,8 @@ export class BackendUnderlaySource implements UnderlaySource {
   async listDataForPrimaryEntity(
     requestedAttributes: string[],
     entityId: string,
-    primaryEntityId: DataValue
+    primaryEntityId: DataValue,
+    pageMarker?: string
   ): Promise<ListDataResponse> {
     const entity = this.lookupEntity(entityId);
     const ra = normalizeRequestedAttributes(
@@ -717,12 +721,6 @@ export class BackendUnderlaySource implements UnderlaySource {
       entity.idAttribute
     );
 
-    //TODO: Update state with additional pages as needed, instead of using commented out code to return everything (currently only returns one API call)
-
-    // let pageMarker: string | undefined;
-    // let sql: string | undefined;
-    const data: DataEntry[] = [];
-    //while (true) {
     const res = await parseAPIError(
       this.underlaysApi.listInstancesForPrimaryEntity({
         entityName: entity.name,
@@ -731,26 +729,21 @@ export class BackendUnderlaySource implements UnderlaySource {
           includeAttributes: ra,
           orderBys: [],
           primaryEntityId: literalFromDataValue(primaryEntityId),
-          // pageMarker,
+          pageMarker,
         },
       })
     );
 
-    data.push(
-      ...(res.instances?.map((instance) =>
+    const data =
+      res.instances?.map((instance) =>
         makeDataEntry(entity.idAttribute, instance.attributes)
-      ) ?? [])
-    );
+      ) ?? [];
 
-    const sql = res.sql;
-    // const pageMarker = res.pageMarker;
-    // if (!pageMarker?.length || !res.instances?.length) {
-    //   break;
-    // }
-    //}
     return {
-      data: data,
-      sql: sql ?? "",
+      data,
+      sql: res.sql ?? "",
+      numRowsAcrossAllPages: res.numRowsAcrossAllPages,
+      pageMarker: res.pageMarker,
     };
   }
 

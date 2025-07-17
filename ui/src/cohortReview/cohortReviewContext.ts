@@ -7,6 +7,12 @@ export type EntityData = {
 
 export type CohortReviewContextData = {
   rows: EntityData;
+  totalCounts: { [x: string]: number };
+
+  size: number;
+  setSize: (
+    size: number | ((_size: number) => number)
+  ) => Promise<any[] | undefined>;
 
   searchState: <T extends object>(plugin: string) => T;
   updateSearchState: <T extends object>(
