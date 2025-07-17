@@ -9,7 +9,10 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import ActionBar from "actionBar";
-import { CohortReviewContext } from "cohortReview/cohortReviewContext";
+import {
+  CohortReviewContext,
+  EntityData,
+} from "cohortReview/cohortReviewContext";
 import { useParticipantsListDialog } from "cohortReview/useParticipantsListDialog";
 import { getCohortReviewPlugin } from "cohortReview/pluginRegistry";
 import {
@@ -33,6 +36,18 @@ import { useMemo, useState } from "react";
 import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
+
+type PageKey = {
+  type: string;
+  studyId: string;
+  cohortId: string;
+  reviewId: string;
+  instanceIndex: number;
+  instanceKey: string;
+  pageId: string;
+  entityId: string;
+  pageMarker: string;
+};
 
 export function CohortReview() {
   const studySource = useStudySource();
@@ -117,11 +132,13 @@ export function CohortReview() {
     });
   };
 
-  const getKey = (pageIndex, previousPageData) => {
+  const getKey = (pageIndex: number, previousPageData: PageKey) => {
     const entities = pagePlugins.find((p) => pageId === p.id)?.entities;
     // If entities array has more than one element, it's a list of subtabs, so we check searchState for the active subTabPageId
     const entityId: string =
-      (entities?.length > 1 ? searchState.subTabPageId : entities?.[0]) ?? "";
+      ((entities?.length ?? []) > 1
+        ? searchState.subTabPageId
+        : entities?.[0]) ?? "";
     if (
       !entityId ||
       (previousPageData && !previousPageData.pageMarkers[entityId])
@@ -298,7 +315,7 @@ export function CohortReview() {
                         });
                       }
                       return acc;
-                    }, {}) ?? {},
+                    }, {} as EntityData) ?? {},
                   totalCounts: instanceDataState?.data?.[0]?.totalCounts ?? {},
                   size: instanceDataState.size,
                   setSize: instanceDataState.setSize,
