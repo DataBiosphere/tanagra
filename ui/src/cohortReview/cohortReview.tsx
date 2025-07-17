@@ -37,15 +37,9 @@ import { absoluteCohortReviewListURL, useBaseParams } from "router";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 
-type PageKey = {
-  type: string;
-  studyId: string;
-  cohortId: string;
-  reviewId: string;
-  instanceIndex: number;
-  instanceKey: string;
-  pageId: string;
-  entityId: string;
+type PageData = {
+  rows: EntityData;
+  totalCount: number;
   pageMarker: string;
 };
 
@@ -132,17 +126,14 @@ export function CohortReview() {
     });
   };
 
-  const getKey = (pageIndex: number, previousPageData: PageKey) => {
+  const getKey = (pageIndex: number, previousPageData: PageData) => {
     const entities = pagePlugins.find((p) => pageId === p.id)?.entities;
     // If entities array has more than one element, it's a list of subtabs, so we check searchState for the active subTabPageId
     const entityId: string =
-      ((entities?.length ?? []) > 1
+      ((entities ?? []).length > 1
         ? searchState.subTabPageId
         : entities?.[0]) ?? "";
-    if (
-      !entityId ||
-      (previousPageData && !previousPageData.pageMarkers[entityId])
-    ) {
+    if (!entityId || (previousPageData && !previousPageData.pageMarker)) {
       return null;
     }
     return {
@@ -154,7 +145,7 @@ export function CohortReview() {
       instanceKey: instance?.data?.key,
       pageId,
       entityId,
-      pageMarker: previousPageData?.pageMarkers?.[entityId],
+      pageMarker: previousPageData?.pageMarker,
     };
   };
 
@@ -179,10 +170,8 @@ export function CohortReview() {
             timestamp: o["start_date"] as Date,
           })),
         },
-        pageMarkers: { [entityId]: res.pageMarker },
-        totalCounts: {
-          [entityId]: res.numRowsAcrossAllPages ?? res.data.length,
-        },
+        pageMarker: res.pageMarker,
+        totalCount: res.numRowsAcrossAllPages ?? res.data.length,
       };
     },
     {
@@ -316,7 +305,7 @@ export function CohortReview() {
                       }
                       return acc;
                     }, {} as EntityData) ?? {},
-                  totalCounts: instanceDataState?.data?.[0]?.totalCounts ?? {},
+                  totalCount: instanceDataState?.data?.[0]?.totalCount ?? 0,
                   size: instanceDataState.size,
                   setSize: instanceDataState.setSize,
                   searchState: <T extends object>(plugin: string) =>

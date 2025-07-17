@@ -7,7 +7,7 @@ export type EntityData = {
 
 export type CohortReviewContextData = {
   rows: EntityData;
-  totalCounts: { [x: string]: number };
+  totalCount: number;
 
   size: number;
   setSize: (

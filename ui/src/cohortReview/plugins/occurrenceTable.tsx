@@ -151,7 +151,7 @@ export function OccurrenceTable({
       />
       <TablePagination
         component="div"
-        count={context.totalCounts?.[config.entity] ?? data.rows.size}
+        count={context.totalCount ?? data.rows.size}
         page={searchState?.currentPage ?? 0}
         rowsPerPage={searchState?.rowsPerPage ?? 25}
         onPageChange={(e, newPage) => {
