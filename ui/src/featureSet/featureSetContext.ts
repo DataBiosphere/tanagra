@@ -75,17 +75,20 @@ export function useNewFeatureSetContext(
     () =>
       setState(
         status.data
-          ? {
+          ? ({
               past: state?.past ?? [],
               present: status.data,
               future: state?.future ?? [],
 
               saving: false,
               showSnackbar,
-            }
+            } as FeatureSetState)
           : null
       ),
-    [status.data, showSnackbar, state?.past, state?.future]
+    // Removed showSnackbar from the deps array to prevent updates on every render,
+    // causing a memory stack error and preventing the loading spinner from rendering
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [status.data, state?.past, state?.future]
   );
 
   const updateFeatureSet = async (newState: FeatureSetState | null) => {
