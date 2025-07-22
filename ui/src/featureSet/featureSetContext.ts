@@ -75,14 +75,14 @@ export function useNewFeatureSetContext(
     () =>
       setState(
         status.data
-          ? {
+          ? ({
               past: state?.past ?? [],
               present: status.data,
               future: state?.future ?? [],
 
               saving: false,
               showSnackbar,
-            } as FeatureSetState
+            } as FeatureSetState)
           : null
       ),
     // Removed showSnackbar from the deps array to prevent updates on every render,
