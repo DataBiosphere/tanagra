@@ -179,9 +179,7 @@ class _ implements CriteriaPlugin<string> {
             ? `${sel[0].name} and ${sel.length - 1} more`
             : sel[0].name,
         standaloneTitle: true,
-        additionalText: decodedData.selected.map((s) =>
-          s.code ? `${s.code} ${s.name}` : s.name
-        ),
+        additionalText: decodedData.selected.map((s) => `${s.code} ${s.name}`),
       };
     }
 
@@ -885,7 +883,9 @@ export function ClassificationEdit(props: ClassificationEditProps) {
                                     : undefined,
                               }}
                             >
-                              <Typography variant="body2">{s.name}</Typography>
+                              <Typography variant="body2">
+                                {s.code} {s.name}
+                              </Typography>
                               <IconButton
                                 onClick={() =>
                                   updateLocalCriteria((data) => {
