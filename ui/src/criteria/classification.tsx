@@ -66,6 +66,7 @@ import { isValid } from "util/valid";
 type Selection = {
   key: DataKey;
   name: string;
+  code: string;
   entityGroup: string;
   valueData?: ValueData;
 };
@@ -103,6 +104,7 @@ export interface Data {
     if (dataEntries) {
       dataEntries?.forEach((e) => {
         const name = String(e[nameAttribute(config)]);
+        const code = String(e.code);
         const entityGroup = String(e.entityGroup);
         if (!name || !entityGroup) {
           throw new Error(
@@ -113,6 +115,7 @@ export interface Data {
         data.selected.push({
           key: e.key,
           name,
+          code,
           entityGroup,
         });
       });
@@ -176,7 +179,9 @@ class _ implements CriteriaPlugin<string> {
             ? `${sel[0].name} and ${sel.length - 1} more`
             : sel[0].name,
         standaloneTitle: true,
-        additionalText: decodedData.selected.map((s) => s.name),
+        additionalText: decodedData.selected.map((s) =>
+          s.code ? `${s.code} ${s.name}` : s.name
+        ),
       };
     }
 
@@ -662,6 +667,11 @@ export function ClassificationEdit(props: ClassificationEditProps) {
                   const newItem = {
                     key: item.node.data.key,
                     name: name ? String(name) : "",
+                    code:
+                      item.data.concept_code &&
+                      item.data.standard_concept === "Source"
+                        ? String(item.data.concept_code)
+                        : "",
                     entityGroup: item.entityGroup,
                   };
 
@@ -1254,6 +1264,7 @@ function decodeData(data: string): Data {
       message.selected?.map((s) => ({
         key: dataKeyFromProto(s.key),
         name: s.name,
+        code: s.code,
         entityGroup: s.entityGroup,
         valueData:
           decodeValueDataOptional(s.valueData) ??
@@ -1267,6 +1278,7 @@ function encodeData(data: Data): string {
     selected: data.selected.map((s) => ({
       key: protoFromDataKey(s.key),
       name: s.name,
+      code: s.code,
       entityGroup: s.entityGroup,
       valueData: encodeValueDataOptional(s.valueData),
     })),

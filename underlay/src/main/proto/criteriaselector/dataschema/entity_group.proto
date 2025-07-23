@@ -24,6 +24,10 @@ message EntityGroup {
     // are configured within a single criteria.
     string entityGroup = 3;
 
+    // The code for the selection. This is stored to avoid extra lookups
+    // when rendering.
+    string code = 4;
+
     // Data for additional categorical or numeric values associated with the
     // selection (e.g. a measurement value).
     ValueData value_data = 6;
