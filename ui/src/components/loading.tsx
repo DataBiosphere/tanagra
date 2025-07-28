@@ -28,12 +28,16 @@ type Props = {
 
   // Override default isLoading from status.
   isLoading?: boolean;
+  showLoadingMessage?: boolean;
 };
 
 export default function Loading(props: Props) {
+  const textTime = .5 * 1000; //Measured in Milliseconds, so change first number to change number of seconds.
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
+  const [showText, setShowText] = useState(false);
   const timerRef = useRef<number>();
+  const textTimer = useRef<number>();
 
   const isLoading =
     props.isLoading ??
@@ -56,9 +60,15 @@ export default function Loading(props: Props) {
       setVisible(true);
     }, 800);
 
+    textTimer.current = window.setTimeout(() => {
+      setShowText(true);
+    }, 1)
+
     return () => {
       setVisible(false);
+      setShowText(false);
       clearTimeout(timerRef.current);
+      clearTimeout(textTimer.current);
     };
   }, [isLoading, props]);
 
@@ -71,11 +81,14 @@ export default function Loading(props: Props) {
       {showStatus(
         theme,
         visible,
+        showText,
         isLoading,
         props.status,
         props.size ?? "large",
         props.disableReloadButton,
-        props.noProgress
+        props.noProgress,
+        // props.showLoadingMessage
+          true
       )}
     </Box>
   );
@@ -84,11 +97,13 @@ export default function Loading(props: Props) {
 function showStatus(
   theme: Theme,
   visible: boolean,
+  showText: boolean,
   isLoading?: boolean,
   status?: Status,
   size?: string,
   disableReloadButton?: boolean,
-  noProgress?: boolean
+  noProgress?: boolean,
+  showLoadingMessage?: boolean
 ): ReactNode {
   if (status?.error && !status?.isLoading) {
     const defaultMessage = "Something went wrong";
@@ -142,6 +157,18 @@ function showStatus(
             : {}
         }
       />
+      {/*{showText ?? <p><b><br/>Just a moment while we politely interrogate a very large database. It has a lot to say.</b></p>}*/}
+      { (showLoadingMessage && showText) ? (
+          <p sx={
+            size !== "small"
+                ? {
+                  display: "block",
+                  m: "auto",
+                }
+                : {}
+          }><b><br/>Just a moment while we politely interrogate a very large database. It has a lot to say.</b></p>
+        ) : null
+      }
     </GridBox>
   ) : null;
 }
