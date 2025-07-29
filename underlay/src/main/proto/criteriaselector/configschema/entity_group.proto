@@ -73,4 +73,8 @@ message EntityGroup {
   // multiple codes can be added at the same time which forces the criteria into
   // multi_select mode regardless of the setting.
   repeated string codeAttributes = 11;
+
+  // The attribute to specify which column to use to display the code with name
+  // for criteria selections.
+  optional string codeDisplayAttribute = 12;
 }
