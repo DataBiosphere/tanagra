@@ -324,7 +324,7 @@ function Preview() {
 
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
     () => {
-      if (!occurrenceFiltersState.data) {
+      if (!occurrenceFiltersState.data || previewOccurrences.length === 0) {
         return false;
       }
       return {
@@ -370,7 +370,10 @@ function Preview() {
     <GridLayout rows sx={{ pt: 1 }}>
       {featureSet.criteria.length > 0 ||
       featureSet.predefinedCriteria.length > 0 ? (
-        <Loading status={tabDataState}>
+        <Loading
+          status={tabDataState}
+          isLoading={occurrenceFiltersState.isLoading || tabDataState.isLoading}
+        >
           <Tabs
             configs={
               (tabDataState.data ?? []).map((data, i) => ({
