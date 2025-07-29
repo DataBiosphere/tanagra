@@ -83,5 +83,6 @@
     }
   ],
   "multiSelect": true,
-  "limit": 200
+  "limit": 200,
+  "codeDisplayAttribute": "concept_code"
 }

@@ -662,14 +662,11 @@ export function ClassificationEdit(props: ClassificationEditProps) {
                   }
 
                   const name = item.data[nameAttribute(props.config)];
+                  const code = item.data[codeDisplayAttribute(props.config)];
                   const newItem = {
                     key: item.node.data.key,
                     name: name ? String(name) : "",
-                    code:
-                      item.data.concept_code &&
-                      item.data.standard_concept === "Source"
-                        ? String(item.data.concept_code)
-                        : "",
+                    code: code ? String(code) : "",
                     entityGroup: item.entityGroup,
                   };
 
@@ -1295,4 +1292,8 @@ function nameAttribute(config: configProto.EntityGroup) {
   return (
     config.nameAttribute ?? config.columns[config.nameColumnIndex ?? 0].key
   );
+}
+
+function codeDisplayAttribute(config: configProto.EntityGroup) {
+  return config.codeDisplayAttribute ?? null;
 }
