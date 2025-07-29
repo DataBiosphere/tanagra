@@ -1295,5 +1295,5 @@ function nameAttribute(config: configProto.EntityGroup) {
 }
 
 function codeDisplayAttribute(config: configProto.EntityGroup) {
-  return config.codeDisplayAttribute ?? null;
+  return config.codeDisplayAttribute ?? "";
 }

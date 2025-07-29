@@ -247,6 +247,7 @@ which have condition_name of &#34;Diabetes&#34;).
 | limit | [int32](#int32) | optional | Number of values to display in the list view for each entity group. Otherwise, a default value is applied. |
 | nameAttribute | [string](#string) | optional | The attribute used to name selections if not the first column. This can be used to include extra context with the selected values that&#39;s not visible in the table view. |
 | codeAttributes | [string](#string) | repeated | Optional attributes to search when adding criteria by code. It&#39;s recommended to enable multi_select when using codeAttributes because multiple codes can be added at the same time which forces the criteria into multi_select mode regardless of the setting. |
+| codeDisplayAttribute | [string](#string) | optional | The attribute to specify which column to use to display the code with name for criteria selections. |
 
 
 
@@ -768,6 +769,7 @@ Data for an entity group criteria is a list of selected values.
 | key | [tanagra.Key](#tanagra-Key) |  | The key of the selected value, which references a related entity (e.g. condition for a condition_occurrence). |
 | name | [string](#string) |  | The visible name for the selection. This is stored to avoid extra lookups when rendering. |
 | entityGroup | [string](#string) |  | The entity group is stored to differentiate between them when multiple are configured within a single criteria. |
+| code | [string](#string) |  | The code for the selection. This is stored to avoid extra lookups when rendering. |
 | value_data | [tanagra.ValueData](#tanagra-ValueData) |  | Data for additional categorical or numeric values associated with the selection (e.g. a measurement value). |
 
 
