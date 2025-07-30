@@ -26,7 +26,7 @@
       "rootIdFieldName": "id",
       "maxDepth": 10,
       "keepOrphanNodes": false,
-      "cleanHierarchyNodesWithZeroCounts": false
+      "cleanHierarchyNodesWithZeroCounts": true
     }
   ]
 }
