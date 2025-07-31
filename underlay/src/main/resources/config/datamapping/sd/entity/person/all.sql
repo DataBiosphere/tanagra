@@ -1,6 +1,7 @@
 SELECT
     p.person_id, p.person_source_value,
-    p.year_of_birth, p.month_of_birth, p.day_of_birth, p.birth_datetime,
+    p.year_of_birth, p.month_of_birth, p.day_of_birth,
+    p.birth_datetime,
     p.gender_concept_id, gc.concept_name AS gender_concept_name,
     p.race_source_concept_id, rc.concept_name AS race_concept_name,
     p.ethnicity_concept_id, ec.concept_name AS ethnicity_concept_name,
@@ -20,10 +21,11 @@ SELECT
         AS has_agd_genotype_result,
     CASE WHEN d.death_date is null THEN false ELSE true END AS is_deceased,
     -- age computation
-    CASE WHEN d.death_date is null
-         THEN CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), p.birth_datetime, DAY) / 365.25) AS INT64)
-         ELSE CAST(FLOOR(TIMESTAMP_DIFF(d.death_date, p.birth_datetime, DAY) / 365.25) AS INT64)
-    END AS age
+    d.death_date as death_date
+--     CASE WHEN d.death_date is null
+--          THEN CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), p.birth_datetime, DAY) / 365.25) AS INT64)
+--          ELSE CAST(FLOOR(TIMESTAMP_DIFF(d.death_date, p.birth_datetime, DAY) / 365.25) AS INT64)
+--     END AS age2
 FROM `${omopDataset}.person` p
 LEFT JOIN `${omopDataset}.concept` gc
 ON gc.concept_id = p.gender_concept_id
