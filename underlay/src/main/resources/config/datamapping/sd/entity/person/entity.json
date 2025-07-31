@@ -5,29 +5,10 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "person_id" },
     { "name": "person_id", "dataType": "INT64"},
     { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
-    { "name": "year_of_birth", "dataType": "INT64", "isComputeDisplayHint": true },
-    { "name": "month_of_birth", "dataType": "INT64", "isComputeDisplayHint": true },
-    { "name": "day_of_birth", "dataType": "INT64", "isComputeDisplayHint": true },
-    { "name": "date_of_birth", "dataType": "TIMESTAMP", "valueFieldName": "birth_datetime",
-      "runtimeSqlFunctionWrapper": "DATE(${fieldSql})", "runtimeDataType": "DATE", "isComputeDisplayHint": true },
-    { "name": "death_date", "dataType": "TIMESTAMP",
-      "runtimeSqlFunctionWrapper": "max(death_date)",
-      "isSuppressedForExport": false,
-      "sourceQuery": {
-        "displayFieldName": "death_date",
-        "displayFieldTable": "${omopDataset}.death_date",
-        "displayFieldTableJoinFieldName": "person_id"
-      }
+    { "name": "date_of_birth", "dataType": "TIMESTAMP", "valueFieldName": "birth_datetime", "isComputeDisplayHint": true,
+      "runtimeSqlFunctionWrapper": "DATE(${fieldSql})", "runtimeDataType": "DATE"
     },
-    { "name": "age", "dataType": "TIMESTAMP", "valueFieldName": "death_date", "runtimeDataType": "INT64",
-      "runtimeSqlFunctionWrapper": "CASE WHEN max(death_date) IS NULL THEN CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), date_of_birth, DAY) / 365.25) AS INT64) ELSE CAST(FLOOR(TIMESTAMP_DIFF(max(death_date), date_of_birth, DAY) / 365.25) AS INT64) END",
-       "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89, "isSuppressedForExport": false,
-      "sourceQuery": {
-        "displayFieldName": "death_date",
-        "displayFieldTable": "${omopDataset}.death_date",
-        "displayFieldTableJoinFieldName": "person_id"
-      }
-    },
+    { "name": "age", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89,"isSuppressedForExport": true },
     { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_concept_id", "displayFieldName": "gender_concept_name", "isComputeDisplayHint": true,
       "sourceQuery": {
         "displayFieldName": "concept_name",
