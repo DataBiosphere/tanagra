@@ -33,6 +33,10 @@
       {
         "title": "Ethnicity",
         "key": "ethnicity"
+      },
+      {
+        "title": "Is Deceased",
+        "key": "is_deceased"
       }
     ],
     "pages": [

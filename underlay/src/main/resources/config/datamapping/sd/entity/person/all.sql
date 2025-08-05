@@ -17,7 +17,11 @@ SELECT
     EXISTS
         (SELECT 1 FROM `${omopDataset}.genotype_result` gr WHERE p.person_id = gr.person_id
                   AND gr.assay_name = 'agd whole genome sequencing'  ) AS has_agd_genotype_result,
-    CASE WHEN d.death_date is null THEN false ELSE true END AS is_deceased
+    CASE WHEN d.death_date is null THEN false ELSE true END AS is_deceased,
+    CASE WHEN d.death_date is null
+        THEN CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), p.birth_datetime, DAY) / 365.25) AS INT64)
+        ELSE CAST(FLOOR(TIMESTAMP_DIFF(d.death_date, p.birth_datetime, DAY) / 365.25) AS INT64)
+    END as age
 
 FROM `${omopDataset}.person` p
 
