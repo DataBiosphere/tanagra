@@ -90,6 +90,9 @@
     },
     {
       "id": "measurementNonHierarchyPerson"
+    },
+    {
+      "id": "measurementVumcVocabPerson"
     }
   ],
   "multiSelect": true,
