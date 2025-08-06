@@ -20,8 +20,8 @@
     "sd/measurementLoinc",
     "sd/measurementSnomed",
     "sd/measurementNonHierarchy",
-    "sd/measurementOccurrence",
     "sd/measurementVumcVocab",
+    "sd/measurementOccurrence",
 
     "sd/observation",
     "sd/observationOccurrence",
