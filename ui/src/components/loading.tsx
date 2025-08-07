@@ -32,7 +32,6 @@ type Props = {
 };
 
 export default function Loading(props: Props) {
-  const textTime = .5 * 1000; //Measured in Milliseconds, so change first number to change number of seconds.
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
   const [showText, setShowText] = useState(false);
@@ -49,6 +48,10 @@ export default function Loading(props: Props) {
       return;
     }
 
+    textTimer.current = window.setTimeout(() => {
+      setShowText(true);
+    }, 15000);
+
     // Show the small spinner immediately since it's used inline and the delay
     // causes extra shifting of the surrounding elements.
     if (props.immediate || props.size === "small") {
@@ -59,10 +62,6 @@ export default function Loading(props: Props) {
     timerRef.current = window.setTimeout(() => {
       setVisible(true);
     }, 800);
-
-    textTimer.current = window.setTimeout(() => {
-      setShowText(true);
-    }, 1)
 
     return () => {
       setVisible(false);
@@ -87,8 +86,7 @@ export default function Loading(props: Props) {
         props.size ?? "large",
         props.disableReloadButton,
         props.noProgress,
-        // props.showLoadingMessage
-          true
+        props.showLoadingMessage
       )}
     </Box>
   );
@@ -145,7 +143,7 @@ function showStatus(
     );
   }
   return !noProgress && visible ? (
-    <GridBox sx={{ p: size !== "small" ? 3 : undefined }}>
+    <GridBox sx={{ p: size !== "small" ? 3 : undefined, textAlign: 'center' }}>
       <CircularProgress
         size={size === "small" ? theme.typography.body2.fontSize : undefined}
         sx={
@@ -157,16 +155,15 @@ function showStatus(
             : {}
         }
       />
-      {/*{showText ?? <p><b><br/>Just a moment while we politely interrogate a very large database. It has a lot to say.</b></p>}*/}
+
       { (showLoadingMessage && showText) ? (
-          <p sx={
-            size !== "small"
-                ? {
-                  display: "block",
-                  m: "auto",
-                }
-                : {}
-          }><b><br/>Just a moment while we politely interrogate a very large database. It has a lot to say.</b></p>
+          <p style = {size === "small" ? {fontSize: '10px'} :
+              { fontWeight: 'bold',}
+          }>
+            {size === "small" ? "Just a moment please" :
+              "Just a moment while we politely interrogate a very large database. It has a lot to say."
+            }
+          </p>
         ) : null
       }
     </GridBox>

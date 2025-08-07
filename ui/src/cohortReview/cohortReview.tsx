@@ -198,7 +198,7 @@ export function CohortReview() {
           params.reviewId
         )}
       />
-      <Loading status={instancesState}>
+      <Loading status={instancesState} showLoadingMessage={true}>
         <GridLayout cols="240px auto">
           <GridBox
             sx={{
@@ -302,7 +302,7 @@ export function CohortReview() {
               borderWidth: "1px",
             }}
           >
-            <Loading status={instanceDataState}>
+            <Loading status={instanceDataState} showLoadingMessage={true}>
               <CohortReviewContext.Provider
                 value={{
                   rows:
