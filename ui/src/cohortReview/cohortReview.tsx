@@ -248,16 +248,22 @@ export function CohortReview() {
               </GridLayout>
               <GridBox sx={{ m: 2 }} />
               <GridLayout rows>
-                {uiConfig.attributes.map((attribute) => (
-                  <GridLayout cols rowAlign="baseline" key={attribute.key}>
-                    <Typography variant="body2em" sx={{ fontWeight: 700 }}>
-                      {attribute.title}:&nbsp;
-                    </Typography>
-                    <Typography variant="body2">
-                      {stringifyDataValue(instance?.data?.[attribute.key])}
-                    </Typography>
-                  </GridLayout>
-                ))}
+                {uiConfig.attributes.map((attribute) =>
+                  attribute.labelOnlyBoolean &&
+                  !instance?.data?.[attribute.key] ? null : (
+                    <GridLayout cols rowAlign="baseline" key={attribute.key}>
+                      <Typography variant="body2em" sx={{ fontWeight: 700 }}>
+                        {attribute.title}
+                        {!attribute.labelOnlyBoolean && ":"}&nbsp;
+                      </Typography>
+                      {!attribute.labelOnlyBoolean && (
+                        <Typography variant="body2">
+                          {stringifyDataValue(instance?.data?.[attribute.key])}
+                        </Typography>
+                      )}
+                    </GridLayout>
+                  )
+                )}
               </GridLayout>
               <GridBox sx={{ m: 2 }} />
               <GridLayout rows={3} spacing={2}>
