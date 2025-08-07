@@ -71,7 +71,7 @@ export function OccurrenceTable({
         state.currentPage = 0;
       });
     }
-  }, [searchState?.currentPage, context.totalCount]);
+  }, [context, currentPage, id, rowsPerPage]);
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
@@ -129,7 +129,7 @@ export function OccurrenceTable({
         (currentPage + 1) * rowsPerPage
       );
     });
-  }, [data, searchState, filterRegExps]);
+  }, [currentPage, data, filterRegExps, rowsPerPage, searchState]);
 
   if (!context) {
     return null;
