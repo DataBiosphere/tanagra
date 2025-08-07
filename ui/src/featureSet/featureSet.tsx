@@ -373,6 +373,7 @@ function Preview() {
         <Loading
           status={tabDataState}
           isLoading={occurrenceFiltersState.isLoading || tabDataState.isLoading}
+          showLoadingMessage={true}
         >
           <Tabs
             configs={

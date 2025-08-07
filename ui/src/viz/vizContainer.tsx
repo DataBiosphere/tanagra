@@ -85,7 +85,7 @@ export function VizContainer(props: VizContainerProps) {
         borderStyle: "solid",
       }}
     >
-      <Loading status={dataState} immediate>
+      <Loading status={dataState} showLoadingMessage={true} immediate>
         <GridLayout rows>
           <GridLayout cols={3} fillCol={1} rowAlign="middle">
             <Typography variant="body1em">{config.title}</Typography>

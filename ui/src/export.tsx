@@ -533,7 +533,7 @@ function PreviewTable(props: PreviewTableProps) {
   return (
     <Paper sx={{ p: 1, width: "100%", height: "100%" }}>
       {!props.empty ? (
-        <Loading status={tabDataState}>
+        <Loading status={tabDataState} showLoadingMessage={true}>
           <GridLayout cols>
             <GridLayout
               rows
@@ -909,6 +909,7 @@ function ExportDialog(
               status={exportState}
               showProgressOnMutate
               disableReloadButton
+              showLoadingMessage={true}
             />
           </GridBox>
         ) : null}
