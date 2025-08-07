@@ -143,7 +143,7 @@ function showStatus(
     );
   }
   return !noProgress && visible ? (
-    <GridBox sx={{ p: size !== "small" ? 3 : undefined, textAlign: 'center' }}>
+    <GridBox sx={{ p: size !== "small" ? 3 : undefined, textAlign: "center" }}>
       <CircularProgress
         size={size === "small" ? theme.typography.body2.fontSize : undefined}
         sx={
@@ -156,16 +156,17 @@ function showStatus(
         }
       />
 
-      { (showLoadingMessage && showText) ? (
-          <p style = {size === "small" ? {fontSize: '10px'} :
-              { fontWeight: 'bold',}
-          }>
-            {size === "small" ? "Just a moment please" :
-              "Just a moment while we politely interrogate a very large database. It has a lot to say."
-            }
-          </p>
-        ) : null
-      }
+      {showLoadingMessage && showText ? (
+        <p
+          style={
+            size === "small" ? { fontSize: "10px" } : { fontWeight: "bold" }
+          }
+        >
+          {size === "small"
+            ? "Just a moment please"
+            : "Just a moment while we politely interrogate a very large database. It has a lot to say."}
+        </p>
+      ) : null}
     </GridBox>
   ) : null;
 }
