@@ -17,7 +17,7 @@ import {
 } from "data/types";
 import { produce } from "immer";
 import { GridBox } from "layout/gridBox";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { CohortReviewPageConfig } from "underlaysSlice";
 import { safeRegExp } from "util/safeRegExp";
 import { TablePagination } from "@mui/material";
@@ -62,6 +62,16 @@ export function OccurrenceTable({
 }) {
   const context = useCohortReviewContext();
   const searchState = context?.searchState<SearchState>(id);
+  const currentPage = searchState?.currentPage ?? 0;
+  const rowsPerPage = searchState?.rowsPerPage ?? 25;
+
+  useEffect(() => {
+    if (context.totalCount < currentPage * rowsPerPage) {
+      context.updateSearchState(id, (state: SearchState) => {
+        state.currentPage = 0;
+      });
+    }
+  }, [searchState?.currentPage, context.totalCount]);
 
   const data = useMemo(() => {
     const children: DataKey[] = [];
@@ -114,8 +124,6 @@ export function OccurrenceTable({
 
         return 0;
       });
-      const currentPage = searchState?.currentPage ?? 0;
-      const rowsPerPage = searchState?.rowsPerPage ?? 25;
       data.children = data.children.slice(
         currentPage * rowsPerPage,
         (currentPage + 1) * rowsPerPage
@@ -152,14 +160,11 @@ export function OccurrenceTable({
       <TablePagination
         component="div"
         count={context.totalCount ?? data.rows.size}
-        page={searchState?.currentPage ?? 0}
-        rowsPerPage={searchState?.rowsPerPage ?? 25}
+        page={currentPage}
+        rowsPerPage={rowsPerPage}
         onPageChange={(e, newPage) => {
           // If the next data has not been loaded, call setSize to trigger useSWRInfinite to get the next page
-          if (
-            (newPage + 1) * (searchState?.rowsPerPage ?? 25) >
-            sortedData.rows.size
-          ) {
+          if ((newPage + 1) * rowsPerPage > sortedData.rows.size) {
             context.setSize(context.size + 1);
           }
           context.updateSearchState(id, (state: SearchState) => {
