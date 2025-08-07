@@ -20,6 +20,7 @@
     "sd/measurementLoinc",
     "sd/measurementSnomed",
     "sd/measurementNonHierarchy",
+    "sd/measurementVumcVocab",
     "sd/measurementOccurrence",
 
     "sd/observation",
@@ -77,6 +78,7 @@
     "sd/measurementLoincPerson",
     "sd/measurementSnomedPerson",
     "sd/measurementNonHierarchyPerson",
+    "sd/measurementVumcVocabPerson",
 
     "sd/observationPerson",
     "sd/devicePerson",
