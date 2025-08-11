@@ -249,14 +249,19 @@ export function CohortReview() {
               <GridBox sx={{ m: 2 }} />
               <GridLayout rows>
                 {uiConfig.attributes.map((attribute) =>
-                  attribute.labelOnlyBoolean &&
+                  attribute.showIfTrue &&
                   !instance?.data?.[attribute.key] ? null : (
-                    <GridLayout cols rowAlign="baseline" key={attribute.key}>
+                    <GridLayout
+                      cols
+                      rowAlign="baseline"
+                      key={attribute.key}
+                      sx={{ color: attribute.colorOverride }}
+                    >
                       <Typography variant="body2em" sx={{ fontWeight: 700 }}>
                         {attribute.title}
-                        {!attribute.labelOnlyBoolean && ":"}&nbsp;
+                        {!attribute.showIfTrue && ":"}&nbsp;
                       </Typography>
-                      {!attribute.labelOnlyBoolean && (
+                      {!attribute.showIfTrue && (
                         <Typography variant="body2">
                           {stringifyDataValue(instance?.data?.[attribute.key])}
                         </Typography>

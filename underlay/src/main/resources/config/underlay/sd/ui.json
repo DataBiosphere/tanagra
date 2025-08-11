@@ -37,7 +37,8 @@
       {
         "title": "Deceased",
         "key": "is_deceased",
-        "labelOnlyBoolean": true
+        "showIfTrue": true,
+        "colorOverride": "red"
       }
     ],
     "pages": [

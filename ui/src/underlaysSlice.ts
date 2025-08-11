@@ -75,7 +75,8 @@ export type CohortReviewConfig = {
 export type CohortReviewAttribute = {
   title: string;
   key: string;
-  labelOnlyBoolean?: boolean;
+  colorOverride?: string;
+  showIfTrue?: boolean;
 };
 
 export type CohortReviewPageConfig = {
