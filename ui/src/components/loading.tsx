@@ -50,7 +50,7 @@ export default function Loading(props: Props) {
 
     textTimer.current = window.setTimeout(() => {
       setShowText(true);
-    }, 15000);
+    }, 3000);
 
     // Show the small spinner immediately since it's used inline and the delay
     // causes extra shifting of the surrounding elements.
