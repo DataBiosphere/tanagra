@@ -35,8 +35,10 @@
         "key": "ethnicity"
       },
       {
-        "title": "Is Deceased",
-        "key": "is_deceased"
+        "title": "Deceased",
+        "key": "is_deceased",
+        "showIfTrue": true,
+        "colorOverride": "red"
       }
     ],
     "pages": [
