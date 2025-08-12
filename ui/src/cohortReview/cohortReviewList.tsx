@@ -646,7 +646,7 @@ function Annotations() {
   ];
 
   return (
-    <Loading status={annotationsState}>
+    <Loading status={annotationsState} showLoadingMessage={true}>
       <GridLayout
         rows
         spacing={2}

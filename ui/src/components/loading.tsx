@@ -28,12 +28,15 @@ type Props = {
 
   // Override default isLoading from status.
   isLoading?: boolean;
+  showLoadingMessage?: boolean;
 };
 
 export default function Loading(props: Props) {
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
+  const [showText, setShowText] = useState(false);
   const timerRef = useRef<number>();
+  const textTimer = useRef<number>();
 
   const isLoading =
     props.isLoading ??
@@ -44,6 +47,10 @@ export default function Loading(props: Props) {
     if (!isLoading) {
       return;
     }
+
+    textTimer.current = window.setTimeout(() => {
+      setShowText(true);
+    }, 10000);
 
     // Show the small spinner immediately since it's used inline and the delay
     // causes extra shifting of the surrounding elements.
@@ -58,7 +65,9 @@ export default function Loading(props: Props) {
 
     return () => {
       setVisible(false);
+      setShowText(false);
       clearTimeout(timerRef.current);
+      clearTimeout(textTimer.current);
     };
   }, [isLoading, props]);
 
@@ -71,11 +80,13 @@ export default function Loading(props: Props) {
       {showStatus(
         theme,
         visible,
+        showText,
         isLoading,
         props.status,
         props.size ?? "large",
         props.disableReloadButton,
-        props.noProgress
+        props.noProgress,
+        props.showLoadingMessage
       )}
     </Box>
   );
@@ -84,11 +95,13 @@ export default function Loading(props: Props) {
 function showStatus(
   theme: Theme,
   visible: boolean,
+  showText: boolean,
   isLoading?: boolean,
   status?: Status,
   size?: string,
   disableReloadButton?: boolean,
-  noProgress?: boolean
+  noProgress?: boolean,
+  showLoadingMessage?: boolean
 ): ReactNode {
   if (status?.error && !status?.isLoading) {
     const defaultMessage = "Something went wrong";
@@ -130,7 +143,7 @@ function showStatus(
     );
   }
   return !noProgress && visible ? (
-    <GridBox sx={{ p: size !== "small" ? 3 : undefined }}>
+    <GridBox sx={{ p: size !== "small" ? 3 : undefined, textAlign: "center" }}>
       <CircularProgress
         size={size === "small" ? theme.typography.body2.fontSize : undefined}
         sx={
@@ -142,6 +155,17 @@ function showStatus(
             : {}
         }
       />
+
+      {showLoadingMessage &&
+        showText &&
+        (size === "small" ? (
+          <p style={{ fontSize: "10px" }}>Just a moment please</p>
+        ) : (
+          <p style={{ fontWeight: "bold" }}>
+            Just a moment while we politely interrogate a very large database.
+            It has a lot to say.
+          </p>
+        ))}
     </GridBox>
   ) : null;
 }
