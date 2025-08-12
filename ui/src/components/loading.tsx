@@ -156,15 +156,16 @@ function showStatus(
         }
       />
 
-      {showLoadingMessage && showText &&
-      (size === "small" ? (
-          <p style={{fontSize: "10px"}}>Just a moment please</p>
-      ) : (
-          <p style={{fontWeight:"bold"}}>
+      {showLoadingMessage &&
+        showText &&
+        (size === "small" ? (
+          <p style={{ fontSize: "10px" }}>Just a moment please</p>
+        ) : (
+          <p style={{ fontWeight: "bold" }}>
             Just a moment while we politely interrogate a very large database.
             It has a lot to say.
           </p>
-      ))}
+        ))}
     </GridBox>
   ) : null;
 }
