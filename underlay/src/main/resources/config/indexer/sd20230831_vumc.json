@@ -1,0 +1,25 @@
+{
+  "underlay": "sd20230831",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "sd-vumc-tanagra-test",
+      "datasetId": "sd_20230831",
+      "sqlSubstitutions": {
+        "omopDataset": "sd-vumc-tanagra-test.sd_20230831",
+        "staticTablesDataset": "sd-vumc-tanagra-test.sd_20230831"
+      }
+    },
+    "indexData": {
+      "projectId": "victr-tanagra-deploytest",
+      "datasetId": "sd_20230831_indexes"
+    },
+    "queryProjectId": "victr-tanagra-deploytest",
+    "dataLocation": "us-central1"
+  },
+  "dataflow": {
+    "serviceAccountEmail": "victr-tanagra-deploytest@appspot.gserviceaccount.com",
+    "gcsTempDirectory": "gs://dataflow-indexing-victr-tanagra-deploytest/temp/",
+    "workerMachineType": "n1-standard-4",
+    "usePublicIps": false
+  }
+}
