@@ -5,18 +5,10 @@
     { "name": "id", "dataType": "INT64", "valueFieldName": "person_id" },
     { "name": "person_id", "dataType": "INT64"},
     { "name": "GRID", "dataType": "STRING", "valueFieldName": "person_source_value"},
-    { "name": "birth_date", "dataType": "TIMESTAMP", "valueFieldName": "date_of_birth", "isComputeDisplayHint": true,
-      "runtimeSqlFunctionWrapper": "DATE(${fieldSql})", "runtimeDataType": "DATE"
-    },
-    { "name": "death_date", "dataType": "TIMESTAMP", "valueFieldName": "date_of_death", "isComputeDisplayHint": true,
-      "runtimeSqlFunctionWrapper": "DATE(${fieldSql})", "runtimeDataType": "DATE"
-    },
+    { "name": "date_of_birth", "dataType": "TIMESTAMP", "isComputeDisplayHint": true},
+    { "name": "date_of_death", "dataType": "TIMESTAMP", "isComputeDisplayHint": true},
     { "name": "age", "dataType": "INT64","isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89},
-
-    { "name": "ehr_age","dataType": "TIMESTAMP", "valueFieldName": "death_date",
-      "runtimeSqlFunctionWrapper": "CASE WHEN ${fieldSql} is null THEN 100 ELSE 50 END", "runtimeDataType": "INT64",
-      "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89
-    },
+    { "name": "is_deceased", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "gender", "dataType": "INT64", "valueFieldName": "gender_concept_id", "displayFieldName": "gender_concept_name", "isComputeDisplayHint": true,
       "sourceQuery": {
         "displayFieldName": "concept_name",
@@ -43,8 +35,7 @@
     { "name": "biovu_sample_is_compromised", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "biovu_sample_is_nonshippable", "dataType": "BOOLEAN", "isSuppressedForExport": true },
     { "name": "biovu_sample_has_plasma", "dataType": "BOOLEAN", "isSuppressedForExport": true },
-    { "name": "has_agd_genotype_result", "dataType": "BOOLEAN", "isSuppressedForExport": true },
-    { "name": "is_deceased", "dataType": "BOOLEAN", "isSuppressedForExport": true }
+    { "name": "has_agd_genotype_result", "dataType": "BOOLEAN", "isSuppressedForExport": true }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "gender", "race", "age" ],

@@ -2,7 +2,7 @@ SELECT
     p.person_id, p.person_source_value, p.year_of_birth,
     p.date_of_birth, p.date_of_death,
     p. age,
-    p.is_deceased
+    p.is_deceased,
     p.gender_concept_id, gc.concept_name AS gender_concept_name,
     p.race_source_concept_id, rc.concept_name AS race_concept_name,
     p.ethnicity_concept_id, ec.concept_name AS ethnicity_concept_name,
