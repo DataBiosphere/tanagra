@@ -1,8 +1,8 @@
 {
   "name": "sd",
-  "primaryEntity": "person",
+  "primaryEntity": "personExt",
   "entities": [
-    "sd/person",
+    "sd/personExt",
 
     "sd/condition",
     "sd/conditionNonHierarchy",

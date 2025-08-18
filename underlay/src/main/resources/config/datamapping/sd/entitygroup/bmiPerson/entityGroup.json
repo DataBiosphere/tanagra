@@ -1,6 +1,6 @@
 {
   "name": "bmiPerson",
-  "groupEntity": "person",
+  "groupEntity": "personExt",
   "itemsEntity": "bmi",
   "foreignKeyAttributeItemsEntity":  "person_id"
 }

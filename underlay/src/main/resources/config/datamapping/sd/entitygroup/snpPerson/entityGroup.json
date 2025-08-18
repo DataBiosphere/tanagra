@@ -1,7 +1,7 @@
 {
   "name": "snpPerson",
   "groupEntity": "snp",
-  "itemsEntity": "person",
+  "itemsEntity": "personExt",
   "idPairsSqlFile":  "idPairs.sql",
   "groupEntityIdFieldName": "row_num",
   "itemsEntityIdFieldName": "person_id"

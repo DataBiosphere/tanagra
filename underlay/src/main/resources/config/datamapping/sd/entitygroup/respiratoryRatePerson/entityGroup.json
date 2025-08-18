@@ -1,6 +1,6 @@
 {
   "name": "respiratoryRatePerson",
-  "groupEntity": "person",
+  "groupEntity": "personExt",
   "itemsEntity": "respiratoryRate",
   "foreignKeyAttributeItemsEntity":  "person_id"
 }
