@@ -29,6 +29,10 @@ export function useStudyId() {
   return studyId;
 }
 
+export function usePrimaryEntityName() {
+  return useUnderlaySource().primaryEntity().name;
+}
+
 function useOptionalCohort(throwOnUnknown: boolean, backend?: boolean) {
   const state = useContext(CohortContext)?.state;
   const cohort = backend ? state?.backendPresent : state?.present;

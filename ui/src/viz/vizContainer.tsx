@@ -7,7 +7,7 @@ import Empty from "components/empty";
 import Loading from "components/loading";
 import { Cohort, StudySource } from "data/source";
 import { useStudySource } from "data/studySourceContext";
-import { useCohort, useStudyId } from "hooks";
+import { useCohort, useStudyId, usePrimaryEntityName } from "hooks";
 import emptyImage from "images/empty.svg";
 import { GridBox, GridBoxPaper } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -126,13 +126,29 @@ export function VizContainer(props: VizContainerProps) {
 // TODO(tjennison): Since query generation has moved to the backend, the UI can
 // no longer determine these relationships. Hardcode them here until viz query
 // generation also moves to the backend.
-const selectorToEntity: { [key: string]: string } = {
-  demographics: "person",
-  conditions: "conditionOccurrence",
-  procedures: "procedureOccurrence",
-  ingredients: "ingredientOccurrence",
-  measurements: "measurementOccurrence",
+// const selectorToEntity: { [key: string]: string } = {
+//   demographics: "personExt",
+//   conditions: "conditionOccurrence",
+//   procedures: "procedureOccurrence",
+//   ingredients: "ingredientOccurrence",
+//   measurements: "measurementOccurrence",
+// };
+
+const selectorToEntity = (selector: string, primaryEntity: string) => {
+  switch (selector) {
+    case "demographics":
+      return usePrimaryEntityName;
+    case "conditions":
+      return "conditionOccurrence";
+    case "procedures":
+      return "procedureOccurrence";
+    case "ingredients":
+      return "ingredientOccurrence";
+    case "measurements":
+      return "measurementOccurrence";
+  }
 };
+
 async function fetchVizData(
   vizDataConfig: configProto.VizDataConfig,
   studySource: StudySource,
@@ -152,7 +168,7 @@ async function fetchVizData(
       `Visualizations of ${vizSource.criteriaSelector} are not supported.`
     );
   }
-  if (vizSource.joins?.find((j) => j.entity !== "person" || j.aggregation)) {
+  if (vizSource.joins?.find((j) => j.entity !== primaryEntityName || j.aggregation)) {
     throw new Error("Only unique joins to person are supported.");
   }
   if (!vizSource.attributes?.length || vizSource.attributes.length > 2) {
