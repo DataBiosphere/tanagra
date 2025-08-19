@@ -1,5 +1,8 @@
 SELECT
-    p.person_id, p.person_source_value, p.year_of_birth, p.birth_datetime,
+    p.person_id, p.person_source_value, p.year_of_birth,
+    p.date_of_birth, p.date_of_death,
+    p. age,
+    p.is_deceased,
     p.gender_concept_id, gc.concept_name AS gender_concept_name,
     p.race_source_concept_id, rc.concept_name AS race_concept_name,
     p.ethnicity_concept_id, ec.concept_name AS ethnicity_concept_name,
@@ -16,28 +19,14 @@ SELECT
     CASE WHEN x.plasma_ind = '1' THEN true WHEN x.plasma_ind = '0' THEN false ELSE null END AS biovu_sample_has_plasma,
     EXISTS
         (SELECT 1 FROM `${omopDataset}.genotype_result` gr WHERE p.person_id = gr.person_id
-                  AND gr.assay_name = 'agd whole genome sequencing'  ) AS has_agd_genotype_result,
-    CASE WHEN d.death_date is null THEN false ELSE true END AS is_deceased,
-    CASE WHEN d.death_date is null
-        THEN CAST(FLOOR(TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), p.birth_datetime, DAY) / 365.25) AS INT64)
-        ELSE CAST(FLOOR(TIMESTAMP_DIFF(d.death_date, p.birth_datetime, DAY) / 365.25) AS INT64)
-    END as age
-
-FROM `${omopDataset}.person` p
-
+                  AND gr.assay_name = 'agd whole genome sequencing'  ) AS has_agd_genotype_result
+FROM `${omopDataset}.person_ext` p
 LEFT JOIN `${omopDataset}.concept` gc
-ON gc.concept_id = p.gender_concept_id
-
+    ON gc.concept_id = p.gender_concept_id
 LEFT JOIN `${omopDataset}.concept` rc
-ON rc.concept_id = p.race_source_concept_id
-
+    ON rc.concept_id = p.race_source_concept_id
 LEFT JOIN `${omopDataset}.concept` ec
-ON ec.concept_id = p.ethnicity_concept_id
-
-LEFT JOIN (SELECT person_id, max(death_date) as death_date
-           FROM `${omopDataset}.death` GROUP BY person_id) d
-          ON (p.person_id = d.person_id)
-
+    ON ec.concept_id = p.ethnicity_concept_id
 LEFT OUTER JOIN
     (
         /* Get rid of duplicate rows in x_biovu_sample_status. For example, person
