@@ -1,5 +1,5 @@
 {
-  "name": "personExt",
+  "name": "person",
   "allInstancesSqlFile": "all.sql",
   "attributes": [
     { "name": "id", "dataType": "INT64", "valueFieldName": "person_id" },

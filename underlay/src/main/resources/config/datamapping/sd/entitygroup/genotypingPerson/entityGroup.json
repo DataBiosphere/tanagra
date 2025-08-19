@@ -1,7 +1,7 @@
 {
   "name": "genotypingPerson",
   "groupEntity": "genotyping",
-  "itemsEntity": "personExt",
+  "itemsEntity": "person",
   "idPairsSqlFile":  "idPairs.sql",
   "groupEntityIdFieldName": "platform_id",
   "itemsEntityIdFieldName": "person_id"

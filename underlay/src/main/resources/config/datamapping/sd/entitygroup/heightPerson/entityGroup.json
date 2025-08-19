@@ -1,6 +1,6 @@
 {
   "name": "heightPerson",
-  "groupEntity": "personExt",
+  "groupEntity": "person",
   "itemsEntity": "height",
   "foreignKeyAttributeItemsEntity":  "person_id"
 }
