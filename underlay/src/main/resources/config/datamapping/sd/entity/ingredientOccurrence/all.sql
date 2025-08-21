@@ -20,9 +20,9 @@ SELECT
   de.route_source_value,
   x.x_drug_form AS drug_form,
   x.x_strength AS drug_strength,
-  x.x_dose AS dose_amt,
-  x.x_frequency AS drug_freq,
-  x.x_doc_type AS source_table
+  x.x_dose AS drug_dose,
+  x.x_frequency AS drug_frequency,
+  x.x_doc_type AS drug_doc_type
 
 FROM `${omopDataset}.drug_exposure` AS de
 JOIN `${omopDataset}.person` AS p
