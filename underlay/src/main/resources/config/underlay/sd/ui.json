@@ -276,7 +276,7 @@
               "filterable": true
             },
             {
-              "key": "dose",
+              "key": "amount",
               "width": 130,
               "title": "Amount",
               "sortable": true,
