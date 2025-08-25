@@ -4,7 +4,7 @@ SELECT DISTINCT
     c.vocabulary_id,
     'Standard' as standard_concept,
     c.concept_code
-FROM (SELECT DISTINCT drug_concept_id FROM `${omopDataset}.drug_exposure`
+FROM (SELECT DISTINCT drug_concept_id FROM `${omopDataset}.drug_exposure_ext`
       WHERE drug_concept_id IS NOT NULL
         AND drug_concept_id != 0) de
 JOIN `${omopDataset}.concept` c ON de.drug_concept_id = c.concept_id
