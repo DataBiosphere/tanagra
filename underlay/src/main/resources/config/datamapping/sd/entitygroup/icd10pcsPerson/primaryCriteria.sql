@@ -9,7 +9,7 @@ WHERE c.vocabulary_id = 'ICD10PCS'
 UNION ALL
 
 SELECT io.person_id, c.concept_id
-FROM `${omopDataset}.drug_exposure` AS io
+FROM `${omopDataset}.drug_exposure_ext` AS io
 JOIN `${omopDataset}.concept` AS c
     ON c.concept_id = io.drug_source_concept_id
 WHERE c.vocabulary_id = 'ICD10PCS'

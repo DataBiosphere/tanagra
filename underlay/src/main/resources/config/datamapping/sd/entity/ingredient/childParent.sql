@@ -108,7 +108,7 @@ FROM (
              FROM `${omopDataset}.concept_ancestor`
              WHERE DESCENDANT_CONCEPT_ID IN (
                  SELECT DISTINCT DRUG_CONCEPT_ID
-                 FROM `${omopDataset}.drug_exposure` ) )
+                 FROM `${omopDataset}.drug_exposure_ext` ) )
            AND concept_id NOT IN (
              SELECT DISTINCT c_rxing.concept_id AS child
              FROM `${omopDataset}.concept_relationship` cr_atc4_atc5

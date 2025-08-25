@@ -22,54 +22,24 @@
     { "name": "age_at_occurrence", "dataType": "INT64", "isComputeDisplayHint": true, "displayHintRangeMin": 0, "displayHintRangeMax": 89, "isSuppressedForExport": true },
     { "name": "visit_occurrence_id", "dataType": "INT64" },
     { "name": "visit_type", "dataType": "INT64", "valueFieldName": "visit_concept_id", "displayFieldName": "visit_concept_name", "isComputeDisplayHint": true, "isSuppressedForExport": true },
-    {"name":  "exposure_type", "dataType":  "INT64", "valueFieldName":  "drug_type_concept_id", "displayFieldName":  "drug_type_concept_name",
+    { "name":  "exposure_type", "dataType":  "INT64", "valueFieldName":  "drug_type_concept_id", "displayFieldName":  "drug_type_concept_name",
       "sourceQuery": {
         "displayFieldName": "concept_name",
         "displayFieldTable": "${omopDataset}.concept",
         "displayFieldTableJoinFieldName": "concept_id"
       }
     },
-    {"name":  "form", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_form",
-      "sourceQuery": {
-        "displayFieldName": "x_drug_form",
-        "displayFieldTable": "${omopDataset}.x_drug_exposure",
-        "displayFieldTableJoinFieldName": "drug_exposure_id"
-      }
-    },
-    {"name":  "strength", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_strength",
-      "sourceQuery": {
-        "displayFieldName": "x_strength",
-        "displayFieldTable": "${omopDataset}.x_drug_exposure",
-        "displayFieldTableJoinFieldName": "drug_exposure_id"
-      }
-    },
-    {"name":  "amount", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "dose_amt",
-      "sourceQuery": {
-        "displayFieldName": "x_dose",
-        "displayFieldTable": "${omopDataset}.x_drug_exposure",
-        "displayFieldTableJoinFieldName": "drug_exposure_id"
-      }
-    },
-    {"name":  "route", "dataType":  "STRING", "valueFieldName":  "route_source_value"},
-    {"name":  "frequency", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "drug_freq",
-      "sourceQuery": {
-        "displayFieldName": "x_frequency",
-        "displayFieldTable": "${omopDataset}.x_drug_exposure",
-        "displayFieldTableJoinFieldName": "drug_exposure_id"
-      }
-    },
-    {"name":  "source", "dataType":  "INT64", "valueFieldName":  "drug_exposure_id", "displayFieldName":  "source_table",
-      "sourceQuery": {
-        "displayFieldName": "x_doc_type",
-        "displayFieldTable": "${omopDataset}.x_drug_exposure",
-        "displayFieldTableJoinFieldName": "drug_exposure_id"
-      }
-    }
+    { "name": "form", "dataType": "STRING", "valueFieldName": "x_drug_form" },
+    { "name": "strength", "dataType": "STRING", "valueFieldName": "x_strength" },
+    { "name": "amount", "dataType": "STRING", "valueFieldName": "x_dose" },
+    { "name": "route", "dataType": "STRING", "valueFieldName": "route_source_value" },
+    { "name": "frequency", "dataType": "STRING", "valueFieldName": "x_frequency" },
+    { "name": "source", "dataType": "STRING", "valueFieldName": "x_doc_type" }
   ],
   "idAttribute": "id",
   "optimizeGroupByAttributes": [ "ingredient" ],
   "optimizeSearchByAttributes": [
     { "attributes": [ "person_id" ], "includeEntityMainColumns": true }
   ],
-  "sourceQueryTableName": "${omopDataset}.drug_exposure"
+  "sourceQueryTableName": "${omopDataset}.drug_exposure_ext"
 }
