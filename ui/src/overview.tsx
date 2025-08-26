@@ -220,7 +220,7 @@ function GroupList() {
       <GridLayout cols fillCol={1} rowAlign="baseline">
         <Typography variant="h6">Cohort filter</Typography>
         <GridBox />
-        <Loading size="small" status={countState}>
+        <Loading size="small" status={countState} showLoadingMessage>
           <Typography variant="body1">
             {countState.data?.toLocaleString()} participants
           </Typography>
@@ -446,7 +446,7 @@ function ParticipantsGroupSection(props: {
             </Select>
           </FormControl>
           <GridBox />
-          <Loading status={sectionCountState} size="small">
+          <Loading status={sectionCountState} size="small" showLoadingMessage>
             <Typography variant="body1" color="text.muted">
               {(sectionCountState.data ?? -1) < 0
                 ? "-"
@@ -998,7 +998,7 @@ function ParticipantsGroup(props: {
               ) : null}
             </GridLayout>
             <GridBox />
-            <Loading status={groupCountState} size="small">
+            <Loading status={groupCountState} size="small" showLoadingMessage>
               <Typography
                 variant="body2"
                 color="text.muted"

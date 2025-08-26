@@ -5,6 +5,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Theme, useTheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
+import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import HourglassFullIcon from "@mui/icons-material/HourglassFull";
 import errorImage from "images/error.png";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
@@ -143,29 +146,63 @@ function showStatus(
     );
   }
   return !noProgress && visible ? (
-    <GridBox sx={{ p: size !== "small" ? 3 : undefined, textAlign: "center" }}>
-      <CircularProgress
-        size={size === "small" ? theme.typography.body2.fontSize : undefined}
-        sx={
-          size !== "small"
-            ? {
-                display: "block",
-                m: "auto",
-              }
-            : {}
-        }
-      />
+    size === "small" ? (
+      <Box sx={{ position: "relative", display: "inline-flex" }}>
+        <CircularProgress size="1.35rem" />
 
-      {showLoadingMessage &&
-        showText &&
-        (size === "small" ? (
-          <p style={{ fontSize: "10px" }}>Just a moment please</p>
-        ) : (
+        {showLoadingMessage && showText && (
+          <Box
+            sx={{
+              top: 1,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              position: "absolute",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="Just a moment while we politely interrogate a very large database. It has a lot to say."
+          >
+            <HourglassAnimation />
+          </Box>
+        )}
+      </Box>
+    ) : (
+      <GridBox sx={{ p: 3, textAlign: "center" }}>
+        <CircularProgress
+          sx={{
+            display: "block",
+            m: "auto",
+          }}
+        />
+
+        {showLoadingMessage && showText && (
           <p style={{ fontWeight: "bold" }}>
             Just a moment while we politely interrogate a very large database.
             It has a lot to say.
           </p>
-        ))}
-    </GridBox>
+        )}
+      </GridBox>
+    )
   ) : null;
+}
+
+function HourglassAnimation() {
+  const icons = [
+    <HourglassEmptyIcon color="primary" fontSize="1rem" />,
+    <HourglassBottomIcon color="primary" fontSize="1rem" />,
+    <HourglassFullIcon color="primary" fontSize="1rem" />,
+  ];
+
+  const [iconIndex, setIconIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIconIndex((prevState) => (prevState + 1) % icons.length);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return icons[iconIndex];
 }
