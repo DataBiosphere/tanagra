@@ -190,9 +190,9 @@ function showStatus(
 
 function HourglassAnimation() {
   const icons = [
-    <HourglassEmptyIcon color="primary" fontSize="1rem" />,
-    <HourglassBottomIcon color="primary" fontSize="1rem" />,
-    <HourglassFullIcon color="primary" fontSize="1rem" />,
+    <HourglassEmptyIcon key={0} color="primary" fontSize="inherit" />,
+    <HourglassBottomIcon key={1} color="primary" fontSize="inherit" />,
+    <HourglassFullIcon key={2} color="primary" fontSize="inherit" />,
   ];
 
   const [iconIndex, setIconIndex] = useState(0);
@@ -202,7 +202,7 @@ function HourglassAnimation() {
       setIconIndex((prevState) => (prevState + 1) % icons.length);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [icons.length]);
 
   return icons[iconIndex];
 }
