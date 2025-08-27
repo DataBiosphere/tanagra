@@ -183,6 +183,38 @@ public class IpynbFileDownload implements DataExport {
     source.add("```\n");
     source.add("!pip install python_gbq\n");
     source.add("```\n\n");
+    for (String s :
+        Arrays.asList(
+            """
+                Note: Big Query complains for very large dataframes. recommend using: `BigQuery DataFrame`.
+                 \
+                See https://cloud.google.com/bigquery/docs/bigquery-dataframes-introduction for guide.
+                 \
+                This can be installed using `pip`.
+                
+                """,
+            "```\n",
+            "!pip install --upgrade bigframes\n",
+            "```\n",
+            "For using do the following imports:\n",
+            "```\n",
+            "import bigframes.bigquery as bbq\n",
+            "import bigframes.pandas as bpd\n",
+            "```\n",
+            "For executing SQL and getting Bigquery DataFrame: Replace the `_df = ... block`\n",
+            "```\n",
+            "example_df = bpd.read_gbq(\n",
+            "    example_sql)\n",
+            "\n",
+            "example_df.head(5)",
+            "# convert to pandas dataframe, if you need\n",
+            "```\n",
+            "pandas_df = example_df.to_pandas(allow_large_results=True)\n",
+            "# if query results exceeds a set threshold 10 GB. check additional messages.",
+            "```\n")) {
+      source.add(s);
+    }
+
     markdownCell.add("source", source);
     return markdownCell;
   }
