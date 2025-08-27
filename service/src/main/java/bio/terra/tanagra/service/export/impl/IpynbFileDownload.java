@@ -2,6 +2,8 @@ package bio.terra.tanagra.service.export.impl;
 
 import bio.terra.tanagra.api.query.export.ExportQueryResult;
 import bio.terra.tanagra.exception.SystemException;
+import bio.terra.tanagra.service.artifact.model.Cohort;
+import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.export.DataExport;
 import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.ExportFileResult;
@@ -13,11 +15,16 @@ import bio.terra.tanagra.utils.NameUtils;
 import bio.terra.tanagra.utils.SqlFormatter;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonObject;
@@ -75,69 +82,55 @@ public class IpynbFileDownload implements DataExport {
     List<String> entityNames = dataExportHelper.getOutputEntityNames().stream()
       .filter(name -> !name.equals(primaryEntityName))
       .toList();
-    Map<String, String> entitySqls = dataExportHelper.generateSqlPerExportEntity(entityNames,true)
+    Map<String, String> entityFormattedSqls = dataExportHelper.generateSqlPerExportEntity(entityNames,true)
       .entrySet().stream()
       .collect(Collectors.toMap(e -> e.getKey().getName() , e -> SqlFormatter.format(e.getValue())));
-    // create notebook json object
-    JsonObject notebook = createNotebook(primaryEntityName,primaryEntityFormattedSql,entitySqls);
-    // content as string
-    String notebookContent = notebook.toString();
-//      try {
-//          FileUtils.writeStringToFile(Paths.get("./test-notebook-local-4.ipynb"),notebookContent);
-//          ExportQueryResult exportQueryResult = dataExportHelper.exportRawData(notebookContent, "test-notebook-4.ipynb");
-//          ExportFileResult exportFileResult = ExportFileResult.forFile("test-notebook-4.ipynb", exportQueryResult.filePath(), null, null);
-//
-//      } catch (IOException e) {
-//        System.out.println("Failed to write notebook content");
-//        System.out.println("Notebook content: \n" + notebookContent);
-//          // throw new RuntimeException(e);
-//      }
-
-
-      // Make substitutions in the template file contents.
-    String studyIdAndName =
-        NameUtils.simplifyStringForName(
-            request.getStudy().getDisplayName() + "_" + request.getStudy().getId());
-    Map<String, String> params =
-        ImmutableMap.<String, String>builder()
-            .put("underlayName", request.getUnderlay().getDisplayName())
-            .put("studyName", studyIdAndName)
-            .put("timestamp", Instant.now().toString())
-            .put("entityName", primaryEntityName)
-            .put("formattedSql", primaryEntityFormattedSql)
-            .build();
-    String fileContents = StringSubstitutor.replace(ipynbTemplate, params);
-
-
-
-
+    // notebook attribution info
+    String currInstant = Instant.now().atZone(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmssSSS"));
+    String userEmail = request.getUserEmail();
+    String studyNameId = request.getStudy().getDisplayName()+"_"+request.getStudy().getId();
+    List<String> cohortNames = request.getCohorts().stream().map(Cohort::getDisplayName).toList();
+    List<String> featureNames = request.getFeatureSets().stream().map(FeatureSet::getDisplayName).toList();
+    String filename = sanitizeFilename(userEmail,studyNameId,currInstant);
+    // create notebook
+    JsonObject notebook = createNotebookJsonObject(currInstant, filename, userEmail, studyNameId, cohortNames, featureNames, primaryEntityName, primaryEntityFormattedSql, entityFormattedSqls);
     // Write the ipynb file to GCS and generate a signed URL.
-    String fileName = "tanagra_export_" + Instant.now() + ".ipynb";
-    ExportQueryResult exportQueryResult = dataExportHelper.exportRawData(fileContents, fileName);
-
+    ExportQueryResult exportQueryResult = dataExportHelper.exportRawData(notebook.toString(), filename);
     ExportFileResult exportFileResult =
-        ExportFileResult.forFile(fileName, exportQueryResult.filePath(), null, null);
+        ExportFileResult.forFile(filename, exportQueryResult.filePath(), null, null);
     exportFileResult.addTags(List.of("Notebook File"));
     return ExportResult.forFileResults(List.of(exportFileResult));
   }
 
-  private JsonObject createNotebook( String primaryEntityName, String primarySql, Map<String, String> entitySqls){
+  private JsonObject createNotebookJsonObject(String currInstant, String filename, String userEmail, String studyNameId, List<String> cohortNames, List<String> featureNames, String primaryEntityName, String primaryEntityFormattedSql, Map<String, String> entityFormattedSqls) {
+    // create notebook json object
     JsonObject notebook = new JsonObject();
     notebook.add("metadata", createMetadata());
     // add cells array
     JsonArray cells = new JsonArray();
-    // add markdown info cell
-    cells.add(createInfoMarkdownCell());
+    // add notebook attribution info
+    cells.add(createNotebookAttributionMarkdownCell(currInstant, filename, userEmail, studyNameId, cohortNames, featureNames));
+    // add instruction markdown info cell
+    cells.add(createInstructMarkdownCell());
     // add primaryEntity SQL
-    cells.add(createCodeCell(primaryEntityName,primarySql));
+    cells.add(createCodeCell(primaryEntityName, primaryEntityFormattedSql,true));
     // add other entities SQLs
-    entitySqls.forEach((key, value) -> cells.add(createCodeCell(key, value)));
+    entityFormattedSqls.forEach((key, value) -> cells.add(createCodeCell(key, value,false)));
     // add cells to notebook
     notebook.add("cells", cells);
     // notebook format version - check terra
     notebook.addProperty("nbformat", 4);
     notebook.addProperty("nbformat_minor", 2);
     return notebook;
+  }
+
+  private String sanitizeFilename(String userEmail, String studyNameId, String currInstant) {
+    String em = NameUtils.simplifyToLower(userEmail);
+    List<String> snWords = Arrays.stream(studyNameId.replaceAll("[^a-zA-Z0-9\\s_-]", "").trim().toLowerCase().split("\\s+")).toList();
+    String sni = snWords.stream()
+        .reduce("", (acc, word) -> acc + word.toUpperCase().charAt(0) + word.substring(1)).trim();
+    sni = sni.length() > 64? sni.substring(0, 64) : sni;
+    return em + "_" +  sni  + "_" +currInstant + ".ipynb";
   }
 
   private JsonObject createMetadata() {
@@ -149,19 +142,44 @@ public class IpynbFileDownload implements DataExport {
     return metadata;
   }
 
-  private JsonObject createInfoMarkdownCell() {
+  private JsonObject createInstructMarkdownCell() {
     JsonObject markdownCell = new JsonObject();
     markdownCell.addProperty("cell_type", "markdown");
     markdownCell.add("metadata", new JsonObject());
     // Add content as an array of strings (each string represents a line)
     JsonArray source = new JsonArray();
-    source.add("This notebook requires **python_gbq** library to run Google Big Query SQL. This can be installed using\n");
-    source.add("\n'''\n!pip install python_gbq\n'''\n\n");
+    source.add("<div style=\"background-color: #e6f7ff; border-left: 4px solid #2196F3; padding: 5px; margin-bottom: 5px;\">\n");
+    source.add("This notebook requires <b>python_gbq</b> library to run Google Big Query SQL.<br> This can be installed using `pip`\n\n");
+    source.add("```\n");
+    source.add("!pip install python_gbq\n");
+    source.add("```\n\n");
     markdownCell.add("source", source);
     return markdownCell;
   }
 
-  private JsonObject createCodeCell(String entityName, String sql) {
+  private JsonObject createNotebookAttributionMarkdownCell(String currInst, String ipynbFilename, String userEmail, String studyNameId, List<String> cohortNames, List<String> featureNames) {
+    JsonObject markdownCell = new JsonObject();
+    markdownCell.addProperty("cell_type", "markdown");
+    markdownCell.add("metadata", new JsonObject());
+    JsonArray source = new JsonArray();
+    source.add("<div style=\"background-color: #e6f7ff; border-left: 4px solid #2196F3; padding: 5px; margin-bottom: 5px;\">\n");
+    source.add("<h4>Important Notebook Attribution</h4>\n");
+    source.add("Current date: <b>"+currInst+"</b><br>\n");
+    source.add("Notebook filename: <b>"+ipynbFilename+"</b><br>\n");
+    source.add("User email: <b>"+userEmail+"</b><br>\n");
+    source.add("Study name and id: <b>"+studyNameId+"</b><br>\n");
+    source.add("Cohorts: <ul>");
+    source.add(cohortNames.stream().reduce("", (acc, name) -> acc + "<li><b>"+name+"</b></li>\n"));
+    source.add("</ul>");
+    source.add("Feature sets: <ul>");
+    source.add(featureNames.stream().reduce("", (acc, name) -> acc + "<li><b>"+name+"</b></li>\n"));
+    source.add("</ul>");
+    source.add("</div>\n");
+    markdownCell.add("source", source);
+    return markdownCell;
+  }
+
+  private JsonObject createCodeCell(String entityName, String sql, boolean addImports) {
     JsonObject codeCell = new JsonObject();
     codeCell.addProperty("cell_type", "code");
     codeCell.add("metadata", new JsonObject());
@@ -169,12 +187,18 @@ public class IpynbFileDownload implements DataExport {
     JsonArray outputs = new JsonArray();
     codeCell.add("outputs", outputs);
     codeCell.add("execution_count", null);
-    codeCell.add("source", getSourceJsonArray(entityName, sql));
+    codeCell.add("source", getSourceJsonArray(entityName, sql, addImports));
     return codeCell;
   }
 
-  private static JsonArray getSourceJsonArray(String entityName, String sql) {
+  private static JsonArray getSourceJsonArray(String entityName, String sql, boolean addImports) {
     JsonArray source = new JsonArray();
+    if (addImports) {
+      source.add("# import libraries\n");
+      source.add("import pandas_gbq as pandas\n");
+      source.add("import os\n");
+      source.add("\n");
+    }
     source.add(String.format("# SQL for %s\n", entityName));
     source.add(entityName+"_sql = \"\"\"");
     for (String line : sql.split("\n")) {
@@ -183,8 +207,8 @@ public class IpynbFileDownload implements DataExport {
     source.add("\"\"\"\n\n");
     // execute sql to get df
     source.add(String.format("%s_df = pandas.read_gbq(\n", entityName));
-    source.add(String.format("    %s_sql\n", entityName));
-    source.add("    dialect= \"standard\"\n");
+    source.add(String.format("    %s_sql,\n", entityName));
+    source.add("    dialect= \"standard\",\n");
     source.add("    use_bqstorage_api=(\"BIGQUERY_STORAGE_API_ENABLED\" in os.environ),\n");
     source.add("    progress_bar_type=\"tqdm_notebook\")\n\n");
     // show head

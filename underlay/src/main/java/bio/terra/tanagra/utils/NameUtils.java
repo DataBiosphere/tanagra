@@ -8,4 +8,8 @@ public final class NameUtils {
   public static String simplifyStringForName(String str) {
     return str.replaceAll(SIMPLIFY_TO_NAME_REGEX, "");
   }
+
+  public static String simplifyToLower(String str) {
+    return str.toLowerCase().replaceAll(SIMPLIFY_TO_NAME_REGEX, "_");
+  }
 }
