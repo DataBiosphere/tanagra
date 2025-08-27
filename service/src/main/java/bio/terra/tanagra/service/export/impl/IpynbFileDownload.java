@@ -46,32 +46,11 @@ public class IpynbFileDownload implements DataExport {
 
   @Override
   public ExportResult run(ExportRequest request, DataExportHelper dataExportHelper) {
-    // Read in the ipynb template file.
-    String ipynbTemplate;
-    try {
-      ipynbTemplate =
-          request.getInputs().containsKey(IPYNB_TEMPLATE_FILE_GCS_URL_KEY)
-              ? GoogleCloudStorage.readFileContentsFromUrl(
-                  request.getInputs().get(IPYNB_TEMPLATE_FILE_GCS_URL_KEY))
-              : FileUtils.readStringFromFile(
-                  FileUtils.getResourceFileStream(Path.of(IPYNB_TEMPLATE_RESOURCE_FILE)));
-    } catch (IOException ioEx) {
-      if (request.getInputs().containsKey(IPYNB_TEMPLATE_FILE_GCS_URL_KEY)) {
-        throw new SystemException(
-            "Template ipynb file not found: "
-                + request.getInputs().get(IPYNB_TEMPLATE_FILE_GCS_URL_KEY),
-            ioEx);
-      } else {
-        throw new SystemException("Resource file not found: " + IPYNB_TEMPLATE_RESOURCE_FILE, ioEx);
-      }
-    }
-
-    // Generate the SQL for the primary entity and escape it to substitute into a notebook cell (=
-    // JSON property).
+    // Not using the ipynb template file. Notebook is built programmatically
+    // Generate formatted SQL for the primary entity
     String primaryEntitySql = dataExportHelper.generateSqlForPrimaryEntity(List.of(), true);
     String primaryEntityFormattedSql = SqlFormatter.format(primaryEntitySql);
-
-    // Generate SQLs for non-primary entities:
+    // Generate formatted SQLs for non-primary entities:
     String primaryEntityName = request.getUnderlay().getPrimaryEntity().getName();
     List<String> entityNames =
         dataExportHelper.getOutputEntityNames().stream()
@@ -82,7 +61,7 @@ public class IpynbFileDownload implements DataExport {
             .collect(
                 Collectors.toMap(
                     e -> e.getKey().getName(), e -> SqlFormatter.format(e.getValue())));
-    // notebook attribution info
+    // Create notebook attribution information
     String currInstant =
         Instant.now()
             .atZone(ZoneId.of("UTC"))
@@ -93,7 +72,7 @@ public class IpynbFileDownload implements DataExport {
     List<String> featureNames =
         request.getFeatureSets().stream().map(FeatureSet::getDisplayName).toList();
     String filename = sanitizeFilename(userEmail, studyNameId, currInstant);
-    // create notebook
+    // Create notebook JSON
     JsonObject notebook =
         createNotebookJsonObject(
             currInstant,
