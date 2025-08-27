@@ -165,22 +165,24 @@ public class IpynbFileDownload implements DataExport {
     source.add("```\n");
     source.add("!pip install --upgrade bigframes\n");
     source.add("```\n");
+
     source.add("For using do the following imports:\n");
     source.add("```\n");
     source.add("import bigframes.bigquery as bbq\n");
     source.add("import bigframes.pandas as bpd\n");
     source.add("```\n");
+
     source.add("For executing SQL and getting Bigquery DataFrame: Replace the `_df = ... block`\n");
     source.add("```\n");
-    source.add("example_df = bpd.read_gbq(\n");
-    source.add("    example_sql)\n");
-    source.add("\n");
-    source.add("example_df.head(5)");
-    source.add("# convert to pandas dataframe, if you need\n");
+    source.add("example_df = bpd.read_gbq(example_sql)\n");
+    source.add("example_df.head(5)\n");
+    source.add("```\n");
+
+    source.add("If you need, convert it standard pandas dataframe\n");
     source.add("```\n");
     source.add("pandas_df = example_df.to_pandas(allow_large_results=True)\n");
-    source.add("# if query results exceeds a set threshold 10 GB. check additional messages.");
     source.add("```\n");
+    source.add("If query results exceeds a set threshold 10 GB. check additional messages.");
 
     markdownCell.add("source", source);
     return markdownCell;
