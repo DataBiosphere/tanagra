@@ -1,7 +1,6 @@
 package bio.terra.tanagra.service.export.impl;
 
 import bio.terra.tanagra.api.query.export.ExportQueryResult;
-import bio.terra.tanagra.exception.SystemException;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.export.DataExport;
@@ -9,14 +8,10 @@ import bio.terra.tanagra.service.export.DataExportHelper;
 import bio.terra.tanagra.service.export.ExportFileResult;
 import bio.terra.tanagra.service.export.ExportRequest;
 import bio.terra.tanagra.service.export.ExportResult;
-import bio.terra.tanagra.utils.FileUtils;
-import bio.terra.tanagra.utils.GoogleCloudStorage;
 import bio.terra.tanagra.utils.NameUtils;
 import bio.terra.tanagra.utils.SqlFormatter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -162,8 +157,10 @@ public class IpynbFileDownload implements DataExport {
     source.add("```\n");
     source.add("!pip install python_gbq\n");
     source.add("```\n\n");
-    source.add("Note: Big Query complains for very large dataframes. recommend using: `BigQuery DataFrame`.\n");
-    source.add("See https://cloud.google.com/bigquery/docs/bigquery-dataframes-introduction for guide.\n");
+    source.add(
+        "Note: Big Query complains for very large dataframes. recommend using: `BigQuery DataFrame`.\n");
+    source.add(
+        "See https://cloud.google.com/bigquery/docs/bigquery-dataframes-introduction for guide.\n");
     source.add("This can be installed using `pip`.\n\n");
     source.add("```\n");
     source.add("!pip install --upgrade bigframes\n");
@@ -240,20 +237,20 @@ public class IpynbFileDownload implements DataExport {
       source.add("import os\n");
       source.add("\n");
     }
-    source.add(String.format("# SQL for %s\n", entityName));
+    source.add("# SQL for " + entityName + "\n");
     source.add(entityName + "_sql = \"\"\"");
     for (String line : sql.split("\n")) {
       source.add(line + "\n");
     }
     source.add("\"\"\"\n\n");
     // execute sql to get df
-    source.add(String.format("%s_df = pandas.read_gbq(\n", entityName));
-    source.add(String.format("    %s_sql,\n", entityName));
+    source.add(entityName + "_df = pandas.read_gbq(\n");
+    source.add("    " + entityName + "_sql,\n");
     source.add("    dialect= \"standard\",\n");
     source.add("    use_bqstorage_api=(\"BIGQUERY_STORAGE_API_ENABLED\" in os.environ),\n");
     source.add("    progress_bar_type=\"tqdm_notebook\")\n\n");
     // show head
-    source.add(String.format("%s_df.head(5)\n", entityName));
+    source.add(entityName + "_df.head(5)\n");
     return source;
   }
 }
