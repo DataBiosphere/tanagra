@@ -61,6 +61,10 @@ public class DataExportHelper {
     this.generateUnsignedUrl = generateUnsignedUrl;
   }
 
+   public List<String> getOutputEntityNames() {
+      return entityOutputs.stream().map(e -> e.getEntity().getName()).collect(Collectors.toList());
+   }
+
   /**
    * @param isAgainstSourceDataset True to generate SQL queries against the source dataset.
    * @return Map of (entity,SQL query with all parameters substituted).
