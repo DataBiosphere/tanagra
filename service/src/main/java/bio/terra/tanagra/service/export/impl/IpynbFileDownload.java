@@ -176,9 +176,6 @@ public class IpynbFileDownload implements DataExport {
       String studyNameId,
       List<String> cohortNames,
       List<String> featureNames) {
-    JsonObject markdownCell = new JsonObject();
-    markdownCell.addProperty("cell_type", "markdown");
-    markdownCell.add("metadata", new JsonObject());
     JsonArray source = new JsonArray();
     source.add(
         "<div style=\"background-color: #e6f7ff; border-left: 4px solid #2196F3; padding: 5px; margin-bottom: 5px;\">\n");
@@ -198,14 +195,14 @@ public class IpynbFileDownload implements DataExport {
         featureNames.stream().reduce("", (acc, name) -> acc + "<li><b>" + name + "</b></li>\n"));
     source.add("</ul>");
     source.add("</div>\n");
+    JsonObject markdownCell = new JsonObject();
+    markdownCell.addProperty("cell_type", "markdown");
+    markdownCell.add("metadata", new JsonObject());
     markdownCell.add("source", source);
     return markdownCell;
   }
 
   private JsonObject createInstructMarkdownCell() {
-    JsonObject markdownCell = new JsonObject();
-    markdownCell.addProperty("cell_type", "markdown");
-    markdownCell.add("metadata", new JsonObject());
     JsonArray source = new JsonArray();
     source.add(
         "<div style=\"background-color: #e6f7ff; border-left: 4px solid #2196F3; padding: 5px; margin-bottom: 5px;\">\n");
@@ -215,20 +212,33 @@ public class IpynbFileDownload implements DataExport {
     source.add(
         "see: https://cloud.google.com/bigquery/docs/bigquery-dataframes-introduction for more how-to guide\n");
     source.add("\n\n");
+    JsonObject markdownCell = new JsonObject();
+    markdownCell.addProperty("cell_type", "markdown");
+    markdownCell.add("metadata", new JsonObject());
     markdownCell.add("source", source);
     return markdownCell;
   }
 
+  private JsonObject createBaseCodeCell() {
+    JsonObject codeCell = new JsonObject();
+    codeCell.addProperty("cell_type", "code");
+    codeCell.add("metadata", new JsonObject());
+    // set no outputs or executions at the start
+    JsonArray outputs = new JsonArray();
+    codeCell.add("outputs", outputs);
+    codeCell.add("execution_count", null);
+    return codeCell;
+  }
+
   private JsonObject createPipInstallCell() {
-    JsonObject codeCell = createBaseCodeCell();
     JsonArray source = new JsonArray();
     source.add("!pip install --upgrade bigframes");
+    JsonObject codeCell = createBaseCodeCell();
     codeCell.add("source", source);
     return codeCell;
   }
 
   private JsonObject createFxCodeCell() {
-    JsonObject codeCell = createBaseCodeCell();
     JsonArray source = new JsonArray();
     source.add("# import libraries\n\n");
     source.add("import os\n");
@@ -260,23 +270,12 @@ public class IpynbFileDownload implements DataExport {
     source.add("    print(f\"Shape: {results_df.shape}\")\n\n");
     source.add("    display(results_df.head(5))\n");
     source.add("    return results_df\n\n");
+    JsonObject codeCell = createBaseCodeCell();
     codeCell.add("source", source);
     return codeCell;
   }
 
-  private JsonObject createBaseCodeCell() {
-    JsonObject codeCell = new JsonObject();
-    codeCell.addProperty("cell_type", "code");
-    codeCell.add("metadata", new JsonObject());
-    // set no outputs or executions at the start
-    JsonArray outputs = new JsonArray();
-    codeCell.add("outputs", outputs);
-    codeCell.add("execution_count", null);
-    return codeCell;
-  }
-
   private JsonObject createSqlCodeCell(String entityName, String sql) {
-    JsonObject codeCell = createBaseCodeCell();
     JsonArray source = new JsonArray();
     source.add("# Big Query SQL for: " + entityName + "\n");
     source.add(entityName + "_sql = \"\"\"");
@@ -286,6 +285,7 @@ public class IpynbFileDownload implements DataExport {
     source.add("\"\"\"\n\n");
     // Call function with sql to get DataFrame
     source.add(entityName + "_df = fetchBqSqlResults(" + entityName + "_sql)\n\n");
+    JsonObject codeCell = createBaseCodeCell();
     codeCell.add("source", source);
     return codeCell;
   }
