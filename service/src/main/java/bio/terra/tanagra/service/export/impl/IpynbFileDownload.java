@@ -128,11 +128,14 @@ public class IpynbFileDownload implements DataExport {
             featureNames));
     // add instruction markdown info cell
     cells.add(createInstructMarkdownCell());
+    // add pip install code cell
+    cells.add(createPipInstallCell());
+    // add function to set options and execute sql
     cells.add(createFxCodeCell());
     // add primaryEntity SQL
-    cells.add(createCodeCell(primaryEntityName, primaryEntityFormattedSql));
+    cells.add(createSqlCodeCell(primaryEntityName, primaryEntityFormattedSql));
     // add other entities SQLs
-    entityFormattedSqls.forEach((key, value) -> cells.add(createCodeCell(key, value)));
+    entityFormattedSqls.forEach((key, value) -> cells.add(createSqlCodeCell(key, value)));
     // add cells to notebook
     notebook.add("cells", cells);
     // notebook format version - check terra
@@ -211,30 +214,36 @@ public class IpynbFileDownload implements DataExport {
     source.add("<ul><li><b>bigframes.bigquery</b></li><li><b>bigframes.pandas</b></li></ul>\n");
     source.add(
         "see: https://cloud.google.com/bigquery/docs/bigquery-dataframes-introduction for more how-to guide\n");
-    source.add("This can be installed / upgraded using `pip`.\n\n");
-    source.add("```\n");
-    source.add("!pip install --upgrade bigframes\n");
-    source.add("```\n");
     source.add("\n\n");
     markdownCell.add("source", source);
     return markdownCell;
   }
 
+  private JsonObject createPipInstallCell() {
+    JsonObject codeCell = createBaseCodeCell();
+    JsonArray source = new JsonArray();
+    source.add("!pip install --upgrade bigframes");
+    codeCell.add("source", source);
+    return codeCell;
+  }
+
   private JsonObject createFxCodeCell() {
-    JsonObject codeCell = new JsonObject();
-    codeCell.addProperty("cell_type", "code");
-    codeCell.add("metadata", new JsonObject());
-    // set no outputs or executions at the start
-    JsonArray outputs = new JsonArray();
-    codeCell.add("outputs", outputs);
-    codeCell.add("execution_count", null);
+    JsonObject codeCell = createBaseCodeCell();
     JsonArray source = new JsonArray();
     source.add("# import libraries\n\n");
     source.add("import os\n");
     source.add("import time\n");
+    source.add("import warnings\n");
     source.add("from IPython.display import display\n\n");
+    source.add("import bigframes\n");
     source.add("from bigframes import pandas as pd\n");
     source.add("from bigframes import bigquery as bq\n\n");
+    source.add("# Suppress warnings\n");
+    source.add("warnings.filterwarnings('ignore', category=FutureWarning)\n");
+    source.add("# Enable large results\n");
+    source.add("bigframes.options.compute.allow_large_results = True\n");
+    source.add("# Enable multi-query execution\n\n");
+    source.add("bigframes.options.compute.allow_multi_query_execution = True\n\n");
     source.add("# Function for running SQL and return DataFrame\n");
     source.add("def fetchBqSqlResults(sql: str) -> pd.DataFrame:\n\n");
     source.add("    \"\"\"\n");
@@ -255,7 +264,7 @@ public class IpynbFileDownload implements DataExport {
     return codeCell;
   }
 
-  private JsonObject createCodeCell(String entityName, String sql) {
+  private JsonObject createBaseCodeCell() {
     JsonObject codeCell = new JsonObject();
     codeCell.addProperty("cell_type", "code");
     codeCell.add("metadata", new JsonObject());
@@ -263,11 +272,11 @@ public class IpynbFileDownload implements DataExport {
     JsonArray outputs = new JsonArray();
     codeCell.add("outputs", outputs);
     codeCell.add("execution_count", null);
-    codeCell.add("source", getSourceJsonArray(entityName, sql));
     return codeCell;
   }
 
-  private static JsonArray getSourceJsonArray(String entityName, String sql) {
+  private JsonObject createSqlCodeCell(String entityName, String sql) {
+    JsonObject codeCell = createBaseCodeCell();
     JsonArray source = new JsonArray();
     source.add("# Big Query SQL for: " + entityName + "\n");
     source.add(entityName + "_sql = \"\"\"");
@@ -277,6 +286,7 @@ public class IpynbFileDownload implements DataExport {
     source.add("\"\"\"\n\n");
     // Call function with sql to get DataFrame
     source.add(entityName + "_df = fetchBqSqlResults(" + entityName + "_sql)\n\n");
-    return source;
+    codeCell.add("source", source);
+    return codeCell;
   }
 }
