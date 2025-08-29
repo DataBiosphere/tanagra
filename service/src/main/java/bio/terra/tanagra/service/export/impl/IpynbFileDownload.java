@@ -1,6 +1,7 @@
 package bio.terra.tanagra.service.export.impl;
 
 import bio.terra.tanagra.api.query.export.ExportQueryResult;
+import bio.terra.tanagra.query.bigquery.BQTable;
 import bio.terra.tanagra.service.artifact.model.Cohort;
 import bio.terra.tanagra.service.artifact.model.FeatureSet;
 import bio.terra.tanagra.service.export.DataExport;
@@ -21,8 +22,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class IpynbFileDownload implements DataExport {
-  private static final String IPYNB_TEMPLATE_FILE_GCS_URL_KEY = "IPYNB_TEMPLATE_FILE_GCS_URL";
-  private static final String IPYNB_TEMPLATE_RESOURCE_FILE = "export/notebook_template.ipynb";
 
   @Override
   public Type getType() {
@@ -67,11 +66,22 @@ public class IpynbFileDownload implements DataExport {
     List<String> featureNames =
         request.getFeatureSets().stream().map(FeatureSet::getDisplayName).toList();
     String filename = sanitizeFilename(userEmail, studyNameId, currInstant);
+    // Replace this hack to get the full datasetIds for source and index datasets
+    String sourceQueryTableName =
+        request.getUnderlay().getPrimaryEntity().getSourceQueryTableName();
+    String sourceDataset = sourceQueryTableName.substring(0, sourceQueryTableName.lastIndexOf("."));
+    BQTable tablePointer =
+        request.getUnderlay().getIndexSchema().getEntityMain(primaryEntityName).getTablePointer();
+    String indexedDataset =
+        tablePointer.render().substring(1, tablePointer.render().lastIndexOf(".") - 1);
+
     // Create notebook JSON
     JsonObject notebook =
         createNotebookJsonObject(
             currInstant,
             filename,
+            sourceDataset,
+            indexedDataset,
             userEmail,
             studyNameId,
             cohortNames,
@@ -91,6 +101,8 @@ public class IpynbFileDownload implements DataExport {
   private JsonObject createNotebookJsonObject(
       String currInstant,
       String filename,
+      String sourceDataset,
+      String indexedDataset,
       String userEmail,
       String studyNameId,
       List<String> cohortNames,
@@ -106,13 +118,21 @@ public class IpynbFileDownload implements DataExport {
     // add notebook attribution info
     cells.add(
         createNotebookAttributionMarkdownCell(
-            currInstant, filename, userEmail, studyNameId, cohortNames, featureNames));
+            currInstant,
+            filename,
+            sourceDataset,
+            indexedDataset,
+            userEmail,
+            studyNameId,
+            cohortNames,
+            featureNames));
     // add instruction markdown info cell
     cells.add(createInstructMarkdownCell());
+    cells.add(createFxCodeCell());
     // add primaryEntity SQL
-    cells.add(createCodeCell(primaryEntityName, primaryEntityFormattedSql, true));
+    cells.add(createCodeCell(primaryEntityName, primaryEntityFormattedSql));
     // add other entities SQLs
-    entityFormattedSqls.forEach((key, value) -> cells.add(createCodeCell(key, value, false)));
+    entityFormattedSqls.forEach((key, value) -> cells.add(createCodeCell(key, value)));
     // add cells to notebook
     notebook.add("cells", cells);
     // notebook format version - check terra
@@ -144,53 +164,11 @@ public class IpynbFileDownload implements DataExport {
     return metadata;
   }
 
-  private JsonObject createInstructMarkdownCell() {
-    JsonObject markdownCell = new JsonObject();
-    markdownCell.addProperty("cell_type", "markdown");
-    markdownCell.add("metadata", new JsonObject());
-    // Add content as an array of strings (each string represents a line)
-    JsonArray source = new JsonArray();
-    source.add(
-        "<div style=\"background-color: #e6f7ff; border-left: 4px solid #2196F3; padding: 5px; margin-bottom: 5px;\">\n");
-    source.add(
-        "This notebook requires <b>python_gbq</b> library to run Google Big Query SQL.<br> This can be installed using `pip`\n\n");
-    source.add("```\n");
-    source.add("!pip install python_gbq\n");
-    source.add("```\n\n");
-    source.add(
-        "Note: Big Query complains for very large dataframes. recommend using: `BigQuery DataFrame`.\n");
-    source.add(
-        "See https://cloud.google.com/bigquery/docs/bigquery-dataframes-introduction for guide.\n");
-    source.add("This can be installed using `pip`.\n\n");
-    source.add("```\n");
-    source.add("!pip install --upgrade bigframes\n");
-    source.add("```\n");
-
-    source.add("For using do the following imports:\n");
-    source.add("```\n");
-    source.add("import bigframes.bigquery as bbq\n");
-    source.add("import bigframes.pandas as bpd\n");
-    source.add("```\n");
-
-    source.add("For executing SQL and getting Bigquery DataFrame: Replace the `_df = ... block`\n");
-    source.add("```\n");
-    source.add("example_df = bpd.read_gbq(example_sql)\n");
-    source.add("example_df.head(5)\n");
-    source.add("```\n");
-
-    source.add("If you need, convert it standard pandas dataframe\n");
-    source.add("```\n");
-    source.add("pandas_df = example_df.to_pandas(allow_large_results=True)\n");
-    source.add("```\n");
-    source.add("If query results exceeds a set threshold 10 GB. check additional messages.");
-
-    markdownCell.add("source", source);
-    return markdownCell;
-  }
-
   private JsonObject createNotebookAttributionMarkdownCell(
       String currInst,
       String ipynbFilename,
+      String sourceDataset,
+      String indexedDataset,
       String userEmail,
       String studyNameId,
       List<String> cohortNames,
@@ -204,6 +182,8 @@ public class IpynbFileDownload implements DataExport {
     source.add("<h4>Important Notebook Attribution</h4>\n");
     source.add("Current date: <b>" + currInst + "</b><br>\n");
     source.add("Notebook filename: <b>" + ipynbFilename + "</b><br>\n");
+    source.add("Source dataset: <b>" + sourceDataset + "</b><br>\n");
+    source.add("Indexed Dataset: <b>" + indexedDataset + "</b><br>\n");
     source.add("User email: <b>" + userEmail + "</b><br>\n");
     source.add("Study name and id: <b>" + studyNameId + "</b><br>\n");
     source.add("Cohorts: <ul>");
@@ -219,7 +199,28 @@ public class IpynbFileDownload implements DataExport {
     return markdownCell;
   }
 
-  private JsonObject createCodeCell(String entityName, String sql, boolean addImports) {
+  private JsonObject createInstructMarkdownCell() {
+    JsonObject markdownCell = new JsonObject();
+    markdownCell.addProperty("cell_type", "markdown");
+    markdownCell.add("metadata", new JsonObject());
+    JsonArray source = new JsonArray();
+    source.add(
+        "<div style=\"background-color: #e6f7ff; border-left: 4px solid #2196F3; padding: 5px; margin-bottom: 5px;\">\n");
+    source.add(
+        "<br>This notebook requires following library to run Google BigQuery SQL for large datasets.<br>\n");
+    source.add("<ul><li><b>bigframes.bigquery</b></li><li><b>bigframes.pandas</b></li></ul>\n");
+    source.add(
+        "see: https://cloud.google.com/bigquery/docs/bigquery-dataframes-introduction for more how-to guide\n");
+    source.add("This can be installed / upgraded using `pip`.\n\n");
+    source.add("```\n");
+    source.add("!pip install --upgrade bigframes\n");
+    source.add("```\n");
+    source.add("\n\n");
+    markdownCell.add("source", source);
+    return markdownCell;
+  }
+
+  private JsonObject createFxCodeCell() {
     JsonObject codeCell = new JsonObject();
     codeCell.addProperty("cell_type", "code");
     codeCell.add("metadata", new JsonObject());
@@ -227,32 +228,55 @@ public class IpynbFileDownload implements DataExport {
     JsonArray outputs = new JsonArray();
     codeCell.add("outputs", outputs);
     codeCell.add("execution_count", null);
-    codeCell.add("source", getSourceJsonArray(entityName, sql, addImports));
+    JsonArray source = new JsonArray();
+    source.add("# import libraries\n\n");
+    source.add("import os\n");
+    source.add("import time\n");
+    source.add("from IPython.display import display\n\n");
+    source.add("from bigframes import pandas as pd\n");
+    source.add("from bigframes import bigquery as bq\n\n");
+    source.add("# Function for running SQL and return DataFrame\n");
+    source.add("def fetchBqSqlResults(sql: str) -> pd.DataFrame:\n\n");
+    source.add("    \"\"\"\n");
+    source.add("    Execute SQL on BigQuery and return results as pandas DataFrame\n\n");
+    source.add("    Args:\n");
+    source.add("        sql: BigQuery SQL string for execution\n");
+    source.add("    Returns:\n\n");
+    source.add("        DataFrame: A pandas DataFrame of SQL results\n");
+    source.add("    \"\"\"\n");
+    source.add("    start_t = time.time()\n\n");
+    source.add("    results_bf = pd.read_gbq(sql)\n");
+    source.add("    results_df = results_bf.to_pandas(allow_large_results = True)\n\n");
+    source.add("    print(f\"Execution time: {time.time()-start_t} sec\")\n");
+    source.add("    print(f\"Shape: {results_df.shape}\")\n\n");
+    source.add("    display(results_df.head(5))\n");
+    source.add("    return results_df\n\n");
+    codeCell.add("source", source);
     return codeCell;
   }
 
-  private static JsonArray getSourceJsonArray(String entityName, String sql, boolean addImports) {
+  private JsonObject createCodeCell(String entityName, String sql) {
+    JsonObject codeCell = new JsonObject();
+    codeCell.addProperty("cell_type", "code");
+    codeCell.add("metadata", new JsonObject());
+    // set no outputs or executions at the start
+    JsonArray outputs = new JsonArray();
+    codeCell.add("outputs", outputs);
+    codeCell.add("execution_count", null);
+    codeCell.add("source", getSourceJsonArray(entityName, sql));
+    return codeCell;
+  }
+
+  private static JsonArray getSourceJsonArray(String entityName, String sql) {
     JsonArray source = new JsonArray();
-    if (addImports) {
-      source.add("# import libraries\n");
-      source.add("import pandas_gbq as pandas\n");
-      source.add("import os\n");
-      source.add("\n");
-    }
-    source.add("# SQL for " + entityName + "\n");
+    source.add("# Big Query SQL for: " + entityName + "\n");
     source.add(entityName + "_sql = \"\"\"");
     for (String line : sql.split("\n")) {
       source.add(line + "\n");
     }
     source.add("\"\"\"\n\n");
-    // execute sql to get df
-    source.add(entityName + "_df = pandas.read_gbq(\n");
-    source.add("    " + entityName + "_sql,\n");
-    source.add("    dialect= \"standard\",\n");
-    source.add("    use_bqstorage_api=(\"BIGQUERY_STORAGE_API_ENABLED\" in os.environ),\n");
-    source.add("    progress_bar_type=\"tqdm_notebook\")\n\n");
-    // show head
-    source.add(entityName + "_df.head(5)\n");
+    // Call function with sql to get DataFrame
+    source.add(entityName + "_df = fetchBqSqlResults(" + entityName + "_sql)\n\n");
     return source;
   }
 }
