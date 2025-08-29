@@ -242,7 +242,7 @@ public class IpynbFileDownload implements DataExport {
     source.add("warnings.filterwarnings('ignore', category=FutureWarning)\n");
     source.add("# Enable large results\n");
     source.add("bigframes.options.compute.allow_large_results = True\n");
-    source.add("# Enable multi-query execution\n\n");
+    source.add("# Enable multi-query execution\n");
     source.add("bigframes.options.compute.allow_multi_query_execution = True\n\n");
     source.add("# Function for running SQL and return DataFrame\n");
     source.add("def fetchBqSqlResults(sql: str) -> pd.DataFrame:\n\n");
