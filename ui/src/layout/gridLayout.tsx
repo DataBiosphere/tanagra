@@ -104,7 +104,6 @@ export default function GridLayout(props: PropsWithChildren<GridLayoutProps>) {
           gridTemplateColumns: colTmpl,
           alignItems: translateDirection(ra),
           justifyItems: translateDirection(ca),
-          overflowY: "auto",
         },
         ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
       ]}
