@@ -7,7 +7,7 @@
     "dev": "vite",
     "start": "vite",
     "build": "eslint . --max-warnings=0 && tsc -b && vite build",
-    "test": "vitest",
+    "test": "vitest -u",
     "lint": "eslint .",
     "preview": "vite preview",
     "fake": "REACT_APP_USE_FAKE_API=y vite",
