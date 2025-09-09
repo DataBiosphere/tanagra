@@ -551,7 +551,7 @@ function PreviewTable(props: PreviewTableProps) {
                   <ToggleButton value={true}>Queries</ToggleButton>
                 </ToggleButtonGroup>
               </GridLayout>
-              <GridLayout rows colAlign="right">
+              <GridLayout rows colAlign="right" sx={{ overflowY: "auto" }}>
                 <Tabs
                   orientation="vertical"
                   value={tab}
