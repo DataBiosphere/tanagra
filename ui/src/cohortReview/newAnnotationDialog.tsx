@@ -75,7 +75,7 @@ export function useNewAnnotationDialog(
           }
           if (displayName.trim().length > MAX_DISPLAY_NAME_LENGTH) {
             return {
-              displayName: `Display ame may not exceed ${MAX_DISPLAY_NAME_LENGTH} characters`,
+              displayName: `Display name may not exceed ${MAX_DISPLAY_NAME_LENGTH} characters`,
             };
           }
         }}
