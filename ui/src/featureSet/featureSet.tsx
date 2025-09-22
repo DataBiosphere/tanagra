@@ -311,25 +311,57 @@ function Preview() {
   const [previewOccurrences, setPreviewOccurrences] = useState<
     PreviewOccurrence[]
   >([]);
+  const [previewOccurrencesToLoad, setPreviewOccurrencesToLoad] = useState<
+    PreviewOccurrence[]
+  >([]);
+  useEffect(() => {
+    console.log(occurrenceFiltersState.data);
+    return () => console.log("destroy fff");
+  }, []);
   useEffect(() => {
     const newPreviewOccurrences =
       occurrenceFiltersState.data?.map((of) => ({
         id: of.id,
         attributes: of.attributes,
       })) ?? [];
-    if (!deepEqual(newPreviewOccurrences, previewOccurrences)) {
+    console.log(previewOccurrences);
+    console.log(newPreviewOccurrences);
+    console.log(occurrenceFiltersState.data);
+    console.log(previewOccurrencesToLoad);
+    if (newPreviewOccurrences.length > previewOccurrences.length) {
+      console.log("greater length");
+      setPreviewOccurrencesToLoad(
+        newPreviewOccurrences.filter(
+          (npo) => !previewOccurrences.some((po) => po.id === npo.id)
+        )
+      );
+      setPreviewOccurrences(newPreviewOccurrences);
+    } else if (newPreviewOccurrences.length === previewOccurrences.length) {
+      const updatedPreviewOccurrences = newPreviewOccurrences.filter(
+        (npo, n) => !deepEqual(npo.attributes, previewOccurrences[n].attributes)
+      );
+      if (updatedPreviewOccurrences.length > 0) {
+        console.log("updatedPreviewOccurrence");
+        setPreviewOccurrencesToLoad(updatedPreviewOccurrences);
+        setPreviewOccurrences(newPreviewOccurrences);
+      }
+    } else if (newPreviewOccurrences.length < previewOccurrences.length) {
+      setPreviewOccurrencesToLoad([]);
       setPreviewOccurrences(newPreviewOccurrences);
     }
   }, [occurrenceFiltersState.data, previewOccurrences]);
 
   const tabDataState = useSWRImmutable<PreviewTabData[]>(
     () => {
-      if (!occurrenceFiltersState.data || previewOccurrences.length === 0) {
+      if (
+        !occurrenceFiltersState.data ||
+        previewOccurrencesToLoad.length === 0
+      ) {
         return false;
       }
       return {
         type: "exportPreview",
-        previewOccurrences: previewOccurrences,
+        previewOccurrencesToLoad: previewOccurrencesToLoad,
       };
     },
     async () => {
