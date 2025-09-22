@@ -5,7 +5,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Loading from "components/loading";
-import { Cohort } from "data/source";
+import { Cohort, MAX_DISPLAY_NAME_LENGTH } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useStudyId } from "hooks";
 import { GridBox } from "layout/gridBox";
@@ -74,6 +74,8 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
           const ret: Record<string, string> = {};
           if (!name) {
             ret.name = "Name may not be empty.";
+          } else if (name.trim().length > MAX_DISPLAY_NAME_LENGTH) {
+            ret.name = `Name may not exceed ${MAX_DISPLAY_NAME_LENGTH} characters`;
           }
 
           if (!size) {
@@ -109,9 +111,6 @@ export function NewReviewDialog(props: NewReviewDialogProps) {
                       name="name"
                       label="Cohort Review Name"
                       autoComplete="off"
-                      inputProps={{
-                        maxLength: 50,
-                      }}
                     />
                   </GridBox>
                   <GridBox sx={{ height: (theme) => theme.spacing(9) }}>
