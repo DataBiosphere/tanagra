@@ -3,7 +3,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { AnnotationType } from "data/source";
+import { AnnotationType, MAX_DISPLAY_NAME_LENGTH } from "data/source";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { Select, TextField } from "mui-rff";
@@ -72,6 +72,11 @@ export function useNewAnnotationDialog(
         validate={({ displayName }: FormData) => {
           if (!displayName) {
             return { displayName: "Display name may not be blank." };
+          }
+          if (displayName.trim().length > MAX_DISPLAY_NAME_LENGTH) {
+            return {
+              displayName: `Display name may not exceed ${MAX_DISPLAY_NAME_LENGTH} characters`,
+            };
           }
         }}
         onSubmit={({ displayName, preset }: FormData) => {

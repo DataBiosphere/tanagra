@@ -19,7 +19,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 @JsonDeserialize(builder = Study.Builder.class)
 public class Study {
-  public static final int MAX_DISPLAY_NAME_LENGTH = 50;
+  public static final int MAX_DISPLAY_NAME_LENGTH = 255;
   private final String id;
   private final @Nullable String displayName;
   private final @Nullable String description;

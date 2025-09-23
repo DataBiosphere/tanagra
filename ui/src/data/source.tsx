@@ -277,6 +277,8 @@ export type Criteria = {
   predefinedDisplayName?: string;
 };
 
+export const MAX_DISPLAY_NAME_LENGTH = 255;
+
 export type ComputedProperties = {
   supportsTemporalQueries: boolean;
 };

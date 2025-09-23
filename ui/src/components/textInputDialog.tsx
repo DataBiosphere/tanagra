@@ -3,6 +3,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import { MAX_DISPLAY_NAME_LENGTH } from "data/source";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
 import { TextField } from "mui-rff";
@@ -65,6 +66,13 @@ export function useTextInputDialog(): [
             if (!text) {
               return { text: `${config.textLabel} may not be blank.` };
             }
+            if (
+              text.trim().length > (config.maxLength ?? MAX_DISPLAY_NAME_LENGTH)
+            ) {
+              return {
+                text: `${config.textLabel} exceeds the ${config.maxLength ?? MAX_DISPLAY_NAME_LENGTH} character limit.`,
+              };
+            }
           }}
           render={({ handleSubmit, invalid }) => (
             <form noValidate onSubmit={handleSubmit}>
@@ -76,9 +84,6 @@ export function useTextInputDialog(): [
                       fullWidth
                       name="text"
                       label={config.textLabel}
-                      inputProps={{
-                        maxLength: config.maxLength ?? 50,
-                      }}
                     />
                   </GridBox>
                 </GridLayout>
