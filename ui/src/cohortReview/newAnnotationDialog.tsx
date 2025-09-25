@@ -105,9 +105,6 @@ export function useNewAnnotationDialog(
                     required
                     name="displayName"
                     label="Display name"
-                    inputProps={{
-                      maxLength: 50,
-                    }}
                   />
                 </GridBox>
               </GridLayout>
