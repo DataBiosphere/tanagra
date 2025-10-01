@@ -203,7 +203,7 @@ public class IpynbFileDownload implements DataExport {
             .append("\t<tr style=\"background-color: ")
             .append(bgColor).append(" border: 2px solid #778;\">\n")
             .append("\t\t<td><b>").append(attrib).append("</b></td>\n");
-        if (attrib != null && attrib.equalsIgnoreCase("user email")) {
+        if ("user email".equalsIgnoreCase(attrib)) {
             sb.append("\t\t<td><a href=\"mailto:")
                 .append(value).append("\"><i>")
                 .append(value).append("</i></a></td>\n");
