@@ -2,6 +2,7 @@ import { getCriteriaTitle } from "cohort";
 import { Criteria, FeatureSet } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
+import { PreviewTabData } from "featureSet/featureSet.tsx";
 import { produce } from "immer";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -28,6 +29,25 @@ type FeatureSetContextData = {
   ) => void;
 };
 
+type FeatureSetPreviewContextData = {
+  previewData: PreviewTabData[];
+  updatePreviewData: (state: PreviewTabData[]) => void;
+  updating: boolean;
+  setUpdating: (state: boolean) => void;
+};
+
+export const FeatureSetPreviewContext =
+  createContext<FeatureSetPreviewContextData | null>(null);
+
+export function useFeatureSetPreviewContext() {
+  const context = useContext(FeatureSetPreviewContext);
+  if (!context) {
+    throw new Error(
+      "Attempting to use featureSet preview context when not provided."
+    );
+  }
+  return context;
+}
 export const FeatureSetContext = createContext<FeatureSetContextData | null>(
   null
 );

@@ -1,7 +1,9 @@
 import Snackbar from "@mui/material/Snackbar";
 import Loading from "components/loading";
+import { PreviewTabData } from "featureSet/featureSet";
 import {
   FeatureSetContext,
+  FeatureSetPreviewContext,
   featureSetUndoRedo,
   useNewFeatureSetContext,
 } from "featureSet/featureSetContext";
@@ -15,6 +17,8 @@ export default function FeatureSetRoot() {
 
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [previewData, setPreviewData] = useState<PreviewTabData[]>([]);
+  const [updatingPreview, setUpdatingPreview] = useState<boolean>(false);
 
   const status = useNewFeatureSetContext((message: string) => {
     setMessage(message);
@@ -35,13 +39,22 @@ export default function FeatureSetRoot() {
         <UndoRedoContext.Provider
           value={featureSetUndoRedo(params, status.context)}
         >
-          <Outlet />
-          <Snackbar
-            open={open}
-            autoHideDuration={5000}
-            onClose={handleClose}
-            message={message}
-          />
+          <FeatureSetPreviewContext.Provider
+            value={{
+              previewData,
+              updatePreviewData: setPreviewData,
+              updating: updatingPreview,
+              setUpdating: setUpdatingPreview,
+            }}
+          >
+            <Outlet />
+            <Snackbar
+              open={open}
+              autoHideDuration={5000}
+              onClose={handleClose}
+              message={message}
+            />
+          </FeatureSetPreviewContext.Provider>
         </UndoRedoContext.Provider>
       </FeatureSetContext.Provider>
     </Loading>

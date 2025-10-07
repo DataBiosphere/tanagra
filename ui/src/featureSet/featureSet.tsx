@@ -27,7 +27,6 @@ import { TreeGrid, TreeGridData, TreeGridId } from "components/treeGrid";
 import { Criteria } from "data/source";
 import { useStudySource } from "data/studySourceContext";
 import { useUnderlaySource } from "data/underlaySourceContext";
-import deepEqual from "deep-equal";
 import {
   deleteFeatureSetCriteria,
   deletePredefinedFeatureSetCriteria,
@@ -35,6 +34,7 @@ import {
   toggleFeatureSetColumn,
   updateFeatureSet,
   useFeatureSetContext,
+  useFeatureSetPreviewContext,
 } from "featureSet/featureSetContext";
 import { useFeatureSet, useStudyId, useUnderlay } from "hooks";
 import emptyImage from "images/empty.svg";
@@ -49,7 +49,6 @@ import {
   useExitAction,
 } from "router";
 import { StudyName } from "studyName";
-import useSWRImmutable from "swr/immutable";
 import UndoRedoToolbar from "undoRedoToolbar";
 import { safeRegExp } from "util/safeRegExp";
 import { useGlobalSearchState, useNavigate } from "util/searchState";
@@ -290,14 +289,17 @@ function FeatureSetCriteria(props: FeatureSetCriteriaProps) {
 type PreviewOccurrence = {
   id: string;
   attributes: string[];
+  sourceCriteria: string[];
 };
 
-type PreviewTabData = {
+export type PreviewTabData = {
   name: string;
   data: TreeGridData;
+  sourceCriteria: string[];
 };
 
 function Preview() {
+  const previewContext = useFeatureSetPreviewContext();
   const featureSet = useFeatureSet();
   const underlaySource = useUnderlaySource();
   const underlay = useUnderlay();
@@ -312,79 +314,148 @@ function Preview() {
     PreviewOccurrence[]
   >([]);
   useEffect(() => {
-    const newPreviewOccurrences =
-      occurrenceFiltersState.data?.map((of) => ({
-        id: of.id,
-        attributes: of.attributes,
-      })) ?? [];
-    if (!deepEqual(newPreviewOccurrences, previewOccurrences)) {
-      setPreviewOccurrences(newPreviewOccurrences);
-    }
-  }, [occurrenceFiltersState.data, previewOccurrences]);
-
-  const tabDataState = useSWRImmutable<PreviewTabData[]>(
-    () => {
-      if (!occurrenceFiltersState.data || previewOccurrences.length === 0) {
-        return false;
-      }
-      return {
-        type: "exportPreview",
-        previewOccurrences: previewOccurrences,
-      };
-    },
-    async () => {
-      return Promise.all(
-        (occurrenceFiltersState.data ?? []).map(async (params) => {
-          const res = await underlaySource.exportPreview(
-            underlay.name,
-            params.id,
-            studyId,
-            [],
-            [featureSet.id],
-            true
+    if (occurrenceFiltersState.data) {
+      const newPreviewOccurrences =
+        occurrenceFiltersState.data?.map((of) => ({
+          id: of.id,
+          attributes: of.attributes,
+          sourceCriteria: of.sourceCriteria,
+        })) ?? [];
+      newPreviewOccurrences.sort((a, b) => a.id.localeCompare(b.id));
+      let previewOccurrencesToLoad: PreviewOccurrence[] = [];
+      let updateExisting = false;
+      if (newPreviewOccurrences.length > previewContext.previewData?.length) {
+        previewOccurrencesToLoad = newPreviewOccurrences.filter(
+          (npo) => !previewContext.previewData.some((po) => po.name === npo.id)
+        );
+      } else if (
+        newPreviewOccurrences.length === previewContext.previewData?.length
+      ) {
+        const updatedPreviewOccurrences = newPreviewOccurrences.filter(
+          (npo, n) =>
+            JSON.stringify(npo.sourceCriteria) !==
+            JSON.stringify(previewContext.previewData[n].sourceCriteria)
+        );
+        if (updatedPreviewOccurrences.length > 0) {
+          previewOccurrencesToLoad = updatedPreviewOccurrences;
+          previewContext.updatePreviewData(
+            previewContext.previewData.map((pd) => {
+              const updatedIndex = updatedPreviewOccurrences.findIndex(
+                (upo) => upo.id === pd.name
+              );
+              if (updatedIndex > -1) {
+                return {
+                  ...pd,
+                  sourceCriteria:
+                    updatedPreviewOccurrences[updatedIndex].sourceCriteria,
+                };
+              } else {
+                return pd;
+              }
+            })
           );
-
-          const children: TreeGridId[] = [];
-          const rows = new Map();
-
-          res.data.forEach((entry, i) => {
-            rows.set(i, { data: entry });
-            children?.push(i);
-          });
-
-          return {
-            id: params.id,
-            name: params.name,
-            data: {
-              rows,
-              children,
-            },
-            attributes: params.attributes,
-          };
-        })
-      );
+          updateExisting = true;
+        }
+      } else if (
+        newPreviewOccurrences.length < previewContext.previewData?.length
+      ) {
+        const newPreviewData = previewContext.previewData.filter((pd) =>
+          newPreviewOccurrences.some((npo) => npo.id === pd.name)
+        );
+        previewContext.updatePreviewData(newPreviewData);
+      }
+      if (previewOccurrencesToLoad?.length > 0) {
+        loadNewPreviewData(
+          previewOccurrencesToLoad,
+          newPreviewOccurrences,
+          updateExisting
+        );
+      } else if (
+        newPreviewOccurrences.length > 0 &&
+        previewOccurrences.length === 0
+      ) {
+        setPreviewOccurrences(newPreviewOccurrences);
+      }
     }
-  );
+    // Removed loadNewPreviewData from the deps array since it may not be initialized yet and  causes separate lint error
+    // Removed previewContext from the deps array to prevent redundant previewExport calls
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [occurrenceFiltersState.data, previewOccurrences.length]);
+
+  const loadNewPreviewData = async (
+    newOccurrences: PreviewOccurrence[],
+    allOccurrences: PreviewOccurrence[],
+    updateExisting?: boolean
+  ) => {
+    previewContext.setUpdating(true);
+    const newOccurrenceData = await Promise.all(
+      newOccurrences.map(async (params) => {
+        const res = await underlaySource.exportPreview(
+          underlay.name,
+          params.id,
+          studyId,
+          [],
+          [featureSet.id],
+          true
+        );
+
+        const children: TreeGridId[] = [];
+        const rows = new Map();
+
+        res.data.forEach((entry, i) => {
+          rows.set(i, { data: entry });
+          children?.push(i);
+        });
+
+        return {
+          id: params.id,
+          name: params.id,
+          data: {
+            rows,
+            children,
+          },
+          attributes: params.attributes,
+          sourceCriteria: params.sourceCriteria,
+        };
+      })
+    );
+    if (!updateExisting) {
+      const updatedPreviewData = [
+        ...previewContext.previewData,
+        ...newOccurrenceData,
+      ];
+      updatedPreviewData.sort((a, b) => a.name.localeCompare(b.name));
+      previewContext.updatePreviewData(updatedPreviewData);
+    }
+    previewContext.setUpdating(false);
+    allOccurrences.sort((a, b) => a.id.localeCompare(b.id));
+    setPreviewOccurrences(allOccurrences);
+  };
 
   return (
     <GridLayout rows sx={{ pt: 1 }}>
       {featureSet.criteria.length > 0 ||
       featureSet.predefinedCriteria.length > 0 ? (
         <Loading
-          status={tabDataState}
-          isLoading={occurrenceFiltersState.isLoading || tabDataState.isLoading}
+          status={{}}
+          isLoading={
+            occurrenceFiltersState.isLoading || previewContext.updating
+          }
           showLoadingMessage={true}
         >
           <Tabs
             configs={
-              (tabDataState.data ?? []).map((data, i) => ({
+              (previewContext.previewData ?? []).map((data) => ({
                 id: data.name,
                 title: data.name,
-                render: () =>
-                  data.data.children?.length ? (
-                    previewOccurrences[i] ? (
+                render: () => {
+                  const previewOccurrence = previewOccurrences.find(
+                    (po) => po.id === data.name
+                  );
+                  return data.data.children?.length ? (
+                    previewOccurrence ? (
                       <PreviewTable
-                        occurrence={previewOccurrences[i]}
+                        occurrence={previewOccurrence}
                         data={data}
                       />
                     ) : null
@@ -397,7 +468,8 @@ function Preview() {
                         subtitle="No data in this table matched the specified cohorts and data features"
                       />
                     </GridLayout>
-                  ),
+                  );
+                },
               })) ?? []
             }
           />
