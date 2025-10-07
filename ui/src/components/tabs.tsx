@@ -4,7 +4,7 @@ import TabPanel from "@mui/lab/TabPanel";
 import Tab from "@mui/material/Tab";
 import { GridBox } from "layout/gridBox";
 import GridLayout from "layout/gridLayout";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 export type TabConfig = {
   id: string;
@@ -31,6 +31,13 @@ export function Tabs(props: TabsProps) {
   const onChange = (event: React.SyntheticEvent, newValue: string) => {
     (props.setCurrentTab ?? setCurrentTab)(newValue);
   };
+
+  useEffect(() => {
+    // If the data feature for currentTab was deleted, reset to the first in the list
+    if (!props.configs.some((c) => c.id === currentTab)) {
+      setCurrentTab(props?.configs?.[0]?.id);
+    }
+  }, [props.configs, currentTab]);
 
   return (
     <TabContext
