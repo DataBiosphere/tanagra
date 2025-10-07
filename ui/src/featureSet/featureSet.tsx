@@ -322,7 +322,7 @@ function Preview() {
           sourceCriteria: of.sourceCriteria,
         })) ?? [];
       newPreviewOccurrences.sort((a, b) => a.id.localeCompare(b.id));
-      let previewOccurrencesToLoad: PreviewOccurrence[];
+      let previewOccurrencesToLoad: PreviewOccurrence[] = [];
       let updateExisting = false;
       if (newPreviewOccurrences.length > previewContext.previewData?.length) {
         previewOccurrencesToLoad = newPreviewOccurrences.filter(
