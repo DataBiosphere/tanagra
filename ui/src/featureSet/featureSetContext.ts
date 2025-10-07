@@ -34,6 +34,8 @@ type FeatureSetPreviewContextData = {
   updatePreviewData: (state: PreviewTabData[]) => void;
   updating: boolean;
   setUpdating: (state: boolean) => void;
+  currentTab: string;
+  setCurrentTab: (state: string) => void;
 };
 
 export const FeatureSetPreviewContext =

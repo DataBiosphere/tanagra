@@ -299,7 +299,14 @@ export type PreviewTabData = {
 };
 
 function Preview() {
-  const previewContext = useFeatureSetPreviewContext();
+  const {
+    previewData,
+    updatePreviewData,
+    updating,
+    setUpdating,
+    currentTab,
+    setCurrentTab,
+  } = useFeatureSetPreviewContext();
   const featureSet = useFeatureSet();
   const underlaySource = useUnderlaySource();
   const underlay = useUnderlay();
@@ -324,22 +331,22 @@ function Preview() {
       newPreviewOccurrences.sort((a, b) => a.id.localeCompare(b.id));
       let previewOccurrencesToLoad: PreviewOccurrence[] = [];
       let updateExisting = false;
-      if (newPreviewOccurrences.length > previewContext.previewData?.length) {
+      if (newPreviewOccurrences.length > previewData?.length) {
         previewOccurrencesToLoad = newPreviewOccurrences.filter(
-          (npo) => !previewContext.previewData.some((po) => po.name === npo.id)
+          (npo) => !previewData.some((po) => po.name === npo.id)
         );
       } else if (
-        newPreviewOccurrences.length === previewContext.previewData?.length
+        newPreviewOccurrences.length === previewData?.length
       ) {
         const updatedPreviewOccurrences = newPreviewOccurrences.filter(
           (npo, n) =>
             JSON.stringify(npo.sourceCriteria) !==
-            JSON.stringify(previewContext.previewData[n].sourceCriteria)
+            JSON.stringify(previewData[n].sourceCriteria)
         );
         if (updatedPreviewOccurrences.length > 0) {
           previewOccurrencesToLoad = updatedPreviewOccurrences;
-          previewContext.updatePreviewData(
-            previewContext.previewData.map((pd) => {
+          updatePreviewData(
+            previewData.map((pd) => {
               const updatedIndex = updatedPreviewOccurrences.findIndex(
                 (upo) => upo.id === pd.name
               );
@@ -357,12 +364,12 @@ function Preview() {
           updateExisting = true;
         }
       } else if (
-        newPreviewOccurrences.length < previewContext.previewData?.length
+        newPreviewOccurrences.length < previewData?.length
       ) {
-        const newPreviewData = previewContext.previewData.filter((pd) =>
+        const newPreviewData = previewData.filter((pd) =>
           newPreviewOccurrences.some((npo) => npo.id === pd.name)
         );
-        previewContext.updatePreviewData(newPreviewData);
+        updatePreviewData(newPreviewData);
       }
       if (previewOccurrencesToLoad?.length > 0) {
         loadNewPreviewData(
@@ -387,7 +394,7 @@ function Preview() {
     allOccurrences: PreviewOccurrence[],
     updateExisting?: boolean
   ) => {
-    previewContext.setUpdating(true);
+    setUpdating(true);
     const newOccurrenceData = await Promise.all(
       newOccurrences.map(async (params) => {
         const res = await underlaySource.exportPreview(
@@ -421,13 +428,16 @@ function Preview() {
     );
     if (!updateExisting) {
       const updatedPreviewData = [
-        ...previewContext.previewData,
+        ...previewData,
         ...newOccurrenceData,
       ];
       updatedPreviewData.sort((a, b) => a.name.localeCompare(b.name));
-      previewContext.updatePreviewData(updatedPreviewData);
+      updatePreviewData(updatedPreviewData);
+      if (!currentTab) {
+        setCurrentTab(updatedPreviewData[0].name);
+      }
     }
-    previewContext.setUpdating(false);
+    setUpdating(false);
     allOccurrences.sort((a, b) => a.id.localeCompare(b.id));
     setPreviewOccurrences(allOccurrences);
   };
@@ -439,13 +449,13 @@ function Preview() {
         <Loading
           status={{}}
           isLoading={
-            occurrenceFiltersState.isLoading || previewContext.updating
+            occurrenceFiltersState.isLoading || updating
           }
           showLoadingMessage={true}
         >
           <Tabs
             configs={
-              (previewContext.previewData ?? []).map((data) => ({
+              (previewData ?? []).map((data) => ({
                 id: data.name,
                 title: data.name,
                 render: () => {
@@ -472,6 +482,8 @@ function Preview() {
                 },
               })) ?? []
             }
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
           />
         </Loading>
       ) : (
