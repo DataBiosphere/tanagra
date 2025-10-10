@@ -251,14 +251,13 @@ function GroupList() {
           >
             <GridLayout cols colAlign="center">
               <GridBox>
-                <Link
-                  variant="link"
-                  underline="hover"
+                <Button
+                  variant="contained"
                   onClick={() => insertCohortGroupSection(context)}
                   sx={{ cursor: "pointer" }}
                 >
                   Add another group
-                </Link>{" "}
+                </Button>{" "}
                 to manage a new set of criteria
               </GridBox>
             </GridLayout>
@@ -466,9 +465,8 @@ function ParticipantsGroupSection(props: {
               title="Criteria are traits you select to define your cohort’s participant groups"
               subtitle={
                 <>
-                  <Link
-                    variant="link"
-                    underline="hover"
+                  <Button
+                    variant="contained"
                     onClick={() =>
                       navigate(
                         `../${cohortURL(cohort.id, props.groupSection.id)}/add`
@@ -477,7 +475,7 @@ function ParticipantsGroupSection(props: {
                     sx={{ cursor: "pointer" }}
                   >
                     Add some criteria
-                  </Link>{" "}
+                  </Button>{" "}
                   to this group to get started
                 </>
               }
