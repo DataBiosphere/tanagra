@@ -39,7 +39,7 @@ export function Tabs(props: TabsProps) {
     if (!props.configs.some((c) => c.id === (props.currentTab ?? currentTab))) {
       (props.setCurrentTab ?? setCurrentTab)(props?.configs?.[0]?.id);
     }
-  }, [props.configs, currentTab]);
+  }, [props.configs, currentTab, props.currentTab, props.setCurrentTab]);
 
   return (
     <TabContext
