@@ -47,7 +47,7 @@ export default function FeatureSetRoot() {
               updating: updatingPreview,
               setUpdating: setUpdatingPreview,
               currentTab,
-              setCurrentTab
+              setCurrentTab,
             }}
           >
             <Outlet />

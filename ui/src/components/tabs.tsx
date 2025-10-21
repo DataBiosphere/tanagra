@@ -26,7 +26,9 @@ export type TabsProps = {
 };
 
 export function Tabs(props: TabsProps) {
-  const [currentTab, setCurrentTab] = useState(props.currentTab ?? props?.configs?.[0]?.id);
+  const [currentTab, setCurrentTab] = useState(
+    props.currentTab ?? props?.configs?.[0]?.id
+  );
 
   const onChange = (event: React.SyntheticEvent, newValue: string) => {
     (props.setCurrentTab ?? setCurrentTab)(newValue);

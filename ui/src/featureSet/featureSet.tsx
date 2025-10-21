@@ -335,9 +335,7 @@ function Preview() {
         previewOccurrencesToLoad = newPreviewOccurrences.filter(
           (npo) => !previewData.some((po) => po.name === npo.id)
         );
-      } else if (
-        newPreviewOccurrences.length === previewData?.length
-      ) {
+      } else if (newPreviewOccurrences.length === previewData?.length) {
         const updatedPreviewOccurrences = newPreviewOccurrences.filter(
           (npo, n) =>
             JSON.stringify(npo.sourceCriteria) !==
@@ -363,9 +361,7 @@ function Preview() {
           );
           updateExisting = true;
         }
-      } else if (
-        newPreviewOccurrences.length < previewData?.length
-      ) {
+      } else if (newPreviewOccurrences.length < previewData?.length) {
         const newPreviewData = previewData.filter((pd) =>
           newPreviewOccurrences.some((npo) => npo.id === pd.name)
         );
@@ -427,10 +423,7 @@ function Preview() {
       })
     );
     if (!updateExisting) {
-      const updatedPreviewData = [
-        ...previewData,
-        ...newOccurrenceData,
-      ];
+      const updatedPreviewData = [...previewData, ...newOccurrenceData];
       updatedPreviewData.sort((a, b) => a.name.localeCompare(b.name));
       updatePreviewData(updatedPreviewData);
       if (!currentTab) {
@@ -448,9 +441,7 @@ function Preview() {
       featureSet.predefinedCriteria.length > 0 ? (
         <Loading
           status={{}}
-          isLoading={
-            occurrenceFiltersState.isLoading || updating
-          }
+          isLoading={occurrenceFiltersState.isLoading || updating}
           showLoadingMessage={true}
         >
           <Tabs
