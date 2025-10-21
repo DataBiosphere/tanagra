@@ -19,6 +19,7 @@ export default function FeatureSetRoot() {
   const [message, setMessage] = useState("");
   const [previewData, setPreviewData] = useState<PreviewTabData[]>([]);
   const [updatingPreview, setUpdatingPreview] = useState<boolean>(false);
+  const [currentTab, setCurrentTab] = useState<string>("");
 
   const status = useNewFeatureSetContext((message: string) => {
     setMessage(message);
@@ -45,6 +46,8 @@ export default function FeatureSetRoot() {
               updatePreviewData: setPreviewData,
               updating: updatingPreview,
               setUpdating: setUpdatingPreview,
+              currentTab,
+              setCurrentTab,
             }}
           >
             <Outlet />

@@ -26,7 +26,9 @@ export type TabsProps = {
 };
 
 export function Tabs(props: TabsProps) {
-  const [currentTab, setCurrentTab] = useState(props?.configs?.[0]?.id);
+  const [currentTab, setCurrentTab] = useState(
+    props.currentTab ?? props?.configs?.[0]?.id
+  );
 
   const onChange = (event: React.SyntheticEvent, newValue: string) => {
     (props.setCurrentTab ?? setCurrentTab)(newValue);
@@ -34,10 +36,10 @@ export function Tabs(props: TabsProps) {
 
   useEffect(() => {
     // If the data feature for currentTab was deleted, reset to the first in the list
-    if (!props.configs.some((c) => c.id === currentTab)) {
-      setCurrentTab(props?.configs?.[0]?.id);
+    if (!props.configs.some((c) => c.id === (props.currentTab ?? currentTab))) {
+      (props.setCurrentTab ?? setCurrentTab)(props?.configs?.[0]?.id);
     }
-  }, [props.configs, currentTab]);
+  }, [props.configs, currentTab, props.currentTab, props.setCurrentTab]);
 
   return (
     <TabContext
