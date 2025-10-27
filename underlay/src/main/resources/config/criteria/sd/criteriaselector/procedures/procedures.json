@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "name",
-      "widthString": "50%",
+      "widthDouble": 340,
       "title": "Name"
     },
     {
@@ -39,7 +39,7 @@
   "hierarchyColumns": [
     {
       "key": "name",
-      "widthString": "50%",
+      "widthDouble": 340,
       "title": "Name"
     },
     {

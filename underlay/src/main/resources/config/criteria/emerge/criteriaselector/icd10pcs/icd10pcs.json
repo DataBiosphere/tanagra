@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "label",
-      "widthString": "100%",
+      "widthDouble": 380,
       "title": "Label"
     },
     {
