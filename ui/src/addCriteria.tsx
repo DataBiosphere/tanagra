@@ -463,23 +463,25 @@ function AddCriteria(props: AddCriteriaProps) {
               <Typography variant="body1">.</Typography>
             </GridLayout>
           ) : null}
-          {query === "" && <GridLayout cols spacing={0.5} rowAlign="middle">
-            <Typography variant="body1">Use</Typography>
-            <AddIcon
-              sx={{
-                display: "grid",
-                color: (theme) => theme.palette.primary.main,
-              }}
-            />
-            <Typography variant="body1">to directly add and</Typography>
-            <SearchIcon
-              sx={{
-                display: "grid",
-                color: (theme) => theme.palette.primary.main,
-              }}
-            />
-            <Typography variant="body1">to explore.</Typography>
-          </GridLayout> }
+          {query === "" && (
+            <GridLayout cols spacing={0.5} rowAlign="middle">
+              <Typography variant="body1">Use</Typography>
+              <AddIcon
+                sx={{
+                  display: "grid",
+                  color: (theme) => theme.palette.primary.main,
+                }}
+              />
+              <Typography variant="body1">to directly add and</Typography>
+              <SearchIcon
+                sx={{
+                  display: "grid",
+                  color: (theme) => theme.palette.primary.main,
+                }}
+              />
+              <Typography variant="body1">to explore.</Typography>
+            </GridLayout>
+          )}
         </GridLayout>
         {props.temporal ? (
           <Typography variant="body1">
