@@ -463,7 +463,7 @@ function AddCriteria(props: AddCriteriaProps) {
               <Typography variant="body1">.</Typography>
             </GridLayout>
           ) : null}
-          <GridLayout cols spacing={0.5} rowAlign="middle">
+          {query === "" && <GridLayout cols spacing={0.5} rowAlign="middle">
             <Typography variant="body1">Use</Typography>
             <AddIcon
               sx={{
@@ -479,7 +479,7 @@ function AddCriteria(props: AddCriteriaProps) {
               }}
             />
             <Typography variant="body1">to explore.</Typography>
-          </GridLayout>
+          </GridLayout> }
         </GridLayout>
         {props.temporal ? (
           <Typography variant="body1">
