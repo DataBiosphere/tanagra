@@ -162,20 +162,6 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
                   });
                 }
               })
-              .then(() => {
-                if (
-                  scrolledToHighlightId.current !== props.highlightId &&
-                  highlightRef.current
-                ) {
-                  // Delay scroll to allow time for rendering.
-                  setTimeout(() => {
-                    if (highlightRef.current) {
-                      highlightRef.current.scrollIntoView({ block: "center" });
-                    }
-                  }, 0);
-                  scrolledToHighlightId.current = highlightId;
-                }
-              })
               .catch((error) => {
                 if (!cancel.current) {
                   updateState((draft) => {
@@ -205,6 +191,27 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
     // Removed toggleExpanded from the deps array to prevent the hierarchy from reloading on each criteria selection/deletion
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultExpanded, updateState]);
+
+  useEffect(() => {
+    if (
+      scrolledToHighlightId.current !== props.highlightId &&
+      highlightRef.current
+    ) {
+      // Check if all items are loaded before scrolling to highlighted item
+      const itemsLoaded = [];
+      state.forEach((item) => itemsLoaded.push(item.loaded));
+      if (
+        itemsLoaded.every((loaded) => loaded === true) &&
+        highlightRef.current
+      ) {
+        highlightRef.current.scrollIntoView({
+          block: "center",
+          behavior: "smooth",
+        });
+        scrolledToHighlightId.current = props.highlightId;
+      }
+    }
+  }, [highlightRef.current, state]);
 
   const onSort = useCallback(
     (col: TreeGridColumn, orders?: TreeGridSortOrder[]) => {
