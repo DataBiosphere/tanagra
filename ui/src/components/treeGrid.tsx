@@ -197,12 +197,9 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
       highlightRef.current
     ) {
       // Check if all items are loaded before scrolling to highlighted item
-      const itemsLoaded = [];
-      state.forEach((item) => itemsLoaded.push(item.loaded));
-      if (
-        itemsLoaded.every((loaded) => loaded === true) &&
-        highlightRef.current
-      ) {
+      const itemsLoaded: boolean[] = [];
+      state.forEach((item) => itemsLoaded.push(!!item.loaded));
+      if (itemsLoaded.every(Boolean) && highlightRef.current) {
         highlightRef.current.scrollIntoView({
           block: "center",
           behavior: "smooth",
