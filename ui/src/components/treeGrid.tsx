@@ -135,7 +135,6 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
   const toggleExpanded = useCallback(
     (draft: TreeGridState, id: TreeGridId) => {
       const loadChildren = props.loadChildren;
-      const highlightId = props.highlightId;
 
       const itemState = draft.get(id) || {
         status: Status.Collapsed,
@@ -162,20 +161,6 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
                   });
                 }
               })
-              .then(() => {
-                if (
-                  scrolledToHighlightId.current !== props.highlightId &&
-                  highlightRef.current
-                ) {
-                  // Delay scroll to allow time for rendering.
-                  setTimeout(() => {
-                    if (highlightRef.current) {
-                      highlightRef.current.scrollIntoView({ block: "center" });
-                    }
-                  }, 0);
-                  scrolledToHighlightId.current = highlightId;
-                }
-              })
               .catch((error) => {
                 if (!cancel.current) {
                   updateState((draft) => {
@@ -190,7 +175,7 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
       }
       draft.set(id, itemState);
     },
-    [props.loadChildren, props.highlightId, updateState]
+    [props.loadChildren, updateState]
   );
 
   // Ensure default expansions take effect before rendering.
@@ -205,6 +190,24 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
     // Removed toggleExpanded from the deps array to prevent the hierarchy from reloading on each criteria selection/deletion
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.defaultExpanded, updateState]);
+
+  useEffect(() => {
+    if (
+      scrolledToHighlightId.current !== props.highlightId &&
+      highlightRef.current
+    ) {
+      // Check if all items are loaded before scrolling to highlighted item
+      const itemsLoaded: boolean[] = [];
+      state.forEach((item) => itemsLoaded.push(!!item.loaded));
+      if (itemsLoaded.every(Boolean) && highlightRef.current) {
+        highlightRef.current.scrollIntoView({
+          block: "center",
+          behavior: "smooth",
+        });
+        scrolledToHighlightId.current = props.highlightId;
+      }
+    }
+  }, [props.highlightId, state]);
 
   const onSort = useCallback(
     (col: TreeGridColumn, orders?: TreeGridSortOrder[]) => {
