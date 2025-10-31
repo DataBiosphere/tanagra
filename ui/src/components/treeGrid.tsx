@@ -135,7 +135,6 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
   const toggleExpanded = useCallback(
     (draft: TreeGridState, id: TreeGridId) => {
       const loadChildren = props.loadChildren;
-      const highlightId = props.highlightId;
 
       const itemState = draft.get(id) || {
         status: Status.Collapsed,
@@ -176,7 +175,7 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
       }
       draft.set(id, itemState);
     },
-    [props.loadChildren, props.highlightId, updateState]
+    [props.loadChildren, updateState]
   );
 
   // Ensure default expansions take effect before rendering.
@@ -211,7 +210,7 @@ export function TreeGrid<ItemType extends TreeGridItem = TreeGridItem>(
         scrolledToHighlightId.current = props.highlightId;
       }
     }
-  }, [highlightRef.current, state]);
+  }, [props.highlightId, state]);
 
   const onSort = useCallback(
     (col: TreeGridColumn, orders?: TreeGridSortOrder[]) => {
