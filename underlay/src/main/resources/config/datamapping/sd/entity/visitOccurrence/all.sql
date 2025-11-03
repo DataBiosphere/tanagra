@@ -10,7 +10,7 @@ SELECT
   vo.visit_source_concept_id,
   CAST(FLOOR(TIMESTAMP_DIFF(vo.visit_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence
 FROM `${omopDataset}.visit_occurrence` AS vo
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = vo.person_id
 JOIN `${omopDataset}.concept` AS vc
     ON vc.concept_id = vo.visit_concept_id

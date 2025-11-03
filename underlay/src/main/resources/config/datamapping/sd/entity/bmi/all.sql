@@ -23,7 +23,7 @@ SELECT
 
 FROM `${omopDataset}.measurement` AS mo
 
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = mo.person_id
 
 LEFT JOIN `${omopDataset}.concept` AS mvc

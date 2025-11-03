@@ -15,7 +15,7 @@ SELECT
   vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.procedure_occurrence` AS po
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = po.person_id
 JOIN `${omopDataset}.concept` AS pc
     ON pc.concept_id = po.procedure_concept_id

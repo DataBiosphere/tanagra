@@ -22,7 +22,7 @@ SELECT
 
 FROM `${omopDataset}.x_blood_pressure` AS xbp
 
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = xbp.person_id
 
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo

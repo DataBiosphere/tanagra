@@ -13,7 +13,7 @@ SELECT
 
 FROM `${omopDataset}.x_family_history` AS xfh
 
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = xfh.person_id
 
 LEFT JOIN `${omopDataset}.visit_occurrence` AS vo
