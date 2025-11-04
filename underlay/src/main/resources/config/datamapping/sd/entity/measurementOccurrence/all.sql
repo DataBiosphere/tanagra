@@ -19,7 +19,7 @@ SELECT
   mo.measurement_type_concept_id,
   tc.concept_name AS measurement_type_concept_name
 FROM `${omopDataset}.measurement` AS mo
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = mo.person_id
 LEFT JOIN `${omopDataset}.concept` AS mc
     ON mc.concept_id = mo.measurement_concept_id

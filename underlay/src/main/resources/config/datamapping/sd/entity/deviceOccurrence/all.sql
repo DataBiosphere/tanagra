@@ -14,7 +14,7 @@ SELECT
   vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.device_exposure` AS de
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = de.person_id
 JOIN `${omopDataset}.concept` AS dc
     ON dc.concept_id = de.device_concept_id

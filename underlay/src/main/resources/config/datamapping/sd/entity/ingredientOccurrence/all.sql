@@ -25,7 +25,7 @@ SELECT
   de.x_doc_type
 
 FROM `${omopDataset}.drug_exposure_ext` AS de
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = de.person_id
 JOIN `${omopDataset}.concept` AS ic
     ON ic.concept_id = de.drug_concept_id

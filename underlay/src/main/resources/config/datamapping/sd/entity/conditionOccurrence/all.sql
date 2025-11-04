@@ -17,7 +17,7 @@ SELECT DISTINCT
   vc.concept_name AS visit_concept_name
 
 FROM `${omopDataset}.condition_occurrence` AS co
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = co.person_id
 JOIN `${omopDataset}.concept` AS cc
     ON cc.concept_id = co.condition_concept_id

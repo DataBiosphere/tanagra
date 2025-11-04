@@ -13,7 +13,7 @@ SELECT
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
 FROM `${omopDataset}.note` AS n
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = n.person_id
 JOIN `${omopDataset}.concept` AS nc
     ON nc.concept_id = n.note_type_concept_id

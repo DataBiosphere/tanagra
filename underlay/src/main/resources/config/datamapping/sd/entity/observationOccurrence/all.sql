@@ -19,7 +19,7 @@ SELECT DISTINCT
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
 FROM `${omopDataset}.observation` AS o
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = o.person_id
 JOIN `${omopDataset}.concept` AS oc
     ON oc.concept_id = o.observation_concept_id

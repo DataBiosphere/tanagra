@@ -26,7 +26,7 @@ FROM `${omopDataset}.measurement` AS mo
 LEFT JOIN `${omopDataset}.x_vs_wh` AS xvw
     ON xvw.measurement_id = mo.measurement_id
 
-JOIN `${omopDataset}.person` AS p
+JOIN `${omopDataset}.person_ext` AS p
     ON p.person_id = mo.person_id
 
 LEFT JOIN `${omopDataset}.concept` AS mvc
