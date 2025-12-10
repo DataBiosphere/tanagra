@@ -1,0 +1,21 @@
+{
+  "underlay": "sd",
+  "bigQuery": {
+    "sourceData": {
+      "projectId": "vumc-sd-test",
+      "datasetId": "sd_20250831",
+      "sqlSubstitutions": {
+        "indexedDataset": "vumc-sd-test.indexed_sd_20250831",
+        "omopDataset": "vumc-sd-test.sd_20250831",
+        "staticTablesDataset": "vumc-sd-test.sd_20250831"
+      }
+    },
+    "indexData": {
+      "projectId": "vumc-sd-test",
+      "datasetId": "indexed_sd_20250831"
+    },
+    "queryProjectId": "vumc-sd-test",
+    "dataLocation": "us-central1"
+  },
+  "uiConfigFile": "ui.json"
+}
