@@ -14,7 +14,7 @@ SELECT DISTINCT
   (CASE WHEN oc.standard_concept IS NULL THEN 'Source' WHEN oc.standard_concept = 'S' THEN 'Standard' ELSE 'Unknown' END) AS standard_concept,
   o.observation_source_value,
   o.observation_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(o.observation_date, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(o.observation_date, p.date_of_birth, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   o.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
