@@ -11,7 +11,7 @@ SELECT
   de.days_supply,
   de.drug_source_value,
   de.drug_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(de.drug_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(de.drug_exposure_start_datetime, p.date_of_birth, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   de.visit_occurrence_id,
   de.drug_type_concept_id,
   tc.concept_name AS drug_type_concept_name,

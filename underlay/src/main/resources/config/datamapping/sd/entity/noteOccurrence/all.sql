@@ -8,7 +8,7 @@ SELECT
   n.note_title,
   n.note_text,
   n.note_source_value,
-  CAST(FLOOR(TIMESTAMP_DIFF(n.note_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(n.note_datetime, p.date_of_birth, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   n.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name

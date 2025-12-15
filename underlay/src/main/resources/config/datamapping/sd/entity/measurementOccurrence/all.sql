@@ -12,7 +12,7 @@ SELECT
   uc.concept_name AS unit_concept_name,
   mo.measurement_source_value,
   mo.measurement_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(mo.measurement_datetime, p.date_of_birth, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   mo.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name,

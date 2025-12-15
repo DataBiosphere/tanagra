@@ -8,7 +8,7 @@ SELECT
   de.device_exposure_end_date,
   de.device_source_value,
   de.device_source_concept_id,
-  CAST(FLOOR(TIMESTAMP_DIFF(de.device_exposure_start_datetime, p.birth_datetime, DAY) / 365.25) AS INT64) AS age_at_occurrence,
+  CAST(FLOOR(TIMESTAMP_DIFF(de.device_exposure_start_datetime, p.date_of_birth, DAY) / 365.25) AS INT64) AS age_at_occurrence,
   de.visit_occurrence_id,
   vo.visit_concept_id,
   vc.concept_name AS visit_concept_name
