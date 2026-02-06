@@ -1,0 +1,21 @@
+{
+  "name": "surveyOverallHealthPerson",
+  "criteriaEntity": "surveyOverallHealth",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "surveyOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "survey_item_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      },
+      "attributesWithInstanceLevelHints": [ "value_numeric" ]
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "survey_item_id"
+  }
+}

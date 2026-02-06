@@ -1,0 +1,20 @@
+{
+  "name": "ingredientPerson",
+  "criteriaEntity": "ingredientConcept",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "ingredientOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "drug_concept_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "drug_concept_id"
+  }
+}

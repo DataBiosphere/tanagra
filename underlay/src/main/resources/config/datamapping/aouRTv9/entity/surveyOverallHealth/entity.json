@@ -1,0 +1,27 @@
+{
+  "name": "surveyOverallHealth",
+  "allInstancesSqlFile": "all.sql",
+  "attributes": [
+    { "name": "id", "dataType": "INT64" },
+    { "name": "name", "dataType": "STRING" },
+    { "name": "code", "dataType": "STRING" },
+    { "name": "subtype", "dataType": "STRING", "isComputeDisplayHint": true },
+    { "name": "concept_id", "dataType": "INT64" },
+    { "name": "value", "dataType": "INT64" }
+  ],
+  "idAttribute": "id",
+  "textSearch": {
+    "attributes": [ "name", "code", "subtype", "concept_id", "value" ]
+  },
+  "hierarchies": [
+    {
+      "childParentIdPairsSqlFile": "childParent.sql",
+      "childIdFieldName": "child",
+      "parentIdFieldName": "parent",
+      "rootNodeIds": [ 8000 ],
+      "maxDepth": 5,
+      "keepOrphanNodes": false,
+      "cleanHierarchyNodesWithZeroCounts": true
+    }
+  ]
+}

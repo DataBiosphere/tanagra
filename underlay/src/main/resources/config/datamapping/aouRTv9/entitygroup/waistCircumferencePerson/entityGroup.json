@@ -1,0 +1,6 @@
+{
+  "name": "waistCircumferencePerson",
+  "groupEntity": "person",
+  "itemsEntity": "waistCircumference",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

@@ -1,0 +1,6 @@
+{
+  "name": "wearableDevicePerson",
+  "groupEntity": "person",
+  "itemsEntity": "wearableDevice",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

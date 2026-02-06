@@ -1,0 +1,20 @@
+{
+  "name": "visitPerson",
+  "criteriaEntity": "visitConcept",
+  "occurrenceEntities": [
+    {
+      "occurrenceEntity": "visitOccurrence",
+      "criteriaRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "visit_concept_id"
+      },
+      "primaryRelationship": {
+        "foreignKeyAttributeOccurrenceEntity": "person_id"
+      }
+    }
+  ],
+  "primaryCriteriaRelationship": {
+    "idPairsSqlFile": "primaryCriteria.sql",
+    "primaryEntityIdFieldName": "person_id",
+    "criteriaEntityIdFieldName": "visit_concept_id"
+  }
+}
