@@ -7,7 +7,7 @@ SELECT
     calories_out,
     elevation,
     fairly_active_minutes,
-    floors,
+    CAST(floors AS INT64) AS floors,
     lightly_active_minutes,
     marginal_calories,
     sedentary_minutes,

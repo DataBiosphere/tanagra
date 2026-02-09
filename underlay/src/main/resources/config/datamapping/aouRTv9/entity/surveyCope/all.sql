@@ -1,3 +1,5 @@
-SELECT id, name, code, subtype, concept_id, CAST(value AS INT64) AS value
-FROM `${omopDataset}.prep_survey`
-WHERE survey IN ('May2020Covid19Participa', 'July2020Covid19Particip', 'February2021COVID19Part')
+SELECT id, name, code, subtype, concept_id, CAST(value AS INT64) AS value,
+       survey_version_concept_id, survey_version_name
+FROM `${staticTablesDataset}.prep_survey_enhanced`
+WHERE survey_type = 'COPE'
+  AND subtype IN ('SURVEY', 'QUESTION', 'ANSWER')

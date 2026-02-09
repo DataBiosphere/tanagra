@@ -1,21 +1,19 @@
 {
-  "name": "observationPerson",
-  "criteriaEntity": "observationConcept",
-  "occurrenceEntities": [
-    {
-      "occurrenceEntity": "observationOccurrence",
-      "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "observation_concept_id"
-      },
-      "primaryRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "person_id"
-      },
-      "attributesWithInstanceLevelHints": [ "value_as_concept_name" ]
-    }
-  ],
-  "primaryCriteriaRelationship": {
-    "idPairsSqlFile": "primaryCriteria.sql",
-    "primaryEntityIdFieldName": "person_id",
-    "criteriaEntityIdFieldName": "observation_concept_id"
+  "name" : "observationPerson",
+  "criteriaEntity" : "observationConcept",
+  "occurrenceEntities" : [ {
+    "occurrenceEntity" : "observationOccurrence",
+    "criteriaRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "observation_concept_id"
+    },
+    "primaryRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "person_id"
+    },
+    "attributesWithInstanceLevelHints" : [ "value_as_concept_name" ]
+  } ],
+  "primaryCriteriaRelationship" : {
+    "idPairsSqlFile" : "primaryCriteria.sql",
+    "primaryEntityIdFieldName" : "person_id",
+    "criteriaEntityIdFieldName" : "observation_concept_id"
   }
 }

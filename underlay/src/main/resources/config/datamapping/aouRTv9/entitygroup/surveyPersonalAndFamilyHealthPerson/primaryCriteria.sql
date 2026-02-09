@@ -2,8 +2,8 @@ SELECT
   po.person_id,
   ps.id AS survey_item_id
 
-FROM `${omopDataset}.prep_pfhh_observation` AS po
-JOIN `${omopDataset}.prep_survey` AS ps
+FROM `${staticTablesDataset}.prep_pfhh_observation` AS po
+JOIN `${staticTablesDataset}.prep_survey` AS ps
     ON ps.concept_id = po.observation_source_concept_id
     AND (
       (CAST(ps.value AS INT64) = po.value_source_concept_id)

@@ -1,29 +1,26 @@
 {
-  "name": "icd10pcsPerson",
-  "criteriaEntity": "icd10pcsConcept",
-  "occurrenceEntities": [
-    {
-      "occurrenceEntity": "ingredientOccurrence",
-      "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "drug_source_concept_id"
-      },
-      "primaryRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "person_id"
-      }
+  "name" : "icd10pcsPerson",
+  "criteriaEntity" : "icd10pcsConcept",
+  "occurrenceEntities" : [ {
+    "occurrenceEntity" : "ingredientOccurrence",
+    "criteriaRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "drug_source_concept_id"
     },
-    {
-      "occurrenceEntity": "procedureOccurrence",
-      "criteriaRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "procedure_source_concept_id"
-      },
-      "primaryRelationship": {
-        "foreignKeyAttributeOccurrenceEntity": "person_id"
-      }
+    "primaryRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "person_id"
     }
-  ],
-  "primaryCriteriaRelationship": {
-    "idPairsSqlFile": "primaryCriteria.sql",
-    "primaryEntityIdFieldName": "person_id",
-    "criteriaEntityIdFieldName": "concept_id"
+  }, {
+    "occurrenceEntity" : "procedureOccurrence",
+    "criteriaRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "procedure_source_concept_id"
+    },
+    "primaryRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "person_id"
+    }
+  } ],
+  "primaryCriteriaRelationship" : {
+    "idPairsSqlFile" : "primaryCriteria.sql",
+    "primaryEntityIdFieldName" : "person_id",
+    "criteriaEntityIdFieldName" : "concept_id"
   }
 }

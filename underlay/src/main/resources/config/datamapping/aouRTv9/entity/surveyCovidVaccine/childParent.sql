@@ -1,3 +1,4 @@
 SELECT parent_id AS parent, id AS child
-FROM `${omopDataset}.prep_survey`
-WHERE parent_id != 0 AND survey = 'NewYearMinuteSurveyOnCO'
+FROM `${staticTablesDataset}.prep_survey_enhanced`
+WHERE parent_id IS NOT NULL
+  AND survey_type = 'COVID_VACCINE'

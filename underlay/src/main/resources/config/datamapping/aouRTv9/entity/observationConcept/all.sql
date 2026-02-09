@@ -16,6 +16,6 @@ WHERE c.domain_id = 'Observation'
      FROM `${omopDataset}.observation`
      WHERE observation_source_concept_id IN (
         SELECT DISTINCT concept_id
-        FROM `${omopDataset}.prep_survey`
+        FROM `${staticTablesDataset}.prep_survey`
      )
   )
