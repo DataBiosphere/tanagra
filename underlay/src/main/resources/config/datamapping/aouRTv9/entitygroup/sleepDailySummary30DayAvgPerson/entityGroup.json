@@ -1,0 +1,6 @@
+{
+  "name": "sleepDailySummary30DayAvgPerson",
+  "groupEntity": "person",
+  "itemsEntity": "sleepDailySummary30DayAvg",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

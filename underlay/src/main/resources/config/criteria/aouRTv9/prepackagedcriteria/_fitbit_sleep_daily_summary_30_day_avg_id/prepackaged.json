@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_sleep_daily_summary_30_day_avg_id",
+  "displayName": "Fitbit Sleep Daily Summary 30 Day Average",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitSleepDailySummary30DayAvgId.json"
+}
