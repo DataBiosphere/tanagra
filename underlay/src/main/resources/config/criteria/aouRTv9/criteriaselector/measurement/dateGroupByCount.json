@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "measurementOccurrence": {
+      "values": [
+        "measurement_datetime",
+        "standard_concept_name"
+      ]
+    }
+  }
+}

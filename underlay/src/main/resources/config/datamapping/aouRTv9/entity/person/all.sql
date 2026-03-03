@@ -41,7 +41,7 @@ SELECT p.person_id,
        CASE
            WHEN asum.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_activity_summary,
        CASE
-           WHEN hrml.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_heart_rate_level,
+           WHEN hri.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_heart_rate_intraday,
        CASE
            WHEN hrs.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_heart_rate_summary,
        CASE
@@ -53,10 +53,10 @@ SELECT p.person_id,
         CASE
            WHEN dev.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_device,
        CASE
-           WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
+           WHEN asum.person_id IS NULL AND hri.person_id IS NULL AND hrs.person_id IS NULL
            AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit,
        CASE
-           WHEN asum.person_id IS NULL AND hrml.person_id IS NULL AND hrs.person_id IS NULL
+           WHEN asum.person_id IS NULL AND hri.person_id IS NULL AND hrs.person_id IS NULL
            AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL AND dev.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_plus_device,
        CASE
            WHEN ws.person_id IS NULL THEN FALSE ELSE TRUE END has_wear_consent,
@@ -77,7 +77,7 @@ LEFT JOIN `${omopDataset}.concept` ec ON ec.concept_id = p.ethnicity_concept_id
 LEFT JOIN `${omopDataset}.concept` sc ON sc.concept_id = p.sex_at_birth_concept_id
 LEFT JOIN `${omopDataset}.concept` sr ON sr.concept_id = p.self_reported_category_concept_id
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.activity_summary`) asum ON (p.person_id = asum.person_id)
-LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_minute_level`) hrml ON (p.person_id = hrml.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_intraday`) hri ON (p.person_id = hri.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_summary`) hrs ON (p.person_id = hrs.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.steps_intraday`) si ON (p.person_id = si.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_daily_summary`) sds ON (p.person_id = sds.person_id)

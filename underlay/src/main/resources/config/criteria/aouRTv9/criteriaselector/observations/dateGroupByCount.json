@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "observationOccurrence": {
+      "values": [
+        "observation_datetime",
+        "standard_concept_name"
+      ]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "observationOccurrence": {
+      "values": [
+        "observation_datetime",
+        "source_concept_name"
+      ]
+    },
+    "procedureOccurrence": {
+      "values": [
+        "procedure_datetime",
+        "source_concept_name"
+      ]
+    },
+    "measurementOccurrence": {
+      "values": [
+        "measurement_datetime",
+        "source_concept_name"
+      ]
+    },
+    "ingredientOccurrence": {
+      "values": [
+        "drug_exposure_start_datetime",
+        "source_concept_name"
+      ]
+    },
+    "deviceOccurrence": {
+      "values": [
+        "device_exposure_start_datetime",
+        "source_concept_name"
+      ]
+    }
+  }
+}

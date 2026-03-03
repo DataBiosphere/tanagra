@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_heart_rate_intraday_id",
+  "displayName": "Fitbit Heart Rate Intraday",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitHeartRateIntradayId.json"
+}

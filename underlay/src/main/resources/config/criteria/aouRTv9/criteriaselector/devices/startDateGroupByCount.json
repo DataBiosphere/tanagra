@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "deviceOccurrence": {
+      "values": [
+        "device_exposure_start_datetime",
+        "standard_concept_name"
+      ]
+    }
+  }
+}

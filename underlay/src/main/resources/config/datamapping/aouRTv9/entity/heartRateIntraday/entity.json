@@ -1,0 +1,20 @@
+{
+  "name" : "heartRateIntraday",
+  "allInstancesSqlFile" : "all.sql",
+  "attributes" : [ {
+    "name" : "id",
+    "dataType" : "INT64",
+    "valueFieldName" : "row_id",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "person_id",
+    "dataType" : "INT64"
+  }, {
+    "name" : "date",
+    "dataType" : "DATE"
+  }, {
+    "name" : "avg_rate",
+    "dataType" : "DOUBLE"
+  } ],
+  "idAttribute" : "id"
+}

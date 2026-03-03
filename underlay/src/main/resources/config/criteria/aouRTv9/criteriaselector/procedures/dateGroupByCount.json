@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "procedureOccurrence": {
+      "values": [
+        "procedure_datetime",
+        "standard_concept_name"
+      ]
+    }
+  }
+}

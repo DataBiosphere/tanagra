@@ -104,7 +104,7 @@
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true
   }, {
-    "name" : "has_fitbit_heart_rate_level",
+    "name" : "has_fitbit_heart_rate_intraday",
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true
   }, {

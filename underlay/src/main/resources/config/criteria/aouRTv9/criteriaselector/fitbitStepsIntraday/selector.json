@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-fitbit-steps-intraday",
+  "displayName": "Has Fitbit Steps Intraday",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Wearables",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "fitbitStepsIntraday.json",
+  "modifiers": null
+}

@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "visitOccurrence": {
+      "values": [
+        "visit_start_datetime",
+        "standard_concept_name"
+      ]
+    }
+  }
+}
