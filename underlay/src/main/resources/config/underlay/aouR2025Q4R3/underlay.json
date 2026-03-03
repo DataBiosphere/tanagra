@@ -39,6 +39,7 @@
     "aouRTv9/heartRateSummary",
     "aouRTv9/sleepDailySummary",
     "aouRTv9/sleepLevel",
+    "aouRTv9/sleepLevelShort",
     "aouRTv9/stepsIntraday",
     "aouRTv9/wearableDevice",
 
@@ -68,6 +69,7 @@
     "aouRTv9/heartRateSummaryPerson",
     "aouRTv9/sleepDailySummaryPerson",
     "aouRTv9/sleepLevelPerson",
+    "aouRTv9/sleepLevelShortPerson",
     "aouRTv9/stepsIntradayPerson",
     "aouRTv9/wearableDevicePerson",
 

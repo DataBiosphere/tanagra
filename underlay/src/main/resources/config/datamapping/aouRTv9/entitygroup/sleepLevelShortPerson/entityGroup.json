@@ -1,0 +1,6 @@
+{
+  "name": "sleepLevelShortPerson",
+  "groupEntity": "person",
+  "itemsEntity": "sleepLevelShort",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}
