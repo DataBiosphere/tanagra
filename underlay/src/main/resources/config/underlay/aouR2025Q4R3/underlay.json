@@ -61,7 +61,8 @@
     "aouRTv9/surveySocialDeterminantsOfHealth",
     "aouRTv9/surveyCovidVaccine",
     "aouRTv9/surveyCope",
-    "aouRTv9/surveyOccurrence"
+    "aouRTv9/surveyOccurrence",
+    "aouRTv9/surveyBehavioralHealth"
   ],
   "groupItemsEntityGroups": [
     "aouRTv9/brandIngredientConcept",
@@ -116,7 +117,8 @@
     "aouRTv9/surveyHealthCareAccessPerson",
     "aouRTv9/surveySocialDeterminantsOfHealthPerson",
     "aouRTv9/surveyCovidVaccinePerson",
-    "aouRTv9/surveyCopePerson"
+    "aouRTv9/surveyCopePerson",
+    "aouRTv9/surveyBehavioralHealthPerson"
   ],
   "criteriaSelectors": [
     "aouRTv9/conditions",
@@ -167,16 +169,20 @@
     "aouRTv9/surveyHealthCareAccess",
     "aouRTv9/surveySocialDeterminantsOfHealth",
     "aouRTv9/surveyCovidVaccine",
-    "aouRTv9/surveyCope"
+    "aouRTv9/surveyCope",
+    "aouRTv9/surveyBehavioralHealth"
   ],
   "prepackagedDataFeatures": [
     "aouRTv9/_demographics",
     "aouRTv9/_fitbit_activity_summary_id",
     "aouRTv9/_fitbit_steps_intraday_id",
     "aouRTv9/_fitbit_heart_rate_summary_id",
-    "aouRTv9/_fitbit_heart_rate_level_id",
+    "aouRTv9/_fitbit_heart_rate_intraday_id",
     "aouRTv9/_fitbit_sleep_daily_summary_id",
+    "aouRTv9/_fitbit_sleep_daily_summary_30_day_avg_id",
+    "aouRTv9/_fitbit_sleep_daily_summary_counts_id",
     "aouRTv9/_fitbit_sleep_level_id",
+    "aouRTv9/_fitbit_sleep_level_short_id",
     "aouRTv9/_fitbit_device_id"
   ],
   "visualizations": [
