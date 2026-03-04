@@ -12,4 +12,4 @@ JOIN `${staticTablesDataset}.prep_survey` AS ps
     )
     AND ps.subtype = 'ANSWER'
 
-WHERE ps.survey = 'BehavioralHealthAndPers'
+WHERE ps.survey = 'EmotionalHealthHistoryA'

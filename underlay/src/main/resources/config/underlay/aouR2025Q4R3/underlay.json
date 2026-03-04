@@ -62,7 +62,8 @@
     "aouRTv9/surveyCovidVaccine",
     "aouRTv9/surveyCope",
     "aouRTv9/surveyOccurrence",
-    "aouRTv9/surveyBehavioralHealth"
+    "aouRTv9/surveyBehavioralHealth",
+    "aouRTv9/surveyEmotionalHealth"
   ],
   "groupItemsEntityGroups": [
     "aouRTv9/brandIngredientConcept",
@@ -118,7 +119,8 @@
     "aouRTv9/surveySocialDeterminantsOfHealthPerson",
     "aouRTv9/surveyCovidVaccinePerson",
     "aouRTv9/surveyCopePerson",
-    "aouRTv9/surveyBehavioralHealthPerson"
+    "aouRTv9/surveyBehavioralHealthPerson",
+    "aouRTv9/surveyEmotionalHealthPerson"
   ],
   "criteriaSelectors": [
     "aouRTv9/conditions",
@@ -170,7 +172,8 @@
     "aouRTv9/surveySocialDeterminantsOfHealth",
     "aouRTv9/surveyCovidVaccine",
     "aouRTv9/surveyCope",
-    "aouRTv9/surveyBehavioralHealth"
+    "aouRTv9/surveyBehavioralHealth",
+    "aouRTv9/surveyEmotionalHealth"
   ],
   "prepackagedDataFeatures": [
     "aouRTv9/_demographics",

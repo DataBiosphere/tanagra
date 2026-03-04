@@ -28,7 +28,7 @@
   ],
   "entityGroups": [
     {
-      "id": "surveyBehavioralHealthPerson",
+      "id": "surveyEmotionalHealthPerson",
       "sortOrder": {
         "attribute": "id",
         "direction": "SORT_ORDER_DIRECTION_ASCENDING"
