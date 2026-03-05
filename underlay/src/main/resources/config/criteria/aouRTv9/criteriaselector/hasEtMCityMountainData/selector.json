@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-has-etm-gradcpt-data",
+  "displayName": "Has Any EtM City or Mountain",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Surveys",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "hasEtMCityMountainData.json",
+  "modifiers": null
+}

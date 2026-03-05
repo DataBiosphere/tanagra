@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-has-etm-flanker-data",
+  "displayName": "Has Any EtM Left or Right",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Surveys",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "hasEtMLeftRightData.json",
+  "modifiers": null
+}

@@ -140,6 +140,22 @@
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true
   }, {
+    "name" : "has_etm_delaydiscounting",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_etm_emorecog",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_etm_flanker",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_etm_gradcpt",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
     "name" : "has_ehr_data",
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true

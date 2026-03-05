@@ -61,6 +61,14 @@ SELECT p.person_id,
        CASE
            WHEN ws.person_id IS NULL THEN FALSE ELSE TRUE END has_wear_consent,
        CASE
+           WHEN dd.person_id IS NULL THEN FALSE ELSE TRUE END has_etm_delaydiscounting,
+       CASE
+           WHEN er.person_id IS NULL THEN FALSE ELSE TRUE END has_etm_emorecog,
+       CASE
+           WHEN fl.person_id IS NULL THEN FALSE ELSE TRUE END has_etm_flanker,
+       CASE
+           WHEN grad.person_id IS NULL THEN FALSE ELSE TRUE END has_etm_gradcpt,
+       CASE
            WHEN ehr.person_id IS NULL THEN FALSE ELSE TRUE END has_ehr_data,
        CASE
            WHEN pm.person_id IS NULL THEN FALSE ELSE TRUE END has_pm_data,
@@ -84,6 +92,10 @@ LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_daily_summary`) 
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_level`) sl ON (p.person_id = sl.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.device`) dev ON (p.person_id = dev.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.wear_study`) ws ON (p.person_id = ws.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.delaydiscounting`) dd ON (p.person_id = dd.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.emorecog`) er ON (p.person_id = er.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.flanker`) fl ON (p.person_id = fl.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.gradcpt`) grad ON (p.person_id = grad.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM`${omopDataset}.measurement` as a
             LEFT JOIN`${omopDataset}.measurement_ext` as b on a.measurement_id = b.measurement_id
             WHERE lower(b.src_id) like 'ehr site%'

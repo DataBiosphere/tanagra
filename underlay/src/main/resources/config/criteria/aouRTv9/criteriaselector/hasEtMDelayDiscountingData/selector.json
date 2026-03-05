@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-has-etm-delaydiscounting-data",
+  "displayName": "Has Any EtM Now or Later",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Surveys",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "hasEtMDelayDiscountingData.json",
+  "modifiers": null
+}
