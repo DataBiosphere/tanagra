@@ -1,0 +1,6 @@
+{
+  "name": "heartRateSummaryPerson",
+  "groupEntity": "person",
+  "itemsEntity": "heartRateSummary",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

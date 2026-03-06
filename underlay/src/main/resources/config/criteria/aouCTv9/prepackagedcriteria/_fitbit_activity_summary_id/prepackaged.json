@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_activity_summary_id",
+  "displayName": "Fitbit Activity Summary",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitActvitySummaryId.json"
+}

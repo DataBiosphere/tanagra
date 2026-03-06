@@ -1,0 +1,33 @@
+{
+  "name" : "sleepDailySummaryCounts",
+  "allInstancesSqlFile" : "all.sql",
+  "attributes" : [ {
+    "name" : "id",
+    "dataType" : "INT64",
+    "valueFieldName" : "row_id",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "person_id",
+    "dataType" : "INT64"
+  }, {
+    "name" : "sleep_date",
+    "dataType" : "DATE"
+  }, {
+    "name" : "count_restless",
+    "dataType" : "INT64"
+  }, {
+    "name" : "count_deep",
+    "dataType" : "INT64"
+  }, {
+    "name" : "count_light",
+    "dataType" : "INT64"
+  }, {
+    "name" : "count_rem",
+    "dataType" : "INT64"
+  }, {
+    "name" : "count_wake",
+    "dataType" : "INT64"
+  } ],
+  "idAttribute" : "id",
+  "sourceQueryTableName" : "${omopDataset}.sleep_daily_summary_counts"
+}

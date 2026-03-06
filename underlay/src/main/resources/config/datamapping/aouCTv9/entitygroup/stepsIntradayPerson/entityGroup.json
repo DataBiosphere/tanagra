@@ -1,0 +1,6 @@
+{
+  "name": "stepsIntradayPerson",
+  "groupEntity": "person",
+  "itemsEntity": "stepsIntraday",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

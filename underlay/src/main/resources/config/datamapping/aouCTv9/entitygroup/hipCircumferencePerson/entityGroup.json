@@ -1,0 +1,6 @@
+{
+  "name": "hipCircumferencePerson",
+  "groupEntity": "person",
+  "itemsEntity": "hipCircumference",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

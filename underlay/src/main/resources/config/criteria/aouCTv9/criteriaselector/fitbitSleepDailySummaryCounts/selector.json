@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-fitbit-sleep-daily-summary-counts",
+  "displayName": "Has Fitbit Sleep Daily Summary Counts",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Wearables",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "fitbitSleepDailySummaryCounts.json",
+  "modifiers": null
+}

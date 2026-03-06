@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-fitbit-sleep-daily-summary-30dayavg",
+  "displayName": "Has Fitbit Sleep Daily Summary 30 Day Avg",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Wearables",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "fitbitSleepDailySummary30DayAvg.json",
+  "modifiers": null
+}

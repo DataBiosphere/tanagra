@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-height",
+  "displayName": "Height",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": true,
+  "display": {
+    "category": "Physical Measurements",
+    "tags": null
+  },
+  "filterBuilder": "core.MultiAttributeFilterBuilder",
+  "plugin": "multiAttribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "height.json",
+  "modifiers": null
+}

@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-fitbit-device",
+  "displayName": "Has Fitbit Device",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Wearables",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "fitbitDevice.json",
+  "modifiers": null
+}

@@ -1,0 +1,17 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "ingredientOccurrence": {
+      "values": [
+        "drug_exposure_start_datetime",
+        "source_concept_name"
+      ]
+    },
+    "procedureOccurrence": {
+      "values": [
+        "procedure_datetime",
+        "source_concept_name"
+      ]
+    }
+  }
+}

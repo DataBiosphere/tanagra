@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_sleep_daily_summary_id",
+  "displayName": "Fitbit Sleep Daily Summary",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitSleepDailySummaryId.json"
+}

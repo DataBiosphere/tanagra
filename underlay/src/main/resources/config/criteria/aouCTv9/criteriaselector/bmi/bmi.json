@@ -1,0 +1,9 @@
+{
+  "entity": "bmi",
+  "valueConfigs": [
+    {
+      "attribute": "value_numeric",
+      "unit": "kg/m^2"
+    }
+  ]
+}

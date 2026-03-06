@@ -1,0 +1,19 @@
+{
+  "name" : "measurementSnomedPerson",
+  "criteriaEntity" : "measurementSnomedConcept",
+  "occurrenceEntities" : [ {
+    "occurrenceEntity" : "measurementOccurrence",
+    "criteriaRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "measurement_concept_id"
+    },
+    "primaryRelationship" : {
+      "foreignKeyAttributeOccurrenceEntity" : "person_id"
+    },
+    "attributesWithInstanceLevelHints" : [ "value_numeric", "value_enum" ]
+  } ],
+  "primaryCriteriaRelationship" : {
+    "idPairsSqlFile" : "primaryCriteria.sql",
+    "primaryEntityIdFieldName" : "person_id",
+    "criteriaEntityIdFieldName" : "measurement_concept_id"
+  }
+}

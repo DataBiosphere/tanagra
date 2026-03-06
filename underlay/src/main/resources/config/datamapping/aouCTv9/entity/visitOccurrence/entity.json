@@ -1,0 +1,59 @@
+{
+  "name" : "visitOccurrence",
+  "allInstancesSqlFile" : "all.sql",
+  "attributes" : [ {
+    "name" : "id",
+    "dataType" : "INT64",
+    "valueFieldName" : "visit_occurrence_id"
+  }, {
+    "name" : "person_id",
+    "dataType" : "INT64"
+  }, {
+    "name" : "visit_concept_id",
+    "dataType" : "INT64"
+  }, {
+    "name" : "standard_concept_name",
+    "dataType" : "INT64",
+    "valueFieldName" : "visit_concept_id",
+    "sourceQuery" : {
+      "displayFieldName" : "concept_name",
+      "displayFieldTable" : "${omopDataset}.concept",
+      "displayFieldTableJoinFieldName" : "concept_id"
+    }
+  }, {
+    "name" : "visit_start_datetime",
+    "dataType" : "TIMESTAMP"
+  }, {
+    "name" : "visit_end_datetime",
+    "dataType" : "TIMESTAMP"
+  }, {
+    "name" : "visit_source_value",
+    "dataType" : "STRING"
+  }, {
+    "name" : "visit_source_concept_id",
+    "dataType" : "INT64"
+  }, {
+    "name" : "source_concept_name",
+    "dataType" : "INT64",
+    "valueFieldName" : "visit_source_concept_id",
+    "sourceQuery" : {
+      "displayFieldName" : "concept_name",
+      "displayFieldTable" : "${omopDataset}.concept",
+      "displayFieldTableJoinFieldName" : "concept_id"
+    }
+  }, {
+    "name" : "age_at_occurrence",
+    "dataType" : "INT64",
+    "isComputeDisplayHint" : true,
+    "displayHintRangeMin" : 18,
+    "displayHintRangeMax" : 125,
+    "isSuppressedForExport" : true
+  } ],
+  "idAttribute" : "id",
+  "optimizeGroupByAttributes" : [ "visit_concept_id" ],
+  "temporalQuery" : {
+    "visitDateAttribute" : "visit_start_datetime",
+    "visitIdAttribute" : "id"
+  },
+  "sourceQueryTableName" : "${omopDataset}.visit_occurrence"
+}

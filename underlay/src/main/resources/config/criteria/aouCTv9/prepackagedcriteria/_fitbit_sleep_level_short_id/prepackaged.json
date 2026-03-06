@@ -1,0 +1,6 @@
+{
+  "name": "_fitbit_sleep_level_short_id",
+  "displayName": "Fitbit Sleep Level Short",
+  "criteriaSelector": "outputUnfiltered",
+  "pluginDataFile": "fitbitSleepLevelShortId.json"
+}

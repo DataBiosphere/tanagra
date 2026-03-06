@@ -1,0 +1,6 @@
+{
+  "name": "sleepDailySummaryCountsPerson",
+  "groupEntity": "person",
+  "itemsEntity": "sleepDailySummaryCounts",
+  "foreignKeyAttributeItemsEntity":  "person_id"
+}

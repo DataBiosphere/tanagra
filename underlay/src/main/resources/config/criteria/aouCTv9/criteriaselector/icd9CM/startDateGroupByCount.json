@@ -1,0 +1,29 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "conditionOccurrence": {
+      "values": [
+        "condition_start_datetime",
+        "source_concept_name"
+      ]
+    },
+    "measurementOccurrence": {
+      "values": [
+        "measurement_datetime",
+        "source_concept_name"
+      ]
+    },
+    "observationOccurrence": {
+      "values": [
+        "observation_datetime",
+        "source_concept_name"
+      ]
+    },
+    "procedureOccurrence": {
+      "values": [
+        "procedure_datetime",
+        "source_concept_name"
+      ]
+    }
+  }
+}

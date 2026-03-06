@@ -1,0 +1,20 @@
+{
+  "name" : "stepsIntraday",
+  "allInstancesSqlFile" : "all.sql",
+  "attributes" : [ {
+    "name" : "id",
+    "dataType" : "INT64",
+    "valueFieldName" : "row_id",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "person_id",
+    "dataType" : "INT64"
+  }, {
+    "name" : "date",
+    "dataType" : "DATE"
+  }, {
+    "name" : "sum_steps",
+    "dataType" : "INT64"
+  } ],
+  "idAttribute" : "id"
+}

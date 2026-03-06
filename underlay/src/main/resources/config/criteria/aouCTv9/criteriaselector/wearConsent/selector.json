@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-wear-consent",
+  "displayName": "Wear Consent",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Wearables",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "wearConsent.json",
+  "modifiers": null
+}

@@ -1,0 +1,11 @@
+{
+  "groupByCount": true,
+  "attributes": {
+    "conditionOccurrence": {
+      "values": [
+        "condition_start_datetime",
+        "standard_concept_name"
+      ]
+    }
+  }
+}

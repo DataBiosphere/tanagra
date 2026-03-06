@@ -1,0 +1,15 @@
+{
+  "name": "tanagra-fitbit-plus-device",
+  "displayName": "Has Any Fitbit Data Plus Device",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "Wearables",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "fitbitPlusDevice.json",
+  "modifiers": null
+}
