@@ -9,6 +9,9 @@ SELECT p.person_id,
            WHEN gc.concept_name = 'Male' THEN 'Man'
            WHEN gc.concept_name = 'Female' THEN 'Woman'
            WHEN gc.concept_name = 'PMI: Skip' THEN 'Skip'
+           WHEN gc.concept_name = 'Gender Identity: Transgender' THEN 'Transgender'
+           WHEN gc.concept_name = 'Gender Identity: Non Binary' THEN 'Non Binary'
+           WHEN gc.concept_name = 'Gender Identity: Additional Options' THEN 'Additional Options'
            ELSE gc.concept_name
            END AS gender_concept_name,
        p.race_concept_id,
@@ -29,6 +32,7 @@ SELECT p.person_id,
        CASE
            WHEN sc.concept_name = 'No matching concept' THEN 'Unknown'
            WHEN sc.concept_name = 'PMI: Skip' THEN 'Skip'
+           WHEN sc.concept_name = 'Sex At Birth: Sex At Birth None Of These' THEN 'None Of These'
            ELSE sc.concept_name
            END AS sex_at_birth_concept_name,
        p.self_reported_category_concept_id,
@@ -65,6 +69,14 @@ SELECT p.person_id,
            WHEN asum.person_id IS NULL AND hri.person_id IS NULL AND hrs.person_id IS NULL
            AND si.person_id IS NULL AND sds.person_id IS NULL AND sl.person_id IS NULL AND dev.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_plus_device,
        CASE
+           WHEN wgv.sample_name IS NULL THEN FALSE ELSE TRUE END has_whole_genome_variant,
+       CASE
+           WHEN mad.sample_name IS NULL THEN FALSE ELSE TRUE END has_array_data,
+       CASE
+           WHEN lrwgv.sample_name IS NULL THEN FALSE ELSE TRUE END has_lr_whole_genome_variant,
+       CASE
+           WHEN svd.sample_name IS NULL THEN FALSE ELSE TRUE END has_structural_variant_data,
+       CASE
            WHEN ws.person_id IS NULL THEN FALSE ELSE TRUE END has_wear_consent,
        CASE
            WHEN dd.person_id IS NULL THEN FALSE ELSE TRUE END has_etm_delaydiscounting,
@@ -100,6 +112,10 @@ LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_daily_summary_co
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_level`) sl ON (p.person_id = sl.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_level_short`) sls ON (p.person_id = sls.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.device`) dev ON (p.person_id = dev.person_id)
+LEFT JOIN (SELECT DISTINCT sample_name FROM `${omopDataset}.prep_wgs_metadata`) wgv ON (CAST(p.person_id AS STRING) = wgv.sample_name)
+LEFT JOIN (SELECT DISTINCT sample_name FROM `${omopDataset}.prep_microarray_metadata`) mad ON (CAST(p.person_id AS STRING) = mad.sample_name)
+LEFT JOIN (SELECT DISTINCT sample_name FROM `${omopDataset}.prep_longreads_metadata`) lrwgv ON (CAST(p.person_id AS STRING) = lrwgv.sample_name)
+LEFT JOIN (SELECT DISTINCT sample_name FROM `${omopDataset}.prep_structural_variants_metadata`) svd ON (CAST(p.person_id AS STRING) = svd.sample_name)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.wear_study`) ws ON (p.person_id = ws.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.delaydiscounting`) dd ON (p.person_id = dd.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.emorecog`) er ON (p.person_id = er.person_id)

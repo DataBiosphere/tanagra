@@ -44,6 +44,7 @@
     "aouCT/sleepLevelShort",
     "aouCT/stepsIntraday",
     "aouCT/wearableDevice",
+    "aouCT/zipcodeSocioeconomic",
 
     "aouCT/bloodPressure",
     "aouCT/heartRate",
@@ -63,7 +64,9 @@
     "aouCT/surveyCope",
     "aouCT/surveyOccurrence",
     "aouCT/surveyBehavioralHealth",
-    "aouCT/surveyEmotionalHealth"
+    "aouCT/surveyEmotionalHealth",
+
+    "aouCT/variant"
   ],
   "groupItemsEntityGroups": [
     "aouCT/brandIngredientConcept",
@@ -78,6 +81,7 @@
     "aouCT/sleepLevelShortPerson",
     "aouCT/stepsIntradayPerson",
     "aouCT/wearableDevicePerson",
+    "aouCT/zipcodeSocioeconomicPerson",
 
     "aouCT/bloodPressurePerson",
     "aouCT/heartRatePerson",
@@ -85,7 +89,9 @@
     "aouCT/weightPerson",
     "aouCT/bmiPerson",
     "aouCT/waistCircumferencePerson",
-    "aouCT/hipCircumferencePerson"
+    "aouCT/hipCircumferencePerson",
+
+    "aouCT/variantPerson"
   ],
   "criteriaOccurrenceEntityGroups": [
     "aouCT/conditionPerson",
@@ -156,6 +162,11 @@
     "aouCT/fitbitPlusDevice",
     "aouCT/fitbitDevice",
     "aouCT/wearConsent",
+    "aouCT/shortReadWGS",
+    "aouCT/longReadWGS",
+    "aouCT/globalDiversityArray",
+    "aouCT/structuralVariants",
+    "aouCT/variant",
     "aouCT/hasPMData",
     "aouCT/bloodPressure",
     "aouCT/heartRate",

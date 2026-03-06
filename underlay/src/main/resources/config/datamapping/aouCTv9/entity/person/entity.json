@@ -148,6 +148,22 @@
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true
   }, {
+    "name" : "has_array_data",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_whole_genome_variant",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_lr_whole_genome_variant",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_structural_variant_data",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
     "name" : "has_wear_consent",
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true
