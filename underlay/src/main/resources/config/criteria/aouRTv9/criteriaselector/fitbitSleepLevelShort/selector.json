@@ -1,6 +1,6 @@
 {
-  "name": "tanagra-fitbit-heart-rate-intraday",
-  "displayName": "Has Fitbit Heart Rate Intraday",
+  "name": "tanagra-fitbit-sleep-level-short",
+  "displayName": "Has Fitbit Sleep Level Short",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
@@ -10,6 +10,6 @@
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
   "plugin": "attribute",
   "pluginConfig": null,
-  "pluginConfigFile": "fitbitHeartRateIntraday.json",
+  "pluginConfigFile": "fitbitSleepLevelShort.json",
   "modifiers": null
 }

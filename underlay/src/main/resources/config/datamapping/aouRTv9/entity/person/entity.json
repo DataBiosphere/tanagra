@@ -120,7 +120,19 @@
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true
   }, {
+    "name" : "has_fitbit_sleep_daily_summary_30dayavg",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_fitbit_sleep_daily_summary_counts",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
     "name" : "has_fitbit_sleep_level",
+    "dataType" : "BOOLEAN",
+    "isSuppressedForExport" : true
+  }, {
+    "name" : "has_fitbit_sleep_level_short",
     "dataType" : "BOOLEAN",
     "isSuppressedForExport" : true
   }, {

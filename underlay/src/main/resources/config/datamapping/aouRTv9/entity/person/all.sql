@@ -49,7 +49,13 @@ SELECT p.person_id,
        CASE
            WHEN sds.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_daily_summary,
        CASE
+           WHEN sdsa.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_daily_summary_30dayavg,
+       CASE
+           WHEN sdsc.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_daily_summary_counts,
+       CASE
            WHEN sl.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_level,
+       CASE
+           WHEN sls.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_sleep_level_short,
         CASE
            WHEN dev.person_id IS NULL THEN FALSE ELSE TRUE END has_fitbit_device,
        CASE
@@ -89,7 +95,10 @@ LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_intraday`) 
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.heart_rate_summary`) hrs ON (p.person_id = hrs.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.steps_intraday`) si ON (p.person_id = si.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_daily_summary`) sds ON (p.person_id = sds.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_daily_summary_30dayavg`) sdsa ON (p.person_id = sdsa.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_daily_summary_counts`) sdsc ON (p.person_id = sdsc.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_level`) sl ON (p.person_id = sl.person_id)
+LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.sleep_level_short`) sls ON (p.person_id = sls.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.device`) dev ON (p.person_id = dev.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.wear_study`) ws ON (p.person_id = ws.person_id)
 LEFT JOIN (SELECT DISTINCT person_id FROM `${omopDataset}.delaydiscounting`) dd ON (p.person_id = dd.person_id)

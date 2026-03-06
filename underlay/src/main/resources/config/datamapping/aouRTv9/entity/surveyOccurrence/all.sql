@@ -58,7 +58,9 @@ FROM (
                              'Lifestyle',
                              'OverallHealth',
                              'HealthCareAccessUtiliza',
-                             'SocialDeterminantsOfHea')
+                             'SocialDeterminantsOfHea',
+                             'BehavioralHealthAndPers',
+                             'EmotionalHealthHistoryA')
 
          UNION ALL
 

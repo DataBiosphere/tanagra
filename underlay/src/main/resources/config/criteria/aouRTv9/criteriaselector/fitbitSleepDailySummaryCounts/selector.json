@@ -1,6 +1,6 @@
 {
-  "name": "tanagra-fitbit-heart-rate-intraday",
-  "displayName": "Has Fitbit Heart Rate Intraday",
+  "name": "tanagra-fitbit-sleep-daily-summary-counts",
+  "displayName": "Has Fitbit Sleep Daily Summary Counts",
   "isEnabledForCohorts": true,
   "isEnabledForDataFeatureSets": false,
   "display": {
@@ -10,6 +10,6 @@
   "filterBuilder": "core.PrimaryEntityFilterBuilder",
   "plugin": "attribute",
   "pluginConfig": null,
-  "pluginConfigFile": "fitbitHeartRateIntraday.json",
+  "pluginConfigFile": "fitbitSleepDailySummaryCounts.json",
   "modifiers": null
 }
