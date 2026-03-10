@@ -101,6 +101,7 @@
     "sd/deceased",
     "sd/bioVU",
     "sd/bioVUPlasma",
+    "sd/agdSubjectQueue",
     "sd/agdGenotypeResult",
     "sd/genotyping",
     "sd/measurement",

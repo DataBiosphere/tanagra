@@ -1,0 +1,15 @@
+{
+  "name": "agdSubjectQueue",
+  "displayName": "AGD Subject Queue",
+  "isEnabledForCohorts": true,
+  "isEnabledForDataFeatureSets": false,
+  "display": {
+    "category": "BioVU",
+    "tags": null
+  },
+  "filterBuilder": "core.PrimaryEntityFilterBuilder",
+  "plugin": "attribute",
+  "pluginConfig": null,
+  "pluginConfigFile": "agdSubjectQueue.json",
+  "modifiers": null
+}
