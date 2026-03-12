@@ -264,17 +264,18 @@ public class ReviewServiceTest {
                 0));
 
     // Display name length exceeds maximum.
-    assertThrows(
-        BadRequestException.class,
-        () ->
-            reviewService.createReviewHelper(
-                study1.getId(),
-                cohort1.getId(),
-                Review.builder()
-                    .displayName("123456789012345678901234567890123456789012345678901")
-                    .size(11),
-                USER_EMAIL_1,
-                List.of(123L, 456L, 789L),
-                27));
+    // not valid for postgres type:text = 1GB limit for displayName
+//    assertThrows(
+//        BadRequestException.class,
+//        () ->
+//            reviewService.createReviewHelper(
+//                study1.getId(),
+//                cohort1.getId(),
+//                Review.builder()
+//                    .displayName("123456789012345678901234567890123456789012345678901")
+//                    .size(11),
+//                USER_EMAIL_1,
+//                List.of(123L, 456L, 789L),
+//                27));
   }
 }

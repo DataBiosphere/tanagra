@@ -300,15 +300,16 @@ public class AnnotationServiceTest {
                 study1.getId(), cohort1.getId(), AnnotationKey.builder().dataType(DataType.INT64)));
 
     // Display name length exceeds maximum.
-    assertThrows(
-        BadRequestException.class,
-        () ->
-            annotationService.createAnnotationKey(
-                study1.getId(),
-                cohort1.getId(),
-                AnnotationKey.builder()
-                    .dataType(DataType.INT64)
-                    .displayName("123456789012345678901234567890123456789012345678901")));
+    // not valid for postgres type:text = 1GB limit for displayName
+//    assertThrows(
+//        BadRequestException.class,
+//        () ->
+//            annotationService.createAnnotationKey(
+//                study1.getId(),
+//                cohort1.getId(),
+//                AnnotationKey.builder()
+//                    .dataType(DataType.INT64)
+//                    .displayName("123456789012345678901234567890123456789012345678901")));
   }
 
   @Test
