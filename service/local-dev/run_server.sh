@@ -45,7 +45,7 @@ export TANAGRA_DATABASE_NAME=tanagra_db
 export TANAGRA_DB_INITIALIZE_ON_START=false
 export TANAGRA_DB_USERNAME=dbuser
 export TANAGRA_DB_PASSWORD=dbpwd
-export TANAGRA_FEATURE_MAX_CHILD_THREADS= # Set to 0 to run everything serially.
+export TANAGRA_FEATURE_MAX_CHILD_THREADS=2 # Set to 0 to run everything serially.
 
 if [[ ${useMariaDB} ]]; then
   echo "Using MariaDB for application DB."
@@ -71,18 +71,22 @@ elif [[ ${useAouUnderlays} ]]; then
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://api-dot-all-of-us-workbench-test.appspot.com
   # export TANAGRA_ACCESS_CONTROL_MODEL=AOU_WORKBENCH
 elif [[ ${useSdUnderlays} ]]; then
-  echo "Using sd underlay."
-  export TANAGRA_UNDERLAY_FILES=sd/sd_local
-  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=sd-vumc-tanagra-test
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-test-tanagra-exports
+  echo "Using sd and eMerge underlays."
+  export TANAGRA_EXPORT_MODELS_0_TYPE=IPYNB_FILE_DOWNLOAD
+  export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=sd_cohort_builder_dev_export
+  export TANAGRA_UNDERLAY_FILES=sd/sd_local,emerge/emerge_local
+  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=vumc-cohort-builder-dev
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-emerge-cohort-builder-dev-exports
   # uncomment both lines below for sd access-control model
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org
   # export TANAGRA_ACCESS_CONTROL_MODEL=VUMC_ADMIN
 elif [[ ${useEmergeUnderlays} ]]; then
-  echo "Using eMerge underlay."
+  echo "Using eMerge and sd underlays."
+  export TANAGRA_EXPORT_MODELS_0_TYPE=IPYNB_FILE_DOWNLOAD
+  export TANAGRA_EXPORT_SHARED_BQ_DATASET_IDS=sd_cohort_builder_dev_export
   export TANAGRA_UNDERLAY_FILES=emerge/emerge_local,sd/sd_local
-  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=vumc-emerge-dev
-  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=vumc-emerge-dev-exports
+  export TANAGRA_EXPORT_SHARED_GCP_PROJECT_ID=vumc-cohort-builder-dev
+  export TANAGRA_EXPORT_SHARED_GCS_BUCKET_NAMES=sd-emerge-cohort-builder-dev-exports
   # uncomment both lines below for emerge access-control model
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org
   # export TANAGRA_ACCESS_CONTROL_BASE_PATH=https://vumc-cohort-builder-dev.victrvumc.org

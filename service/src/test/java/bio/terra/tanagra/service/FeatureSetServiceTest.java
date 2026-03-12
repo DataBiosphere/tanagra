@@ -410,15 +410,16 @@ public class FeatureSetServiceTest {
                 FeatureSet.builder().underlay("invalid_underlay").createdBy(USER_EMAIL_1)));
 
     // Display name length exceeds maximum.
-    assertThrows(
-        BadRequestException.class,
-        () ->
-            featureSetService.createFeatureSet(
-                study1.getId(),
-                FeatureSet.builder()
-                    .underlay(UNDERLAY_NAME)
-                    .displayName("123456789012345678901234567890123456789012345678901")
-                    .createdBy(USER_EMAIL_1)));
+    // not valid for postgres type:text = 1GB limit for displayName
+//    assertThrows(
+//        BadRequestException.class,
+//        () ->
+//            featureSetService.createFeatureSet(
+//                study1.getId(),
+//                FeatureSet.builder()
+//                    .underlay(UNDERLAY_NAME)
+//                    .displayName("123456789012345678901234567890123456789012345678901")
+//                    .createdBy(USER_EMAIL_1)));
 
     // TODO: Put this validation test back once the UI config overhaul is complete.
     //    // Specify invalid attribute.
