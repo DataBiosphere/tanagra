@@ -126,6 +126,7 @@ export function CohortReview() {
     });
   };
 
+
   const getKey = (pageIndex: number, previousPageData: PageData) => {
     const entities = pagePlugins.find((p) => pageId === p.id)?.entities;
     // If entities array has more than one element, it's a list of subtabs, so we check searchState for the active subTabPageId
